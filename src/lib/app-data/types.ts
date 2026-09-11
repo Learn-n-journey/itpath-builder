@@ -533,6 +533,7 @@ export interface UserData {
   certificationProgress: Record<EntityId, CertificationProgress>;
   studySessions: StudySession[];
   incidentAttempts: IncidentAttempt[];
+  ticketAttempts: TicketAttempt[];
   settings: UserSettings;
 }
 

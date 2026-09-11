@@ -13,6 +13,7 @@ import { assignments } from "@/data/assignment-content";
 import { incidents } from "@/data/incident-content";
 import { labs } from "@/data/lab-content";
 import { questions, quizzes } from "@/data/quiz-content";
+import { tickets } from "@/data/ticket-content";
 
 export type {
   Assignment,
@@ -661,6 +662,7 @@ export const resources: Resource[] = [
 export { assignments };
 export { labs };
 export { incidents };
+export { tickets };
 export { questions, quizzes };
 export const certificationObjectives: CertificationObjective[] = [];
 export const careerSkills: CareerSkill[] = [];
@@ -673,6 +675,7 @@ export const staticContent = {
   assignments,
   labs,
   incidents,
+  tickets,
   quizzes,
   questions,
   certifications,

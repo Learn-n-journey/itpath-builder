@@ -42,6 +42,7 @@ import {
   type ScenarioResponse,
   type StudySession,
   type TeachBackResponse,
+  type TicketAttempt,
   type TopicProgress,
   type UserData,
   type UserSettings,
@@ -54,6 +55,8 @@ interface AppActions {
   updateLabAttempt: (attempt: LabAttempt) => void;
   addIncidentAttempt: (attempt: IncidentAttempt) => void;
   updateIncidentAttempt: (attempt: IncidentAttempt) => void;
+  addTicketAttempt: (attempt: TicketAttempt) => void;
+  updateTicketAttempt: (attempt: TicketAttempt) => void;
   addAssignmentAttempt: (attempt: AssignmentAttempt) => void;
   updateAssignmentAttempt: (attempt: AssignmentAttempt) => void;
   addNote: (note: Note) => void;
@@ -145,6 +148,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.addIncidentAttempt(current, attempt)),
       updateIncidentAttempt: (attempt) =>
         setUser((current) => userMutations.updateIncidentAttempt(current, attempt)),
+      addTicketAttempt: (attempt) =>
+        setUser((current) => userMutations.addTicketAttempt(current, attempt)),
+      updateTicketAttempt: (attempt) =>
+        setUser((current) => userMutations.updateTicketAttempt(current, attempt)),
       addAssignmentAttempt: (attempt) =>
         setUser((current) => userMutations.addAssignmentAttempt(current, attempt)),
       updateAssignmentAttempt: (attempt) =>
@@ -289,7 +296,7 @@ export function useStats() {
       bookmarks: user.bookmarks.length,
       notes: user.notes.length,
       portfolioProjects: user.portfolio.length,
-      careerTickets: user.careerScores.ticketsCompleted,
+      careerTickets: user.ticketAttempts.filter((t) => t.passed).length,
     };
   }, [user]);
 }
