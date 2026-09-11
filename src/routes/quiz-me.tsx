@@ -215,7 +215,7 @@ function QuestionInput({ question, choices, response, onChange }: { question: Qu
   if (choices.length > 0) {
     return <RadioGroup value={response[0] ?? ""} onValueChange={(value) => onChange([value])}>{choices.map((choice) => <Label key={choice} className="flex items-start gap-3 rounded-md border border-border p-4"><RadioGroupItem value={choice} /><span className="font-normal">{choice}</span></Label>)}</RadioGroup>;
   }
-  return <Textarea aria-label="Your answer" rows={5} value={response[0] ?? ""} onChange={(event) => onChange(event.target.value.trim() ? [event.target.value] : [])} placeholder={question.type === "command" ? "Enter the command exactly as you would run it." : "Type your answer."} />;
+  return <Textarea aria-label="Your answer" rows={5} value={response[0] ?? ""} onChange={(event) => onChange(event.target.value ? [event.target.value] : [])} placeholder={question.type === "command" ? "Enter the command exactly as you would run it." : "Type your answer."} />;
 }
 
 function QuizReview({ attempt, onRetake, onSelectAttempt, attempts }: { attempt: QuizAttempt; onRetake: () => void; onSelectAttempt: (id: string) => void; attempts: QuizAttempt[] }) {
