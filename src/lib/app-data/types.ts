@@ -70,9 +70,19 @@ export interface Assignment {
 }
 
 export type AssignmentType =
-  | "explain" | "recall" | "configure" | "build" | "compare" | "scenario"
-  | "incident" | "troubleshoot" | "design" | "teach_back"
-  | "command_challenge" | "exam_simulation" | "capstone";
+  | "explain"
+  | "recall"
+  | "configure"
+  | "build"
+  | "compare"
+  | "scenario"
+  | "incident"
+  | "troubleshoot"
+  | "design"
+  | "teach_back"
+  | "command_challenge"
+  | "exam_simulation"
+  | "capstone";
 
 export interface AssignmentRubricCriterion {
   id: EntityId;

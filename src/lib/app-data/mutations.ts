@@ -57,8 +57,10 @@ export const userMutations = {
   },
   addQuizAttempt: (user: UserData, item: QuizAttempt) => prepend(user, "quizAttempts", item),
   removeQuizAttempt: (user: UserData, id: string) => removeById(user, "quizAttempts", id),
-  addRecallResponse: (user: UserData, item: RecallResponse) => prepend(user, "recallResponses", item),
-  addPracticeResponse: (user: UserData, item: PracticeResponse) => prepend(user, "practiceResponses", item),
+  addRecallResponse: (user: UserData, item: RecallResponse) =>
+    prepend(user, "recallResponses", item),
+  addPracticeResponse: (user: UserData, item: PracticeResponse) =>
+    prepend(user, "practiceResponses", item),
   setTeachBackResponse: (user: UserData, item: TeachBackResponse): UserData => ({
     ...user,
     teachBackResponses: { ...user.teachBackResponses, [item.topicId]: item },
@@ -81,12 +83,16 @@ export const userMutations = {
   removeBookmark: (user: UserData, id: string) => removeById(user, "bookmarks", id),
   addLabAttempt: (user: UserData, item: LabAttempt) => prepend(user, "labAttempts", item),
   removeLabAttempt: (user: UserData, id: string) => removeById(user, "labAttempts", id),
-  addAssignmentAttempt: (user: UserData, item: AssignmentAttempt) => prepend(user, "assignmentAttempts", item),
+  addAssignmentAttempt: (user: UserData, item: AssignmentAttempt) =>
+    prepend(user, "assignmentAttempts", item),
   updateAssignmentAttempt: (user: UserData, item: AssignmentAttempt): UserData => ({
     ...user,
-    assignmentAttempts: user.assignmentAttempts.map((attempt) => attempt.id === item.id ? item : attempt),
+    assignmentAttempts: user.assignmentAttempts.map((attempt) =>
+      attempt.id === item.id ? item : attempt,
+    ),
   }),
-  removeAssignmentAttempt: (user: UserData, id: string) => removeById(user, "assignmentAttempts", id),
+  removeAssignmentAttempt: (user: UserData, id: string) =>
+    removeById(user, "assignmentAttempts", id),
   addCareerTicket: (user: UserData, item: CareerTicket) => prepend(user, "careerTickets", item),
   removeCareerTicket: (user: UserData, id: string) => removeById(user, "careerTickets", id),
   addPortfolioProject: (user: UserData, item: PortfolioProject) => prepend(user, "portfolio", item),

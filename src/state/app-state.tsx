@@ -116,10 +116,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       addNote: (note) => setUser((current) => userMutations.addNote(current, note)),
       updateNote: (note) => setUser((current) => userMutations.updateNote(current, note)),
       removeNote: (id) => setUser((current) => userMutations.removeNote(current, id)),
-      addBookmark: (bookmark) =>
-        setUser((current) => userMutations.addBookmark(current, bookmark)),
-      removeBookmark: (id) =>
-        setUser((current) => userMutations.removeBookmark(current, id)),
+      addBookmark: (bookmark) => setUser((current) => userMutations.addBookmark(current, bookmark)),
+      removeBookmark: (id) => setUser((current) => userMutations.removeBookmark(current, id)),
       addPortfolioProject: (project) =>
         setUser((current) => userMutations.addPortfolioProject(current, project)),
       removePortfolioProject: (id) =>
@@ -130,8 +128,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.removeStudySession(current, id)),
       addRecallResponse: (response) =>
         setUser((current) => userMutations.addRecallResponse(current, response)),
-      addMistake: (mistake) =>
-        setUser((current) => userMutations.addMistake(current, mistake)),
+      addMistake: (mistake) => setUser((current) => userMutations.addMistake(current, mistake)),
       addPracticeResponse: (response) =>
         setUser((current) => userMutations.addPracticeResponse(current, response)),
       setTeachBackResponse: (response) =>
