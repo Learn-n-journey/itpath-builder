@@ -1,8 +1,8 @@
-# IT PATH Mistake and Prerequisite Engine
+# IT PATH Review Engine
 
-- [x] Centralized mistake record: topic, activity, category, date, attempt, severity, resolved, recommended review
-- [x] Nine mistake causes recorded from quizzes, recall, and assignments
-- [x] Prerequisite skill graph with the four required chains
-- [x] Recommendation engine that traces back to weak prerequisites and never suggests advanced material
-- [x] Review page: mistake log, cause filters, resolve/reopen, recommendations, prerequisite map
-- [x] Diagnostics and browser tests using real mistakes from a real quiz attempt
+- [x] Fixed interval ladder: 1, 3, 7, 14, 30, 60, 90 days
+- [x] Review page sections: Due Today, Overdue, Upcoming, Weak Concepts, Recently Failed, Mastered
+- [x] Passing advances the interval; failing shortens it and records a lapse
+- [x] Every graded review attempt stored immutably; opening a review never counts as a pass
+- [x] Manual reschedule without grading
+- [x] Tested due, overdue, upcoming, pass, fail, reschedule in the browser plus diagnostics
