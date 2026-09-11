@@ -193,7 +193,7 @@ function QuizWorkspace({
       );
     });
     reviewTopicIds.forEach((topicId) => {
-      actions.addReview({ id: crypto.randomUUID(), topicId, dueAt: now, interval: 1, createdAt: now });
+      actions.ensureReview({ topicId });
     });
     toast.success("Quiz submitted and scored.");
   }
