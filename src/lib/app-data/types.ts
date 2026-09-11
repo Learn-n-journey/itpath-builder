@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 12;
+export const APP_DATA_VERSION = 13;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -428,12 +428,30 @@ export interface CareerTicket {
 
 export interface PortfolioProject {
   id: EntityId;
+  /** Project name. */
   title: string;
+  /** Short overview kept for compatibility and list previews. */
   summary: string;
+  /** The problem the work addressed. */
+  problem: string;
+  /** How the work was approached. */
+  approach: string;
+  skills: string[];
+  tools: string[];
+  /** What the work produced. */
+  result: string;
+  /** Where the proof lives: file, screenshot, repository, document. */
+  evidence: string;
+  /** ISO date the work was done. */
+  date: string;
+  difficulty: Difficulty;
   topicIds: EntityId[];
   labId?: EntityId;
   labAttemptId?: EntityId;
+  /** "lab" only when a genuinely completed lab attempt produced this entry. */
+  source: "manual" | "lab";
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface StudySession {

@@ -68,6 +68,7 @@ interface AppActions {
   addBookmark: (bookmark: Bookmark) => void;
   removeBookmark: (id: string) => void;
   addPortfolioProject: (project: PortfolioProject) => void;
+  updatePortfolioProject: (project: PortfolioProject) => void;
   removePortfolioProject: (id: string) => void;
   addStudySession: (session: StudySession) => void;
   removeStudySession: (id: string) => void;
@@ -173,6 +174,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       removeBookmark: (id) => setUser((current) => userMutations.removeBookmark(current, id)),
       addPortfolioProject: (project) =>
         setUser((current) => userMutations.addPortfolioProject(current, project)),
+      updatePortfolioProject: (project) =>
+        setUser((current) => userMutations.updatePortfolioProject(current, project)),
       removePortfolioProject: (id) =>
         setUser((current) => userMutations.removePortfolioProject(current, id)),
       addStudySession: (session) =>

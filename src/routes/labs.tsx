@@ -21,6 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { labs, topics } from "@/data/static-content";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
+import { projectFromLabAttempt } from "@/lib/portfolio-engine";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/labs")({
@@ -189,14 +190,21 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
       ...(complete ? { completedAt: now, portfolioProjectId: projectId } : {}),
     });
     if (complete && !user.portfolio.some((item) => item.labAttemptId === attempt.id)) {
+      const prefilled = projectFromLabAttempt(
+        lab,
+        {
+          ...attempt,
+          status: "completed",
+          score: earnedScore,
+          maxScore,
+          completedAt: now,
+          reflection: reflection.trim(),
+        },
+        projectId,
+      );
       actions.addPortfolioProject({
-        id: projectId,
-        title: lab.title,
-        summary: `${lab.objective}\n\nResult: ${lab.expectedResult}\n\nReflection: ${reflection.trim()}`,
-        topicIds: [lab.topicId],
-        labId: lab.id,
-        labAttemptId: attempt.id,
-        createdAt: now,
+        ...prefilled,
+        approach: `${prefilled.approach}\n\nReflection: ${reflection.trim()}`,
       });
     }
     setShowReview(true);
