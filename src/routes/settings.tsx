@@ -102,7 +102,7 @@ function SettingsPage() {
                 max={40}
                 step={1}
                 value={[s.studyHoursPerWeek]}
-                onValueChange={([v]) => updateSettings({ studyHoursPerWeek: v })}
+                onValueChange={([v]) => updateSettings({ studyHoursPerWeek: v ?? s.studyHoursPerWeek })}
               />
             </div>
 
