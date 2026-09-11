@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Bookmark, BookmarkCheck, CheckCircle2, Edit3, FileText, Save } from "lucide-react";
+import { CheckCircle2, Edit3, FileText, Save } from "lucide-react";
 import { toast } from "sonner";
 
 import { Panel } from "@/components/page-kit";
