@@ -650,8 +650,7 @@ export { labs };
 export { incidents };
 export { tickets };
 export { questions, quizzes };
-export { certifications, certificationObjectives } from "./certification-content";
-import { certifications, certificationObjectives } from "./certification-content";
+export { certifications, certificationObjectives };
 export const careerSkills: CareerSkill[] = [];
 
 export const staticContent = {
