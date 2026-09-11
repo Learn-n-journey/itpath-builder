@@ -169,6 +169,21 @@ function sanitizeUser(raw: unknown): UserData {
         ? r.certificationObjectives
         : base.certificationObjectives,
     studySessions: arr(r.studySessions, base.studySessions),
+    studyPlans: arr(r.studyPlans, base.studyPlans).map((plan) => ({
+      ...plan,
+      targetMinutes: typeof plan.targetMinutes === "number" ? plan.targetMinutes : 60,
+      status: plan.status ?? "planned",
+      trackedSeconds: typeof plan.trackedSeconds === "number" ? plan.trackedSeconds : 0,
+      tasks: Array.isArray(plan.tasks)
+        ? plan.tasks.map((task) => ({
+            ...task,
+            status: task.status ?? "pending",
+            trackedSeconds: typeof task.trackedSeconds === "number" ? task.trackedSeconds : 0,
+            plannedMinutes: typeof task.plannedMinutes === "number" ? task.plannedMinutes : 15,
+          }))
+        : [],
+    })),
+
     incidentAttempts: arr(r.incidentAttempts, base.incidentAttempts).map((attempt) => ({
       ...attempt,
       status: attempt.status === "submitted" ? "submitted" : "in_progress",
