@@ -469,10 +469,31 @@ export interface Bookmark {
   createdAt: string;
 }
 
+/** Exam status the learner declares. IT PATH never marks an exam passed by itself. */
+export type CertificationStatus =
+  | "not_started"
+  | "in_progress"
+  | "curriculum_complete"
+  | "exam_ready"
+  | "exam_attempted"
+  | "exam_passed";
+
+export interface CertificationExamRecord {
+  id: EntityId;
+  certificationId: EntityId;
+  outcome: "attempted" | "passed";
+  note: string;
+  recordedAt: string;
+}
+
 export interface CertificationProgress {
   id: EntityId;
   certificationId: EntityId;
   completedObjectiveIds: EntityId[];
+  /** Only "exam_attempted" and "exam_passed" are ever set here, by the learner. */
+  declaredStatus?: "exam_attempted" | "exam_passed";
+  examRecords: CertificationExamRecord[];
+  passConfirmedAt?: string;
   updatedAt: string;
 }
 
