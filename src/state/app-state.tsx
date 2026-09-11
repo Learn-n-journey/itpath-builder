@@ -12,6 +12,7 @@ import {
 import { createDefaultUserData } from "@/lib/app-data/defaults";
 import { buildMistake, type MistakeInput } from "@/lib/mistake-engine";
 import { userMutations } from "@/lib/app-data/mutations";
+import { clearExamDeclaration, declareExamOutcome } from "@/lib/certification-engine";
 import {
   createReview,
   findScheduledReview,
@@ -29,6 +30,7 @@ import {
   APP_DATA_VERSION,
   type AssignmentAttempt,
   type Bookmark,
+  type CertificationObjectiveOverride,
   type IncidentAttempt,
   type LabAttempt,
   type Note,
@@ -80,6 +82,10 @@ interface AppActions {
   setTeachBackResponse: (response: TeachBackResponse) => void;
   setScenarioResponse: (response: ScenarioResponse) => void;
   setTopicProgress: (progress: TopicProgress) => void;
+  declareExamOutcome: (certificationId: string, outcome: "attempted" | "passed", note: string) => void;
+  clearExamDeclaration: (certificationId: string) => void;
+  saveCertificationObjective: (objective: CertificationObjectiveOverride) => void;
+  resetCertificationObjectives: (certificationId: string) => void;
 }
 
 interface AppStateContextValue {
@@ -214,6 +220,30 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.setScenarioResponse(current, response)),
       setTopicProgress: (progress) =>
         setUser((current) => userMutations.setTopicProgress(current, progress)),
+      declareExamOutcome: (certificationId, outcome, note) =>
+        setUser((current) =>
+          userMutations.setCertificationProgress(
+            current,
+            declareExamOutcome(
+              current.certificationProgress[certificationId],
+              certificationId,
+              outcome,
+              note,
+            ),
+          ),
+        ),
+      clearExamDeclaration: (certificationId) =>
+        setUser((current) => {
+          const progress = current.certificationProgress[certificationId];
+          if (!progress) return current;
+          return userMutations.setCertificationProgress(current, clearExamDeclaration(progress));
+        }),
+      saveCertificationObjective: (objective) =>
+        setUser((current) => userMutations.setCertificationObjective(current, objective)),
+      resetCertificationObjectives: (certificationId) =>
+        setUser((current) =>
+          userMutations.clearCertificationObjectiveEdits(current, certificationId),
+        ),
     }),
     [],
   );
