@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 7;
+export const APP_DATA_VERSION = 8;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -514,6 +514,7 @@ export interface UserData {
   scenarioResponses: Record<EntityId, ScenarioResponse>;
   mistakes: Mistake[];
   reviews: Review[];
+  reviewAttempts: ReviewAttempt[];
   notes: Note[];
   bookmarks: Bookmark[];
   labAttempts: LabAttempt[];
