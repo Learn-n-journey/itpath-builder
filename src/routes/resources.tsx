@@ -126,10 +126,20 @@ function ResourceCard({ resource, noteOpen, onToggleNote }: { resource: Resource
       <p className="mt-4 text-xs text-muted-foreground">Last verified: <time dateTime={resource.lastVerified}>{resource.lastVerified}</time></p>
       <div className="mt-5 flex flex-wrap gap-2">
         <Button asChild><a href={resource.url} target="_blank" rel="noreferrer">Open resource<ExternalLink /></a></Button>
-        <Button variant={bookmark ? "secondary" : "outline"} onClick={toggleBookmark}>{bookmark ? <BookmarkCheck /> : <Bookmark />}{bookmark ? "Bookmarked" : "Bookmark"}</Button>
-        <Button variant="outline" onClick={onToggleNote}><FileText />{savedNote ? "Edit note" : "Add note"}</Button>
+        <Button variant="outline" onClick={onToggleNote}>
+          <FileText />
+          {noteOpen ? "Hide notes" : savedNotes.length > 0 ? `Notes (${savedNotes.length})` : "Add note"}
+          {bookmark ? " · Bookmarked" : ""}
+        </Button>
       </div>
-      {noteOpen ? <div className="mt-5 border-t border-border pt-5"><Label htmlFor={`note-${resource.id}`}>Resource notes</Label><Textarea id={`note-${resource.id}`} className="mt-2" rows={4} value={noteBody} onChange={(event) => setNoteBody(event.target.value)} /><Button className="mt-3" onClick={saveNote}>Save note</Button></div> : null}
+      {noteOpen ? (
+        <AnnotationPanel
+          className="mt-5"
+          target={target}
+          title="Resource notes and bookmark"
+          description="Saved on this device and shown in your Bookmarks view."
+        />
+      ) : null}
     </article>
   );
 }
