@@ -80,7 +80,7 @@ export function SystemDiagnostics() {
       ...staticContent,
       topics: [{ id: "diag-topic", trackId: "diag-track", title: "Test", summary: "", certificationId: "diag-certification", year: 1 as const, month: 1, week: 1, difficulty: "gentle" as const, prerequisiteTopicIds: [], learningObjectives: [], estimatedMinutes: 1 }],
       lessons: [{ id: "diag-lesson", topicId: "diag-topic", title: "Test", body: "", definition: "", whyItMatters: "", keyTerms: [], realWorldExamples: [], commonMisconceptions: [], summary: "", nextSteps: [] }],
-      resources: [{ id: "diag-resource", topicId: "diag-topic", title: "Test", url: "https://example.com", kind: "docs" as const }],
+      resources: [{ id: "diag-resource", title: "Test", provider: "Test", url: "https://example.com", topicIds: ["diag-topic"], certificationId: "diag-certification", kind: "docs" as const, difficulty: "gentle" as const, access: "free" as const, lastVerified: "2026-09-11", status: "verified" as const }],
       assignments: [{ id: "diag-assignment", topicId: "diag-topic", title: "Test", brief: "" }],
       labs: [{ id: "diag-lab", topicId: "diag-topic", title: "Test", objective: "" }],
       quizzes: [{ id: "diag-quiz", topicId: "diag-topic", title: "Test", questionIds: [] }],
@@ -89,7 +89,7 @@ export function SystemDiagnostics() {
     const retrievalOk =
       getTopic("diag-topic", fixture)?.id === "diag-topic" &&
       getLesson("diag-lesson", fixture)?.topicId === "diag-topic" &&
-      getResource("diag-resource", fixture)?.topicId === "diag-topic" &&
+      getResource("diag-resource", fixture)?.topicIds.includes("diag-topic") &&
       getAssignment("diag-assignment", fixture)?.topicId === "diag-topic" &&
       getLab("diag-lab", fixture)?.topicId === "diag-topic" &&
       getQuiz("diag-quiz", fixture)?.topicId === "diag-topic" &&

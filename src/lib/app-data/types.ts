@@ -45,10 +45,16 @@ export interface Lesson {
 
 export interface Resource {
   id: EntityId;
-  topicId?: EntityId;
   title: string;
+  provider: string;
   url: string;
-  kind: "video" | "article" | "docs" | "tool";
+  topicIds: EntityId[];
+  certificationId: EntityId;
+  kind: "course" | "article" | "docs" | "learning-path";
+  difficulty: Difficulty;
+  access: "free" | "paid";
+  lastVerified: string;
+  status: "verified" | "unavailable";
 }
 
 export interface Assignment {
@@ -264,6 +270,7 @@ export interface Note {
   body: string;
   topicId?: EntityId;
   lessonId?: EntityId;
+  resourceId?: EntityId;
   createdAt: string;
   updatedAt: string;
 }
