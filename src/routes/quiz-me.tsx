@@ -21,6 +21,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { questions, quizzes, topics } from "@/data/static-content";
 import type { Question, QuestionType, QuizAttempt } from "@/lib/app-data/types";
+import { causeFromQuestionCategory, recommendReview } from "@/lib/mistake-engine";
 import { createQuizAttempt, scoreQuiz } from "@/lib/quiz-engine";
 import { useAppState } from "@/state/app-state";
 
@@ -132,7 +133,7 @@ function QuizWorkspace({
   setQuestionIndex: (index: number) => void;
   onReview: () => void;
 }) {
-  const { actions } = useAppState();
+  const { user, actions } = useAppState();
   const questionId = attempt.questionOrder[questionIndex];
   const question = questions.find((item) => item.id === questionId);
   const answered = attempt.questionOrder.filter((id) => (attempt.responses[id]?.length ?? 0) > 0).length;
@@ -169,9 +170,29 @@ function QuizWorkspace({
     };
     actions.updateQuizAttempt(submittedAttempt);
     result.results.filter((item) => !item.correct).forEach((item) => {
-      actions.addMistake({ id: crypto.randomUUID(), questionId: item.questionId, quizAttemptId: attempt.id, topicId: item.topicId, createdAt: now, resolved: false });
+      const question = orderedQuestions.find((entry) => entry.id === item.questionId);
+      actions.recordMistake({
+        topicId: item.topicId,
+        activity: "quiz",
+        category: question
+          ? causeFromQuestionCategory(question.mistakeCategory, question.requiresReasoning)
+          : "misunderstood_concept",
+        severity: question?.difficulty === "challenging" ? "high" : "medium",
+        questionId: item.questionId,
+        quizAttemptId: attempt.id,
+        attemptId: attempt.id,
+        createdAt: now,
+      });
     });
+    // Review the root cause first: a weak prerequisite outranks the advanced topic that exposed it.
+    const reviewTopicIds = new Set<string>();
     result.weakTopicIds.forEach((topicId) => {
+      const recommendation = recommendReview(user, { topicId });
+      (recommendation.topicIds.length > 0 ? recommendation.topicIds : [topicId]).forEach((id) =>
+        reviewTopicIds.add(id),
+      );
+    });
+    reviewTopicIds.forEach((topicId) => {
       actions.addReview({ id: crypto.randomUUID(), topicId, dueAt: now, interval: 1, createdAt: now });
     });
     toast.success("Quiz submitted and scored.");

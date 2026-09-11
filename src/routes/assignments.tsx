@@ -251,13 +251,22 @@ function AssignmentWorkspace({
       evaluatedAt: now,
     });
     if (score < 70)
-      actions.addMistake({
-        id: crypto.randomUUID(),
+      actions.recordMistake({
+        topicId: assignment.topicId,
+        activity: "assignment",
+        category:
+          assignment.type === "command_challenge"
+            ? "command_knowledge_gap"
+            : assignment.type === "scenario" || assignment.type === "incident"
+              ? "scenario_recognition_failure"
+              : assignment.type === "troubleshoot"
+                ? "reasoning_error"
+                : "misunderstood_concept",
+        severity: score < 40 ? "high" : "medium",
         assignmentId: assignment.id,
         assignmentAttemptId: attempt.id,
-        topicId: assignment.topicId,
+        attemptId: attempt.id,
         createdAt: now,
-        resolved: false,
       });
     toast.success(
       assignment.evaluationMode === "automatic"

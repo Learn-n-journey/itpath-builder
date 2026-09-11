@@ -90,7 +90,22 @@ function sanitizeUser(raw: unknown): UserData {
       !Array.isArray(r.scenarioResponses)
         ? r.scenarioResponses
         : base.scenarioResponses,
-    mistakes: arr(r.mistakes, base.mistakes),
+    mistakes: arr(r.mistakes, base.mistakes).map((mistake) => ({
+      ...mistake,
+      activity: mistake.activity ?? (mistake.assignmentId ? "assignment" : "quiz"),
+      category: mistake.category ?? "misunderstood_concept",
+      severity: mistake.severity ?? "medium",
+      ...(mistake.attemptId ?? mistake.quizAttemptId ?? mistake.assignmentAttemptId
+        ? {
+            attemptId: (mistake.attemptId ??
+              mistake.quizAttemptId ??
+              mistake.assignmentAttemptId) as string,
+          }
+        : {}),
+      recommendedTopicIds: mistake.recommendedTopicIds ?? [],
+      recommendedSkillIds: mistake.recommendedSkillIds ?? [],
+      resolved: Boolean(mistake.resolved),
+    })),
     reviews: arr(r.reviews, base.reviews),
     notes: arr(r.notes, base.notes),
     bookmarks: arr(r.bookmarks, base.bookmarks),

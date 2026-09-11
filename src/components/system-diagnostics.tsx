@@ -5,7 +5,9 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { navItems } from "@/config/navigation";
 import { staticContent } from "@/data/static-content";
+import { getDependentSkills, getPrerequisiteChain } from "@/data/prerequisite-graph";
 import { createDefaultUserData } from "@/lib/app-data/defaults";
+import { buildMistake, recommendReview } from "@/lib/mistake-engine";
 import { userMutations } from "@/lib/app-data/mutations";
 import {
   getAssignment,
@@ -296,6 +298,111 @@ export function SystemDiagnostics() {
       detail: quizMutationOk
         ? "Quiz attempts can be started and submitted without overwriting the zero-state fixture."
         : "The centralized quiz-attempt lifecycle mutation failed.",
+    });
+
+    // Mistake + prerequisite engine, tested with a real mistake rather than a mocked result.
+    const dnsMistakeUser = userMutations.addMistake(
+      initialized,
+      buildMistake(initialized, {
+        topicId: "topic-dns-fundamentals",
+        activity: "quiz",
+        category: "misunderstood_concept",
+        severity: "high",
+        attemptId: "diag-attempt",
+      }),
+    );
+    const recordedMistake = dnsMistakeUser.mistakes[0];
+    const mistakeShapeOk = Boolean(
+      recordedMistake &&
+        recordedMistake.activity === "quiz" &&
+        recordedMistake.severity === "high" &&
+        recordedMistake.attemptId === "diag-attempt" &&
+        recordedMistake.resolved === false &&
+        recordedMistake.createdAt &&
+        recordedMistake.recommendedSkillIds.length > 0 &&
+        initialized.mistakes.length === 0,
+    );
+    results.push({
+      name: "Mistake recording",
+      pass: mistakeShapeOk,
+      detail: mistakeShapeOk
+        ? "A mistake stores topic, activity, category, date, attempt, severity, resolved state and recommended review."
+        : "The centralized mistake record is incomplete.",
+    });
+
+    const dnsRecommendation = recommendReview(dnsMistakeUser, {
+      topicId: "topic-dns-fundamentals",
+    });
+    const recommendsPrerequisite =
+      dnsRecommendation.reason === "prerequisite_gap" &&
+      dnsRecommendation.skillIds.length > 0 &&
+      !dnsRecommendation.skillIds.includes("skill-dns") &&
+      getPrerequisiteChain("skill-dns").some((skill) =>
+        dnsRecommendation.skillIds.includes(skill.id),
+      );
+    results.push({
+      name: "Prerequisite recommendation",
+      pass: recommendsPrerequisite,
+      detail: recommendsPrerequisite
+        ? `A weak DNS mistake recommends the prerequisite ${dnsRecommendation.skillIds.join(", ")} instead of DNS itself.`
+        : "The recommendation engine failed to trace the mistake back to a weak prerequisite.",
+    });
+
+    const solidUser: typeof initialized = {
+      ...dnsMistakeUser,
+      topicProgress: Object.fromEntries(
+        [
+          "topic-computer-hardware-basics",
+          "topic-operating-systems-overview",
+          "topic-basic-networking-concepts",
+          "topic-command-line-fundamentals",
+          "topic-networking-basics",
+          "topic-dns-fundamentals",
+        ].map((topicId) => [
+          topicId,
+          {
+            id: `progress-${topicId}`,
+            topicId,
+            status: "mastered" as const,
+            understanding: 100,
+            recall: 100,
+            application: 100,
+            practicalAbility: 100,
+            troubleshooting: 100,
+            retention: 100,
+            updatedAt: new Date().toISOString(),
+          },
+        ]),
+      ),
+      mistakes: [],
+    };
+    const solidRecommendation = recommendReview(solidUser, { topicId: "topic-dns-fundamentals" });
+    const dependents = getDependentSkills("skill-dns").map((skill) => skill.id);
+    const noForwardRecommendation =
+      solidRecommendation.reason === "same_topic" &&
+      solidRecommendation.topicIds.includes("topic-dns-fundamentals") &&
+      solidRecommendation.skillIds.every((id) => !dependents.includes(id));
+    results.push({
+      name: "No advanced-material recommendation",
+      pass: noForwardRecommendation,
+      detail: noForwardRecommendation
+        ? "With prerequisites solid, review stays on the failed topic and never jumps ahead to dependent skills."
+        : "The recommendation engine suggested more advanced material.",
+    });
+
+    const resolvedUser = recordedMistake
+      ? userMutations.setMistakeResolved(dnsMistakeUser, recordedMistake.id, true)
+      : dnsMistakeUser;
+    const resolveOk =
+      resolvedUser.mistakes[0]?.resolved === true &&
+      Boolean(resolvedUser.mistakes[0]?.resolvedAt) &&
+      dnsMistakeUser.mistakes[0]?.resolved === false;
+    results.push({
+      name: "Mistake resolution",
+      pass: resolveOk,
+      detail: resolveOk
+        ? "Mistakes can be resolved and reopened without mutating existing records."
+        : "The mistake resolution mutation failed.",
     });
 
     let storageOk = false;

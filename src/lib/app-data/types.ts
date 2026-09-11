@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 6;
+export const APP_DATA_VERSION = 7;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -316,15 +316,43 @@ export interface ScenarioResponse {
   updatedAt: string;
 }
 
+/** Why the learner got it wrong. Recorded per mistake, never inferred later. */
+export type MistakeCause =
+  | "didnt_know_fact"
+  | "misunderstood_concept"
+  | "misread_question"
+  | "rushed"
+  | "confused_concepts"
+  | "scenario_recognition_failure"
+  | "command_knowledge_gap"
+  | "reasoning_error"
+  | "prerequisite_gap";
+
+export type MistakeActivity = "quiz" | "recall" | "practice" | "assignment" | "lab" | "scenario";
+
+export type MistakeSeverity = "low" | "medium" | "high";
+
 export interface Mistake {
   id: EntityId;
   questionId?: EntityId;
   assignmentId?: EntityId;
   assignmentAttemptId?: EntityId;
   topicId: EntityId;
+  skillId?: EntityId;
   quizAttemptId?: EntityId;
+  /** Where the mistake happened. */
+  activity: MistakeActivity;
+  /** Identifier of the attempt the mistake belongs to, when the activity has attempts. */
+  attemptId?: EntityId;
+  category: MistakeCause;
+  severity: MistakeSeverity;
+  /** Curriculum topics the recommendation engine suggests reviewing first. */
+  recommendedTopicIds: EntityId[];
+  /** Prerequisite skills to shore up, including ones without a topic yet. */
+  recommendedSkillIds: EntityId[];
   createdAt: string;
   resolved: boolean;
+  resolvedAt?: string;
 }
 
 export interface Review {
