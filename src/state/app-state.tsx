@@ -22,14 +22,21 @@ import {
   APP_DATA_VERSION,
   type Bookmark,
   type Note,
+  type Mistake,
+  type PracticeResponse,
   type PortfolioProject,
+  type RecallResponse,
+  type ScenarioResponse,
   type StudySession,
+  type TeachBackResponse,
+  type TopicProgress,
   type UserData,
   type UserSettings,
 } from "@/lib/app-data/types";
 
 interface AppActions {
   addNote: (note: Note) => void;
+  updateNote: (note: Note) => void;
   removeNote: (id: string) => void;
   addBookmark: (bookmark: Bookmark) => void;
   removeBookmark: (id: string) => void;
@@ -37,6 +44,12 @@ interface AppActions {
   removePortfolioProject: (id: string) => void;
   addStudySession: (session: StudySession) => void;
   removeStudySession: (id: string) => void;
+  addRecallResponse: (response: RecallResponse) => void;
+  addMistake: (mistake: Mistake) => void;
+  addPracticeResponse: (response: PracticeResponse) => void;
+  setTeachBackResponse: (response: TeachBackResponse) => void;
+  setScenarioResponse: (response: ScenarioResponse) => void;
+  setTopicProgress: (progress: TopicProgress) => void;
 }
 
 interface AppStateContextValue {
@@ -94,6 +107,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const actions = useMemo<AppActions>(
     () => ({
       addNote: (note) => setUser((current) => userMutations.addNote(current, note)),
+      updateNote: (note) => setUser((current) => userMutations.updateNote(current, note)),
       removeNote: (id) => setUser((current) => userMutations.removeNote(current, id)),
       addBookmark: (bookmark) =>
         setUser((current) => userMutations.addBookmark(current, bookmark)),
@@ -107,6 +121,18 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.addStudySession(current, session)),
       removeStudySession: (id) =>
         setUser((current) => userMutations.removeStudySession(current, id)),
+      addRecallResponse: (response) =>
+        setUser((current) => userMutations.addRecallResponse(current, response)),
+      addMistake: (mistake) =>
+        setUser((current) => userMutations.addMistake(current, mistake)),
+      addPracticeResponse: (response) =>
+        setUser((current) => userMutations.addPracticeResponse(current, response)),
+      setTeachBackResponse: (response) =>
+        setUser((current) => userMutations.setTeachBackResponse(current, response)),
+      setScenarioResponse: (response) =>
+        setUser((current) => userMutations.setScenarioResponse(current, response)),
+      setTopicProgress: (progress) =>
+        setUser((current) => userMutations.setTopicProgress(current, progress)),
     }),
     [],
   );

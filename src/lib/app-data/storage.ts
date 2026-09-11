@@ -33,9 +33,36 @@ function sanitizeUser(raw: unknown): UserData {
     createdAt: typeof r.createdAt === "string" ? r.createdAt : base.createdAt,
     topicProgress:
       r.topicProgress && typeof r.topicProgress === "object" && !Array.isArray(r.topicProgress)
-        ? r.topicProgress
+        ? Object.fromEntries(
+            Object.entries(r.topicProgress).map(([topicId, value]) => {
+              const progress = value && typeof value === "object" ? value : {};
+              return [topicId, {
+                id: `progress-${topicId}`,
+                topicId,
+                status: "not_started",
+                understanding: 0,
+                recall: 0,
+                application: 0,
+                practicalAbility: 0,
+                troubleshooting: 0,
+                retention: 0,
+                updatedAt: base.createdAt,
+                ...progress,
+              }];
+            }),
+          )
         : base.topicProgress,
     quizAttempts: arr(r.quizAttempts, base.quizAttempts),
+    recallResponses: arr(r.recallResponses, base.recallResponses),
+    practiceResponses: arr(r.practiceResponses, base.practiceResponses),
+    teachBackResponses:
+      r.teachBackResponses && typeof r.teachBackResponses === "object" && !Array.isArray(r.teachBackResponses)
+        ? r.teachBackResponses
+        : base.teachBackResponses,
+    scenarioResponses:
+      r.scenarioResponses && typeof r.scenarioResponses === "object" && !Array.isArray(r.scenarioResponses)
+        ? r.scenarioResponses
+        : base.scenarioResponses,
     mistakes: arr(r.mistakes, base.mistakes),
     reviews: arr(r.reviews, base.reviews),
     notes: arr(r.notes, base.notes),

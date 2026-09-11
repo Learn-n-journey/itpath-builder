@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 2;
+export const APP_DATA_VERSION = 3;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -116,7 +116,58 @@ export interface TopicProgress {
   id: EntityId;
   topicId: EntityId;
   status: TopicStatus;
+  understanding: number;
+  recall: number;
+  application: number;
+  practicalAbility: number;
+  troubleshooting: number;
+  retention: number;
   updatedAt: string;
+}
+
+export interface RecallQuestion {
+  id: EntityId;
+  topicId: EntityId;
+  prompt: string;
+  acceptedConcepts: string[];
+  explanation: string;
+}
+
+export interface PracticeActivity {
+  id: EntityId;
+  topicId: EntityId;
+  title: string;
+  prompt: string;
+  choices: string[];
+  answerIndex: number;
+  explanation: string;
+}
+
+export interface RealWorldScenario {
+  id: EntityId;
+  topicId: EntityId;
+  title: string;
+  situation: string;
+  decisionPrompt: string;
+  expectedConcepts: string[];
+  guidance: string;
+}
+
+export interface LearningModule {
+  id: EntityId;
+  lessonId: EntityId;
+  topicId: EntityId;
+  howItWorks: string[];
+  whereYouSeeIt: string[];
+  commonProblems: string[];
+  howItFails: string[];
+  troubleshooting: string[];
+  practicalKnowledge: string[];
+  examCoverage: string[];
+  interviewQuestions: string[];
+  recallQuestionIds: EntityId[];
+  practiceActivityId: EntityId;
+  scenarioId: EntityId;
 }
 
 export interface QuizAttempt {
@@ -126,6 +177,44 @@ export interface QuizAttempt {
   score: number;
   total: number;
   createdAt: string;
+}
+
+export interface RecallResponse {
+  id: EntityId;
+  questionId: EntityId;
+  topicId: EntityId;
+  answer: string;
+  correct: boolean;
+  matchedConcepts: string[];
+  createdAt: string;
+}
+
+export interface PracticeResponse {
+  id: EntityId;
+  activityId: EntityId;
+  topicId: EntityId;
+  selectedIndex: number;
+  correct: boolean;
+  createdAt: string;
+}
+
+export interface TeachBackResponse {
+  id: EntityId;
+  topicId: EntityId;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ScenarioResponse {
+  id: EntityId;
+  scenarioId: EntityId;
+  topicId: EntityId;
+  response: string;
+  matchedConcepts: string[];
+  meetsCriteria: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Mistake {
@@ -229,6 +318,10 @@ export interface UserData {
   createdAt: string;
   topicProgress: Record<EntityId, TopicProgress>;
   quizAttempts: QuizAttempt[];
+  recallResponses: RecallResponse[];
+  practiceResponses: PracticeResponse[];
+  teachBackResponses: Record<EntityId, TeachBackResponse>;
+  scenarioResponses: Record<EntityId, ScenarioResponse>;
   mistakes: Mistake[];
   reviews: Review[];
   notes: Note[];
