@@ -3,6 +3,7 @@ import { CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
 
 import { navItems } from "@/config/navigation";
+import { createDefaultUserData } from "@/lib/app-data/defaults";
 import { loadState, saveState, STORAGE_KEY } from "@/lib/app-data/storage";
 import { APP_DATA_VERSION } from "@/lib/app-data/types";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,15 @@ export function SystemDiagnostics() {
 
   function run() {
     const results: Check[] = [];
+
+    // 0. Data Initialization
+    const defaultData = createDefaultUserData();
+    const initOk = !!defaultData.createdAt && Array.isArray(defaultData.studySessions);
+    results.push({
+      name: "Data Initialization",
+      pass: initOk,
+      detail: "Internal default state generators are producing valid schemas.",
+    });
 
     // 1. Application loads
     results.push({
