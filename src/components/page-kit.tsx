@@ -1,0 +1,94 @@
+import type { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
+export function PageHeader({
+  title,
+  description,
+  actions,
+}: {
+  title: string;
+  description?: string;
+  actions?: ReactNode;
+}) {
+  return (
+    <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <h1 className="text-2xl font-semibold sm:text-3xl">{title}</h1>
+        {description ? (
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
+        ) : null}
+      </div>
+      {actions}
+    </header>
+  );
+}
+
+export function Panel({
+  title,
+  description,
+  children,
+  className,
+}: {
+  title?: string;
+  description?: string;
+  children?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={cn("panel p-5 sm:p-6", className)}>
+      {title ? <h2 className="text-base font-semibold">{title}</h2> : null}
+      {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
+      {children ? <div className={title ? "mt-4" : undefined}>{children}</div> : null}
+    </section>
+  );
+}
+
+export function StatCard({
+  label,
+  value,
+  hint,
+  icon: Icon,
+}: {
+  label: string;
+  value: string | number;
+  hint?: string;
+  icon?: LucideIcon;
+}) {
+  return (
+    <div className="panel p-4">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+        {Icon ? <Icon className="size-4 text-muted-foreground" aria-hidden /> : null}
+      </div>
+      <p className="mt-2 font-display text-2xl font-semibold tabular-nums">{value}</p>
+      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
+    </div>
+  );
+}
+
+export function EmptyState({
+  title,
+  body,
+  icon: Icon,
+  children,
+}: {
+  title: string;
+  body: string;
+  icon?: LucideIcon;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="panel flex flex-col items-center px-6 py-12 text-center">
+      {Icon ? (
+        <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-secondary text-primary">
+          <Icon className="size-5" aria-hidden />
+        </span>
+      ) : null}
+      <h3 className="text-base font-semibold">{title}</h3>
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">{body}</p>
+      {children ? <div className="mt-5">{children}</div> : null}
+    </div>
+  );
+}
