@@ -46,7 +46,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
   useEffect(() => { setTeachBack(savedTeachBack?.body ?? ""); setTeachBackEditing(!savedTeachBack); }, [savedTeachBack, topic.id]);
   useEffect(() => { setScenarioAnswer(savedScenario?.response ?? ""); setScenarioFeedback(savedScenario ? scenario?.guidance ?? null : null); }, [savedScenario, scenario, topic.id]);
-  useEffect(() => { setNoteBody(latestNote?.body ?? ""); }, [latestNote, topic.id]);
+  
 
   const progress = user.topicProgress[topic.id] ?? {
     id: `progress-${topic.id}`, topicId: topic.id, status: "not_started" as const,
