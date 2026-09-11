@@ -20,7 +20,7 @@ export const Route = createFileRoute("/learn")({
       { property: "og:description", content: "Work through lessons and keep your own notes." },
     ],
   }),
-  component: Learn;
+  component: Learn,
 });
 
 function Learn() {
