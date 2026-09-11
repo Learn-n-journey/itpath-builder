@@ -1,7 +1,8 @@
-# IT PATH curriculum engine test
+# IT PATH Learn engine
 
-- [x] Add the eight requested topics with stable IDs and curriculum metadata
-- [x] Add substantive structured lesson content for every topic
-- [x] Add Year → Month → Week → Topic navigation to My Path
-- [x] Add openable topic reading pages
-- [x] Verify all topic pages, zero completion state, responsive behavior, and build
+- [ ] Extend curriculum content for all eight lesson-section requirements
+- [ ] Add topic-specific recall, practice, and real-world scenario data
+- [ ] Extend versioned user data for saved learning responses and six-dimension progress
+- [ ] Build searchable topic selection and reusable staged lesson experience
+- [ ] Persist recall results, mistakes, teach-back responses, scenarios, notes, and bookmarks
+- [ ] Verify every stage for all eight topics, refresh persistence, responsive behavior, and build
