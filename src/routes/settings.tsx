@@ -20,6 +20,8 @@ import type { Difficulty, ExperienceLevel, WeekDay } from "@/lib/app-data/types"
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Settings — IT PATH" },
       { name: "description", content: "Set your study schedule, target role and run system checks." },
       { property: "og:title", content: "Settings — IT PATH" },

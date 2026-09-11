@@ -6,6 +6,8 @@ import { useAppState, useStats } from "@/state/app-state";
 export const Route = createFileRoute("/progress")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Progress — IT PATH" },
       { name: "description", content: "An honest view of everything you have completed so far." },
       { property: "og:title", content: "Progress — IT PATH" },

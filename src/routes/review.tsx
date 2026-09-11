@@ -7,6 +7,8 @@ import { useAppState } from "@/state/app-state";
 export const Route = createFileRoute("/review")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Review — IT PATH" },
       { name: "description", content: "Spaced review of past topics and unresolved mistakes." },
       { property: "og:title", content: "Review — IT PATH" },

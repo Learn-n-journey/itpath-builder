@@ -14,6 +14,8 @@ import { useAppState } from "@/state/app-state";
 export const Route = createFileRoute("/learn")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Learn — IT PATH" },
       { name: "description", content: "Lessons and your personal study notes in one place." },
       { property: "og:title", content: "Learn — IT PATH" },

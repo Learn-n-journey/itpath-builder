@@ -11,6 +11,8 @@ import { useAppState } from "@/state/app-state";
 export const Route = createFileRoute("/ai-tutor")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "AI Tutor — IT PATH" },
       { name: "description", content: "Keep a running list of the questions you need answered." },
       { property: "og:title", content: "AI Tutor — IT PATH" },

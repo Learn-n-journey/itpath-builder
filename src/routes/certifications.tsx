@@ -8,6 +8,8 @@ import { useAppState, useStats } from "@/state/app-state";
 export const Route = createFileRoute("/certifications")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Certifications — IT PATH" },
       { name: "description", content: "Track exam objectives against the topics you have covered." },
       { property: "og:title", content: "Certifications — IT PATH" },
