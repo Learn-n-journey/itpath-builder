@@ -26,7 +26,7 @@ export const Route = createFileRoute("/learn")({
 });
 
 function Learn() {
-  const { user, updateUser } = useAppState();
+  const { user, actions } = useAppState();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
 
@@ -36,20 +36,20 @@ function Learn() {
       return;
     }
     const now = new Date().toISOString();
-    updateUser((c) => ({
-      ...c,
-      notes: [
-        { id: crypto.randomUUID(), title: title.trim(), body: body.trim(), createdAt: now, updatedAt: now },
-        ...c.notes,
-      ],
-    }));
+    actions.addNote({
+      id: crypto.randomUUID(),
+      title: title.trim(),
+      body: body.trim(),
+      createdAt: now,
+      updatedAt: now,
+    });
     setTitle("");
     setBody("");
     toast.success("Note saved.");
   }
 
   function removeNote(id: string) {
-    updateUser((c) => ({ ...c, notes: c.notes.filter((n) => n.id !== id) }));
+    actions.removeNote(id);
   }
 
   return (

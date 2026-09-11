@@ -42,7 +42,7 @@ function startOfWeek(): number {
 }
 
 function ThisWeek() {
-  const { user, updateUser } = useAppState();
+  const { user, actions } = useAppState();
   const [minutes, setMinutes] = useState(String(user.settings.sessionLengthMinutes));
 
   const weekStart = startOfWeek();
@@ -58,17 +58,11 @@ function ThisWeek() {
       toast.error("Enter a session length in minutes.");
       return;
     }
-    updateUser((current) => ({
-      ...current,
-      studySessions: [
-        {
-          id: crypto.randomUUID(),
-          startedAt: new Date().toISOString(),
-          minutes: Math.round(value),
-        },
-        ...current.studySessions,
-      ],
-    }));
+    actions.addStudySession({
+      id: crypto.randomUUID(),
+      startedAt: new Date().toISOString(),
+      minutes: Math.round(value),
+    });
     toast.success(`Logged ${Math.round(value)} minutes.`);
   }
 

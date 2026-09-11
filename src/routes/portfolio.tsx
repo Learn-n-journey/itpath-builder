@@ -25,7 +25,7 @@ export const Route = createFileRoute("/portfolio")({
 });
 
 function Portfolio() {
-  const { user, updateUser } = useAppState();
+  const { user, actions } = useAppState();
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
 
@@ -34,18 +34,13 @@ function Portfolio() {
       toast.error("Give the project a title.");
       return;
     }
-    updateUser((c) => ({
-      ...c,
-      portfolio: [
-        {
-          id: crypto.randomUUID(),
-          title: title.trim(),
-          summary: summary.trim(),
-          createdAt: new Date().toISOString(),
-        },
-        ...c.portfolio,
-      ],
-    }));
+    actions.addPortfolioProject({
+      id: crypto.randomUUID(),
+      title: title.trim(),
+      summary: summary.trim(),
+      topicIds: [],
+      createdAt: new Date().toISOString(),
+    });
     setTitle("");
     setSummary("");
     toast.success("Project added.");
@@ -102,12 +97,7 @@ function Portfolio() {
                     variant="ghost"
                     size="icon"
                     aria-label={`Remove ${p.title}`}
-                    onClick={() =>
-                      updateUser((c) => ({
-                        ...c,
-                        portfolio: c.portfolio.filter((x) => x.id !== p.id),
-                      }))
-                    }
+                    onClick={() => actions.removePortfolioProject(p.id)}
                   >
                     <Trash2 className="size-4" />
                   </Button>

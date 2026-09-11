@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { createDefaultUserData } from "@/lib/app-data/defaults";
+import { userMutations } from "@/lib/app-data/mutations";
 import {
   loadState,
   saveState,
@@ -17,7 +18,26 @@ import {
   isStorageAvailable,
   type LoadOutcome,
 } from "@/lib/app-data/storage";
-import { APP_DATA_VERSION, type UserData, type UserSettings } from "@/lib/app-data/types";
+import {
+  APP_DATA_VERSION,
+  type Bookmark,
+  type Note,
+  type PortfolioProject,
+  type StudySession,
+  type UserData,
+  type UserSettings,
+} from "@/lib/app-data/types";
+
+interface AppActions {
+  addNote: (note: Note) => void;
+  removeNote: (id: string) => void;
+  addBookmark: (bookmark: Bookmark) => void;
+  removeBookmark: (id: string) => void;
+  addPortfolioProject: (project: PortfolioProject) => void;
+  removePortfolioProject: (id: string) => void;
+  addStudySession: (session: StudySession) => void;
+  removeStudySession: (id: string) => void;
+}
 
 interface AppStateContextValue {
   user: UserData;
@@ -25,8 +45,9 @@ interface AppStateContextValue {
   storageAvailable: boolean;
   loadOutcome: LoadOutcome | null;
   lastSavedAt: string | null;
+  actions: AppActions;
   updateUser: (updater: (current: UserData) => UserData) => void;
-  updateSettings: (patch: Partial<UserSettings>) => void;
+  updateSettings: (patch: Partial<Omit<UserSettings, "id">>) => void;
   resetAll: () => void;
   forceSave: () => boolean;
 }
@@ -66,9 +87,29 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setUser((current) => updater(current));
   }, []);
 
-  const updateSettings = useCallback((patch: Partial<UserSettings>) => {
-    setUser((current) => ({ ...current, settings: { ...current.settings, ...patch } }));
+  const updateSettings = useCallback((patch: Partial<Omit<UserSettings, "id">>) => {
+    setUser((current) => userMutations.updateSettings(current, patch));
   }, []);
+
+  const actions = useMemo<AppActions>(
+    () => ({
+      addNote: (note) => setUser((current) => userMutations.addNote(current, note)),
+      removeNote: (id) => setUser((current) => userMutations.removeNote(current, id)),
+      addBookmark: (bookmark) =>
+        setUser((current) => userMutations.addBookmark(current, bookmark)),
+      removeBookmark: (id) =>
+        setUser((current) => userMutations.removeBookmark(current, id)),
+      addPortfolioProject: (project) =>
+        setUser((current) => userMutations.addPortfolioProject(current, project)),
+      removePortfolioProject: (id) =>
+        setUser((current) => userMutations.removePortfolioProject(current, id)),
+      addStudySession: (session) =>
+        setUser((current) => userMutations.addStudySession(current, session)),
+      removeStudySession: (id) =>
+        setUser((current) => userMutations.removeStudySession(current, id)),
+    }),
+    [],
+  );
 
   const resetAll = useCallback(() => {
     clearState();
@@ -89,6 +130,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       storageAvailable,
       loadOutcome,
       lastSavedAt,
+      actions,
       updateUser,
       updateSettings,
       resetAll,
@@ -100,6 +142,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       storageAvailable,
       loadOutcome,
       lastSavedAt,
+      actions,
       updateUser,
       updateSettings,
       resetAll,

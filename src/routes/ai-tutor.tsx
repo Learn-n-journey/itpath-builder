@@ -25,7 +25,7 @@ export const Route = createFileRoute("/ai-tutor")({
 const QUESTION_TAG = "Tutor question";
 
 function AiTutor() {
-  const { user, updateUser } = useAppState();
+  const { user, actions } = useAppState();
   const [text, setText] = useState("");
   const questions = user.notes.filter((n) => n.title === QUESTION_TAG);
 
@@ -35,13 +35,13 @@ function AiTutor() {
       return;
     }
     const now = new Date().toISOString();
-    updateUser((c) => ({
-      ...c,
-      notes: [
-        { id: crypto.randomUUID(), title: QUESTION_TAG, body: text.trim(), createdAt: now, updatedAt: now },
-        ...c.notes,
-      ],
-    }));
+    actions.addNote({
+      id: crypto.randomUUID(),
+      title: QUESTION_TAG,
+      body: text.trim(),
+      createdAt: now,
+      updatedAt: now,
+    });
     setText("");
     toast.success("Question saved to your list.");
   }
@@ -76,9 +76,7 @@ function AiTutor() {
                     variant="ghost"
                     size="icon"
                     aria-label="Remove question"
-                    onClick={() =>
-                      updateUser((c) => ({ ...c, notes: c.notes.filter((n) => n.id !== q.id) }))
-                    }
+                    onClick={() => actions.removeNote(q.id)}
                   >
                     <Trash2 className="size-4" />
                   </Button>
