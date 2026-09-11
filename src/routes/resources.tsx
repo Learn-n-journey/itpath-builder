@@ -105,31 +105,13 @@ function ResourceFilter({ label, allLabel, value, onChange, options }: { label: 
 }
 
 function ResourceCard({ resource, noteOpen, onToggleNote }: { resource: Resource; noteOpen: boolean; onToggleNote: () => void }) {
-  const { user, actions } = useAppState();
-  const bookmark = user.bookmarks.find((item) => item.resourceId === resource.id);
-  const savedNote = user.notes.find((item) => item.resourceId === resource.id);
-  const [noteBody, setNoteBody] = useState(savedNote?.body ?? "");
+  const { user } = useAppState();
+  const target = { kind: "resource" as const, id: resource.id, label: resource.title, href: resource.url };
+  const bookmark = bookmarkFor(user, target);
+  const savedNotes = notesFor(user, target);
   const certification = certifications.find((item) => item.id === resource.certificationId);
   const resourceTopics = resource.topicIds.map((id) => topics.find((topic) => topic.id === id)).filter((topic) => topic !== undefined);
 
-  useEffect(() => {
-    setNoteBody(savedNote?.body ?? "");
-  }, [savedNote?.body]);
-
-  function toggleBookmark() {
-    if (bookmark) { actions.removeBookmark(bookmark.id); toast.success("Resource bookmark removed."); return; }
-    actions.addBookmark({ id: crypto.randomUUID(), label: resource.title, href: resource.url, resourceId: resource.id, createdAt: new Date().toISOString() });
-    toast.success("Resource bookmarked.");
-  }
-
-  function saveNote() {
-    const body = noteBody.trim();
-    if (!body) { toast.error("Write a note before saving."); return; }
-    const now = new Date().toISOString();
-    if (savedNote) actions.updateNote({ ...savedNote, body, updatedAt: now });
-    else actions.addNote({ id: crypto.randomUUID(), resourceId: resource.id, title: `${resource.title} notes`, body, createdAt: now, updatedAt: now });
-    toast.success("Resource note saved.");
-  }
 
   return (
     <article className="rounded-lg border border-border bg-card p-5">
