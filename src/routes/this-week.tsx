@@ -162,10 +162,10 @@ function ThisWeek() {
         ))}
       </div>
 
-      {bundle ? <WeekView bundle={bundle} /> : <EmptyState title="No curriculum weeks are defined yet." />}
+      {bundle ? <WeekView bundle={bundle} /> : <EmptyState title="No curriculum weeks are defined yet." body="Weeks are added with the curriculum." />}
 
+      <div className="mt-10" />
       <PageHeader
-        className="mt-10"
         title="Daily study session"
         description="Build a session from your own data, work it, and log the time you actually spend."
       />
@@ -446,7 +446,7 @@ function WeekView({ bundle }: { bundle: WeekBundle }) {
               {bundle.assignments.map((assignment) => (
                 <div key={assignment.id}>
                   <p className="text-sm font-medium">{assignment.title}</p>
-                  <p className="text-sm text-muted-foreground">{assignment.prompt}</p>
+                  <p className="text-sm text-muted-foreground">{assignment.brief}</p>
                 </div>
               ))}
               <Button asChild size="sm" variant="secondary">
