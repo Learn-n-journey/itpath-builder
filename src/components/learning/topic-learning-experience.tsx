@@ -138,7 +138,11 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     </Tabs>
 
     <div className="grid gap-4 lg:grid-cols-2">
-      <Panel title="Topic notes" description="Saved on this device and linked to this topic."><Label htmlFor="topic-note">Your notes</Label><Textarea id="topic-note" className="mt-2" rows={6} value={noteBody} onChange={(event) => setNoteBody(event.target.value)} /><Button className="mt-3" onClick={saveNote}><Save />Save note</Button></Panel>
+      <AnnotationPanel
+        target={{ kind: "lesson", id: lesson.id, label: topic.title, href: `/topics/${topic.id}` }}
+        title="Lesson notes and bookmark"
+        description="Notes and bookmarks for this lesson, saved with everything else you have marked."
+      />
       <Panel title="Learning progress" description={`${averageProgress}% across six evidence areas. Reading alone does not change progress.`}><div className="space-y-4">{progressLabels.map(([key, label]) => <div key={key}><div className="mb-1.5 flex justify-between text-sm"><span>{label}</span><span className="tabular-nums text-muted-foreground">{progress[key]}%</span></div><Progress value={progress[key]} /></div>)}</div></Panel>
     </div>
   </div>;
