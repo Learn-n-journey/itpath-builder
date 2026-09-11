@@ -567,6 +567,8 @@ export interface UserData {
   portfolio: PortfolioProject[];
   careerScores: CareerScores;
   certificationProgress: Record<EntityId, CertificationProgress>;
+  /** Learner edits to certification objectives, keyed by objective id. */
+  certificationObjectives: Record<EntityId, CertificationObjectiveOverride>;
   studySessions: StudySession[];
   incidentAttempts: IncidentAttempt[];
   ticketAttempts: TicketAttempt[];
