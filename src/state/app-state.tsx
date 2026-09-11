@@ -29,6 +29,7 @@ import {
   type PortfolioProject,
   type QuizAttempt,
   type RecallResponse,
+  type Review,
   type ScenarioResponse,
   type StudySession,
   type TeachBackResponse,
@@ -55,6 +56,7 @@ interface AppActions {
   removeStudySession: (id: string) => void;
   addRecallResponse: (response: RecallResponse) => void;
   addMistake: (mistake: Mistake) => void;
+  addReview: (review: Review) => void;
   addPracticeResponse: (response: PracticeResponse) => void;
   setTeachBackResponse: (response: TeachBackResponse) => void;
   setScenarioResponse: (response: ScenarioResponse) => void;
@@ -143,6 +145,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       addRecallResponse: (response) =>
         setUser((current) => userMutations.addRecallResponse(current, response)),
       addMistake: (mistake) => setUser((current) => userMutations.addMistake(current, mistake)),
+      addReview: (review) => setUser((current) => userMutations.addReview(current, review)),
       addPracticeResponse: (response) =>
         setUser((current) => userMutations.addPracticeResponse(current, response)),
       setTeachBackResponse: (response) =>
