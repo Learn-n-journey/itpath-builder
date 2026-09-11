@@ -89,7 +89,7 @@ export function SystemDiagnostics() {
     const retrievalOk =
       getTopic("diag-topic", fixture)?.id === "diag-topic" &&
       getLesson("diag-lesson", fixture)?.topicId === "diag-topic" &&
-      getResource("diag-resource", fixture)?.topicIds.includes("diag-topic") &&
+      getResource("diag-resource", fixture)?.topicIds.includes("diag-topic") === true &&
       getAssignment("diag-assignment", fixture)?.topicId === "diag-topic" &&
       getLab("diag-lab", fixture)?.topicId === "diag-topic" &&
       getQuiz("diag-quiz", fixture)?.topicId === "diag-topic" &&
