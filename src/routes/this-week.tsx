@@ -239,7 +239,7 @@ function ThisWeek() {
 
       <Panel className="mt-4" title="Recent logged time">
         {user.studySessions.length === 0 ? (
-          <EmptyState title="No study sessions logged yet." description="Finish a session or log minutes manually." />
+          <EmptyState title="No study sessions logged yet." body="Finish a session or log minutes manually." />
         ) : (
           <ul className="divide-y divide-border text-sm">
             {user.studySessions.slice(0, 10).map((s) => (
