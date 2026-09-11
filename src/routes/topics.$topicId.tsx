@@ -76,8 +76,11 @@ function TopicPage() {
           ["Difficulty", difficultyLabels[topic.difficulty]],
           ["Study time", `${topic.estimatedMinutes} min`],
           ["Status", "Not started"],
-        ].map(([label, value]) => (
-          <div key={label} className="min-w-0 bg-card p-4">
+        ].map(([label, value], index) => (
+          <div
+            key={label}
+            className={index === 4 ? "col-span-2 min-w-0 bg-card p-4 sm:col-span-1" : "min-w-0 bg-card p-4"}
+          >
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
             <dd className="mt-1 break-words text-sm font-medium">{value}</dd>
           </div>
