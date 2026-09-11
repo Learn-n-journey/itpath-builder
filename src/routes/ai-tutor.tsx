@@ -68,8 +68,8 @@ function AiTutor() {
           ) : (
             <ul className="divide-y divide-border">
               {questions.map((q) => (
-                <li key={q.id} className="flex items-start justify-between gap-4 py-3">
-                  <p className="text-sm">{q.body}</p>
+                <li key={q.id} className="flex min-w-0 items-start justify-between gap-4 py-3">
+                  <p className="min-w-0 break-words text-sm">{q.body}</p>
                   <Button
                     variant="ghost"
                     size="icon"

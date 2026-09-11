@@ -27,7 +27,7 @@ function Review() {
         title="Review"
         description="Spaced repetition over topics you have already covered, plus mistakes you have not resolved."
       />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard label="Scheduled" value={user.reviews.length} />
         <StatCard label="Due now" value={due.length} />
         <StatCard label="Open mistakes" value={user.mistakes.filter((m) => !m.resolved).length} />

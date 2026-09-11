@@ -28,7 +28,7 @@ function QuizMe() {
         title="Quiz Me"
         description="Recall practice drawn from the topics you have studied."
       />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard label="Question bank" value={questions.length} />
         <StatCard label="Attempts" value={attempts.length} />
         <StatCard label="Best score" value={attempts.length ? `${Math.round(best * 100)}%` : "—"} />
