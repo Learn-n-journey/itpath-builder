@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 
+import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { PageHeader, StatCard } from "@/components/page-kit";
 import { QuizRunner, quizQuestions } from "@/components/quiz/quiz-runner";
 import { quizzes } from "@/data/static-content";
@@ -51,8 +52,13 @@ function QuizMe() {
         <StatCard label="Attempts" value={attempts.length} />
         <StatCard label="Best score" value={attempts.length ? `${best}%` : "—"} />
       </div>
-      <div className="mt-6">
+      <div className="mt-6 space-y-4">
         <QuizRunner quiz={quiz} />
+        <AnnotationPanel
+          target={{ kind: "quiz", id: quiz.id, label: quiz.title, href: "/quiz-me" }}
+          title="Quiz notes and bookmark"
+          description="Record what you got wrong here; it appears in your Bookmarks view."
+        />
       </div>
     </>
   );

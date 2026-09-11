@@ -12,6 +12,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -306,6 +307,12 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
           {attempt.portfolioProjectId ? <p className="mt-3 flex items-center gap-2 text-sm text-success"><CheckCircle2 className="size-4" /> Connected to Portfolio as completed lab evidence.</p> : null}
         </Panel>
       ) : null}
+
+      <AnnotationPanel
+        target={{ kind: "lab", id: lab.id, label: lab.title, href: "/labs" }}
+        title="Lab notes and bookmark"
+        description="Notes and bookmarks for this lab, saved with everything else you have marked."
+      />
 
       {history.length > 1 ? (
         <Panel title={`Attempt history (${history.length})`}>

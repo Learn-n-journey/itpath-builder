@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Bookmark, BookmarkCheck, CheckCircle2, Edit3, FileText, Save } from "lucide-react";
+import { CheckCircle2, Edit3, FileText, Save } from "lucide-react";
 import { toast } from "sonner";
 
+import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -33,9 +34,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const scenario = getRealWorldScenario(topic.id);
   const savedTeachBack = user.teachBackResponses[topic.id];
   const savedScenario = user.scenarioResponses[topic.id];
-  const topicNotes = user.notes.filter((item) => item.topicId === topic.id);
-  const latestNote = topicNotes[0];
-  const bookmark = user.bookmarks.find((item) => item.topicId === topic.id);
   const [recallAnswers, setRecallAnswers] = useState<Record<string, string>>({});
   const [recallFeedback, setRecallFeedback] = useState<Record<string, { correct: boolean; message: string }>>({});
   const [practiceChoice, setPracticeChoice] = useState<number | null>(null);
@@ -44,11 +42,11 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const [teachBackEditing, setTeachBackEditing] = useState(!savedTeachBack);
   const [scenarioAnswer, setScenarioAnswer] = useState(savedScenario?.response ?? "");
   const [scenarioFeedback, setScenarioFeedback] = useState<string | null>(savedScenario ? scenario?.guidance ?? null : null);
-  const [noteBody, setNoteBody] = useState(latestNote?.body ?? "");
+  
 
   useEffect(() => { setTeachBack(savedTeachBack?.body ?? ""); setTeachBackEditing(!savedTeachBack); }, [savedTeachBack, topic.id]);
   useEffect(() => { setScenarioAnswer(savedScenario?.response ?? ""); setScenarioFeedback(savedScenario ? scenario?.guidance ?? null : null); }, [savedScenario, scenario, topic.id]);
-  useEffect(() => { setNoteBody(latestNote?.body ?? ""); }, [latestNote, topic.id]);
+  
 
   const progress = user.topicProgress[topic.id] ?? {
     id: `progress-${topic.id}`, topicId: topic.id, status: "not_started" as const,
@@ -110,20 +108,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     raiseProgress({ application: Math.max(progress.application, meetsCriteria ? 50 : 20), troubleshooting: Math.max(progress.troubleshooting, meetsCriteria ? 40 : 15), practicalAbility: Math.max(progress.practicalAbility, meetsCriteria ? 35 : 15) });
   }
 
-  function saveNote() {
-    const body = noteBody.trim();
-    if (!body) { toast.error("Write a note before saving."); return; }
-    const now = new Date().toISOString();
-    if (latestNote) actions.updateNote({ ...latestNote, body, updatedAt: now });
-    else actions.addNote({ id: crypto.randomUUID(), topicId: topic.id, ...(lesson ? { lessonId: lesson.id } : {}), title: `${topic.title} notes`, body, createdAt: now, updatedAt: now });
-    toast.success("Topic note saved.");
-  }
-
-  function toggleBookmark() {
-    if (bookmark) { actions.removeBookmark(bookmark.id); toast.success("Bookmark removed."); return; }
-    actions.addBookmark({ id: crypto.randomUUID(), label: topic.title, href: `/topics/${topic.id}`, topicId: topic.id, createdAt: new Date().toISOString() });
-    toast.success("Topic bookmarked.");
-  }
 
   const averageProgress = useMemo(() => Math.round(progressLabels.reduce((sum, [key]) => sum + progress[key], 0) / progressLabels.length), [progress]);
   if (!lesson || !module || !practice || !scenario) return null;
@@ -133,9 +117,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <ul className="space-y-3">{topic.learningObjectives.map((objective) => <li key={objective} className="flex gap-3 text-sm text-muted-foreground"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" /><span>{objective}</span></li>)}</ul>
     </Panel>
 
-    <div className="flex flex-wrap gap-2">
-      <Button variant={bookmark ? "secondary" : "outline"} onClick={toggleBookmark}>{bookmark ? <BookmarkCheck /> : <Bookmark />}{bookmark ? "Bookmarked" : "Bookmark topic"}</Button>
-    </div>
 
     <Tabs defaultValue="learn" className="space-y-4">
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
@@ -157,7 +138,11 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     </Tabs>
 
     <div className="grid gap-4 lg:grid-cols-2">
-      <Panel title="Topic notes" description="Saved on this device and linked to this topic."><Label htmlFor="topic-note">Your notes</Label><Textarea id="topic-note" className="mt-2" rows={6} value={noteBody} onChange={(event) => setNoteBody(event.target.value)} /><Button className="mt-3" onClick={saveNote}><Save />Save note</Button></Panel>
+      <AnnotationPanel
+        target={{ kind: "lesson", id: lesson.id, label: topic.title, href: `/topics/${topic.id}` }}
+        title="Lesson notes and bookmark"
+        description="Notes and bookmarks for this lesson, saved with everything else you have marked."
+      />
       <Panel title="Learning progress" description={`${averageProgress}% across six evidence areas. Reading alone does not change progress.`}><div className="space-y-4">{progressLabels.map(([key, label]) => <div key={key}><div className="mb-1.5 flex justify-between text-sm"><span>{label}</span><span className="tabular-nums text-muted-foreground">{progress[key]}%</span></div><Progress value={progress[key]} /></div>)}</div></Panel>
     </div>
   </div>;

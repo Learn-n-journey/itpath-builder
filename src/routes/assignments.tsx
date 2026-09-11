@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  Bookmark,
-  BookmarkCheck,
   CheckCircle2,
   ClipboardList,
   FileText,
@@ -12,6 +10,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -146,12 +145,9 @@ function AssignmentWorkspace({
     ) ?? latestAttempt;
   const [response, setResponse] = useState(attempt?.responses["main"] ?? "");
   const [selfChecks, setSelfChecks] = useState<Record<string, boolean>>({});
-  const [noteBody, setNoteBody] = useState("");
   const [showReview, setShowReview] = useState(false);
   const latestResponse = latestAttempt?.responses["main"] ?? "";
   const attemptResponse = attempt?.responses["main"] ?? "";
-  const note = user.notes.find((item) => item.assignmentId === assignment.id);
-  const bookmark = user.bookmarks.find((item) => item.assignmentId === assignment.id);
   const topic = topics.find((item) => item.id === assignment.topicId);
   const history = useMemo(
     () => user.assignmentAttempts.filter((item) => item.assignmentId === assignment.id),
@@ -167,9 +163,6 @@ function AssignmentWorkspace({
   useEffect(() => {
     setResponse(attemptResponse);
   }, [attempt?.id, attemptResponse]);
-  useEffect(() => {
-    setNoteBody(note?.body ?? "");
-  }, [note?.body]);
 
   function start(previousAttemptId?: string) {
     const now = new Date().toISOString();
@@ -281,45 +274,6 @@ function AssignmentWorkspace({
     setShowReview(true);
     toast.success("Assignment completed.");
   }
-  function toggleBookmark() {
-    if (bookmark) actions.removeBookmark(bookmark.id);
-    else
-      actions.addBookmark({
-        id: crypto.randomUUID(),
-        label: assignment.title,
-        href: "/assignments",
-        assignmentId: assignment.id,
-        topicId: assignment.topicId,
-        createdAt: new Date().toISOString(),
-      });
-  }
-  function saveNote() {
-    if (!noteBody.trim()) {
-      toast.error("Write a note before saving.");
-      return;
-    }
-    const now = new Date().toISOString();
-    if (note)
-      actions.updateNote({
-        ...note,
-        body: noteBody.trim(),
-        ...(attempt ? { assignmentAttemptId: attempt.id } : {}),
-        updatedAt: now,
-      });
-    else
-      actions.addNote({
-        id: crypto.randomUUID(),
-        title: `${assignment.title} notes`,
-        body: noteBody.trim(),
-        assignmentId: assignment.id,
-        ...(attempt ? { assignmentAttemptId: attempt.id } : {}),
-        topicId: assignment.topicId,
-        createdAt: now,
-        updatedAt: now,
-      });
-    toast.success("Assignment note saved.");
-  }
-
   const canEdit = attempt?.status === "started";
   const resultMap = new Map(attempt?.criterionResults.map((item) => [item.criterionId, item]));
   return (
@@ -339,10 +293,6 @@ function AssignmentWorkspace({
             <h2 className="mt-3 font-display text-xl font-semibold">{assignment.title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{assignment.brief}</p>
           </div>
-          <Button variant={bookmark ? "secondary" : "outline"} onClick={toggleBookmark}>
-            {bookmark ? <BookmarkCheck /> : <Bookmark />}
-            {bookmark ? "Bookmarked" : "Bookmark"}
-          </Button>
         </div>
         <ol className="mt-5 list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
           {assignment.instructions.map((item) => (
@@ -470,19 +420,16 @@ function AssignmentWorkspace({
         </>
       )}
 
-      <Panel title="Notes" description="Keep private context for this assignment and attempt.">
-        <Label htmlFor={`assignment-note-${assignment.id}`}>Assignment note</Label>
-        <Textarea
-          id={`assignment-note-${assignment.id}`}
-          className="mt-2"
-          value={noteBody}
-          onChange={(event) => setNoteBody(event.target.value)}
-        />
-        <Button className="mt-3" variant="outline" onClick={saveNote}>
-          <Save />
-          Save note
-        </Button>
-      </Panel>
+      <AnnotationPanel
+        target={{
+          kind: "assignment",
+          id: assignment.id,
+          label: assignment.title,
+          href: "/assignments",
+        }}
+        title="Assignment notes and bookmark"
+        description="Private context for this assignment, saved with your other notes and bookmarks."
+      />
 
       {showReview && attempt ? (
         <Panel title="Review" description="Saved work, evaluation, and lifecycle history.">

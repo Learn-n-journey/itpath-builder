@@ -14,6 +14,7 @@ import {
   Users,
   FolderGit2,
   Bot,
+  BookMarked,
   TrendingUp,
   Settings as SettingsIcon,
   type LucideIcon,
@@ -42,6 +43,7 @@ export const navItems: NavItem[] = [
   { label: "Career Skills", to: "/career-skills", icon: Users, group: "Career" },
   { label: "Portfolio", to: "/portfolio", icon: FolderGit2, group: "Career" },
   { label: "AI Tutor", to: "/ai-tutor", icon: Bot, group: "You" },
+  { label: "Bookmarks", to: "/bookmarks", icon: BookMarked, group: "You" },
   { label: "Progress", to: "/progress", icon: TrendingUp, group: "You" },
   { label: "Settings", to: "/settings", icon: SettingsIcon, group: "You" },
 ];

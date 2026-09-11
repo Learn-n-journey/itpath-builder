@@ -539,10 +539,23 @@ export interface StudyPlan {
 }
 
 
+/** The kinds of item a learner can annotate anywhere in IT PATH. */
+export type AnnotationKind =
+  | "topic"
+  | "lesson"
+  | "resource"
+  | "lab"
+  | "assignment"
+  | "quiz"
+  | "project";
+
 export interface Note {
   id: EntityId;
   title: string;
   body: string;
+  /** Unified target of the note. Older records fall back to the specific IDs below. */
+  entityKind?: AnnotationKind;
+  entityId?: EntityId;
   topicId?: EntityId;
   lessonId?: EntityId;
   resourceId?: EntityId;
@@ -550,6 +563,8 @@ export interface Note {
   assignmentAttemptId?: EntityId;
   labId?: EntityId;
   labAttemptId?: EntityId;
+  quizId?: EntityId;
+  projectId?: EntityId;
   createdAt: string;
   updatedAt: string;
 }
@@ -558,10 +573,16 @@ export interface Bookmark {
   id: EntityId;
   label: string;
   href: string;
+  /** Unified target of the bookmark. Older records fall back to the specific IDs below. */
+  entityKind?: AnnotationKind;
+  entityId?: EntityId;
   resourceId?: EntityId;
   topicId?: EntityId;
+  lessonId?: EntityId;
   assignmentId?: EntityId;
   labId?: EntityId;
+  quizId?: EntityId;
+  projectId?: EntityId;
   createdAt: string;
 }
 

@@ -3,6 +3,7 @@ import { Download, FlaskConical, FolderOpen, Pencil, Plus, Trash2, X } from "luc
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -286,6 +287,14 @@ function Portfolio() {
                         <Field label="Result" value={p.result} wide />
                         <Field label="Evidence" value={p.evidence} wide />
                       </dl>
+                    ) : null}
+                    {open ? (
+                      <AnnotationPanel
+                        className="mt-4"
+                        target={{ kind: "project", id: p.id, label: p.title, href: "/portfolio" }}
+                        title="Project notes and bookmark"
+                        description="Notes and bookmarks for this project, saved with the rest of your work."
+                      />
                     ) : null}
                   </li>
                 );
