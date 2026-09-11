@@ -22,6 +22,7 @@ import {
   APP_DATA_VERSION,
   type Bookmark,
   type Note,
+  type Mistake,
   type PracticeResponse,
   type PortfolioProject,
   type RecallResponse,
@@ -44,6 +45,7 @@ interface AppActions {
   addStudySession: (session: StudySession) => void;
   removeStudySession: (id: string) => void;
   addRecallResponse: (response: RecallResponse) => void;
+  addMistake: (mistake: Mistake) => void;
   addPracticeResponse: (response: PracticeResponse) => void;
   setTeachBackResponse: (response: TeachBackResponse) => void;
   setScenarioResponse: (response: ScenarioResponse) => void;
@@ -121,6 +123,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.removeStudySession(current, id)),
       addRecallResponse: (response) =>
         setUser((current) => userMutations.addRecallResponse(current, response)),
+      addMistake: (mistake) =>
+        setUser((current) => userMutations.addMistake(current, mistake)),
       addPracticeResponse: (response) =>
         setUser((current) => userMutations.addPracticeResponse(current, response)),
       setTeachBackResponse: (response) =>

@@ -1,15 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Trash2 } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, BookOpen, Search, X } from "lucide-react";
+import { useMemo, useState } from "react";
 
-import { PageHeader, Panel } from "@/components/page-kit";
+import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { lessons, topics } from "@/data/static-content";
-import { useAppState } from "@/state/app-state";
+import { certifications, topics } from "@/data/static-content";
 
 export const Route = createFileRoute("/learn")({
   head: () => ({
@@ -26,108 +23,45 @@ export const Route = createFileRoute("/learn")({
 });
 
 function Learn() {
-  const { user, actions } = useAppState();
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-
-  function addNote() {
-    if (!title.trim()) {
-      toast.error("Give your note a title.");
-      return;
-    }
-    const now = new Date().toISOString();
-    actions.addNote({
-      id: crypto.randomUUID(),
-      title: title.trim(),
-      body: body.trim(),
-      createdAt: now,
-      updatedAt: now,
+  const [query, setQuery] = useState("");
+  const filteredTopics = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return topics;
+    return topics.filter((topic) => {
+      const certification = certifications.find((item) => item.id === topic.certificationId);
+      return [topic.title, topic.summary, certification?.title ?? "", ...topic.learningObjectives]
+        .join(" ")
+        .toLowerCase()
+        .includes(needle);
     });
-    setTitle("");
-    setBody("");
-    toast.success("Note saved.");
-  }
-
-  function removeNote(id: string) {
-    actions.removeNote(id);
-  }
+  }, [query]);
 
   return (
     <>
       <PageHeader
         title="Learn"
-        description="Lessons appear here as your curriculum is added. Your notes are saved on this device."
+        description="Choose a topic, build recall, apply the knowledge, and explain your reasoning."
       />
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Panel title="Lessons" description={`${lessons.length} lessons across ${topics.length} topics.`}>
-          {lessons.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No lessons are loaded yet, so nothing is marked complete.
-            </p>
-          ) : (
-            <ul className="space-y-2 text-sm">
-              {lessons.map((l) => (
-                <li key={l.id}>{l.title}</li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel title="New note">
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="note-title">Title</Label>
-              <Input
-                id="note-title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Subnetting basics"
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label htmlFor="note-body">Note</Label>
-              <Textarea
-                id="note-body"
-                value={body}
-                onChange={(e) => setBody(e.target.value)}
-                rows={4}
-                className="mt-1.5"
-              />
-            </div>
-            <Button onClick={addNote}>Save note</Button>
-          </div>
-        </Panel>
-      </div>
-
-      <Panel className="mt-4" title={`Your notes (${user.notes.length})`}>
-        {user.notes.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No notes yet.</p>
+      <Panel title="Available topics" description={`${filteredTopics.length} of ${topics.length} topics shown`}>
+        <div className="relative mb-5">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+          <Input aria-label="Search topics" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search topics, objectives, or certifications" className="pl-9 pr-10" />
+          {query ? <Button aria-label="Clear search" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setQuery("")}><X className="size-4" /></Button> : null}
+        </div>
+        {filteredTopics.length === 0 ? (
+          <EmptyState icon={Search} title="No topics found" body={`No available topic matches “${query}”.`}><Button variant="outline" onClick={() => setQuery("")}>Clear search</Button></EmptyState>
         ) : (
-          <ul className="divide-y divide-border">
-            {user.notes.map((n) => (
-              <li key={n.id} className="flex min-w-0 items-start justify-between gap-4 py-3">
-                <div className="min-w-0">
-                  <p className="break-words text-sm font-medium">{n.title}</p>
-                  {n.body ? (
-                    <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">{n.body}</p>
-                  ) : null}
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(n.createdAt).toLocaleString()}
-                  </p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`Delete note ${n.title}`}
-                  onClick={() => removeNote(n.id)}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </li>
-            ))}
-          </ul>
+          <div className="grid gap-3 md:grid-cols-2">
+            {filteredTopics.map((topic) => {
+              const certification = certifications.find((item) => item.id === topic.certificationId);
+              return <Link key={topic.id} to="/topics/$topicId" params={{ topicId: topic.id }} className="group rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <div className="flex items-start justify-between gap-4"><BookOpen className="mt-0.5 size-5 shrink-0 text-primary" /><ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" /></div>
+                <h2 className="mt-4 font-display text-base font-semibold">{topic.title}</h2>
+                <p className="mt-2 text-sm text-muted-foreground">{topic.summary}</p>
+                <p className="mt-4 text-xs font-medium text-muted-foreground">Year {topic.year} · Month {topic.month} · Week {topic.week} · {certification?.title}</p>
+              </Link>;
+            })}
+          </div>
         )}
       </Panel>
     </>
