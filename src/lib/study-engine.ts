@@ -211,7 +211,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
       reason: openLabDef
         ? "You have this lab in progress."
         : `Practical work for ${topicTitle(nextLab.topicId)}.`,
-      plannedMinutes: Math.min(nextLab.estimatedMinutes, 45),
+      plannedMinutes: Math.min(nextLab.estimatedMinutes, 30),
       to: "/labs",
       labId: nextLab.id,
       topicId: nextLab.topicId,
