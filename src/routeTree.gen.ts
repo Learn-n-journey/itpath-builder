@@ -10,14 +10,35 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AssignmentsRouteImport } from './routes/assignments'
+import { Route as CareerModeRouteImport } from './routes/career-mode'
+import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as MyPathRouteImport } from './routes/my-path'
+import { Route as QuizMeRouteImport } from './routes/quiz-me'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ReviewRouteImport } from './routes/review'
 import { Route as ThisWeekRouteImport } from './routes/this-week'
+import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssignmentsRoute = AssignmentsRouteImport.update({
+  id: '/assignments',
+  path: '/assignments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareerModeRoute = CareerModeRouteImport.update({
+  id: '/career-mode',
+  path: '/career-mode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabsRoute = LabsRouteImport.update({
+  id: '/labs',
+  path: '/labs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LearnRoute = LearnRouteImport.update({
@@ -30,9 +51,19 @@ const MyPathRoute = MyPathRouteImport.update({
   path: '/my-path',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuizMeRoute = QuizMeRouteImport.update({
+  id: '/quiz-me',
+  path: '/quiz-me',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReviewRoute = ReviewRouteImport.update({
+  id: '/review',
+  path: '/review',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ThisWeekRoute = ThisWeekRouteImport.update({
@@ -40,43 +71,106 @@ const ThisWeekRoute = ThisWeekRouteImport.update({
   path: '/this-week',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TroubleshootRoute = TroubleshootRouteImport.update({
+  id: '/troubleshoot',
+  path: '/troubleshoot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/assignments': typeof AssignmentsRoute
+  '/career-mode': typeof CareerModeRoute
+  '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
+  '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
+  '/review': typeof ReviewRoute
   '/this-week': typeof ThisWeekRoute
+  '/troubleshoot': typeof TroubleshootRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/assignments': typeof AssignmentsRoute
+  '/career-mode': typeof CareerModeRoute
+  '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
+  '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
+  '/review': typeof ReviewRoute
   '/this-week': typeof ThisWeekRoute
+  '/troubleshoot': typeof TroubleshootRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/assignments': typeof AssignmentsRoute
+  '/career-mode': typeof CareerModeRoute
+  '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
+  '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
+  '/review': typeof ReviewRoute
   '/this-week': typeof ThisWeekRoute
+  '/troubleshoot': typeof TroubleshootRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/learn' | '/my-path' | '/resources' | '/this-week'
+  fullPaths:
+    | '/'
+    | '/assignments'
+    | '/career-mode'
+    | '/labs'
+    | '/learn'
+    | '/my-path'
+    | '/quiz-me'
+    | '/resources'
+    | '/review'
+    | '/this-week'
+    | '/troubleshoot'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/learn' | '/my-path' | '/resources' | '/this-week'
-  id: '__root__' | '/' | '/learn' | '/my-path' | '/resources' | '/this-week'
+  to:
+    | '/'
+    | '/assignments'
+    | '/career-mode'
+    | '/labs'
+    | '/learn'
+    | '/my-path'
+    | '/quiz-me'
+    | '/resources'
+    | '/review'
+    | '/this-week'
+    | '/troubleshoot'
+  id:
+    | '__root__'
+    | '/'
+    | '/assignments'
+    | '/career-mode'
+    | '/labs'
+    | '/learn'
+    | '/my-path'
+    | '/quiz-me'
+    | '/resources'
+    | '/review'
+    | '/this-week'
+    | '/troubleshoot'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AssignmentsRoute: typeof AssignmentsRoute
+  CareerModeRoute: typeof CareerModeRoute
+  LabsRoute: typeof LabsRoute
   LearnRoute: typeof LearnRoute
   MyPathRoute: typeof MyPathRoute
+  QuizMeRoute: typeof QuizMeRoute
   ResourcesRoute: typeof ResourcesRoute
+  ReviewRoute: typeof ReviewRoute
   ThisWeekRoute: typeof ThisWeekRoute
+  TroubleshootRoute: typeof TroubleshootRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -86,6 +180,27 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assignments': {
+      id: '/assignments'
+      path: '/assignments'
+      fullPath: '/assignments'
+      preLoaderRoute: typeof AssignmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/career-mode': {
+      id: '/career-mode'
+      path: '/career-mode'
+      fullPath: '/career-mode'
+      preLoaderRoute: typeof CareerModeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/labs': {
+      id: '/labs'
+      path: '/labs'
+      fullPath: '/labs'
+      preLoaderRoute: typeof LabsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/learn': {
@@ -102,11 +217,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MyPathRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quiz-me': {
+      id: '/quiz-me'
+      path: '/quiz-me'
+      fullPath: '/quiz-me'
+      preLoaderRoute: typeof QuizMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/review': {
+      id: '/review'
+      path: '/review'
+      fullPath: '/review'
+      preLoaderRoute: typeof ReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/this-week': {
@@ -116,15 +245,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ThisWeekRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/troubleshoot': {
+      id: '/troubleshoot'
+      path: '/troubleshoot'
+      fullPath: '/troubleshoot'
+      preLoaderRoute: typeof TroubleshootRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AssignmentsRoute: AssignmentsRoute,
+  CareerModeRoute: CareerModeRoute,
+  LabsRoute: LabsRoute,
   LearnRoute: LearnRoute,
   MyPathRoute: MyPathRoute,
+  QuizMeRoute: QuizMeRoute,
   ResourcesRoute: ResourcesRoute,
+  ReviewRoute: ReviewRoute,
   ThisWeekRoute: ThisWeekRoute,
+  TroubleshootRoute: TroubleshootRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
