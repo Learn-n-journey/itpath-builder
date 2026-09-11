@@ -68,7 +68,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     const correct = matched.length >= Math.min(2, question.acceptedConcepts.length);
     const now = new Date().toISOString();
     actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
-    if (!correct)
+    if (!correct) {
       actions.recordMistake({
         topicId: topic.id,
         activity: "recall",
@@ -77,6 +77,8 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         questionId,
         createdAt: now,
       });
+      actions.ensureReview({ topicId: topic.id });
+    }
     setRecallFeedback((current) => ({ ...current, [questionId]: { correct, message: question.explanation } }));
     raiseProgress({ recall: Math.max(progress.recall, correct ? 35 : 10), retention: Math.max(progress.retention, correct ? 15 : 5) });
   }

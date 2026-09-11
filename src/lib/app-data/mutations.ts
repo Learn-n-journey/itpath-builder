@@ -10,6 +10,7 @@ import type {
   QuizAttempt,
   RecallResponse,
   Review,
+  ReviewAttempt,
   PracticeResponse,
   ScenarioResponse,
   StudySession,
@@ -25,6 +26,7 @@ type UserCollectionKey =
   | "practiceResponses"
   | "mistakes"
   | "reviews"
+  | "reviewAttempts"
   | "notes"
   | "bookmarks"
   | "labAttempts"
@@ -95,6 +97,12 @@ export const userMutations = {
     ),
   }),
   addReview: (user: UserData, item: Review) => prepend(user, "reviews", item),
+  updateReview: (user: UserData, item: Review): UserData => ({
+    ...user,
+    reviews: user.reviews.map((review) => (review.id === item.id ? item : review)),
+  }),
+  addReviewAttempt: (user: UserData, item: ReviewAttempt) =>
+    prepend(user, "reviewAttempts", item),
   removeReview: (user: UserData, id: string) => removeById(user, "reviews", id),
   addNote: (user: UserData, item: Note) => prepend(user, "notes", item),
   removeNote: (user: UserData, id: string) => removeById(user, "notes", id),

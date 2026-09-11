@@ -8,6 +8,7 @@ import { staticContent } from "@/data/static-content";
 import { getDependentSkills, getPrerequisiteChain } from "@/data/prerequisite-graph";
 import { createDefaultUserData } from "@/lib/app-data/defaults";
 import { buildMistake, recommendReview } from "@/lib/mistake-engine";
+import { bucketReviews, createReview, gradeReview } from "@/lib/review-engine";
 import { userMutations } from "@/lib/app-data/mutations";
 import {
   getAssignment,
@@ -328,6 +329,61 @@ export function SystemDiagnostics() {
       detail: mistakeShapeOk
         ? "A mistake stores topic, activity, category, date, attempt, severity, resolved state and recommended review."
         : "The centralized mistake record is incomplete.",
+    });
+
+    // Review engine: intervals advance on pass, shorten on fail, and every grade is stored.
+    const seedReview = createReview({ topicId: "topic-dns-fundamentals" });
+    let reviewUser = userMutations.addReview(initialized, seedReview);
+    const firstPass = gradeReview(seedReview, "pass");
+    const secondPass = gradeReview(firstPass.review, "pass");
+    const afterFail = gradeReview(secondPass.review, "fail");
+    reviewUser = userMutations.addReviewAttempt(
+      userMutations.updateReview(reviewUser, afterFail.review),
+      afterFail.attempt,
+    );
+    const intervalsOk =
+      seedReview.interval === 1 &&
+      firstPass.review.interval === 3 &&
+      secondPass.review.interval === 7 &&
+      afterFail.review.interval === 1 &&
+      afterFail.review.lapses === 1 &&
+      afterFail.review.successStreak === 0;
+    results.push({
+      name: "Review interval ladder",
+      pass: intervalsOk,
+      detail: intervalsOk
+        ? "Passing advances 1 → 3 → 7 days and failing shortens the interval back down."
+        : "Interval scheduling did not follow the 1/3/7/14/30/60/90 ladder.",
+    });
+
+    const storedAttempts =
+      reviewUser.reviewAttempts.length === 1 &&
+      reviewUser.reviewAttempts[0]?.outcome === "fail" &&
+      reviewUser.reviewAttempts[0]?.intervalBefore === 7 &&
+      reviewUser.reviewAttempts[0]?.intervalAfter === 1 &&
+      initialized.reviewAttempts.length === 0;
+    results.push({
+      name: "Review attempts stored",
+      pass: storedAttempts,
+      detail: storedAttempts
+        ? "Every graded review is stored immutably with its before and after schedule."
+        : "Graded reviews were not recorded correctly.",
+    });
+
+    const openedOnly = bucketReviews(
+      [seedReview],
+      new Date(new Date(seedReview.dueAt).getTime() + 60 * 60 * 1000),
+    );
+    const openingDoesNotPass =
+      seedReview.totalReviews === 0 &&
+      openedOnly.dueToday.length + openedOnly.overdue.length === 1 &&
+      openedOnly.mastered.length === 0;
+    results.push({
+      name: "Opening a review is not a pass",
+      pass: openingDoesNotPass,
+      detail: openingDoesNotPass
+        ? "A review only advances when it is explicitly graded, never by being opened."
+        : "An ungraded review changed state.",
     });
 
     const dnsRecommendation = recommendReview(dnsMistakeUser, {

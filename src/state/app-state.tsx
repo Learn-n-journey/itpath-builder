@@ -13,6 +13,12 @@ import { createDefaultUserData } from "@/lib/app-data/defaults";
 import { buildMistake, type MistakeInput } from "@/lib/mistake-engine";
 import { userMutations } from "@/lib/app-data/mutations";
 import {
+  createReview,
+  findScheduledReview,
+  gradeReview,
+  rescheduleReview,
+} from "@/lib/review-engine";
+import {
   loadState,
   saveState,
   clearState,
@@ -31,6 +37,7 @@ import {
   type QuizAttempt,
   type RecallResponse,
   type Review,
+  type ReviewOutcome,
   type ScenarioResponse,
   type StudySession,
   type TeachBackResponse,
@@ -60,6 +67,9 @@ interface AppActions {
   recordMistake: (input: MistakeInput) => void;
   setMistakeResolved: (id: string, resolved: boolean) => void;
   addReview: (review: Review) => void;
+  ensureReview: (input: { topicId: string; skillId?: string; sourceMistakeId?: string }) => void;
+  gradeReview: (reviewId: string, outcome: ReviewOutcome) => void;
+  rescheduleReview: (reviewId: string, days: number) => void;
   addPracticeResponse: (response: PracticeResponse) => void;
   setTeachBackResponse: (response: TeachBackResponse) => void;
   setScenarioResponse: (response: ScenarioResponse) => void;
@@ -153,6 +163,35 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setMistakeResolved: (id, resolved) =>
         setUser((current) => userMutations.setMistakeResolved(current, id, resolved)),
       addReview: (review) => setUser((current) => userMutations.addReview(current, review)),
+      ensureReview: (input) =>
+        setUser((current) => {
+          const existing = findScheduledReview(current, input.topicId);
+          if (existing) {
+            // Already scheduled: pull it forward instead of creating a duplicate.
+            return userMutations.updateReview(current, {
+              ...existing,
+              dueAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            });
+          }
+          return userMutations.addReview(current, createReview(input));
+        }),
+      gradeReview: (reviewId, outcome) =>
+        setUser((current) => {
+          const target = current.reviews.find((review) => review.id === reviewId);
+          if (!target) return current;
+          const { review, attempt } = gradeReview(target, outcome);
+          return userMutations.addReviewAttempt(
+            userMutations.updateReview(current, review),
+            attempt,
+          );
+        }),
+      rescheduleReview: (reviewId, days) =>
+        setUser((current) => {
+          const target = current.reviews.find((review) => review.id === reviewId);
+          if (!target) return current;
+          return userMutations.updateReview(current, rescheduleReview(target, days));
+        }),
       addPracticeResponse: (response) =>
         setUser((current) => userMutations.addPracticeResponse(current, response)),
       setTeachBackResponse: (response) =>
@@ -235,7 +274,11 @@ export function useStats() {
       studyMinutes,
       studyHours: Math.round((studyMinutes / 60) * 10) / 10,
       mistakes: user.mistakes.filter((m) => !m.resolved).length,
-      reviewsDue: user.reviews.length,
+      reviewsDue: user.reviews.filter(
+        (review) => review.status === "scheduled" && new Date(review.dueAt).getTime() <= Date.now(),
+      ).length,
+      reviewsScheduled: user.reviews.length,
+      reviewAttempts: user.reviewAttempts.length,
       bookmarks: user.bookmarks.length,
       notes: user.notes.length,
       portfolioProjects: user.portfolio.length,
