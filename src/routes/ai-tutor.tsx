@@ -81,7 +81,7 @@ function AiTutor() {
 
   function generate() {
     const text = generateTutorPrompt(user, mode, {
-      topicId: topicId === NO_TOPIC ? undefined : topicId,
+      ...(topicId === NO_TOPIC ? {} : { topicId }),
       learnerAnswer: answer,
     });
     setPrompt(text);
