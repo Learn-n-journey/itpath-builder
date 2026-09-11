@@ -50,7 +50,7 @@ export interface Resource {
   url: string;
   topicIds: EntityId[];
   certificationId: EntityId;
-  kind: "course" | "article" | "docs" | "learning-path";
+  kind: "course" | "article" | "docs" | "learning-path" | "video";
   difficulty: Difficulty;
   access: "free" | "paid";
   lastVerified: string;
@@ -127,6 +127,28 @@ export interface Quiz {
   description: string;
   topicIds: EntityId[];
   questionIds: EntityId[];
+  /** Curriculum week this quiz belongs to, when it is part of the weekly system. */
+  weekId?: EntityId;
+  /** "week" is the weekly practice quiz, "assessment" is the graded weekly assessment. */
+  kind?: "general" | "week" | "assessment";
+}
+
+/**
+ * A curriculum week. It only references existing entity ids: topics, resources,
+ * labs, assignments and quizzes are never duplicated here.
+ */
+export interface CurriculumWeek {
+  id: EntityId;
+  year: 1 | 2;
+  month: number;
+  week: number;
+  title: string;
+  summary: string;
+  topicIds: EntityId[];
+  videoResourceIds: EntityId[];
+  referenceResourceIds: EntityId[];
+  quizId: EntityId;
+  assessmentQuizId: EntityId;
 }
 
 export type QuestionType =

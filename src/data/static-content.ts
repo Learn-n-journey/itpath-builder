@@ -1,4 +1,5 @@
 /** Read-only curriculum registry. User activity is never stored here. */
+import { weeks as curriculumWeeks } from "./week-content";
 import type {
   Assignment,
   CareerSkill,
@@ -645,17 +646,85 @@ export const resources: Resource[] = [
     lastVerified: "2026-09-11",
     status: "verified",
   },
+  {
+    id: "resource-professor-messer-video-training",
+    title: "Free CompTIA certification video training",
+    provider: "Professor Messer",
+    url: "https://www.professormesser.com/",
+    topicIds: [
+      "topic-computer-hardware-basics",
+      "topic-operating-systems-overview",
+      "topic-virtualization-basics",
+      "topic-it-career-overview",
+    ],
+    certificationId: "cert-comptia-a-plus",
+    kind: "video",
+    difficulty: "gentle",
+    access: "free",
+    lastVerified: "2026-09-11",
+    status: "verified",
+  },
+  {
+    id: "resource-professor-messer-youtube",
+    title: "Professor Messer video channel",
+    provider: "Professor Messer",
+    url: "https://www.youtube.com/@professormesser",
+    topicIds: [
+      "topic-basic-networking-concepts",
+      "topic-networking-basics",
+      "topic-dns-fundamentals",
+    ],
+    certificationId: "cert-comptia-network-plus",
+    kind: "video",
+    difficulty: "standard",
+    access: "free",
+    lastVerified: "2026-09-11",
+    status: "verified",
+  },
+  {
+    id: "resource-microsoft-learn-shows",
+    title: "Microsoft Learn shows and video series",
+    provider: "Microsoft Learn",
+    url: "https://learn.microsoft.com/en-us/shows/",
+    topicIds: [
+      "topic-operating-systems-overview",
+      "topic-virtualization-basics",
+      "topic-command-line-fundamentals",
+      "topic-it-career-overview",
+    ],
+    certificationId: "cert-comptia-a-plus",
+    kind: "video",
+    difficulty: "standard",
+    access: "free",
+    lastVerified: "2026-09-11",
+    status: "verified",
+  },
+  {
+    id: "resource-linux-foundation-videos",
+    title: "Linux Foundation video channel",
+    provider: "The Linux Foundation",
+    url: "https://www.youtube.com/@LinuxfoundationOrg",
+    topicIds: ["topic-command-line-fundamentals", "topic-operating-systems-overview"],
+    certificationId: "cert-comptia-linux-plus",
+    kind: "video",
+    difficulty: "standard",
+    access: "free",
+    lastVerified: "2026-09-11",
+    status: "verified",
+  },
 ];
 export { assignments };
 export { labs };
 export { incidents };
 export { tickets };
 export { questions, quizzes };
+export { weeks } from "./week-content";
 export { certifications, certificationObjectives };
 export const careerSkills: CareerSkill[] = [];
 
 export const staticContent = {
   tracks,
+  weeks: curriculumWeeks,
   topics,
   lessons,
   resources,

@@ -38,7 +38,7 @@ type Filters = {
 
 const emptyFilters: Filters = { topic: "all", certification: "all", kind: "all", difficulty: "all", access: "all" };
 const difficultyLabels: Record<Difficulty, string> = { gentle: "Beginner", standard: "Intermediate", challenging: "Advanced" };
-const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path" };
+const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
 
 function ResourcesPage() {
   const { user, actions } = useAppState();

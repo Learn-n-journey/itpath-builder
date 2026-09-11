@@ -16,3 +16,4 @@
 - [x] Priority: review, weak topics, new material, practice, lab, assignment, quiz
 - [x] Start / pause / resume / complete / skip / finish with tracked time
 - [x] Plans and tracked sessions persisted (schema v12)
+- [x] Weekly system: 4 curriculum weeks, weekly quizzes + assessments via shared quiz runner, evidence-based week completion

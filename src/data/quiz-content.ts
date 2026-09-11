@@ -1,8 +1,9 @@
+import { weekQuestions } from "@/data/week-question-bank";
 import type { Question, Quiz } from "@/lib/app-data/types";
 
 const quizId = "quiz-it-foundations-checkpoint";
 
-export const quizzes: Quiz[] = [
+const foundationsQuiz: Quiz[] = [
   {
     id: quizId,
     title: "IT Foundations Checkpoint",
@@ -40,7 +41,7 @@ export const quizzes: Quiz[] = [
   },
 ];
 
-export const questions: Question[] = [
+const baseQuestions: Question[] = [
   {
     id: "question-hardware-ram-storage",
     quizId,
@@ -312,3 +313,63 @@ export const questions: Question[] = [
     requiresReasoning: false,
   },
 ];
+export const questions: Question[] = [...baseQuestions, ...weekQuestions];
+
+const weekPlan: Array<{ weekId: string; number: number; title: string; topicIds: string[] }> = [
+  {
+    weekId: "week-y1-m1-w1",
+    number: 1,
+    title: "Computers and operating systems",
+    topicIds: ["topic-computer-hardware-basics", "topic-operating-systems-overview"],
+  },
+  {
+    weekId: "week-y1-m1-w2",
+    number: 2,
+    title: "Networking concepts and the command line",
+    topicIds: ["topic-basic-networking-concepts", "topic-command-line-fundamentals"],
+  },
+  {
+    weekId: "week-y1-m1-w3",
+    number: 3,
+    title: "Virtualization and the IT profession",
+    topicIds: ["topic-virtualization-basics", "topic-it-career-overview"],
+  },
+  {
+    weekId: "week-y1-m1-w4",
+    number: 4,
+    title: "Addressing and name resolution",
+    topicIds: ["topic-networking-basics", "topic-dns-fundamentals"],
+  },
+];
+
+/**
+ * Weekly quizzes and weekly assessments reuse the shared question bank by id.
+ * No question text is duplicated for the weekly system.
+ */
+const weeklyQuizzes: Quiz[] = weekPlan.flatMap((week) => {
+  const questionIds = questions
+    .filter((question) => week.topicIds.includes(question.topicId))
+    .map((question) => question.id);
+  return [
+    {
+      id: `quiz-week-${week.number}`,
+      title: `Week ${week.number} quiz — ${week.title}`,
+      description: `${questionIds.length} questions drawn from this week's topics.`,
+      topicIds: week.topicIds,
+      questionIds,
+      weekId: week.weekId,
+      kind: "week" as const,
+    },
+    {
+      id: `quiz-week-${week.number}-assessment`,
+      title: `Week ${week.number} assessment`,
+      description: "The graded weekly assessment. 80% or higher is a pass.",
+      topicIds: week.topicIds,
+      questionIds,
+      weekId: week.weekId,
+      kind: "assessment" as const,
+    },
+  ];
+});
+
+export const quizzes: Quiz[] = [...foundationsQuiz, ...weeklyQuizzes];
