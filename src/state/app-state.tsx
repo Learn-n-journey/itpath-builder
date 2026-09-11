@@ -27,7 +27,9 @@ import {
   type Mistake,
   type PracticeResponse,
   type PortfolioProject,
+  type QuizAttempt,
   type RecallResponse,
+  type Review,
   type ScenarioResponse,
   type StudySession,
   type TeachBackResponse,
@@ -37,6 +39,8 @@ import {
 } from "@/lib/app-data/types";
 
 interface AppActions {
+  addQuizAttempt: (attempt: QuizAttempt) => void;
+  updateQuizAttempt: (attempt: QuizAttempt) => void;
   addLabAttempt: (attempt: LabAttempt) => void;
   updateLabAttempt: (attempt: LabAttempt) => void;
   addAssignmentAttempt: (attempt: AssignmentAttempt) => void;
@@ -52,6 +56,7 @@ interface AppActions {
   removeStudySession: (id: string) => void;
   addRecallResponse: (response: RecallResponse) => void;
   addMistake: (mistake: Mistake) => void;
+  addReview: (review: Review) => void;
   addPracticeResponse: (response: PracticeResponse) => void;
   setTeachBackResponse: (response: TeachBackResponse) => void;
   setScenarioResponse: (response: ScenarioResponse) => void;
@@ -112,6 +117,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const actions = useMemo<AppActions>(
     () => ({
+      addQuizAttempt: (attempt) =>
+        setUser((current) => userMutations.addQuizAttempt(current, attempt)),
+      updateQuizAttempt: (attempt) =>
+        setUser((current) => userMutations.updateQuizAttempt(current, attempt)),
       addLabAttempt: (attempt) =>
         setUser((current) => userMutations.addLabAttempt(current, attempt)),
       updateLabAttempt: (attempt) =>
@@ -136,6 +145,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       addRecallResponse: (response) =>
         setUser((current) => userMutations.addRecallResponse(current, response)),
       addMistake: (mistake) => setUser((current) => userMutations.addMistake(current, mistake)),
+      addReview: (review) => setUser((current) => userMutations.addReview(current, review)),
       addPracticeResponse: (response) =>
         setUser((current) => userMutations.addPracticeResponse(current, response)),
       setTeachBackResponse: (response) =>

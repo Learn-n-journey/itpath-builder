@@ -5,14 +5,13 @@ import type {
   Certification,
   CertificationObjective,
   Lesson,
-  Question,
-  Quiz,
   Resource,
   Topic,
   Track,
 } from "@/lib/app-data/types";
 import { assignments } from "@/data/assignment-content";
 import { labs } from "@/data/lab-content";
+import { questions, quizzes } from "@/data/quiz-content";
 
 export type {
   Assignment,
@@ -660,8 +659,7 @@ export const resources: Resource[] = [
 ];
 export { assignments };
 export { labs };
-export const quizzes: Quiz[] = [];
-export const questions: Question[] = [];
+export { questions, quizzes };
 export const certificationObjectives: CertificationObjective[] = [];
 export const careerSkills: CareerSkill[] = [];
 

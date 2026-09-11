@@ -13,6 +13,7 @@ import {
   getLab,
   getLesson,
   getQuiz,
+  getQuestion,
   getResource,
   getTopic,
   getTopicProgress,
@@ -156,7 +157,24 @@ export function SystemDiagnostics() {
           masteryScore: 100,
         },
       ],
-      quizzes: [{ id: "diag-quiz", topicId: "diag-topic", title: "Test", questionIds: [] }],
+      quizzes: [{ id: "diag-quiz", title: "Test", description: "Test quiz", topicIds: ["diag-topic"], questionIds: ["diag-question"] }],
+      questions: [
+        {
+          id: "diag-question",
+          quizId: "diag-quiz",
+          topicId: "diag-topic",
+          certificationId: "diag-certification",
+          type: "multiple_choice" as const,
+          prompt: "Test?",
+          choices: ["Correct", "Incorrect"],
+          correctAnswer: ["Correct"],
+          acceptableAnswers: [],
+          explanation: "Test explanation.",
+          difficulty: "gentle" as const,
+          mistakeCategory: "concept" as const,
+          requiresReasoning: false,
+        },
+      ],
       certifications: [
         { id: "diag-certification", title: "Test", provider: "Test", objectiveIds: [] },
       ],
@@ -167,7 +185,8 @@ export function SystemDiagnostics() {
       getResource("diag-resource", fixture)?.topicIds.includes("diag-topic") === true &&
       getAssignment("diag-assignment", fixture)?.topicId === "diag-topic" &&
       getLab("diag-lab", fixture)?.topicId === "diag-topic" &&
-      getQuiz("diag-quiz", fixture)?.topicId === "diag-topic" &&
+      getQuiz("diag-quiz", fixture)?.topicIds.includes("diag-topic") === true &&
+      getQuestion("diag-question", fixture)?.quizId === "diag-quiz" &&
       getCertification("diag-certification", fixture)?.id === "diag-certification";
     results.push({
       name: "Data retrieval",
@@ -234,6 +253,49 @@ export function SystemDiagnostics() {
       detail: labMutationOk
         ? "Lab attempts can be initialized and updated without changing the zero-state fixture."
         : "The centralized lab-attempt lifecycle mutation failed.",
+    });
+
+    const quizStartedAt = new Date().toISOString();
+    const quizFixture = userMutations.addQuizAttempt(initialized, {
+      id: "diag-quiz-attempt",
+      quizId: "diag-quiz",
+      status: "in_progress",
+      questionOrder: ["diag-question"],
+      choiceOrder: { "diag-question": ["Incorrect", "Correct"] },
+      responses: {},
+      results: [],
+      score: 0,
+      total: 1,
+      correct: 0,
+      incorrect: 0,
+      weakTopicIds: [],
+      mistakeCategories: [],
+      recommendedTopicIds: [],
+      createdAt: quizStartedAt,
+      updatedAt: quizStartedAt,
+    });
+    const startedQuizAttempt = quizFixture.quizAttempts[0];
+    const quizUpdated = startedQuizAttempt
+      ? userMutations.updateQuizAttempt(quizFixture, {
+          ...startedQuizAttempt,
+          status: "submitted",
+          responses: { "diag-question": ["Correct"] },
+          results: [{ questionId: "diag-question", topicId: "diag-topic", correct: true, response: ["Correct"] }],
+          score: 100,
+          correct: 1,
+          submittedAt: quizStartedAt,
+        })
+      : quizFixture;
+    const quizMutationOk =
+      quizUpdated.quizAttempts[0]?.status === "submitted" &&
+      quizUpdated.quizAttempts[0]?.score === 100 &&
+      initialized.quizAttempts.length === 0;
+    results.push({
+      name: "Quiz lifecycle data",
+      pass: quizMutationOk,
+      detail: quizMutationOk
+        ? "Quiz attempts can be started and submitted without overwriting the zero-state fixture."
+        : "The centralized quiz-attempt lifecycle mutation failed.",
     });
 
     let storageOk = false;
