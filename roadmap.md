@@ -1,7 +1,7 @@
-# IT PATH data model
+# IT PATH curriculum engine test
 
-- [x] Define all strongly typed static and user-data entities with stable IDs and ID relationships
-- [x] Add centralized data retrieval helpers
-- [x] Add centralized state mutation functions without creating another state system
-- [x] Extend diagnostics for initialization, retrieval, mutation, persistence, loading, and versioning
-- [x] Verify zero-state integrity, all existing pages, diagnostics, and build
+- [x] Add the eight requested topics with stable IDs and curriculum metadata
+- [x] Add substantive structured lesson content for every topic
+- [x] Add Year → Month → Week → Topic navigation to My Path
+- [x] Add openable topic reading pages
+- [x] Verify all topic pages, zero completion state, responsive behavior, and build

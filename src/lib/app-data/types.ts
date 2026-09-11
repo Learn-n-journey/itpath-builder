@@ -19,6 +19,13 @@ export interface Topic {
   trackId: EntityId;
   title: string;
   summary: string;
+  certificationId: EntityId;
+  year: 1 | 2;
+  month: number;
+  week: number;
+  difficulty: Difficulty;
+  prerequisiteTopicIds: EntityId[];
+  learningObjectives: string[];
   estimatedMinutes: number;
 }
 
@@ -27,6 +34,13 @@ export interface Lesson {
   topicId: EntityId;
   title: string;
   body: string;
+  definition: string;
+  whyItMatters: string;
+  keyTerms: Array<{ term: string; meaning: string }>;
+  realWorldExamples: string[];
+  commonMisconceptions: string[];
+  summary: string;
+  nextSteps: string[];
 }
 
 export interface Resource {

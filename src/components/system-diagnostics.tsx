@@ -74,8 +74,8 @@ export function SystemDiagnostics() {
 
     const fixture = {
       ...staticContent,
-      topics: [{ id: "diag-topic", trackId: "diag-track", title: "Test", summary: "", estimatedMinutes: 1 }],
-      lessons: [{ id: "diag-lesson", topicId: "diag-topic", title: "Test", body: "" }],
+      topics: [{ id: "diag-topic", trackId: "diag-track", title: "Test", summary: "", certificationId: "diag-certification", year: 1 as const, month: 1, week: 1, difficulty: "gentle" as const, prerequisiteTopicIds: [], learningObjectives: [], estimatedMinutes: 1 }],
+      lessons: [{ id: "diag-lesson", topicId: "diag-topic", title: "Test", body: "", definition: "", whyItMatters: "", keyTerms: [], realWorldExamples: [], commonMisconceptions: [], summary: "", nextSteps: [] }],
       resources: [{ id: "diag-resource", topicId: "diag-topic", title: "Test", url: "https://example.com", kind: "docs" as const }],
       assignments: [{ id: "diag-assignment", topicId: "diag-topic", title: "Test", brief: "" }],
       labs: [{ id: "diag-lab", topicId: "diag-topic", title: "Test", objective: "" }],
