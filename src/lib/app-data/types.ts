@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 5;
+export const APP_DATA_VERSION = 6;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -123,18 +123,42 @@ export interface LabChecklistItem {
 
 export interface Quiz {
   id: EntityId;
-  topicId: EntityId;
   title: string;
+  description: string;
+  topicIds: EntityId[];
   questionIds: EntityId[];
 }
+
+export type QuestionType =
+  | "multiple_choice"
+  | "multiple_response"
+  | "scenario"
+  | "troubleshooting"
+  | "short_answer"
+  | "command";
+
+export type MistakeCategory =
+  | "concept"
+  | "terminology"
+  | "diagnosis"
+  | "procedure"
+  | "command_syntax"
+  | "professional_judgment";
 
 export interface Question {
   id: EntityId;
   topicId: EntityId;
   quizId: EntityId;
+  certificationId: EntityId;
+  type: QuestionType;
   prompt: string;
   choices: string[];
-  answerIndex: number;
+  correctAnswer: string[];
+  acceptableAnswers: string[];
+  explanation: string;
+  difficulty: Difficulty;
+  mistakeCategory: MistakeCategory;
+  requiresReasoning: boolean;
 }
 
 export interface Certification {
@@ -229,10 +253,29 @@ export interface LearningModule {
 export interface QuizAttempt {
   id: EntityId;
   quizId: EntityId;
-  topicId: EntityId;
+  status: "in_progress" | "submitted";
+  questionOrder: EntityId[];
+  choiceOrder: Record<EntityId, string[]>;
+  responses: Record<EntityId, string[]>;
+  results: QuizQuestionResult[];
   score: number;
   total: number;
+  correct: number;
+  incorrect: number;
+  weakTopicIds: EntityId[];
+  mistakeCategories: MistakeCategory[];
+  recommendedTopicIds: EntityId[];
+  previousAttemptId?: EntityId;
   createdAt: string;
+  updatedAt: string;
+  submittedAt?: string;
+}
+
+export interface QuizQuestionResult {
+  questionId: EntityId;
+  topicId: EntityId;
+  correct: boolean;
+  response: string[];
 }
 
 export interface RecallResponse {
