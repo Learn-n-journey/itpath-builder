@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 4;
+export const APP_DATA_VERSION = 5;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -103,6 +103,22 @@ export interface Lab {
   topicId: EntityId;
   title: string;
   objective: string;
+  category: "hardware" | "windows" | "networking" | "linux" | "powershell" | "bash" | "dns" | "security" | "cloud";
+  prerequisites: string[];
+  difficulty: Difficulty;
+  estimatedMinutes: number;
+  environment: string;
+  instructions: string[];
+  expectedResult: string;
+  checklist: LabChecklistItem[];
+  reflectionPrompt: string;
+  masteryScore: number;
+}
+
+export interface LabChecklistItem {
+  id: EntityId;
+  label: string;
+  points: number;
 }
 
 export interface Quiz {
@@ -290,6 +306,8 @@ export interface PortfolioProject {
   title: string;
   summary: string;
   topicIds: EntityId[];
+  labId?: EntityId;
+  labAttemptId?: EntityId;
   createdAt: string;
 }
 
@@ -309,6 +327,8 @@ export interface Note {
   resourceId?: EntityId;
   assignmentId?: EntityId;
   assignmentAttemptId?: EntityId;
+  labId?: EntityId;
+  labAttemptId?: EntityId;
   createdAt: string;
   updatedAt: string;
 }
@@ -320,6 +340,7 @@ export interface Bookmark {
   resourceId?: EntityId;
   topicId?: EntityId;
   assignmentId?: EntityId;
+  labId?: EntityId;
   createdAt: string;
 }
 
@@ -333,9 +354,19 @@ export interface CertificationProgress {
 export interface LabAttempt {
   id: EntityId;
   labId: EntityId;
-  topicId?: EntityId;
-  status: "started" | "completed" | "abandoned";
+  topicId: EntityId;
+  status: "in_progress" | "completed" | "needs_review" | "mastered";
+  checklist: Record<EntityId, boolean>;
+  reflection: string;
+  score: number;
+  maxScore: number;
   createdAt: string;
+  updatedAt: string;
+  submittedAt?: string;
+  completedAt?: string;
+  reviewedAt?: string;
+  masteredAt?: string;
+  portfolioProjectId?: EntityId;
 }
 
 export interface AssignmentAttempt {

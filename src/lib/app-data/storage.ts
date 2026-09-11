@@ -74,7 +74,21 @@ function sanitizeUser(raw: unknown): UserData {
     reviews: arr(r.reviews, base.reviews),
     notes: arr(r.notes, base.notes),
     bookmarks: arr(r.bookmarks, base.bookmarks),
-    labAttempts: arr(r.labAttempts, base.labAttempts),
+    labAttempts: arr(r.labAttempts, base.labAttempts).map((attempt) => ({
+      ...attempt,
+      status:
+        attempt.status === "completed"
+          ? "completed"
+          : attempt.status === "mastered" || attempt.status === "needs_review"
+            ? attempt.status
+            : "in_progress",
+      topicId: attempt.topicId ?? "",
+      checklist: attempt.checklist ?? {},
+      reflection: attempt.reflection ?? "",
+      score: attempt.score ?? 0,
+      maxScore: attempt.maxScore ?? 100,
+      updatedAt: attempt.updatedAt ?? attempt.createdAt,
+    })),
     assignmentAttempts: arr(r.assignmentAttempts, base.assignmentAttempts).map((attempt) => ({
       ...attempt,
       responses: attempt.responses ?? {},

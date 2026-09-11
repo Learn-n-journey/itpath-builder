@@ -22,6 +22,7 @@ import {
   APP_DATA_VERSION,
   type AssignmentAttempt,
   type Bookmark,
+  type LabAttempt,
   type Note,
   type Mistake,
   type PracticeResponse,
@@ -36,6 +37,8 @@ import {
 } from "@/lib/app-data/types";
 
 interface AppActions {
+  addLabAttempt: (attempt: LabAttempt) => void;
+  updateLabAttempt: (attempt: LabAttempt) => void;
   addAssignmentAttempt: (attempt: AssignmentAttempt) => void;
   updateAssignmentAttempt: (attempt: AssignmentAttempt) => void;
   addNote: (note: Note) => void;
@@ -109,6 +112,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const actions = useMemo<AppActions>(
     () => ({
+      addLabAttempt: (attempt) =>
+        setUser((current) => userMutations.addLabAttempt(current, attempt)),
+      updateLabAttempt: (attempt) =>
+        setUser((current) => userMutations.updateLabAttempt(current, attempt)),
       addAssignmentAttempt: (attempt) =>
         setUser((current) => userMutations.addAssignmentAttempt(current, attempt)),
       updateAssignmentAttempt: (attempt) =>
@@ -204,7 +211,9 @@ export function useStats() {
       topicsMastered: mastered,
       topicsInProgress: progress.filter((p) => p.status === "in_progress").length,
       assignmentsCompleted: user.assignmentAttempts.filter((a) => a.status === "completed").length,
-      labsCompleted: user.labAttempts.filter((l) => l.status === "completed").length,
+      labsCompleted: user.labAttempts.filter(
+        (l) => l.status === "completed" || l.status === "mastered",
+      ).length,
       quizAttempts: user.quizAttempts.length,
       studyMinutes,
       studyHours: Math.round((studyMinutes / 60) * 10) / 10,
