@@ -1,7 +1,7 @@
-# Foundation lock
+# IT PATH data model
 
-- [x] Audit shared visual patterns
-- [x] Standardize typography, panels, buttons, forms, and spacing
-- [x] Fix narrow-screen overflow risks
-- [x] Verify desktop sidebar, mobile navigation, transitions, and all routes
-- [x] Confirm clean build and browser console
+- [ ] Define all strongly typed static and user-data entities with stable IDs and ID relationships
+- [ ] Add centralized data retrieval helpers
+- [ ] Add centralized state mutation functions without creating another state system
+- [ ] Extend diagnostics for initialization, retrieval, mutation, persistence, loading, and versioning
+- [ ] Verify zero-state integrity, all existing pages, diagnostics, and build
