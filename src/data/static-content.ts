@@ -40,20 +40,6 @@ export const tracks: Track[] = [
   },
 ];
 
-export const certifications: Certification[] = [
-  {
-    id: "cert-comptia-a-plus",
-    title: "CompTIA A+",
-    provider: "CompTIA",
-    objectiveIds: [],
-  },
-  {
-    id: "cert-comptia-network-plus",
-    title: "CompTIA Network+",
-    provider: "CompTIA",
-    objectiveIds: [],
-  },
-];
 
 export const topics: Topic[] = [
   {
@@ -664,7 +650,8 @@ export { labs };
 export { incidents };
 export { tickets };
 export { questions, quizzes };
-export const certificationObjectives: CertificationObjective[] = [];
+export { certifications, certificationObjectives } from "./certification-content";
+import { certifications, certificationObjectives } from "./certification-content";
 export const careerSkills: CareerSkill[] = [];
 
 export const staticContent = {

@@ -2,6 +2,7 @@ import type {
   AssignmentAttempt,
   Bookmark,
   CareerTicket,
+  CertificationObjectiveOverride,
   CertificationProgress,
   IncidentAttempt,
   LabAttempt,
@@ -157,6 +158,21 @@ export const userMutations = {
       ...user.certificationProgress,
       [progress.certificationId]: progress,
     },
+  }),
+  setCertificationObjective: (
+    user: UserData,
+    objective: CertificationObjectiveOverride,
+  ): UserData => ({
+    ...user,
+    certificationObjectives: { ...user.certificationObjectives, [objective.id]: objective },
+  }),
+  clearCertificationObjectiveEdits: (user: UserData, certificationId: string): UserData => ({
+    ...user,
+    certificationObjectives: Object.fromEntries(
+      Object.entries(user.certificationObjectives).filter(
+        ([, value]) => value.certificationId !== certificationId,
+      ),
+    ),
   }),
   removeCertificationProgress: (user: UserData, certificationId: string): UserData => {
     const next = { ...user.certificationProgress };
