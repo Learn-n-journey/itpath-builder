@@ -13,6 +13,7 @@ import type {
   Track,
 } from "@/lib/app-data/types";
 import { assignments } from "@/data/assignment-content";
+import { labs } from "@/data/lab-content";
 
 export type {
   Assignment,
@@ -659,7 +660,7 @@ export const resources: Resource[] = [
   },
 ];
 export { assignments };
-export const labs: Lab[] = [];
+export { labs };
 export const quizzes: Quiz[] = [];
 export const questions: Question[] = [];
 export const certificationObjectives: CertificationObjective[] = [];

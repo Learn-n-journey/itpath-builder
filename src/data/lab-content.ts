@@ -1,0 +1,90 @@
+import type { Lab } from "@/lib/app-data/types";
+
+function checks(prefix: string, labels: string[]) {
+  return labels.map((label, index) => ({ id: `${prefix}-${index + 1}`, label, points: 20 }));
+}
+
+export const labs: Lab[] = [
+  {
+    id: "lab-hardware-component-audit", topicId: "topic-computer-hardware-basics", title: "Hardware Component Audit", category: "hardware",
+    objective: "Identify core computer components and document how each supports a working system.",
+    prerequisites: ["Computer Hardware Basics", "A computer you may safely inspect, or its official specification sheet"], difficulty: "gentle", estimatedMinutes: 35,
+    environment: "A powered-off desktop or laptop, or a manufacturer specification page. Do not open equipment you do not own or have permission to service.",
+    instructions: ["Shut down and disconnect the computer before any physical inspection.", "Record the CPU model, installed memory, storage type and capacity, and available network adapters.", "Identify whether storage and memory appear replaceable without forcing or removing sealed parts.", "Map each observed component to its role during startup and normal operation.", "Write one safe upgrade recommendation supported by the recorded evidence."],
+    expectedResult: "A concise component inventory with correct roles and one compatible, evidence-based upgrade recommendation.",
+    checklist: checks("hardware-check", ["Recorded CPU model", "Recorded memory capacity", "Recorded storage type and capacity", "Recorded network adapters", "Explained one safe upgrade recommendation"]),
+    reflectionPrompt: "Which component is most likely to limit this system first, and what evidence supports your conclusion?", masteryScore: 100,
+  },
+  {
+    id: "lab-windows-system-baseline", topicId: "topic-operating-systems-overview", title: "Windows System Baseline", category: "windows",
+    objective: "Create a repeatable baseline of a Windows system without changing its configuration.", prerequisites: ["Operating Systems Overview", "Access to a Windows computer or Windows virtual machine"], difficulty: "gentle", estimatedMinutes: 40,
+    environment: "Windows Settings, Task Manager, System Information, and Windows Security using read-only inspection.",
+    instructions: ["Record the Windows edition, version, build, system type, and device name.", "Use Task Manager to identify CPU, memory, disk, and network utilization at idle.", "Open Windows Security and record whether the firewall and threat protection report an active state.", "List three startup applications and explain whether each is necessary.", "Save a dated baseline summary without exposing serial numbers or personal information."],
+    expectedResult: "A dated Windows baseline that can be compared with later troubleshooting evidence.",
+    checklist: checks("windows-check", ["Recorded Windows version and build", "Captured idle resource observations", "Checked firewall state", "Checked threat protection state", "Documented startup application findings"]),
+    reflectionPrompt: "What baseline observation would be most useful when diagnosing a future performance complaint, and why?", masteryScore: 100,
+  },
+  {
+    id: "lab-networking-local-path", topicId: "topic-networking-basics", title: "Trace a Local Network Path", category: "networking",
+    objective: "Use local addressing and reachability evidence to explain the path from a device to its gateway.", prerequisites: ["Networking Basics", "A computer connected to a network you are authorized to inspect"], difficulty: "standard", estimatedMinutes: 45,
+    environment: "A local terminal using ipconfig, ifconfig or ip, and ping. Test only devices and networks you are authorized to use.",
+    instructions: ["Record the active interface, IP address, prefix or subnet mask, and default gateway.", "Classify the address as private, public, loopback, or link-local.", "Test the loopback address, then the device address, then the default gateway.", "Record packet-loss and timing evidence for each permitted test.", "Explain which network layer each successful test validates and what an unsuccessful test would not prove."],
+    expectedResult: "A documented local path with accurate address classification and bounded conclusions from each test.",
+    checklist: checks("network-check", ["Recorded active interface settings", "Classified the IP address", "Tested loopback", "Tested the local device address", "Tested and interpreted gateway reachability"]),
+    reflectionPrompt: "If loopback succeeds but the gateway fails, what would you inspect next and why?", masteryScore: 100,
+  },
+  {
+    id: "lab-linux-system-inventory", topicId: "topic-operating-systems-overview", title: "Linux System Inventory", category: "linux",
+    objective: "Collect a Linux operating-system, storage, memory, and network inventory with read-only commands.", prerequisites: ["Operating Systems Overview", "Access to Linux or an authorized browser sandbox"], difficulty: "standard", estimatedMinutes: 40,
+    environment: "A Linux shell using uname, cat, free, df, and ip. No elevated privileges are required.",
+    instructions: ["Run uname -a and record the kernel information you can identify.", "Read /etc/os-release and record the distribution and version.", "Use free -h to record available and total memory.", "Use df -h to identify the root filesystem and its free space.", "Use ip addr to identify the active interface without publishing a public address."],
+    expectedResult: "A privacy-safe Linux inventory that distinguishes kernel, distribution, memory, filesystem, and interface data.",
+    checklist: checks("linux-check", ["Recorded kernel information", "Recorded distribution and version", "Recorded memory information", "Recorded root filesystem capacity", "Identified the active interface"]),
+    reflectionPrompt: "How would this inventory help distinguish an operating-system issue from a resource-capacity issue?", masteryScore: 100,
+  },
+  {
+    id: "lab-powershell-service-report", topicId: "topic-command-line-fundamentals", title: "PowerShell Service Report", category: "powershell",
+    objective: "Build a read-only PowerShell pipeline that filters and exports service information.", prerequisites: ["Command Line Fundamentals", "Windows PowerShell or PowerShell 7"], difficulty: "standard", estimatedMinutes: 45,
+    environment: "A local PowerShell session. The exercise reads service state and writes a report; it does not stop or change services.",
+    instructions: ["Run Get-Service and inspect the object properties returned.", "Filter for services whose Status is Running.", "Sort the results by DisplayName.", "Select Name, DisplayName, and Status, then export the results to a CSV in your documents folder.", "Import the CSV and verify that the record count and selected columns are present."],
+    expectedResult: "A CSV containing only running services, sorted by display name, with the three requested columns.",
+    checklist: checks("powershell-check", ["Inspected Get-Service objects", "Filtered running services", "Sorted by display name", "Exported the requested columns", "Imported and verified the CSV"]),
+    reflectionPrompt: "Why is passing objects through the pipeline safer and more reliable than parsing formatted screen text?", masteryScore: 100,
+  },
+  {
+    id: "lab-bash-log-summary", topicId: "topic-command-line-fundamentals", title: "Bash Log Summary", category: "bash",
+    objective: "Create and verify a safe Bash pipeline that summarizes a supplied sample log.", prerequisites: ["Command Line Fundamentals", "Bash on Linux, macOS, WSL, or an authorized sandbox"], difficulty: "standard", estimatedMinutes: 45,
+    environment: "A Bash shell and a learner-created sample text file. Do not use sensitive production logs.",
+    instructions: ["Create a sample log containing at least ten lines with INFO, WARN, and ERROR levels.", "Use grep to select ERROR lines without modifying the source file.", "Use wc to count the selected lines.", "Use cut or awk to extract the message field from the sample format.", "Redirect the summary to a new file and compare it with the source data."],
+    expectedResult: "A reproducible summary whose error count and extracted messages match the learner-created source log.",
+    checklist: checks("bash-check", ["Created a non-sensitive sample log", "Filtered ERROR lines", "Counted matching lines", "Extracted the intended field", "Verified the saved summary"]),
+    reflectionPrompt: "What assumption about the log format could make your pipeline fail, and how would you detect that failure?", masteryScore: 100,
+  },
+  {
+    id: "lab-dns-resolution-chain", topicId: "topic-dns-fundamentals", title: "Inspect a DNS Resolution Chain", category: "dns",
+    objective: "Compare DNS record answers and separate name-resolution evidence from network reachability.", prerequisites: ["DNS Fundamentals", "A terminal with nslookup, dig, or Resolve-DnsName"], difficulty: "standard", estimatedMinutes: 40,
+    environment: "Read-only DNS queries for example.com using a local resolver. No DNS records are changed.",
+    instructions: ["Query the A and AAAA records for example.com and record the response types.", "Query the authoritative NS records for example.com.", "Record the resolver used and the TTL shown for one answer.", "Repeat one query and compare the response while noting caching effects.", "Explain why a valid DNS answer does not prove that an application service is healthy."],
+    expectedResult: "A DNS evidence table identifying record types, resolver, authoritative servers, TTL, and test limits.",
+    checklist: checks("dns-check", ["Queried A and AAAA records", "Queried NS records", "Recorded resolver and TTL", "Compared a repeated query", "Explained DNS versus service health"]),
+    reflectionPrompt: "If a hostname resolves correctly but a website does not load, which non-DNS checks should follow?", masteryScore: 100,
+  },
+  {
+    id: "lab-security-account-review", topicId: "topic-operating-systems-overview", title: "Local Account Security Review", category: "security",
+    objective: "Review local account and update protections using only authorized, read-only settings.", prerequisites: ["Operating Systems Overview", "Permission to inspect a personal or lab computer"], difficulty: "standard", estimatedMinutes: 45,
+    environment: "Operating-system account, update, firewall, and screen-lock settings. Do not record passwords, recovery codes, or personal identifiers.",
+    instructions: ["List visible account types without recording private account names.", "Confirm whether the daily-use account has administrative privileges.", "Record the automatic update setting and last successful update date.", "Record whether the firewall is active for the current network profile.", "Review screen-lock timing and document one least-privilege improvement without applying unauthorized changes."],
+    expectedResult: "A privacy-safe security review with evidence for privilege, updates, firewall, screen lock, and one improvement.",
+    checklist: checks("security-check", ["Reviewed account types safely", "Checked daily-use privilege level", "Checked update status", "Checked firewall status", "Documented a least-privilege improvement"]),
+    reflectionPrompt: "Which observed control most reduces the impact of a compromised daily-use account, and what limitation remains?", masteryScore: 100,
+  },
+  {
+    id: "lab-cloud-deployment-plan", topicId: "topic-virtualization-basics", title: "Plan a Small Cloud Deployment", category: "cloud",
+    objective: "Design a provider-neutral cloud deployment plan without creating resources or incurring charges.", prerequisites: ["Virtualization Basics", "Basic Networking Concepts"], difficulty: "challenging", estimatedMinutes: 55,
+    environment: "A text document or diagram tool. This lab does not connect to a cloud account, deploy resources, or verify provider configuration.",
+    instructions: ["Define a small web service with expected users, availability needs, and data sensitivity.", "Choose compute, network, storage, and identity components by capability rather than brand name.", "Separate public entry points from private application and data resources.", "Document least-privilege access, backup, logging, and cost-control requirements.", "Write a validation and rollback plan for use before any real deployment."],
+    expectedResult: "A provider-neutral plan with explicit boundaries, controls, validation steps, rollback, and cost limits.",
+    checklist: checks("cloud-check", ["Defined workload requirements", "Selected core service capabilities", "Separated public and private resources", "Documented security and cost controls", "Created validation and rollback steps"]),
+    reflectionPrompt: "Which assumption presents the greatest operational or cost risk, and how would you test it before deployment?", masteryScore: 100,
+  },
+];
