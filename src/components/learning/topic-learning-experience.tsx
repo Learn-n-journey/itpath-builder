@@ -34,9 +34,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const scenario = getRealWorldScenario(topic.id);
   const savedTeachBack = user.teachBackResponses[topic.id];
   const savedScenario = user.scenarioResponses[topic.id];
-  const topicNotes = user.notes.filter((item) => item.topicId === topic.id);
-  const latestNote = topicNotes[0];
-  const bookmark = user.bookmarks.find((item) => item.topicId === topic.id);
   const [recallAnswers, setRecallAnswers] = useState<Record<string, string>>({});
   const [recallFeedback, setRecallFeedback] = useState<Record<string, { correct: boolean; message: string }>>({});
   const [practiceChoice, setPracticeChoice] = useState<number | null>(null);
