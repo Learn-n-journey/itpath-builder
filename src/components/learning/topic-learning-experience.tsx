@@ -78,6 +78,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         createdAt: now,
       });
       actions.ensureReview({ topicId: topic.id });
+    }
     setRecallFeedback((current) => ({ ...current, [questionId]: { correct, message: question.explanation } }));
     raiseProgress({ recall: Math.max(progress.recall, correct ? 35 : 10), retention: Math.max(progress.retention, correct ? 15 : 5) });
   }
