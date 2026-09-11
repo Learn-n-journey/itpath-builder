@@ -158,6 +158,16 @@ function sanitizeUser(raw: unknown): UserData {
         ? r.certificationProgress
         : base.certificationProgress,
     studySessions: arr(r.studySessions, base.studySessions),
+    incidentAttempts: arr(r.incidentAttempts, base.incidentAttempts).map((attempt) => ({
+      ...attempt,
+      status: attempt.status === "submitted" ? "submitted" : "in_progress",
+      performedActionIds: attempt.performedActionIds ?? [],
+      causeGuessIds: attempt.causeGuessIds ?? [],
+      verificationIds: attempt.verificationIds ?? [],
+      reasoning: attempt.reasoning ?? "",
+      documentation: attempt.documentation ?? "",
+      updatedAt: attempt.updatedAt ?? attempt.createdAt,
+    })),
     settings: {
       ...defaultSettings,
       ...(r.settings ?? {}),

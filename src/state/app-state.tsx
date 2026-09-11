@@ -29,6 +29,7 @@ import {
   APP_DATA_VERSION,
   type AssignmentAttempt,
   type Bookmark,
+  type IncidentAttempt,
   type LabAttempt,
   type Note,
   type Mistake,
@@ -51,6 +52,8 @@ interface AppActions {
   updateQuizAttempt: (attempt: QuizAttempt) => void;
   addLabAttempt: (attempt: LabAttempt) => void;
   updateLabAttempt: (attempt: LabAttempt) => void;
+  addIncidentAttempt: (attempt: IncidentAttempt) => void;
+  updateIncidentAttempt: (attempt: IncidentAttempt) => void;
   addAssignmentAttempt: (attempt: AssignmentAttempt) => void;
   updateAssignmentAttempt: (attempt: AssignmentAttempt) => void;
   addNote: (note: Note) => void;
@@ -138,6 +141,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.addLabAttempt(current, attempt)),
       updateLabAttempt: (attempt) =>
         setUser((current) => userMutations.updateLabAttempt(current, attempt)),
+      addIncidentAttempt: (attempt) =>
+        setUser((current) => userMutations.addIncidentAttempt(current, attempt)),
+      updateIncidentAttempt: (attempt) =>
+        setUser((current) => userMutations.updateIncidentAttempt(current, attempt)),
       addAssignmentAttempt: (attempt) =>
         setUser((current) => userMutations.addAssignmentAttempt(current, attempt)),
       updateAssignmentAttempt: (attempt) =>

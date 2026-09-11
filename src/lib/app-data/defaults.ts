@@ -43,6 +43,7 @@ export function createDefaultUserData(): UserData {
     },
     certificationProgress: {},
     studySessions: [],
+    incidentAttempts: [],
     settings: { ...defaultSettings },
   };
 }

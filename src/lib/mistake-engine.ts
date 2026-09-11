@@ -33,6 +33,7 @@ export const mistakeActivityLabels: Record<MistakeActivity, string> = {
   assignment: "Assignment",
   lab: "Lab",
   scenario: "Real-world scenario",
+  troubleshoot: "Troubleshooting incident",
 };
 
 const severityWeight: Record<MistakeSeverity, number> = { low: 1, medium: 2, high: 3 };
