@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { createDefaultUserData } from "@/lib/app-data/defaults";
+import { buildMistake, type MistakeInput } from "@/lib/mistake-engine";
 import { userMutations } from "@/lib/app-data/mutations";
 import {
   loadState,
@@ -56,6 +57,8 @@ interface AppActions {
   removeStudySession: (id: string) => void;
   addRecallResponse: (response: RecallResponse) => void;
   addMistake: (mistake: Mistake) => void;
+  recordMistake: (input: MistakeInput) => void;
+  setMistakeResolved: (id: string, resolved: boolean) => void;
   addReview: (review: Review) => void;
   addPracticeResponse: (response: PracticeResponse) => void;
   setTeachBackResponse: (response: TeachBackResponse) => void;
@@ -145,6 +148,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       addRecallResponse: (response) =>
         setUser((current) => userMutations.addRecallResponse(current, response)),
       addMistake: (mistake) => setUser((current) => userMutations.addMistake(current, mistake)),
+      recordMistake: (input) =>
+        setUser((current) => userMutations.addMistake(current, buildMistake(current, input))),
+      setMistakeResolved: (id, resolved) =>
+        setUser((current) => userMutations.setMistakeResolved(current, id, resolved)),
       addReview: (review) => setUser((current) => userMutations.addReview(current, review)),
       addPracticeResponse: (response) =>
         setUser((current) => userMutations.addPracticeResponse(current, response)),
