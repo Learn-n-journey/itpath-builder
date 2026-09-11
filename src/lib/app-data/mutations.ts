@@ -81,6 +81,18 @@ export const userMutations = {
   }),
   addMistake: (user: UserData, item: Mistake) => prepend(user, "mistakes", item),
   removeMistake: (user: UserData, id: string) => removeById(user, "mistakes", id),
+  setMistakeResolved: (user: UserData, id: string, resolved: boolean): UserData => ({
+    ...user,
+    mistakes: user.mistakes.map((mistake) =>
+      mistake.id === id
+        ? {
+            ...mistake,
+            resolved,
+            resolvedAt: resolved ? new Date().toISOString() : undefined,
+          }
+        : mistake,
+    ),
+  }),
   addReview: (user: UserData, item: Review) => prepend(user, "reviews", item),
   removeReview: (user: UserData, id: string) => removeById(user, "reviews", id),
   addNote: (user: UserData, item: Note) => prepend(user, "notes", item),
