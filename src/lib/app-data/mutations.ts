@@ -16,6 +16,7 @@ import type {
   PracticeResponse,
   ScenarioResponse,
   StudySession,
+  StudyPlan,
   TicketAttempt,
   TeachBackResponse,
   TopicProgress,
@@ -37,6 +38,7 @@ type UserCollectionKey =
   | "careerTickets"
   | "portfolio"
   | "studySessions"
+  | "studyPlans"
   | "incidentAttempts"
   | "ticketAttempts";
 
