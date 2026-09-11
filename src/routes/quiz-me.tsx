@@ -235,14 +235,16 @@ function QuizReview({ attempt, onRetake, onSelectAttempt, attempts }: { attempt:
         {attempt.recommendedTopicIds.length ? <div className="space-y-4"><div className="flex flex-wrap gap-2">{attempt.recommendedTopicIds.map((id) => <Badge key={id} variant="outline">{topicName(id)}</Badge>)}</div><div><p className="text-sm font-medium">Mistake categories</p><div className="mt-2 flex flex-wrap gap-2">{attempt.mistakeCategories.map((category) => <Badge key={category} variant="secondary">{categoryLabels[category]}</Badge>)}</div></div></div> : <p className="flex items-center gap-2 text-sm text-success"><CheckCircle2 className="size-4" /> No weak topics identified in this attempt.</p>}
       </Panel>
       <Panel title="Question review" description="Your saved answers, correct answers, and explanations.">
-        <div className="space-y-4">
+        {attempt.questionOrder.length === 0 ? (
+          <p className="text-sm text-muted-foreground">This summary was preserved from an earlier data version. Per-question answers were not recorded by that version.</p>
+        ) : <div className="space-y-4">
           {attempt.questionOrder.map((questionId, index) => {
             const question = questions.find((item) => item.id === questionId);
             const result = attempt.results.find((item) => item.questionId === questionId);
             if (!question || !result) return null;
             return <article key={questionId} className="rounded-md border border-border p-4"><div className="flex items-start gap-3">{result.correct ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" /> : <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" />}<div className="min-w-0"><p className="font-medium">{index + 1}. {question.prompt}</p><p className="mt-2 break-words text-sm text-muted-foreground"><span className="font-medium text-foreground">Your answer:</span> {result.response.join(", ") || "No answer"}</p>{!result.correct ? <p className="mt-1 break-words text-sm text-muted-foreground"><span className="font-medium text-foreground">Correct answer:</span> {question.correctAnswer.join(", ")}</p> : null}<p className="mt-2 text-sm text-muted-foreground">{question.explanation}</p></div></div></article>;
           })}
-        </div>
+        </div>}
       </Panel>
       <Button onClick={onRetake}><RotateCcw /> Retake</Button>
       <Panel title={`Attempt history (${attempts.length})`}>
