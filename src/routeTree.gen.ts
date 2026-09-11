@@ -10,11 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AssignmentsRouteImport } from './routes/assignments'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
+import { Route as CareerSkillsRouteImport } from './routes/career-skills'
+import { Route as CertificationsRouteImport } from './routes/certifications'
 import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as MyPathRouteImport } from './routes/my-path'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as QuizMeRouteImport } from './routes/quiz-me'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ReviewRouteImport } from './routes/review'
@@ -26,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiTutorRoute = AiTutorRouteImport.update({
+  id: '/ai-tutor',
+  path: '/ai-tutor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AssignmentsRoute = AssignmentsRouteImport.update({
   id: '/assignments',
   path: '/assignments',
@@ -34,6 +44,16 @@ const AssignmentsRoute = AssignmentsRouteImport.update({
 const CareerModeRoute = CareerModeRouteImport.update({
   id: '/career-mode',
   path: '/career-mode',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CareerSkillsRoute = CareerSkillsRouteImport.update({
+  id: '/career-skills',
+  path: '/career-skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CertificationsRoute = CertificationsRouteImport.update({
+  id: '/certifications',
+  path: '/certifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabsRoute = LabsRouteImport.update({
@@ -49,6 +69,16 @@ const LearnRoute = LearnRouteImport.update({
 const MyPathRoute = MyPathRouteImport.update({
   id: '/my-path',
   path: '/my-path',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuizMeRoute = QuizMeRouteImport.update({
@@ -79,11 +109,16 @@ const TroubleshootRoute = TroubleshootRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-tutor': typeof AiTutorRoute
   '/assignments': typeof AssignmentsRoute
   '/career-mode': typeof CareerModeRoute
+  '/career-skills': typeof CareerSkillsRoute
+  '/certifications': typeof CertificationsRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
+  '/portfolio': typeof PortfolioRoute
+  '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
@@ -92,11 +127,16 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-tutor': typeof AiTutorRoute
   '/assignments': typeof AssignmentsRoute
   '/career-mode': typeof CareerModeRoute
+  '/career-skills': typeof CareerSkillsRoute
+  '/certifications': typeof CertificationsRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
+  '/portfolio': typeof PortfolioRoute
+  '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
@@ -106,11 +146,16 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-tutor': typeof AiTutorRoute
   '/assignments': typeof AssignmentsRoute
   '/career-mode': typeof CareerModeRoute
+  '/career-skills': typeof CareerSkillsRoute
+  '/certifications': typeof CertificationsRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
+  '/portfolio': typeof PortfolioRoute
+  '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
@@ -121,11 +166,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-tutor'
     | '/assignments'
     | '/career-mode'
+    | '/career-skills'
+    | '/certifications'
     | '/labs'
     | '/learn'
     | '/my-path'
+    | '/portfolio'
+    | '/progress'
     | '/quiz-me'
     | '/resources'
     | '/review'
@@ -134,11 +184,16 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-tutor'
     | '/assignments'
     | '/career-mode'
+    | '/career-skills'
+    | '/certifications'
     | '/labs'
     | '/learn'
     | '/my-path'
+    | '/portfolio'
+    | '/progress'
     | '/quiz-me'
     | '/resources'
     | '/review'
@@ -147,11 +202,16 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ai-tutor'
     | '/assignments'
     | '/career-mode'
+    | '/career-skills'
+    | '/certifications'
     | '/labs'
     | '/learn'
     | '/my-path'
+    | '/portfolio'
+    | '/progress'
     | '/quiz-me'
     | '/resources'
     | '/review'
@@ -161,11 +221,16 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiTutorRoute: typeof AiTutorRoute
   AssignmentsRoute: typeof AssignmentsRoute
   CareerModeRoute: typeof CareerModeRoute
+  CareerSkillsRoute: typeof CareerSkillsRoute
+  CertificationsRoute: typeof CertificationsRoute
   LabsRoute: typeof LabsRoute
   LearnRoute: typeof LearnRoute
   MyPathRoute: typeof MyPathRoute
+  PortfolioRoute: typeof PortfolioRoute
+  ProgressRoute: typeof ProgressRoute
   QuizMeRoute: typeof QuizMeRoute
   ResourcesRoute: typeof ResourcesRoute
   ReviewRoute: typeof ReviewRoute
@@ -182,6 +247,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-tutor': {
+      id: '/ai-tutor'
+      path: '/ai-tutor'
+      fullPath: '/ai-tutor'
+      preLoaderRoute: typeof AiTutorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/assignments': {
       id: '/assignments'
       path: '/assignments'
@@ -194,6 +266,20 @@ declare module '@tanstack/react-router' {
       path: '/career-mode'
       fullPath: '/career-mode'
       preLoaderRoute: typeof CareerModeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/career-skills': {
+      id: '/career-skills'
+      path: '/career-skills'
+      fullPath: '/career-skills'
+      preLoaderRoute: typeof CareerSkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certifications': {
+      id: '/certifications'
+      path: '/certifications'
+      fullPath: '/certifications'
+      preLoaderRoute: typeof CertificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/labs': {
@@ -215,6 +301,20 @@ declare module '@tanstack/react-router' {
       path: '/my-path'
       fullPath: '/my-path'
       preLoaderRoute: typeof MyPathRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quiz-me': {
@@ -257,11 +357,16 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiTutorRoute: AiTutorRoute,
   AssignmentsRoute: AssignmentsRoute,
   CareerModeRoute: CareerModeRoute,
+  CareerSkillsRoute: CareerSkillsRoute,
+  CertificationsRoute: CertificationsRoute,
   LabsRoute: LabsRoute,
   LearnRoute: LearnRoute,
   MyPathRoute: MyPathRoute,
+  PortfolioRoute: PortfolioRoute,
+  ProgressRoute: ProgressRoute,
   QuizMeRoute: QuizMeRoute,
   ResourcesRoute: ResourcesRoute,
   ReviewRoute: ReviewRoute,
