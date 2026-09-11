@@ -1,13 +1,13 @@
 import {
   assignments as allAssignments,
   labs as allLabs,
-  learningModules,
   questions as allQuestions,
   quizzes as allQuizzes,
   resources as allResources,
   topics as allTopics,
   weeks as allWeeks,
 } from "@/data/static-content";
+import { learningModules } from "@/data/learning-content";
 import type {
   Assignment,
   CurriculumWeek,
@@ -100,7 +100,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
       id: `reading-${topic.id}`,
       title: topic.title,
       detail: module
-        ? `Lesson: ${module.sections.length} sections · understanding ${understanding}%`
+        ? `Full lesson with ${module.examCoverage.length} exam points · understanding ${understanding}%`
         : `Understanding ${understanding}%`,
       to: "/topics/$topicId",
       params: { topicId: topic.id },
