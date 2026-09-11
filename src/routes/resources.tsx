@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Bookmark, BookmarkCheck, ExternalLink, FileText, Search, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { ExternalLink, FileText, Search, X } from "lucide-react";
+import { useMemo, useState } from "react";
 
+import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { bookmarkFor, notesFor } from "@/lib/annotations";
 import { certifications, resources, topics } from "@/data/static-content";
 import type { Difficulty, Resource } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
