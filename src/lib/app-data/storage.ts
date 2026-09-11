@@ -42,8 +42,15 @@ function sanitizeUser(raw: unknown): UserData {
     bookmarks: arr(r.bookmarks, base.bookmarks),
     labAttempts: arr(r.labAttempts, base.labAttempts),
     assignmentAttempts: arr(r.assignmentAttempts, base.assignmentAttempts),
+    careerTickets: arr(r.careerTickets, base.careerTickets),
     portfolio: arr(r.portfolio, base.portfolio),
     careerScores: { ...base.careerScores, ...(r.careerScores ?? {}) },
+    certificationProgress:
+      r.certificationProgress &&
+      typeof r.certificationProgress === "object" &&
+      !Array.isArray(r.certificationProgress)
+        ? r.certificationProgress
+        : base.certificationProgress,
     studySessions: arr(r.studySessions, base.studySessions),
     settings: {
       ...defaultSettings,

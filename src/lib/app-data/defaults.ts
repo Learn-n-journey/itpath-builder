@@ -6,6 +6,7 @@ import {
 } from "./types";
 
 export const defaultSettings: UserSettings = {
+  id: "user-settings",
   studyHoursPerWeek: 8,
   studyDays: ["mon", "tue", "wed", "thu"],
   sessionLengthMinutes: 45,
@@ -27,6 +28,7 @@ export function createDefaultUserData(): UserData {
     bookmarks: [],
     labAttempts: [],
     assignmentAttempts: [],
+    careerTickets: [],
     portfolio: [],
     careerScores: {
       ticketsCompleted: 0,
@@ -34,6 +36,7 @@ export function createDefaultUserData(): UserData {
       troubleshooting: 0,
       documentation: 0,
     },
+    certificationProgress: {},
     studySessions: [],
     settings: { ...defaultSettings },
   };
