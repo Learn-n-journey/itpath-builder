@@ -67,12 +67,13 @@ function QuizMe() {
     [quiz?.id, user.quizAttempts],
   );
   const activeAttempt = attempts.find((attempt) => attempt.status === "in_progress");
-  const attempt = attempts.find((item) => item.id === attemptId) ?? activeAttempt;
+  const latestAttempt = attempts[0];
+  const attempt = attempts.find((item) => item.id === attemptId) ?? activeAttempt ?? latestAttempt;
   const best = attempts.reduce((value, item) => Math.max(value, item.score), 0);
 
   useEffect(() => {
-    if (!attemptId && activeAttempt) setAttemptId(activeAttempt.id);
-  }, [activeAttempt, attemptId]);
+    if (!attemptId && latestAttempt) setAttemptId(latestAttempt.id);
+  }, [attemptId, latestAttempt]);
 
   if (!quiz) return null;
   const quizId = quiz.id;
