@@ -213,14 +213,17 @@ export function SystemDiagnostics() {
       createdAt: labStartedAt,
       updatedAt: labStartedAt,
     });
-    const labUpdated = userMutations.updateLabAttempt(labFixture, {
-      ...labFixture.labAttempts[0],
+    const startedLabAttempt = labFixture.labAttempts[0];
+    const labUpdated = startedLabAttempt
+      ? userMutations.updateLabAttempt(labFixture, {
+      ...startedLabAttempt,
       status: "completed",
       checklist: { "diag-check": true },
       reflection: "The guided test produced the documented expected result.",
       score: 100,
       completedAt: labStartedAt,
-    });
+    })
+      : labFixture;
     const labMutationOk =
       labUpdated.labAttempts[0]?.status === "completed" &&
       labUpdated.labAttempts[0]?.score === 100 &&

@@ -100,7 +100,9 @@ function LabsPage() {
             })}
           </div>
         </Panel>
-        {lab ? <LabWorkspace key={lab.id} lab={lab} latestAttempt={latest} /> : null}
+        {lab ? (
+          <LabWorkspace key={lab.id} lab={lab} {...(latest ? { latestAttempt: latest } : {})} />
+        ) : null}
       </div>
     </>
   );
