@@ -56,6 +56,12 @@ export const userMutations = {
     return { ...user, topicProgress: next };
   },
   addQuizAttempt: (user: UserData, item: QuizAttempt) => prepend(user, "quizAttempts", item),
+  updateQuizAttempt: (user: UserData, item: QuizAttempt): UserData => ({
+    ...user,
+    quizAttempts: user.quizAttempts.map((attempt) =>
+      attempt.id === item.id ? item : attempt,
+    ),
+  }),
   removeQuizAttempt: (user: UserData, id: string) => removeById(user, "quizAttempts", id),
   addRecallResponse: (user: UserData, item: RecallResponse) =>
     prepend(user, "recallResponses", item),

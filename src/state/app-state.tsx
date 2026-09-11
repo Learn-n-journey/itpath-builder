@@ -27,6 +27,7 @@ import {
   type Mistake,
   type PracticeResponse,
   type PortfolioProject,
+  type QuizAttempt,
   type RecallResponse,
   type ScenarioResponse,
   type StudySession,
@@ -37,6 +38,8 @@ import {
 } from "@/lib/app-data/types";
 
 interface AppActions {
+  addQuizAttempt: (attempt: QuizAttempt) => void;
+  updateQuizAttempt: (attempt: QuizAttempt) => void;
   addLabAttempt: (attempt: LabAttempt) => void;
   updateLabAttempt: (attempt: LabAttempt) => void;
   addAssignmentAttempt: (attempt: AssignmentAttempt) => void;
@@ -112,6 +115,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const actions = useMemo<AppActions>(
     () => ({
+      addQuizAttempt: (attempt) =>
+        setUser((current) => userMutations.addQuizAttempt(current, attempt)),
+      updateQuizAttempt: (attempt) =>
+        setUser((current) => userMutations.updateQuizAttempt(current, attempt)),
       addLabAttempt: (attempt) =>
         setUser((current) => userMutations.addLabAttempt(current, attempt)),
       updateLabAttempt: (attempt) =>

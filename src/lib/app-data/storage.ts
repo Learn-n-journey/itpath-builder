@@ -55,7 +55,22 @@ function sanitizeUser(raw: unknown): UserData {
             }),
           )
         : base.topicProgress,
-    quizAttempts: arr(r.quizAttempts, base.quizAttempts),
+    quizAttempts: arr(r.quizAttempts, base.quizAttempts).map((attempt) => ({
+      ...attempt,
+      status: attempt.status === "submitted" ? "submitted" : "in_progress",
+      questionOrder: attempt.questionOrder ?? [],
+      choiceOrder: attempt.choiceOrder ?? {},
+      responses: attempt.responses ?? {},
+      results: attempt.results ?? [],
+      score: attempt.score ?? 0,
+      total: attempt.total ?? 0,
+      correct: attempt.correct ?? 0,
+      incorrect: attempt.incorrect ?? 0,
+      weakTopicIds: attempt.weakTopicIds ?? [],
+      mistakeCategories: attempt.mistakeCategories ?? [],
+      recommendedTopicIds: attempt.recommendedTopicIds ?? [],
+      updatedAt: attempt.updatedAt ?? attempt.createdAt,
+    })),
     recallResponses: arr(r.recallResponses, base.recallResponses),
     practiceResponses: arr(r.practiceResponses, base.practiceResponses),
     teachBackResponses:
