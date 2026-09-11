@@ -4,7 +4,6 @@ import type {
   CareerSkill,
   Certification,
   CertificationObjective,
-  Lab,
   Lesson,
   Question,
   Quiz,
