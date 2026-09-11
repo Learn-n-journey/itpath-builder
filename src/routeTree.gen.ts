@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AssignmentsRouteImport } from './routes/assignments'
+import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
 import { Route as CareerSkillsRouteImport } from './routes/career-skills'
 import { Route as CertificationsRouteImport } from './routes/certifications'
@@ -41,6 +42,11 @@ const AiTutorRoute = AiTutorRouteImport.update({
 const AssignmentsRoute = AssignmentsRouteImport.update({
   id: '/assignments',
   path: '/assignments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookmarksRoute = BookmarksRouteImport.update({
+  id: '/bookmarks',
+  path: '/bookmarks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareerModeRoute = CareerModeRouteImport.update({
@@ -123,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-tutor': typeof AiTutorRoute
   '/assignments': typeof AssignmentsRoute
+  '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
   '/certifications': typeof CertificationsRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-tutor': typeof AiTutorRoute
   '/assignments': typeof AssignmentsRoute
+  '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
   '/certifications': typeof CertificationsRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/ai-tutor': typeof AiTutorRoute
   '/assignments': typeof AssignmentsRoute
+  '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
   '/certifications': typeof CertificationsRoute
@@ -186,6 +195,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ai-tutor'
     | '/assignments'
+    | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
     | '/certifications'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ai-tutor'
     | '/assignments'
+    | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
     | '/certifications'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/'
     | '/ai-tutor'
     | '/assignments'
+    | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
     | '/certifications'
@@ -247,6 +259,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiTutorRoute: typeof AiTutorRoute
   AssignmentsRoute: typeof AssignmentsRoute
+  BookmarksRoute: typeof BookmarksRoute
   CareerModeRoute: typeof CareerModeRoute
   CareerSkillsRoute: typeof CareerSkillsRoute
   CertificationsRoute: typeof CertificationsRoute
@@ -285,6 +298,13 @@ declare module '@tanstack/react-router' {
       path: '/assignments'
       fullPath: '/assignments'
       preLoaderRoute: typeof AssignmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bookmarks': {
+      id: '/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof BookmarksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/career-mode': {
@@ -399,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiTutorRoute: AiTutorRoute,
   AssignmentsRoute: AssignmentsRoute,
+  BookmarksRoute: BookmarksRoute,
   CareerModeRoute: CareerModeRoute,
   CareerSkillsRoute: CareerSkillsRoute,
   CertificationsRoute: CertificationsRoute,
