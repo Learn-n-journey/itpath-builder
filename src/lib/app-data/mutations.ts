@@ -134,6 +134,10 @@ export const userMutations = {
   addCareerTicket: (user: UserData, item: CareerTicket) => prepend(user, "careerTickets", item),
   removeCareerTicket: (user: UserData, id: string) => removeById(user, "careerTickets", id),
   addPortfolioProject: (user: UserData, item: PortfolioProject) => prepend(user, "portfolio", item),
+  updatePortfolioProject: (user: UserData, item: PortfolioProject): UserData => ({
+    ...user,
+    portfolio: user.portfolio.map((project) => (project.id === item.id ? item : project)),
+  }),
   removePortfolioProject: (user: UserData, id: string) => removeById(user, "portfolio", id),
   addIncidentAttempt: (user: UserData, item: IncidentAttempt) =>
     prepend(user, "incidentAttempts", item),
