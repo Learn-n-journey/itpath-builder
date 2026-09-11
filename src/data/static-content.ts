@@ -5,8 +5,6 @@ import type {
   Certification,
   CertificationObjective,
   Lesson,
-  Question,
-  Quiz,
   Resource,
   Topic,
   Track,

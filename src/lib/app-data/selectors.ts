@@ -25,6 +25,10 @@ export function getQuiz(id: string, data: StaticContent = staticContent) {
   return data.quizzes.find((item) => item.id === id);
 }
 
+export function getQuestion(id: string, data: StaticContent = staticContent) {
+  return data.questions.find((item) => item.id === id);
+}
+
 export function getCertification(id: string, data: StaticContent = staticContent) {
   return data.certifications.find((item) => item.id === id);
 }
