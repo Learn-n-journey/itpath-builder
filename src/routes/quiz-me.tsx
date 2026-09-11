@@ -75,9 +75,10 @@ function QuizMe() {
   }, [activeAttempt, attemptId]);
 
   if (!quiz) return null;
+  const quizId = quiz.id;
 
   function start(previousAttemptId?: string) {
-    const next = createQuizAttempt(quiz.id, questions, previousAttemptId);
+    const next = createQuizAttempt(quizId, questions, previousAttemptId);
     actions.addQuizAttempt(next);
     setAttemptId(next.id);
     setQuestionIndex(0);
@@ -136,11 +137,12 @@ function QuizWorkspace({
   const answered = attempt.questionOrder.filter((id) => (attempt.responses[id]?.length ?? 0) > 0).length;
 
   if (!question) return <Panel title="Question unavailable" description="This attempt references a question that is no longer in the current bank." />;
+  const currentQuestionId = question.id;
 
   function updateResponse(response: string[]) {
     actions.updateQuizAttempt({
       ...attempt,
-      responses: { ...attempt.responses, [question.id]: response },
+      responses: { ...attempt.responses, [currentQuestionId]: response },
       updatedAt: new Date().toISOString(),
     });
   }
