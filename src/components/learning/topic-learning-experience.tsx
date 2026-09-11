@@ -117,9 +117,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <ul className="space-y-3">{topic.learningObjectives.map((objective) => <li key={objective} className="flex gap-3 text-sm text-muted-foreground"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" /><span>{objective}</span></li>)}</ul>
     </Panel>
 
-    <div className="flex flex-wrap gap-2">
-      <Button variant={bookmark ? "secondary" : "outline"} onClick={toggleBookmark}>{bookmark ? <BookmarkCheck /> : <Bookmark />}{bookmark ? "Bookmarked" : "Bookmark topic"}</Button>
-    </div>
 
     <Tabs defaultValue="learn" className="space-y-4">
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
