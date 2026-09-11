@@ -68,6 +68,7 @@ interface AppActions {
   addBookmark: (bookmark: Bookmark) => void;
   removeBookmark: (id: string) => void;
   addPortfolioProject: (project: PortfolioProject) => void;
+  updatePortfolioProject: (project: PortfolioProject) => void;
   removePortfolioProject: (id: string) => void;
   addStudySession: (session: StudySession) => void;
   removeStudySession: (id: string) => void;
