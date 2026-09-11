@@ -68,7 +68,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     const correct = matched.length >= Math.min(2, question.acceptedConcepts.length);
     const now = new Date().toISOString();
     actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
-    if (!correct)
+    if (!correct) {
       actions.recordMistake({
         topicId: topic.id,
         activity: "recall",
