@@ -42,6 +42,7 @@ export function createDefaultUserData(): UserData {
       documentation: 0,
     },
     certificationProgress: {},
+    certificationObjectives: {},
     studySessions: [],
     incidentAttempts: [],
     ticketAttempts: [],

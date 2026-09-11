@@ -155,8 +155,19 @@ function sanitizeUser(raw: unknown): UserData {
       r.certificationProgress &&
       typeof r.certificationProgress === "object" &&
       !Array.isArray(r.certificationProgress)
-        ? r.certificationProgress
+        ? Object.fromEntries(
+            Object.entries(r.certificationProgress as Record<string, any>).map(([key, value]) => [
+              key,
+              { ...value, examRecords: Array.isArray(value?.examRecords) ? value.examRecords : [] },
+            ]),
+          )
         : base.certificationProgress,
+    certificationObjectives:
+      r.certificationObjectives &&
+      typeof r.certificationObjectives === "object" &&
+      !Array.isArray(r.certificationObjectives)
+        ? r.certificationObjectives
+        : base.certificationObjectives,
     studySessions: arr(r.studySessions, base.studySessions),
     incidentAttempts: arr(r.incidentAttempts, base.incidentAttempts).map((attempt) => ({
       ...attempt,
