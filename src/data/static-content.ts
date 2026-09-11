@@ -405,6 +405,19 @@ export const lessons: Lesson[] = [
 ];
 export const resources: Resource[] = [
   {
+    id: "resource-comptia-a-plus-core-1",
+    title: "CompTIA A+ Core 1 Certification",
+    provider: "CompTIA",
+    url: "https://www.comptia.org/en-us/certifications/a/core-1-v15/",
+    topicIds: ["topic-computer-hardware-basics", "topic-basic-networking-concepts", "topic-virtualization-basics"],
+    certificationId: "cert-comptia-a-plus",
+    kind: "learning-path",
+    difficulty: "standard",
+    access: "paid",
+    lastVerified: "2026-09-11",
+    status: "verified",
+  },
+  {
     id: "resource-microsoft-explore-computers",
     title: "Explore computers",
     provider: "Microsoft Learn",
