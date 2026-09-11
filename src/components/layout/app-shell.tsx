@@ -71,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
+      <header className="sticky top-0 z-20 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Open navigation">
@@ -84,7 +84,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <NavList onNavigate={() => setOpen(false)} />
           </SheetContent>
         </Sheet>
-        <span className="font-display text-sm font-semibold">{current}</span>
+        <span className="min-w-0 truncate font-display text-sm font-semibold">{current}</span>
       </header>
 
       <main className={cn("lg:pl-64")}>

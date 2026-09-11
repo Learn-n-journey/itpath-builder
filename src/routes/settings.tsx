@@ -20,6 +20,8 @@ import type { Difficulty, ExperienceLevel, WeekDay } from "@/lib/app-data/types"
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Settings — IT PATH" },
       { name: "description", content: "Set your study schedule, target role and run system checks." },
       { property: "og:title", content: "Settings — IT PATH" },
@@ -112,19 +114,16 @@ function SettingsPage() {
                 {DAYS.map((d) => {
                   const active = s.studyDays.includes(d.id);
                   return (
-                    <button
+                    <Button
                       key={d.id}
                       type="button"
+                      size="sm"
+                      variant={active ? "default" : "secondary"}
                       aria-pressed={active}
                       onClick={() => toggleDay(d.id)}
-                      className={
-                        active
-                          ? "rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
-                          : "rounded-md bg-secondary px-3 py-1.5 text-sm text-secondary-foreground hover:bg-accent"
-                      }
                     >
                       {d.label}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -208,19 +207,16 @@ function SettingsPage() {
               <Label>Difficulty</Label>
               <div className="mt-2 flex flex-wrap gap-2">
                 {DIFFICULTY.map((d) => (
-                  <button
+                  <Button
                     key={d.id}
                     type="button"
+                    size="sm"
+                    variant={s.difficulty === d.id ? "default" : "secondary"}
                     aria-pressed={s.difficulty === d.id}
                     onClick={() => updateSettings({ difficulty: d.id })}
-                    className={
-                      s.difficulty === d.id
-                        ? "rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
-                        : "rounded-md bg-secondary px-3 py-1.5 text-sm text-secondary-foreground hover:bg-accent"
-                    }
                   >
                     {d.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>

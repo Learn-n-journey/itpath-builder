@@ -7,6 +7,8 @@ import { useAppState } from "@/state/app-state";
 export const Route = createFileRoute("/career-mode")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Career Mode — IT PATH" },
       { name: "description", content: "Simulated helpdesk tickets and real-world work practice." },
       { property: "og:title", content: "Career Mode — IT PATH" },

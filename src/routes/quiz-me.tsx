@@ -8,6 +8,8 @@ import { useAppState } from "@/state/app-state";
 export const Route = createFileRoute("/quiz-me")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Quiz Me — IT PATH" },
       { name: "description", content: "Test your knowledge and track every quiz attempt." },
       { property: "og:title", content: "Quiz Me — IT PATH" },
@@ -28,7 +30,7 @@ function QuizMe() {
         title="Quiz Me"
         description="Recall practice drawn from the topics you have studied."
       />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard label="Question bank" value={questions.length} />
         <StatCard label="Attempts" value={attempts.length} />
         <StatCard label="Best score" value={attempts.length ? `${Math.round(best * 100)}%` : "—"} />

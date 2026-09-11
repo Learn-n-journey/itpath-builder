@@ -13,6 +13,8 @@ import { useAppState } from "@/state/app-state";
 export const Route = createFileRoute("/portfolio")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Portfolio — IT PATH" },
       { name: "description", content: "Collect the projects that prove what you can do." },
       { property: "og:title", content: "Portfolio — IT PATH" },
@@ -87,11 +89,11 @@ function Portfolio() {
           ) : (
             <ul className="divide-y divide-border">
               {user.portfolio.map((p) => (
-                <li key={p.id} className="flex items-start justify-between gap-4 py-3">
-                  <div>
-                    <p className="text-sm font-medium">{p.title}</p>
+                <li key={p.id} className="flex min-w-0 items-start justify-between gap-4 py-3">
+                  <div className="min-w-0">
+                    <p className="break-words text-sm font-medium">{p.title}</p>
                     {p.summary ? (
-                      <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                      <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">
                         {p.summary}
                       </p>
                     ) : null}

@@ -14,6 +14,8 @@ import { useAppState } from "@/state/app-state";
 export const Route = createFileRoute("/learn")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Learn — IT PATH" },
       { name: "description", content: "Lessons and your personal study notes in one place." },
       { property: "og:title", content: "Learn — IT PATH" },
@@ -105,11 +107,11 @@ function Learn() {
         ) : (
           <ul className="divide-y divide-border">
             {user.notes.map((n) => (
-              <li key={n.id} className="flex items-start justify-between gap-4 py-3">
-                <div>
-                  <p className="text-sm font-medium">{n.title}</p>
+              <li key={n.id} className="flex min-w-0 items-start justify-between gap-4 py-3">
+                <div className="min-w-0">
+                  <p className="break-words text-sm font-medium">{n.title}</p>
                   {n.body ? (
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{n.body}</p>
+                    <p className="mt-1 whitespace-pre-wrap break-words text-sm text-muted-foreground">{n.body}</p>
                   ) : null}
                   <p className="mt-1 text-xs text-muted-foreground">
                     {new Date(n.createdAt).toLocaleString()}

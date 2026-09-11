@@ -7,6 +7,8 @@ import { useAppState } from "@/state/app-state";
 export const Route = createFileRoute("/troubleshoot")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Troubleshoot — IT PATH" },
       { name: "description", content: "Structured troubleshooting practice and your fault log." },
       { property: "og:title", content: "Troubleshoot — IT PATH" },

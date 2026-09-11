@@ -8,6 +8,8 @@ import { useAppState, useStats } from "@/state/app-state";
 export const Route = createFileRoute("/certifications")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { title: "Certifications — IT PATH" },
       { name: "description", content: "Track exam objectives against the topics you have covered." },
       { property: "og:title", content: "Certifications — IT PATH" },
@@ -27,7 +29,7 @@ function Certifications() {
         title="Certifications"
         description={`Your current target is ${user.settings.certificationTarget}. Objectives are ticked off by real completed topics only.`}
       />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard label="Target" value={user.settings.certificationTarget} />
         <StatCard label="Objectives loaded" value={certificationObjectives.length} />
         <StatCard label="Topics covered" value={stats.topicsCompleted} />
