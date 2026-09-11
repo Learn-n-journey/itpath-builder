@@ -335,7 +335,8 @@ export type MistakeActivity =
   | "assignment"
   | "lab"
   | "scenario"
-  | "troubleshoot";
+  | "troubleshoot"
+  | "career";
 
 export type MistakeSeverity = "low" | "medium" | "high";
 
