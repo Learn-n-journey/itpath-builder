@@ -21,6 +21,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { questions, quizzes, topics } from "@/data/static-content";
 import type { Question, QuestionType, QuizAttempt } from "@/lib/app-data/types";
+import { causeFromQuestionCategory, recommendReview } from "@/lib/mistake-engine";
 import { createQuizAttempt, scoreQuiz } from "@/lib/quiz-engine";
 import { useAppState } from "@/state/app-state";
 
@@ -132,7 +133,7 @@ function QuizWorkspace({
   setQuestionIndex: (index: number) => void;
   onReview: () => void;
 }) {
-  const { actions } = useAppState();
+  const { user, actions } = useAppState();
   const questionId = attempt.questionOrder[questionIndex];
   const question = questions.find((item) => item.id === questionId);
   const answered = attempt.questionOrder.filter((id) => (attempt.responses[id]?.length ?? 0) > 0).length;
