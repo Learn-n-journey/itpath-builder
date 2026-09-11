@@ -57,7 +57,7 @@ function AssignmentsPage() {
           })}
         </div>
       </Panel>
-      {assignment ? <AssignmentWorkspace key={assignment.id} assignment={assignment} latestAttempt={latest} /> : null}
+      {assignment ? <AssignmentWorkspace key={assignment.id} assignment={assignment} {...(latest ? { latestAttempt: latest } : {})} /> : null}
     </div>
   </>;
 }
@@ -66,7 +66,7 @@ function AssignmentWorkspace({ assignment, latestAttempt }: { assignment: Assign
   const { user, actions } = useAppState();
   const [attemptId, setAttemptId] = useState(latestAttempt?.id ?? "");
   const attempt = user.assignmentAttempts.find((item) => item.id === attemptId && item.assignmentId === assignment.id) ?? latestAttempt;
-  const [response, setResponse] = useState(attempt?.responses.main ?? "");
+  const [response, setResponse] = useState(attempt?.responses["main"] ?? "");
   const [selfChecks, setSelfChecks] = useState<Record<string, boolean>>({});
   const [noteBody, setNoteBody] = useState("");
   const [showReview, setShowReview] = useState(false);
@@ -75,13 +75,13 @@ function AssignmentWorkspace({ assignment, latestAttempt }: { assignment: Assign
   const topic = topics.find((item) => item.id === assignment.topicId);
   const history = useMemo(() => user.assignmentAttempts.filter((item) => item.assignmentId === assignment.id), [assignment.id, user.assignmentAttempts]);
 
-  useEffect(() => { setAttemptId(latestAttempt?.id ?? ""); setResponse(latestAttempt?.responses.main ?? ""); setSelfChecks({}); setShowReview(false); }, [assignment.id, latestAttempt?.id]);
-  useEffect(() => { setResponse(attempt?.responses.main ?? ""); }, [attempt?.id, attempt?.responses.main]);
+  useEffect(() => { setAttemptId(latestAttempt?.id ?? ""); setResponse(latestAttempt?.responses["main"] ?? ""); setSelfChecks({}); setShowReview(false); }, [assignment.id, latestAttempt?.id]);
+  useEffect(() => { setResponse(attempt?.responses["main"] ?? ""); }, [attempt?.id, attempt?.responses["main"]]);
   useEffect(() => { setNoteBody(note?.body ?? ""); }, [note?.body]);
 
   function start(previousAttemptId?: string) {
     const now = new Date().toISOString();
-    const next: AssignmentAttempt = { id: crypto.randomUUID(), assignmentId: assignment.id, topicId: assignment.topicId, status: "started", responses: {}, criterionResults: [], previousAttemptId, createdAt: now, updatedAt: now };
+    const next: AssignmentAttempt = { id: crypto.randomUUID(), assignmentId: assignment.id, topicId: assignment.topicId, status: "started", responses: {}, criterionResults: [], ...(previousAttemptId ? { previousAttemptId } : {}), createdAt: now, updatedAt: now };
     actions.addAssignmentAttempt(next); setAttemptId(next.id); setResponse(""); setSelfChecks({}); setShowReview(false); toast.success(previousAttemptId ? "Retake started." : "Assignment started.");
   }
 
@@ -98,7 +98,7 @@ function AssignmentWorkspace({ assignment, latestAttempt }: { assignment: Assign
 
   function evaluate() {
     if (!attempt || attempt.status !== "submitted") return;
-    const normalized = (attempt.responses.main ?? "").toLowerCase();
+    const normalized = (attempt.responses["main"] ?? "").toLowerCase();
     const results: AssignmentCriterionResult[] = assignment.rubric.map((criterion) => {
       const passed = assignment.evaluationMode === "automatic"
         ? (criterion.acceptedConcepts ?? []).every((concept) => normalized.includes(concept.toLowerCase()))
@@ -120,8 +120,8 @@ function AssignmentWorkspace({ assignment, latestAttempt }: { assignment: Assign
   function saveNote() {
     if (!noteBody.trim()) { toast.error("Write a note before saving."); return; }
     const now = new Date().toISOString();
-    if (note) actions.updateNote({ ...note, body: noteBody.trim(), assignmentAttemptId: attempt?.id, updatedAt: now });
-    else actions.addNote({ id: crypto.randomUUID(), title: `${assignment.title} notes`, body: noteBody.trim(), assignmentId: assignment.id, assignmentAttemptId: attempt?.id, topicId: assignment.topicId, createdAt: now, updatedAt: now });
+    if (note) actions.updateNote({ ...note, body: noteBody.trim(), ...(attempt ? { assignmentAttemptId: attempt.id } : {}), updatedAt: now });
+    else actions.addNote({ id: crypto.randomUUID(), title: `${assignment.title} notes`, body: noteBody.trim(), assignmentId: assignment.id, ...(attempt ? { assignmentAttemptId: attempt.id } : {}), topicId: assignment.topicId, createdAt: now, updatedAt: now });
     toast.success("Assignment note saved.");
   }
 
@@ -149,7 +149,7 @@ function AssignmentWorkspace({ assignment, latestAttempt }: { assignment: Assign
       <Panel title="Evaluation rubric" description={assignment.evaluationMode === "self_rubric" ? "This work cannot be judged reliably by an automatic checker. Assess your own evidence honestly against every criterion." : "Submission text is checked only for the explicit technical evidence below."}>
         <div className="space-y-3">{assignment.rubric.map((criterion) => {
           const result = resultMap.get(criterion.id);
-          return <div key={criterion.id} className="rounded-md border border-border p-4"><div className="flex items-start gap-3">{assignment.evaluationMode === "self_rubric" && attempt.status === "submitted" ? <Checkbox aria-label={`${criterion.label}: ${criterion.description}`} checked={selfChecks[criterion.id]} onCheckedChange={(checked) => setSelfChecks((current) => ({ ...current, [criterion.id]: checked === true }))} /> : null}<div className="min-w-0 flex-1"><div className="flex justify-between gap-3"><p className="text-sm font-medium">{criterion.label}</p><span className="text-xs text-muted-foreground">{Math.round(criterion.points)} pts</span></div><p className="mt-1 text-sm text-muted-foreground">{criterion.description}</p>{result ? <p className="mt-2 text-xs text-muted-foreground">{Math.round(result.earnedPoints)} points — {result.feedback}</p> : null}</div></div></div>;
+          return <div key={criterion.id} className="rounded-md border border-border p-4"><div className="flex items-start gap-3">{assignment.evaluationMode === "self_rubric" && attempt.status === "submitted" ? <Checkbox aria-label={`${criterion.label}: ${criterion.description}`} checked={selfChecks[criterion.id] ?? false} onCheckedChange={(checked) => setSelfChecks((current) => ({ ...current, [criterion.id]: checked === true }))} /> : null}<div className="min-w-0 flex-1"><div className="flex justify-between gap-3"><p className="text-sm font-medium">{criterion.label}</p><span className="text-xs text-muted-foreground">{Math.round(criterion.points)} pts</span></div><p className="mt-1 text-sm text-muted-foreground">{criterion.description}</p>{result ? <p className="mt-2 text-xs text-muted-foreground">{Math.round(result.earnedPoints)} points — {result.feedback}</p> : null}</div></div></div>;
         })}</div>
         {attempt.score !== undefined ? <div className="mt-5"><div className="flex justify-between text-sm"><span>Score</span><strong>{attempt.score}/100</strong></div><Progress className="mt-2" value={attempt.score} /><p className="mt-2 text-sm text-muted-foreground">{attempt.feedback}</p></div> : null}
       </Panel>
@@ -157,7 +157,7 @@ function AssignmentWorkspace({ assignment, latestAttempt }: { assignment: Assign
 
     <Panel title="Notes" description="Keep private context for this assignment and attempt."><Label htmlFor={`assignment-note-${assignment.id}`}>Assignment note</Label><Textarea id={`assignment-note-${assignment.id}`} className="mt-2" value={noteBody} onChange={(event) => setNoteBody(event.target.value)} /><Button className="mt-3" variant="outline" onClick={saveNote}><Save />Save note</Button></Panel>
 
-    {showReview && attempt ? <Panel title="Review" description="Saved work, evaluation, and lifecycle history."><dl className="grid gap-3 text-sm sm:grid-cols-2"><div><dt className="text-muted-foreground">Status</dt><dd className="mt-1 capitalize">{attempt.status}</dd></div><div><dt className="text-muted-foreground">Evaluation</dt><dd className="mt-1">{attempt.evaluationMode === "self_rubric" ? "Learner self-evaluation" : "Objective evidence check"}</dd></div><div><dt className="text-muted-foreground">Score</dt><dd className="mt-1">{attempt.score ?? 0}/100</dd></div><div><dt className="text-muted-foreground">Attempts</dt><dd className="mt-1">{history.length}</dd></div></dl><h3 className="mt-5 text-sm font-medium">Submitted response</h3><p className="mt-2 whitespace-pre-wrap rounded-md border border-border p-4 text-sm text-muted-foreground">{attempt.responses.main}</p></Panel> : null}
+    {showReview && attempt ? <Panel title="Review" description="Saved work, evaluation, and lifecycle history."><dl className="grid gap-3 text-sm sm:grid-cols-2"><div><dt className="text-muted-foreground">Status</dt><dd className="mt-1 capitalize">{attempt.status}</dd></div><div><dt className="text-muted-foreground">Evaluation</dt><dd className="mt-1">{attempt.evaluationMode === "self_rubric" ? "Learner self-evaluation" : "Objective evidence check"}</dd></div><div><dt className="text-muted-foreground">Score</dt><dd className="mt-1">{attempt.score ?? 0}/100</dd></div><div><dt className="text-muted-foreground">Attempts</dt><dd className="mt-1">{history.length}</dd></div></dl><h3 className="mt-5 text-sm font-medium">Submitted response</h3><p className="mt-2 whitespace-pre-wrap rounded-md border border-border p-4 text-sm text-muted-foreground">{attempt.responses["main"]}</p></Panel> : null}
 
     {history.length > 0 ? <Panel title="Attempt history"><div className="space-y-2">{history.map((item, index) => <button key={item.id} type="button" className="flex w-full items-center justify-between rounded-md border border-border p-3 text-left text-sm hover:bg-accent" onClick={() => { setAttemptId(item.id); setShowReview(item.status === "completed"); }}><span>Attempt {history.length - index}</span><span className="capitalize text-muted-foreground">{item.status} {item.score !== undefined ? `· ${item.score}/100` : ""}</span></button>)}</div></Panel> : null}
   </div>;

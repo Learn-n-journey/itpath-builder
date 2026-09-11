@@ -69,10 +69,10 @@ function sanitizeUser(raw: unknown): UserData {
     bookmarks: arr(r.bookmarks, base.bookmarks),
     labAttempts: arr(r.labAttempts, base.labAttempts),
     assignmentAttempts: arr(r.assignmentAttempts, base.assignmentAttempts).map((attempt) => ({
-      responses: {},
-      criterionResults: [],
-      updatedAt: attempt.createdAt,
       ...attempt,
+      responses: attempt.responses ?? {},
+      criterionResults: attempt.criterionResults ?? [],
+      updatedAt: attempt.updatedAt ?? attempt.createdAt,
     })),
     careerTickets: arr(r.careerTickets, base.careerTickets),
     portfolio: arr(r.portfolio, base.portfolio),

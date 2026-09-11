@@ -34,6 +34,6 @@ export const assignments: Assignment[] = seeds.map(([type, topicId, title, brief
     label: `Criterion ${index + 1}`,
     description,
     points: 100 / criteria.length,
-    acceptedConcepts: automatic.has(type) ? [concepts[index] ?? concepts[0]] : undefined,
+    ...(automatic.has(type) ? { acceptedConcepts: [concepts[index] ?? concepts[0] ?? ""] } : {}),
   })),
 }));
