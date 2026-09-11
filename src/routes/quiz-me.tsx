@@ -158,7 +158,7 @@ function QuizWorkspace({
       .filter((item): item is Question => Boolean(item));
     const result = scoreQuiz(orderedQuestions, attempt.responses);
     const now = new Date().toISOString();
-    actions.updateQuizAttempt({
+    const submittedAttempt: QuizAttempt = {
       ...attempt,
       ...result,
       status: "submitted",
@@ -166,7 +166,8 @@ function QuizWorkspace({
       recommendedTopicIds: result.weakTopicIds,
       updatedAt: now,
       submittedAt: now,
-    });
+    };
+    actions.updateQuizAttempt(submittedAttempt);
     result.results.filter((item) => !item.correct).forEach((item) => {
       actions.addMistake({ id: crypto.randomUUID(), questionId: item.questionId, quizAttemptId: attempt.id, topicId: item.topicId, createdAt: now, resolved: false });
     });
@@ -174,7 +175,6 @@ function QuizWorkspace({
       actions.addReview({ id: crypto.randomUUID(), topicId, dueAt: now, interval: 1, createdAt: now });
     });
     toast.success("Quiz submitted and scored.");
-    onReview();
   }
 
   const response = attempt.responses[question.id] ?? [];
