@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Edit3, FileText, Save } from "lucide-react";
 import { toast } from "sonner";
 
+import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
