@@ -40,6 +40,13 @@ export const tracks: Track[] = [
       "Core knowledge for understanding, operating, and supporting modern computer systems.",
     year: 1,
   },
+  {
+    id: "track-year-2-specialisation",
+    title: "Systems, Cloud and Security Specialisation",
+    description:
+      "Second-year progression through Linux, systems administration, cloud, and defensive and offensive security.",
+    year: 2,
+  },
 ];
 
 
