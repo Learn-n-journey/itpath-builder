@@ -10,6 +10,7 @@ import type {
   Track,
 } from "@/lib/app-data/types";
 import { assignments } from "@/data/assignment-content";
+import { certifications, certificationObjectives } from "@/data/certification-content";
 import { incidents } from "@/data/incident-content";
 import { labs } from "@/data/lab-content";
 import { questions, quizzes } from "@/data/quiz-content";
