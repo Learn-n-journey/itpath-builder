@@ -174,6 +174,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       removeBookmark: (id) => setUser((current) => userMutations.removeBookmark(current, id)),
       addPortfolioProject: (project) =>
         setUser((current) => userMutations.addPortfolioProject(current, project)),
+      updatePortfolioProject: (project) =>
+        setUser((current) => userMutations.updatePortfolioProject(current, project)),
       removePortfolioProject: (id) =>
         setUser((current) => userMutations.removePortfolioProject(current, id)),
       addStudySession: (session) =>
