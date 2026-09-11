@@ -1,79 +1,44 @@
-/**
- * STATIC DATA registry.
- *
- * This is curriculum-side content only. It is read-only and never mixed with
- * user data. The foundation step intentionally ships empty collections — the
- * curriculum, question bank, labs and certification objectives are authored in
- * later steps and only need to be added to these arrays.
- */
+/** Read-only curriculum registry. User activity is never stored here. */
+import type {
+  Assignment,
+  CareerSkill,
+  Certification,
+  CertificationObjective,
+  Lab,
+  Lesson,
+  Question,
+  Quiz,
+  Resource,
+  Topic,
+  Track,
+} from "@/lib/app-data/types";
 
-export interface Track {
-  id: string;
-  title: string;
-  description: string;
-  year: 1 | 2;
-}
-
-export interface Topic {
-  id: string;
-  trackId: string;
-  title: string;
-  summary: string;
-  estimatedMinutes: number;
-}
-
-export interface Lesson {
-  id: string;
-  topicId: string;
-  title: string;
-  body: string;
-}
-
-export interface ResourceLink {
-  id: string;
-  topicId?: string;
-  title: string;
-  url: string;
-  kind: "video" | "article" | "docs" | "tool";
-}
-
-export interface Assignment {
-  id: string;
-  topicId: string;
-  title: string;
-  brief: string;
-}
-
-export interface Lab {
-  id: string;
-  topicId: string;
-  title: string;
-  objective: string;
-}
-
-export interface Question {
-  id: string;
-  topicId: string;
-  prompt: string;
-  choices: string[];
-  answerIndex: number;
-}
-
-export interface CertificationObjective {
-  id: string;
-  certification: string;
-  code: string;
-  title: string;
-}
+export type {
+  Assignment,
+  CareerSkill,
+  Certification,
+  CertificationObjective,
+  Lab,
+  Lesson,
+  Question,
+  Quiz,
+  Resource,
+  ResourceLink,
+  Topic,
+  Track,
+} from "@/lib/app-data/types";
 
 export const tracks: Track[] = [];
 export const topics: Topic[] = [];
 export const lessons: Lesson[] = [];
-export const resources: ResourceLink[] = [];
+export const resources: Resource[] = [];
 export const assignments: Assignment[] = [];
 export const labs: Lab[] = [];
+export const quizzes: Quiz[] = [];
 export const questions: Question[] = [];
+export const certifications: Certification[] = [];
 export const certificationObjectives: CertificationObjective[] = [];
+export const careerSkills: CareerSkill[] = [];
 
 export const staticContent = {
   tracks,
@@ -82,6 +47,11 @@ export const staticContent = {
   resources,
   assignments,
   labs,
+  quizzes,
   questions,
+  certifications,
   certificationObjectives,
+  careerSkills,
 };
+
+export type StaticContent = typeof staticContent;
