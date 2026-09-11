@@ -626,6 +626,8 @@ export interface UserData {
   /** Learner edits to certification objectives, keyed by objective id. */
   certificationObjectives: Record<EntityId, CertificationObjectiveOverride>;
   studySessions: StudySession[];
+  studyPlans: StudyPlan[];
+
   incidentAttempts: IncidentAttempt[];
   ticketAttempts: TicketAttempt[];
   settings: UserSettings;
