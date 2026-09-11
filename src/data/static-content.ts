@@ -10,6 +10,7 @@ import type {
   Track,
 } from "@/lib/app-data/types";
 import { assignments } from "@/data/assignment-content";
+import { certifications, certificationObjectives } from "@/data/certification-content";
 import { incidents } from "@/data/incident-content";
 import { labs } from "@/data/lab-content";
 import { questions, quizzes } from "@/data/quiz-content";
@@ -40,20 +41,6 @@ export const tracks: Track[] = [
   },
 ];
 
-export const certifications: Certification[] = [
-  {
-    id: "cert-comptia-a-plus",
-    title: "CompTIA A+",
-    provider: "CompTIA",
-    objectiveIds: [],
-  },
-  {
-    id: "cert-comptia-network-plus",
-    title: "CompTIA Network+",
-    provider: "CompTIA",
-    objectiveIds: [],
-  },
-];
 
 export const topics: Topic[] = [
   {
@@ -664,7 +651,7 @@ export { labs };
 export { incidents };
 export { tickets };
 export { questions, quizzes };
-export const certificationObjectives: CertificationObjective[] = [];
+export { certifications, certificationObjectives };
 export const careerSkills: CareerSkill[] = [];
 
 export const staticContent = {

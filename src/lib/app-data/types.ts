@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 10;
+export const APP_DATA_VERSION = 11;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -164,7 +164,10 @@ export interface Question {
 export interface Certification {
   id: EntityId;
   title: string;
+  code?: string;
   provider: string;
+  level?: "core" | "infrastructure" | "security" | "advanced";
+  description?: string;
   objectiveIds: EntityId[];
 }
 
@@ -172,7 +175,19 @@ export interface CertificationObjective {
   id: EntityId;
   certificationId: EntityId;
   code: string;
+  /** Exam domain the objective belongs to. Weak domains are reported per domain. */
+  domain?: string;
   title: string;
+  /** Curriculum topics that cover this objective. */
+  topicIds?: EntityId[];
+}
+
+/** A learner edit to an objective. Custom objectives are stored the same way. */
+export interface CertificationObjectiveOverride extends CertificationObjective {
+  /** True when the learner removed a built-in objective. */
+  removed?: boolean;
+  custom?: boolean;
+  updatedAt: string;
 }
 
 export interface CareerSkill {
@@ -454,10 +469,31 @@ export interface Bookmark {
   createdAt: string;
 }
 
+/** Exam status the learner declares. IT PATH never marks an exam passed by itself. */
+export type CertificationStatus =
+  | "not_started"
+  | "in_progress"
+  | "curriculum_complete"
+  | "exam_ready"
+  | "exam_attempted"
+  | "exam_passed";
+
+export interface CertificationExamRecord {
+  id: EntityId;
+  certificationId: EntityId;
+  outcome: "attempted" | "passed";
+  note: string;
+  recordedAt: string;
+}
+
 export interface CertificationProgress {
   id: EntityId;
   certificationId: EntityId;
   completedObjectiveIds: EntityId[];
+  /** Only "exam_attempted" and "exam_passed" are ever set here, by the learner. */
+  declaredStatus?: "exam_attempted" | "exam_passed";
+  examRecords: CertificationExamRecord[];
+  passConfirmedAt?: string;
   updatedAt: string;
 }
 
@@ -531,6 +567,8 @@ export interface UserData {
   portfolio: PortfolioProject[];
   careerScores: CareerScores;
   certificationProgress: Record<EntityId, CertificationProgress>;
+  /** Learner edits to certification objectives, keyed by objective id. */
+  certificationObjectives: Record<EntityId, CertificationObjectiveOverride>;
   studySessions: StudySession[];
   incidentAttempts: IncidentAttempt[];
   ticketAttempts: TicketAttempt[];
