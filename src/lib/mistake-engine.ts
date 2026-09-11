@@ -172,22 +172,23 @@ export function buildMistake(user: UserData, input: MistakeInput): Mistake {
   const createdAt = input.createdAt ?? new Date().toISOString();
   const recommendation = recommendReview(user, {
     topicId: input.topicId,
-    skillId: input.skillId,
+    ...(input.skillId ? { skillId: input.skillId } : {}),
   });
   const category: MistakeCause =
     recommendation.reason === "prerequisite_gap" && input.category === "misunderstood_concept"
       ? "prerequisite_gap"
       : input.category;
+  const skillId = input.skillId ?? getSkillByTopic(input.topicId)?.id;
   return {
     id: crypto.randomUUID(),
     topicId: input.topicId,
-    skillId: input.skillId ?? getSkillByTopic(input.topicId)?.id,
+    ...(skillId ? { skillId } : {}),
     activity: input.activity,
-    attemptId: input.attemptId,
-    questionId: input.questionId,
-    assignmentId: input.assignmentId,
-    assignmentAttemptId: input.assignmentAttemptId,
-    quizAttemptId: input.quizAttemptId,
+    ...(input.attemptId ? { attemptId: input.attemptId } : {}),
+    ...(input.questionId ? { questionId: input.questionId } : {}),
+    ...(input.assignmentId ? { assignmentId: input.assignmentId } : {}),
+    ...(input.assignmentAttemptId ? { assignmentAttemptId: input.assignmentAttemptId } : {}),
+    ...(input.quizAttemptId ? { quizAttemptId: input.quizAttemptId } : {}),
     category,
     severity: input.severity ?? "medium",
     recommendedTopicIds: recommendation.topicIds,

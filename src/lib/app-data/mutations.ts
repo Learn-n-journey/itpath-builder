@@ -85,11 +85,12 @@ export const userMutations = {
     ...user,
     mistakes: user.mistakes.map((mistake) =>
       mistake.id === id
-        ? {
-            ...mistake,
-            resolved,
-            resolvedAt: resolved ? new Date().toISOString() : undefined,
-          }
+        ? (() => {
+            const { resolvedAt: _previous, ...rest } = mistake;
+            return resolved
+              ? { ...rest, resolved, resolvedAt: new Date().toISOString() }
+              : { ...rest, resolved };
+          })()
         : mistake,
     ),
   }),

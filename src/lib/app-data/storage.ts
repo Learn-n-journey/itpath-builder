@@ -95,7 +95,13 @@ function sanitizeUser(raw: unknown): UserData {
       activity: mistake.activity ?? (mistake.assignmentId ? "assignment" : "quiz"),
       category: mistake.category ?? "misunderstood_concept",
       severity: mistake.severity ?? "medium",
-      attemptId: mistake.attemptId ?? mistake.quizAttemptId ?? mistake.assignmentAttemptId,
+      ...(mistake.attemptId ?? mistake.quizAttemptId ?? mistake.assignmentAttemptId
+        ? {
+            attemptId: (mistake.attemptId ??
+              mistake.quizAttemptId ??
+              mistake.assignmentAttemptId) as string,
+          }
+        : {}),
       recommendedTopicIds: mistake.recommendedTopicIds ?? [],
       recommendedSkillIds: mistake.recommendedSkillIds ?? [],
       resolved: Boolean(mistake.resolved),
