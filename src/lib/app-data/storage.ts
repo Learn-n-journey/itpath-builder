@@ -1,3 +1,4 @@
+import { REVIEW_INTERVALS } from "@/lib/review-engine";
 import { createDefaultState, createDefaultUserData, defaultSettings } from "./defaults";
 import { APP_DATA_VERSION, type PersistedState, type UserData } from "./types";
 
@@ -106,7 +107,24 @@ function sanitizeUser(raw: unknown): UserData {
       recommendedSkillIds: mistake.recommendedSkillIds ?? [],
       resolved: Boolean(mistake.resolved),
     })),
-    reviews: arr(r.reviews, base.reviews),
+    reviews: arr(r.reviews, base.reviews).map((review) => {
+      const interval = typeof review.interval === "number" ? review.interval : 1;
+      const index =
+        typeof review.intervalIndex === "number"
+          ? review.intervalIndex
+          : Math.max(0, REVIEW_INTERVALS.indexOf(interval as (typeof REVIEW_INTERVALS)[number]));
+      return {
+        ...review,
+        interval: REVIEW_INTERVALS[Math.min(index, REVIEW_INTERVALS.length - 1)] ?? 1,
+        intervalIndex: index,
+        status: review.status === "mastered" ? "mastered" : "scheduled",
+        successStreak: review.successStreak ?? 0,
+        lapses: review.lapses ?? 0,
+        totalReviews: review.totalReviews ?? 0,
+        updatedAt: review.updatedAt ?? review.createdAt,
+      };
+    }),
+    reviewAttempts: arr(r.reviewAttempts, base.reviewAttempts),
     notes: arr(r.notes, base.notes),
     bookmarks: arr(r.bookmarks, base.bookmarks),
     labAttempts: arr(r.labAttempts, base.labAttempts).map((attempt) => ({
