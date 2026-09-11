@@ -8,3 +8,5 @@
 - [x] Tested due, overdue, upcoming, pass, fail, reschedule in the browser plus diagnostics
 
 - Troubleshooting engine: 9 incidents (hardware, Windows, networking, DNS, DHCP, Linux, security, cloud, authentication), diagnostic actions with distinct findings, diagnose/reason/fix/verify/document, 6-dimension scoring, mistakes fed to central system. Verified in browser.
+
+- Career Mode: 5 tickets (Help Desk, IT Technician, Network Technician, Junior Sysadmin, Junior Security Analyst) with investigate/diagnose/resolve/verify/document, 6-dimension scoring (technical accuracy, troubleshooting, reasoning, communication, documentation, efficiency), immutable attempts, retakes, mistakes fed to central system. Pass requires correct diagnosis plus every required resolution and verification step plus usable written work. Verified one full ticket per track in the browser.

@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 9;
+export const APP_DATA_VERSION = 10;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -335,7 +335,8 @@ export type MistakeActivity =
   | "assignment"
   | "lab"
   | "scenario"
-  | "troubleshoot";
+  | "troubleshoot"
+  | "career";
 
 export type MistakeSeverity = "low" | "medium" | "high";
 
@@ -532,6 +533,7 @@ export interface UserData {
   certificationProgress: Record<EntityId, CertificationProgress>;
   studySessions: StudySession[];
   incidentAttempts: IncidentAttempt[];
+  ticketAttempts: TicketAttempt[];
   settings: UserSettings;
 }
 
@@ -613,6 +615,99 @@ export interface IncidentAttempt {
   documentation: string;
   scores?: IncidentScores;
   totalScore?: number;
+  previousAttemptId?: EntityId;
+  createdAt: string;
+  updatedAt: string;
+  submittedAt?: string;
+}
+
+/* ------------------------------------------------------------------ */
+/* Career Mode: realistic work tickets on a career track               */
+/* ------------------------------------------------------------------ */
+
+export type CareerTrack =
+  | "help_desk"
+  | "it_technician"
+  | "network_technician"
+  | "junior_sysadmin"
+  | "junior_security_analyst";
+
+export type TicketPriority = "low" | "medium" | "high" | "urgent";
+
+/** One investigation step. Every step returns its own realistic finding. */
+export interface TicketAction {
+  id: EntityId;
+  label: string;
+  command?: string;
+  finding: string;
+  /** True when the step materially advances the investigation. */
+  informative: boolean;
+}
+
+export interface TicketOption {
+  id: EntityId;
+  label: string;
+  correct: boolean;
+  /** Shown after a wrong choice: narrows the search without giving the answer. */
+  hint?: string;
+}
+
+/** Static ticket definition. User work lives in TicketAttempt. */
+export interface Ticket {
+  id: EntityId;
+  track: CareerTrack;
+  topicId: EntityId;
+  title: string;
+  priority: TicketPriority;
+  requester: string;
+  report: string;
+  environment: string;
+  difficulty: Difficulty;
+  slaNote: string;
+  actions: TicketAction[];
+  keyActionIds: EntityId[];
+  efficientActionCount: number;
+  diagnoses: TicketOption[];
+  /** Several resolution steps are correct; a single right click never closes a ticket. */
+  resolutions: TicketOption[];
+  verifications: TicketOption[];
+  reasoningKeywords: string[];
+  communicationKeywords: string[];
+  documentationKeywords: string[];
+  /** Released only after the learner submits their own conclusion. */
+  rootCause: string;
+}
+
+export interface TicketScores {
+  technicalAccuracy: number;
+  troubleshooting: number;
+  reasoning: number;
+  communication: number;
+  documentation: number;
+  efficiency: number;
+}
+
+export interface TicketAttempt {
+  id: EntityId;
+  ticketId: EntityId;
+  track: CareerTrack;
+  topicId: EntityId;
+  status: "in_progress" | "submitted";
+  /** Investigation steps in the order they were run. */
+  performedActionIds: EntityId[];
+  /** Every diagnosis selection made, in order. Wrong guesses are kept. */
+  diagnosisGuessIds: EntityId[];
+  selectedDiagnosisId?: EntityId;
+  reasoning: string;
+  resolutionIds: EntityId[];
+  verificationIds: EntityId[];
+  /** The update written to the requester in their language. */
+  communication: string;
+  documentation: string;
+  scores?: TicketScores;
+  totalScore?: number;
+  /** Passing requires the full workflow, not one lucky option. */
+  passed?: boolean;
   previousAttemptId?: EntityId;
   createdAt: string;
   updatedAt: string;
