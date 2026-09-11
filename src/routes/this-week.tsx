@@ -1,11 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { CheckCircle2, Circle, ExternalLink } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { QuizRunner } from "@/components/quiz/quiz-runner";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import {
   STUDY_DURATIONS,
   completeTask,
@@ -19,6 +23,13 @@ import {
   startPlan,
   studyTaskKindLabels,
 } from "@/lib/study-engine";
+import {
+  WEEK_ASSESSMENT_PASS,
+  WEEK_QUIZ_PASS,
+  buildWeekBundle,
+  getWeeks,
+  type WeekBundle,
+} from "@/lib/week-engine";
 import type { StudyPlan } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 
@@ -28,11 +39,14 @@ export const Route = createFileRoute("/this-week")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { title: "This Week — IT PATH" },
-      { name: "description", content: "Generate a daily study session and track real study time." },
+      {
+        name: "description",
+        content: "Work the weekly curriculum: reading, practice, lab, assignment, quiz, review and assessment.",
+      },
       { property: "og:title", content: "This Week — IT PATH" },
       {
         property: "og:description",
-        content: "Build a 30, 60, 90 or 120 minute study session from your own IT PATH data.",
+        content: "A full study week built from your own IT PATH curriculum, plus a timed daily study session.",
       },
     ],
   }),
@@ -76,15 +90,17 @@ function ThisWeek() {
   const [minutes, setMinutes] = useState(String(user.settings.sessionLengthMinutes));
   const [target, setTarget] = useState<number>(60);
 
-  const activePlan: StudyPlan | undefined = user.studyPlans.find(
-    (plan) => plan.status !== "completed",
-  );
+  const weeks = getWeeks();
+  const bundles = useMemo(() => weeks.map((week) => buildWeekBundle(user, week)), [user, weeks]);
+  const firstOpen = bundles.find((bundle) => !bundle.complete) ?? bundles[0];
+  const [weekId, setWeekId] = useState<string>(firstOpen?.week.id ?? "");
+  const bundle = bundles.find((item) => item.week.id === weekId) ?? firstOpen;
+
+  const activePlan: StudyPlan | undefined = user.studyPlans.find((plan) => plan.status !== "completed");
   useTicker(activePlan?.status === "active");
 
   const weekStart = startOfWeek();
-  const weekSessions = user.studySessions.filter(
-    (s) => new Date(s.startedAt).getTime() >= weekStart,
-  );
+  const weekSessions = user.studySessions.filter((s) => new Date(s.startedAt).getTime() >= weekStart);
   const loggedMinutes = weekSessions.reduce((sum, s) => sum + s.minutes, 0);
   const targetMinutes = user.settings.studyHoursPerWeek * 60;
 
@@ -129,7 +145,29 @@ function ThisWeek() {
     <>
       <PageHeader
         title="This Week"
-        description="Build a study session from your own data, work it, and log the time you actually spend."
+        description="Every week has objectives, reading, videos, official references, practice, a lab, an assignment, a quiz, spaced review and a graded assessment."
+      />
+
+      <div className="flex flex-wrap gap-2">
+        {bundles.map((item) => (
+          <Button
+            key={item.week.id}
+            type="button"
+            variant={item.week.id === bundle?.week.id ? "default" : "secondary"}
+            onClick={() => setWeekId(item.week.id)}
+          >
+            Week {item.week.week}
+            {item.complete ? <CheckCircle2 className="size-4" /> : null}
+          </Button>
+        ))}
+      </div>
+
+      {bundle ? <WeekView bundle={bundle} /> : <EmptyState title="No curriculum weeks are defined yet." />}
+
+      <PageHeader
+        className="mt-10"
+        title="Daily study session"
+        description="Build a session from your own data, work it, and log the time you actually spend."
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -167,11 +205,7 @@ function ThisWeek() {
             <Button onClick={generate}>Generate session</Button>
           </div>
         ) : (
-          <ActivePlan
-            plan={activePlan}
-            onUpdate={actions.updateStudyPlan}
-            onFinish={() => finish(activePlan)}
-          />
+          <ActivePlan plan={activePlan} onUpdate={actions.updateStudyPlan} onFinish={() => finish(activePlan)} />
         )}
       </Panel>
 
@@ -258,6 +292,228 @@ function ThisWeek() {
   );
 }
 
+function CheckRow({ done, children }: { done: boolean; children: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-3">
+      {done ? (
+        <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" />
+      ) : (
+        <Circle className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+      )}
+      <div className="min-w-0">{children}</div>
+    </div>
+  );
+}
+
+function WeekView({ bundle }: { bundle: WeekBundle }) {
+  const { week } = bundle;
+  return (
+    <div className="mt-6 space-y-4">
+      <Panel
+        title={`Year ${week.year} · Month ${week.month} · Week ${week.week}: ${week.title}`}
+        description={week.summary}
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard
+            label="Requirements met"
+            value={`${bundle.completedRequirements}/${bundle.requirements.length}`}
+          />
+          <StatCard label="Week status" value={bundle.complete ? "Complete" : "In progress"} />
+          <StatCard label="Performance" value={bundle.overall === null ? "—" : `${bundle.overall}%`} />
+          <StatCard label="Reviews due" value={bundle.reviewDue} />
+        </div>
+        <Progress
+          className="mt-4"
+          value={(bundle.completedRequirements / Math.max(1, bundle.requirements.length)) * 100}
+        />
+        <p className="mt-3 text-sm text-muted-foreground">
+          A week is complete only when its actual required activities are complete. Nothing is marked from opening a
+          page.
+        </p>
+      </Panel>
+
+      <Panel title="Learning objectives">
+        <div className="space-y-4">
+          {bundle.objectives.map(({ topic, objectives }) => (
+            <div key={topic.id}>
+              <p className="text-sm font-medium">{topic.title}</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                {objectives.map((objective) => (
+                  <li key={objective}>{objective}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel title="Reading" description="The full lesson for each topic in this week.">
+          <div className="space-y-3">
+            {bundle.reading.map((item) => (
+              <CheckRow key={item.id} done={Boolean(item.done)}>
+                <Link
+                  to="/topics/$topicId"
+                  params={item.params as { topicId: string }}
+                  className="text-sm font-medium underline-offset-4 hover:underline"
+                >
+                  {item.title}
+                </Link>
+                <p className="text-sm text-muted-foreground">{item.detail}</p>
+              </CheckRow>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="Practice" description="Recall and the topic practice activity.">
+          <div className="space-y-3">
+            {bundle.practice.map((item) => (
+              <CheckRow key={item.id} done={Boolean(item.done)}>
+                <Link
+                  to="/topics/$topicId"
+                  params={item.params as { topicId: string }}
+                  className="text-sm font-medium underline-offset-4 hover:underline"
+                >
+                  {item.title}
+                </Link>
+                <p className="text-sm text-muted-foreground">{item.detail}</p>
+              </CheckRow>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel title="Videos" description="Verified free video training from the Resources library.">
+          <ul className="space-y-3 text-sm">
+            {bundle.videos.map((resource) => (
+              <li key={resource.id}>
+                <a
+                  href={resource.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 font-medium underline-offset-4 hover:underline"
+                >
+                  {resource.title} <ExternalLink className="size-3.5" />
+                </a>
+                <p className="text-muted-foreground">{resource.provider}</p>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+
+        <Panel title="Official references">
+          <ul className="space-y-3 text-sm">
+            {bundle.references.map((resource) => (
+              <li key={resource.id}>
+                <a
+                  href={resource.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 font-medium underline-offset-4 hover:underline"
+                >
+                  {resource.title} <ExternalLink className="size-3.5" />
+                </a>
+                <p className="text-muted-foreground">
+                  {resource.provider} · {resource.access === "free" ? "Free" : "Paid"}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+
+        <Panel title="Lab" description="Guided practical work for this week.">
+          {bundle.labs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No lab is attached to this week's topics.</p>
+          ) : (
+            <div className="space-y-3">
+              {bundle.labs.map((lab) => (
+                <div key={lab.id}>
+                  <p className="text-sm font-medium">{lab.title}</p>
+                  <p className="text-sm text-muted-foreground">{lab.objective}</p>
+                </div>
+              ))}
+              <Button asChild size="sm" variant="secondary">
+                <Link to="/labs">Open Labs</Link>
+              </Button>
+            </div>
+          )}
+        </Panel>
+
+        <Panel title="Assignment" description="Written and applied work for this week.">
+          {bundle.assignments.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No assignment is attached to this week's topics.</p>
+          ) : (
+            <div className="space-y-3">
+              {bundle.assignments.map((assignment) => (
+                <div key={assignment.id}>
+                  <p className="text-sm font-medium">{assignment.title}</p>
+                  <p className="text-sm text-muted-foreground">{assignment.prompt}</p>
+                </div>
+              ))}
+              <Button asChild size="sm" variant="secondary">
+                <Link to="/assignments">Open Assignments</Link>
+              </Button>
+            </div>
+          )}
+        </Panel>
+      </div>
+
+      <Panel
+        title="Spaced review"
+        description="Reviews scheduled for this week's topics by the review engine."
+      >
+        <p className="text-sm text-muted-foreground">
+          {bundle.reviewScheduled === 0
+            ? "Nothing is scheduled yet. Reviews appear once mistakes or weak topics are recorded."
+            : `${bundle.reviewDue} due now of ${bundle.reviewScheduled} scheduled.`}
+        </p>
+        <Button asChild className="mt-4" size="sm" variant="secondary">
+          <Link to="/review">Open Review</Link>
+        </Button>
+      </Panel>
+
+      {bundle.quiz ? (
+        <Panel
+          title={`Weekly quiz (${bundle.questionCount} questions)`}
+          description={`Practice quiz across this week's topics. ${WEEK_QUIZ_PASS}% or higher counts towards week completion.`}
+        >
+          <QuizRunner quiz={bundle.quiz} startLabel="Start week quiz" passScore={WEEK_QUIZ_PASS} />
+        </Panel>
+      ) : null}
+
+      {bundle.assessment ? (
+        <Panel
+          title="Weekly assessment"
+          description={`The graded assessment for the week, run by the same quiz engine. Pass mark ${WEEK_ASSESSMENT_PASS}%.`}
+        >
+          <QuizRunner quiz={bundle.assessment} startLabel="Start assessment" passScore={WEEK_ASSESSMENT_PASS} />
+        </Panel>
+      ) : null}
+
+      <Panel title="Week completion" description="Each requirement is measured from your recorded activity.">
+        <div className="space-y-3">
+          {bundle.requirements.map((requirement) => (
+            <CheckRow key={requirement.id} done={requirement.done}>
+              <p className="text-sm font-medium">{requirement.label}</p>
+              <p className="text-sm text-muted-foreground">{requirement.detail}</p>
+              <Badge className="mt-1" variant="outline">
+                {requirement.evidence}
+              </Badge>
+            </CheckRow>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel title="Weekly performance" description="Calculated from real attempts only.">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {bundle.performance.map((item) => (
+            <StatCard key={item.label} label={item.label} value={item.value === null ? "—" : `${item.value}%`} />
+          ))}
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
 function ActivePlan({
   plan,
   onUpdate,
@@ -327,10 +583,7 @@ function ActivePlan({
               <p className="mt-1 text-xs text-muted-foreground">Why: {task.reason}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="secondary">
-                  <Link
-                    to={task.to as never}
-                    {...(task.params ? { params: task.params as never } : {})}
-                  >
+                  <Link to={task.to as never} {...(task.params ? { params: task.params as never } : {})}>
                     Open
                   </Link>
                 </Button>
