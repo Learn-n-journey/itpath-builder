@@ -28,6 +28,7 @@ export function createDefaultUserData(): UserData {
     scenarioResponses: {},
     mistakes: [],
     reviews: [],
+    reviewAttempts: [],
     notes: [],
     bookmarks: [],
     labAttempts: [],

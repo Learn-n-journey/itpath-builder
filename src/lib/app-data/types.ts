@@ -355,11 +355,42 @@ export interface Mistake {
   resolvedAt?: string;
 }
 
+export type ReviewStatus = "scheduled" | "mastered";
+export type ReviewOutcome = "pass" | "fail";
+
 export interface Review {
   id: EntityId;
   topicId: EntityId;
+  /** Prerequisite skill the review targets, when the schedule came from a skill gap. */
+  skillId?: EntityId;
+  /** Mistake that caused this review to be scheduled. */
+  sourceMistakeId?: EntityId;
   dueAt: string;
+  /** Current spacing in days: one of the fixed 1/3/7/14/30/60/90 steps. */
   interval: number;
+  /** Index into the fixed interval ladder. */
+  intervalIndex: number;
+  status: ReviewStatus;
+  successStreak: number;
+  lapses: number;
+  totalReviews: number;
+  lastReviewedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Immutable record of one graded review. Opening a review never creates one. */
+export interface ReviewAttempt {
+  id: EntityId;
+  reviewId: EntityId;
+  topicId: EntityId;
+  outcome: ReviewOutcome;
+  intervalBefore: number;
+  intervalAfter: number;
+  dueBefore: string;
+  dueAfter: string;
+  /** True when the item was already past due when it was graded. */
+  wasOverdue: boolean;
   createdAt: string;
 }
 
