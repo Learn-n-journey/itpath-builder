@@ -58,6 +58,10 @@ export function SystemDiagnostics() {
       initialized.settings.id === "user-settings" &&
       Object.keys(initialized.topicProgress).length === 0 &&
       initialized.quizAttempts.length === 0 &&
+      initialized.recallResponses.length === 0 &&
+      initialized.practiceResponses.length === 0 &&
+      Object.keys(initialized.teachBackResponses).length === 0 &&
+      Object.keys(initialized.scenarioResponses).length === 0 &&
       initialized.mistakes.length === 0 &&
       initialized.reviews.length === 0 &&
       initialized.careerTickets.length === 0 &&
@@ -102,6 +106,12 @@ export function SystemDiagnostics() {
       id: "diag-progress",
       topicId: "diag-topic",
       status: "in_progress",
+      understanding: 0,
+      recall: 0,
+      application: 0,
+      practicalAbility: 0,
+      troubleshooting: 0,
+      retention: 0,
       updatedAt: new Date().toISOString(),
     });
     const mutationOk =
