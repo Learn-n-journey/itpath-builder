@@ -108,20 +108,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     raiseProgress({ application: Math.max(progress.application, meetsCriteria ? 50 : 20), troubleshooting: Math.max(progress.troubleshooting, meetsCriteria ? 40 : 15), practicalAbility: Math.max(progress.practicalAbility, meetsCriteria ? 35 : 15) });
   }
 
-  function saveNote() {
-    const body = noteBody.trim();
-    if (!body) { toast.error("Write a note before saving."); return; }
-    const now = new Date().toISOString();
-    if (latestNote) actions.updateNote({ ...latestNote, body, updatedAt: now });
-    else actions.addNote({ id: crypto.randomUUID(), topicId: topic.id, ...(lesson ? { lessonId: lesson.id } : {}), title: `${topic.title} notes`, body, createdAt: now, updatedAt: now });
-    toast.success("Topic note saved.");
-  }
-
-  function toggleBookmark() {
-    if (bookmark) { actions.removeBookmark(bookmark.id); toast.success("Bookmark removed."); return; }
-    actions.addBookmark({ id: crypto.randomUUID(), label: topic.title, href: `/topics/${topic.id}`, topicId: topic.id, createdAt: new Date().toISOString() });
-    toast.success("Topic bookmarked.");
-  }
 
   const averageProgress = useMemo(() => Math.round(progressLabels.reduce((sum, [key]) => sum + progress[key], 0) / progressLabels.length), [progress]);
   if (!lesson || !module || !practice || !scenario) return null;
