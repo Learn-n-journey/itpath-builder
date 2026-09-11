@@ -528,6 +528,7 @@ export const lessons: Lesson[] = [
       "When testing a failure, compare access by hostname with access by a known IP address.",
     ],
   },
+  ...expansionLessons,
 ];
 export const resources: Resource[] = [
   {
