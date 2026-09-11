@@ -47,7 +47,7 @@ interface AppStateContextValue {
   lastSavedAt: string | null;
   actions: AppActions;
   updateUser: (updater: (current: UserData) => UserData) => void;
-  updateSettings: (patch: Partial<UserSettings>) => void;
+  updateSettings: (patch: Partial<Omit<UserSettings, "id">>) => void;
   resetAll: () => void;
   forceSave: () => boolean;
 }
@@ -87,7 +87,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setUser((current) => updater(current));
   }, []);
 
-  const updateSettings = useCallback((patch: Partial<UserSettings>) => {
+  const updateSettings = useCallback((patch: Partial<Omit<UserSettings, "id">>) => {
     setUser((current) => userMutations.updateSettings(current, patch));
   }, []);
 

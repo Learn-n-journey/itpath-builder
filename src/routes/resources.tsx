@@ -25,7 +25,7 @@ export const Route = createFileRoute("/resources")({
 });
 
 function Resources() {
-  const { user, updateUser } = useAppState();
+  const { user, actions } = useAppState();
   const [label, setLabel] = useState("");
   const [href, setHref] = useState("");
 
@@ -34,18 +34,12 @@ function Resources() {
       toast.error("Add both a name and a link.");
       return;
     }
-    updateUser((c) => ({
-      ...c,
-      bookmarks: [
-        {
-          id: crypto.randomUUID(),
-          label: label.trim(),
-          href: href.trim(),
-          createdAt: new Date().toISOString(),
-        },
-        ...c.bookmarks,
-      ],
-    }));
+    actions.addBookmark({
+      id: crypto.randomUUID(),
+      label: label.trim(),
+      href: href.trim(),
+      createdAt: new Date().toISOString(),
+    });
     setLabel("");
     setHref("");
     toast.success("Bookmark saved.");
@@ -122,12 +116,7 @@ function Resources() {
                   variant="ghost"
                   size="icon"
                   aria-label={`Remove ${b.label}`}
-                  onClick={() =>
-                    updateUser((c) => ({
-                      ...c,
-                      bookmarks: c.bookmarks.filter((x) => x.id !== b.id),
-                    }))
-                  }
+                  onClick={() => actions.removeBookmark(b.id)}
                 >
                   <Trash2 className="size-4" />
                 </Button>
