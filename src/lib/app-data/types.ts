@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 3;
+export const APP_DATA_VERSION = 4;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -62,6 +62,40 @@ export interface Assignment {
   topicId: EntityId;
   title: string;
   brief: string;
+  type: AssignmentType;
+  instructions: string[];
+  responsePrompt: string;
+  evaluationMode: "automatic" | "self_rubric";
+  rubric: AssignmentRubricCriterion[];
+}
+
+export type AssignmentType =
+  | "explain"
+  | "recall"
+  | "configure"
+  | "build"
+  | "compare"
+  | "scenario"
+  | "incident"
+  | "troubleshoot"
+  | "design"
+  | "teach_back"
+  | "command_challenge"
+  | "exam_simulation"
+  | "capstone";
+
+export interface AssignmentRubricCriterion {
+  id: EntityId;
+  label: string;
+  description: string;
+  points: number;
+  acceptedConcepts?: string[];
+}
+
+export interface AssignmentCriterionResult {
+  criterionId: EntityId;
+  earnedPoints: number;
+  feedback: string;
 }
 
 export interface Lab {
@@ -225,7 +259,9 @@ export interface ScenarioResponse {
 
 export interface Mistake {
   id: EntityId;
-  questionId: EntityId;
+  questionId?: EntityId;
+  assignmentId?: EntityId;
+  assignmentAttemptId?: EntityId;
   topicId: EntityId;
   quizAttemptId?: EntityId;
   createdAt: string;
@@ -271,6 +307,8 @@ export interface Note {
   topicId?: EntityId;
   lessonId?: EntityId;
   resourceId?: EntityId;
+  assignmentId?: EntityId;
+  assignmentAttemptId?: EntityId;
   createdAt: string;
   updatedAt: string;
 }
@@ -281,6 +319,7 @@ export interface Bookmark {
   href: string;
   resourceId?: EntityId;
   topicId?: EntityId;
+  assignmentId?: EntityId;
   createdAt: string;
 }
 
@@ -303,8 +342,19 @@ export interface AssignmentAttempt {
   id: EntityId;
   assignmentId: EntityId;
   topicId?: EntityId;
-  status: "started" | "submitted" | "completed";
+  status: "started" | "submitted" | "evaluated" | "completed";
+  responses: Record<string, string>;
+  score?: number;
+  maxScore?: number;
+  criterionResults: AssignmentCriterionResult[];
+  feedback?: string;
+  evaluationMode?: "automatic" | "self_rubric";
+  previousAttemptId?: EntityId;
   createdAt: string;
+  updatedAt: string;
+  submittedAt?: string;
+  evaluatedAt?: string;
+  completedAt?: string;
 }
 
 export interface CareerScores {

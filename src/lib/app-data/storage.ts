@@ -27,7 +27,7 @@ function sanitizeUser(raw: unknown): UserData {
   const base = createDefaultUserData();
   if (!raw || typeof raw !== "object") return base;
   const r = raw as Partial<UserData>;
-  const arr = <T,>(v: unknown, fallback: T[]): T[] => (Array.isArray(v) ? (v as T[]) : fallback);
+  const arr = <T>(v: unknown, fallback: T[]): T[] => (Array.isArray(v) ? (v as T[]) : fallback);
 
   return {
     createdAt: typeof r.createdAt === "string" ? r.createdAt : base.createdAt,
@@ -36,19 +36,22 @@ function sanitizeUser(raw: unknown): UserData {
         ? Object.fromEntries(
             Object.entries(r.topicProgress).map(([topicId, value]) => {
               const progress = value && typeof value === "object" ? value : {};
-              return [topicId, {
-                id: `progress-${topicId}`,
+              return [
                 topicId,
-                status: "not_started",
-                understanding: 0,
-                recall: 0,
-                application: 0,
-                practicalAbility: 0,
-                troubleshooting: 0,
-                retention: 0,
-                updatedAt: base.createdAt,
-                ...progress,
-              }];
+                {
+                  id: `progress-${topicId}`,
+                  topicId,
+                  status: "not_started",
+                  understanding: 0,
+                  recall: 0,
+                  application: 0,
+                  practicalAbility: 0,
+                  troubleshooting: 0,
+                  retention: 0,
+                  updatedAt: base.createdAt,
+                  ...progress,
+                },
+              ];
             }),
           )
         : base.topicProgress,
@@ -56,11 +59,15 @@ function sanitizeUser(raw: unknown): UserData {
     recallResponses: arr(r.recallResponses, base.recallResponses),
     practiceResponses: arr(r.practiceResponses, base.practiceResponses),
     teachBackResponses:
-      r.teachBackResponses && typeof r.teachBackResponses === "object" && !Array.isArray(r.teachBackResponses)
+      r.teachBackResponses &&
+      typeof r.teachBackResponses === "object" &&
+      !Array.isArray(r.teachBackResponses)
         ? r.teachBackResponses
         : base.teachBackResponses,
     scenarioResponses:
-      r.scenarioResponses && typeof r.scenarioResponses === "object" && !Array.isArray(r.scenarioResponses)
+      r.scenarioResponses &&
+      typeof r.scenarioResponses === "object" &&
+      !Array.isArray(r.scenarioResponses)
         ? r.scenarioResponses
         : base.scenarioResponses,
     mistakes: arr(r.mistakes, base.mistakes),
@@ -68,7 +75,12 @@ function sanitizeUser(raw: unknown): UserData {
     notes: arr(r.notes, base.notes),
     bookmarks: arr(r.bookmarks, base.bookmarks),
     labAttempts: arr(r.labAttempts, base.labAttempts),
-    assignmentAttempts: arr(r.assignmentAttempts, base.assignmentAttempts),
+    assignmentAttempts: arr(r.assignmentAttempts, base.assignmentAttempts).map((attempt) => ({
+      ...attempt,
+      responses: attempt.responses ?? {},
+      criterionResults: attempt.criterionResults ?? [],
+      updatedAt: attempt.updatedAt ?? attempt.createdAt,
+    })),
     careerTickets: arr(r.careerTickets, base.careerTickets),
     portfolio: arr(r.portfolio, base.portfolio),
     careerScores: { ...base.careerScores, ...(r.careerScores ?? {}) },
