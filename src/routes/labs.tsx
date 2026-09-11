@@ -21,6 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { labs, topics } from "@/data/static-content";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
+import { projectFromLabAttempt } from "@/lib/portfolio-engine";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/labs")({
