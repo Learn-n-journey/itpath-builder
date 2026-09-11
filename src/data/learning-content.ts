@@ -1,3 +1,4 @@
+import { expansionModules, expansionPractice, expansionRecall, expansionScenarios } from "@/data/curriculum";
 import type { LearningModule, PracticeActivity, RecallQuestion, RealWorldScenario } from "@/lib/app-data/types";
 
 const moduleData: Array<Omit<LearningModule, "id" | "lessonId" | "recallQuestionIds" | "practiceActivityId" | "scenarioId"> & {
@@ -101,14 +102,14 @@ const moduleData: Array<Omit<LearningModule, "id" | "lessonId" | "recallQuestion
   },
 ];
 
-export const learningModules: LearningModule[] = moduleData.map((item) => ({
+export const learningModules: LearningModule[] = [...moduleData.map((item) => ({
   ...item,
   id: `module-${item.slug}`,
   lessonId: `lesson-${item.slug}-core`,
   recallQuestionIds: [`recall-${item.slug}-1`, `recall-${item.slug}-2`],
   practiceActivityId: `practice-${item.slug}`,
   scenarioId: `scenario-${item.slug}`,
-}));
+})), ...expansionModules];
 
 const recallSeed: Array<[string, string, string[], string, string, string[], string]> = [
   ["computer-hardware-basics", "Why does a running program use RAM instead of only the SSD?", ["fast", "temporary", "active"], "RAM provides fast temporary working space for active instructions and data.", "Name two checks for a desktop with no power.", ["power", "cable", "psu", "outlet"], "Check the outlet/cable and PSU connections or indicators before replacing parts."],
@@ -124,7 +125,7 @@ const recallSeed: Array<[string, string, string[], string, string, string[], str
 export const recallQuestions: RecallQuestion[] = recallSeed.flatMap(([slug, p1, c1, e1, p2, c2, e2]) => [
   { id: `recall-${slug}-1`, topicId: `topic-${slug}`, prompt: p1, acceptedConcepts: c1, explanation: e1 },
   { id: `recall-${slug}-2`, topicId: `topic-${slug}`, prompt: p2, acceptedConcepts: c2, explanation: e2 },
-]);
+]).concat(expansionRecall);
 
 const activitySeed: Array<[string, string, string, string[], number, string]> = [
   ["computer-hardware-basics", "Isolate a hardware symptom", "A PC shuts down only during heavy workloads and feels very hot. What should you check first?", ["Replace the SSD", "Inspect fans, vents, and CPU temperature", "Add a second monitor", "Reinstall the browser"], 1, "Load-related heat points first to cooling or thermal contact."],
@@ -136,7 +137,7 @@ const activitySeed: Array<[string, string, string, string[], number, string]> = 
   ["networking-basics", "Interpret address evidence", "A laptop has 169.254.22.9 and cannot reach its gateway. What should you investigate first?", ["DHCP availability", "Monitor cable", "DNS MX record", "Browser bookmarks"], 0, "APIPA strongly suggests the client did not receive a DHCP lease."],
   ["dns-fundamentals", "Separate DNS from connectivity", "A server answers by IP but its hostname fails. Which test is most direct?", ["Replace the network cable", "Query its A or AAAA record", "Add RAM", "Reinstall the OS"], 1, "Direct record queries test name resolution without confusing it with reachability."],
 ];
-export const practiceActivities: PracticeActivity[] = activitySeed.map(([slug, title, prompt, choices, answerIndex, explanation]) => ({ id: `practice-${slug}`, topicId: `topic-${slug}`, title, prompt, choices, answerIndex, explanation }));
+export const practiceActivities: PracticeActivity[] = activitySeed.map(([slug, title, prompt, choices, answerIndex, explanation]) => ({ id: `practice-${slug}`, topicId: `topic-${slug}`, title, prompt, choices, answerIndex, explanation })).concat(expansionPractice);
 
 const scenarioSeed: Array<[string, string, string, string, string[], string]> = [
   ["computer-hardware-basics", "Intermittent workstation shutdown", "A design workstation powers off during rendering but runs normally at idle. Dust is visible around the rear vents.", "What is your first decision, and what evidence will you collect before replacing hardware?", ["temperature", "cooling", "fan", "power"], "Prioritize safe cooling and temperature checks, then verify power if heat is not the cause."],
@@ -148,7 +149,7 @@ const scenarioSeed: Array<[string, string, string, string, string[], string]> = 
   ["networking-basics", "Local works, remote fails", "A PC reaches a printer on its subnet but cannot reach the default gateway or internet. Its address and mask look valid.", "What is your next test and reasoning?", ["gateway", "route", "switch", "configuration"], "Test gateway reachability and compare its configured value; local success already proves part of the link."],
   ["dns-fundamentals", "Partial outage after a change", "A site's A record changed this morning. Some users reach the new server and others still reach the old one.", "What is the likely cause, and what evidence would confirm it?", ["ttl", "cache", "resolver", "record"], "Compare resolver answers and TTLs; mixed cached responses are likely until the old TTL expires."],
 ];
-export const realWorldScenarios: RealWorldScenario[] = scenarioSeed.map(([slug, title, situation, decisionPrompt, expectedConcepts, guidance]) => ({ id: `scenario-${slug}`, topicId: `topic-${slug}`, title, situation, decisionPrompt, expectedConcepts, guidance }));
+export const realWorldScenarios: RealWorldScenario[] = scenarioSeed.map(([slug, title, situation, decisionPrompt, expectedConcepts, guidance]) => ({ id: `scenario-${slug}`, topicId: `topic-${slug}`, title, situation, decisionPrompt, expectedConcepts, guidance })).concat(expansionScenarios);
 
 export function getLearningModule(topicId: string) { return learningModules.find((item) => item.topicId === topicId); }
 export function getRecallQuestions(topicId: string) { return recallQuestions.filter((item) => item.topicId === topicId); }

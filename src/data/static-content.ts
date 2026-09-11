@@ -11,6 +11,7 @@ import type {
   Track,
 } from "@/lib/app-data/types";
 import { assignments } from "@/data/assignment-content";
+import { expansionLessons, expansionTopics } from "@/data/curriculum";
 import { certifications, certificationObjectives } from "@/data/certification-content";
 import { incidents } from "@/data/incident-content";
 import { labs } from "@/data/lab-content";
@@ -39,6 +40,13 @@ export const tracks: Track[] = [
     description:
       "Core knowledge for understanding, operating, and supporting modern computer systems.",
     year: 1,
+  },
+  {
+    id: "track-year-2-specialisation",
+    title: "Systems, Cloud and Security Specialisation",
+    description:
+      "Second-year progression through Linux, systems administration, cloud, and defensive and offensive security.",
+    year: 2,
   },
 ];
 
@@ -196,6 +204,7 @@ export const topics: Topic[] = [
     ],
     estimatedMinutes: 60,
   },
+  ...expansionTopics,
 ];
 
 export const lessons: Lesson[] = [
