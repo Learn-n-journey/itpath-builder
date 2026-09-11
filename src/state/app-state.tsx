@@ -20,6 +20,7 @@ import {
 } from "@/lib/app-data/storage";
 import {
   APP_DATA_VERSION,
+  type AssignmentAttempt,
   type Bookmark,
   type Note,
   type Mistake,
@@ -35,6 +36,8 @@ import {
 } from "@/lib/app-data/types";
 
 interface AppActions {
+  addAssignmentAttempt: (attempt: AssignmentAttempt) => void;
+  updateAssignmentAttempt: (attempt: AssignmentAttempt) => void;
   addNote: (note: Note) => void;
   updateNote: (note: Note) => void;
   removeNote: (id: string) => void;
@@ -106,6 +109,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const actions = useMemo<AppActions>(
     () => ({
+      addAssignmentAttempt: (attempt) =>
+        setUser((current) => userMutations.addAssignmentAttempt(current, attempt)),
+      updateAssignmentAttempt: (attempt) =>
+        setUser((current) => userMutations.updateAssignmentAttempt(current, attempt)),
       addNote: (note) => setUser((current) => userMutations.addNote(current, note)),
       updateNote: (note) => setUser((current) => userMutations.updateNote(current, note)),
       removeNote: (id) => setUser((current) => userMutations.removeNote(current, id)),

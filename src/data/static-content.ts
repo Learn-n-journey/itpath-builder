@@ -12,6 +12,7 @@ import type {
   Topic,
   Track,
 } from "@/lib/app-data/types";
+import { assignments } from "@/data/assignment-content";
 
 export type {
   Assignment,
@@ -522,7 +523,7 @@ export const resources: Resource[] = [
     status: "verified",
   },
 ];
-export const assignments: Assignment[] = [];
+export { assignments };
 export const labs: Lab[] = [];
 export const quizzes: Quiz[] = [];
 export const questions: Question[] = [];
