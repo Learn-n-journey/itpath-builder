@@ -113,6 +113,23 @@ export function SystemDiagnostics() {
     }
     results.push({ name: "Settings save", pass: settingsOk, detail: settingsDetail });
 
+    // 7. Version & Schema
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    let schemaOk = false;
+    let schemaDetail = "No data found in storage.";
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        const hasVersion = parsed.version === APP_DATA_VERSION;
+        const hasUser = !!parsed.user && typeof parsed.user === "object";
+        schemaOk = hasVersion && hasUser;
+        schemaDetail = `Version: ${parsed.version} (${hasVersion ? "Current" : "Legacy"}), User Object: ${hasUser ? "OK" : "Missing"}`;
+      } catch (e) {
+        schemaDetail = "Failed to parse storage data.";
+      }
+    }
+    results.push({ name: "Version & Schema", pass: schemaOk, detail: schemaDetail });
+
     setChecks(results);
     setRanAt(new Date().toLocaleTimeString());
   }
