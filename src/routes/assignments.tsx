@@ -148,6 +148,8 @@ function AssignmentWorkspace({
   const [selfChecks, setSelfChecks] = useState<Record<string, boolean>>({});
   const [noteBody, setNoteBody] = useState("");
   const [showReview, setShowReview] = useState(false);
+  const latestResponse = latestAttempt?.responses["main"] ?? "";
+  const attemptResponse = attempt?.responses["main"] ?? "";
   const note = user.notes.find((item) => item.assignmentId === assignment.id);
   const bookmark = user.bookmarks.find((item) => item.assignmentId === assignment.id);
   const topic = topics.find((item) => item.id === assignment.topicId);
@@ -158,13 +160,13 @@ function AssignmentWorkspace({
 
   useEffect(() => {
     setAttemptId(latestAttempt?.id ?? "");
-    setResponse(latestAttempt?.responses["main"] ?? "");
+    setResponse(latestResponse);
     setSelfChecks({});
     setShowReview(false);
-  }, [assignment.id, latestAttempt?.id]);
+  }, [assignment.id, latestAttempt?.id, latestResponse]);
   useEffect(() => {
-    setResponse(attempt?.responses["main"] ?? "");
-  }, [attempt?.id, attempt?.responses["main"]]);
+    setResponse(attemptResponse);
+  }, [attempt?.id, attemptResponse]);
   useEffect(() => {
     setNoteBody(note?.body ?? "");
   }, [note?.body]);
@@ -371,13 +373,7 @@ function AssignmentWorkspace({
                 Submit
               </Button>
               {attempt.status === "submitted" ? (
-                <Button
-                  onClick={evaluate}
-                  disabled={
-                    assignment.evaluationMode === "self_rubric" &&
-                    assignment.rubric.some((item) => selfChecks[item.id] === undefined)
-                  }
-                >
+                <Button onClick={evaluate}>
                   <CheckCircle2 />
                   Evaluate
                 </Button>
