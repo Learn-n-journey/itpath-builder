@@ -23,6 +23,7 @@ import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as QuizMeRouteImport } from './routes/quiz-me'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ReviewRouteImport } from './routes/review'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ThisWeekRouteImport } from './routes/this-week'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
 
@@ -96,6 +97,11 @@ const ReviewRoute = ReviewRouteImport.update({
   path: '/review',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ThisWeekRoute = ThisWeekRouteImport.update({
   id: '/this-week',
   path: '/this-week',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
+  '/settings': typeof SettingsRoute
   '/this-week': typeof ThisWeekRoute
   '/troubleshoot': typeof TroubleshootRoute
 }
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
+  '/settings': typeof SettingsRoute
   '/this-week': typeof ThisWeekRoute
   '/troubleshoot': typeof TroubleshootRoute
 }
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
+  '/settings': typeof SettingsRoute
   '/this-week': typeof ThisWeekRoute
   '/troubleshoot': typeof TroubleshootRoute
 }
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/quiz-me'
     | '/resources'
     | '/review'
+    | '/settings'
     | '/this-week'
     | '/troubleshoot'
   fileRoutesByTo: FileRoutesByTo
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/quiz-me'
     | '/resources'
     | '/review'
+    | '/settings'
     | '/this-week'
     | '/troubleshoot'
   id:
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/quiz-me'
     | '/resources'
     | '/review'
+    | '/settings'
     | '/this-week'
     | '/troubleshoot'
   fileRoutesById: FileRoutesById
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   QuizMeRoute: typeof QuizMeRoute
   ResourcesRoute: typeof ResourcesRoute
   ReviewRoute: typeof ReviewRoute
+  SettingsRoute: typeof SettingsRoute
   ThisWeekRoute: typeof ThisWeekRoute
   TroubleshootRoute: typeof TroubleshootRoute
 }
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReviewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/this-week': {
       id: '/this-week'
       path: '/this-week'
@@ -370,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuizMeRoute: QuizMeRoute,
   ResourcesRoute: ResourcesRoute,
   ReviewRoute: ReviewRoute,
+  SettingsRoute: SettingsRoute,
   ThisWeekRoute: ThisWeekRoute,
   TroubleshootRoute: TroubleshootRoute,
 }
