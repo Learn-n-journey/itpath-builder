@@ -1,6 +1,6 @@
-# IT PATH Lab Engine
+# IT PATH Quiz Engine
 
-- [x] Define nine guided labs and versioned lab-attempt records
-- [x] Build Start, Save, Checklist, Reflection, Submit, and Review lifecycle
-- [x] Persist lab status, score, evidence, and portfolio links
-- [x] Verify every lab, lifecycle stage, refresh, responsive behavior, diagnostics, and build
+- [ ] Define substantive typed question bank covering all six formats
+- [ ] Build randomized Start, Answer, Next, Previous, Submit, Review, Retake lifecycle
+- [ ] Persist immutable attempts, results, mistakes, and recommended reviews
+- [ ] Verify scoring, randomization, refresh, responsive behavior, diagnostics, and build
