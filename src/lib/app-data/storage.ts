@@ -36,6 +36,16 @@ function sanitizeUser(raw: unknown): UserData {
         ? r.topicProgress
         : base.topicProgress,
     quizAttempts: arr(r.quizAttempts, base.quizAttempts),
+    recallResponses: arr(r.recallResponses, base.recallResponses),
+    practiceResponses: arr(r.practiceResponses, base.practiceResponses),
+    teachBackResponses:
+      r.teachBackResponses && typeof r.teachBackResponses === "object" && !Array.isArray(r.teachBackResponses)
+        ? r.teachBackResponses
+        : base.teachBackResponses,
+    scenarioResponses:
+      r.scenarioResponses && typeof r.scenarioResponses === "object" && !Array.isArray(r.scenarioResponses)
+        ? r.scenarioResponses
+        : base.scenarioResponses,
     mistakes: arr(r.mistakes, base.mistakes),
     reviews: arr(r.reviews, base.reviews),
     notes: arr(r.notes, base.notes),

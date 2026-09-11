@@ -8,8 +8,12 @@ import type {
   Note,
   PortfolioProject,
   QuizAttempt,
+  RecallResponse,
   Review,
+  PracticeResponse,
+  ScenarioResponse,
   StudySession,
+  TeachBackResponse,
   TopicProgress,
   UserData,
   UserSettings,
@@ -17,6 +21,8 @@ import type {
 
 type UserCollectionKey =
   | "quizAttempts"
+  | "recallResponses"
+  | "practiceResponses"
   | "mistakes"
   | "reviews"
   | "notes"
@@ -51,6 +57,20 @@ export const userMutations = {
   },
   addQuizAttempt: (user: UserData, item: QuizAttempt) => prepend(user, "quizAttempts", item),
   removeQuizAttempt: (user: UserData, id: string) => removeById(user, "quizAttempts", id),
+  addRecallResponse: (user: UserData, item: RecallResponse) => prepend(user, "recallResponses", item),
+  addPracticeResponse: (user: UserData, item: PracticeResponse) => prepend(user, "practiceResponses", item),
+  setTeachBackResponse: (user: UserData, item: TeachBackResponse): UserData => ({
+    ...user,
+    teachBackResponses: { ...user.teachBackResponses, [item.topicId]: item },
+  }),
+  setScenarioResponse: (user: UserData, item: ScenarioResponse): UserData => ({
+    ...user,
+    scenarioResponses: { ...user.scenarioResponses, [item.topicId]: item },
+  }),
+  updateNote: (user: UserData, item: Note): UserData => ({
+    ...user,
+    notes: user.notes.map((note) => (note.id === item.id ? item : note)),
+  }),
   addMistake: (user: UserData, item: Mistake) => prepend(user, "mistakes", item),
   removeMistake: (user: UserData, id: string) => removeById(user, "mistakes", id),
   addReview: (user: UserData, item: Review) => prepend(user, "reviews", item),
