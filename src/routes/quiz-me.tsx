@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 
+import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { PageHeader, StatCard } from "@/components/page-kit";
 import { QuizRunner, quizQuestions } from "@/components/quiz/quiz-runner";
 import { quizzes } from "@/data/static-content";
