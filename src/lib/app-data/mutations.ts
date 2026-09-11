@@ -16,6 +16,7 @@ import type {
   PracticeResponse,
   ScenarioResponse,
   StudySession,
+  StudyPlan,
   TicketAttempt,
   TeachBackResponse,
   TopicProgress,
@@ -37,6 +38,7 @@ type UserCollectionKey =
   | "careerTickets"
   | "portfolio"
   | "studySessions"
+  | "studyPlans"
   | "incidentAttempts"
   | "ticketAttempts";
 
@@ -152,6 +154,13 @@ export const userMutations = {
   removeTicketAttempt: (user: UserData, id: string) => removeById(user, "ticketAttempts", id),
   addStudySession: (user: UserData, item: StudySession) => prepend(user, "studySessions", item),
   removeStudySession: (user: UserData, id: string) => removeById(user, "studySessions", id),
+  addStudyPlan: (user: UserData, item: StudyPlan) => prepend(user, "studyPlans", item),
+  updateStudyPlan: (user: UserData, item: StudyPlan): UserData => ({
+    ...user,
+    studyPlans: user.studyPlans.map((plan) => (plan.id === item.id ? item : plan)),
+  }),
+  removeStudyPlan: (user: UserData, id: string) => removeById(user, "studyPlans", id),
+
   setCertificationProgress: (user: UserData, progress: CertificationProgress): UserData => ({
     ...user,
     certificationProgress: {

@@ -43,6 +43,7 @@ import {
   type ReviewOutcome,
   type ScenarioResponse,
   type StudySession,
+  type StudyPlan,
   type TeachBackResponse,
   type TicketAttempt,
   type TopicProgress,
@@ -70,6 +71,9 @@ interface AppActions {
   removePortfolioProject: (id: string) => void;
   addStudySession: (session: StudySession) => void;
   removeStudySession: (id: string) => void;
+  addStudyPlan: (plan: StudyPlan) => void;
+  updateStudyPlan: (plan: StudyPlan) => void;
+  removeStudyPlan: (id: string) => void;
   addRecallResponse: (response: RecallResponse) => void;
   addMistake: (mistake: Mistake) => void;
   recordMistake: (input: MistakeInput) => void;
@@ -175,6 +179,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.addStudySession(current, session)),
       removeStudySession: (id) =>
         setUser((current) => userMutations.removeStudySession(current, id)),
+      addStudyPlan: (plan) => setUser((current) => userMutations.addStudyPlan(current, plan)),
+      updateStudyPlan: (plan) =>
+        setUser((current) => userMutations.updateStudyPlan(current, plan)),
+      removeStudyPlan: (id) => setUser((current) => userMutations.removeStudyPlan(current, id)),
       addRecallResponse: (response) =>
         setUser((current) => userMutations.addRecallResponse(current, response)),
       addMistake: (mistake) => setUser((current) => userMutations.addMistake(current, mistake)),

@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 11;
+export const APP_DATA_VERSION = 12;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -441,7 +441,63 @@ export interface StudySession {
   topicId?: EntityId;
   startedAt: string;
   minutes: number;
+  /** Set when the session was produced by the daily study engine. */
+  studyPlanId?: EntityId;
 }
+
+/** Daily study engine. Every task points at an activity that really exists. */
+export type StudyTaskKind =
+  | "review"
+  | "weak_topic"
+  | "new_material"
+  | "practice"
+  | "lab"
+  | "assignment"
+  | "quiz";
+
+export type StudyTaskStatus = "pending" | "active" | "completed" | "skipped";
+
+export interface StudyPlanTask {
+  id: EntityId;
+  kind: StudyTaskKind;
+  title: string;
+  detail: string;
+  /** Why this task was chosen, from the learner's real data. */
+  reason: string;
+  plannedMinutes: number;
+  to: string;
+  params?: Record<string, string>;
+  topicId?: EntityId;
+  reviewId?: EntityId;
+  labId?: EntityId;
+  assignmentId?: EntityId;
+  quizId?: EntityId;
+  status: StudyTaskStatus;
+  /** Real tracked time on this task, in seconds. */
+  trackedSeconds: number;
+  startedAt?: string;
+  finishedAt?: string;
+}
+
+export type StudyPlanStatus = "planned" | "active" | "paused" | "completed";
+
+export interface StudyPlan {
+  id: EntityId;
+  targetMinutes: number;
+  status: StudyPlanStatus;
+  tasks: StudyPlanTask[];
+  activeTaskId?: EntityId;
+  /** Accumulated tracked time, in seconds, excluding the running segment. */
+  trackedSeconds: number;
+  /** Timestamp the current running segment began; absent while paused. */
+  runningSince?: string;
+  createdAt: string;
+  updatedAt: string;
+  startedAt?: string;
+  completedAt?: string;
+  studySessionId?: EntityId;
+}
+
 
 export interface Note {
   id: EntityId;
@@ -570,6 +626,8 @@ export interface UserData {
   /** Learner edits to certification objectives, keyed by objective id. */
   certificationObjectives: Record<EntityId, CertificationObjectiveOverride>;
   studySessions: StudySession[];
+  studyPlans: StudyPlan[];
+
   incidentAttempts: IncidentAttempt[];
   ticketAttempts: TicketAttempt[];
   settings: UserSettings;
