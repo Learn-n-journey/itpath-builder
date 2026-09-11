@@ -138,7 +138,24 @@ export function SystemDiagnostics() {
           rubric: [],
         },
       ],
-      labs: [{ id: "diag-lab", topicId: "diag-topic", title: "Test", objective: "" }],
+      labs: [
+        {
+          id: "diag-lab",
+          topicId: "diag-topic",
+          title: "Test",
+          objective: "Test a guided lab.",
+          category: "hardware" as const,
+          prerequisites: [],
+          difficulty: "gentle" as const,
+          estimatedMinutes: 1,
+          environment: "Local test environment",
+          instructions: ["Perform the test."],
+          expectedResult: "The test is documented.",
+          checklist: [{ id: "diag-check", label: "Test complete", points: 100 }],
+          reflectionPrompt: "What happened?",
+          masteryScore: 100,
+        },
+      ],
       quizzes: [{ id: "diag-quiz", topicId: "diag-topic", title: "Test", questionIds: [] }],
       certifications: [
         { id: "diag-certification", title: "Test", provider: "Test", objectiveIds: [] },
@@ -181,6 +198,42 @@ export function SystemDiagnostics() {
       detail: mutationOk
         ? "An isolated immutable mutation succeeded without changing live user data."
         : "The centralized mutation did not preserve immutable state behavior.",
+    });
+
+    const labStartedAt = new Date().toISOString();
+    const labFixture = userMutations.addLabAttempt(initialized, {
+      id: "diag-lab-attempt",
+      labId: "diag-lab",
+      topicId: "diag-topic",
+      status: "in_progress",
+      checklist: {},
+      reflection: "",
+      score: 0,
+      maxScore: 100,
+      createdAt: labStartedAt,
+      updatedAt: labStartedAt,
+    });
+    const startedLabAttempt = labFixture.labAttempts[0];
+    const labUpdated = startedLabAttempt
+      ? userMutations.updateLabAttempt(labFixture, {
+      ...startedLabAttempt,
+      status: "completed",
+      checklist: { "diag-check": true },
+      reflection: "The guided test produced the documented expected result.",
+      score: 100,
+      completedAt: labStartedAt,
+    })
+      : labFixture;
+    const labMutationOk =
+      labUpdated.labAttempts[0]?.status === "completed" &&
+      labUpdated.labAttempts[0]?.score === 100 &&
+      initialized.labAttempts.length === 0;
+    results.push({
+      name: "Lab lifecycle data",
+      pass: labMutationOk,
+      detail: labMutationOk
+        ? "Lab attempts can be initialized and updated without changing the zero-state fixture."
+        : "The centralized lab-attempt lifecycle mutation failed.",
     });
 
     let storageOk = false;

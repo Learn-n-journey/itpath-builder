@@ -92,6 +92,9 @@ function Portfolio() {
                         {p.summary}
                       </p>
                     ) : null}
+                    {p.labId ? (
+                      <p className="mt-1 text-xs font-medium text-primary">Completed lab evidence</p>
+                    ) : null}
                   </div>
                   <Button
                     variant="ghost"
