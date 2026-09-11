@@ -1,6 +1,6 @@
-# IT PATH Resources system
+# IT PATH Assignment Engine
 
-- [x] Define reusable resource metadata and verified official links
-- [x] Build search and all six resource filters
-- [x] Add per-resource bookmarks and notes
-- [x] Verify every filter, persistence, responsive behavior, and build
+- [x] Define all assignment types, rubrics, and versioned attempt records
+- [ ] Build the complete assignment lifecycle and review workspace
+- [ ] Persist mistakes, notes, bookmarks, scores, feedback, and retakes
+- [ ] Verify all assignment types, lifecycle stages, refresh, responsive behavior, and build

@@ -82,6 +82,10 @@ export const userMutations = {
   addLabAttempt: (user: UserData, item: LabAttempt) => prepend(user, "labAttempts", item),
   removeLabAttempt: (user: UserData, id: string) => removeById(user, "labAttempts", id),
   addAssignmentAttempt: (user: UserData, item: AssignmentAttempt) => prepend(user, "assignmentAttempts", item),
+  updateAssignmentAttempt: (user: UserData, item: AssignmentAttempt): UserData => ({
+    ...user,
+    assignmentAttempts: user.assignmentAttempts.map((attempt) => attempt.id === item.id ? item : attempt),
+  }),
   removeAssignmentAttempt: (user: UserData, id: string) => removeById(user, "assignmentAttempts", id),
   addCareerTicket: (user: UserData, item: CareerTicket) => prepend(user, "careerTickets", item),
   removeCareerTicket: (user: UserData, id: string) => removeById(user, "careerTickets", id),
