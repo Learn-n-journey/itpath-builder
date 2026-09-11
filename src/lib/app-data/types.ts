@@ -164,7 +164,10 @@ export interface Question {
 export interface Certification {
   id: EntityId;
   title: string;
+  code?: string;
   provider: string;
+  level?: "core" | "infrastructure" | "security" | "advanced";
+  description?: string;
   objectiveIds: EntityId[];
 }
 
@@ -172,7 +175,19 @@ export interface CertificationObjective {
   id: EntityId;
   certificationId: EntityId;
   code: string;
+  /** Exam domain the objective belongs to. Weak domains are reported per domain. */
+  domain?: string;
   title: string;
+  /** Curriculum topics that cover this objective. */
+  topicIds?: EntityId[];
+}
+
+/** A learner edit to an objective. Custom objectives are stored the same way. */
+export interface CertificationObjectiveOverride extends CertificationObjective {
+  /** True when the learner removed a built-in objective. */
+  removed?: boolean;
+  custom?: boolean;
+  updatedAt: string;
 }
 
 export interface CareerSkill {
