@@ -27,7 +27,7 @@ function Labs() {
         title="Labs"
         description="Hands-on exercises you run yourself — networking, systems, and security tooling."
       />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard label="Available" value={labs.length} />
         <StatCard label="Attempts" value={attempts.length} />
         <StatCard label="Completed" value={attempts.filter((a) => a.status === "completed").length} />
