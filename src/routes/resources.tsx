@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Bookmark, BookmarkCheck, ExternalLink, FileText, Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
@@ -111,6 +111,10 @@ function ResourceCard({ resource, noteOpen, onToggleNote }: { resource: Resource
   const [noteBody, setNoteBody] = useState(savedNote?.body ?? "");
   const certification = certifications.find((item) => item.id === resource.certificationId);
   const resourceTopics = resource.topicIds.map((id) => topics.find((topic) => topic.id === id)).filter((topic) => topic !== undefined);
+
+  useEffect(() => {
+    setNoteBody(savedNote?.body ?? "");
+  }, [savedNote?.body]);
 
   function toggleBookmark() {
     if (bookmark) { actions.removeBookmark(bookmark.id); toast.success("Resource bookmark removed."); return; }
