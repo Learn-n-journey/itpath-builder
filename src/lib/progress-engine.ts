@@ -254,7 +254,7 @@ export function computeProgress(user: UserData, now: Date = new Date()): Progres
   };
 
   const graded = user.reviewAttempts ?? [];
-  const passed = graded.filter((a) => a.outcome === "passed").length;
+  const passed = graded.filter((a) => a.outcome === "pass").length;
   const scheduled = user.reviews.filter((r) => r.status === "scheduled");
   const review = {
     graded: graded.length,
