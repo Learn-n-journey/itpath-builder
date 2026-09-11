@@ -1,6 +1,10 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { useAppState } from "@/state/app-state";
 import {
@@ -148,7 +152,7 @@ function Certifications() {
         <div className="grid gap-4 content-start">
           <Panel
             title={`${selected.certification.title} (${selected.certification.code ?? ""})`}
-            description={selected.certification.description}
+            description={selected.certification.description ?? ""}
           >
             <p className="text-sm">
               Status: <span className="font-medium">{certificationStatusLabels[selected.status]}</span>
@@ -194,45 +198,42 @@ function Certifications() {
             description="Objectives are editable data. Edit, add or remove them and readiness recalculates."
           >
             <div className="flex flex-wrap gap-2">
-              <button type="button" className="btn-secondary" onClick={startNew}>
+              <Button type="button" variant="secondary" onClick={startNew}>
                 Add objective
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="btn-secondary"
+                variant="secondary"
                 onClick={() => actions.resetCertificationObjectives(selected.certification.id)}
               >
                 Reset to defaults
-              </button>
+              </Button>
             </div>
 
             {draft ? (
               <div className="mt-4 grid gap-2 rounded-lg border border-border p-3">
-                <input
-                  className="input"
+                <Input
                   placeholder="Code (e.g. 1.1)"
                   value={draft.code}
                   onChange={(e) => setDraft({ ...draft, code: e.target.value })}
                 />
-                <input
-                  className="input"
+                <Input
                   placeholder="Domain"
                   value={draft.domain ?? ""}
                   onChange={(e) => setDraft({ ...draft, domain: e.target.value })}
                 />
-                <input
-                  className="input"
+                <Input
                   placeholder="Objective"
                   value={draft.title}
                   onChange={(e) => setDraft({ ...draft, title: e.target.value })}
                 />
                 <div className="flex gap-2">
-                  <button type="button" className="btn-primary" onClick={saveDraft}>
+                  <Button type="button" onClick={saveDraft}>
                     Save objective
-                  </button>
-                  <button type="button" className="btn-secondary" onClick={() => setDraft(null)}>
+                  </Button>
+                  <Button type="button" variant="secondary" onClick={() => setDraft(null)}>
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : null}
@@ -270,34 +271,32 @@ function Certifications() {
             title="Exam result"
             description="IT PATH never marks an exam as passed. You confirm the result yourself."
           >
-            <textarea
-              className="input min-h-20"
+            <Textarea
+              className="min-h-20"
               placeholder="Optional note: test centre, date, score report."
               value={examNote}
               onChange={(e) => setExamNote(e.target.value)}
             />
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <button
+              <Button
                 type="button"
-                className="btn-secondary"
+                variant="secondary"
                 onClick={() => {
                   actions.declareExamOutcome(selected.certification.id, "attempted", examNote.trim());
                   setExamNote("");
                 }}
               >
                 Record exam attempted
-              </button>
+              </Button>
               <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={confirmPass}
-                  onChange={(e) => setConfirmPass(e.target.checked)}
+                  onCheckedChange={(checked) => setConfirmPass(checked === true)}
                 />
                 I confirm I passed this exam
               </label>
-              <button
+              <Button
                 type="button"
-                className="btn-primary"
                 disabled={!confirmPass}
                 onClick={() => {
                   actions.declareExamOutcome(selected.certification.id, "passed", examNote.trim());
@@ -306,7 +305,7 @@ function Certifications() {
                 }}
               >
                 Confirm exam passed
-              </button>
+              </Button>
               {progress?.declaredStatus ? (
                 <button
                   type="button"
