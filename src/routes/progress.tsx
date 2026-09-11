@@ -26,7 +26,7 @@ export const Route = createFileRoute("/progress")({
       { property: "og:description", content: "Every number here comes from your own activity." },
     ],
   }),
-  component: ProgressPage;
+  component: ProgressPage,
 });
 
 function scoreTone(score: number): string {
