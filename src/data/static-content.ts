@@ -11,6 +11,7 @@ import type {
   Track,
 } from "@/lib/app-data/types";
 import { assignments } from "@/data/assignment-content";
+import { expansionLessons, expansionTopics } from "@/data/curriculum";
 import { certifications, certificationObjectives } from "@/data/certification-content";
 import { incidents } from "@/data/incident-content";
 import { labs } from "@/data/lab-content";
@@ -203,6 +204,7 @@ export const topics: Topic[] = [
     ],
     estimatedMinutes: 60,
   },
+  ...expansionTopics,
 ];
 
 export const lessons: Lesson[] = [
