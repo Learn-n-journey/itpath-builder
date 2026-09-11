@@ -21,6 +21,10 @@ export function getLab(id: string, data: StaticContent = staticContent) {
   return data.labs.find((item) => item.id === id);
 }
 
+export function getIncident(id: string, data: StaticContent = staticContent) {
+  return data.incidents.find((item) => item.id === id);
+}
+
 export function getQuiz(id: string, data: StaticContent = staticContent) {
   return data.quizzes.find((item) => item.id === id);
 }

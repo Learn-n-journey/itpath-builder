@@ -6,3 +6,5 @@
 - [x] Every graded review attempt stored immutably; opening a review never counts as a pass
 - [x] Manual reschedule without grading
 - [x] Tested due, overdue, upcoming, pass, fail, reschedule in the browser plus diagnostics
+
+- Troubleshooting engine: 9 incidents (hardware, Windows, networking, DNS, DHCP, Linux, security, cloud, authentication), diagnostic actions with distinct findings, diagnose/reason/fix/verify/document, 6-dimension scoring, mistakes fed to central system. Verified in browser.

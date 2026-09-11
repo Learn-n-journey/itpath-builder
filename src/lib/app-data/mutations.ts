@@ -3,6 +3,7 @@ import type {
   Bookmark,
   CareerTicket,
   CertificationProgress,
+  IncidentAttempt,
   LabAttempt,
   Mistake,
   Note,
@@ -33,7 +34,8 @@ type UserCollectionKey =
   | "assignmentAttempts"
   | "careerTickets"
   | "portfolio"
-  | "studySessions";
+  | "studySessions"
+  | "incidentAttempts";
 
 function prepend<T>(user: UserData, key: UserCollectionKey, item: T): UserData {
   return { ...user, [key]: [item, ...user[key]] };
@@ -128,6 +130,15 @@ export const userMutations = {
   removeCareerTicket: (user: UserData, id: string) => removeById(user, "careerTickets", id),
   addPortfolioProject: (user: UserData, item: PortfolioProject) => prepend(user, "portfolio", item),
   removePortfolioProject: (user: UserData, id: string) => removeById(user, "portfolio", id),
+  addIncidentAttempt: (user: UserData, item: IncidentAttempt) =>
+    prepend(user, "incidentAttempts", item),
+  updateIncidentAttempt: (user: UserData, item: IncidentAttempt): UserData => ({
+    ...user,
+    incidentAttempts: user.incidentAttempts.map((attempt) =>
+      attempt.id === item.id ? item : attempt,
+    ),
+  }),
+  removeIncidentAttempt: (user: UserData, id: string) => removeById(user, "incidentAttempts", id),
   addStudySession: (user: UserData, item: StudySession) => prepend(user, "studySessions", item),
   removeStudySession: (user: UserData, id: string) => removeById(user, "studySessions", id),
   setCertificationProgress: (user: UserData, progress: CertificationProgress): UserData => ({

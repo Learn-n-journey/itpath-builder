@@ -1,5 +1,5 @@
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 8;
+export const APP_DATA_VERSION = 9;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -328,7 +328,14 @@ export type MistakeCause =
   | "reasoning_error"
   | "prerequisite_gap";
 
-export type MistakeActivity = "quiz" | "recall" | "practice" | "assignment" | "lab" | "scenario";
+export type MistakeActivity =
+  | "quiz"
+  | "recall"
+  | "practice"
+  | "assignment"
+  | "lab"
+  | "scenario"
+  | "troubleshoot";
 
 export type MistakeSeverity = "low" | "medium" | "high";
 
@@ -524,7 +531,92 @@ export interface UserData {
   careerScores: CareerScores;
   certificationProgress: Record<EntityId, CertificationProgress>;
   studySessions: StudySession[];
+  incidentAttempts: IncidentAttempt[];
   settings: UserSettings;
+}
+
+export type IncidentCategory =
+  | "hardware"
+  | "windows"
+  | "networking"
+  | "dns"
+  | "dhcp"
+  | "linux"
+  | "security"
+  | "cloud"
+  | "authentication";
+
+/** One diagnostic step a learner may run. Every action returns its own real finding. */
+export interface IncidentAction {
+  id: EntityId;
+  label: string;
+  command?: string;
+  /** What the learner observes after running this step. */
+  finding: string;
+  /** True when the step materially advances the diagnosis for this incident. */
+  informative: boolean;
+}
+
+export interface IncidentOption {
+  id: EntityId;
+  label: string;
+  correct: boolean;
+  /** Shown after a wrong choice: narrows the search without revealing the answer. */
+  hint?: string;
+}
+
+export interface Incident {
+  id: EntityId;
+  topicId: EntityId;
+  category: IncidentCategory;
+  title: string;
+  /** The report as it reaches the technician. */
+  report: string;
+  environment: string;
+  difficulty: Difficulty;
+  actions: IncidentAction[];
+  /** Steps that must be run to justify a diagnosis. */
+  keyActionIds: EntityId[];
+  /** Fewest sensible steps for a clean, efficient diagnosis. */
+  efficientActionCount: number;
+  causes: IncidentOption[];
+  fixes: IncidentOption[];
+  verifications: IncidentOption[];
+  reasoningKeywords: string[];
+  documentationKeywords: string[];
+  /** Explanation released only after the learner submits their own conclusion. */
+  rootCause: string;
+}
+
+export interface IncidentScores {
+  diagnosticChoices: number;
+  technicalAccuracy: number;
+  reasoning: number;
+  efficiency: number;
+  verification: number;
+  documentation: number;
+}
+
+export interface IncidentAttempt {
+  id: EntityId;
+  incidentId: EntityId;
+  topicId: EntityId;
+  status: "in_progress" | "submitted";
+  /** Diagnostic steps in the order they were run. */
+  performedActionIds: EntityId[];
+  /** Every cause selection made, in order. Wrong guesses are kept. */
+  causeGuessIds: EntityId[];
+  selectedCauseId?: EntityId;
+  reasoning: string;
+  selectedFixId?: EntityId;
+  verificationIds: EntityId[];
+  documentation: string;
+  scores?: IncidentScores;
+  totalScore?: number;
+  previousAttemptId?: EntityId;
+  createdAt: string;
+  updatedAt: string;
+  submittedAt?: string;
 }
 
 export interface PersistedState {

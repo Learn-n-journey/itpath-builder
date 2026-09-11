@@ -10,6 +10,7 @@ import type {
   Track,
 } from "@/lib/app-data/types";
 import { assignments } from "@/data/assignment-content";
+import { incidents } from "@/data/incident-content";
 import { labs } from "@/data/lab-content";
 import { questions, quizzes } from "@/data/quiz-content";
 
@@ -659,6 +660,7 @@ export const resources: Resource[] = [
 ];
 export { assignments };
 export { labs };
+export { incidents };
 export { questions, quizzes };
 export const certificationObjectives: CertificationObjective[] = [];
 export const careerSkills: CareerSkill[] = [];
@@ -670,6 +672,7 @@ export const staticContent = {
   resources,
   assignments,
   labs,
+  incidents,
   quizzes,
   questions,
   certifications,
