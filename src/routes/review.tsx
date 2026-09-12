@@ -4,6 +4,7 @@ import { RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { MissedQuestionsPanel } from "@/components/review/missed-questions-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getSkill, skillNodes } from "@/data/prerequisite-graph";
@@ -118,6 +119,8 @@ function Review() {
       </div>
 
       <div className="mt-4 grid gap-4">
+        <MissedQuestionsPanel />
+
         <Panel title="Mistake log">
           <div className="flex flex-wrap items-center gap-2">
             <Button
