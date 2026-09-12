@@ -93,12 +93,17 @@ interface AppActions {
   resetCertificationObjectives: (certificationId: string) => void;
 }
 
+export type CloudStatus = "signed_out" | "syncing" | "synced" | "error";
+
 interface AppStateContextValue {
   user: UserData;
   hydrated: boolean;
   storageAvailable: boolean;
   loadOutcome: LoadOutcome | null;
   lastSavedAt: string | null;
+  cloudStatus: CloudStatus;
+  cloudSyncedAt: string | null;
+  cloudError: string | null;
   actions: AppActions;
   updateUser: (updater: (current: UserData) => UserData) => void;
   updateSettings: (patch: Partial<Omit<UserSettings, "id">>) => void;
@@ -115,6 +120,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [loadOutcome, setLoadOutcome] = useState<LoadOutcome | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const skipNextSave = useRef(true);
+
+  const { userId, ready: authReady } = useAuth();
+  const [cloudStatus, setCloudStatus] = useState<CloudStatus>("signed_out");
+  const [cloudSyncedAt, setCloudSyncedAt] = useState<string | null>(null);
+  const [cloudError, setCloudError] = useState<string | null>(null);
+  const [syncedUserId, setSyncedUserId] = useState<string | null>(null);
+  const pushedSnapshot = useRef<string>("");
 
   // Hydrate after mount so server and client render the same initial markup.
   useEffect(() => {
