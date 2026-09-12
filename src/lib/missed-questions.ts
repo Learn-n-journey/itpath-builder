@@ -1,13 +1,31 @@
 import { generatedQuestions } from "@/data/question-bank";
+import { assignments } from "@/data/static-content";
 import { recallQuestions } from "@/data/learning-content";
 import { questions as staticQuestions } from "@/data/static-content";
-import type { Mistake, Question, RecallQuestion, UserData } from "@/lib/app-data/types";
+import type {
+  Assignment,
+  Mistake,
+  Question,
+  RecallQuestion,
+  UserData,
+} from "@/lib/app-data/types";
 import { matchesConcept } from "@/lib/fuzzy-match";
 import { isQuestionCorrect } from "@/lib/quiz-engine";
 
 export type MissedQuestion =
   | { kind: "quiz"; mistake: Mistake; question: Question }
-  | { kind: "recall"; mistake: Mistake; recall: RecallQuestion };
+  | { kind: "recall"; mistake: Mistake; recall: RecallQuestion }
+  | { kind: "practice"; mistake: Mistake; assignment: Assignment };
+
+/** Stable key + anchor id so a link can jump straight back to the item. */
+export function missedQuestionKey(item: MissedQuestion): string {
+  if (item.kind === "practice") return item.assignment.id;
+  return item.mistake.questionId ?? item.mistake.id;
+}
+
+export function missedQuestionAnchor(item: MissedQuestion): string {
+  return `missed-${missedQuestionKey(item)}`;
+}
 
 function findQuizQuestion(id: string): Question | undefined {
   return (
@@ -24,8 +42,15 @@ export function missedQuestions(user: UserData, includeCleared = false): MissedQ
   const seen = new Set<string>();
   const items: MissedQuestion[] = [];
   for (const mistake of user.mistakes) {
-    if (!mistake.questionId) continue;
     if (!includeCleared && mistake.resolved) continue;
+    if (!mistake.questionId) {
+      if (!mistake.assignmentId || seen.has(mistake.assignmentId)) continue;
+      const assignment = assignments.find((item) => item.id === mistake.assignmentId);
+      if (!assignment) continue;
+      seen.add(mistake.assignmentId);
+      items.push({ kind: "practice", mistake, assignment });
+      continue;
+    }
     if (seen.has(mistake.questionId)) continue;
     const question = findQuizQuestion(mistake.questionId);
     if (question) {
@@ -45,6 +70,7 @@ export function missedQuestions(user: UserData, includeCleared = false): MissedQ
 /** Grades a re-attempt of a missed question using the same rules as the original activity. */
 export function gradeMissedQuestion(item: MissedQuestion, response: string[]): boolean {
   if (item.kind === "quiz") return isQuestionCorrect(item.question, response);
+  if (item.kind === "practice") return false;
   const answer = response[0] ?? "";
   if (!answer.trim()) return false;
   const normalized = answer.toLowerCase().replace(/[^a-z0-9\s]/g, " ");
@@ -56,9 +82,19 @@ export function gradeMissedQuestion(item: MissedQuestion, response: string[]): b
 }
 
 export function missedQuestionPrompt(item: MissedQuestion): string {
-  return item.kind === "quiz" ? item.question.prompt : item.recall.prompt;
+  if (item.kind === "quiz") return item.question.prompt;
+  if (item.kind === "practice") return item.assignment.prompt ?? item.assignment.title;
+  return item.recall.prompt;
 }
 
 export function missedQuestionExplanation(item: MissedQuestion): string {
-  return item.kind === "quiz" ? item.question.explanation : item.recall.explanation;
+  if (item.kind === "quiz") return item.question.explanation;
+  if (item.kind === "practice")
+    return "Retake this practice task and score 70 or higher to clear it.";
+  return item.recall.explanation;
+}
+
+/** Count of questions and practice tasks still waiting to be worked on. */
+export function missedQuestionCount(user: UserData): number {
+  return missedQuestions(user).length;
 }
