@@ -15,7 +15,6 @@ import { Route as AssignmentsRouteImport } from './routes/assignments'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
 import { Route as CareerSkillsRouteImport } from './routes/career-skills'
-import { Route as CertificationsRouteImport } from './routes/certifications'
 import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as MyPathRouteImport } from './routes/my-path'
@@ -27,6 +26,7 @@ import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ThisWeekRouteImport } from './routes/this-week'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
+import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -57,11 +57,6 @@ const CareerModeRoute = CareerModeRouteImport.update({
 const CareerSkillsRoute = CareerSkillsRouteImport.update({
   id: '/career-skills',
   path: '/career-skills',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CertificationsRoute = CertificationsRouteImport.update({
-  id: '/certifications',
-  path: '/certifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabsRoute = LabsRouteImport.update({
@@ -119,6 +114,11 @@ const TroubleshootRoute = TroubleshootRouteImport.update({
   path: '/troubleshoot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CertificationsCertIdRoute = CertificationsCertIdRouteImport.update({
+  id: '/certifications/$certId',
+  path: '/certifications/$certId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TopicsTopicIdRoute = TopicsTopicIdRouteImport.update({
   id: '/topics/$topicId',
   path: '/topics/$topicId',
@@ -132,7 +132,6 @@ export interface FileRoutesByFullPath {
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
-  '/certifications': typeof CertificationsRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
@@ -144,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/this-week': typeof ThisWeekRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
 }
 export interface FileRoutesByTo {
@@ -153,7 +153,6 @@ export interface FileRoutesByTo {
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
-  '/certifications': typeof CertificationsRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
@@ -165,6 +164,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/this-week': typeof ThisWeekRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
 }
 export interface FileRoutesById {
@@ -175,7 +175,6 @@ export interface FileRoutesById {
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
-  '/certifications': typeof CertificationsRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
@@ -187,6 +186,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/this-week': typeof ThisWeekRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
 }
 export interface FileRouteTypes {
@@ -198,7 +198,6 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
-    | '/certifications'
     | '/labs'
     | '/learn'
     | '/my-path'
@@ -210,6 +209,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/this-week'
     | '/troubleshoot'
+    | '/certifications/$certId'
     | '/topics/$topicId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -219,7 +219,6 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
-    | '/certifications'
     | '/labs'
     | '/learn'
     | '/my-path'
@@ -231,6 +230,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/this-week'
     | '/troubleshoot'
+    | '/certifications/$certId'
     | '/topics/$topicId'
   id:
     | '__root__'
@@ -240,7 +240,6 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
-    | '/certifications'
     | '/labs'
     | '/learn'
     | '/my-path'
@@ -252,6 +251,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/this-week'
     | '/troubleshoot'
+    | '/certifications/$certId'
     | '/topics/$topicId'
   fileRoutesById: FileRoutesById
 }
@@ -262,7 +262,6 @@ export interface RootRouteChildren {
   BookmarksRoute: typeof BookmarksRoute
   CareerModeRoute: typeof CareerModeRoute
   CareerSkillsRoute: typeof CareerSkillsRoute
-  CertificationsRoute: typeof CertificationsRoute
   LabsRoute: typeof LabsRoute
   LearnRoute: typeof LearnRoute
   MyPathRoute: typeof MyPathRoute
@@ -274,6 +273,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   ThisWeekRoute: typeof ThisWeekRoute
   TroubleshootRoute: typeof TroubleshootRoute
+  CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
 }
 
@@ -319,13 +319,6 @@ declare module '@tanstack/react-router' {
       path: '/career-skills'
       fullPath: '/career-skills'
       preLoaderRoute: typeof CareerSkillsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/certifications': {
-      id: '/certifications'
-      path: '/certifications'
-      fullPath: '/certifications'
-      preLoaderRoute: typeof CertificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/labs': {
@@ -405,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TroubleshootRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/certifications/$certId': {
+      id: '/certifications/$certId'
+      path: '/certifications/$certId'
+      fullPath: '/certifications/$certId'
+      preLoaderRoute: typeof CertificationsCertIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/topics/$topicId': {
       id: '/topics/$topicId'
       path: '/topics/$topicId'
@@ -422,7 +422,6 @@ const rootRouteChildren: RootRouteChildren = {
   BookmarksRoute: BookmarksRoute,
   CareerModeRoute: CareerModeRoute,
   CareerSkillsRoute: CareerSkillsRoute,
-  CertificationsRoute: CertificationsRoute,
   LabsRoute: LabsRoute,
   LearnRoute: LearnRoute,
   MyPathRoute: MyPathRoute,
@@ -434,6 +433,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   ThisWeekRoute: ThisWeekRoute,
   TroubleshootRoute: TroubleshootRoute,
+  CertificationsCertIdRoute: CertificationsCertIdRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,
 }
 export const routeTree = rootRouteImport

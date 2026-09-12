@@ -14,7 +14,7 @@ import {
 } from "@/lib/certification-engine";
 import type { CertificationObjective } from "@/lib/app-data/types";
 
-export const Route = createFileRoute("/certifications")({
+export const Route = createFileRoute("/certifications/$certId")({
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
