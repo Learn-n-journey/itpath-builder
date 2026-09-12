@@ -41,9 +41,9 @@ const MINUTES = {
  * the bulk of preparation time. Scaled by topic difficulty.
  */
 const HANDS_ON_MINUTES: Record<Difficulty, number> = {
-  gentle: 90,
-  standard: 120,
-  challenging: 150,
+  gentle: 120,
+  standard: 160,
+  challenging: 200,
 };
 
 const REVIEW_SESSIONS = 4;
