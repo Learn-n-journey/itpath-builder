@@ -23,3 +23,9 @@
 - [x] Start / pause / resume / complete / skip / finish with tracked time
 - [x] Plans and tracked sessions persisted (schema v12)
 - [x] Weekly system: 4 curriculum weeks, weekly quizzes + assessments via shared quiz runner, evidence-based week completion
+
+## Content depth audit (Sep 2026)
+- [x] Labs expanded to 117 (walkthrough + fault-diagnosis drill per topic, generated from module content)
+- [x] Career tickets expanded to 59 (one per topic, correct diagnosis/resolutions/verifications, hints on wrong options)
+- [x] Quiz Me now draws from 93 quizzes (per-topic sets + per-certification mixed reviews) over 714 questions
+- [x] Verified every question has an answer and explanation, and every choice question's answer is among its choices

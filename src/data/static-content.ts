@@ -5,8 +5,10 @@ import type {
   CareerSkill,
   Certification,
   CertificationObjective,
+  Lab,
   Lesson,
   Resource,
+  Ticket,
   Topic,
   Track,
 } from "@/lib/app-data/types";
@@ -15,9 +17,11 @@ import { buildTopicAssignments } from "@/data/assignment-generator";
 import { expansionLessons, expansionTopics } from "@/data/curriculum";
 import { certifications, certificationObjectives } from "@/data/certification-content";
 import { incidents } from "@/data/incident-content";
-import { labs } from "@/data/lab-content";
+import { labs as coreLabs } from "@/data/lab-content";
+import { buildTopicLabs } from "@/data/lab-generator";
+import { buildTopicTickets } from "@/data/ticket-generator";
 import { questions, quizzes } from "@/data/quiz-content";
-import { tickets } from "@/data/ticket-content";
+import { tickets as coreTickets } from "@/data/ticket-content";
 import { buildMesserResources } from "@/data/video-library";
 
 export type {
@@ -695,9 +699,9 @@ export const assignments: Assignment[] = [
   ...coreAssignments,
   ...buildTopicAssignments(topics, lessons),
 ];
-export { labs };
+export const labs: Lab[] = [...coreLabs, ...buildTopicLabs(topics, lessons)];
 export { incidents };
-export { tickets };
+export const tickets: Ticket[] = [...coreTickets, ...buildTopicTickets(topics, lessons)];
 export { questions, quizzes };
 export { weeks } from "./week-content";
 export { certifications, certificationObjectives };
