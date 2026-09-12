@@ -119,6 +119,8 @@ function Review() {
       </div>
 
       <div className="mt-4 grid gap-4">
+        <MissedQuestionsPanel />
+
         <Panel title="Mistake log">
           <div className="flex flex-wrap items-center gap-2">
             <Button
