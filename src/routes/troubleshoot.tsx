@@ -7,11 +7,13 @@ import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { incidents } from "@/data/static-content";
 import { topics } from "@/data/static-content";
 import type { Incident, IncidentAttempt } from "@/lib/app-data/types";
+import { adaptivePath } from "@/lib/adaptive-path";
 import {
   createIncidentAttempt,
   incidentCategoryLabels,
