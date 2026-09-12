@@ -67,8 +67,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-sidebar-border bg-sidebar lg:flex">
         <Brand />
         <NavList />
-        <div className="mt-auto px-5 py-4 text-xs text-muted-foreground">
-          {hydrated ? "Saved locally on this device" : "Loading your data…"}
+        <div className="mt-auto border-t border-sidebar-border px-5 py-4">
+          <AccountPanel />
         </div>
       </aside>
 
