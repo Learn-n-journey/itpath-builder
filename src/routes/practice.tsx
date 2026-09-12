@@ -484,7 +484,7 @@ function AssignmentWorkspace({
           kind: "assignment",
           id: assignment.id,
           label: assignment.title,
-          href: "/assignments",
+          href: "/practice",
         }}
         title="Assignment notes and bookmark"
         description="Private context for this assignment, saved with your other notes and bookmarks."

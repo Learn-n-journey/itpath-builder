@@ -290,7 +290,7 @@ function Certifications() {
               </li>
             ))}
           </ul>
-          <Link to="/assignments" className="mt-3 inline-block text-xs text-primary hover:underline">
+          <Link to="/practice" className="mt-3 inline-block text-xs text-primary hover:underline">
             Open the assignment workspace
           </Link>
         </Panel>
