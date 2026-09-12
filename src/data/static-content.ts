@@ -17,6 +17,7 @@ import { incidents } from "@/data/incident-content";
 import { labs } from "@/data/lab-content";
 import { questions, quizzes } from "@/data/quiz-content";
 import { tickets } from "@/data/ticket-content";
+import { buildMesserResources } from "@/data/video-library";
 
 export type {
   Assignment,
@@ -687,6 +688,7 @@ export const resources: Resource[] = [
     lastVerified: "2026-09-11",
     status: "verified",
   },
+  ...buildMesserResources(certifications, topics),
 ];
 export { assignments };
 export { labs };
