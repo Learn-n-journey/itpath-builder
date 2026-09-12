@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { PageHeader, StatCard } from "@/components/page-kit";
 import { QuizRunner, quizQuestions } from "@/components/quiz/quiz-runner";
+import { Button } from "@/components/ui/button";
 import { quizzes } from "@/data/static-content";
+import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/quiz-me")({
