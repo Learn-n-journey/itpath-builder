@@ -108,7 +108,7 @@ export function certificationStudyIndex(certificationId: string): StudyIndex {
     topics: list,
     watch: relevant.filter((resource) => resource.kind === "video"),
     read: relevant.filter((resource) => resource.kind !== "video"),
-    totalMinutes: totalStudyMinutes(list),
+    totalMinutes: totalStudyMinutes(list) + (list.length > 0 ? EXAM_PREP_MINUTES : 0),
   };
 }
 
