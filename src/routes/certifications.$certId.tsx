@@ -22,6 +22,7 @@ import {
   generateExam,
   newSeed,
 } from "@/lib/cert-path";
+import { formatStudyTime, topicStudyMinutes } from "@/lib/study-time";
 import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getCertificationWorkedExamples } from "@/data/worked-examples";
 import type { CertificationObjective, Resource } from "@/lib/app-data/types";
@@ -183,7 +184,7 @@ function Certifications() {
         <StatCard label="Overall readiness" value={`${selected.overall}%`} />
         <StatCard label="Status" value={certificationStatusLabels[selected.status]} />
         <StatCard label="Topics" value={index.topics.length} />
-        <StatCard label="Study hours" value={Math.round(index.totalMinutes / 60)} />
+        <StatCard label="Recommended study time" value={formatStudyTime(index.totalMinutes)} />
       </div>
 
       <div className="mt-4 grid gap-4">
@@ -214,7 +215,7 @@ function Certifications() {
                         >
                           <span className="block truncate text-sm font-medium">{topic.title}</span>
                           <span className="block text-xs text-muted-foreground">
-                            {topic.estimatedMinutes} min · {topic.difficulty}
+                            {formatStudyTime(topicStudyMinutes(topic.id))} recommended · {topic.difficulty}
                           </span>
                         </Link>
                       </li>

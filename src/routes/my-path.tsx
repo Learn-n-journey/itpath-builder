@@ -79,7 +79,7 @@ function MyPath() {
                     </div>
 
                     <p className="text-xs text-muted-foreground">
-                      {studyIndex.topics.length} topics · {hours}h of study
+                      {studyIndex.topics.length} topics · {hours}h recommended study
                     </p>
 
                     {stages.length > 0 ? (
