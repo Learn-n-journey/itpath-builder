@@ -691,7 +691,10 @@ export const resources: Resource[] = [
   },
   ...buildMesserResources(certifications, topics),
 ];
-export { assignments };
+export const assignments: Assignment[] = [
+  ...coreAssignments,
+  ...buildTopicAssignments(topics, lessons),
+];
 export { labs };
 export { incidents };
 export { tickets };
