@@ -331,11 +331,8 @@ function AssignmentWorkspace({
         attemptId: attempt.id,
         createdAt: now,
       });
-    toast.success(
-      assignment.evaluationMode === "automatic"
-        ? "Objective evaluation complete."
-        : "Self-evaluation saved.",
-    );
+    if (score >= 70) toast.success(`Correct — scored ${score}/100.`);
+    else toast.error(`Incorrect — scored ${score}/100. The answer is shown below.`);
   }
 
   function complete() {
