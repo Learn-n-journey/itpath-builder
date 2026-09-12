@@ -19,7 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { assignments, topics } from "@/data/static-content";
+import { assignments, certifications, topics } from "@/data/static-content";
 import type {
   Assignment,
   AssignmentAttempt,
@@ -28,24 +28,25 @@ import type {
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
-export const Route = createFileRoute("/assignments")({
+export const Route = createFileRoute("/practice")({
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Assignments — IT PATH" },
+      { title: "Practice — IT PATH" },
       {
         name: "description",
-        content: "Complete rubric-based IT assignments through a saved evaluation lifecycle.",
+        content:
+          "Practice tasks for every certification, evaluated against visible criteria and saved as attempts.",
       },
-      { property: "og:title", content: "Assignments — IT PATH" },
+      { property: "og:title", content: "Practice — IT PATH" },
       {
         property: "og:description",
-        content: "Applied IT assignments with honest evaluation, saved attempts, and review.",
+        content: "Applied IT practice grouped by certification, with honest evaluation and review.",
       },
     ],
   }),
-  component: AssignmentsPage,
+  component: PracticePage,
 });
 
 const typeLabels: Record<Assignment["type"], string> = {
@@ -64,16 +65,42 @@ const typeLabels: Record<Assignment["type"], string> = {
   capstone: "Capstone",
 };
 
-function AssignmentsPage() {
+const OTHER = "other";
+
+function certificationIdFor(assignment: Assignment): string {
+  return topics.find((topic) => topic.id === assignment.topicId)?.certificationId ?? OTHER;
+}
+
+function PracticePage() {
   const { user } = useAppState();
   const [seed, setSeed] = useState(() => newSeed());
   const [selectedId, setSelectedId] = useState("");
-  const shuffled = useMemo(() => shuffleWithSeed(assignments, seed), [seed]);
-  const assignment = shuffled.find((item) => item.id === selectedId) ?? shuffled[0];
+  const [group, setGroup] = useState("");
+
+  const groups = useMemo(() => {
+    const shuffled = shuffleWithSeed(assignments, seed);
+    return certifications
+      .map((certification) => ({
+        id: certification.id,
+        title: certification.title,
+        items: shuffled.filter((item) => certificationIdFor(item) === certification.id),
+      }))
+      .concat([
+        {
+          id: OTHER,
+          title: "General practice",
+          items: shuffled.filter((item) => certificationIdFor(item) === OTHER),
+        },
+      ])
+      .filter((entry) => entry.items.length > 0);
+  }, [seed]);
+
+  const activeGroup = groups.find((entry) => entry.id === group) ?? groups[0];
+  const assignment =
+    activeGroup?.items.find((item) => item.id === selectedId) ?? activeGroup?.items[0];
 
   function refresh() {
-    const next = newSeed();
-    setSeed(next);
+    setSeed(newSeed());
     setSelectedId("");
   }
 
@@ -85,8 +112,8 @@ function AssignmentsPage() {
   return (
     <>
       <PageHeader
-        title="Assignments"
-        description="Applied work evaluated against visible criteria, shown in a random order. Opening a task never changes your progress."
+        title="Practice"
+        description="Applied tasks grouped by certification and evaluated against visible criteria. Opening a task never changes your progress."
         actions={
           <Button variant="outline" onClick={refresh}>
             <RefreshCw /> Shuffle
@@ -107,13 +134,29 @@ function AssignmentsPage() {
           value={attempts.filter((a) => a.status === "completed").length}
         />
       </div>
-      <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
+      <div className="mt-6 flex flex-wrap gap-2">
+        {groups.map((entry) => (
+          <Button
+            key={entry.id}
+            size="sm"
+            variant={entry.id === activeGroup?.id ? "secondary" : "outline"}
+            onClick={() => {
+              setGroup(entry.id);
+              setSelectedId("");
+            }}
+          >
+            {entry.title}
+            <span className="ml-1 text-xs text-muted-foreground">{entry.items.length}</span>
+          </Button>
+        ))}
+      </div>
+      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <Panel
-          title="Assignment library"
-          description="Every assignment format, reshuffled whenever you refresh."
+          title={activeGroup?.title ?? "Practice library"}
+          description="Every task attached to this certification, reshuffled whenever you refresh."
         >
-          <div className="space-y-2">
-            {shuffled.map((item) => {
+          <div className="max-h-[32rem] space-y-2 overflow-y-auto pr-1">
+            {activeGroup?.items.map((item) => {
               const itemAttempt = attempts.find((attempt) => attempt.assignmentId === item.id);
               return (
                 <Button
