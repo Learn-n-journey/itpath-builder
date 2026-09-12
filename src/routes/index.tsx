@@ -14,13 +14,17 @@ import {
   Wrench,
 } from "lucide-react";
 
+import { NextActionCard } from "@/components/next-action-card";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { ReadinessPanel } from "@/components/readiness-panel";
 import { Button } from "@/components/ui/button";
 import { computeDashboard } from "@/lib/dashboard-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationStatusLabels } from "@/lib/certification-engine";
 import type { CertificationStatus } from "@/lib/app-data/types";
 import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
+import { nextActions } from "@/lib/next-action";
+import { buildReadinessReport } from "@/lib/readiness-engine";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/")({
