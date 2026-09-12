@@ -7,6 +7,7 @@ import { PageHeader, StatCard } from "@/components/page-kit";
 import { QuizRunner, quizQuestions } from "@/components/quiz/quiz-runner";
 import { Button } from "@/components/ui/button";
 import { quizzes, topics } from "@/data/static-content";
+import { certQuizQuestions, certQuizzes } from "@/data/cert-quizzes";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { selectedCertification } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
@@ -34,12 +35,12 @@ function QuizMe() {
   const focus = selectedCertification(user.settings);
   const focusTopicIds = useMemo(() => new Set(topics.filter((topic) => topic.certificationId === focus.id).map((topic) => topic.id)), [focus.id]);
   const available = useMemo(() => {
-    const general = quizzes.filter((item) => item.kind !== "assessment");
+    const general = [...quizzes, ...certQuizzes].filter((item) => item.kind !== "assessment");
     const focused = general.filter((quiz) => quiz.topicIds.some((id) => focusTopicIds.has(id)));
     return focused.length > 0 ? focused : general;
   }, [focusTopicIds]);
   const quiz = useMemo(() => shuffleWithSeed(available, seed)[0], [available, seed]);
-  const pool = useMemo(() => (quiz ? quizQuestions(quiz) : []), [quiz]);
+  const pool = useMemo(() => (quiz ? quizQuestions(quiz, certQuizQuestions) : []), [quiz]);
 
   if (!quiz) return null;
 
