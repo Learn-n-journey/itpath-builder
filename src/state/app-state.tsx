@@ -149,6 +149,67 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
   }, [user, hydrated]);
 
+  // Pull the account copy once per sign-in. Whichever copy holds more recorded
+  // work wins, so signing in on a fresh device never erases existing progress.
+  useEffect(() => {
+    if (!hydrated || !authReady) return;
+    if (!userId) {
+      setSyncedUserId(null);
+      setCloudStatus("signed_out");
+      setCloudError(null);
+      pushedSnapshot.current = "";
+      return;
+    }
+    if (syncedUserId === userId) return;
+
+    let cancelled = false;
+    setCloudStatus("syncing");
+    void fetchCloudState(userId).then((result) => {
+      if (cancelled) return;
+      if (!result.ok) {
+        setCloudError(result.error ?? "Could not reach your account");
+        setCloudStatus("error");
+        return;
+      }
+      if (result.found && result.user) {
+        const remote = result.user;
+        setUser((local) => (activityCount(local) > activityCount(remote) ? local : remote));
+      }
+      pushedSnapshot.current = "";
+      setCloudError(null);
+      setSyncedUserId(userId);
+      setCloudStatus("synced");
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, authReady, userId, syncedUserId]);
+
+  // Back up to the account shortly after any change.
+  useEffect(() => {
+    if (!hydrated || !userId || syncedUserId !== userId) return;
+    const snapshot = JSON.stringify(user);
+    if (pushedSnapshot.current === snapshot) return;
+
+    const timer = setTimeout(() => {
+      setCloudStatus("syncing");
+      void pushCloudState(userId, user).then((result) => {
+        if (result.ok) {
+          pushedSnapshot.current = snapshot;
+          setCloudError(null);
+          setCloudSyncedAt(new Date().toISOString());
+          setCloudStatus("synced");
+        } else {
+          setCloudError(result.error ?? "Could not save to your account");
+          setCloudStatus("error");
+        }
+      });
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [user, hydrated, userId, syncedUserId]);
+
   const updateUser = useCallback((updater: (current: UserData) => UserData) => {
     setUser((current) => updater(current));
   }, []);
