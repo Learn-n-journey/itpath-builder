@@ -308,8 +308,8 @@ function AssignmentWorkspace({
       criterionResults: results,
       feedback:
         score >= 70
-          ? "The response meets the completion threshold."
-          : "Review unmet criteria and retake after revising your work.",
+          ? `Correct — you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer.`
+          : `Incorrect — you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer. Compare your work with the answer below and retake.`,
       evaluationMode: assignment.evaluationMode,
       evaluatedAt: now,
     });
