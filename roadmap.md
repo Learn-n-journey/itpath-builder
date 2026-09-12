@@ -29,3 +29,5 @@
 - [x] Career tickets expanded to 59 (one per topic, correct diagnosis/resolutions/verifications, hints on wrong options)
 - [x] Quiz Me now draws from 93 quizzes (per-topic sets + per-certification mixed reviews) over 714 questions
 - [x] Verified every question has an answer and explanation, and every choice question's answer is among its choices
+- [x] Troubleshooting incidents expanded to 63 (one generated per topic + 9 authored)
+- [x] Weak Areas tab: quiz built from open mistakes and weak topics; correct answers clear the mistake
