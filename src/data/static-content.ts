@@ -5,6 +5,7 @@ import type {
   CareerSkill,
   Certification,
   CertificationObjective,
+  Incident,
   Lab,
   Lesson,
   Resource,
@@ -16,7 +17,8 @@ import { assignments as coreAssignments } from "@/data/assignment-content";
 import { buildTopicAssignments } from "@/data/assignment-generator";
 import { expansionLessons, expansionTopics } from "@/data/curriculum";
 import { certifications, certificationObjectives } from "@/data/certification-content";
-import { incidents } from "@/data/incident-content";
+import { incidents as coreIncidents } from "@/data/incident-content";
+import { buildTopicIncidents } from "@/data/incident-generator";
 import { labs as coreLabs } from "@/data/lab-content";
 import { buildTopicLabs } from "@/data/lab-generator";
 import { buildTopicTickets } from "@/data/ticket-generator";
@@ -29,6 +31,7 @@ export type {
   CareerSkill,
   Certification,
   CertificationObjective,
+  Incident,
   Lab,
   Lesson,
   Question,
@@ -700,7 +703,7 @@ export const assignments: Assignment[] = [
   ...buildTopicAssignments(topics, lessons),
 ];
 export const labs: Lab[] = [...coreLabs, ...buildTopicLabs(topics, lessons)];
-export { incidents };
+export const incidents: Incident[] = [...coreIncidents, ...buildTopicIncidents(topics, lessons)];
 export const tickets: Ticket[] = [...coreTickets, ...buildTopicTickets(topics, lessons)];
 export { questions, quizzes };
 export { weeks } from "./week-content";

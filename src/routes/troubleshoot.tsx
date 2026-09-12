@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { incidents } from "@/data/incident-content";
+import { incidents } from "@/data/static-content";
 import { topics } from "@/data/static-content";
 import type { Incident, IncidentAttempt } from "@/lib/app-data/types";
 import {
@@ -87,7 +87,7 @@ function TroubleshootPage() {
 
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <div className="space-y-5">
-          <Panel title="Incident queue" description="Nine incidents across core support disciplines.">
+          <Panel title="Incident queue" description={`${incidents.length} incidents across core support disciplines.`}>
             <div className="space-y-2">
               {incidents.map((item) => {
                 const itemAttempt = attempts.find((attempt) => attempt.incidentId === item.id);
