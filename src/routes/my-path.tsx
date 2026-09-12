@@ -72,55 +72,48 @@ function MyPath() {
                           ) : null;
                         })()}
                         <span className="h-px flex-1 bg-border" aria-hidden />
+                        <span className="text-xs text-muted-foreground">
+                          {monthTopics.length} topics ·{" "}
+                          {Math.round(
+                            monthTopics.reduce((sum, topic) => sum + topic.estimatedMinutes, 0) / 60,
+                          )}
+                          h of study
+                        </span>
                       </div>
 
-                      <div className="space-y-5">
-                        {weeks.map((week) => (
-                          <section key={week} aria-labelledby={`week-${track.year}-${month}-${week}`}>
-                            <h3
-                              id={`week-${track.year}-${month}-${week}`}
-                              className="mb-2 text-sm font-semibold text-foreground"
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {monthTopics.map((topic) => {
+                          const certification = certifications.find(
+                            (item) => item.id === topic.certificationId,
+                          );
+                          return (
+                            <div
+                              key={topic.id}
+                              className="flex min-w-0 items-start gap-3 rounded-lg border border-border bg-background/40 p-4"
                             >
-                              Week {week}
-                            </h3>
-                            <div className="grid gap-2 sm:grid-cols-2">
-                              {monthTopics
-                                .filter((topic) => topic.week === week)
-                                .map((topic) => {
-                                  const certification = certifications.find(
-                                    (item) => item.id === topic.certificationId,
-                                  );
-                                  return (
-                                    <div
-                                      key={topic.id}
-                                      className="flex min-w-0 items-start gap-3 rounded-lg border border-border bg-background/40 p-4"
-                                    >
-                                      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-secondary text-primary">
-                                        <BookOpen className="size-4" aria-hidden />
-                                      </span>
-                                      <div className="min-w-0 flex-1">
-                                        <h4 className="font-display text-sm font-semibold">{topic.title}</h4>
-                                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
-                                          {topic.summary}
-                                        </p>
-                                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                                          <span className="text-xs text-muted-foreground">
-                                            {certification?.title ?? "General IT"} · {topic.estimatedMinutes} min
-                                          </span>
-                                          <Button asChild variant="ghost" size="sm">
-                                            <Link to="/topics/$topicId" params={{ topicId: topic.id }}>
-                                              Open topic
-                                              <ArrowRight aria-hidden />
-                                            </Link>
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
+                              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-secondary text-primary">
+                                <BookOpen className="size-4" aria-hidden />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <h4 className="font-display text-sm font-semibold">{topic.title}</h4>
+                                <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                                  {topic.summary}
+                                </p>
+                                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                  <span className="text-xs text-muted-foreground">
+                                    {certification?.title ?? "General IT"} · {topic.estimatedMinutes} min
+                                  </span>
+                                  <Button asChild variant="ghost" size="sm">
+                                    <Link to="/topics/$topicId" params={{ topicId: topic.id }}>
+                                      Open topic
+                                      <ArrowRight aria-hidden />
+                                    </Link>
+                                  </Button>
+                                </div>
+                              </div>
                             </div>
-                          </section>
-                        ))}
+                          );
+                        })}
                       </div>
                     </section>
                   );
