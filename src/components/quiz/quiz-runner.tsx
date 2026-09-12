@@ -42,19 +42,28 @@ const categoryLabels = {
   professional_judgment: "Professional Judgment",
 } as const;
 
-export function quizQuestions(quiz: Quiz): Question[] {
+export function quizQuestions(quiz: Quiz, extra: Question[] = []): Question[] {
   return quiz.questionIds
-    .map((id) => allQuestions.find((question) => question.id === id))
+    .map(
+      (id) =>
+        extra.find((question) => question.id === id) ??
+        allQuestions.find((question) => question.id === id),
+    )
     .filter((question): question is Question => Boolean(question));
 }
 
-/** One reusable quiz experience. Quiz Me and the weekly assessment both render this. */
+/**
+ * One reusable quiz experience. Static quizzes and generated practice exams
+ * both render this; generated exams pass their own question list.
+ */
 export function QuizRunner({
   quiz,
+  questions,
   startLabel = "Start quiz",
   passScore,
 }: {
   quiz: Quiz;
+  questions?: Question[];
   startLabel?: string;
   passScore?: number;
 }) {
@@ -62,7 +71,7 @@ export function QuizRunner({
   const [attemptId, setAttemptId] = useState("");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [reviewing, setReviewing] = useState(false);
-  const pool = useMemo(() => quizQuestions(quiz), [quiz]);
+  const pool = useMemo(() => questions ?? quizQuestions(quiz), [questions, quiz]);
 
   const attempts = useMemo(
     () => user.quizAttempts.filter((attempt) => attempt.quizId === quiz.id),

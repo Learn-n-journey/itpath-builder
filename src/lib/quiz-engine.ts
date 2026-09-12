@@ -1,3 +1,4 @@
+import { matchesConcept } from "./fuzzy-match";
 import type { Question, QuizAttempt, QuizQuestionResult } from "./app-data/types";
 
 export function shuffle<T>(items: T[]): T[] {
@@ -44,8 +45,16 @@ function normalize(value: string): string {
   return value.toLowerCase().trim().replace(/[.,!?;:'"`]/g, "").replace(/\s+/g, " ");
 }
 
+/**
+ * Written answers are graded on the idea, not on exact wording: an answer
+ * counts when it expresses enough of an accepted answer's meaning.
+ */
 export function isQuestionCorrect(question: Question, response: string[]): boolean {
-  if (question.type === "multiple_choice" || question.type === "scenario" || question.type === "troubleshooting") {
+  const hasChoices = question.choices.length > 0;
+  if (
+    hasChoices &&
+    (question.type === "multiple_choice" || question.type === "scenario" || question.type === "troubleshooting")
+  ) {
     return response.length === 1 && response[0] === question.correctAnswer[0];
   }
   if (question.type === "multiple_response") {
@@ -54,8 +63,12 @@ export function isQuestionCorrect(question: Question, response: string[]): boole
       question.correctAnswer.every((answer) => response.includes(answer))
     );
   }
-  const answer = normalize(response[0] ?? "");
-  return question.acceptableAnswers.some((accepted) => normalize(accepted) === answer);
+  const written = response[0] ?? "";
+  if (!written.trim()) return false;
+  if (question.acceptableAnswers.some((accepted) => normalize(accepted) === normalize(written))) {
+    return true;
+  }
+  return matchesConcept(written, question.acceptableAnswers, 0.5);
 }
 
 export function scoreQuiz(questions: Question[], responses: Record<string, string[]>) {

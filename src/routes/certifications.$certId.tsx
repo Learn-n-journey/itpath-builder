@@ -1,38 +1,49 @@
 import { useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { ExternalLink, RefreshCw } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
-import { topics } from "@/data/static-content";
+import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { useAppState } from "@/state/app-state";
 import {
   certificationStatusLabels,
   scoreAllCertifications,
 } from "@/lib/certification-engine";
-import type { CertificationObjective } from "@/lib/app-data/types";
+import {
+  certificationQuestionPool,
+  certificationStages,
+  certificationStudyIndex,
+  generateAssignments,
+  generateExam,
+  newSeed,
+} from "@/lib/cert-path";
+import type { CertificationObjective, Resource } from "@/lib/app-data/types";
 
 export const Route = createFileRoute("/certifications/$certId")({
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Certification readiness — IT PATH" },
-      { name: "description", content: "Months, topics, objectives and readiness for a single CompTIA certification." },
-      { property: "og:title", content: "Certification readiness — IT PATH" },
-      { property: "og:description", content: "Month blocks, domain readiness and learner-confirmed exam results." },
+      { title: "Certification study path — IT PATH" },
+      {
+        name: "description",
+        content:
+          "Study, reading and watching material, practice exams and assignments for a single CompTIA certification.",
+      },
+      { property: "og:title", content: "Certification study path — IT PATH" },
+      {
+        property: "og:description",
+        content: "Topics from beginner to advanced, generated practice exams, domain readiness and exam results.",
+      },
     ],
   }),
   component: Certifications,
 });
-
-function monthLabel(months: number[]) {
-  if (months.length === 0) return "Optional specialisation — no scheduled months";
-  if (months.length === 1) return `Month ${months[0]}`;
-  return `Months ${months[0]}–${months[months.length - 1]}`;
-}
 
 function Meter({ value }: { value: number }) {
   return (
@@ -56,6 +67,36 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
+function MaterialList({ title, items }: { title: string; items: Resource[] }) {
+  return (
+    <div>
+      <p className="mb-2 font-mono text-xs font-medium text-primary">{title.toUpperCase()}</p>
+      {items.length === 0 ? (
+        <p className="text-xs text-muted-foreground">Nothing linked yet.</p>
+      ) : (
+        <ul className="space-y-2">
+          {items.map((resource) => (
+            <li key={resource.id} className="min-w-0">
+              <a
+                href={resource.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-start gap-2 text-sm text-primary hover:underline"
+              >
+                <span className="min-w-0 truncate">{resource.title}</span>
+                <ExternalLink className="mt-0.5 size-3 shrink-0" aria-hidden />
+              </a>
+              <span className="block text-xs text-muted-foreground">
+                {resource.provider} · {resource.kind} · {resource.access}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function Certifications() {
   const { user, actions } = useAppState();
   const readiness = useMemo(() => scoreAllCertifications(user), [user]);
@@ -63,12 +104,20 @@ function Certifications() {
   const [examNote, setExamNote] = useState("");
   const [confirmPass, setConfirmPass] = useState(false);
   const [draft, setDraft] = useState<CertificationObjective | null>(null);
+  const [examSeed, setExamSeed] = useState(() => newSeed());
+  const [assignmentSeed, setAssignmentSeed] = useState(() => newSeed());
 
   const selected = readiness.find((row) => row.certification.id === certId);
-  const months = selected?.certification.months ?? [];
-  const monthTopics = useMemo(
-    () => topics.filter((topic) => months.includes(topic.month)).sort((a, b) => a.month - b.month || a.week - b.week),
-    [months],
+  const stages = useMemo(() => certificationStages(certId), [certId]);
+  const index = useMemo(() => certificationStudyIndex(certId), [certId]);
+  const poolSize = useMemo(() => certificationQuestionPool(certId).length, [certId]);
+  const exam = useMemo(
+    () => (selected ? generateExam(selected.certification, examSeed) : null),
+    [selected, examSeed],
+  );
+  const generatedAssignments = useMemo(
+    () => generateAssignments(certId, assignmentSeed),
+    [certId, assignmentSeed],
   );
 
   if (!selected) {
@@ -125,57 +174,113 @@ function Certifications() {
       </Link>
       <PageHeader
         title={selected.certification.title}
-        description={`${monthLabel(months)}. Readiness is calculated from your recorded study, labs, assignments, quizzes and troubleshooting. Your target is ${user.settings.certificationTarget}.`}
+        description={`${selected.certification.description ?? ""} Work through the topics from the start of the list to the end. Readiness is calculated from your recorded study, labs, assignments, quizzes and troubleshooting.`}
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         <StatCard label="Overall readiness" value={`${selected.overall}%`} />
         <StatCard label="Status" value={certificationStatusLabels[selected.status]} />
-        <StatCard label="Topics in this block" value={monthTopics.length} />
+        <StatCard label="Topics" value={index.topics.length} />
+        <StatCard label="Study hours" value={Math.round(index.totalMinutes / 60)} />
       </div>
 
       <div className="mt-4 grid gap-4">
         <Panel
-          title="Months and topics"
-          description={
-            months.length > 0
-              ? "These curriculum months belong to this certification."
-              : "This certification is not scheduled in the 24-month path. Study it as an optional specialisation."
-          }
+          title="Study path"
+          description="Start with the groundwork, then core skills, then the advanced material."
         >
-          {months.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No scheduled months.</p>
+          {stages.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No IT PATH topics are mapped to this certification yet. Use the reading and watching material below.
+            </p>
           ) : (
             <div className="space-y-5">
-              {months.map((month) => (
-                <section key={month}>
-                  <div className="mb-2 flex items-center gap-3">
-                    <span className="font-mono text-xs font-medium text-primary">MONTH {month}</span>
+              {stages.map((stage) => (
+                <section key={stage.id}>
+                  <div className="mb-1 flex items-center gap-3">
+                    <span className="font-mono text-xs font-medium text-primary">{stage.label.toUpperCase()}</span>
                     <span className="h-px flex-1 bg-border" aria-hidden />
                   </div>
+                  <p className="mb-2 text-xs text-muted-foreground">{stage.description}</p>
                   <ul className="grid gap-2 sm:grid-cols-2">
-                    {monthTopics
-                      .filter((topic) => topic.month === month)
-                      .map((topic) => (
-                        <li key={topic.id}>
-                          <Link
-                            to="/topics/$topicId"
-                            params={{ topicId: topic.id }}
-                            className="block min-w-0 rounded-lg border border-border bg-background/40 p-3 hover:bg-secondary/50"
-                          >
-                            <span className="block truncate text-sm font-medium">{topic.title}</span>
-                            <span className="block text-xs text-muted-foreground">
-                              Week {topic.week} · {topic.difficulty}
-                            </span>
-                          </Link>
-                        </li>
-                      ))}
+                    {stage.topics.map((topic) => (
+                      <li key={topic.id}>
+                        <Link
+                          to="/topics/$topicId"
+                          params={{ topicId: topic.id }}
+                          className="block min-w-0 rounded-lg border border-border bg-background/40 p-3 hover:bg-secondary/50"
+                        >
+                          <span className="block truncate text-sm font-medium">{topic.title}</span>
+                          <span className="block text-xs text-muted-foreground">
+                            {topic.estimatedMinutes} min · {topic.difficulty}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
                   </ul>
                 </section>
               ))}
             </div>
           )}
         </Panel>
+
+        <Panel
+          title="Reading and watching"
+          description="Official material from the vendors themselves. Links open in a new tab."
+        >
+          {index.read.length === 0 && index.watch.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No material is linked to this certification yet.</p>
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2">
+              <MaterialList title="Watch" items={index.watch} />
+              <MaterialList title="Read" items={index.read} />
+            </div>
+          )}
+        </Panel>
+
+        <Panel
+          title="Practice exam"
+          description={
+            exam
+              ? `Randomly generated from ${poolSize} questions. Written answers are graded on the idea, not on exact wording.`
+              : "No questions are available for this certification yet."
+          }
+        >
+          <Button type="button" variant="outline" onClick={() => setExamSeed(newSeed())}>
+            <RefreshCw /> Generate new exam
+          </Button>
+          {exam ? (
+            <div className="mt-4">
+              <QuizRunner
+                key={exam.quiz.id}
+                quiz={exam.quiz}
+                questions={exam.questions}
+                startLabel="Start practice exam"
+              />
+            </div>
+          ) : null}
+        </Panel>
+
+        <Panel title="Assignments" description="A fresh selection of practical work each time you generate.">
+          <Button type="button" variant="outline" onClick={() => setAssignmentSeed(newSeed())}>
+            <RefreshCw /> Generate new assignments
+          </Button>
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+            {generatedAssignments.map((assignment) => (
+              <li
+                key={assignment.id}
+                className="min-w-0 rounded-lg border border-border bg-background/40 p-3"
+              >
+                <span className="block truncate text-sm font-medium">{assignment.title}</span>
+                <span className="block text-xs text-muted-foreground">{assignment.type.replace(/_/g, " ")}</span>
+              </li>
+            ))}
+          </ul>
+          <Link to="/assignments" className="mt-3 inline-block text-xs text-primary hover:underline">
+            Open the assignment workspace
+          </Link>
+        </Panel>
+
 
         <div className="grid gap-4 content-start">
           <Panel

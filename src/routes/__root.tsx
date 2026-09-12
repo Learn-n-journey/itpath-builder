@@ -74,16 +74,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "IT PATH — Two-Year IT & Cybersecurity Training" },
+      { title: "IT PATH — Certification-Based IT & Cybersecurity Training" },
       {
         name: "description",
         content:
-          "IT PATH is a structured two-year study platform taking beginners to professional IT and cybersecurity roles.",
+          "IT PATH is a structured, certification-based study platform taking beginners to professional IT and cybersecurity roles.",
       },
       { property: "og:title", content: "IT PATH" },
       {
         property: "og:description",
-        content: "A structured two-year path from IT beginner to cybersecurity professional.",
+        content: "A structured, certification-based path from IT beginner to cybersecurity professional.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -5,6 +5,7 @@ import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { useAppState } from "@/state/app-state";
 import { EXAM_READY_SCORE, certificationStatusLabels, scoreAllCertifications } from "@/lib/certification-engine";
 import type { CertificationReadiness } from "@/lib/certification-engine";
+import { certificationsByLevel, certificationTopics } from "@/lib/cert-path";
 
 export const Route = createFileRoute("/certifications/")({
   head: () => ({
@@ -14,26 +15,20 @@ export const Route = createFileRoute("/certifications/")({
       { title: "Certifications — IT PATH" },
       {
         name: "description",
-        content: "Every certification in the IT PATH programme, with the curriculum months each one covers.",
+        content: "Every certification in the IT PATH programme, grouped by level, with topic coverage and readiness.",
       },
       { property: "og:title", content: "Certifications — IT PATH" },
       {
         property: "og:description",
-        content: "Month blocks, readiness and status for each CompTIA certification you are working towards.",
+        content: "Level, topic coverage, readiness and status for each CompTIA certification you are working towards.",
       },
     ],
   }),
   component: CertificationsIndex,
 });
 
-function monthLabel(months: number[]) {
-  if (months.length === 0) return "Optional specialisation";
-  if (months.length === 1) return `Month ${months[0]}`;
-  return `Months ${months[0]}–${months[months.length - 1]}`;
-}
-
 function CertCard({ row }: { row: CertificationReadiness }) {
-  const months = row.certification.months ?? [];
+  const topicCount = certificationTopics(row.certification.id).length;
   return (
     <Link
       to="/certifications/$certId"
@@ -44,7 +39,7 @@ function CertCard({ row }: { row: CertificationReadiness }) {
         <span className="min-w-0">
           <span className="block truncate font-medium">{row.certification.title}</span>
           <span className="block truncate text-xs text-muted-foreground">
-            {row.certification.code} · {monthLabel(months)}
+            {row.certification.code} · {topicCount} topic{topicCount === 1 ? "" : "s"}
           </span>
         </span>
         <span className="text-sm font-semibold tabular-nums">{row.overall}%</span>
@@ -61,17 +56,17 @@ function CertCard({ row }: { row: CertificationReadiness }) {
 function CertificationsIndex() {
   const { user } = useAppState();
   const readiness = useMemo(() => scoreAllCertifications(user), [user]);
-
-  const scheduled = readiness
-    .filter((row) => (row.certification.months ?? []).length > 0)
-    .sort((a, b) => (a.certification.months![0] ?? 0) - (b.certification.months![0] ?? 0));
-  const electives = readiness.filter((row) => (row.certification.months ?? []).length === 0);
+  const readinessById = useMemo(
+    () => new Map(readiness.map((row) => [row.certification.id, row])),
+    [readiness],
+  );
+  const levelGroups = certificationsByLevel();
 
   return (
     <>
       <PageHeader
         title="Certifications"
-        description={`The 24-month path is segmented into certification blocks. Open any certification to see its months, topics, objectives and readiness. Your target is ${user.settings.certificationTarget}.`}
+        description={`Certifications are grouped by level, from entry-level foundations to advanced specialisations. Open any certification to see its topics, objectives and readiness. Your target is ${user.settings.certificationTarget}.`}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -88,24 +83,20 @@ function CertificationsIndex() {
       </div>
 
       <div className="mt-4 grid gap-4">
-        <Panel title="Scheduled path" description="Months 1 to 24, in the order you study them.">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {scheduled.map((row) => (
-              <CertCard key={row.certification.id} row={row} />
-            ))}
-          </div>
-        </Panel>
-
-        <Panel
-          title="Optional specialisations"
-          description="Not scheduled in the two-year path. Open one to track objectives and record an exam result."
-        >
-          <div className="grid gap-3 sm:grid-cols-2">
-            {electives.map((row) => (
-              <CertCard key={row.certification.id} row={row} />
-            ))}
-          </div>
-        </Panel>
+        {levelGroups.map((group) => (
+          <Panel
+            key={group.level}
+            title={group.label}
+            description={`${group.items.length} certification${group.items.length === 1 ? "" : "s"} at this level.`}
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              {group.items.map((certification) => {
+                const row = readinessById.get(certification.id);
+                return row ? <CertCard key={certification.id} row={row} /> : null;
+              })}
+            </div>
+          </Panel>
+        ))}
       </div>
     </>
   );

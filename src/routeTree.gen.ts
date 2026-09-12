@@ -24,7 +24,7 @@ import { Route as QuizMeRouteImport } from './routes/quiz-me'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ThisWeekRouteImport } from './routes/this-week'
+import { Route as StudyPlanRouteImport } from './routes/study-plan'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
@@ -105,9 +105,9 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ThisWeekRoute = ThisWeekRouteImport.update({
-  id: '/this-week',
-  path: '/this-week',
+const StudyPlanRoute = StudyPlanRouteImport.update({
+  id: '/study-plan',
+  path: '/study-plan',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TroubleshootRoute = TroubleshootRouteImport.update({
@@ -147,7 +147,7 @@ export interface FileRoutesByFullPath {
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
-  '/this-week': typeof ThisWeekRoute
+  '/study-plan': typeof StudyPlanRoute
   '/troubleshoot': typeof TroubleshootRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
@@ -169,7 +169,7 @@ export interface FileRoutesByTo {
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
-  '/this-week': typeof ThisWeekRoute
+  '/study-plan': typeof StudyPlanRoute
   '/troubleshoot': typeof TroubleshootRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
@@ -192,7 +192,7 @@ export interface FileRoutesById {
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
-  '/this-week': typeof ThisWeekRoute
+  '/study-plan': typeof StudyPlanRoute
   '/troubleshoot': typeof TroubleshootRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
@@ -216,7 +216,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/review'
     | '/settings'
-    | '/this-week'
+    | '/study-plan'
     | '/troubleshoot'
     | '/certifications/$certId'
     | '/topics/$topicId'
@@ -238,7 +238,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/review'
     | '/settings'
-    | '/this-week'
+    | '/study-plan'
     | '/troubleshoot'
     | '/certifications/$certId'
     | '/topics/$topicId'
@@ -260,7 +260,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/review'
     | '/settings'
-    | '/this-week'
+    | '/study-plan'
     | '/troubleshoot'
     | '/certifications/$certId'
     | '/topics/$topicId'
@@ -283,7 +283,7 @@ export interface RootRouteChildren {
   ResourcesRoute: typeof ResourcesRoute
   ReviewRoute: typeof ReviewRoute
   SettingsRoute: typeof SettingsRoute
-  ThisWeekRoute: typeof ThisWeekRoute
+  StudyPlanRoute: typeof StudyPlanRoute
   TroubleshootRoute: typeof TroubleshootRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
@@ -397,11 +397,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/this-week': {
-      id: '/this-week'
-      path: '/this-week'
-      fullPath: '/this-week'
-      preLoaderRoute: typeof ThisWeekRouteImport
+    '/study-plan': {
+      id: '/study-plan'
+      path: '/study-plan'
+      fullPath: '/study-plan'
+      preLoaderRoute: typeof StudyPlanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/troubleshoot': {
@@ -451,7 +451,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesRoute: ResourcesRoute,
   ReviewRoute: ReviewRoute,
   SettingsRoute: SettingsRoute,
-  ThisWeekRoute: ThisWeekRoute,
+  StudyPlanRoute: StudyPlanRoute,
   TroubleshootRoute: TroubleshootRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,

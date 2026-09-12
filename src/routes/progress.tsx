@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Progress as ProgressBar } from "@/components/ui/progress";
 import { certificationStatusLabels } from "@/lib/certification-engine";
 import { computeProgress, dimensionLabels, type ProgressReport } from "@/lib/progress-engine";
+import { stageLabels, stageOrder, type StageId } from "@/lib/cert-path";
+import { topics as staticTopics } from "@/data/static-content";
 import { evidenceSourceLabels } from "@/lib/skills-engine";
 import { useAppState } from "@/state/app-state";
 import { TrendingUp } from "lucide-react";
@@ -20,7 +22,7 @@ export const Route = createFileRoute("/progress")({
       {
         name: "description",
         content:
-          "Detailed IT PATH progress by month, week, topic, certification, skill and activity type.",
+          "Detailed IT PATH progress by certification, stage, topic, skill and activity type.",
       },
       { property: "og:title", content: "Progress — IT PATH" },
       { property: "og:description", content: "Every number here comes from your own activity." },
@@ -54,15 +56,33 @@ function ProgressPage() {
   const { user } = useAppState();
   const report = useMemo<ProgressReport>(() => computeProgress(user), [user]);
   const [showAllTopics, setShowAllTopics] = useState(false);
-  const [showAllWeeks, setShowAllWeeks] = useState(false);
 
   const startedTopics = report.byTopic.filter((row) => row.hasActivity);
   const topicRows = showAllTopics
     ? [...report.byTopic].sort((a, b) => b.score - a.score)
     : [...startedTopics].sort((a, b) => b.score - a.score).slice(0, 12);
-  const weekRows = showAllWeeks
-    ? report.byWeek
-    : report.byWeek.filter((row) => row.startedCount > 0).slice(0, 12);
+
+  const difficultyToStage: Record<string, StageId> = {
+    gentle: "foundation",
+    standard: "core",
+    challenging: "advanced",
+  };
+  const topicMeta = new Map(staticTopics.map((t) => [t.id, t]));
+  const stageRows = stageOrder
+    .map((stageId) => {
+      const topicIds = new Set(
+        staticTopics.filter((t) => difficultyToStage[t.difficulty] === stageId).map((t) => t.id),
+      );
+      const rows = report.byTopic.filter((row) => topicIds.has(row.topicId));
+      return {
+        key: stageId,
+        label: stageLabels[stageId],
+        score: rows.length ? Math.round(rows.reduce((sum, row) => sum + row.score, 0) / rows.length) : 0,
+        topicCount: rows.length,
+        startedCount: rows.filter((row) => row.hasActivity).length,
+      };
+    })
+    .filter((row) => row.topicCount > 0);
 
   return (
     <>
@@ -216,10 +236,10 @@ function ProgressPage() {
         </Panel>
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <Panel title="By month" description="Every curriculum month, averaged over its topics.">
-          <ul className="max-h-[26rem] divide-y divide-border overflow-y-auto pr-1">
-            {report.byMonth.map((row) => (
+      <div className="mt-4 grid gap-4">
+        <Panel title="By stage" description="Every curriculum topic, grouped by how demanding the material is.">
+          <ul className="divide-y divide-border">
+            {stageRows.map((row) => (
               <Row
                 key={row.key}
                 label={row.label}
@@ -228,31 +248,6 @@ function ProgressPage() {
               />
             ))}
           </ul>
-        </Panel>
-
-        <Panel title="By week" description="Weeks you have worked in, unless you show them all.">
-          {weekRows.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No week has recorded activity yet.</p>
-          ) : (
-            <ul className="max-h-[22rem] divide-y divide-border overflow-y-auto pr-1">
-              {weekRows.map((row) => (
-                <Row
-                  key={row.key}
-                  label={row.label}
-                  score={row.score}
-                  right={`${row.startedCount}/${row.topicCount} started`}
-                />
-              ))}
-            </ul>
-          )}
-          <Button
-            className="mt-3"
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAllWeeks((value) => !value)}
-          >
-            {showAllWeeks ? "Show worked weeks only" : `Show all ${report.byWeek.length} weeks`}
-          </Button>
         </Panel>
       </div>
 
@@ -327,8 +322,10 @@ function ProgressPage() {
                   <span className={`text-sm tabular-nums ${scoreTone(row.score)}`}>{row.score}%</span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Year {row.year} · Month {row.month} · Week {row.week} ·{" "}
-                  {row.status.replace(/_/g, " ")}
+                  {topicMeta.get(row.topicId)
+                    ? stageLabels[difficultyToStage[topicMeta.get(row.topicId)!.difficulty]]
+                    : "Unknown stage"}{" "}
+                  · {row.status.replace(/_/g, " ")}
                 </p>
                 <ProgressBar value={row.score} className="mt-2 h-1.5" />
               </li>
