@@ -174,9 +174,19 @@ function CareerSkills() {
               <ul className="space-y-3 text-sm">
                 {recommendations.slice(0, 8).map((rec) => (
                   <li key={rec.id}>
-                    <Link to={rec.href} className="font-medium text-primary hover:underline">
-                      {rec.action}: {rec.title}
-                    </Link>
+                    {rec.topicId ? (
+                      <Link
+                        to="/topics/$topicId"
+                        params={{ topicId: rec.topicId }}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        {rec.action}: {rec.title}
+                      </Link>
+                    ) : (
+                      <Link to={rec.href} className="font-medium text-primary hover:underline">
+                        {rec.action}: {rec.title}
+                      </Link>
+                    )}
                     <p className="mt-1 text-xs text-muted-foreground">{rec.reason}</p>
                   </li>
                 ))}

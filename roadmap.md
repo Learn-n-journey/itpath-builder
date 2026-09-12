@@ -31,3 +31,11 @@
 - [x] Verified every question has an answer and explanation, and every choice question's answer is among its choices
 - [x] Troubleshooting incidents expanded to 63 (one generated per topic + 9 authored)
 - [x] Weak Areas tab: quiz built from open mistakes and weak topics; correct answers clear the mistake
+
+## Usability pass (Sep 2026)
+- [x] "How it works" page: study loop, what each section is for, six dimensions, scoring vocabulary
+- [x] Dashboard "Start here" panel for new users, moved above the zero stats
+- [x] Nav items carry one-line descriptions (tooltips + guide)
+- [x] Removed raw attempt IDs from the mistake log
+- [x] Career Skills topic recommendations use typed routes
+- [x] Troubleshoot: searchable queue, certification-focused ordering, scrollable list

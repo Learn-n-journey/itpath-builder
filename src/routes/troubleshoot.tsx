@@ -7,11 +7,13 @@ import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { incidents } from "@/data/static-content";
 import { topics } from "@/data/static-content";
 import type { Incident, IncidentAttempt } from "@/lib/app-data/types";
+import { adaptivePath } from "@/lib/adaptive-path";
 import {
   createIncidentAttempt,
   incidentCategoryLabels,
@@ -54,8 +56,25 @@ const METHOD = [
 
 function TroubleshootPage() {
   const { user } = useAppState();
-  const [selectedId, setSelectedId] = useState(incidents[0]?.id ?? "");
-  const incident = incidents.find((item) => item.id === selectedId) ?? incidents[0];
+  const [selectedId, setSelectedId] = useState("");
+  const [query, setQuery] = useState("");
+  const ordered = useMemo(() => {
+    const focusIds = new Set(adaptivePath(user).topics.map((topic) => topic.id));
+    return [...incidents].sort(
+      (a, b) => Number(focusIds.has(b.topicId)) - Number(focusIds.has(a.topicId)),
+    );
+  }, [user]);
+  const visible = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return ordered;
+    return ordered.filter((item) =>
+      [item.title, item.report, incidentCategoryLabels[item.category]]
+        .join(" ")
+        .toLowerCase()
+        .includes(needle),
+    );
+  }, [ordered, query]);
+  const incident = ordered.find((item) => item.id === selectedId) ?? visible[0] ?? ordered[0];
   const attempts = user.incidentAttempts;
   const latest = incident
     ? attempts.find((attempt) => attempt.incidentId === incident.id)
@@ -87,9 +106,22 @@ function TroubleshootPage() {
 
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <div className="space-y-5">
-          <Panel title="Incident queue" description={`${incidents.length} incidents across core support disciplines.`}>
-            <div className="space-y-2">
-              {incidents.map((item) => {
+          <Panel
+            title="Incident queue"
+            description={`${visible.length} of ${incidents.length} incidents shown. Ones matching your certification come first.`}
+          >
+            <Input
+              aria-label="Search incidents"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search by symptom or category"
+              className="mb-3"
+            />
+            <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1">
+              {visible.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No incident matches that search.</p>
+              ) : null}
+              {visible.map((item) => {
                 const itemAttempt = attempts.find((attempt) => attempt.incidentId === item.id);
                 return (
                   <Button

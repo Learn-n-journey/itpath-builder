@@ -93,7 +93,51 @@ function Dashboard() {
         }
       />
 
-      {path.recommendedTopic ? (
+      {!d.hasAnyActivity ? (
+        <Panel
+          className="mb-4"
+          title="Start here"
+          description="You have no recorded activity yet, so every figure below reads zero. Three steps will change that."
+        >
+          <ol className="space-y-3 text-sm">
+            <li>
+              <span className="font-medium">1. Confirm your goal.</span>{" "}
+              <span className="text-muted-foreground">
+                Your certification target, experience level and session length shape everything else.
+              </span>
+            </li>
+            <li>
+              <span className="font-medium">2. Study your first topic.</span>{" "}
+              <span className="text-muted-foreground">
+                {path.recommendedTopic
+                  ? `${path.recommendedTopic.title} — ${path.reason}.`
+                  : "Pick any topic in Learn."}
+              </span>
+            </li>
+            <li>
+              <span className="font-medium">3. Prove it.</span>{" "}
+              <span className="text-muted-foreground">
+                Run the lab, take a quiz, and your scores start moving.
+              </span>
+            </li>
+          </ol>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {path.recommendedTopic ? (
+              <Button asChild size="sm">
+                <Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>
+                  Start learning
+                </Link>
+              </Button>
+            ) : null}
+            <Button asChild size="sm" variant="secondary">
+              <Link to="/settings">Check my goal</Link>
+            </Button>
+            <Button asChild size="sm" variant="secondary">
+              <Link to="/guide">How IT PATH works</Link>
+            </Button>
+          </div>
+        </Panel>
+      ) : path.recommendedTopic ? (
         <Panel
           className="mb-4"
           title={`Recommended start: ${path.recommendedTopic.title}`}
@@ -281,12 +325,13 @@ function Dashboard() {
         </Panel>
       </div>
 
-      {!d.hasAnyActivity ? (
-        <p className="mt-6 text-sm text-muted-foreground">
-          You have no recorded activity yet, so every number above is zero. Start a topic in Learn or
-          log a session in your study plan and these figures will move.
-        </p>
-      ) : null}
+      <p className="mt-6 text-sm text-muted-foreground">
+        Every figure here is calculated from work you have recorded.{" "}
+        <Link to="/guide" className="text-primary hover:underline">
+          See how the scores are worked out
+        </Link>
+        .
+      </p>
     </>
   );
 }
