@@ -26,6 +26,7 @@ import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ThisWeekRouteImport } from './routes/this-week'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
+import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
 
@@ -114,6 +115,11 @@ const TroubleshootRoute = TroubleshootRouteImport.update({
   path: '/troubleshoot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CertificationsIndexRoute = CertificationsIndexRouteImport.update({
+  id: '/certifications/',
+  path: '/certifications/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CertificationsCertIdRoute = CertificationsCertIdRouteImport.update({
   id: '/certifications/$certId',
   path: '/certifications/$certId',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/troubleshoot': typeof TroubleshootRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
+  '/certifications/': typeof CertificationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -166,6 +173,7 @@ export interface FileRoutesByTo {
   '/troubleshoot': typeof TroubleshootRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
+  '/certifications': typeof CertificationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -188,6 +196,7 @@ export interface FileRoutesById {
   '/troubleshoot': typeof TroubleshootRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
+  '/certifications/': typeof CertificationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -211,6 +220,7 @@ export interface FileRouteTypes {
     | '/troubleshoot'
     | '/certifications/$certId'
     | '/topics/$topicId'
+    | '/certifications/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/troubleshoot'
     | '/certifications/$certId'
     | '/topics/$topicId'
+    | '/certifications'
   id:
     | '__root__'
     | '/'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/troubleshoot'
     | '/certifications/$certId'
     | '/topics/$topicId'
+    | '/certifications/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -275,6 +287,7 @@ export interface RootRouteChildren {
   TroubleshootRoute: typeof TroubleshootRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
+  CertificationsIndexRoute: typeof CertificationsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -398,6 +411,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TroubleshootRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/certifications/': {
+      id: '/certifications/'
+      path: '/certifications'
+      fullPath: '/certifications/'
+      preLoaderRoute: typeof CertificationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/certifications/$certId': {
       id: '/certifications/$certId'
       path: '/certifications/$certId'
@@ -435,6 +455,7 @@ const rootRouteChildren: RootRouteChildren = {
   TroubleshootRoute: TroubleshootRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,
+  CertificationsIndexRoute: CertificationsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
