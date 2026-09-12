@@ -277,7 +277,7 @@ function Certifications() {
 
         <Panel title="Assignments" description="A fresh selection of practical work each time you generate.">
           <Button type="button" variant="outline" onClick={() => setAssignmentSeed(newSeed())}>
-            <RefreshCw /> Generate new assignments
+            <RefreshCw /> Generate new practice
           </Button>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">
             {generatedAssignments.map((assignment) => (
@@ -291,7 +291,7 @@ function Certifications() {
             ))}
           </ul>
           <Link to="/practice" className="mt-3 inline-block text-xs text-primary hover:underline">
-            Open the assignment workspace
+            Open the practice workspace
           </Link>
         </Panel>
 
