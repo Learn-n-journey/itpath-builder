@@ -101,22 +101,7 @@ function SettingsPage() {
         <Panel title="Study schedule">
           <div className="space-y-6">
             <div>
-              <div className="flex items-center justify-between">
-                <Label>Study hours per week</Label>
-                <span className="text-sm tabular-nums text-primary">{s.studyHoursPerWeek}h</span>
-              </div>
-              <Slider
-                className="mt-3"
-                min={1}
-                max={40}
-                step={1}
-                value={[s.studyHoursPerWeek]}
-                onValueChange={([v]) => updateSettings({ studyHoursPerWeek: v ?? s.studyHoursPerWeek })}
-              />
-            </div>
-
-            <div>
-              <Label>Study days</Label>
+              <Label>Study days each week</Label>
               <div className="mt-2 flex flex-wrap gap-2">
                 {DAYS.map((d) => {
                   const active = s.studyDays.includes(d.id);
@@ -134,7 +119,39 @@ function SettingsPage() {
                   );
                 })}
               </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {s.studyDays.length} days a week · recommended{" "}
+                <span className="text-primary">{recommendedHours}h a week</span> ({HOURS_PER_STUDY_DAY}h a
+                day on average).
+              </p>
             </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <Label>Study hours per week</Label>
+                <span className="text-sm tabular-nums text-primary">{s.studyHoursPerWeek}h</span>
+              </div>
+              <Slider
+                className="mt-3"
+                min={1}
+                max={40}
+                step={1}
+                value={[s.studyHoursPerWeek]}
+                onValueChange={([v]) => updateSettings({ studyHoursPerWeek: v ?? s.studyHoursPerWeek })}
+              />
+              {s.studyHoursPerWeek !== recommendedHours ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="mt-3"
+                  onClick={() => updateSettings({ studyHoursPerWeek: recommendedHours })}
+                >
+                  Use recommended {recommendedHours}h
+                </Button>
+              ) : null}
+            </div>
+
 
             <div>
               <Label htmlFor="session-length">Session length (minutes)</Label>
