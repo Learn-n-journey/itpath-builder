@@ -4,6 +4,10 @@
  * own genuinely different content. No template text is reused between topics.
  */
 
+import { advancedSecurityDeepLessons } from "./deep-lessons/phase-advanced-security";
+import { fundamentalsAPlusDeepLessons } from "./deep-lessons/phase-fundamentals-aplus";
+import { linuxServersCloudDeepLessons } from "./deep-lessons/phase-linux-servers-cloud";
+import { networkSecurityDeepLessons } from "./deep-lessons/phase-network-security";
 import type { DeepLesson, DeepLessonSection } from "./deep-lessons/types";
 
 export type { DeepLesson, DeepLessonSection };
@@ -684,7 +688,13 @@ const foundationDeepLessons: DeepLesson[] = [
   },
 ];
 
-export const deepLessons: DeepLesson[] = [...foundationDeepLessons];
+export const deepLessons: DeepLesson[] = [
+  ...foundationDeepLessons,
+  ...fundamentalsAPlusDeepLessons,
+  ...networkSecurityDeepLessons,
+  ...linuxServersCloudDeepLessons,
+  ...advancedSecurityDeepLessons,
+];
 
 export function getDeepLesson(topicId: string): DeepLesson | undefined {
   return deepLessons.find((lesson) => lesson.topicId === topicId);
