@@ -10,7 +10,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
     topicId: "topic-linux-filesystem-and-permissions",
     readingMinutes: 8,
     intro:
-      "Every file on a Linux system has an owner, a group, and a set of rules about who may read it, change it, or run it. Beginners often meet this as a wall of "denied" errors, but once you can read a permission string the whole system becomes predictable rather than frightening.",
+      "Every file on a Linux system has an owner, a group, and a set of rules about who may read it, change it, or run it. Beginners often meet this as a wall of \"denied\" errors, but once you can read a permission string the whole system becomes predictable rather than frightening.",
     whereYouMeetIt:
       "A developer asks why their deployment script cannot write to a log folder, and the answer is sitting in the output of ls -l.",
     sections: [
@@ -171,8 +171,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "Where It Is Used in Real Work",
         paragraphs: [
-          "Patch cycles depend entirely on repositories staying trusted and reachable; a single expired signing key can silently stop every security update on a fleet of servers, which is exactly the kind of quiet failure that turns into a serious incident months later when an unpatched vulnerability is exploited. Administrators check repository health as a routine part of patch management, not just when something visibly breaks.
-",
+          "Patch cycles depend entirely on repositories staying trusted and reachable; a single expired signing key can silently stop every security update on a fleet of servers, which is exactly the kind of quiet failure that turns into a serious incident months later when an unpatched vulnerability is exploited. Administrators check repository health as a routine part of patch management, not just when something visibly breaks.",
           "Application deployment relies heavily on unit files to describe exactly how a service should run, restart, and log, so that the same behaviour is reproducible across development, staging, and production rather than depending on someone remembering the right command-line flags. Container base images and configuration management tools both lean on package managers to build predictable environments from a defined list of software rather than an ad hoc collection of manually copied files.",
           "Incident recovery frequently starts with systemctl status and journalctl, because they answer the two most useful questions immediately: is the thing running, and what did it say right before it stopped. A technician who can read a journal entry quickly resolves problems that would otherwise mean guessing or restarting services blindly.",
         ],
@@ -459,10 +458,8 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "When a disk in a RAID 5 array fails, the controller detects the missing member immediately and marks the array as degraded rather than failed, because the remaining disks plus parity still contain enough information to serve every read and write request, just with extra calculation and reduced performance. The controller raises an alert, typically both to its own management interface and, if configured, to the operating system or a monitoring system watching hardware health.
-",
-          "If a hot spare is configured, the controller begins rebuilding automatically: it reads the surviving disks, recalculates the missing data using parity, and writes it onto the spare disk, restoring full redundancy once complete. If no hot spare exists, the array remains degraded and vulnerable until a technician physically replaces the failed disk and manually triggers a rebuild, during which time a second disk failure would mean unrecoverable data loss for RAID 5, though RAID 6 could still tolerate it.
-",
+          "When a disk in a RAID 5 array fails, the controller detects the missing member immediately and marks the array as degraded rather than failed, because the remaining disks plus parity still contain enough information to serve every read and write request, just with extra calculation and reduced performance. The controller raises an alert, typically both to its own management interface and, if configured, to the operating system or a monitoring system watching hardware health.",
+          "If a hot spare is configured, the controller begins rebuilding automatically: it reads the surviving disks, recalculates the missing data using parity, and writes it onto the spare disk, restoring full redundancy once complete. If no hot spare exists, the array remains degraded and vulnerable until a technician physically replaces the failed disk and manually triggers a rebuild, during which time a second disk failure would mean unrecoverable data loss for RAID 5, though RAID 6 could still tolerate it.",
           "Throughout this process, out-of-band management continues to report power, temperature, and fan status independently of whatever the operating system is doing, which matters especially when a failure is severe enough that the OS itself has become unresponsive; the administrator can still log into the management controller, view a remote console, and power-cycle the machine if genuinely necessary.",
         ],
       },
@@ -668,10 +665,8 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "Designing a backup strategy starts with stating RPO and RTO for each system, agreed with the business rather than assumed by IT, because different systems genuinely need different levels of protection; an accounting database might need a fifteen-minute RPO while an archive of old marketing files might tolerate a week. Backup frequency, method, and retention are then derived directly from those numbers rather than chosen arbitrarily.
-",
-          "The backup job itself runs on schedule, and its completion status must be actively checked, not assumed; a mature process verifies both that the job reported success and that the resulting archive is actually readable, since a backup that silently writes corrupted data is worse than an obvious failure because nobody investigates it. At least one copy is kept isolated from the production network so that an incident affecting live systems, including a ransomware infection that specifically searches for and encrypts connected backup shares, cannot also destroy the recovery path.
-",
+          "Designing a backup strategy starts with stating RPO and RTO for each system, agreed with the business rather than assumed by IT, because different systems genuinely need different levels of protection; an accounting database might need a fifteen-minute RPO while an archive of old marketing files might tolerate a week. Backup frequency, method, and retention are then derived directly from those numbers rather than chosen arbitrarily.",
+          "The backup job itself runs on schedule, and its completion status must be actively checked, not assumed; a mature process verifies both that the job reported success and that the resulting archive is actually readable, since a backup that silently writes corrupted data is worse than an obvious failure because nobody investigates it. At least one copy is kept isolated from the production network so that an incident affecting live systems, including a ransomware infection that specifically searches for and encrypts connected backup shares, cannot also destroy the recovery path.",
           "Recovery itself follows a documented runbook that states the order systems must be restored in, respecting real dependencies, for example bringing a directory service back before the applications that authenticate against it. Periodic recovery drills — actually restoring a system to a test environment and confirming it works — are what convert a theoretical plan into one the organisation can trust during a genuine incident, when there is no time to discover a step was missing.",
         ],
       },
@@ -693,8 +688,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         heading: "Where It Is Used in Real Work",
         paragraphs: [
           "Every organisation with data that matters needs a stated, agreed RPO and RTO for its critical systems, and the biggest failures in this area are usually organisational rather than technical: nobody asked the business what tolerance was acceptable, so IT guessed, and the guess turned out to be wrong exactly when it mattered. Getting this conversation right up front prevents a painful post-incident discovery that backups were never frequent enough.",
-          "Ransomware response has made backup isolation a central concern rather than an afterthought, because modern ransomware actively hunts for connected backup shares and encrypts or deletes them before encrypting production data, specifically to remove the victim's ability to recover without paying. Organisations that maintain a genuinely offline or immutable backup copy retain a real recovery option; those that only have backups reachable from the same network as production often do not.
-",
+          "Ransomware response has made backup isolation a central concern rather than an afterthought, because modern ransomware actively hunts for connected backup shares and encrypts or deletes them before encrypting production data, specifically to remove the victim's ability to recover without paying. Organisations that maintain a genuinely offline or immutable backup copy retain a real recovery option; those that only have backups reachable from the same network as production often do not.",
           "Disaster recovery drills, even simple ones, routinely surface problems that would otherwise only be discovered during a real crisis: missing credentials, undocumented dependencies, or a runbook that assumes access to a system that is itself part of what needs recovering. Running the drill in calm conditions is far cheaper than discovering the gap during an actual outage.",
         ],
       },
@@ -774,10 +768,8 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "A monitoring system continuously collects metrics from agents or exporters running on each monitored system, storing them in a time-series database so trends and thresholds can be evaluated over time rather than only at a single instant. When a defined threshold is crossed for a sustained period, an alerting rule fires and routes a notification to the appropriate owner, ideally with enough context — which system, which metric, how severe — that the recipient can start diagnosing immediately rather than first having to figure out what the alert even means.
-",
-          "For patching, a typical cycle begins with a vendor releasing an update, which is first applied to a small canary ring of low-risk, closely watched systems. The team monitors those systems for a defined soak period, watching both automated metrics and any user reports, and only if no problems appear does the update progress to a wider ring and eventually the full fleet. If a problem does appear at any stage, the rollback plan is executed on the affected ring immediately, and the wider rollout is paused until the cause is understood.
-",
+          "A monitoring system continuously collects metrics from agents or exporters running on each monitored system, storing them in a time-series database so trends and thresholds can be evaluated over time rather than only at a single instant. When a defined threshold is crossed for a sustained period, an alerting rule fires and routes a notification to the appropriate owner, ideally with enough context — which system, which metric, how severe — that the recipient can start diagnosing immediately rather than first having to figure out what the alert even means.",
+          "For patching, a typical cycle begins with a vendor releasing an update, which is first applied to a small canary ring of low-risk, closely watched systems. The team monitors those systems for a defined soak period, watching both automated metrics and any user reports, and only if no problems appear does the update progress to a wider ring and eventually the full fleet. If a problem does appear at any stage, the rollback plan is executed on the affected ring immediately, and the wider rollout is paused until the cause is understood.",
           "Centralised logging supports both processes: during an incident triggered by an alert, correlating log entries from several systems around the same timestamp often reveals the true root cause faster than examining any single system's logs in isolation, especially in distributed environments where a single user request touches multiple services.",
         ],
       },
@@ -799,8 +791,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         heading: "Where It Is Used in Real Work",
         paragraphs: [
           "Operations teams rely on monitoring dashboards and alerting to catch problems before customers notice them, and the difference between a mature and immature environment is often not the tooling but the discipline: mature teams regularly tune alert thresholds and retire noisy alerts, while immature ones let alert volume grow until nobody trusts the system at all.",
-          "Patch management is a constant balancing act between security exposure and operational stability; security teams push for patches to be applied quickly after release, especially for known-exploited vulnerabilities, while operations teams push for staged rollout and soak time to avoid an untested patch breaking production. A well-run patch ring process satisfies both concerns by moving fast on low-risk systems and expanding only once confidence is earned.
-",
+          "Patch management is a constant balancing act between security exposure and operational stability; security teams push for patches to be applied quickly after release, especially for known-exploited vulnerabilities, while operations teams push for staged rollout and soak time to avoid an untested patch breaking production. A well-run patch ring process satisfies both concerns by moving fast on low-risk systems and expanding only once confidence is earned.",
           "During real incidents, centralised logging is frequently what actually resolves the case: an engineer searching one query across every affected system's logs for a specific error message or correlation ID finds the pattern in minutes, where checking each server's local logs individually could take hours.",
         ],
       },
@@ -881,8 +872,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         heading: "How It Works, Step by Step",
         paragraphs: [
           "Choosing a service model starts with deciding which operational duties an organisation actually wants to keep. A team with strong systems administration skills and a need for deep customisation might choose IaaS, accepting responsibility for patching and securing the operating system in exchange for full control. A team that wants to focus purely on application development without managing servers at all might choose PaaS, accepting less control over the underlying environment in exchange for far less operational burden.",
-          "Whichever model is chosen, the customer's remaining responsibilities do not disappear just because a provider is now involved; a misconfigured storage bucket left publicly readable is not the provider's fault under any shared responsibility model, because access configuration on customer-created resources is always a customer duty, even in SaaS in most cases where sharing settings are the customer's to set correctly.
-",
+          "Whichever model is chosen, the customer's remaining responsibilities do not disappear just because a provider is now involved; a misconfigured storage bucket left publicly readable is not the provider's fault under any shared responsibility model, because access configuration on customer-created resources is always a customer duty, even in SaaS in most cases where sharing settings are the customer's to set correctly.",
           "Deployment model choice happens alongside this: a healthcare organisation with strict data residency requirements might keep patient records on a private cloud while running its public marketing website on public cloud, connecting the two only where necessary, and documenting exactly which data can cross that boundary.",
         ],
       },
@@ -904,8 +894,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         heading: "Where It Is Used in Real Work",
         paragraphs: [
           "Cloud service model decisions shape entire team structures: an organisation moving from IaaS to PaaS for its main application often shrinks its infrastructure operations team while growing its application development team, because far fewer people are needed to keep servers patched and running when the platform handles that layer.",
-          "Compliance and regulatory requirements frequently drive deployment model choice directly; certain data residency or industry regulations require data to remain within specific jurisdictions or under exclusive organisational control, which pushes organisations toward private or hybrid deployments for the regulated portion of their workload even when public cloud would otherwise be cheaper.
-",
+          "Compliance and regulatory requirements frequently drive deployment model choice directly; certain data residency or industry regulations require data to remain within specific jurisdictions or under exclusive organisational control, which pushes organisations toward private or hybrid deployments for the regulated portion of their workload even when public cloud would otherwise be cheaper.",
           "Security incidents involving cloud misconfiguration, such as publicly exposed storage or overly permissive access, are consistently among the most common real-world cloud security failures, and nearly all of them trace back to a misunderstanding of the shared responsibility model rather than a genuine provider-side vulnerability.",
         ],
       },
@@ -985,10 +974,8 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "Designing a cloud network starts with choosing an overall address range for the virtual network, then dividing it into subnets aligned with function and, often, availability zones for resilience: a public subnet with a route to an internet gateway for anything that must be internet-facing, and one or more private subnets with no direct internet route for databases and internal services. This separation means a database is unreachable from the internet by architecture, not merely by a firewall rule that could be misconfigured later.
-",
-          "Once the network layout exists, security groups are attached to specific resources, explicitly allowing only the traffic that resource actually needs; a web server's security group permits inbound traffic on ports 80 and 443 from anywhere, while a database's security group permits inbound traffic only on its specific port and only from the web tier's security group, never directly from the internet. This layered approach means a single misconfigured rule is less likely to expose something sensitive, because the network layout itself already limits what is reachable.
-",
+          "Designing a cloud network starts with choosing an overall address range for the virtual network, then dividing it into subnets aligned with function and, often, availability zones for resilience: a public subnet with a route to an internet gateway for anything that must be internet-facing, and one or more private subnets with no direct internet route for databases and internal services. This separation means a database is unreachable from the internet by architecture, not merely by a firewall rule that could be misconfigured later.",
+          "Once the network layout exists, security groups are attached to specific resources, explicitly allowing only the traffic that resource actually needs; a web server's security group permits inbound traffic on ports 80 and 443 from anywhere, while a database's security group permits inbound traffic only on its specific port and only from the web tier's security group, never directly from the internet. This layered approach means a single misconfigured rule is less likely to expose something sensitive, because the network layout itself already limits what is reachable.",
           "For availability and scale, a load balancer sits in front of the public subnet's web instances, receiving all incoming traffic and distributing it based on ongoing health checks, while an autoscaling group behind it watches load metrics and adds or removes instances automatically. When a new instance launches, it registers with the load balancer, begins receiving traffic only once it passes its health check, and is deregistered and replaced automatically if it later fails one.",
         ],
       },
@@ -1090,10 +1077,8 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "When an application needs to access a cloud resource, the recommended approach is to attach a role to the compute instance or service running it, rather than embedding a static access key in its configuration. The cloud platform automatically issues short-lived, temporary credentials to that role, refreshing them regularly behind the scenes, so even if those specific credentials were somehow exposed, they would already be expired or close to it, dramatically limiting the damage compared to a permanent key that would keep working indefinitely.
-",
-          "Permissions attached to that role are defined narrowly: a script that only needs to read from one specific storage location is granted read access to exactly that location, not broad access to every resource in the account. This means that if the application itself is compromised, an attacker inherits only the narrow set of permissions the application legitimately needed, not the keys to the whole environment.
-",
+          "When an application needs to access a cloud resource, the recommended approach is to attach a role to the compute instance or service running it, rather than embedding a static access key in its configuration. The cloud platform automatically issues short-lived, temporary credentials to that role, refreshing them regularly behind the scenes, so even if those specific credentials were somehow exposed, they would already be expired or close to it, dramatically limiting the damage compared to a permanent key that would keep working indefinitely.",
+          "Permissions attached to that role are defined narrowly: a script that only needs to read from one specific storage location is granted read access to exactly that location, not broad access to every resource in the account. This means that if the application itself is compromised, an attacker inherits only the narrow set of permissions the application legitimately needed, not the keys to the whole environment.",
           "Every action taken, whether by a human, an application role, or an automated pipeline, is recorded in the account's audit log, which security teams monitor for unusual patterns, such as a role suddenly being used from an unexpected location or attempting an action far outside its normal pattern. Configuration guardrails run continuously alongside this, automatically checking for common mistakes such as publicly exposed storage or overly permissive policies, and either alerting a human or automatically correcting the issue depending on how the guardrail is configured.",
         ],
       },
@@ -1115,8 +1100,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         heading: "Where It Is Used in Real Work",
         paragraphs: [
           "Credentials committed to public code repositories are one of the most common real-world causes of cloud account compromise, and automated scanners run by both security teams and, increasingly, the cloud providers themselves specifically watch for this pattern because it happens so often. A security engineer's job frequently includes reviewing why a key had far more permission than the task needed, not just revoking the leaked key.",
-          "Least-privilege policy design is a constant, ongoing effort rather than a one-time setup task, because permissions tend to accumulate over time as people request 'just a bit more access to get this done' and nobody ever goes back to remove access once the immediate need has passed; periodic access reviews exist specifically to catch and reverse this drift.
-",
+          "Least-privilege policy design is a constant, ongoing effort rather than a one-time setup task, because permissions tend to accumulate over time as people request 'just a bit more access to get this done' and nobody ever goes back to remove access once the immediate need has passed; periodic access reviews exist specifically to catch and reverse this drift.",
           "Configuration guardrails and continuous posture monitoring are what let a security team manage a large, fast-changing cloud environment without manually reviewing every single change, catching a publicly exposed resource or an overly broad policy within minutes of it being created rather than during an occasional manual audit months later.",
         ],
       },
@@ -1174,8 +1158,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "What It Is",
         paragraphs: [
-          "A container packages an application together with its dependencies and a minimal filesystem into a single image, run by a container engine that isolates it from the host system using kernel features such as namespaces and cgroups, sharing the host's kernel while keeping the application's view of the filesystem, processes, and network largely separate from other containers on the same machine. This is lighter weight than a full virtual machine, which virtualizes an entire separate kernel and operating system, making containers start faster and use fewer resources for the same workload.
-",
+          "A container packages an application together with its dependencies and a minimal filesystem into a single image, run by a container engine that isolates it from the host system using kernel features such as namespaces and cgroups, sharing the host's kernel while keeping the application's view of the filesystem, processes, and network largely separate from other containers on the same machine. This is lighter weight than a full virtual machine, which virtualizes an entire separate kernel and operating system, making containers start faster and use fewer resources for the same workload.",
           "Infrastructure as code defines servers, networks, and other cloud resources declaratively in version-controlled configuration files, using tools such as Terraform or cloud-native equivalents, so that the actual running environment can be created, changed, or destroyed by applying that file rather than through manual, undocumented actions. Changes are proposed, reviewed, and applied through a pipeline, producing an auditable history of exactly what changed, when, and by whom, and allowing configuration drift — where the real environment no longer matches its definition — to be detected and corrected.",
         ],
       },
@@ -1197,10 +1180,8 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "Building a container starts with a definition file, commonly a Dockerfile, listing a base image and the steps to add an application's code and dependencies on top of it. Running that definition through the container engine produces an image, a fixed, shareable artifact that can be pushed to a registry and pulled down identically on any machine with a compatible container engine, guaranteeing the exact same environment runs everywhere rather than depending on whatever happens to be installed locally.
-",
-          "For infrastructure as code, an engineer writes or updates a declarative configuration file describing the desired resources, then runs a plan step, where the tool compares that desired state against its recorded state file and the real environment, producing a list of exactly what will be created, changed, or destroyed. A human reviews that plan, often through a pull request in version control, before an apply step actually executes the changes, updating the real environment and recording the new state.
-",
+          "Building a container starts with a definition file, commonly a Dockerfile, listing a base image and the steps to add an application's code and dependencies on top of it. Running that definition through the container engine produces an image, a fixed, shareable artifact that can be pushed to a registry and pulled down identically on any machine with a compatible container engine, guaranteeing the exact same environment runs everywhere rather than depending on whatever happens to be installed locally.",
+          "For infrastructure as code, an engineer writes or updates a declarative configuration file describing the desired resources, then runs a plan step, where the tool compares that desired state against its recorded state file and the real environment, producing a list of exactly what will be created, changed, or destroyed. A human reviews that plan, often through a pull request in version control, before an apply step actually executes the changes, updating the real environment and recording the new state.",
           "If someone later makes a manual change directly against the real environment instead of through this process, the next time the pipeline runs a plan, the tool detects the mismatch between the declared configuration and the actual state, and typically proposes reverting the manual change back to match the written definition, since as far as the tool is concerned, the file is the source of truth, not whatever currently exists.",
         ],
       },
