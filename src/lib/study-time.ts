@@ -15,7 +15,7 @@ import {
   getRealWorldScenario,
   getRecallQuestions,
 } from "@/data/learning-content";
-import type { Topic } from "@/lib/app-data/types";
+import type { Difficulty, Topic } from "@/lib/app-data/types";
 
 /**
  * Reading pace for unfamiliar technical material studied properly: slower than
