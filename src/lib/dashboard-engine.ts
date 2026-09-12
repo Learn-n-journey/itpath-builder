@@ -1,4 +1,4 @@
-import { assignments, labs, topics } from "@/data/static-content";
+import { assignments, certifications, labs, topics } from "@/data/static-content";
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { scoreAllCertifications } from "@/lib/certification-engine";
 import { scoreSkills, scoreTracks } from "@/lib/skills-engine";
@@ -20,13 +20,6 @@ function startOfDay(input: Date | string | number): number {
   return d.getTime();
 }
 
-export function startOfWeek(now: Date = new Date()): number {
-  const day = (now.getDay() + 6) % 7;
-  const d = new Date(now);
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - day);
-  return d.getTime();
-}
 
 export interface DashboardTask {
   id: string;
@@ -39,13 +32,10 @@ export interface DashboardTask {
 export interface DashboardMetrics {
   /** 0-100, averaged over every curriculum topic. Untouched topics count as zero. */
   overallProgress: number;
-  currentWeek: { index: number; year: 1 | 2; month: number; week: number; label: string };
   todaysTasks: DashboardTask[];
   studyMinutesTotal: number;
   studyHoursTotal: number;
-  studyMinutesThisWeek: number;
   studyMinutesToday: number;
-  weeklyTargetMinutes: number;
   streakDays: number;
   knowledge: number;
   practical: number;
@@ -103,11 +93,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
 
   // Study time
   const studyMinutesTotal = user.studySessions.reduce((sum, s) => sum + (s.minutes || 0), 0);
-  const weekStart = startOfWeek(now);
   const todayStart = startOfDay(now);
-  const studyMinutesThisWeek = user.studySessions
-    .filter((s) => new Date(s.startedAt).getTime() >= weekStart)
-    .reduce((sum, s) => sum + s.minutes, 0);
   const studyMinutesToday = user.studySessions
     .filter((s) => startOfDay(s.startedAt) === todayStart)
     .reduce((sum, s) => sum + s.minutes, 0);
@@ -122,25 +108,6 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       cursor -= DAY_MS;
     }
   }
-
-  // Current week of the path, from the day the learner started.
-  const weeksElapsed = Math.max(
-    0,
-    Math.floor((startOfDay(nowMs) - startOfDay(user.createdAt)) / (7 * DAY_MS)),
-  );
-  const totalWeeks = 104;
-  const index = Math.min(weeksElapsed + 1, totalWeeks);
-  const year: 1 | 2 = index <= 52 ? 1 : 2;
-  const monthIndex = Math.floor((index - 1) / 4.345) + 1;
-  const month = ((monthIndex - 1) % 12) + 1;
-  const weekInMonth = ((index - 1) % 4) + 1;
-  const currentWeek = {
-    index,
-    year,
-    month,
-    week: weekInMonth,
-    label: `Week ${index} of ${totalWeeks} · Year ${year}, month ${month}`,
-  };
 
   // Quiz average across submitted attempts only.
   const submittedQuizzes = user.quizAttempts.filter((a) => a.status === "submitted");
@@ -236,9 +203,9 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
   if (openAssignment) {
     tasks.push({
       id: "task-assignment",
-      label: "Finish your open assignment",
+      label: "Finish your open practice task",
       detail:
-        assignments.find((a) => a.id === openAssignment.assignmentId)?.title ?? "Assignment open",
+        assignments.find((a) => a.id === openAssignment.assignmentId)?.title ?? "Practice task open",
       to: "/practice",
     });
   }
@@ -250,7 +217,9 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
     tasks.push({
       id: "task-topic",
       label: `Study ${nextTopic.title}`,
-      detail: `Year ${nextTopic.year}, month ${nextTopic.month}, week ${nextTopic.week}`,
+      detail:
+        certifications.find((c) => c.id === nextTopic.certificationId)?.title ??
+        "Next topic on your path",
       to: "/topics/$topicId",
       params: { topicId: nextTopic.id },
     });
@@ -263,7 +232,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       id: "task-study",
       label: `Log ${dailyTargetMinutes - studyMinutesToday} more study minutes today`,
       detail: `${studyMinutesToday} of ${dailyTargetMinutes} minutes logged.`,
-      to: "/this-week",
+      to: "/study-plan",
     });
   }
 
@@ -278,13 +247,10 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
 
   return {
     overallProgress,
-    currentWeek,
     todaysTasks: tasks.slice(0, 5),
     studyMinutesTotal,
     studyHoursTotal: Math.round((studyMinutesTotal / 60) * 10) / 10,
-    studyMinutesThisWeek,
     studyMinutesToday,
-    weeklyTargetMinutes: user.settings.studyHoursPerWeek * 60,
     streakDays,
     knowledge,
     practical,

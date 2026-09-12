@@ -23,7 +23,7 @@ export const studyTaskKindLabels: Record<StudyTaskKind, string> = {
   new_material: "New material",
   practice: "Practice",
   lab: "Lab",
-  assignment: "Assignment",
+  assignment: "Practice",
   quiz: "Quiz",
 };
 
@@ -62,12 +62,6 @@ function topicScore(user: UserData, topicId: string): number | null {
   ]);
 }
 
-/** Week index on the two-year path, derived from the learner's start date. */
-export function currentWeekIndex(user: UserData, now: Date = new Date()): number {
-  const start = new Date(user.createdAt).getTime();
-  const weeks = Math.floor((now.getTime() - start) / (7 * DAY_MS));
-  return Math.min(Math.max(weeks + 1, 1), 104);
-}
 
 /** True when every prerequisite topic has a recorded score of 60 or better. */
 function prerequisitesReady(user: UserData, topicId: string): boolean {
@@ -147,24 +141,19 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 3. New material — the next untouched topic due by the current week, prerequisites respected.
-  const week = currentWeekIndex(user, now);
-  const untouched = topics
-    .filter((topic) => {
-      const p = user.topicProgress[topic.id];
-      return !p || p.status === "not_started";
-    })
-    .sort((a, b) => a.week - b.week || a.month - b.month);
-  const nextTopic =
-    untouched.find((topic) => topic.week <= week && prerequisitesReady(user, topic.id)) ??
-    untouched.find((topic) => prerequisitesReady(user, topic.id));
+  // 3. New material — the next untouched topic in path order, prerequisites respected.
+  const untouched = topics.filter((topic) => {
+    const p = user.topicProgress[topic.id];
+    return !p || p.status === "not_started";
+  });
+  const nextTopic = untouched.find((topic) => prerequisitesReady(user, topic.id));
   if (nextTopic) {
     usedTopics.add(nextTopic.id);
     out.push({
       kind: "new_material",
       title: `Learn ${nextTopic.title}`,
       detail: nextTopic.summary,
-      reason: `Scheduled for year ${nextTopic.year}, month ${nextTopic.month}, week ${nextTopic.week}. You are on week ${week}.`,
+      reason: "The next topic on your path whose prerequisites you have covered.",
       plannedMinutes: 20,
       to: "/topics/$topicId",
       params: { topicId: nextTopic.id },
@@ -238,11 +227,11 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     out.push({
       kind: "assignment",
       title: openAssignmentDef
-        ? `Finish assignment: ${nextAssignment.title}`
-        : `Assignment: ${nextAssignment.title}`,
+        ? `Finish practice: ${nextAssignment.title}`
+        : `Practice: ${nextAssignment.title}`,
       detail: nextAssignment.brief,
       reason: openAssignmentDef
-        ? "This assignment is still open."
+        ? "This practice task is still open."
         : `Written work for ${topicTitle(nextAssignment.topicId)}.`,
       plannedMinutes: 20,
       to: "/practice",

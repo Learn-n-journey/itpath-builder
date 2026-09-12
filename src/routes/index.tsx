@@ -102,7 +102,7 @@ function Dashboard() {
           label="Study time"
           value={`${d.studyHoursTotal}h`}
           icon={Clock}
-          hint={`${Math.round((d.studyMinutesThisWeek / 60) * 10) / 10}h this week`}
+          hint={`${d.studyMinutesToday} min logged today`}
         />
         <StatCard
           label="Streak"
@@ -117,7 +117,7 @@ function Dashboard() {
           hint={`${d.quizAttempts} submitted attempt${d.quizAttempts === 1 ? "" : "s"}`}
         />
         <StatCard
-          label="Assignments"
+          label="Practice"
           value={`${d.assignmentsCompleted}/${d.assignmentsTotal}`}
           icon={ClipboardList}
         />
