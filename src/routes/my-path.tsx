@@ -54,7 +54,6 @@ function MyPath() {
               <div className="space-y-6">
                 {months.map((month) => {
                   const monthTopics = trackTopics.filter((topic) => topic.month === month);
-                  const weeks = [...new Set(monthTopics.map((topic) => topic.week))].sort((a, b) => a - b);
 
                   return (
                     <section key={month} aria-labelledby={`month-${track.year}-${month}`}>
