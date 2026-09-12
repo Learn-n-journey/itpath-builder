@@ -107,7 +107,7 @@ function Dashboard() {
           hint={`Across ${d.topicsTotal} topics`}
         />
         <StatCard
-          label="Top certification"
+          label="Current goal"
           value={
             d.certificationReadiness[0] ? `${d.certificationReadiness[0].overall}%` : "0%"
           }
