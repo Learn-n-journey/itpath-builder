@@ -44,3 +44,11 @@
 - [x] Exam readiness score per certification (weighted factors, blockers, projected ready date) on dashboard + certification page
 - [x] "Do this next" smarter next action, ranked from real records
 - [x] Study Insights page: 28-day study time, momentum, quiz trend, weak/strong topics, mistake causes, evidence counts
+
+## Accounts & cloud sync (Sep 2026)
+- [x] Lovable Cloud enabled; email/password + Google sign-in
+- [x] /auth sign in / sign up page, /reset-password page
+- [x] user_state table (per-user RLS) storing the whole progress snapshot
+- [x] AuthProvider + cloud sync in AppStateProvider: pull on sign-in (larger record wins), debounced push on change
+- [x] Sidebar account panel with backup status and sign out
+- [ ] Next: deeper written lessons, AI-checked free responses, progress/portfolio export
