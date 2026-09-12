@@ -24,6 +24,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                   <Link
                     to={item.to}
                     onClick={onNavigate}
+                    title={item.description}
                     activeOptions={{ exact: item.to === "/" }}
                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:font-medium data-[status=active]:text-sidebar-primary"
                   >
