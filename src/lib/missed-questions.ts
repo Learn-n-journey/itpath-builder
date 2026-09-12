@@ -83,7 +83,7 @@ export function gradeMissedQuestion(item: MissedQuestion, response: string[]): b
 
 export function missedQuestionPrompt(item: MissedQuestion): string {
   if (item.kind === "quiz") return item.question.prompt;
-  if (item.kind === "practice") return item.assignment.prompt ?? item.assignment.title;
+  if (item.kind === "practice") return `${item.assignment.title} — ${item.assignment.brief}`;
   return item.recall.prompt;
 }
 
