@@ -5,6 +5,7 @@ import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, tracks, topics } from "@/data/static-content";
 import { certificationForMonth } from "@/data/certification-content";
+import { HOURS_PER_STUDY_DAY, recommendedWeeklyHours } from "@/lib/study-pace";
 import { useAppState, useStats } from "@/state/app-state";
 
 export const Route = createFileRoute("/my-path")({
@@ -24,18 +25,23 @@ export const Route = createFileRoute("/my-path")({
 function MyPath() {
   const { user } = useAppState();
   const stats = useStats();
-  const weeksToTarget = Math.round(104);
+  const studyDays = user.settings.studyDays.length;
+  const weeklyHours = recommendedWeeklyHours(studyDays);
 
   return (
     <>
       <PageHeader
         title="My Path"
-        description="The full two-year roadmap, shaped by your target role, experience level and weekly hours."
+        description="The full two-year roadmap, month by month, shaped by your target role and how many days a week you study."
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Plan length" value={`${weeksToTarget} wks`} hint="Two-year path" />
-        <StatCard label="Weekly hours" value={user.settings.studyHoursPerWeek} />
+        <StatCard label="Plan length" value="24 months" hint="Two-year path" />
+        <StatCard
+          label="Recommended hours"
+          value={`${weeklyHours}h / wk`}
+          hint={`${studyDays} study days · ${HOURS_PER_STUDY_DAY}h a day`}
+        />
         <StatCard label="Topics available" value={topics.length} />
         <StatCard label="Topics completed" value={stats.topicsCompleted} />
       </div>
@@ -54,7 +60,6 @@ function MyPath() {
               <div className="space-y-6">
                 {months.map((month) => {
                   const monthTopics = trackTopics.filter((topic) => topic.month === month);
-                  const weeks = [...new Set(monthTopics.map((topic) => topic.week))].sort((a, b) => a - b);
 
                   return (
                     <section key={month} aria-labelledby={`month-${track.year}-${month}`}>
@@ -73,55 +78,48 @@ function MyPath() {
                           ) : null;
                         })()}
                         <span className="h-px flex-1 bg-border" aria-hidden />
+                        <span className="text-xs text-muted-foreground">
+                          {monthTopics.length} topics ·{" "}
+                          {Math.round(
+                            monthTopics.reduce((sum, topic) => sum + topic.estimatedMinutes, 0) / 60,
+                          )}
+                          h of study
+                        </span>
                       </div>
 
-                      <div className="space-y-5">
-                        {weeks.map((week) => (
-                          <section key={week} aria-labelledby={`week-${track.year}-${month}-${week}`}>
-                            <h3
-                              id={`week-${track.year}-${month}-${week}`}
-                              className="mb-2 text-sm font-semibold text-foreground"
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {monthTopics.map((topic) => {
+                          const certification = certifications.find(
+                            (item) => item.id === topic.certificationId,
+                          );
+                          return (
+                            <div
+                              key={topic.id}
+                              className="flex min-w-0 items-start gap-3 rounded-lg border border-border bg-background/40 p-4"
                             >
-                              Week {week}
-                            </h3>
-                            <div className="grid gap-2 sm:grid-cols-2">
-                              {monthTopics
-                                .filter((topic) => topic.week === week)
-                                .map((topic) => {
-                                  const certification = certifications.find(
-                                    (item) => item.id === topic.certificationId,
-                                  );
-                                  return (
-                                    <div
-                                      key={topic.id}
-                                      className="flex min-w-0 items-start gap-3 rounded-lg border border-border bg-background/40 p-4"
-                                    >
-                                      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-secondary text-primary">
-                                        <BookOpen className="size-4" aria-hidden />
-                                      </span>
-                                      <div className="min-w-0 flex-1">
-                                        <h4 className="font-display text-sm font-semibold">{topic.title}</h4>
-                                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
-                                          {topic.summary}
-                                        </p>
-                                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                                          <span className="text-xs text-muted-foreground">
-                                            {certification?.title ?? "General IT"} · {topic.estimatedMinutes} min
-                                          </span>
-                                          <Button asChild variant="ghost" size="sm">
-                                            <Link to="/topics/$topicId" params={{ topicId: topic.id }}>
-                                              Open topic
-                                              <ArrowRight aria-hidden />
-                                            </Link>
-                                          </Button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
+                              <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-secondary text-primary">
+                                <BookOpen className="size-4" aria-hidden />
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <h4 className="font-display text-sm font-semibold">{topic.title}</h4>
+                                <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                                  {topic.summary}
+                                </p>
+                                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                  <span className="text-xs text-muted-foreground">
+                                    {certification?.title ?? "General IT"} · {topic.estimatedMinutes} min
+                                  </span>
+                                  <Button asChild variant="ghost" size="sm">
+                                    <Link to="/topics/$topicId" params={{ topicId: topic.id }}>
+                                      Open topic
+                                      <ArrowRight aria-hidden />
+                                    </Link>
+                                  </Button>
+                                </div>
+                              </div>
                             </div>
-                          </section>
-                        ))}
+                          );
+                        })}
                       </div>
                     </section>
                   );

@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { HOURS_PER_STUDY_DAY, recommendedWeeklyHours } from "@/lib/study-pace";
 import { useAppState } from "@/state/app-state";
 import type { Difficulty, ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 
@@ -76,11 +77,18 @@ function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
   const s = user.settings;
 
+  const recommendedHours = recommendedWeeklyHours(s.studyDays.length);
+
   function toggleDay(day: WeekDay) {
     const next = s.studyDays.includes(day)
       ? s.studyDays.filter((d) => d !== day)
       : [...s.studyDays, day];
-    updateSettings({ studyDays: next });
+    // Keep hours following the recommendation unless the learner set their own number.
+    const following = s.studyHoursPerWeek === recommendedWeeklyHours(s.studyDays.length);
+    updateSettings({
+      studyDays: next,
+      ...(following ? { studyHoursPerWeek: recommendedWeeklyHours(next.length) } : {}),
+    });
   }
 
   return (
@@ -94,22 +102,7 @@ function SettingsPage() {
         <Panel title="Study schedule">
           <div className="space-y-6">
             <div>
-              <div className="flex items-center justify-between">
-                <Label>Study hours per week</Label>
-                <span className="text-sm tabular-nums text-primary">{s.studyHoursPerWeek}h</span>
-              </div>
-              <Slider
-                className="mt-3"
-                min={1}
-                max={40}
-                step={1}
-                value={[s.studyHoursPerWeek]}
-                onValueChange={([v]) => updateSettings({ studyHoursPerWeek: v ?? s.studyHoursPerWeek })}
-              />
-            </div>
-
-            <div>
-              <Label>Study days</Label>
+              <Label>Study days each week</Label>
               <div className="mt-2 flex flex-wrap gap-2">
                 {DAYS.map((d) => {
                   const active = s.studyDays.includes(d.id);
@@ -127,7 +120,39 @@ function SettingsPage() {
                   );
                 })}
               </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {s.studyDays.length} days a week · recommended{" "}
+                <span className="text-primary">{recommendedHours}h a week</span> ({HOURS_PER_STUDY_DAY}h a
+                day on average).
+              </p>
             </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <Label>Study hours per week</Label>
+                <span className="text-sm tabular-nums text-primary">{s.studyHoursPerWeek}h</span>
+              </div>
+              <Slider
+                className="mt-3"
+                min={1}
+                max={40}
+                step={1}
+                value={[s.studyHoursPerWeek]}
+                onValueChange={([v]) => updateSettings({ studyHoursPerWeek: v ?? s.studyHoursPerWeek })}
+              />
+              {s.studyHoursPerWeek !== recommendedHours ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="mt-3"
+                  onClick={() => updateSettings({ studyHoursPerWeek: recommendedHours })}
+                >
+                  Use recommended {recommendedHours}h
+                </Button>
+              ) : null}
+            </div>
+
 
             <div>
               <Label htmlFor="session-length">Session length (minutes)</Label>
