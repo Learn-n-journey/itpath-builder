@@ -4,24 +4,11 @@
  * own genuinely different content. No template text is reused between topics.
  */
 
-export interface DeepLessonSection {
-  heading: string;
-  paragraphs: string[];
-  bullets?: string[];
-}
+import type { DeepLesson, DeepLessonSection } from "./deep-lessons/types";
 
-export interface DeepLesson {
-  topicId: string;
-  /** Honest reading estimate for this specific lesson. */
-  readingMinutes: number;
-  /** Short orientation shown in the introduction block. */
-  intro: string;
-  /** Where a working technician actually meets this material. */
-  whereYouMeetIt: string;
-  sections: DeepLessonSection[];
-}
+export type { DeepLesson, DeepLessonSection };
 
-export const deepLessons: DeepLesson[] = [
+const foundationDeepLessons: DeepLesson[] = [
   {
     topicId: "topic-computer-hardware-basics",
     readingMinutes: 18,
@@ -696,6 +683,8 @@ export const deepLessons: DeepLesson[] = [
     ],
   },
 ];
+
+export const deepLessons: DeepLesson[] = [...foundationDeepLessons];
 
 export function getDeepLesson(topicId: string): DeepLesson | undefined {
   return deepLessons.find((lesson) => lesson.topicId === topicId);
