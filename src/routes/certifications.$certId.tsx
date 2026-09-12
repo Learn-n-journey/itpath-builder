@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { topics } from "@/data/static-content";
 import { useAppState } from "@/state/app-state";
 import {
-  EXAM_READY_SCORE,
   certificationStatusLabels,
   scoreAllCertifications,
 } from "@/lib/certification-engine";
@@ -19,14 +19,20 @@ export const Route = createFileRoute("/certifications/$certId")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Certifications — IT PATH" },
-      { name: "description", content: "Readiness for nine CompTIA certifications, calculated from your recorded work." },
-      { property: "og:title", content: "Certifications — IT PATH" },
-      { property: "og:description", content: "Objective maps, domain readiness and learner-confirmed exam results." },
+      { title: "Certification readiness — IT PATH" },
+      { name: "description", content: "Months, topics, objectives and readiness for a single CompTIA certification." },
+      { property: "og:title", content: "Certification readiness — IT PATH" },
+      { property: "og:description", content: "Month blocks, domain readiness and learner-confirmed exam results." },
     ],
   }),
   component: Certifications,
 });
+
+function monthLabel(months: number[]) {
+  if (months.length === 0) return "Optional specialisation — no scheduled months";
+  if (months.length === 1) return `Month ${months[0]}`;
+  return `Months ${months[0]}–${months[months.length - 1]}`;
+}
 
 function Meter({ value }: { value: number }) {
   return (
