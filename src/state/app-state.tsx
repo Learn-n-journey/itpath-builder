@@ -10,6 +10,8 @@ import {
 } from "react";
 
 import { createDefaultUserData } from "@/lib/app-data/defaults";
+import { useAuth } from "@/state/auth-state";
+import { activityCount, fetchCloudState, pushCloudState } from "@/lib/cloud-sync";
 import { buildMistake, type MistakeInput } from "@/lib/mistake-engine";
 import { userMutations } from "@/lib/app-data/mutations";
 import { clearExamDeclaration, declareExamOutcome } from "@/lib/certification-engine";
