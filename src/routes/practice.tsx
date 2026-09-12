@@ -270,22 +270,15 @@ function AssignmentWorkspace({
 
   function evaluate() {
     if (!attempt || attempt.status !== "submitted") return;
-    const normalized = (attempt.responses["main"] ?? "").toLowerCase();
+    const written = attempt.responses["main"] ?? "";
     const results: AssignmentCriterionResult[] = assignment.rubric.map((criterion) => {
-      const passed =
-        assignment.evaluationMode === "automatic"
-          ? (criterion.acceptedConcepts ?? []).every((concept) =>
-              normalized.includes(concept.toLowerCase()),
-            )
-          : Boolean(selfChecks[criterion.id]);
+      const passed = criterionPassed(written, criterion, selfChecks[criterion.id]);
       return {
         criterionId: criterion.id,
         earnedPoints: passed ? criterion.points : 0,
         feedback: passed
-          ? "Criterion met with evidence in the response."
-          : assignment.evaluationMode === "automatic"
-            ? "Required technical evidence was not found."
-            : "You marked this criterion as not yet met.",
+          ? "Correct — your answer carries this idea."
+          : `Incorrect — this idea is missing. Expected: ${criterion.expectedAnswer ?? criterion.description}`,
       };
     });
     const score = Math.round(results.reduce((sum, item) => sum + item.earnedPoints, 0));
