@@ -57,8 +57,20 @@ function MyPath() {
 
                   return (
                     <section key={month} aria-labelledby={`month-${track.year}-${month}`}>
-                      <div className="mb-3 flex items-center gap-3">
+                      <div className="mb-3 flex flex-wrap items-center gap-3">
                         <span className="font-mono text-xs font-medium text-primary">MONTH {month}</span>
+                        {(() => {
+                          const cert = certificationForMonth(month);
+                          return cert ? (
+                            <Link
+                              to="/certifications/$certId"
+                              params={{ certId: cert.id }}
+                              className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+                            >
+                              {cert.title}
+                            </Link>
+                          ) : null;
+                        })()}
                         <span className="h-px flex-1 bg-border" aria-hidden />
                       </div>
 
