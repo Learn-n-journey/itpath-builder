@@ -48,6 +48,9 @@ function criterionPassed(
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/practice")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    assignment: typeof search['assignment'] === "string" ? (search['assignment'] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -92,9 +95,21 @@ function certificationIdFor(assignment: Assignment): string {
 
 function PracticePage() {
   const { user } = useAppState();
+  const { assignment: requestedAssignmentId } = Route.useSearch();
+  const requested = requestedAssignmentId
+    ? assignments.find((item) => item.id === requestedAssignmentId)
+    : undefined;
   const [seed, setSeed] = useState(() => newSeed());
-  const [selectedId, setSelectedId] = useState("");
-  const [group, setGroup] = useState(() => selectedCertification(user.settings).id);
+  const [selectedId, setSelectedId] = useState(requested?.id ?? "");
+  const [group, setGroup] = useState(() =>
+    requested ? certificationIdFor(requested) : selectedCertification(user.settings).id,
+  );
+
+  useEffect(() => {
+    if (!requested) return;
+    setSelectedId(requested.id);
+    setGroup(certificationIdFor(requested));
+  }, [requested]);
 
   const groups = useMemo(() => {
     const shuffled = shuffleWithSeed(assignments, seed);
@@ -314,6 +329,11 @@ function AssignmentWorkspace({
       evaluationMode: assignment.evaluationMode,
       evaluatedAt: now,
     });
+    if (score >= 70) {
+      user.mistakes
+        .filter((mistake) => mistake.assignmentId === assignment.id && !mistake.resolved)
+        .forEach((mistake) => actions.setMistakeResolved(mistake.id, true));
+    }
     if (score < 70)
       actions.recordMistake({
         topicId: assignment.topicId,
