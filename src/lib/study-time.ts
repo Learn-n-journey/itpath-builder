@@ -15,18 +15,42 @@ import {
   getRealWorldScenario,
   getRecallQuestions,
 } from "@/data/learning-content";
-import type { Topic } from "@/lib/app-data/types";
+import type { Difficulty, Topic } from "@/lib/app-data/types";
 
-/** Careful reading pace for unfamiliar technical material. */
-const WORDS_PER_MINUTE = 170;
+/**
+ * Reading pace for unfamiliar technical material studied properly: slower than
+ * casual reading because terms are looked up and notes are taken.
+ */
+const WORDS_PER_MINUTE = 130;
+
+/** A second pass over the material with notes, as a share of the first read. */
+const SECOND_PASS_SHARE = 0.6;
 
 const MINUTES = {
-  workedExample: 4,
-  practiceItem: 2,
-  recallQuestion: 4,
-  practiceActivity: 6,
-  teachBack: 10,
-  scenario: 8,
+  workedExample: 8,
+  practiceItem: 4,
+  recallQuestion: 6,
+  practiceActivity: 12,
+  teachBack: 20,
+  scenario: 15,
+};
+
+/**
+ * Hands-on practice and spaced repetition, which published study-hour guidance
+ * for CompTIA exams (roughly 120h for A+, 90h for Network+/Security+) counts as
+ * the bulk of preparation time. Scaled by topic difficulty.
+ */
+const HANDS_ON_MINUTES: Record<Difficulty, number> = {
+  gentle: 120,
+  standard: 160,
+  challenging: 200,
+};
+
+const REVIEW_SESSIONS = 4;
+const REVIEW_SESSION_MINUTES: Record<Difficulty, number> = {
+  gentle: 15,
+  standard: 20,
+  challenging: 25,
 };
 
 export interface StudyTimePart {
@@ -99,7 +123,12 @@ export function topicStudyTime(topicId: string): StudyTimeEstimate {
     ]);
   }
 
-  const readMinutes = Math.max(5, Math.round(readingWords / WORDS_PER_MINUTE));
+  const difficulty: Difficulty =
+    topics.find((item) => item.id === topicId)?.difficulty ?? "standard";
+  const readMinutes = Math.max(10, Math.round(readingWords / WORDS_PER_MINUTE));
+  const secondPassMinutes = Math.round(readMinutes * SECOND_PASS_SHARE);
+  const handsOnMinutes = HANDS_ON_MINUTES[difficulty];
+  const reviewMinutes = REVIEW_SESSIONS * REVIEW_SESSION_MINUTES[difficulty];
   const practiceItems = examples.reduce((sum, example) => sum + example.tryIt.length, 0);
   const exampleMinutes =
     examples.length * MINUTES.workedExample + practiceItems * MINUTES.practiceItem;
@@ -112,7 +141,12 @@ export function topicStudyTime(topicId: string): StudyTimeEstimate {
     {
       label: "Read the lesson",
       minutes: readMinutes,
-      detail: `About ${readingWords.toLocaleString()} words at a careful reading pace.`,
+      detail: `About ${readingWords.toLocaleString()} words at a careful technical reading pace.`,
+    },
+    {
+      label: "Second pass with notes",
+      minutes: secondPassMinutes,
+      detail: "Re-read the harder parts and write your own notes.",
     },
     {
       label: "Work through the examples",
@@ -138,6 +172,16 @@ export function topicStudyTime(topicId: string): StudyTimeEstimate {
       label: "Real-world scenario",
       minutes: scenarioMinutes,
       detail: "Read the situation and justify your decision in writing.",
+    },
+    {
+      label: "Hands-on practice",
+      minutes: handsOnMinutes,
+      detail: "Labs, commands and configuration until you can do it unaided.",
+    },
+    {
+      label: "Spaced review",
+      minutes: reviewMinutes,
+      detail: `${REVIEW_SESSIONS} short review sessions spread over the following weeks.`,
     },
   ].filter((part) => part.minutes > 0);
 
@@ -181,3 +225,9 @@ export function formatStudyTime(minutes: number): string {
 export function allTopicStudyMinutes(): number {
   return totalStudyMinutes(topics);
 }
+
+/**
+ * Final exam preparation for a certification: full-length practice exams,
+ * reviewing wrong answers and a last pass over weak objectives.
+ */
+export const EXAM_PREP_MINUTES = 600;
