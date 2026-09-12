@@ -487,6 +487,17 @@ function AssignmentWorkspace({
               </div>
             ) : null}
           </Panel>
+
+          {attempt.score !== undefined && assignment.modelAnswer ? (
+            <Panel
+              title="The answer"
+              description="What a full answer covers. Compare it with your own wording."
+            >
+              <p className="whitespace-pre-wrap rounded-md border border-border p-4 text-sm text-muted-foreground">
+                {assignment.modelAnswer}
+              </p>
+            </Panel>
+          ) : null}
         </>
       )}
 
