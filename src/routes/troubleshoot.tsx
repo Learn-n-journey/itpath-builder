@@ -54,8 +54,25 @@ const METHOD = [
 
 function TroubleshootPage() {
   const { user } = useAppState();
-  const [selectedId, setSelectedId] = useState(incidents[0]?.id ?? "");
-  const incident = incidents.find((item) => item.id === selectedId) ?? incidents[0];
+  const [selectedId, setSelectedId] = useState("");
+  const [query, setQuery] = useState("");
+  const ordered = useMemo(() => {
+    const focusIds = new Set(adaptivePath(user).topics.map((topic) => topic.id));
+    return [...incidents].sort(
+      (a, b) => Number(focusIds.has(b.topicId)) - Number(focusIds.has(a.topicId)),
+    );
+  }, [user]);
+  const visible = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return ordered;
+    return ordered.filter((item) =>
+      [item.title, item.report, incidentCategoryLabels[item.category]]
+        .join(" ")
+        .toLowerCase()
+        .includes(needle),
+    );
+  }, [ordered, query]);
+  const incident = ordered.find((item) => item.id === selectedId) ?? visible[0] ?? ordered[0];
   const attempts = user.incidentAttempts;
   const latest = incident
     ? attempts.find((attempt) => attempt.incidentId === incident.id)
