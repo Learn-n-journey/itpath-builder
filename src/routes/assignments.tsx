@@ -64,8 +64,17 @@ const typeLabels: Record<Assignment["type"], string> = {
 
 function AssignmentsPage() {
   const { user } = useAppState();
-  const [selectedId, setSelectedId] = useState(assignments[0]?.id ?? "");
-  const assignment = assignments.find((item) => item.id === selectedId) ?? assignments[0];
+  const [seed, setSeed] = useState(() => newSeed());
+  const [selectedId, setSelectedId] = useState("");
+  const shuffled = useMemo(() => shuffleWithSeed(assignments, seed), [seed]);
+  const assignment = shuffled.find((item) => item.id === selectedId) ?? shuffled[0];
+
+  function refresh() {
+    const next = newSeed();
+    setSeed(next);
+    setSelectedId("");
+  }
+
   const attempts = user.assignmentAttempts;
   const latest = assignment
     ? attempts.find((attempt) => attempt.assignmentId === assignment.id)
