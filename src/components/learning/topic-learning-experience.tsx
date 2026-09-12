@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Edit3, FileText, Save } from "lucide-react";
+import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { Panel } from "@/components/page-kit";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { lessons, type Topic } from "@/data/static-content";
+import { lessons, resources, type Resource, type Topic } from "@/data/static-content";
 import { getLearningModule, getPracticeActivity, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
 import type { TopicProgress } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
