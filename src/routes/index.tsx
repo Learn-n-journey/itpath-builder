@@ -77,6 +77,8 @@ function Dashboard() {
   const { user, hydrated } = useAppState();
   const d = useMemo(() => computeDashboard(user), [user]);
   const path = useMemo(() => adaptivePath(user), [user]);
+  const actions = useMemo(() => nextActions(user), [user]);
+  const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
   const missedAnchors = useMemo(() => {
     const map: Record<string, string> = {};
     for (const item of missedQuestions(user)) {
