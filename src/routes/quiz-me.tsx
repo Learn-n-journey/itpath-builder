@@ -29,7 +29,9 @@ export const Route = createFileRoute("/quiz-me")({
 
 function QuizMe() {
   const { user } = useAppState();
-  const quiz = quizzes.find((item) => item.id === "quiz-it-foundations-checkpoint") ?? quizzes[0];
+  const [seed, setSeed] = useState(() => newSeed());
+  const available = useMemo(() => quizzes.filter((item) => item.kind !== "assessment"), []);
+  const quiz = useMemo(() => shuffleWithSeed(available, seed)[0], [available, seed]);
   const pool = useMemo(() => (quiz ? quizQuestions(quiz) : []), [quiz]);
 
   if (!quiz) return null;
