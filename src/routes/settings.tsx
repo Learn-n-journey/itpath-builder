@@ -77,17 +77,27 @@ function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
   const s = user.settings;
 
-  const recommendedHours = recommendedWeeklyHours(s.studyDays.length);
+  // Weekly study time is always derived: selected days x daily study time.
+  function weeklyMinutes(dayCount: number, dailyMinutes: number): number {
+    return Math.max(0, Math.round(dayCount * dailyMinutes));
+  }
+  const weeklyMins = weeklyMinutes(s.studyDays.length, s.sessionLengthMinutes);
+  const weeklyHours = weeklyMins / 60;
 
   function toggleDay(day: WeekDay) {
     const next = s.studyDays.includes(day)
       ? s.studyDays.filter((d) => d !== day)
       : [...s.studyDays, day];
-    // Keep hours following the recommendation unless the learner set their own number.
-    const following = s.studyHoursPerWeek === recommendedWeeklyHours(s.studyDays.length);
     updateSettings({
       studyDays: next,
-      ...(following ? { studyHoursPerWeek: recommendedWeeklyHours(next.length) } : {}),
+      studyHoursPerWeek: weeklyMinutes(next.length, s.sessionLengthMinutes) / 60,
+    });
+  }
+
+  function setDailyMinutes(minutes: number) {
+    updateSettings({
+      sessionLengthMinutes: minutes,
+      studyHoursPerWeek: weeklyMinutes(s.studyDays.length, minutes) / 60,
     });
   }
 
