@@ -225,3 +225,9 @@ export function formatStudyTime(minutes: number): string {
 export function allTopicStudyMinutes(): number {
   return totalStudyMinutes(topics);
 }
+
+/**
+ * Final exam preparation for a certification: full-length practice exams,
+ * reviewing wrong answers and a last pass over weak objectives.
+ */
+export const EXAM_PREP_MINUTES = 600;
