@@ -684,6 +684,8 @@ const foundationDeepLessons: DeepLesson[] = [
   },
 ];
 
+export const deepLessons: DeepLesson[] = [...foundationDeepLessons];
+
 export function getDeepLesson(topicId: string): DeepLesson | undefined {
   return deepLessons.find((lesson) => lesson.topicId === topicId);
 }
