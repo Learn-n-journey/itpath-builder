@@ -54,7 +54,7 @@ function Brand() {
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { hydrated } = useAppState();
+  
 
   useEffect(() => {
     setOpen(false);
@@ -83,6 +83,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <SheetTitle className="sr-only">Navigation</SheetTitle>
             <Brand />
             <NavList onNavigate={() => setOpen(false)} />
+            <div className="border-t border-sidebar-border px-5 py-4">
+              <AccountPanel onNavigate={() => setOpen(false)} />
+            </div>
           </SheetContent>
         </Sheet>
         <span className="min-w-0 truncate font-display text-sm font-semibold">{current}</span>
