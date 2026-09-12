@@ -17,6 +17,7 @@ import { Route as CareerSkillsRouteImport } from './routes/career-skills'
 import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as MyPathRouteImport } from './routes/my-path'
+import { Route as PomodoroRouteImport } from './routes/pomodoro'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as ProgressRouteImport } from './routes/progress'
@@ -68,6 +69,11 @@ const LearnRoute = LearnRouteImport.update({
 const MyPathRoute = MyPathRouteImport.update({
   id: '/my-path',
   path: '/my-path',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PomodoroRoute = PomodoroRouteImport.update({
+  id: '/pomodoro',
+  path: '/pomodoro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PortfolioRoute = PortfolioRouteImport.update({
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
+  '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
+  '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
+  '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/labs'
     | '/learn'
     | '/my-path'
+    | '/pomodoro'
     | '/portfolio'
     | '/practice'
     | '/progress'
@@ -231,6 +241,7 @@ export interface FileRouteTypes {
     | '/labs'
     | '/learn'
     | '/my-path'
+    | '/pomodoro'
     | '/portfolio'
     | '/practice'
     | '/progress'
@@ -253,6 +264,7 @@ export interface FileRouteTypes {
     | '/labs'
     | '/learn'
     | '/my-path'
+    | '/pomodoro'
     | '/portfolio'
     | '/practice'
     | '/progress'
@@ -276,6 +288,7 @@ export interface RootRouteChildren {
   LabsRoute: typeof LabsRoute
   LearnRoute: typeof LearnRoute
   MyPathRoute: typeof MyPathRoute
+  PomodoroRoute: typeof PomodoroRoute
   PortfolioRoute: typeof PortfolioRoute
   PracticeRoute: typeof PracticeRoute
   ProgressRoute: typeof ProgressRoute
@@ -346,6 +359,13 @@ declare module '@tanstack/react-router' {
       path: '/my-path'
       fullPath: '/my-path'
       preLoaderRoute: typeof MyPathRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pomodoro': {
+      id: '/pomodoro'
+      path: '/pomodoro'
+      fullPath: '/pomodoro'
+      preLoaderRoute: typeof PomodoroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/portfolio': {
@@ -444,6 +464,7 @@ const rootRouteChildren: RootRouteChildren = {
   LabsRoute: LabsRoute,
   LearnRoute: LearnRoute,
   MyPathRoute: MyPathRoute,
+  PomodoroRoute: PomodoroRoute,
   PortfolioRoute: PortfolioRoute,
   PracticeRoute: PracticeRoute,
   ProgressRoute: ProgressRoute,
