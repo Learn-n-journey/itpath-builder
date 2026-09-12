@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
 import { stageLabels, type StageId } from "@/lib/cert-path";
+import { formatStudyTime, topicStudyTimeForSession } from "@/lib/study-time";
 import type { Difficulty } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 
@@ -69,6 +70,7 @@ function TopicPage() {
   const prerequisites = topic.prerequisiteTopicIds
     .map((id) => topics.find((candidate) => candidate.id === id))
     .filter((candidate) => candidate !== undefined);
+  const studyTime = topicStudyTimeForSession(topic.id, user.settings.sessionLengthMinutes);
 
   return (
     <article>
@@ -86,7 +88,7 @@ function TopicPage() {
           ["Certification", certification?.title ?? "General IT"],
           ["Stage", stageLabels[difficultyToStage[topic.difficulty]]],
           ["Difficulty", difficultyLabels[topic.difficulty]],
-          ["Study time", `${topic.estimatedMinutes} min`],
+          ["Recommended study time", formatStudyTime(studyTime.totalMinutes)],
           ["Status", progress ? "In progress" : "Not started"],
         ].map(([label, value], index) => (
           <div
@@ -98,6 +100,26 @@ function TopicPage() {
           </div>
         ))}
       </dl>
+
+      <Panel
+        className="mb-4"
+        title="Recommended study time"
+        description={`About ${formatStudyTime(studyTime.totalMinutes)} in total, measured from the material on this page. At your session length of ${user.settings.sessionLengthMinutes} minutes that is ${studyTime.sessions} ${studyTime.sessions === 1 ? "sitting" : "sittings"}.`}
+      >
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {studyTime.parts.map((part) => (
+            <li key={part.label} className="rounded-lg border border-border bg-secondary/20 p-4">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-sm font-medium text-foreground">{part.label}</span>
+                <span className="shrink-0 text-sm tabular-nums text-primary">
+                  {formatStudyTime(part.minutes)}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{part.detail}</p>
+            </li>
+          ))}
+        </ul>
+      </Panel>
 
       <TopicLearningExperience topic={topic} />
 
