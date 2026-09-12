@@ -27,6 +27,9 @@ import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getCertificationWorkedExamples } from "@/data/worked-examples";
 import type { CertificationObjective, Resource } from "@/lib/app-data/types";
 import { adaptivePath } from "@/lib/adaptive-path";
+import { certifications as allCertifications } from "@/data/static-content";
+import { ReadinessPanel } from "@/components/readiness-panel";
+import { buildReadinessReport } from "@/lib/readiness-engine";
 
 export const Route = createFileRoute("/certifications/$certId")({
   head: () => ({
