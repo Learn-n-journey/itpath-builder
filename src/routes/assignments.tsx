@@ -84,7 +84,12 @@ function AssignmentsPage() {
     <>
       <PageHeader
         title="Assignments"
-        description="Applied work evaluated against visible criteria. Opening a task never changes your progress."
+        description="Applied work evaluated against visible criteria, shown in a random order. Opening a task never changes your progress."
+        actions={
+          <Button variant="outline" onClick={refresh}>
+            <RefreshCw /> Shuffle
+          </Button>
+        }
       />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Available" value={assignments.length} />
