@@ -123,7 +123,12 @@ export function topicStudyTime(topicId: string): StudyTimeEstimate {
     ]);
   }
 
-  const readMinutes = Math.max(5, Math.round(readingWords / WORDS_PER_MINUTE));
+  const difficulty: Difficulty =
+    topics.find((item) => item.id === topicId)?.difficulty ?? "standard";
+  const readMinutes = Math.max(10, Math.round(readingWords / WORDS_PER_MINUTE));
+  const secondPassMinutes = Math.round(readMinutes * SECOND_PASS_SHARE);
+  const handsOnMinutes = HANDS_ON_MINUTES[difficulty];
+  const reviewMinutes = REVIEW_SESSIONS * REVIEW_SESSION_MINUTES[difficulty];
   const practiceItems = examples.reduce((sum, example) => sum + example.tryIt.length, 0);
   const exampleMinutes =
     examples.length * MINUTES.workedExample + practiceItems * MINUTES.practiceItem;
