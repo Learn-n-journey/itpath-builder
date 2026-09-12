@@ -21,7 +21,7 @@ import {
   describeSchedule,
   recentlyFailed,
 } from "@/lib/review-engine";
-import { missedQuestionCount } from "@/lib/missed-questions";
+import { missedQuestionCount, missedQuestions, type MissedQuestion } from "@/lib/missed-questions";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/review")({
@@ -50,7 +50,26 @@ function Review() {
   const summary = useMemo(() => summarizeMistakes(user), [user]);
   const buckets = useMemo(() => bucketReviews(user.reviews), [user.reviews]);
   const failed = useMemo(() => recentlyFailed(user), [user]);
+  const missed = useMemo(() => missedQuestions(user), [user]);
   const missedCount = useMemo(() => missedQuestionCount(user), [user]);
+  const weakConcepts = useMemo(() => {
+    const byTopic = new Map<string, { topicId: string; quiz: number; practice: number; recall: number }>();
+    const topicIdOf = (item: MissedQuestion) =>
+      item.kind === "quiz"
+        ? item.question.topicId
+        : item.kind === "practice"
+          ? item.assignment.topicId
+          : item.recall.topicId;
+    for (const item of missed) {
+      const topicId = topicIdOf(item);
+      const entry = byTopic.get(topicId) ?? { topicId, quiz: 0, practice: 0, recall: 0 };
+      entry[item.kind] += 1;
+      byTopic.set(topicId, entry);
+    }
+    return [...byTopic.values()].sort(
+      (a, b) => b.quiz + b.practice + b.recall - (a.quiz + a.practice + a.recall),
+    );
+  }, [missed]);
 
   const mistakes = user.mistakes.filter(
     (mistake) =>
@@ -64,41 +83,46 @@ function Review() {
         title="Review"
         description="Every mistake is logged with its cause and the prerequisite it points back to, so review starts at the root cause instead of the newest topic."
       />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3">
         <StatCard label="To work on" value={missedCount} />
-        <StatCard label="Due today" value={buckets.dueToday.length} />
-        <StatCard label="Overdue" value={buckets.overdue.length} />
-        <StatCard label="Upcoming" value={buckets.upcoming.length} />
         <StatCard label="Mastered" value={buckets.mastered.length} />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <Panel title="Weak concepts">
-          {summary.recommendedSkills.length === 0 ? (
+          {weakConcepts.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Nothing recommended. Recommendations appear once mistakes are recorded from quizzes,
-              recall, or practice.
+              No weak concepts yet. They appear here when you miss quiz or practice questions.
             </p>
           ) : (
             <ul className="space-y-3 text-sm">
-              {summary.recommendedSkills.map((entry) => (
-                <li key={entry.skill.id} className="rounded-lg border border-border p-3">
+              {weakConcepts.map((entry) => (
+                <li key={entry.topicId} className="rounded-lg border border-border p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-medium">{entry.skill.title}</span>
-                    <Badge variant="outline">weakness {entry.score}</Badge>
+                    <span className="font-medium">{topicTitle(entry.topicId)}</span>
+                    <span className="flex flex-wrap gap-1">
+                      {entry.quiz > 0 ? (
+                        <Badge variant="outline">
+                          {entry.quiz} missed quiz {entry.quiz === 1 ? "question" : "questions"}
+                        </Badge>
+                      ) : null}
+                      {entry.practice > 0 ? (
+                        <Badge variant="outline">
+                          {entry.practice} failed practice {entry.practice === 1 ? "task" : "tasks"}
+                        </Badge>
+                      ) : null}
+                      {entry.recall > 0 ? (
+                        <Badge variant="outline">
+                          {entry.recall} missed recall {entry.recall === 1 ? "question" : "questions"}
+                        </Badge>
+                      ) : null}
+                    </span>
                   </div>
-                  <p className="mt-1 text-muted-foreground">{entry.skill.summary}</p>
-                  {entry.skill.topicId ? (
-                    <Button asChild size="sm" variant="secondary" className="mt-2">
-                      <Link to="/topics/$topicId" params={{ topicId: entry.skill.topicId }}>
-                        Open {topicTitle(entry.skill.topicId)}
-                      </Link>
-                    </Button>
-                  ) : (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      No dedicated topic yet — practise this sub-skill inside its parent topic.
-                    </p>
-                  )}
+                  <Button asChild size="sm" variant="secondary" className="mt-2">
+                    <Link to="/topics/$topicId" params={{ topicId: entry.topicId }}>
+                      Open {topicTitle(entry.topicId)}
+                    </Link>
+                  </Button>
                 </li>
               ))}
             </ul>
