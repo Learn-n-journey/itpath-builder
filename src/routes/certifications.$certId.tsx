@@ -27,6 +27,9 @@ import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getCertificationWorkedExamples } from "@/data/worked-examples";
 import type { CertificationObjective, Resource } from "@/lib/app-data/types";
 import { adaptivePath } from "@/lib/adaptive-path";
+import { certifications as allCertifications } from "@/data/static-content";
+import { ReadinessPanel } from "@/components/readiness-panel";
+import { buildReadinessReport } from "@/lib/readiness-engine";
 
 export const Route = createFileRoute("/certifications/$certId")({
   head: () => ({
@@ -124,6 +127,10 @@ function Certifications() {
     () => generateAssignments(certId, assignmentSeed),
     [certId, assignmentSeed],
   );
+  const report = useMemo(() => {
+    const cert = allCertifications.find((item) => item.id === certId);
+    return cert ? buildReadinessReport(user, cert) : null;
+  }, [user, certId]);
 
   if (!selected) {
     return (
@@ -202,6 +209,9 @@ function Certifications() {
         <StatCard label="Topics" value={index.topics.length} />
         <StatCard label="Recommended study time" value={formatStudyTime(index.totalMinutes)} />
       </div>
+
+      {report ? <ReadinessPanel report={report} className="mt-4" showLink={false} /> : null}
+
 
       <div className="mt-4 grid gap-4">
         <Panel

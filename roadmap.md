@@ -39,3 +39,8 @@
 - [x] Removed raw attempt IDs from the mistake log
 - [x] Career Skills topic recommendations use typed routes
 - [x] Troubleshoot: searchable queue, certification-focused ordering, scrollable list
+
+## Intelligence pass (Sep 2026)
+- [x] Exam readiness score per certification (weighted factors, blockers, projected ready date) on dashboard + certification page
+- [x] "Do this next" smarter next action, ranked from real records
+- [x] Study Insights page: 28-day study time, momentum, quiz trend, weak/strong topics, mistake causes, evidence counts

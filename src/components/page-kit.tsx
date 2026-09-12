@@ -34,7 +34,7 @@ export function Panel({
   title?: string;
   description?: string;
   children?: ReactNode;
-  className?: string;
+  className?: string | undefined;
 }) {
   return (
     <section className={cn("panel p-5 sm:p-6", className)}>

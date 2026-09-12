@@ -14,13 +14,17 @@ import {
   Wrench,
 } from "lucide-react";
 
+import { NextActionCard } from "@/components/next-action-card";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { ReadinessPanel } from "@/components/readiness-panel";
 import { Button } from "@/components/ui/button";
 import { computeDashboard } from "@/lib/dashboard-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationStatusLabels } from "@/lib/certification-engine";
 import type { CertificationStatus } from "@/lib/app-data/types";
 import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
+import { nextActions } from "@/lib/next-action";
+import { buildReadinessReport } from "@/lib/readiness-engine";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/")({
@@ -73,6 +77,8 @@ function Dashboard() {
   const { user, hydrated } = useAppState();
   const d = useMemo(() => computeDashboard(user), [user]);
   const path = useMemo(() => adaptivePath(user), [user]);
+  const actions = useMemo(() => nextActions(user), [user]);
+  const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
   const missedAnchors = useMemo(() => {
     const map: Record<string, string> = {};
     for (const item of missedQuestions(user)) {
@@ -137,19 +143,12 @@ function Dashboard() {
             </Button>
           </div>
         </Panel>
-      ) : path.recommendedTopic ? (
-        <Panel
-          className="mb-4"
-          title={`Recommended start: ${path.recommendedTopic.title}`}
-          description={`${path.startLabel}. ${path.reason}.`}
-        >
-          <Button asChild size="sm">
-            <Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>
-              Start learning
-            </Link>
-          </Button>
-        </Panel>
-      ) : null}
+      ) : (
+        <div className="mb-4 grid gap-4 lg:grid-cols-2">
+          <NextActionCard actions={actions} />
+          <ReadinessPanel report={readiness} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard
