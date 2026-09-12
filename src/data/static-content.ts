@@ -697,9 +697,9 @@ export const assignments: Assignment[] = [
   ...coreAssignments,
   ...buildTopicAssignments(topics, lessons),
 ];
-export { labs };
+export const labs = [...coreLabs, ...buildTopicLabs(topics, lessons)];
 export { incidents };
-export { tickets };
+export const tickets = [...coreTickets, ...buildTopicTickets(topics, lessons)];
 export { questions, quizzes };
 export { weeks } from "./week-content";
 export { certifications, certificationObjectives };
