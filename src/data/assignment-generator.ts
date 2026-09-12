@@ -1,7 +1,8 @@
 /**
  * Builds practice assignments for every curriculum topic from the topic's own
  * objectives, key terms and module content. Nothing here is placeholder text:
- * each assignment quotes real material belonging to that topic.
+ * each assignment quotes real material belonging to that topic, and every
+ * criterion carries the correct idea the response is measured against.
  */
 import { learningModules } from "@/data/learning-content";
 import type { Assignment, AssignmentType, Lesson, Topic } from "@/lib/app-data/types";
@@ -9,7 +10,7 @@ import type { Assignment, AssignmentType, Lesson, Topic } from "@/lib/app-data/t
 const instructions = [
   "Read the task and identify the evidence required.",
   "Write a complete response in the workspace.",
-  "Save your draft, then submit when it is ready for evaluation.",
+  "Save your draft, then submit and evaluate it against the answer.",
 ];
 
 interface Draft {
@@ -18,8 +19,8 @@ interface Draft {
   brief: string;
   responsePrompt: string;
   criteria: string[];
-  /** When present the response is checked for these exact concepts. */
-  concepts?: string[];
+  /** The correct idea for each criterion, in the same order. */
+  answers: string[];
 }
 
 function clip(text: string, words = 16): string {
@@ -27,11 +28,23 @@ function clip(text: string, words = 16): string {
   return parts.length <= words ? parts.join(" ") : `${parts.slice(0, words).join(" ")}…`;
 }
 
+function firstUseful(...values: Array<string | undefined>): string {
+  return values.find((value) => Boolean(value && value.trim())) ?? "";
+}
+
 function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
   const module = learningModules.find((item) => item.topicId === topic.id);
   const drafts: Draft[] = [];
   const terms = lesson?.keyTerms ?? [];
   const objectives = topic.learningObjectives;
+  const definition = firstUseful(lesson?.definition, topic.summary);
+  const why = firstUseful(lesson?.whyItMatters, topic.summary);
+  const example = firstUseful(lesson?.realWorldExamples?.[0], module?.whereYouSeeIt?.[0], why);
+  const termAnswer = (count: number) =>
+    terms
+      .slice(0, count)
+      .map((term) => `${term.term}: ${term.meaning}`)
+      .join(" ");
 
   if (objectives[0]) {
     drafts.push({
@@ -44,6 +57,7 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         "Use correct technical vocabulary from the lesson",
         "Give one concrete example from real equipment or services",
       ],
+      answers: [definition, firstUseful(termAnswer(3), why), example],
     });
   }
 
@@ -57,7 +71,7 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         .map((term) => term.term)
         .join(", ")}.`,
       criteria: terms.slice(0, 4).map((term) => `Define ${term.term} correctly`),
-      concepts: terms.slice(0, 4).map((term) => term.term),
+      answers: terms.slice(0, 4).map((term) => `${term.term} ${term.meaning}`),
     });
   }
 
@@ -71,6 +85,11 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         `Describe ${terms[0].term} correctly`,
         `Describe ${terms[1].term} correctly`,
         "State a clear difference and a situation for each",
+      ],
+      answers: [
+        `${terms[0].term} ${terms[0].meaning}`,
+        `${terms[1].term} ${terms[1].meaning}`,
+        firstUseful(example, why),
       ],
     });
   }
@@ -86,6 +105,11 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         "Explain every term you introduce",
         "Finish with a check that the listener understood",
       ],
+      answers: [
+        module.howItWorks.slice(0, 3).join(" "),
+        firstUseful(termAnswer(3), definition),
+        firstUseful(module.howItWorks[module.howItWorks.length - 1], example),
+      ],
     });
   }
 
@@ -99,6 +123,11 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         "Identify the relevant facts before acting",
         "Apply the topic correctly to the situation",
         "Explain your decision and the next step",
+      ],
+      answers: [
+        module.whereYouSeeIt[0],
+        definition,
+        firstUseful(module.troubleshooting[0], module.practicalKnowledge[0], why),
       ],
     });
   }
@@ -114,6 +143,11 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         "State the evidence that confirms or rejects the cause",
         "Verify the fix before closing",
       ],
+      answers: [
+        firstUseful(module.troubleshooting[0], module.commonProblems[0]),
+        firstUseful(module.troubleshooting[1], module.howItFails[0], module.commonProblems[0]),
+        firstUseful(module.troubleshooting[2], module.practicalKnowledge[0], definition),
+      ],
     });
   }
 
@@ -127,6 +161,11 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         "Record observable facts, not guesses",
         "Separate evidence from assumption",
         "Define the next action and escalation point",
+      ],
+      answers: [
+        module.howItFails[0],
+        firstUseful(module.troubleshooting[0], module.commonProblems[0]),
+        firstUseful(module.practicalKnowledge[0], module.troubleshooting[1], definition),
       ],
     });
   }
@@ -142,6 +181,11 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         "Justify each choice technically",
         "Note one risk and how you would handle it",
       ],
+      answers: [
+        module.practicalKnowledge[0],
+        firstUseful(module.howItWorks[0], definition),
+        firstUseful(module.howItFails[0], module.commonProblems[0]),
+      ],
     });
   }
 
@@ -156,6 +200,11 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         "Make every step checkable by someone else",
         "Say what gets recorded at each step",
       ],
+      answers: [
+        module.troubleshooting.slice(0, 3).join(" "),
+        firstUseful(module.howItWorks[0], definition),
+        firstUseful(module.practicalKnowledge[0], module.whereYouSeeIt[0], why),
+      ],
     });
   }
 
@@ -166,6 +215,11 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
       brief: `Answer under exam conditions on: ${module.examCoverage[0]}`,
       responsePrompt: `Answer directly and briefly, as you would in the exam: ${module.examCoverage[0]}`,
       criteria: ["Answer the question that was asked", "Stay technically accurate", "Keep it concise"],
+      answers: [
+        module.examCoverage[0],
+        definition,
+        firstUseful(termAnswer(2), module.howItWorks[0], why),
+      ],
     });
   }
 
@@ -180,6 +234,7 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         "Show the underlying understanding",
         "Support it with a concrete example",
       ],
+      answers: [module.interviewQuestions[0], definition, example],
     });
   }
 
@@ -194,6 +249,11 @@ function buildDrafts(topic: Topic, lesson: Lesson | undefined): Draft[] {
         "Show a clear plan and sequence",
         "Include validation and rollback",
       ],
+      answers: [
+        objectives.join(" "),
+        firstUseful(module?.howItWorks.slice(0, 2).join(" "), definition),
+        firstUseful(module?.troubleshooting[0], module?.practicalKnowledge[0], why),
+      ],
     });
   }
 
@@ -205,7 +265,9 @@ export function buildTopicAssignments(topics: Topic[], lessons: Lesson[]): Assig
     const lesson = lessons.find((item) => item.topicId === topic.id);
     return buildDrafts(topic, lesson).map((draft, index): Assignment => {
       const id = `assignment-${topic.id.replace(/^topic-/, "")}-${draft.type.replaceAll("_", "-")}`;
-      const automatic = Boolean(draft.concepts?.length);
+      const answers = draft.criteria.map((description, criterionIndex) =>
+        firstUseful(draft.answers[criterionIndex], description),
+      );
       return {
         id,
         topicId: topic.id,
@@ -213,16 +275,15 @@ export function buildTopicAssignments(topics: Topic[], lessons: Lesson[]): Assig
         brief: draft.brief,
         type: draft.type,
         responsePrompt: draft.responsePrompt,
-        evaluationMode: automatic ? "automatic" : "self_rubric",
+        evaluationMode: "automatic",
+        modelAnswer: answers.join("\n\n"),
         instructions,
         rubric: draft.criteria.map((description, criterionIndex) => ({
           id: `${id}-criterion-${index + 1}-${criterionIndex + 1}`,
           label: `Criterion ${criterionIndex + 1}`,
           description,
           points: 100 / draft.criteria.length,
-          ...(automatic && draft.concepts?.[criterionIndex]
-            ? { acceptedConcepts: [draft.concepts[criterionIndex]] }
-            : {}),
+          expectedAnswer: answers[criterionIndex] as string,
         })),
       };
     });
