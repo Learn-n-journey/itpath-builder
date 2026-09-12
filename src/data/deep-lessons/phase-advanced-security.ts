@@ -805,8 +805,8 @@ export const advancedSecurityDeepLessons: DeepLesson[] = [
       {
         heading: "How to Troubleshoot It",
         paragraphs: [
-          "Start any suspected identity compromise investigation with the sign-in logs, examining token issuance times, device identifiers, and location data for anomalies, rather than assuming the problem is confined to a single reported event. Enumerate every application consent grant and every active refresh token for the affected account as a standard, non-optional step, since these are exactly the artefacts that survive a simple password reset untouched.
-          Audit role assignments and service principal credentials for unexpected recent additions whenever cloud administrative abuse is suspected, since privilege escalation in cloud environments often leaves no trace in traditional security tools at all. Restricting user consent to verified publishers with a mandatory admin approval workflow closes off one of the most common and easily prevented entry points for this entire category of attack.",
+          "Start any suspected identity compromise investigation with the sign-in logs, examining token issuance times, device identifiers, and location data for anomalies, rather than assuming the problem is confined to a single reported event. Enumerate every application consent grant and every active refresh token for the affected account as a standard, non-optional step, since these are exactly the artefacts that survive a simple password reset untouched.",
+          "Audit role assignments and service principal credentials for unexpected recent additions whenever cloud administrative abuse is suspected, since privilege escalation in cloud environments often leaves no trace in traditional security tools at all. Restricting user consent to verified publishers with a mandatory admin approval workflow closes off one of the most common and easily prevented entry points for this entire category of attack.",
         ],
       },
       {
