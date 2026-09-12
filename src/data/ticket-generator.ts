@@ -204,7 +204,7 @@ export function buildTopicTickets(topics: Topic[], lessons: Lesson[]): Ticket[] 
       title: `${topic.title}: ${lower(sentence(primary)).replace(/\.$/, "")}`,
       priority: PRIORITIES[(topicIndex + seed) % PRIORITIES.length] as TicketPriority,
       requester: REQUESTERS[seed % REQUESTERS.length] as string,
-      report: `"Something is wrong with ${lower(topic.title)} on my setup. ${sentence(failure)} I need this working to do my job today."`,
+      report: `"Something is wrong here and it is stopping me working. ${sentence(failure)} It worked fine before today, and a colleague with the same setup is not seeing it."`,
       environment: sentence(where),
       difficulty: topic.difficulty,
       slaNote: "Standard service desk SLA: first response 30 minutes, resolution 8 business hours.",
