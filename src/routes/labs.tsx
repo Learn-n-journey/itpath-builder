@@ -93,7 +93,10 @@ function LabsPage() {
       </div>
 
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
-        <Panel title="Lab library" description="Nine practical exercises across core IT disciplines.">
+        <Panel
+          title="Lab library"
+          description={`${labs.length} practical exercises across core IT disciplines, with a walkthrough and a fault-diagnosis drill for every topic.`}
+        >
           <div className="space-y-2">
             {shuffled.map((item) => {
               const itemAttempt = attempts.find((attempt) => attempt.labId === item.id);
