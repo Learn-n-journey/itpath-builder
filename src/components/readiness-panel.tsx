@@ -15,7 +15,7 @@ function Ring({ value }: { value: number }) {
     <div
       className="relative grid size-24 shrink-0 place-items-center rounded-full"
       style={{
-        background: `conic-gradient(hsl(var(--primary)) ${value * 3.6}deg, hsl(var(--secondary)) 0deg)`,
+        background: `conic-gradient(var(--primary) ${value * 3.6}deg, var(--secondary) 0deg)`,
       }}
       role="img"
       aria-label={`Readiness ${value} percent`}

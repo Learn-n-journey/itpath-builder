@@ -16,6 +16,7 @@ import {
   Bot,
   BookMarked,
   TrendingUp,
+  LineChart,
   Target,
   Timer,
   Compass,
@@ -165,6 +166,13 @@ export const navItems: NavItem[] = [
     icon: TrendingUp,
     group: "You",
     description: "Detailed scores per topic and per skill dimension.",
+  },
+  {
+    label: "Insights",
+    to: "/insights",
+    icon: LineChart,
+    group: "You",
+    description: "Trends over time: study habits, accuracy and repeated mistakes.",
   },
   {
     label: "How it works",
