@@ -24,18 +24,23 @@ export const Route = createFileRoute("/my-path")({
 function MyPath() {
   const { user } = useAppState();
   const stats = useStats();
-  const weeksToTarget = Math.round(104);
+  const studyDays = user.settings.studyDays.length;
+  const weeklyHours = recommendedWeeklyHours(studyDays);
 
   return (
     <>
       <PageHeader
         title="My Path"
-        description="The full two-year roadmap, shaped by your target role, experience level and weekly hours."
+        description="The full two-year roadmap, month by month, shaped by your target role and how many days a week you study."
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Plan length" value={`${weeksToTarget} wks`} hint="Two-year path" />
-        <StatCard label="Weekly hours" value={user.settings.studyHoursPerWeek} />
+        <StatCard label="Plan length" value="24 months" hint="Two-year path" />
+        <StatCard
+          label="Recommended hours"
+          value={`${weeklyHours}h / wk`}
+          hint={`${studyDays} study days · ${HOURS_PER_STUDY_DAY}h a day`}
+        />
         <StatCard label="Topics available" value={topics.length} />
         <StatCard label="Topics completed" value={stats.topicsCompleted} />
       </div>
