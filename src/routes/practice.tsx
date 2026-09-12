@@ -24,8 +24,26 @@ import type {
   Assignment,
   AssignmentAttempt,
   AssignmentCriterionResult,
+  AssignmentRubricCriterion,
 } from "@/lib/app-data/types";
+import { answerMatches, matchesConcept } from "@/lib/fuzzy-match";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
+
+/**
+ * A criterion passes when the written response carries the correct idea.
+ * Wording does not have to match; the meaning does.
+ */
+function criterionPassed(
+  response: string,
+  criterion: AssignmentRubricCriterion,
+  selfCheck?: boolean,
+): boolean {
+  if (criterion.expectedAnswer && answerMatches(response, criterion.expectedAnswer)) return true;
+  if (criterion.acceptedConcepts?.length && matchesConcept(response, criterion.acceptedConcepts))
+    return true;
+  if (!criterion.expectedAnswer && !criterion.acceptedConcepts?.length) return Boolean(selfCheck);
+  return false;
+}
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/practice")({
