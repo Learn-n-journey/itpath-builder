@@ -4,6 +4,7 @@ import { ArrowRight, BookOpen } from "lucide-react";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, tracks, topics } from "@/data/static-content";
+import { certificationForMonth } from "@/data/certification-content";
 import { useAppState, useStats } from "@/state/app-state";
 
 export const Route = createFileRoute("/my-path")({
