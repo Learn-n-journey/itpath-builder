@@ -56,7 +56,7 @@ export function buildMesserResources(
   certificationList: Certification[],
   topicList: Topic[],
 ): Resource[] {
-  return certificationList.flatMap((certification) => {
+  return certificationList.flatMap((certification): Resource[] => {
     const topicIds = topicList
       .filter((topic) => topic.certificationId === certification.id)
       .map((topic) => topic.id);
