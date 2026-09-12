@@ -46,7 +46,12 @@ function QuizMe() {
     <>
       <PageHeader
         title="Quiz Me"
-        description="One randomized assessment across the eight current IT PATH topics."
+        description="A quiz is picked at random each visit. Question and choice order change with every attempt."
+        actions={
+          <Button variant="outline" onClick={() => setSeed(newSeed())}>
+            <RefreshCw /> New quiz
+          </Button>
+        }
       />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Questions" value={pool.length} />
