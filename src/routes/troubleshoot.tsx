@@ -104,9 +104,22 @@ function TroubleshootPage() {
 
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <div className="space-y-5">
-          <Panel title="Incident queue" description={`${incidents.length} incidents across core support disciplines.`}>
-            <div className="space-y-2">
-              {incidents.map((item) => {
+          <Panel
+            title="Incident queue"
+            description={`${visible.length} of ${incidents.length} incidents shown. Ones matching your certification come first.`}
+          >
+            <Input
+              aria-label="Search incidents"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search by symptom or category"
+              className="mb-3"
+            />
+            <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1">
+              {visible.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No incident matches that search.</p>
+              ) : null}
+              {visible.map((item) => {
                 const itemAttempt = attempts.find((attempt) => attempt.incidentId === item.id);
                 return (
                   <Button
