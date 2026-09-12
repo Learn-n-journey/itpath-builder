@@ -22,6 +22,8 @@ import {
   generateExam,
   newSeed,
 } from "@/lib/cert-path";
+import { WorkedExamples } from "@/components/learning/worked-examples";
+import { getCertificationWorkedExamples } from "@/data/worked-examples";
 import type { CertificationObjective, Resource } from "@/lib/app-data/types";
 
 export const Route = createFileRoute("/certifications/$certId")({
@@ -237,6 +239,17 @@ function Certifications() {
             </div>
           )}
         </Panel>
+
+        <WorkedExamples
+          examples={getCertificationWorkedExamples(
+            selected.certification.id,
+            index.topics.map((topic) => topic.id),
+          )}
+          title="Worked examples"
+          description="The calculations and procedures this certification expects you to perform, shown step by step with practice items."
+        />
+
+
 
         <Panel
           title="Practice exam"

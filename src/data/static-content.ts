@@ -17,6 +17,7 @@ import { incidents } from "@/data/incident-content";
 import { labs } from "@/data/lab-content";
 import { questions, quizzes } from "@/data/quiz-content";
 import { tickets } from "@/data/ticket-content";
+import { buildMesserResources } from "@/data/video-library";
 
 export type {
   Assignment,
@@ -657,41 +658,6 @@ export const resources: Resource[] = [
     status: "verified",
   },
   {
-    id: "resource-professor-messer-video-training",
-    title: "Free CompTIA certification video training",
-    provider: "Professor Messer",
-    url: "https://www.professormesser.com/",
-    topicIds: [
-      "topic-computer-hardware-basics",
-      "topic-operating-systems-overview",
-      "topic-virtualization-basics",
-      "topic-it-career-overview",
-    ],
-    certificationId: "cert-comptia-a-plus",
-    kind: "video",
-    difficulty: "gentle",
-    access: "free",
-    lastVerified: "2026-09-11",
-    status: "verified",
-  },
-  {
-    id: "resource-professor-messer-youtube",
-    title: "Professor Messer video channel",
-    provider: "Professor Messer",
-    url: "https://www.youtube.com/@professormesser",
-    topicIds: [
-      "topic-basic-networking-concepts",
-      "topic-networking-basics",
-      "topic-dns-fundamentals",
-    ],
-    certificationId: "cert-comptia-network-plus",
-    kind: "video",
-    difficulty: "standard",
-    access: "free",
-    lastVerified: "2026-09-11",
-    status: "verified",
-  },
-  {
     id: "resource-microsoft-learn-shows",
     title: "Microsoft Learn shows and video series",
     provider: "Microsoft Learn",
@@ -722,6 +688,7 @@ export const resources: Resource[] = [
     lastVerified: "2026-09-11",
     status: "verified",
   },
+  ...buildMesserResources(certifications, topics),
 ];
 export { assignments };
 export { labs };
