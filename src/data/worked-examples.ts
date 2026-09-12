@@ -270,9 +270,21 @@ export function getCertificationWorkedExamples(
   topicIds: string[] = [],
 ): WorkedExample[] {
   const ids = new Set(topicIds);
-  return workedExamples.filter(
+  const matched = workedExamples.filter(
     (example) =>
       example.certificationId === certificationId ||
       example.topicIds.some((id) => ids.has(id)),
   );
+  if (matched.length > 0) return matched;
+  // Every certification builds on the same numeracy, so fall back to it rather
+  // than showing an empty section.
+  return workedExamples.filter((example) => foundationExampleIds.includes(example.id));
 }
+
+const foundationExampleIds = [
+  "example-binary-to-decimal",
+  "example-decimal-to-binary",
+  "example-binary-to-hex",
+  "example-subnet-mask",
+  "example-host-count",
+];
