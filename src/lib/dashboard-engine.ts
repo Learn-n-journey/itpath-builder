@@ -224,9 +224,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       params: { topicId: nextTopic.id },
     });
   }
-  const dailyTargetMinutes = Math.round(
-    (user.settings.studyHoursPerWeek * 60) / Math.max(1, user.settings.studyDays.length),
-  );
+  const dailyTargetMinutes = Math.max(0, Math.round(user.settings.sessionLengthMinutes || 0));
   if (studyMinutesToday < dailyTargetMinutes) {
     tasks.push({
       id: "task-study",

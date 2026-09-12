@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { SystemDiagnostics } from "@/components/system-diagnostics";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { HOURS_PER_STUDY_DAY, recommendedWeeklyHours } from "@/lib/study-pace";
+import { formatStudyTime } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
 import type { Difficulty, ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 
@@ -155,19 +155,25 @@ function SettingsPage() {
 
 
             <div>
-              <Label htmlFor="session-length">Session length (minutes)</Label>
-              <Input
-                id="session-length"
-                className="mt-1.5"
-                inputMode="numeric"
-                value={String(s.sessionLengthMinutes)}
-                onChange={(e) => {
-                  const v = Number(e.target.value);
-                  updateSettings({
-                    sessionLengthMinutes: Number.isFinite(v) && v > 0 ? Math.round(v) : 0,
-                  });
-                }}
+              <div className="flex items-center justify-between">
+                <Label>Daily study time</Label>
+                <span className="text-sm tabular-nums text-primary">
+                  {formatStudyTime(s.sessionLengthMinutes)}
+                </span>
+              </div>
+              <Slider
+                className="mt-3"
+                min={15}
+                max={480}
+                step={15}
+                value={[Math.min(480, Math.max(15, s.sessionLengthMinutes || 15))]}
+                onValueChange={([v]) =>
+                  updateSettings({ sessionLengthMinutes: v ?? s.sessionLengthMinutes })
+                }
               />
+              <p className="mt-2 text-xs text-muted-foreground">
+                From 15 minutes to 8 hours. This is the time your daily tasks aim for.
+              </p>
             </div>
           </div>
         </Panel>
