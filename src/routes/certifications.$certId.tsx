@@ -210,6 +210,9 @@ function Certifications() {
         <StatCard label="Recommended study time" value={formatStudyTime(index.totalMinutes)} />
       </div>
 
+      {report ? <ReadinessPanel report={report} className="mt-4" showLink={false} /> : null}
+
+
       <div className="mt-4 grid gap-4">
         <Panel
           title="Study path"
