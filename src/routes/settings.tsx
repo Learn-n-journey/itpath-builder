@@ -76,11 +76,18 @@ function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
   const s = user.settings;
 
+  const recommendedHours = recommendedWeeklyHours(s.studyDays.length);
+
   function toggleDay(day: WeekDay) {
     const next = s.studyDays.includes(day)
       ? s.studyDays.filter((d) => d !== day)
       : [...s.studyDays, day];
-    updateSettings({ studyDays: next });
+    // Keep hours following the recommendation unless the learner set their own number.
+    const following = s.studyHoursPerWeek === recommendedWeeklyHours(s.studyDays.length);
+    updateSettings({
+      studyDays: next,
+      ...(following ? { studyHoursPerWeek: recommendedWeeklyHours(next.length) } : {}),
+    });
   }
 
   return (
