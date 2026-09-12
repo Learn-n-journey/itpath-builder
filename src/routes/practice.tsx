@@ -426,12 +426,8 @@ function AssignmentWorkspace({
           </Panel>
 
           <Panel
-            title="Evaluation rubric"
-            description={
-              assignment.evaluationMode === "self_rubric"
-                ? "This work cannot be judged reliably by an automatic checker. Assess your own evidence honestly against every criterion."
-                : "Submission text is checked only for the explicit technical evidence below."
-            }
+            title="Evaluation"
+            description="Your answer is compared with the correct answer point by point. It does not have to match the wording, only the idea."
           >
             <div className="space-y-3">
               {assignment.rubric.map((criterion) => {
