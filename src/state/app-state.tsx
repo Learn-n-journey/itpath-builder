@@ -10,6 +10,8 @@ import {
 } from "react";
 
 import { createDefaultUserData } from "@/lib/app-data/defaults";
+import { useAuth } from "@/state/auth-state";
+import { activityCount, fetchCloudState, pushCloudState } from "@/lib/cloud-sync";
 import { buildMistake, type MistakeInput } from "@/lib/mistake-engine";
 import { userMutations } from "@/lib/app-data/mutations";
 import { clearExamDeclaration, declareExamOutcome } from "@/lib/certification-engine";
@@ -93,12 +95,17 @@ interface AppActions {
   resetCertificationObjectives: (certificationId: string) => void;
 }
 
+export type CloudStatus = "signed_out" | "syncing" | "synced" | "error";
+
 interface AppStateContextValue {
   user: UserData;
   hydrated: boolean;
   storageAvailable: boolean;
   loadOutcome: LoadOutcome | null;
   lastSavedAt: string | null;
+  cloudStatus: CloudStatus;
+  cloudSyncedAt: string | null;
+  cloudError: string | null;
   actions: AppActions;
   updateUser: (updater: (current: UserData) => UserData) => void;
   updateSettings: (patch: Partial<Omit<UserSettings, "id">>) => void;
@@ -115,6 +122,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [loadOutcome, setLoadOutcome] = useState<LoadOutcome | null>(null);
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const skipNextSave = useRef(true);
+
+  const { userId, ready: authReady } = useAuth();
+  const [cloudStatus, setCloudStatus] = useState<CloudStatus>("signed_out");
+  const [cloudSyncedAt, setCloudSyncedAt] = useState<string | null>(null);
+  const [cloudError, setCloudError] = useState<string | null>(null);
+  const [syncedUserId, setSyncedUserId] = useState<string | null>(null);
+  const pushedSnapshot = useRef<string>("");
 
   // Hydrate after mount so server and client render the same initial markup.
   useEffect(() => {
@@ -136,6 +150,67 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setLastSavedAt(new Date().toISOString());
     }
   }, [user, hydrated]);
+
+  // Pull the account copy once per sign-in. Whichever copy holds more recorded
+  // work wins, so signing in on a fresh device never erases existing progress.
+  useEffect(() => {
+    if (!hydrated || !authReady) return;
+    if (!userId) {
+      setSyncedUserId(null);
+      setCloudStatus("signed_out");
+      setCloudError(null);
+      pushedSnapshot.current = "";
+      return;
+    }
+    if (syncedUserId === userId) return;
+
+    let cancelled = false;
+    setCloudStatus("syncing");
+    void fetchCloudState(userId).then((result) => {
+      if (cancelled) return;
+      if (!result.ok) {
+        setCloudError(result.error ?? "Could not reach your account");
+        setCloudStatus("error");
+        return;
+      }
+      if (result.found && result.user) {
+        const remote = result.user;
+        setUser((local) => (activityCount(local) > activityCount(remote) ? local : remote));
+      }
+      pushedSnapshot.current = "";
+      setCloudError(null);
+      setSyncedUserId(userId);
+      setCloudStatus("synced");
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, authReady, userId, syncedUserId]);
+
+  // Back up to the account shortly after any change.
+  useEffect(() => {
+    if (!hydrated || !userId || syncedUserId !== userId) return;
+    const snapshot = JSON.stringify(user);
+    if (pushedSnapshot.current === snapshot) return;
+
+    const timer = setTimeout(() => {
+      setCloudStatus("syncing");
+      void pushCloudState(userId, user).then((result) => {
+        if (result.ok) {
+          pushedSnapshot.current = snapshot;
+          setCloudError(null);
+          setCloudSyncedAt(new Date().toISOString());
+          setCloudStatus("synced");
+        } else {
+          setCloudError(result.error ?? "Could not save to your account");
+          setCloudStatus("error");
+        }
+      });
+    }, 1200);
+
+    return () => clearTimeout(timer);
+  }, [user, hydrated, userId, syncedUserId]);
 
   const updateUser = useCallback((updater: (current: UserData) => UserData) => {
     setUser((current) => updater(current));
@@ -278,6 +353,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       storageAvailable,
       loadOutcome,
       lastSavedAt,
+      cloudStatus,
+      cloudSyncedAt,
+      cloudError,
       actions,
       updateUser,
       updateSettings,
@@ -290,6 +368,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       storageAvailable,
       loadOutcome,
       lastSavedAt,
+      cloudStatus,
+      cloudSyncedAt,
+      cloudError,
       actions,
       updateUser,
       updateSettings,

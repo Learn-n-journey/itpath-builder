@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
 import { Route as CareerSkillsRouteImport } from './routes/career-skills'
@@ -24,6 +25,7 @@ import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as QuizMeRouteImport } from './routes/quiz-me'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -42,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
 const AiTutorRoute = AiTutorRouteImport.update({
   id: '/ai-tutor',
   path: '/ai-tutor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookmarksRoute = BookmarksRouteImport.update({
@@ -109,6 +116,11 @@ const QuizMeRoute = QuizMeRouteImport.update({
   path: '/quiz-me',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResourcesRoute = ResourcesRouteImport.update({
   id: '/resources',
   path: '/resources',
@@ -158,6 +170,7 @@ const TopicsTopicIdRoute = TopicsTopicIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-tutor': typeof AiTutorRoute
+  '/auth': typeof AuthRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
@@ -171,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
@@ -184,6 +198,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-tutor': typeof AiTutorRoute
+  '/auth': typeof AuthRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
@@ -197,6 +212,7 @@ export interface FileRoutesByTo {
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
@@ -211,6 +227,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-tutor': typeof AiTutorRoute
+  '/auth': typeof AuthRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
@@ -224,6 +241,7 @@ export interface FileRoutesById {
   '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
@@ -239,6 +257,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai-tutor'
+    | '/auth'
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
@@ -252,6 +271,7 @@ export interface FileRouteTypes {
     | '/practice'
     | '/progress'
     | '/quiz-me'
+    | '/reset-password'
     | '/resources'
     | '/review'
     | '/settings'
@@ -265,6 +285,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai-tutor'
+    | '/auth'
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
@@ -278,6 +299,7 @@ export interface FileRouteTypes {
     | '/practice'
     | '/progress'
     | '/quiz-me'
+    | '/reset-password'
     | '/resources'
     | '/review'
     | '/settings'
@@ -291,6 +313,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai-tutor'
+    | '/auth'
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
@@ -304,6 +327,7 @@ export interface FileRouteTypes {
     | '/practice'
     | '/progress'
     | '/quiz-me'
+    | '/reset-password'
     | '/resources'
     | '/review'
     | '/settings'
@@ -318,6 +342,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiTutorRoute: typeof AiTutorRoute
+  AuthRoute: typeof AuthRoute
   BookmarksRoute: typeof BookmarksRoute
   CareerModeRoute: typeof CareerModeRoute
   CareerSkillsRoute: typeof CareerSkillsRoute
@@ -331,6 +356,7 @@ export interface RootRouteChildren {
   PracticeRoute: typeof PracticeRoute
   ProgressRoute: typeof ProgressRoute
   QuizMeRoute: typeof QuizMeRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   ReviewRoute: typeof ReviewRoute
   SettingsRoute: typeof SettingsRoute
@@ -356,6 +382,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-tutor'
       fullPath: '/ai-tutor'
       preLoaderRoute: typeof AiTutorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookmarks': {
@@ -449,6 +482,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizMeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resources': {
       id: '/resources'
       path: '/resources'
@@ -518,6 +558,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiTutorRoute: AiTutorRoute,
+  AuthRoute: AuthRoute,
   BookmarksRoute: BookmarksRoute,
   CareerModeRoute: CareerModeRoute,
   CareerSkillsRoute: CareerSkillsRoute,
@@ -531,6 +572,7 @@ const rootRouteChildren: RootRouteChildren = {
   PracticeRoute: PracticeRoute,
   ProgressRoute: ProgressRoute,
   QuizMeRoute: QuizMeRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   ReviewRoute: ReviewRoute,
   SettingsRoute: SettingsRoute,

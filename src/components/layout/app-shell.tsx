@@ -3,7 +3,7 @@ import { Menu, ShieldCheck } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { navGroups, navItems } from "@/config/navigation";
-import { useAppState } from "@/state/app-state";
+import { AccountPanel } from "@/components/layout/account-panel";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -54,7 +54,7 @@ function Brand() {
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { hydrated } = useAppState();
+  
 
   useEffect(() => {
     setOpen(false);
@@ -67,8 +67,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-sidebar-border bg-sidebar lg:flex">
         <Brand />
         <NavList />
-        <div className="mt-auto px-5 py-4 text-xs text-muted-foreground">
-          {hydrated ? "Saved locally on this device" : "Loading your data…"}
+        <div className="mt-auto border-t border-sidebar-border px-5 py-4">
+          <AccountPanel />
         </div>
       </aside>
 
@@ -83,6 +83,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <SheetTitle className="sr-only">Navigation</SheetTitle>
             <Brand />
             <NavList onNavigate={() => setOpen(false)} />
+            <div className="border-t border-sidebar-border px-5 py-4">
+              <AccountPanel onNavigate={() => setOpen(false)} />
+            </div>
           </SheetContent>
         </Sheet>
         <span className="min-w-0 truncate font-display text-sm font-semibold">{current}</span>
