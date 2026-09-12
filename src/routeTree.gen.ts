@@ -14,6 +14,7 @@ import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
 import { Route as CareerSkillsRouteImport } from './routes/career-skills'
+import { Route as GuideRouteImport } from './routes/guide'
 import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as MyPathRouteImport } from './routes/my-path'
@@ -55,6 +56,11 @@ const CareerModeRoute = CareerModeRouteImport.update({
 const CareerSkillsRoute = CareerSkillsRouteImport.update({
   id: '/career-skills',
   path: '/career-skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuideRoute = GuideRouteImport.update({
+  id: '/guide',
+  path: '/guide',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LabsRoute = LabsRouteImport.update({
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
+  '/guide': typeof GuideRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
+  '/guide': typeof GuideRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
+  '/guide': typeof GuideRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
+    | '/guide'
     | '/labs'
     | '/learn'
     | '/my-path'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
+    | '/guide'
     | '/labs'
     | '/learn'
     | '/my-path'
@@ -272,6 +283,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
+    | '/guide'
     | '/labs'
     | '/learn'
     | '/my-path'
@@ -297,6 +309,7 @@ export interface RootRouteChildren {
   BookmarksRoute: typeof BookmarksRoute
   CareerModeRoute: typeof CareerModeRoute
   CareerSkillsRoute: typeof CareerSkillsRoute
+  GuideRoute: typeof GuideRoute
   LabsRoute: typeof LabsRoute
   LearnRoute: typeof LearnRoute
   MyPathRoute: typeof MyPathRoute
@@ -351,6 +364,13 @@ declare module '@tanstack/react-router' {
       path: '/career-skills'
       fullPath: '/career-skills'
       preLoaderRoute: typeof CareerSkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guide': {
+      id: '/guide'
+      path: '/guide'
+      fullPath: '/guide'
+      preLoaderRoute: typeof GuideRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/labs': {
@@ -481,6 +501,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookmarksRoute: BookmarksRoute,
   CareerModeRoute: CareerModeRoute,
   CareerSkillsRoute: CareerSkillsRoute,
+  GuideRoute: GuideRoute,
   LabsRoute: LabsRoute,
   LearnRoute: LearnRoute,
   MyPathRoute: MyPathRoute,
