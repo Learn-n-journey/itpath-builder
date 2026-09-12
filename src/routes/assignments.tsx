@@ -108,10 +108,10 @@ function AssignmentsPage() {
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <Panel
           title="Assignment library"
-          description="All assignment formats are available for lifecycle testing."
+          description="Every assignment format, reshuffled whenever you refresh."
         >
           <div className="space-y-2">
-            {assignments.map((item) => {
+            {shuffled.map((item) => {
               const itemAttempt = attempts.find((attempt) => attempt.assignmentId === item.id);
               return (
                 <Button
