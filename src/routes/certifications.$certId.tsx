@@ -59,12 +59,29 @@ function Metric({ label, value }: { label: string; value: number }) {
 function Certifications() {
   const { user, actions } = useAppState();
   const readiness = useMemo(() => scoreAllCertifications(user), [user]);
-  const [selectedId, setSelectedId] = useState(readiness[0]?.certification.id ?? "");
+  const { certId } = Route.useParams();
   const [examNote, setExamNote] = useState("");
   const [confirmPass, setConfirmPass] = useState(false);
   const [draft, setDraft] = useState<CertificationObjective | null>(null);
 
-  const selected = readiness.find((row) => row.certification.id === selectedId) ?? readiness[0]!;
+  const selected = readiness.find((row) => row.certification.id === certId);
+  const months = selected?.certification.months ?? [];
+  const monthTopics = useMemo(
+    () => topics.filter((topic) => months.includes(topic.month)).sort((a, b) => a.month - b.month || a.week - b.week),
+    [months],
+  );
+
+  if (!selected) {
+    return (
+      <>
+        <PageHeader title="Certification not found" description="That certification is not part of IT PATH." />
+        <Link to="/certifications" className="text-sm text-primary hover:underline">
+          Back to all certifications
+        </Link>
+      </>
+    );
+  }
+
   const progress = user.certificationProgress[selected.certification.id];
 
   const startEdit = (objective: CertificationObjective) => setDraft({ ...objective });
