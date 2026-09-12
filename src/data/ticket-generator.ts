@@ -151,7 +151,7 @@ export function buildTopicTickets(topics: Topic[], lessons: Lesson[]): Ticket[] 
       })),
       {
         id: `res-${slug}-practical`,
-        label: practical[0] ? sentence(practical[0]) : `Apply the documented fix for ${lower(topic.title)} and record what changed.`,
+        label: practical[0] ? sentence(practical[0]) : `Apply the documented fix for ${topic.title} and record what changed.`,
         correct: true,
       },
       {

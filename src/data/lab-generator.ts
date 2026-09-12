@@ -22,9 +22,10 @@ const CATEGORY_RULES: Array<[LabCategory, RegExp]> = [
 ];
 
 function categoryFor(topic: Topic): LabCategory {
-  const text = `${topic.title} ${topic.summary}`;
-  for (const [category, pattern] of CATEGORY_RULES) {
-    if (pattern.test(text)) return category;
+  for (const source of [topic.title, topic.summary]) {
+    for (const [category, pattern] of CATEGORY_RULES) {
+      if (pattern.test(source)) return category;
+    }
   }
   return "windows";
 }
@@ -58,12 +59,12 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
     const prerequisites = [topic.title, "A computer or documentation you are authorized to inspect"];
 
     const studyInstructions = [
-      `Write down what you already know about ${lower(topic.title)} before opening the lesson.`,
+      `Write down what you already know about ${topic.title} before opening the lesson.`,
       ...learningModule.howItWorks.map((step) => `Record evidence for this behaviour in your own words: ${sentence(step)}`),
       `Find one place this appears in real work and describe it: ${sentence(where)}`,
       terms.length
         ? `Define these terms from memory, then correct yourself against the lesson: ${terms.map((term) => term.term).join(", ")}.`
-        : `Summarise ${lower(topic.title)} in five sentences from memory, then correct yourself against the lesson.`,
+        : `Summarise ${topic.title} in five sentences from memory, then correct yourself against the lesson.`,
       "Save your notes with today's date so you can compare them with a later attempt.",
     ];
 
@@ -72,14 +73,14 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
       topicId: topic.id,
       title: `${topic.title}: documented walkthrough`,
       category,
-      objective: topic.learningObjectives[0] ?? `Explain and document how ${lower(topic.title)} works in practice.`,
+      objective: topic.learningObjectives[0] ?? `Explain and document how ${topic.title} works in practice.`,
       prerequisites,
       difficulty: topic.difficulty,
       estimatedMinutes: Math.max(25, Math.round(topic.estimatedMinutes * 0.7)),
       environment:
         "Your own notes plus any system or official documentation you are permitted to read. This lab is read-only: it never asks you to change a configuration you do not own.",
       instructions: studyInstructions,
-      expectedResult: `A dated write-up that explains ${lower(topic.title)} accurately, with at least one real-world example and correct vocabulary.`,
+      expectedResult: `A dated write-up that explains ${topic.title} accurately, with at least one real-world example and correct vocabulary.`,
       checklist: checklist(`${slug}-doc`, [
         "Recorded prior knowledge before reading",
         "Explained how it works in your own words",
@@ -87,7 +88,7 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
         "Defined the key vocabulary correctly",
         "Saved dated notes for later comparison",
       ]),
-      reflectionPrompt: `Which part of ${lower(topic.title)} did you explain least confidently, and what evidence would make it clear?`,
+      reflectionPrompt: `Which part of ${topic.title} did you explain least confidently, and what evidence would make it clear?`,
       masteryScore: 100,
     });
 
@@ -109,7 +110,7 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
       topicId: topic.id,
       title: `${topic.title}: fault diagnosis drill`,
       category,
-      objective: `Work a realistic ${lower(topic.title)} fault through a documented diagnostic order instead of guessing.`,
+      objective: `Work a realistic ${topic.title} fault through a documented diagnostic order instead of guessing.`,
       prerequisites: [...prerequisites, "The documented walkthrough lab for this topic"],
       difficulty: topic.difficulty,
       estimatedMinutes: Math.max(30, Math.round(topic.estimatedMinutes * 0.8)),
