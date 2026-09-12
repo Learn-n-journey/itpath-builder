@@ -206,8 +206,8 @@ function Dashboard() {
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"
                 >
                   <Link
-                    to="/topics/$topicId"
-                    params={{ topicId: item.topicId }}
+                    to="/review"
+                    hash={missedAnchors[item.topicId] ?? undefined}
                     className="truncate hover:underline"
                   >
                     {item.title}
