@@ -143,19 +143,12 @@ function Dashboard() {
             </Button>
           </div>
         </Panel>
-      ) : path.recommendedTopic ? (
-        <Panel
-          className="mb-4"
-          title={`Recommended start: ${path.recommendedTopic.title}`}
-          description={`${path.startLabel}. ${path.reason}.`}
-        >
-          <Button asChild size="sm">
-            <Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>
-              Start learning
-            </Link>
-          </Button>
-        </Panel>
-      ) : null}
+      ) : (
+        <div className="mb-4 grid gap-4 lg:grid-cols-2">
+          <NextActionCard actions={actions} />
+          <ReadinessPanel report={readiness} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard
