@@ -863,9 +863,9 @@ export const advancedSecurityDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "A programme leader starts by combining the organisation's business context and its realistic threat profile to identify a small number of genuinely high-priority risks, resisting the temptation to list dozens of lower-value technical issues alongside them. Each priority risk is translated into a specific, funded initiative with a named owner, a realistic timeline, and a defined success metric before it is ever presented to leadership.
+          "A programme leader starts by combining the organisation's business context and its realistic threat profile to identify a small number of genuinely high-priority risks, resisting the temptation to list dozens of lower-value technical issues alongside them. Each priority risk is translated into a specific, funded initiative with a named owner, a realistic timeline, and a defined success metric before it is ever presented to leadership.",
           These initiatives are reviewed on a regular cadence in a governance forum, alongside the current risk register, any exceptions granted with their expiry dates, and metrics evidencing whether prior initiatives are actually reducing measured risk. Third-party and supply-chain risk is folded into this same governance structure, requiring suppliers with meaningful access to be assessed to a comparable standard as internal systems.
-          When it comes time to secure funding, the leader presents leadership with options and their costs and residual risk, framed around a specific business consequence such as the likelihood of a company-halting ransomware event, rather than presenting an open-ended list of technical problems and hoping for a blank cheque.",
+          "When it comes time to secure funding, the leader presents leadership with options and their costs and residual risk, framed around a specific business consequence such as the likelihood of a company-halting ransomware event, rather than presenting an open-ended list of technical problems and hoping for a blank cheque.",
         ],
       },
       {
