@@ -21,6 +21,7 @@ import {
   describeSchedule,
   recentlyFailed,
 } from "@/lib/review-engine";
+import { missedQuestionCount } from "@/lib/missed-questions";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/review")({
@@ -49,6 +50,7 @@ function Review() {
   const summary = useMemo(() => summarizeMistakes(user), [user]);
   const buckets = useMemo(() => bucketReviews(user.reviews), [user.reviews]);
   const failed = useMemo(() => recentlyFailed(user), [user]);
+  const missedCount = useMemo(() => missedQuestionCount(user), [user]);
 
   const mistakes = user.mistakes.filter(
     (mistake) =>
@@ -62,7 +64,8 @@ function Review() {
         title="Review"
         description="Every mistake is logged with its cause and the prerequisite it points back to, so review starts at the root cause instead of the newest topic."
       />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <StatCard label="To work on" value={missedCount} />
         <StatCard label="Due today" value={buckets.dueToday.length} />
         <StatCard label="Overdue" value={buckets.overdue.length} />
         <StatCard label="Upcoming" value={buckets.upcoming.length} />

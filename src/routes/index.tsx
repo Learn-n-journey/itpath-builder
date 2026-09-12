@@ -20,6 +20,7 @@ import { computeDashboard } from "@/lib/dashboard-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationStatusLabels } from "@/lib/certification-engine";
 import type { CertificationStatus } from "@/lib/app-data/types";
+import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/")({
@@ -72,6 +73,13 @@ function Dashboard() {
   const { user, hydrated } = useAppState();
   const d = useMemo(() => computeDashboard(user), [user]);
   const path = useMemo(() => adaptivePath(user), [user]);
+  const missedAnchors = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const item of missedQuestions(user)) {
+      if (!map[item.mistake.topicId]) map[item.mistake.topicId] = missedQuestionAnchor(item);
+    }
+    return map;
+  }, [user]);
 
   return (
     <>
@@ -206,8 +214,10 @@ function Dashboard() {
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"
                 >
                   <Link
-                    to="/topics/$topicId"
-                    params={{ topicId: item.topicId }}
+                    to="/review"
+                    {...(missedAnchors[item.topicId]
+                      ? { hash: missedAnchors[item.topicId] as string }
+                      : {})}
                     className="truncate hover:underline"
                   >
                     {item.title}

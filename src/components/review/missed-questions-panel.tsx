@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Panel } from "@/components/page-kit";
@@ -15,6 +15,8 @@ import {
   gradeMissedQuestion,
   missedQuestionExplanation,
   missedQuestionPrompt,
+  missedQuestionAnchor,
+  missedQuestionKey,
   missedQuestions,
   type MissedQuestion,
 } from "@/lib/missed-questions";
@@ -47,7 +49,7 @@ export function MissedQuestionsPanel() {
       ) : (
         <ul className="mt-4 space-y-3">
           {items.map((item) => (
-            <MissedQuestionRow key={item.mistake.questionId} item={item} />
+            <MissedQuestionRow key={missedQuestionKey(item)} item={item} />
           ))}
         </ul>
       )}
@@ -60,8 +62,20 @@ function MissedQuestionRow({ item }: { item: MissedQuestion }) {
   const [response, setResponse] = useState<string[]>([]);
   const [checked, setChecked] = useState<boolean | null>(null);
   const topic = getTopic(item.mistake.topicId);
-  const questionId = item.mistake.questionId!;
+  const questionId = missedQuestionKey(item);
+  const anchor = missedQuestionAnchor(item);
   const cleared = item.mistake.resolved;
+  const ref = useRef<HTMLLIElement>(null);
+  const [highlight, setHighlight] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash.slice(1) !== anchor) return;
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setHighlight(true);
+    const timer = window.setTimeout(() => setHighlight(false), 2500);
+    return () => window.clearTimeout(timer);
+  }, [anchor]);
 
   function check() {
     const correct = gradeMissedQuestion(item, response);
@@ -77,7 +91,13 @@ function MissedQuestionRow({ item }: { item: MissedQuestion }) {
   }
 
   return (
-    <li className="rounded-lg border border-border p-3 text-sm">
+    <li
+      id={anchor}
+      ref={ref}
+      className={`scroll-mt-24 rounded-lg border p-3 text-sm ${
+        highlight ? "border-primary bg-primary/5" : "border-border"
+      }`}
+    >
       <div className="flex flex-wrap items-center gap-2">
         {topic ? (
           <Link
@@ -91,7 +111,11 @@ function MissedQuestionRow({ item }: { item: MissedQuestion }) {
           <span className="font-medium">{item.mistake.topicId}</span>
         )}
         <Badge variant="outline">
-          {item.kind === "quiz" ? questionTypeLabels[item.question.type] : "Recall"}
+          {item.kind === "quiz"
+            ? questionTypeLabels[item.question.type]
+            : item.kind === "practice"
+              ? "Practice"
+              : "Recall"}
         </Badge>
         {cleared ? <Badge variant="secondary">cleared</Badge> : null}
         <span className="text-xs text-muted-foreground">
@@ -103,6 +127,24 @@ function MissedQuestionRow({ item }: { item: MissedQuestion }) {
 
       {cleared ? (
         <p className="mt-2 text-xs text-muted-foreground">{missedQuestionExplanation(item)}</p>
+      ) : item.kind === "practice" ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <Button asChild size="sm">
+            <Link to="/practice" search={{ assignment: item.assignment.id }}>
+              Open this practice task
+            </Link>
+          </Button>
+          {topic ? (
+            <Button asChild size="sm" variant="outline">
+              <Link to="/topics/$topicId" params={{ topicId: topic.id }}>
+                Review the topic
+              </Link>
+            </Button>
+          ) : null}
+          <span className="text-xs text-muted-foreground">
+            Clears automatically when you score 70 or higher on a retake.
+          </span>
+        </div>
       ) : (
         <>
           <div className="mt-3">
