@@ -27,6 +27,7 @@ import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StudyPlanRouteImport } from './routes/study-plan'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
+import { Route as WeakAreasRouteImport } from './routes/weak-areas'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
@@ -121,6 +122,11 @@ const TroubleshootRoute = TroubleshootRouteImport.update({
   path: '/troubleshoot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WeakAreasRoute = WeakAreasRouteImport.update({
+  id: '/weak-areas',
+  path: '/weak-areas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CertificationsIndexRoute = CertificationsIndexRouteImport.update({
   id: '/certifications/',
   path: '/certifications/',
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/study-plan': typeof StudyPlanRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/study-plan': typeof StudyPlanRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications': typeof CertificationsIndexRoute
@@ -203,6 +211,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/study-plan': typeof StudyPlanRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
@@ -228,6 +237,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/study-plan'
     | '/troubleshoot'
+    | '/weak-areas'
     | '/certifications/$certId'
     | '/topics/$topicId'
     | '/certifications/'
@@ -251,6 +261,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/study-plan'
     | '/troubleshoot'
+    | '/weak-areas'
     | '/certifications/$certId'
     | '/topics/$topicId'
     | '/certifications'
@@ -274,6 +285,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/study-plan'
     | '/troubleshoot'
+    | '/weak-areas'
     | '/certifications/$certId'
     | '/topics/$topicId'
     | '/certifications/'
@@ -298,6 +310,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StudyPlanRoute: typeof StudyPlanRoute
   TroubleshootRoute: typeof TroubleshootRoute
+  WeakAreasRoute: typeof WeakAreasRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
   CertificationsIndexRoute: typeof CertificationsIndexRoute
@@ -431,6 +444,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TroubleshootRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/weak-areas': {
+      id: '/weak-areas'
+      path: '/weak-areas'
+      fullPath: '/weak-areas'
+      preLoaderRoute: typeof WeakAreasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/certifications/': {
       id: '/certifications/'
       path: '/certifications'
@@ -474,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StudyPlanRoute: StudyPlanRoute,
   TroubleshootRoute: TroubleshootRoute,
+  WeakAreasRoute: WeakAreasRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,
   CertificationsIndexRoute: CertificationsIndexRoute,

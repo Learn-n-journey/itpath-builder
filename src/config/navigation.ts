@@ -16,6 +16,7 @@ import {
   Bot,
   BookMarked,
   TrendingUp,
+  Target,
   Timer,
   Settings as SettingsIcon,
   type LucideIcon,
