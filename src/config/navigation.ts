@@ -33,7 +33,7 @@ export const navItems: NavItem[] = [
   { label: "Study Plan", to: "/study-plan", icon: CalendarDays, group: "Study" },
   { label: "Learn", to: "/learn", icon: BookOpen, group: "Study" },
   { label: "Resources", to: "/resources", icon: Library, group: "Study" },
-  { label: "Assignments", to: "/assignments", icon: ClipboardList, group: "Practice" },
+  { label: "Practice", to: "/practice", icon: ClipboardList, group: "Practice" },
   { label: "Labs", to: "/labs", icon: FlaskConical, group: "Practice" },
   { label: "Quiz Me", to: "/quiz-me", icon: HelpCircle, group: "Practice" },
   { label: "Troubleshoot", to: "/troubleshoot", icon: Wrench, group: "Practice" },

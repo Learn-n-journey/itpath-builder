@@ -239,7 +239,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       label: "Finish your open assignment",
       detail:
         assignments.find((a) => a.id === openAssignment.assignmentId)?.title ?? "Assignment open",
-      to: "/assignments",
+      to: "/practice",
     });
   }
   const nextTopic = topics.find((topic) => {

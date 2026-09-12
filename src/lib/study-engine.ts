@@ -245,7 +245,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
         ? "This assignment is still open."
         : `Written work for ${topicTitle(nextAssignment.topicId)}.`,
       plannedMinutes: 20,
-      to: "/assignments",
+      to: "/practice",
       assignmentId: nextAssignment.id,
       topicId: nextAssignment.topicId,
     });

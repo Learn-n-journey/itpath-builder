@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
-import { Route as AssignmentsRouteImport } from './routes/assignments'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
 import { Route as CareerSkillsRouteImport } from './routes/career-skills'
@@ -19,6 +18,7 @@ import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as MyPathRouteImport } from './routes/my-path'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as QuizMeRouteImport } from './routes/quiz-me'
 import { Route as ResourcesRouteImport } from './routes/resources'
@@ -38,11 +38,6 @@ const IndexRoute = IndexRouteImport.update({
 const AiTutorRoute = AiTutorRouteImport.update({
   id: '/ai-tutor',
   path: '/ai-tutor',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AssignmentsRoute = AssignmentsRouteImport.update({
-  id: '/assignments',
-  path: '/assignments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookmarksRoute = BookmarksRouteImport.update({
@@ -78,6 +73,11 @@ const MyPathRoute = MyPathRouteImport.update({
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
   path: '/portfolio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PracticeRoute = PracticeRouteImport.update({
+  id: '/practice',
+  path: '/practice',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProgressRoute = ProgressRouteImport.update({
@@ -134,7 +134,6 @@ const TopicsTopicIdRoute = TopicsTopicIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-tutor': typeof AiTutorRoute
-  '/assignments': typeof AssignmentsRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
@@ -142,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
   '/portfolio': typeof PortfolioRoute
+  '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
@@ -156,7 +156,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-tutor': typeof AiTutorRoute
-  '/assignments': typeof AssignmentsRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
@@ -164,6 +163,7 @@ export interface FileRoutesByTo {
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
   '/portfolio': typeof PortfolioRoute
+  '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
@@ -179,7 +179,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-tutor': typeof AiTutorRoute
-  '/assignments': typeof AssignmentsRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
@@ -187,6 +186,7 @@ export interface FileRoutesById {
   '/learn': typeof LearnRoute
   '/my-path': typeof MyPathRoute
   '/portfolio': typeof PortfolioRoute
+  '/practice': typeof PracticeRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/resources': typeof ResourcesRoute
@@ -203,7 +203,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai-tutor'
-    | '/assignments'
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
@@ -211,6 +210,7 @@ export interface FileRouteTypes {
     | '/learn'
     | '/my-path'
     | '/portfolio'
+    | '/practice'
     | '/progress'
     | '/quiz-me'
     | '/resources'
@@ -225,7 +225,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai-tutor'
-    | '/assignments'
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
@@ -233,6 +232,7 @@ export interface FileRouteTypes {
     | '/learn'
     | '/my-path'
     | '/portfolio'
+    | '/practice'
     | '/progress'
     | '/quiz-me'
     | '/resources'
@@ -247,7 +247,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai-tutor'
-    | '/assignments'
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
@@ -255,6 +254,7 @@ export interface FileRouteTypes {
     | '/learn'
     | '/my-path'
     | '/portfolio'
+    | '/practice'
     | '/progress'
     | '/quiz-me'
     | '/resources'
@@ -270,7 +270,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiTutorRoute: typeof AiTutorRoute
-  AssignmentsRoute: typeof AssignmentsRoute
   BookmarksRoute: typeof BookmarksRoute
   CareerModeRoute: typeof CareerModeRoute
   CareerSkillsRoute: typeof CareerSkillsRoute
@@ -278,6 +277,7 @@ export interface RootRouteChildren {
   LearnRoute: typeof LearnRoute
   MyPathRoute: typeof MyPathRoute
   PortfolioRoute: typeof PortfolioRoute
+  PracticeRoute: typeof PracticeRoute
   ProgressRoute: typeof ProgressRoute
   QuizMeRoute: typeof QuizMeRoute
   ResourcesRoute: typeof ResourcesRoute
@@ -304,13 +304,6 @@ declare module '@tanstack/react-router' {
       path: '/ai-tutor'
       fullPath: '/ai-tutor'
       preLoaderRoute: typeof AiTutorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/assignments': {
-      id: '/assignments'
-      path: '/assignments'
-      fullPath: '/assignments'
-      preLoaderRoute: typeof AssignmentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookmarks': {
@@ -360,6 +353,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio'
       fullPath: '/portfolio'
       preLoaderRoute: typeof PortfolioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/practice': {
+      id: '/practice'
+      path: '/practice'
+      fullPath: '/practice'
+      preLoaderRoute: typeof PracticeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/progress': {
@@ -438,7 +438,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiTutorRoute: AiTutorRoute,
-  AssignmentsRoute: AssignmentsRoute,
   BookmarksRoute: BookmarksRoute,
   CareerModeRoute: CareerModeRoute,
   CareerSkillsRoute: CareerSkillsRoute,
@@ -446,6 +445,7 @@ const rootRouteChildren: RootRouteChildren = {
   LearnRoute: LearnRoute,
   MyPathRoute: MyPathRoute,
   PortfolioRoute: PortfolioRoute,
+  PracticeRoute: PracticeRoute,
   ProgressRoute: ProgressRoute,
   QuizMeRoute: QuizMeRoute,
   ResourcesRoute: ResourcesRoute,

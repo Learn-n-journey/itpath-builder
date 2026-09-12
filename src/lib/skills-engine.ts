@@ -495,7 +495,7 @@ export function recommendActivities(user: UserData, skills: SkillScore[]): Recom
     if (assignment) {
       out.push({
         id: `rec-assignment-${assignment.id}`, skillId, title: assignment.title, reason,
-        href: "/assignments", action: "Complete this assignment",
+        href: "/practice", action: "Complete this assignment",
       });
       continue;
     }

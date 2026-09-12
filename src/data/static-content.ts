@@ -10,7 +10,8 @@ import type {
   Topic,
   Track,
 } from "@/lib/app-data/types";
-import { assignments } from "@/data/assignment-content";
+import { assignments as coreAssignments } from "@/data/assignment-content";
+import { buildTopicAssignments } from "@/data/assignment-generator";
 import { expansionLessons, expansionTopics } from "@/data/curriculum";
 import { certifications, certificationObjectives } from "@/data/certification-content";
 import { incidents } from "@/data/incident-content";
@@ -690,7 +691,10 @@ export const resources: Resource[] = [
   },
   ...buildMesserResources(certifications, topics),
 ];
-export { assignments };
+export const assignments: Assignment[] = [
+  ...coreAssignments,
+  ...buildTopicAssignments(topics, lessons),
+];
 export { labs };
 export { incidents };
 export { tickets };
