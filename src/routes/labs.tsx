@@ -4,6 +4,7 @@ import {
   Clock3,
   FileText,
   FlaskConical,
+  RefreshCw,
   RotateCcw,
   Save,
   Send,
