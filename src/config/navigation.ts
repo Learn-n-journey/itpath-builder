@@ -30,7 +30,7 @@ export interface NavItem {
 export const navItems: NavItem[] = [
   { label: "Dashboard", to: "/", icon: LayoutDashboard, group: "Study" },
   { label: "My Path", to: "/my-path", icon: RouteIcon, group: "Study" },
-  { label: "This Week", to: "/this-week", icon: CalendarDays, group: "Study" },
+  { label: "Study Plan", to: "/study-plan", icon: CalendarDays, group: "Study" },
   { label: "Learn", to: "/learn", icon: BookOpen, group: "Study" },
   { label: "Resources", to: "/resources", icon: Library, group: "Study" },
   { label: "Assignments", to: "/assignments", icon: ClipboardList, group: "Practice" },

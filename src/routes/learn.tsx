@@ -7,6 +7,8 @@ import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { certifications, topics } from "@/data/static-content";
+import { stageLabels, type StageId } from "@/lib/cert-path";
+import type { Difficulty } from "@/lib/app-data/types";
 
 export const Route = createFileRoute("/learn")({
   head: () => ({
@@ -21,6 +23,12 @@ export const Route = createFileRoute("/learn")({
   }),
   component: Learn,
 });
+
+const difficultyToStage: Record<Difficulty, StageId> = {
+  gentle: "foundation",
+  standard: "core",
+  challenging: "advanced",
+};
 
 function Learn() {
   const [query, setQuery] = useState("");
@@ -58,7 +66,7 @@ function Learn() {
                 <div className="flex items-start justify-between gap-4"><BookOpen className="mt-0.5 size-5 shrink-0 text-primary" /><ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" /></div>
                 <h2 className="mt-4 font-display text-base font-semibold">{topic.title}</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{topic.summary}</p>
-                <p className="mt-4 text-xs font-medium text-muted-foreground">Year {topic.year} · Month {topic.month} · Week {topic.week} · {certification?.title}</p>
+                <p className="mt-4 text-xs font-medium text-muted-foreground">{certification?.title ?? "General IT"} · {stageLabels[difficultyToStage[topic.difficulty]]}</p>
               </Link>;
             })}
           </div>

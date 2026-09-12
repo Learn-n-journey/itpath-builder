@@ -6,6 +6,8 @@ import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
+import { stageLabels, type StageId } from "@/lib/cert-path";
+import type { Difficulty } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/topics/$topicId")({
@@ -32,6 +34,12 @@ const difficultyLabels = {
   standard: "Intermediate",
   challenging: "Advanced",
 } as const;
+
+const difficultyToStage: Record<Difficulty, StageId> = {
+  gentle: "foundation",
+  standard: "core",
+  challenging: "advanced",
+};
 
 function TopicPage() {
   const { topicId } = Route.useParams();
@@ -76,7 +84,7 @@ function TopicPage() {
       <dl className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-5">
         {[
           ["Certification", certification?.title ?? "General IT"],
-          ["Schedule", `Year ${topic.year} · Month ${topic.month} · Week ${topic.week}`],
+          ["Stage", stageLabels[difficultyToStage[topic.difficulty]]],
           ["Difficulty", difficultyLabels[topic.difficulty]],
           ["Study time", `${topic.estimatedMinutes} min`],
           ["Status", progress ? "In progress" : "Not started"],

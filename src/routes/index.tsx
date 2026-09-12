@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Award,
   Brain,
-  CalendarDays,
   CheckCircle2,
   ClipboardList,
   Clock,
@@ -79,7 +78,7 @@ function Dashboard() {
         description={`Target role: ${user.settings.targetJob}. Certification focus: ${user.settings.certificationTarget}.`}
         actions={
           <Button asChild>
-            <Link to="/this-week">Plan this week</Link>
+            <Link to="/study-plan">Open study plan</Link>
           </Button>
         }
       />
@@ -92,10 +91,12 @@ function Dashboard() {
           hint={`Across ${d.topicsTotal} topics`}
         />
         <StatCard
-          label="Current week"
-          value={`Week ${d.currentWeek.index}`}
-          icon={CalendarDays}
-          hint={`Year ${d.currentWeek.year}, month ${d.currentWeek.month}`}
+          label="Top certification"
+          value={
+            d.certificationReadiness[0] ? `${d.certificationReadiness[0].overall}%` : "0%"
+          }
+          icon={Award}
+          hint={d.certificationReadiness[0]?.title ?? "No certification progress yet"}
         />
         <StatCard
           label="Study time"
@@ -257,7 +258,7 @@ function Dashboard() {
       {!d.hasAnyActivity ? (
         <p className="mt-6 text-sm text-muted-foreground">
           You have no recorded activity yet, so every number above is zero. Start a topic in Learn or
-          log a session in This Week and these figures will move.
+          log a session in your study plan and these figures will move.
         </p>
       ) : null}
     </>
