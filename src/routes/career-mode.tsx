@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { topics } from "@/data/static-content";
-import { tickets } from "@/data/ticket-content";
+import { tickets } from "@/data/static-content";
 import type { CareerTrack, Ticket, TicketAttempt } from "@/lib/app-data/types";
 import {
   TICKET_PASS_SCORE,
