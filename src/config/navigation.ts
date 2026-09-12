@@ -16,6 +16,7 @@ import {
   Bot,
   BookMarked,
   TrendingUp,
+  Timer,
   Settings as SettingsIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -31,6 +32,7 @@ export const navItems: NavItem[] = [
   { label: "Dashboard", to: "/", icon: LayoutDashboard, group: "Study" },
   { label: "My Path", to: "/my-path", icon: RouteIcon, group: "Study" },
   { label: "Study Plan", to: "/study-plan", icon: CalendarDays, group: "Study" },
+  { label: "Pomodoro", to: "/pomodoro", icon: Timer, group: "Study" },
   { label: "Learn", to: "/learn", icon: BookOpen, group: "Study" },
   { label: "Resources", to: "/resources", icon: Library, group: "Study" },
   { label: "Practice", to: "/practice", icon: ClipboardList, group: "Practice" },
