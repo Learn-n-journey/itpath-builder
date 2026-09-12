@@ -6,7 +6,7 @@ import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { PageHeader, StatCard } from "@/components/page-kit";
 import { QuizRunner, quizQuestions } from "@/components/quiz/quiz-runner";
 import { Button } from "@/components/ui/button";
-import { certifications, quizzes, topics } from "@/data/static-content";
+import { quizzes, topics } from "@/data/static-content";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { selectedCertification } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";

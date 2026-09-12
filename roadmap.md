@@ -1,5 +1,11 @@
 # IT PATH Review Engine
 
+## Adaptive certification path
+- [x] Remove learner-facing difficulty controls and labels
+- [x] Use certification target and experience to recommend a starting topic
+- [x] Prioritize the selected certification across learning and activity pages
+- [ ] Verify settings changes and focused pages in desktop and mobile preview
+
 - [x] Fixed interval ladder: 1, 3, 7, 14, 30, 60, 90 days
 - [x] Review page sections: Due Today, Overdue, Upcoming, Weak Concepts, Recently Failed, Mastered
 - [x] Passing advances the interval; failing shortens it and records a lapse

@@ -58,7 +58,7 @@ function useTicker(active: boolean) {
 function StudyPlanPage() {
   const { user, actions } = useAppState();
   const [minutes, setMinutes] = useState(String(user.settings.sessionLengthMinutes));
-  const [target, setTarget] = useState<number>(60);
+  const [target, setTarget] = useState<number>(user.settings.sessionLengthMinutes);
 
   const activePlan: StudyPlan | undefined = user.studyPlans.find((plan) => plan.status !== "completed");
   useTicker(activePlan?.status === "active");

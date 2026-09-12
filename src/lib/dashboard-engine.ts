@@ -157,6 +157,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
     }))
     .slice(0, 8);
 
+  const focusCertificationId = adaptivePath(user).certification.id;
   const certificationReadiness = scoreAllCertifications(user)
     .map((row) => ({
       id: row.certification.id,
@@ -164,7 +165,11 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       overall: row.overall,
       status: row.status as string,
     }))
-    .sort((a, b) => b.overall - a.overall)
+    .sort((a, b) => {
+      if (a.id === focusCertificationId) return -1;
+      if (b.id === focusCertificationId) return 1;
+      return b.overall - a.overall;
+    })
     .slice(0, 4);
 
   const careerReadiness = scoreTracks(scoreSkills(user)).map((track) => ({

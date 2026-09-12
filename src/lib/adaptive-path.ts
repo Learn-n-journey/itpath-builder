@@ -16,13 +16,15 @@ export const experienceLabels: Record<ExperienceLevel, string> = {
 };
 
 export function selectedCertification(settings: UserSettings): Certification {
-  return (
-    certifications.find(
+  const match = certifications.find(
       (certification) =>
         certification.id === settings.certificationTarget ||
         certification.title === settings.certificationTarget,
-    ) ?? certifications[0]
-  );
+    );
+  if (match) return match;
+  const fallback = certifications[0];
+  if (!fallback) throw new Error("IT PATH requires at least one certification");
+  return fallback;
 }
 
 export function experienceStartStage(experience: ExperienceLevel): StageId {
@@ -52,7 +54,7 @@ function unfinished(user: UserData, topic: Topic): boolean {
 export interface AdaptivePath {
   certification: Certification;
   topics: Topic[];
-  recommendedTopic?: Topic;
+  recommendedTopic: Topic | undefined;
   startStage: StageId;
   startLabel: string;
   reason: string;

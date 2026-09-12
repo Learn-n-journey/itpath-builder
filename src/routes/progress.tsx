@@ -151,13 +151,13 @@ function ProgressPage() {
               </dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Assignments completed</dt>
+              <dt className="text-muted-foreground">Practice completed</dt>
               <dd className="mt-1 tabular-nums">
                 {report.assignment.completed} / {report.assignment.total}
               </dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Assignment average</dt>
+              <dt className="text-muted-foreground">Practice average</dt>
               <dd className="mt-1 tabular-nums">
                 {report.assignment.attempts ? `${report.assignment.average}%` : "—"}
               </dd>

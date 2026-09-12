@@ -37,7 +37,7 @@ export const Route = createFileRoute("/certifications/$certId")({
       {
         name: "description",
         content:
-          "Study, reading and watching material, practice exams and assignments for a single CompTIA certification.",
+          "Study, reading and watching material, practice exams and applied work for a single IT certification.",
       },
       { property: "og:title", content: "Certification study path — IT PATH" },
       {
@@ -179,7 +179,7 @@ function Certifications() {
       </Link>
       <PageHeader
         title={selected.certification.title}
-        description={`${selected.certification.description ?? ""} Work through the topics from the start of the list to the end. Readiness is calculated from your recorded study, labs, assignments, quizzes and troubleshooting.`}
+        description={`${selected.certification.description ?? ""} Work through the topics from the start of the list to the end. Readiness is calculated from your recorded study, labs, practice, quizzes and troubleshooting.`}
       />
 
       {selected.certification.id === personalPath.certification.id && personalPath.recommendedTopic ? (
