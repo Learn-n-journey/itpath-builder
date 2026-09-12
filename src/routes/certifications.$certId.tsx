@@ -127,6 +127,10 @@ function Certifications() {
     () => generateAssignments(certId, assignmentSeed),
     [certId, assignmentSeed],
   );
+  const report = useMemo(() => {
+    const cert = allCertifications.find((item) => item.id === certId);
+    return cert ? buildReadinessReport(user, cert) : null;
+  }, [user, certId]);
 
   if (!selected) {
     return (
