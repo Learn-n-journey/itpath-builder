@@ -159,13 +159,10 @@ const seeds: Seed[] = [
   ],
 ];
 
-const automatic = new Set<AssignmentType>([
-  "recall",
-  "configure",
-  "troubleshoot",
-  "command_challenge",
-  "exam_simulation",
-]);
+function expectedAnswerFor(description: string, concepts: string[], index: number): string {
+  const concept = concepts[index] ?? concepts.join(" ");
+  return `${description}: ${concept}`;
+}
 
 export const assignments: Assignment[] = seeds.map(
   ([type, topicId, title, brief, responsePrompt, criteria, concepts], assignmentIndex) => ({
@@ -175,18 +172,22 @@ export const assignments: Assignment[] = seeds.map(
     brief,
     type,
     responsePrompt,
-    evaluationMode: automatic.has(type) ? "automatic" : "self_rubric",
+    evaluationMode: "automatic",
+    modelAnswer: criteria
+      .map((description, index) => expectedAnswerFor(description, concepts, index))
+      .join("\n\n"),
     instructions: [
       "Read the task and identify the evidence required.",
       "Write a complete response in the workspace.",
-      "Save your draft, then submit when it is ready for evaluation.",
+      "Save your draft, then submit and evaluate it against the answer.",
     ],
     rubric: criteria.map((description, index) => ({
       id: `rubric-${assignmentIndex + 1}-${index + 1}`,
       label: `Criterion ${index + 1}`,
       description,
       points: 100 / criteria.length,
-      ...(automatic.has(type) ? { acceptedConcepts: [concepts[index] ?? concepts[0] ?? ""] } : {}),
+      acceptedConcepts: [concepts[index] ?? concepts[0] ?? ""],
+      expectedAnswer: expectedAnswerFor(description, concepts, index),
     })),
   }),
 );

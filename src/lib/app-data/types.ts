@@ -66,6 +66,8 @@ export interface Assignment {
   instructions: string[];
   responsePrompt: string;
   evaluationMode: "automatic" | "self_rubric";
+  /** The worked answer shown after evaluation. */
+  modelAnswer?: string;
   rubric: AssignmentRubricCriterion[];
 }
 
@@ -90,6 +92,8 @@ export interface AssignmentRubricCriterion {
   description: string;
   points: number;
   acceptedConcepts?: string[];
+  /** The correct idea this criterion expects; matched on meaning, not wording. */
+  expectedAnswer?: string;
 }
 
 export interface AssignmentCriterionResult {

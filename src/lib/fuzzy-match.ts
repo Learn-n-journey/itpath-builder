@@ -87,6 +87,18 @@ export function matchesConcept(
   return acceptedAnswers.some((accepted) => conceptCoverage(accepted, response) >= threshold);
 }
 
+/**
+ * True when a written response carries the idea of a model answer.
+ * Longer model answers need a smaller share of their words, because a correct
+ * answer is usually shorter than the full worked answer.
+ */
+export function answerMatches(response: string, expected: string): boolean {
+  const size = new Set(keywords(expected)).size;
+  if (size === 0 || !response.trim()) return false;
+  const threshold = size <= 3 ? 0.6 : size <= 8 ? 0.45 : size <= 20 ? 0.32 : 0.25;
+  return conceptCoverage(expected, response) >= threshold;
+}
+
 /** How many of several expected ideas the response covers. */
 export function coveredConcepts(
   response: string,

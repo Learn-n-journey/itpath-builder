@@ -24,8 +24,26 @@ import type {
   Assignment,
   AssignmentAttempt,
   AssignmentCriterionResult,
+  AssignmentRubricCriterion,
 } from "@/lib/app-data/types";
+import { answerMatches, matchesConcept } from "@/lib/fuzzy-match";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
+
+/**
+ * A criterion passes when the written response carries the correct idea.
+ * Wording does not have to match; the meaning does.
+ */
+function criterionPassed(
+  response: string,
+  criterion: AssignmentRubricCriterion,
+  selfCheck?: boolean,
+): boolean {
+  if (criterion.expectedAnswer && answerMatches(response, criterion.expectedAnswer)) return true;
+  if (criterion.acceptedConcepts?.length && matchesConcept(response, criterion.acceptedConcepts))
+    return true;
+  if (!criterion.expectedAnswer && !criterion.acceptedConcepts?.length) return Boolean(selfCheck);
+  return false;
+}
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/practice")({
@@ -270,22 +288,15 @@ function AssignmentWorkspace({
 
   function evaluate() {
     if (!attempt || attempt.status !== "submitted") return;
-    const normalized = (attempt.responses["main"] ?? "").toLowerCase();
+    const written = attempt.responses["main"] ?? "";
     const results: AssignmentCriterionResult[] = assignment.rubric.map((criterion) => {
-      const passed =
-        assignment.evaluationMode === "automatic"
-          ? (criterion.acceptedConcepts ?? []).every((concept) =>
-              normalized.includes(concept.toLowerCase()),
-            )
-          : Boolean(selfChecks[criterion.id]);
+      const passed = criterionPassed(written, criterion, selfChecks[criterion.id]);
       return {
         criterionId: criterion.id,
         earnedPoints: passed ? criterion.points : 0,
         feedback: passed
-          ? "Criterion met with evidence in the response."
-          : assignment.evaluationMode === "automatic"
-            ? "Required technical evidence was not found."
-            : "You marked this criterion as not yet met.",
+          ? "Correct — your answer carries this idea."
+          : `Incorrect — this idea is missing. Expected: ${criterion.expectedAnswer ?? criterion.description}`,
       };
     });
     const score = Math.round(results.reduce((sum, item) => sum + item.earnedPoints, 0));
@@ -297,8 +308,8 @@ function AssignmentWorkspace({
       criterionResults: results,
       feedback:
         score >= 70
-          ? "The response meets the completion threshold."
-          : "Review unmet criteria and retake after revising your work.",
+          ? `Correct — you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer.`
+          : `Incorrect — you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer. Compare your work with the answer below and retake.`,
       evaluationMode: assignment.evaluationMode,
       evaluatedAt: now,
     });
@@ -320,11 +331,8 @@ function AssignmentWorkspace({
         attemptId: attempt.id,
         createdAt: now,
       });
-    toast.success(
-      assignment.evaluationMode === "automatic"
-        ? "Objective evaluation complete."
-        : "Self-evaluation saved.",
-    );
+    if (score >= 70) toast.success(`Correct — scored ${score}/100.`);
+    else toast.error(`Incorrect — scored ${score}/100. The answer is shown below.`);
   }
 
   function complete() {
@@ -418,12 +426,8 @@ function AssignmentWorkspace({
           </Panel>
 
           <Panel
-            title="Evaluation rubric"
-            description={
-              assignment.evaluationMode === "self_rubric"
-                ? "This work cannot be judged reliably by an automatic checker. Assess your own evidence honestly against every criterion."
-                : "Submission text is checked only for the explicit technical evidence below."
-            }
+            title="Evaluation"
+            description="Your answer is compared with the correct answer point by point. It does not have to match the wording, only the idea."
           >
             <div className="space-y-3">
               {assignment.rubric.map((criterion) => {
@@ -445,11 +449,18 @@ function AssignmentWorkspace({
                         />
                       ) : null}
                       <div className="min-w-0 flex-1">
-                        <div className="flex justify-between gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                           <p className="text-sm font-medium">{criterion.label}</p>
-                          <span className="text-xs text-muted-foreground">
-                            {Math.round(criterion.points)} pts
-                          </span>
+                          <div className="flex items-center gap-2">
+                            {result ? (
+                              <Badge variant={result.earnedPoints > 0 ? "default" : "destructive"}>
+                                {result.earnedPoints > 0 ? "Correct" : "Incorrect"}
+                              </Badge>
+                            ) : null}
+                            <span className="text-xs text-muted-foreground">
+                              {Math.round(criterion.points)} pts
+                            </span>
+                          </div>
                         </div>
                         <p className="mt-1 text-sm text-muted-foreground">
                           {criterion.description}
@@ -476,6 +487,17 @@ function AssignmentWorkspace({
               </div>
             ) : null}
           </Panel>
+
+          {attempt.score !== undefined && assignment.modelAnswer ? (
+            <Panel
+              title="The answer"
+              description="What a full answer covers. Compare it with your own wording."
+            >
+              <p className="whitespace-pre-wrap rounded-md border border-border p-4 text-sm text-muted-foreground">
+                {assignment.modelAnswer}
+              </p>
+            </Panel>
+          ) : null}
         </>
       )}
 
