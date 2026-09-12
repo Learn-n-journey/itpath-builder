@@ -44,12 +44,21 @@ function WeakAreas() {
   /** Topics you have got something wrong in, strongest signal first. */
   const weakTopicIds = useMemo(() => {
     const counts = new Map<string, number>();
+    const add = (id?: string) => {
+      if (!id) return;
+      counts.set(id, (counts.get(id) ?? 0) + 1);
+    };
     for (const mistake of user.mistakes) {
-      if (mistake.resolved || !mistake.topicId) continue;
-      counts.set(mistake.topicId, (counts.get(mistake.topicId) ?? 0) + 1);
+      if (mistake.resolved) continue;
+      add(mistake.topicId);
+    }
+    for (const item of missed) {
+      if (item.kind === "quiz") add(item.question.topicId);
+      if (item.kind === "recall") add(item.recall.topicId);
+      if (item.kind === "practice") add(item.assignment.topicId);
     }
     return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
-  }, [user.mistakes]);
+  }, [missed, user.mistakes]);
 
   const pool = useMemo(() => {
     const missedQuiz = missed
