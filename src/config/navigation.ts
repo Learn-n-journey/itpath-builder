@@ -40,6 +40,7 @@ export const navItems: NavItem[] = [
   { label: "Quiz Me", to: "/quiz-me", icon: HelpCircle, group: "Practice" },
   { label: "Troubleshoot", to: "/troubleshoot", icon: Wrench, group: "Practice" },
   { label: "Career Mode", to: "/career-mode", icon: Briefcase, group: "Practice" },
+  { label: "Weak Areas", to: "/weak-areas", icon: Target, group: "Practice" },
   { label: "Review", to: "/review", icon: RotateCcw, group: "Practice" },
   { label: "Certifications", to: "/certifications", icon: Award, group: "Career" },
   { label: "Career Skills", to: "/career-skills", icon: Users, group: "Career" },
