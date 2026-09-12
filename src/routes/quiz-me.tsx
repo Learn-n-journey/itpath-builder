@@ -71,7 +71,7 @@ function QuizMe() {
         <StatCard label="Best score" value={attempts.length ? `${best}%` : "—"} />
       </div>
       <div className="mt-6 space-y-4">
-        <QuizRunner quiz={quiz} />
+        <QuizRunner quiz={quiz} questions={pool} />
         <AnnotationPanel
           target={{ kind: "quiz", id: quiz.id, label: quiz.title, href: "/quiz-me" }}
           title="Quiz notes and bookmark"
