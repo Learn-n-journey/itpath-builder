@@ -17,16 +17,40 @@ import {
 } from "@/data/learning-content";
 import type { Topic } from "@/lib/app-data/types";
 
-/** Careful reading pace for unfamiliar technical material. */
-const WORDS_PER_MINUTE = 170;
+/**
+ * Reading pace for unfamiliar technical material studied properly: slower than
+ * casual reading because terms are looked up and notes are taken.
+ */
+const WORDS_PER_MINUTE = 130;
+
+/** A second pass over the material with notes, as a share of the first read. */
+const SECOND_PASS_SHARE = 0.6;
 
 const MINUTES = {
-  workedExample: 4,
-  practiceItem: 2,
-  recallQuestion: 4,
-  practiceActivity: 6,
-  teachBack: 10,
-  scenario: 8,
+  workedExample: 8,
+  practiceItem: 4,
+  recallQuestion: 6,
+  practiceActivity: 12,
+  teachBack: 20,
+  scenario: 15,
+};
+
+/**
+ * Hands-on practice and spaced repetition, which published study-hour guidance
+ * for CompTIA exams (roughly 120h for A+, 90h for Network+/Security+) counts as
+ * the bulk of preparation time. Scaled by topic difficulty.
+ */
+const HANDS_ON_MINUTES: Record<Difficulty, number> = {
+  gentle: 90,
+  standard: 120,
+  challenging: 150,
+};
+
+const REVIEW_SESSIONS = 4;
+const REVIEW_SESSION_MINUTES: Record<Difficulty, number> = {
+  gentle: 15,
+  standard: 20,
+  challenging: 25,
 };
 
 export interface StudyTimePart {
