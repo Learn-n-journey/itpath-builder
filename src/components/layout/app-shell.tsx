@@ -3,7 +3,7 @@ import { Menu, ShieldCheck } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { navGroups, navItems } from "@/config/navigation";
-import { useAppState } from "@/state/app-state";
+import { AccountPanel } from "@/components/layout/account-panel";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
