@@ -13,7 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { HOURS_PER_STUDY_DAY, recommendedWeeklyHours } from "@/lib/study-pace";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
 import type { Difficulty, ExperienceLevel, WeekDay } from "@/lib/app-data/types";
@@ -131,38 +130,9 @@ function SettingsPage() {
                 })}
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {s.studyDays.length} days a week · recommended{" "}
-                <span className="text-primary">{recommendedHours}h a week</span> ({HOURS_PER_STUDY_DAY}h a
-                day on average).
+                {s.studyDays.length} {s.studyDays.length === 1 ? "day" : "days"} a week selected.
               </p>
             </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <Label>Study hours per week</Label>
-                <span className="text-sm tabular-nums text-primary">{s.studyHoursPerWeek}h</span>
-              </div>
-              <Slider
-                className="mt-3"
-                min={1}
-                max={40}
-                step={1}
-                value={[s.studyHoursPerWeek]}
-                onValueChange={([v]) => updateSettings({ studyHoursPerWeek: v ?? s.studyHoursPerWeek })}
-              />
-              {s.studyHoursPerWeek !== recommendedHours ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  className="mt-3"
-                  onClick={() => updateSettings({ studyHoursPerWeek: recommendedHours })}
-                >
-                  Use recommended {recommendedHours}h
-                </Button>
-              ) : null}
-            </div>
-
 
             <div>
               <div className="flex items-center justify-between">
@@ -177,12 +147,31 @@ function SettingsPage() {
                 max={480}
                 step={15}
                 value={[Math.min(480, Math.max(15, s.sessionLengthMinutes || 15))]}
-                onValueChange={([v]) =>
-                  updateSettings({ sessionLengthMinutes: v ?? s.sessionLengthMinutes })
-                }
+                onValueChange={([v]) => setDailyMinutes(v ?? s.sessionLengthMinutes)}
               />
               <p className="mt-2 text-xs text-muted-foreground">
                 From 15 minutes to 8 hours. This is the time your daily tasks aim for.
+              </p>
+            </div>
+
+            <div className="rounded-md border border-border bg-muted/30 p-3">
+              <div className="flex items-center justify-between">
+                <Label>Your weekly study time</Label>
+                <span className="text-sm tabular-nums text-primary">
+                  {formatStudyTime(weeklyMins)}
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Calculated from {s.studyDays.length}{" "}
+                {s.studyDays.length === 1 ? "day" : "days"} ×{" "}
+                {formatStudyTime(s.sessionLengthMinutes)} a day.
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {weeklyHours < 8
+                  ? `Most IT certification guidance recommends 8–10 hours a week — you are ${formatStudyTime(Math.round((8 - weeklyHours) * 60))} below that. Add a day or extend your daily time to reach it.`
+                  : weeklyHours <= 10
+                    ? "This sits inside the recommended 8–10 hours a week for steady certification progress."
+                    : "This is above the recommended 8–10 hours a week — ambitious, but watch out for burnout and keep your review sessions."}
               </p>
             </div>
           </div>
