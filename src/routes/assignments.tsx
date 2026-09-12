@@ -25,6 +25,7 @@ import type {
   AssignmentAttempt,
   AssignmentCriterionResult,
 } from "@/lib/app-data/types";
+import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/assignments")({
