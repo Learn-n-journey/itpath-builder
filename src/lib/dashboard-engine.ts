@@ -1,4 +1,4 @@
-import { assignments, labs, topics } from "@/data/static-content";
+import { assignments, certifications, labs, topics } from "@/data/static-content";
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { scoreAllCertifications } from "@/lib/certification-engine";
 import { scoreSkills, scoreTracks } from "@/lib/skills-engine";
@@ -39,7 +39,6 @@ export interface DashboardTask {
 export interface DashboardMetrics {
   /** 0-100, averaged over every curriculum topic. Untouched topics count as zero. */
   overallProgress: number;
-  currentWeek: { index: number; year: 1 | 2; month: number; week: number; label: string };
   todaysTasks: DashboardTask[];
   studyMinutesTotal: number;
   studyHoursTotal: number;
@@ -122,25 +121,6 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       cursor -= DAY_MS;
     }
   }
-
-  // Current week of the path, from the day the learner started.
-  const weeksElapsed = Math.max(
-    0,
-    Math.floor((startOfDay(nowMs) - startOfDay(user.createdAt)) / (7 * DAY_MS)),
-  );
-  const totalWeeks = 104;
-  const index = Math.min(weeksElapsed + 1, totalWeeks);
-  const year: 1 | 2 = index <= 52 ? 1 : 2;
-  const monthIndex = Math.floor((index - 1) / 4.345) + 1;
-  const month = ((monthIndex - 1) % 12) + 1;
-  const weekInMonth = ((index - 1) % 4) + 1;
-  const currentWeek = {
-    index,
-    year,
-    month,
-    week: weekInMonth,
-    label: `Week ${index} of ${totalWeeks} · Year ${year}, month ${month}`,
-  };
 
   // Quiz average across submitted attempts only.
   const submittedQuizzes = user.quizAttempts.filter((a) => a.status === "submitted");
@@ -250,7 +230,9 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
     tasks.push({
       id: "task-topic",
       label: `Study ${nextTopic.title}`,
-      detail: `Year ${nextTopic.year}, month ${nextTopic.month}, week ${nextTopic.week}`,
+      detail:
+        certifications.find((c) => c.id === nextTopic.certificationId)?.title ??
+        "Next topic on your path",
       to: "/topics/$topicId",
       params: { topicId: nextTopic.id },
     });
@@ -263,7 +245,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       id: "task-study",
       label: `Log ${dailyTargetMinutes - studyMinutesToday} more study minutes today`,
       detail: `${studyMinutesToday} of ${dailyTargetMinutes} minutes logged.`,
-      to: "/this-week",
+      to: "/study-plan",
     });
   }
 
@@ -278,7 +260,6 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
 
   return {
     overallProgress,
-    currentWeek,
     todaysTasks: tasks.slice(0, 5),
     studyMinutesTotal,
     studyHoursTotal: Math.round((studyMinutesTotal / 60) * 10) / 10,
