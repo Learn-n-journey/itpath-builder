@@ -59,7 +59,6 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
         `Experience level: ${experienceLabels[settings.experienceLevel] ?? settings.experienceLevel}`,
         `Target job: ${settings.targetJob || "not set"}`,
         `Certification target: ${settings.certificationTarget || "not set"}`,
-        `Preferred difficulty: ${settings.difficulty}`,
         `Study time: ${settings.studyHoursPerWeek} hours across ${settings.studyDays.length} study days, in ${settings.sessionLengthMinutes}-minute sessions`,
       ]),
     ].join("\n"),
@@ -78,7 +77,6 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
           `Title: ${topic.title}`,
           `Summary: ${topic.summary}`,
           `Certification: ${cert ? `${cert.title} (${cert.provider})` : "not mapped"}`,
-          `Difficulty: ${topic.difficulty}`,
           `Prerequisites: ${prereqs.length > 0 ? prereqs.join(", ") : "none"}`,
         ]),
         "",
@@ -168,7 +166,7 @@ function instructions(mode: TutorMode, topicTitle: string, ctx: TutorContext): s
     case "review_answer":
       return `Review my answer below against ${topicTitle}. Grade it on technical accuracy, completeness, reasoning and clarity, quote the exact parts that are wrong or vague, give the correct version, and name the mistake category.\n\nMY ANSWER:\n${ctx.learnerAnswer?.trim() || "(paste your answer here before sending)"}`;
     case "study_plan":
-      return `Build me a study plan for the next two weeks using my hours per week and session length above. Schedule due reviews and weak prerequisites before new material, then practice, labs, assignments and a quiz. Give each session a date, a length in minutes and a concrete deliverable. Do not schedule more than my available time.`;
+      return `Build me a study plan using my selected certification, study days and session length above. Schedule due reviews and weak prerequisites before new material, then practice, labs and a quiz. Give each session a length in minutes and a concrete deliverable. Do not schedule more than my available time.`;
     default:
       return "";
   }

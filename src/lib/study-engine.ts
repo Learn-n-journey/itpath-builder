@@ -13,6 +13,7 @@ import type {
   StudySession,
   UserData,
 } from "@/lib/app-data/types";
+import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
 
 export const STUDY_DURATIONS = [30, 60, 90, 120] as const;
 export type StudyDuration = (typeof STUDY_DURATIONS)[number];
@@ -87,6 +88,9 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const nowMs = now.getTime();
   const out: Candidate[] = [];
   const usedTopics = new Set<string>();
+  const focus = adaptivePath(user);
+  const orderedTopics = focusedTopicsFirst(user);
+  const focusTopicIds = new Set(focus.topics.map((topic) => topic.id));
 
   // 1. Review — reviews the learner actually has scheduled and due.
   const dueReviews = user.reviews
@@ -120,7 +124,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
       );
     }
   }
-  for (const topic of topics) {
+  for (const topic of orderedTopics) {
     const score = topicScore(user, topic.id);
     if (score !== null && score > 0 && score < 60 && !weakTopics.has(topic.id)) {
       weakTopics.set(topic.id, `Recorded score is ${Math.round(score)}%.`);
@@ -142,11 +146,14 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   }
 
   // 3. New material — the next untouched topic in path order, prerequisites respected.
-  const untouched = topics.filter((topic) => {
+  const untouched = orderedTopics.filter((topic) => {
     const p = user.topicProgress[topic.id];
     return !p || p.status === "not_started";
   });
-  const nextTopic = untouched.find((topic) => prerequisitesReady(user, topic.id));
+  const nextTopic =
+    untouched.find((topic) => focusTopicIds.has(topic.id) && prerequisitesReady(user, topic.id)) ??
+    focus.recommendedTopic ??
+    untouched.find((topic) => prerequisitesReady(user, topic.id));
   if (nextTopic) {
     usedTopics.add(nextTopic.id);
     out.push({
@@ -163,7 +170,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
 
   // 4. Practice — topics you have read but never applied.
   const practiced = new Set(user.practiceResponses.map((r) => r.topicId));
-  const practiceTopic = topics.find((topic) => {
+  const practiceTopic = orderedTopics.find((topic) => {
     const p = user.topicProgress[topic.id];
     return p && p.understanding > 0 && !practiced.has(topic.id);
   });
@@ -190,7 +197,8 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   );
   const nextLab =
     openLabDef ??
-    labs.find((lab) => !doneLabIds.has(lab.id) && (topicScore(user, lab.topicId) ?? 0) > 0) ??
+    labs.find((lab) => focusTopicIds.has(lab.topicId) && !doneLabIds.has(lab.id) && (topicScore(user, lab.topicId) ?? 0) > 0) ??
+    labs.find((lab) => focusTopicIds.has(lab.topicId) && !doneLabIds.has(lab.id)) ??
     labs.find((lab) => !doneLabIds.has(lab.id));
   if (nextLab) {
     out.push({
@@ -220,8 +228,9 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const nextAssignment =
     openAssignmentDef ??
     assignments.find(
-      (a) => !doneAssignmentIds.has(a.id) && (topicScore(user, a.topicId) ?? 0) > 0,
+      (a) => focusTopicIds.has(a.topicId) && !doneAssignmentIds.has(a.id) && (topicScore(user, a.topicId) ?? 0) > 0,
     ) ??
+    assignments.find((a) => focusTopicIds.has(a.topicId) && !doneAssignmentIds.has(a.id)) ??
     assignments.find((a) => !doneAssignmentIds.has(a.id));
   if (nextAssignment) {
     out.push({

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { topics } from "@/data/static-content";
-import type { Difficulty, PortfolioProject } from "@/lib/app-data/types";
+import type { PortfolioProject } from "@/lib/app-data/types";
 import {
   availableLabEvidence,
   downloadFile,
@@ -36,8 +36,6 @@ export const Route = createFileRoute("/portfolio")({
   }),
   component: Portfolio,
 });
-
-const difficulties: Difficulty[] = ["gentle", "standard", "challenging"];
 
 function Portfolio() {
   const { user, actions } = useAppState();
@@ -146,7 +144,7 @@ function Portfolio() {
                   <div className="min-w-0">
                     <p className="break-words text-sm font-medium">{lab.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      Scored {attempt.score} of {attempt.maxScore} · {lab.difficulty}
+                       Scored {attempt.score} of {attempt.maxScore}
                     </p>
                   </div>
                   <Button
@@ -200,21 +198,6 @@ function Portfolio() {
                 <Label htmlFor="p-date">Date</Label>
                 <Input id="p-date" type="date" className="mt-1.5" value={draft.date} onChange={(e) => patch({ date: e.target.value })} />
               </div>
-              <div>
-                <Label htmlFor="p-difficulty">Difficulty</Label>
-                <select
-                  id="p-difficulty"
-                  className="mt-1.5 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                  value={draft.difficulty}
-                  onChange={(e) => patch({ difficulty: e.target.value as Difficulty })}
-                >
-                  {difficulties.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button onClick={save}>{mode === "create" ? "Add project" : "Save changes"}</Button>
@@ -243,7 +226,6 @@ function Portfolio() {
                         <p className="break-words text-sm font-medium">{p.title}</p>
                         <div className="mt-1.5 flex flex-wrap gap-2">
                           <Badge variant="outline">{p.date}</Badge>
-                          <Badge variant="secondary">{p.difficulty}</Badge>
                           {p.source === "lab" ? <Badge>Completed lab evidence</Badge> : null}
                           {p.topicIds.map((id) =>
                             topicTitle(id) ? (

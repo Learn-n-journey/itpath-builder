@@ -26,6 +26,7 @@ import type { Lab, LabAttempt } from "@/lib/app-data/types";
 import { projectFromLabAttempt } from "@/lib/portfolio-engine";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
+import { adaptivePath } from "@/lib/adaptive-path";
 
 export const Route = createFileRoute("/labs")({
   head: () => ({
@@ -62,9 +63,13 @@ const categoryLabels: Record<Lab["category"], string> = {
 
 function LabsPage() {
   const { user } = useAppState();
+  const focus = useMemo(() => adaptivePath(user), [user]);
   const [seed, setSeed] = useState(() => newSeed());
   const [selectedId, setSelectedId] = useState("");
-  const shuffled = useMemo(() => shuffleWithSeed(labs, seed), [seed]);
+  const shuffled = useMemo(() => {
+    const focusIds = new Set(focus.topics.map((topic) => topic.id));
+    return shuffleWithSeed(labs, seed).sort((a, b) => Number(focusIds.has(b.topicId)) - Number(focusIds.has(a.topicId)));
+  }, [focus.topics, seed]);
   const lab = shuffled.find((item) => item.id === selectedId) ?? shuffled[0];
   const attempts = user.labAttempts;
   const latest = lab ? attempts.find((attempt) => attempt.labId === lab.id) : undefined;
@@ -90,7 +95,7 @@ function LabsPage() {
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <Panel title="Lab library" description="Nine practical exercises across core IT disciplines.">
           <div className="space-y-2">
-            {labs.map((item) => {
+            {shuffled.map((item) => {
               const itemAttempt = attempts.find((attempt) => attempt.labId === item.id);
               return (
                 <Button
@@ -236,7 +241,6 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
             <div className="flex flex-wrap gap-2">
               <Badge>{categoryLabels[lab.category]}</Badge>
               <Badge variant="outline">{topic?.title}</Badge>
-              <Badge variant="secondary">{lab.difficulty}</Badge>
             </div>
             <h2 className="mt-3 font-display text-xl font-semibold">{lab.title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{lab.objective}</p>

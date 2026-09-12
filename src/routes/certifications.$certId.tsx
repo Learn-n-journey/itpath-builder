@@ -26,6 +26,7 @@ import { formatStudyTime, topicStudyMinutes } from "@/lib/study-time";
 import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getCertificationWorkedExamples } from "@/data/worked-examples";
 import type { CertificationObjective, Resource } from "@/lib/app-data/types";
+import { adaptivePath } from "@/lib/adaptive-path";
 
 export const Route = createFileRoute("/certifications/$certId")({
   head: () => ({
@@ -36,7 +37,7 @@ export const Route = createFileRoute("/certifications/$certId")({
       {
         name: "description",
         content:
-          "Study, reading and watching material, practice exams and assignments for a single CompTIA certification.",
+          "Study, reading and watching material, practice exams and applied work for a single IT certification.",
       },
       { property: "og:title", content: "Certification study path — IT PATH" },
       {
@@ -103,6 +104,7 @@ function MaterialList({ title, items }: { title: string; items: Resource[] }) {
 function Certifications() {
   const { user, actions } = useAppState();
   const readiness = useMemo(() => scoreAllCertifications(user), [user]);
+  const personalPath = useMemo(() => adaptivePath(user), [user]);
   const { certId } = Route.useParams();
   const [examNote, setExamNote] = useState("");
   const [confirmPass, setConfirmPass] = useState(false);
@@ -177,8 +179,22 @@ function Certifications() {
       </Link>
       <PageHeader
         title={selected.certification.title}
-        description={`${selected.certification.description ?? ""} Work through the topics from the start of the list to the end. Readiness is calculated from your recorded study, labs, assignments, quizzes and troubleshooting.`}
+        description={`${selected.certification.description ?? ""} Work through the topics from the start of the list to the end. Readiness is calculated from your recorded study, labs, practice, quizzes and troubleshooting.`}
       />
+
+      {selected.certification.id === personalPath.certification.id && personalPath.recommendedTopic ? (
+        <Panel
+          className="mb-4"
+          title={`Your recommended start: ${personalPath.recommendedTopic.title}`}
+          description={`${personalPath.startLabel} based on your experience setting. You can still open any topic below.`}
+        >
+          <Button asChild size="sm">
+            <Link to="/topics/$topicId" params={{ topicId: personalPath.recommendedTopic.id }}>
+              Start here
+            </Link>
+          </Button>
+        </Panel>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-4">
         <StatCard label="Overall readiness" value={`${selected.overall}%`} />
@@ -215,7 +231,7 @@ function Certifications() {
                         >
                           <span className="block truncate text-sm font-medium">{topic.title}</span>
                           <span className="block text-xs text-muted-foreground">
-                            {formatStudyTime(topicStudyMinutes(topic.id))} recommended · {topic.difficulty}
+                            {formatStudyTime(topicStudyMinutes(topic.id))} recommended
                           </span>
                         </Link>
                       </li>
@@ -275,7 +291,7 @@ function Certifications() {
           ) : null}
         </Panel>
 
-        <Panel title="Assignments" description="A fresh selection of practical work each time you generate.">
+        <Panel title="Practice" description="A fresh selection of practical work each time you generate.">
           <Button type="button" variant="outline" onClick={() => setAssignmentSeed(newSeed())}>
             <RefreshCw /> Generate new practice
           </Button>
@@ -312,7 +328,7 @@ function Certifications() {
               <Metric label="Retention" value={selected.retention} />
               <Metric label="Quiz performance" value={selected.quizPerformance} />
               <Metric label="Lab completion" value={selected.labCompletion} />
-              <Metric label="Assignment completion" value={selected.assignmentCompletion} />
+               <Metric label="Practice completion" value={selected.assignmentCompletion} />
               <Metric label="Overall readiness" value={selected.overall} />
             </div>
           </Panel>

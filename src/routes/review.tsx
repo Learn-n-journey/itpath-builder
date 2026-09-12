@@ -73,7 +73,7 @@ function Review() {
           {summary.recommendedSkills.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Nothing recommended. Recommendations appear once mistakes are recorded from quizzes,
-              recall, or assignments.
+              recall, or practice.
             </p>
           ) : (
             <ul className="space-y-3 text-sm">

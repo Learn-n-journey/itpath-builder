@@ -290,7 +290,7 @@ function IncidentWorkspace({
           <div className="min-w-0">
             <h2 className="font-display text-lg font-semibold">{incident.title}</h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              {incidentCategoryLabels[incident.category]} · {incident.difficulty}
+              {incidentCategoryLabels[incident.category]}
               {topic ? ` · ${topic.title}` : ""}
             </p>
           </div>

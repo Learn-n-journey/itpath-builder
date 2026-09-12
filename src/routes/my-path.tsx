@@ -10,7 +10,8 @@ import {
   certificationStudyIndex,
   certificationsByLevel,
 } from "@/lib/cert-path";
-import { useStats } from "@/state/app-state";
+import { useAppState, useStats } from "@/state/app-state";
+import { adaptivePath } from "@/lib/adaptive-path";
 
 export const Route = createFileRoute("/my-path")({
   head: () => ({
@@ -34,6 +35,8 @@ export const Route = createFileRoute("/my-path")({
 
 function MyPath() {
   const stats = useStats();
+  const { user } = useAppState();
+  const path = adaptivePath(user);
   const levels = certificationsByLevel();
   const certCount = levels.reduce((sum, group) => sum + group.items.length, 0);
 
@@ -43,6 +46,15 @@ function MyPath() {
         title="My Path"
         description="The roadmap organised by certification, not by calendar. Start with entry-level certifications, then move into infrastructure, security and advanced work."
       />
+
+      {path.recommendedTopic ? (
+        <Panel className="mb-4" title={`${path.certification.title}: your starting point`} description={`${path.startLabel} based on your experience setting.`}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm font-medium">{path.recommendedTopic.title}</p>
+            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>Start here <ArrowRight /></Link></Button>
+          </div>
+        </Panel>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Certifications" value={certCount} />

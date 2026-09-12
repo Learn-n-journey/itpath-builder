@@ -28,6 +28,7 @@ import type {
 } from "@/lib/app-data/types";
 import { answerMatches, matchesConcept } from "@/lib/fuzzy-match";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
+import { selectedCertification } from "@/lib/adaptive-path";
 
 /**
  * A criterion passes when the written response carries the correct idea.
@@ -93,7 +94,7 @@ function PracticePage() {
   const { user } = useAppState();
   const [seed, setSeed] = useState(() => newSeed());
   const [selectedId, setSelectedId] = useState("");
-  const [group, setGroup] = useState("");
+  const [group, setGroup] = useState(() => selectedCertification(user.settings).id);
 
   const groups = useMemo(() => {
     const shuffled = shuffleWithSeed(assignments, seed);

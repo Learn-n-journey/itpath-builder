@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { bookmarkFor, notesFor } from "@/lib/annotations";
 import { certifications, resources, topics } from "@/data/static-content";
-import type { Difficulty, Resource } from "@/lib/app-data/types";
+import type { Resource } from "@/lib/app-data/types";
+import { selectedCertification } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/resources")({
@@ -32,18 +33,16 @@ type Filters = {
   topic: string;
   certification: string;
   kind: string;
-  difficulty: string;
   access: string;
 };
 
-const emptyFilters: Filters = { topic: "all", certification: "all", kind: "all", difficulty: "all", access: "all" };
-const difficultyLabels: Record<Difficulty, string> = { gentle: "Beginner", standard: "Intermediate", challenging: "Advanced" };
+const emptyFilters: Filters = { topic: "all", certification: "all", kind: "all", access: "all" };
 const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
 
 function ResourcesPage() {
   const { user, actions } = useAppState();
   const [query, setQuery] = useState("");
-  const [filters, setFilters] = useState<Filters>(emptyFilters);
+  const [filters, setFilters] = useState<Filters>(() => ({ ...emptyFilters, certification: selectedCertification(user.settings).id }));
   const [openNoteId, setOpenNoteId] = useState<string | null>(null);
 
   const filteredResources = useMemo(() => {
@@ -56,7 +55,6 @@ function ResourcesPage() {
         && (filters.topic === "all" || resource.topicIds.includes(filters.topic))
         && (filters.certification === "all" || resource.certificationId === filters.certification)
         && (filters.kind === "all" || resource.kind === filters.kind)
-        && (filters.difficulty === "all" || resource.difficulty === filters.difficulty)
         && (filters.access === "all" || resource.access === filters.access);
     });
   }, [filters, query]);
@@ -75,11 +73,10 @@ function ResourcesPage() {
           <Input aria-label="Search resources" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search titles, providers, topics, or certifications" className="pl-9 pr-10" />
           {query ? <Button aria-label="Clear search" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setQuery("")}><X /></Button> : null}
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <ResourceFilter label="Topic" allLabel="All topics" value={filters.topic} onChange={(value) => updateFilter("topic", value)} options={topics.map((topic) => ({ value: topic.id, label: topic.title }))} />
           <ResourceFilter label="Certification" allLabel="All certifications" value={filters.certification} onChange={(value) => updateFilter("certification", value)} options={certifications.map((certification) => ({ value: certification.id, label: certification.title }))} />
           <ResourceFilter label="Type" allLabel="All types" value={filters.kind} onChange={(value) => updateFilter("kind", value)} options={Object.entries(kindLabels).map(([value, label]) => ({ value, label }))} />
-          <ResourceFilter label="Difficulty" allLabel="All difficulties" value={filters.difficulty} onChange={(value) => updateFilter("difficulty", value)} options={Object.entries(difficultyLabels).map(([value, label]) => ({ value, label }))} />
           <ResourceFilter label="Access" allLabel="All access" value={filters.access} onChange={(value) => updateFilter("access", value)} options={[{ value: "free", label: "Free" }, { value: "paid", label: "Paid" }]} />
         </div>
         {hasFilters ? <Button variant="ghost" className="mt-4" onClick={clearFilters}><X />Clear all filters</Button> : null}
@@ -120,7 +117,7 @@ function ResourceCard({ resource, noteOpen, onToggleNote }: { resource: Resource
         <Badge variant={resource.status === "verified" ? "secondary" : "outline"}>{resource.status === "verified" ? "Verified" : "Unavailable"}</Badge>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Badge variant="outline">{certification?.title ?? "General IT"}</Badge><Badge variant="outline">{kindLabels[resource.kind]}</Badge><Badge variant="outline">{difficultyLabels[resource.difficulty]}</Badge><Badge variant="outline">{resource.access === "free" ? "Free" : "Paid"}</Badge>
+        <Badge variant="outline">{certification?.title ?? "General IT"}</Badge><Badge variant="outline">{kindLabels[resource.kind]}</Badge><Badge variant="outline">{resource.access === "free" ? "Free" : "Paid"}</Badge>
       </div>
       <div className="mt-4"><p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Topics</p><p className="mt-1 text-sm text-muted-foreground">{resourceTopics.map((topic) => topic.title).join(" · ")}</p></div>
       <p className="mt-4 text-xs text-muted-foreground">Last verified: <time dateTime={resource.lastVerified}>{resource.lastVerified}</time></p>

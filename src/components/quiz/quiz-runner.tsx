@@ -248,7 +248,6 @@ function QuizWorkspace({
         <div className="flex flex-wrap gap-2">
           <Badge>{questionTypeLabels[question.type]}</Badge>
           <Badge variant="outline">{topics.find((topic) => topic.id === question.topicId)?.title}</Badge>
-          <Badge variant="secondary">{question.difficulty}</Badge>
         </div>
         <h2 className="mt-5 font-display text-xl font-semibold">{question.prompt}</h2>
         <div className="mt-6">

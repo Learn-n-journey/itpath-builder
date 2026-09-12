@@ -17,6 +17,7 @@ import {
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { computeDashboard } from "@/lib/dashboard-engine";
+import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationStatusLabels } from "@/lib/certification-engine";
 import type { CertificationStatus } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
@@ -70,6 +71,7 @@ function MeterRow({ label, value, suffix = "%" }: { label: string; value: number
 function Dashboard() {
   const { user, hydrated } = useAppState();
   const d = useMemo(() => computeDashboard(user), [user]);
+  const path = useMemo(() => adaptivePath(user), [user]);
 
   return (
     <>
@@ -82,6 +84,20 @@ function Dashboard() {
           </Button>
         }
       />
+
+      {path.recommendedTopic ? (
+        <Panel
+          className="mb-4"
+          title={`Recommended start: ${path.recommendedTopic.title}`}
+          description={`${path.startLabel}. ${path.reason}.`}
+        >
+          <Button asChild size="sm">
+            <Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>
+              Start learning
+            </Link>
+          </Button>
+        </Panel>
+      ) : null}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard

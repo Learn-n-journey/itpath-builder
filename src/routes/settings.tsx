@@ -13,9 +13,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { certifications } from "@/data/static-content";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
-import type { Difficulty, ExperienceLevel, WeekDay } from "@/lib/app-data/types";
+import type { ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -46,21 +47,6 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
   { id: "beginner", label: "Some basics" },
   { id: "some", label: "Home lab experience" },
   { id: "intermediate", label: "Working in IT already" },
-];
-
-const DIFFICULTY: { id: Difficulty; label: string }[] = [
-  { id: "gentle", label: "Gentle" },
-  { id: "standard", label: "Standard" },
-  { id: "challenging", label: "Challenging" },
-];
-
-const CERTS = [
-  "CompTIA ITF+",
-  "CompTIA A+",
-  "CompTIA Network+",
-  "CompTIA Security+",
-  "CompTIA CySA+",
-  "Cisco CCNA",
 ];
 
 const JOBS = [
@@ -224,31 +210,16 @@ function SettingsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {CERTS.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
+                  {certifications.map((certification) => (
+                    <SelectItem key={certification.id} value={certification.title}>
+                      {certification.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div>
-              <Label>Difficulty</Label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {DIFFICULTY.map((d) => (
-                  <Button
-                    key={d.id}
-                    type="button"
-                    size="sm"
-                    variant={s.difficulty === d.id ? "default" : "secondary"}
-                    aria-pressed={s.difficulty === d.id}
-                    onClick={() => updateSettings({ difficulty: d.id })}
-                  >
-                    {d.label}
-                  </Button>
-                ))}
-              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                This becomes the main course shown across Learn, Practice, Labs, quizzes, and your study plan.
+              </p>
             </div>
           </div>
         </Panel>
