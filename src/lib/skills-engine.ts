@@ -438,8 +438,10 @@ export interface RecommendedActivity {
   skillId: SkillId;
   title: string;
   reason: string;
-  href: string;
+  href: "/labs" | "/troubleshoot" | "/career-mode" | "/practice" | "/topics/$topicId";
   action: string;
+  /** Set when href is the dynamic topic route. */
+  topicId?: string;
 }
 
 /** Concrete next steps drawn from real content that has not produced evidence yet. */
@@ -503,7 +505,7 @@ export function recommendActivities(user: UserData, skills: SkillScore[]): Recom
     if (topic) {
       out.push({
         id: `rec-topic-${topic.id}`, skillId, title: topic.title, reason,
-        href: `/topics/${topic.id}`, action: "Study and recall this topic",
+        href: "/topics/$topicId", topicId: topic.id, action: "Study and recall this topic",
       });
     }
   }

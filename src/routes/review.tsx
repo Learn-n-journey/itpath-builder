@@ -191,11 +191,6 @@ function Review() {
                       {new Date(mistake.createdAt).toLocaleDateString()}
                     </span>
                   </div>
-                  {mistake.attemptId ? (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Attempt {mistake.attemptId.slice(0, 8)}
-                    </p>
-                  ) : null}
                   {mistake.recommendedSkillIds.length > 0 ? (
                     <p className="mt-2 text-muted-foreground">
                       Recommended review:{" "}
