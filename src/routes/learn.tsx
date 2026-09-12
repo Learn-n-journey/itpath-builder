@@ -7,8 +7,8 @@ import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { certifications, topics } from "@/data/static-content";
-import { stageLabels, type StageId } from "@/lib/cert-path";
-import type { Difficulty } from "@/lib/app-data/types";
+import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
+import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/learn")({
   head: () => ({
@@ -24,25 +24,22 @@ export const Route = createFileRoute("/learn")({
   component: Learn,
 });
 
-const difficultyToStage: Record<Difficulty, StageId> = {
-  gentle: "foundation",
-  standard: "core",
-  challenging: "advanced",
-};
-
 function Learn() {
+  const { user } = useAppState();
   const [query, setQuery] = useState("");
+  const path = useMemo(() => adaptivePath(user), [user]);
   const filteredTopics = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    if (!needle) return topics;
-    return topics.filter((topic) => {
+    const ordered = focusedTopicsFirst(user);
+    if (!needle) return ordered;
+    return ordered.filter((topic) => {
       const certification = certifications.find((item) => item.id === topic.certificationId);
       return [topic.title, topic.summary, certification?.title ?? "", ...topic.learningObjectives]
         .join(" ")
         .toLowerCase()
         .includes(needle);
     });
-  }, [query]);
+  }, [query, user]);
 
   return (
     <>
@@ -50,6 +47,14 @@ function Learn() {
         title="Learn"
         description="Choose a topic, build recall, apply the knowledge, and explain your reasoning."
       />
+      {path.recommendedTopic ? (
+        <Panel className="mb-4" title={`${path.certification.title}: your recommended start`} description={`${path.startLabel} based on your experience setting.`}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm font-medium">{path.recommendedTopic.title}</p>
+            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>Start here <ArrowRight /></Link></Button>
+          </div>
+        </Panel>
+      ) : null}
       <Panel title="Available topics" description={`${filteredTopics.length} of ${topics.length} topics shown`}>
         <div className="relative mb-5">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
@@ -66,7 +71,7 @@ function Learn() {
                 <div className="flex items-start justify-between gap-4"><BookOpen className="mt-0.5 size-5 shrink-0 text-primary" /><ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" /></div>
                 <h2 className="mt-4 font-display text-base font-semibold">{topic.title}</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{topic.summary}</p>
-                <p className="mt-4 text-xs font-medium text-muted-foreground">{certification?.title ?? "General IT"} · {stageLabels[difficultyToStage[topic.difficulty]]}</p>
+                <p className="mt-4 text-xs font-medium text-muted-foreground">{certification?.title ?? "General IT"}{topic.id === path.recommendedTopic?.id ? " · Recommended start" : ""}</p>
               </Link>;
             })}
           </div>

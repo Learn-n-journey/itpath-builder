@@ -2,6 +2,7 @@ import { assignments, certifications, labs, topics } from "@/data/static-content
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { scoreAllCertifications } from "@/lib/certification-engine";
 import { scoreSkills, scoreTracks } from "@/lib/skills-engine";
+import { adaptivePath } from "@/lib/adaptive-path";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -209,10 +210,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       to: "/practice",
     });
   }
-  const nextTopic = topics.find((topic) => {
-    const p = user.topicProgress[topic.id];
-    return !p || (p.status !== "completed" && p.status !== "mastered");
-  });
+  const nextTopic = adaptivePath(user).recommendedTopic;
   if (nextTopic) {
     tasks.push({
       id: "task-topic",

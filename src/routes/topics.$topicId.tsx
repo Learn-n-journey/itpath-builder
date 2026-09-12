@@ -6,9 +6,7 @@ import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
-import { stageLabels, type StageId } from "@/lib/cert-path";
 import { formatStudyTime, topicStudyTimeForSession } from "@/lib/study-time";
-import type { Difficulty } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/topics/$topicId")({
@@ -29,18 +27,6 @@ export const Route = createFileRoute("/topics/$topicId")({
   },
   component: TopicPage,
 });
-
-const difficultyLabels = {
-  gentle: "Beginner",
-  standard: "Intermediate",
-  challenging: "Advanced",
-} as const;
-
-const difficultyToStage: Record<Difficulty, StageId> = {
-  gentle: "foundation",
-  standard: "core",
-  challenging: "advanced",
-};
 
 function TopicPage() {
   const { topicId } = Route.useParams();
@@ -83,17 +69,15 @@ function TopicPage() {
 
       <PageHeader title={topic.title} description={topic.summary} />
 
-      <dl className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-5">
+      <dl className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
         {[
           ["Certification", certification?.title ?? "General IT"],
-          ["Stage", stageLabels[difficultyToStage[topic.difficulty]]],
-          ["Difficulty", difficultyLabels[topic.difficulty]],
           ["Recommended study time", formatStudyTime(studyTime.totalMinutes)],
           ["Status", progress ? "In progress" : "Not started"],
         ].map(([label, value], index) => (
           <div
             key={label}
-            className={index === 4 ? "col-span-2 min-w-0 bg-card p-4 sm:col-span-1" : "min-w-0 bg-card p-4"}
+            className={index === 2 ? "col-span-2 min-w-0 bg-card p-4 sm:col-span-1" : "min-w-0 bg-card p-4"}
           >
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
             <dd className="mt-1 break-words text-sm font-medium">{value}</dd>
