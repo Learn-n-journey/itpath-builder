@@ -71,7 +71,7 @@ function SkillRow({ skill, open, onToggle }: { skill: SkillScore; open: boolean;
           </ul>
         ) : (
           <p className="mt-3 text-xs text-muted-foreground">
-            Scores appear once this skill is exercised in Learn, Labs, Assignments, Quizzes, Troubleshooting or Career Mode.
+            Scores appear once this skill is exercised in Learn, Labs, Practice, Quizzes, Troubleshooting or Career Mode.
           </p>
         )
       ) : null}

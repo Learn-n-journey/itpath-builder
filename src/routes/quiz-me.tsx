@@ -6,8 +6,9 @@ import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { PageHeader, StatCard } from "@/components/page-kit";
 import { QuizRunner, quizQuestions } from "@/components/quiz/quiz-runner";
 import { Button } from "@/components/ui/button";
-import { quizzes } from "@/data/static-content";
+import { certifications, quizzes, topics } from "@/data/static-content";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
+import { selectedCertification } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/quiz-me")({
@@ -30,7 +31,13 @@ export const Route = createFileRoute("/quiz-me")({
 function QuizMe() {
   const { user } = useAppState();
   const [seed, setSeed] = useState(() => newSeed());
-  const available = useMemo(() => quizzes.filter((item) => item.kind !== "assessment"), []);
+  const focus = selectedCertification(user.settings);
+  const focusTopicIds = useMemo(() => new Set(topics.filter((topic) => topic.certificationId === focus.id).map((topic) => topic.id)), [focus.id]);
+  const available = useMemo(() => {
+    const general = quizzes.filter((item) => item.kind !== "assessment");
+    const focused = general.filter((quiz) => quiz.topicIds.some((id) => focusTopicIds.has(id)));
+    return focused.length > 0 ? focused : general;
+  }, [focusTopicIds]);
   const quiz = useMemo(() => shuffleWithSeed(available, seed)[0], [available, seed]);
   const pool = useMemo(() => (quiz ? quizQuestions(quiz) : []), [quiz]);
 
@@ -46,7 +53,7 @@ function QuizMe() {
     <>
       <PageHeader
         title="Quiz Me"
-        description="A quiz is picked at random each visit. Question and choice order change with every attempt."
+        description={`A ${focus.title} quiz is picked at random when available. Question and choice order change with every attempt.`}
         actions={
           <Button variant="outline" onClick={() => setSeed(newSeed())}>
             <RefreshCw /> New quiz
