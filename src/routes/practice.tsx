@@ -449,11 +449,18 @@ function AssignmentWorkspace({
                         />
                       ) : null}
                       <div className="min-w-0 flex-1">
-                        <div className="flex justify-between gap-3">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
                           <p className="text-sm font-medium">{criterion.label}</p>
-                          <span className="text-xs text-muted-foreground">
-                            {Math.round(criterion.points)} pts
-                          </span>
+                          <div className="flex items-center gap-2">
+                            {result ? (
+                              <Badge variant={result.earnedPoints > 0 ? "default" : "destructive"}>
+                                {result.earnedPoints > 0 ? "Correct" : "Incorrect"}
+                              </Badge>
+                            ) : null}
+                            <span className="text-xs text-muted-foreground">
+                              {Math.round(criterion.points)} pts
+                            </span>
+                          </div>
                         </div>
                         <p className="mt-1 text-sm text-muted-foreground">
                           {criterion.description}
