@@ -173,6 +173,16 @@ export function topicStudyTime(topicId: string): StudyTimeEstimate {
       minutes: scenarioMinutes,
       detail: "Read the situation and justify your decision in writing.",
     },
+    {
+      label: "Hands-on practice",
+      minutes: handsOnMinutes,
+      detail: "Labs, commands and configuration until you can do it unaided.",
+    },
+    {
+      label: "Spaced review",
+      minutes: reviewMinutes,
+      detail: `${REVIEW_SESSIONS} short review sessions spread over the following weeks.`,
+    },
   ].filter((part) => part.minutes > 0);
 
   const totalMinutes = roundTo5(parts.reduce((sum, part) => sum + part.minutes, 0));
