@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { labs, topics } from "@/data/static-content";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
 import { projectFromLabAttempt } from "@/lib/portfolio-engine";
+import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/labs")({
