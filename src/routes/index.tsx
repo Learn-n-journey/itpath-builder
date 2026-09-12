@@ -215,7 +215,9 @@ function Dashboard() {
                 >
                   <Link
                     to="/review"
-                    hash={missedAnchors[item.topicId] ?? undefined}
+                    {...(missedAnchors[item.topicId]
+                      ? { hash: missedAnchors[item.topicId] as string }
+                      : {})}
                     className="truncate hover:underline"
                   >
                     {item.title}

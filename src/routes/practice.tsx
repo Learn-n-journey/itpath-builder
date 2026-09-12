@@ -48,9 +48,8 @@ function criterionPassed(
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/practice")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    assignment: typeof search['assignment'] === "string" ? (search['assignment'] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { assignment?: string } =>
+    typeof search['assignment'] === "string" ? { assignment: search['assignment'] } : {},
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
