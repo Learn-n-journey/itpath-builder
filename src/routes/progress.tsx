@@ -8,6 +8,7 @@ import { Progress as ProgressBar } from "@/components/ui/progress";
 import { certificationStatusLabels } from "@/lib/certification-engine";
 import { computeProgress, dimensionLabels, type ProgressReport } from "@/lib/progress-engine";
 import { stageLabels, stageOrder, type StageId } from "@/lib/cert-path";
+import type { Difficulty } from "@/lib/app-data/types";
 import { topics as staticTopics } from "@/data/static-content";
 import { evidenceSourceLabels } from "@/lib/skills-engine";
 import { useAppState } from "@/state/app-state";
@@ -62,7 +63,7 @@ function ProgressPage() {
     ? [...report.byTopic].sort((a, b) => b.score - a.score)
     : [...startedTopics].sort((a, b) => b.score - a.score).slice(0, 12);
 
-  const difficultyToStage: Record<string, StageId> = {
+  const difficultyToStage: Record<Difficulty, StageId> = {
     gentle: "foundation",
     standard: "core",
     challenging: "advanced",

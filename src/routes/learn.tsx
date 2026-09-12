@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { certifications, topics } from "@/data/static-content";
 import { stageLabels, type StageId } from "@/lib/cert-path";
+import type { Difficulty } from "@/lib/app-data/types";
 
 export const Route = createFileRoute("/learn")({
   head: () => ({
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/learn")({
   component: Learn,
 });
 
-const difficultyToStage: Record<string, StageId> = {
+const difficultyToStage: Record<Difficulty, StageId> = {
   gentle: "foundation",
   standard: "core",
   challenging: "advanced",
