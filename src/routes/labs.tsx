@@ -4,6 +4,7 @@ import {
   Clock3,
   FileText,
   FlaskConical,
+  RefreshCw,
   RotateCcw,
   Save,
   Send,
@@ -23,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { labs, topics } from "@/data/static-content";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
 import { projectFromLabAttempt } from "@/lib/portfolio-engine";
+import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/labs")({
@@ -60,8 +62,10 @@ const categoryLabels: Record<Lab["category"], string> = {
 
 function LabsPage() {
   const { user } = useAppState();
-  const [selectedId, setSelectedId] = useState(labs[0]?.id ?? "");
-  const lab = labs.find((item) => item.id === selectedId) ?? labs[0];
+  const [seed, setSeed] = useState(() => newSeed());
+  const [selectedId, setSelectedId] = useState("");
+  const shuffled = useMemo(() => shuffleWithSeed(labs, seed), [seed]);
+  const lab = shuffled.find((item) => item.id === selectedId) ?? shuffled[0];
   const attempts = user.labAttempts;
   const latest = lab ? attempts.find((attempt) => attempt.labId === lab.id) : undefined;
 
@@ -69,7 +73,12 @@ function LabsPage() {
     <>
       <PageHeader
         title="Labs"
-        description="Guided practical work you perform in an environment you control. IT PATH records your evidence but never claims to access that environment."
+        description="Guided practical work you perform in an environment you control, shown in a random order. IT PATH records your evidence but never claims to access that environment."
+        actions={
+          <Button variant="outline" onClick={() => { setSeed(newSeed()); setSelectedId(""); }}>
+            <RefreshCw /> Shuffle
+          </Button>
+        }
       />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Available" value={labs.length} />

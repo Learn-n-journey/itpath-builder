@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { PageHeader, StatCard } from "@/components/page-kit";
 import { QuizRunner, quizQuestions } from "@/components/quiz/quiz-runner";
+import { Button } from "@/components/ui/button";
 import { quizzes } from "@/data/static-content";
+import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/quiz-me")({
@@ -26,7 +29,9 @@ export const Route = createFileRoute("/quiz-me")({
 
 function QuizMe() {
   const { user } = useAppState();
-  const quiz = quizzes.find((item) => item.id === "quiz-it-foundations-checkpoint") ?? quizzes[0];
+  const [seed, setSeed] = useState(() => newSeed());
+  const available = useMemo(() => quizzes.filter((item) => item.kind !== "assessment"), []);
+  const quiz = useMemo(() => shuffleWithSeed(available, seed)[0], [available, seed]);
   const pool = useMemo(() => (quiz ? quizQuestions(quiz) : []), [quiz]);
 
   if (!quiz) return null;
@@ -41,7 +46,12 @@ function QuizMe() {
     <>
       <PageHeader
         title="Quiz Me"
-        description="One randomized assessment across the eight current IT PATH topics."
+        description="A quiz is picked at random each visit. Question and choice order change with every attempt."
+        actions={
+          <Button variant="outline" onClick={() => setSeed(newSeed())}>
+            <RefreshCw /> New quiz
+          </Button>
+        }
       />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Questions" value={pool.length} />

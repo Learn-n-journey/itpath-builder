@@ -3,6 +3,7 @@ import {
   CheckCircle2,
   ClipboardList,
   FileText,
+  RefreshCw,
   RotateCcw,
   Save,
   Send,
@@ -24,6 +25,7 @@ import type {
   AssignmentAttempt,
   AssignmentCriterionResult,
 } from "@/lib/app-data/types";
+import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/assignments")({
@@ -64,8 +66,17 @@ const typeLabels: Record<Assignment["type"], string> = {
 
 function AssignmentsPage() {
   const { user } = useAppState();
-  const [selectedId, setSelectedId] = useState(assignments[0]?.id ?? "");
-  const assignment = assignments.find((item) => item.id === selectedId) ?? assignments[0];
+  const [seed, setSeed] = useState(() => newSeed());
+  const [selectedId, setSelectedId] = useState("");
+  const shuffled = useMemo(() => shuffleWithSeed(assignments, seed), [seed]);
+  const assignment = shuffled.find((item) => item.id === selectedId) ?? shuffled[0];
+
+  function refresh() {
+    const next = newSeed();
+    setSeed(next);
+    setSelectedId("");
+  }
+
   const attempts = user.assignmentAttempts;
   const latest = assignment
     ? attempts.find((attempt) => attempt.assignmentId === assignment.id)
@@ -75,7 +86,12 @@ function AssignmentsPage() {
     <>
       <PageHeader
         title="Assignments"
-        description="Applied work evaluated against visible criteria. Opening a task never changes your progress."
+        description="Applied work evaluated against visible criteria, shown in a random order. Opening a task never changes your progress."
+        actions={
+          <Button variant="outline" onClick={refresh}>
+            <RefreshCw /> Shuffle
+          </Button>
+        }
       />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Available" value={assignments.length} />
@@ -94,10 +110,10 @@ function AssignmentsPage() {
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <Panel
           title="Assignment library"
-          description="All assignment formats are available for lifecycle testing."
+          description="Every assignment format, reshuffled whenever you refresh."
         >
           <div className="space-y-2">
-            {assignments.map((item) => {
+            {shuffled.map((item) => {
               const itemAttempt = attempts.find((attempt) => attempt.assignmentId === item.id);
               return (
                 <Button
