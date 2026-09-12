@@ -24,7 +24,7 @@ export function isStorageAvailable(): boolean {
 }
 
 /** Fills in anything missing/corrupted on a persisted user object. */
-function sanitizeUser(raw: unknown): UserData {
+export function sanitizeUser(raw: unknown): UserData {
   const base = createDefaultUserData();
   if (!raw || typeof raw !== "object") return base;
   const r = raw as Partial<UserData>;
