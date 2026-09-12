@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { HOURS_PER_STUDY_DAY, recommendedWeeklyHours } from "@/lib/study-pace";
+import { formatStudyTime } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
 import type { Difficulty, ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 
