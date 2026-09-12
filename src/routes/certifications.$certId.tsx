@@ -1,32 +1,38 @@
 import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { topics } from "@/data/static-content";
 import { useAppState } from "@/state/app-state";
 import {
-  EXAM_READY_SCORE,
   certificationStatusLabels,
   scoreAllCertifications,
 } from "@/lib/certification-engine";
 import type { CertificationObjective } from "@/lib/app-data/types";
 
-export const Route = createFileRoute("/certifications")({
+export const Route = createFileRoute("/certifications/$certId")({
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Certifications — IT PATH" },
-      { name: "description", content: "Readiness for nine CompTIA certifications, calculated from your recorded work." },
-      { property: "og:title", content: "Certifications — IT PATH" },
-      { property: "og:description", content: "Objective maps, domain readiness and learner-confirmed exam results." },
+      { title: "Certification readiness — IT PATH" },
+      { name: "description", content: "Months, topics, objectives and readiness for a single CompTIA certification." },
+      { property: "og:title", content: "Certification readiness — IT PATH" },
+      { property: "og:description", content: "Month blocks, domain readiness and learner-confirmed exam results." },
     ],
   }),
   component: Certifications,
 });
+
+function monthLabel(months: number[]) {
+  if (months.length === 0) return "Optional specialisation — no scheduled months";
+  if (months.length === 1) return `Month ${months[0]}`;
+  return `Months ${months[0]}–${months[months.length - 1]}`;
+}
 
 function Meter({ value }: { value: number }) {
   return (
@@ -53,12 +59,29 @@ function Metric({ label, value }: { label: string; value: number }) {
 function Certifications() {
   const { user, actions } = useAppState();
   const readiness = useMemo(() => scoreAllCertifications(user), [user]);
-  const [selectedId, setSelectedId] = useState(readiness[0]?.certification.id ?? "");
+  const { certId } = Route.useParams();
   const [examNote, setExamNote] = useState("");
   const [confirmPass, setConfirmPass] = useState(false);
   const [draft, setDraft] = useState<CertificationObjective | null>(null);
 
-  const selected = readiness.find((row) => row.certification.id === selectedId) ?? readiness[0]!;
+  const selected = readiness.find((row) => row.certification.id === certId);
+  const months = selected?.certification.months ?? [];
+  const monthTopics = useMemo(
+    () => topics.filter((topic) => months.includes(topic.month)).sort((a, b) => a.month - b.month || a.week - b.week),
+    [months],
+  );
+
+  if (!selected) {
+    return (
+      <>
+        <PageHeader title="Certification not found" description="That certification is not part of IT PATH." />
+        <Link to="/certifications" className="text-sm text-primary hover:underline">
+          Back to all certifications
+        </Link>
+      </>
+    );
+  }
+
   const progress = user.certificationProgress[selected.certification.id];
 
   const startEdit = (objective: CertificationObjective) => setDraft({ ...objective });
@@ -97,56 +120,61 @@ function Certifications() {
 
   return (
     <>
+      <Link to="/certifications" className="text-xs text-muted-foreground hover:underline">
+        ← All certifications
+      </Link>
       <PageHeader
-        title="Certifications"
-        description={`Readiness is calculated from your recorded study, labs, assignments, quizzes and troubleshooting. Your target is ${user.settings.certificationTarget}.`}
+        title={selected.certification.title}
+        description={`${monthLabel(months)}. Readiness is calculated from your recorded study, labs, assignments, quizzes and troubleshooting. Your target is ${user.settings.certificationTarget}.`}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Certifications tracked" value={readiness.length} />
-        <StatCard
-          label="Exam ready"
-          value={readiness.filter((r) => r.status === "exam_ready").length}
-          hint={`Needs curriculum complete and ${EXAM_READY_SCORE}% overall`}
-        />
-        <StatCard
-          label="Passed (confirmed by you)"
-          value={readiness.filter((r) => r.status === "exam_passed").length}
-        />
+        <StatCard label="Overall readiness" value={`${selected.overall}%`} />
+        <StatCard label="Status" value={certificationStatusLabels[selected.status]} />
+        <StatCard label="Topics in this block" value={monthTopics.length} />
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
-        <Panel title="Certifications">
-          <ul className="space-y-1">
-            {readiness.map((row) => {
-              const active = row.certification.id === selected.certification.id;
-              return (
-                <li key={row.certification.id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedId(row.certification.id);
-                      setDraft(null);
-                      setConfirmPass(false);
-                      setExamNote("");
-                    }}
-                    className={`grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-lg px-3 py-2 text-left text-sm ${
-                      active ? "bg-secondary text-foreground" : "hover:bg-secondary/60"
-                    }`}
-                    aria-current={active}
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate font-medium">{row.certification.title}</span>
-                      <span className="block truncate text-xs text-muted-foreground">
-                        {certificationStatusLabels[row.status]}
-                      </span>
-                    </span>
-                    <span className="text-xs font-semibold tabular-nums">{row.overall}%</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+      <div className="mt-4 grid gap-4">
+        <Panel
+          title="Months and topics"
+          description={
+            months.length > 0
+              ? "These curriculum months belong to this certification."
+              : "This certification is not scheduled in the 24-month path. Study it as an optional specialisation."
+          }
+        >
+          {months.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No scheduled months.</p>
+          ) : (
+            <div className="space-y-5">
+              {months.map((month) => (
+                <section key={month}>
+                  <div className="mb-2 flex items-center gap-3">
+                    <span className="font-mono text-xs font-medium text-primary">MONTH {month}</span>
+                    <span className="h-px flex-1 bg-border" aria-hidden />
+                  </div>
+                  <ul className="grid gap-2 sm:grid-cols-2">
+                    {monthTopics
+                      .filter((topic) => topic.month === month)
+                      .map((topic) => (
+                        <li key={topic.id}>
+                          <Link
+                            to="/topics/$topicId"
+                            params={{ topicId: topic.id }}
+                            className="block min-w-0 rounded-lg border border-border bg-background/40 p-3 hover:bg-secondary/50"
+                          >
+                            <span className="block truncate text-sm font-medium">{topic.title}</span>
+                            <span className="block text-xs text-muted-foreground">
+                              Week {topic.week} · {topic.difficulty}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
+          )}
         </Panel>
 
         <div className="grid gap-4 content-start">

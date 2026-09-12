@@ -190,6 +190,8 @@ export interface Certification {
   provider: string;
   level?: "core" | "infrastructure" | "security" | "advanced";
   description?: string;
+  /** Curriculum months that belong to this certification block. Empty = optional specialisation. */
+  months?: number[];
   objectiveIds: EntityId[];
 }
 
