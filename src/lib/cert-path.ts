@@ -8,7 +8,7 @@
 import { assignments, certificationObjectives, certifications, resources, topics } from "@/data/static-content";
 import { generatedQuestions } from "@/data/question-bank";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
-import { totalStudyMinutes } from "@/lib/study-time";
+import { EXAM_PREP_MINUTES, totalStudyMinutes } from "@/lib/study-time";
 import type { Assignment, Certification, Difficulty, Question, Quiz, Resource, Topic } from "@/lib/app-data/types";
 
 export { newSeed };
