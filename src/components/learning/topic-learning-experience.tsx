@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Edit3, FileText, Save } from "lucide-react";
+import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { Panel } from "@/components/page-kit";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { lessons, type Topic } from "@/data/static-content";
+import { lessons, resources, type Resource, type Topic } from "@/data/static-content";
 import { getLearningModule, getPracticeActivity, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
 import type { TopicProgress } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
@@ -122,12 +123,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
         <TabsTrigger value="learn">Learn</TabsTrigger><TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Teach Back</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
       </TabsList>
-      <TabsContent value="learn"><Panel title={lesson.title} description={lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
+      <TabsContent value="learn" className="space-y-4"><Panel title={lesson.title} description={lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
         <ContentSection title="What It Is" text={lesson.definition} /><ContentSection title="Why It Matters" text={lesson.whyItMatters} />
         <ListSection title="How It Works" items={module.howItWorks} /><ListSection title="Where You See It" items={module.whereYouSeeIt} />
         <section><h2 className="mb-3 text-base font-semibold text-foreground">Key Terms</h2><dl className="divide-y divide-border border-y border-border">{lesson.keyTerms.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
         <ListSection title="Examples" items={lesson.realWorldExamples} /><ListSection title="Common Problems" items={module.commonProblems} /><ListSection title="How It Fails" items={module.howItFails} /><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /><ListSection title="Exam Coverage" items={module.examCoverage} /><ListSection title="Interview Questions" items={module.interviewQuestions} />
-      </div></Panel></TabsContent>
+      </div></Panel><MediaPanel topic={topic} /></TabsContent>
       <TabsContent value="recall"><div className="space-y-4">{recallQuestions.map((question, index) => {
         const feedback = recallFeedback[question.id];
         return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={question.id}>Your answer</Label><Textarea id={question.id} className="mt-2" rows={4} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" onClick={() => submitRecall(question.id)}>Check answer</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-primary" : "text-destructive"}`}>{feedback.correct ? "Correct. " : "Needs review. "}{feedback.message}</p> : null}</Panel>;
@@ -152,4 +153,61 @@ function ContentSection({ title, text }: { title: string; text: string }) { retu
 function ListSection({ title, items, ordered = false }: { title: string; items: string[]; ordered?: boolean }) {
   const Tag = ordered ? "ol" : "ul";
   return <section><h2 className="mb-2 text-base font-semibold text-foreground">{title}</h2><Tag className={ordered ? "list-decimal space-y-2 pl-5" : "space-y-2"}>{items.map((item) => <li key={item} className={ordered ? "pl-1" : "flex gap-3"}>{ordered ? item : <><span className="mt-2.5 size-1.5 shrink-0 rounded-full bg-primary" /><span>{item}</span></>}</li>)}</Tag></section>;
+}
+
+const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
+
+function MediaPanel({ topic }: { topic: Topic }) {
+  const media = useMemo(() => {
+    const direct = resources.filter((resource) => resource.topicIds.includes(topic.id));
+    const related = resources.filter(
+      (resource) => !direct.includes(resource) && resource.certificationId === topic.certificationId,
+    );
+    return [...direct, ...related.slice(0, Math.max(0, 4 - direct.length))];
+  }, [topic.id, topic.certificationId]);
+
+  const videos = media.filter((resource) => resource.kind === "video");
+  const reading = media.filter((resource) => resource.kind !== "video");
+  if (media.length === 0) return null;
+
+  return (
+    <Panel title="Watch and read" description="Verified official and reputable sources for this topic. Links open in a new tab.">
+      <div className="space-y-6">
+        {videos.length > 0 ? <MediaGroup title="Video training" items={videos} video /> : null}
+        {reading.length > 0 ? <MediaGroup title="Reading and courses" items={reading} /> : null}
+      </div>
+    </Panel>
+  );
+}
+
+function MediaGroup({ title, items, video = false }: { title: string; items: Resource[]; video?: boolean }) {
+  const Icon = video ? PlayCircle : FileText;
+  return (
+    <section>
+      <h2 className="mb-3 text-base font-semibold text-foreground">{title}</h2>
+      <ul className="grid gap-3 sm:grid-cols-2">
+        {items.map((resource) => (
+          <li key={resource.id} className="rounded-lg border border-border bg-secondary/20 p-4">
+            <div className="flex items-start gap-3">
+              <Icon aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
+              <div className="min-w-0 space-y-2">
+                <p className="text-sm font-medium text-foreground">{resource.title}</p>
+                <p className="text-xs text-muted-foreground">{resource.provider}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <Badge variant="outline">{kindLabels[resource.kind]}</Badge>
+                  <Badge variant="outline">{resource.access === "free" ? "Free" : "Paid"}</Badge>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a href={resource.url} target="_blank" rel="noreferrer">
+                    {video ? "Watch" : "Open"}
+                    <ExternalLink aria-hidden />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
