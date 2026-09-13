@@ -179,6 +179,13 @@ export const navItems: NavItem[] = [
     description: "Detailed scores per topic and per skill dimension.",
   },
   {
+    label: "Learner profile",
+    to: "/learner",
+    icon: Brain,
+    group: "You",
+    description: "Mastery, retention and error patterns per concept, with what to study next.",
+  },
+  {
     label: "Insights",
     to: "/insights",
     icon: LineChart,
