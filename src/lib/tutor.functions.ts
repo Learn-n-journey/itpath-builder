@@ -6,6 +6,8 @@ const inputSchema = z.object({
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(20000) }))
     .min(1)
     .max(40),
+  /** Digest of the learner's own saved material, from the Second Brain. */
+  knowledge: z.string().max(30000).optional(),
 });
 
 export type TutorReply = { ok: true; answer: string } | { ok: false; error: string };
