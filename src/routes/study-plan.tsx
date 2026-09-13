@@ -22,6 +22,14 @@ import {
 import type { StudyPlan } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 
+function durationOptions(sessionLengthMinutes: number): number[] {
+  const set = new Set<number>(STUDY_DURATIONS);
+  const options = set.has(sessionLengthMinutes)
+    ? [...STUDY_DURATIONS]
+    : [...STUDY_DURATIONS, sessionLengthMinutes].sort((a, b) => a - b);
+  return options;
+}
+
 export const Route = createFileRoute("/study-plan")({
   head: () => ({
     meta: [
@@ -57,6 +65,7 @@ function useTicker(active: boolean) {
 
 function StudyPlanPage() {
   const { user, actions } = useAppState();
+  const options = useMemo(() => durationOptions(user.settings.sessionLengthMinutes), [user.settings.sessionLengthMinutes]);
   const [minutes, setMinutes] = useState(String(user.settings.sessionLengthMinutes));
   const [target, setTarget] = useState<number>(user.settings.sessionLengthMinutes);
 
@@ -129,7 +138,7 @@ function StudyPlanPage() {
             <div>
               <Label>Session length</Label>
               <div className="mt-2 flex flex-wrap gap-2">
-                {STUDY_DURATIONS.map((option) => (
+                {options.map((option) => (
                   <Button
                     key={option}
                     type="button"

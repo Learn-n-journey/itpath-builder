@@ -294,7 +294,8 @@ export function generateStudyPlan(
   for (const candidate of candidates) {
     if (planned >= targetMinutes) break;
     const remaining = targetMinutes - planned;
-    const minutes = Math.max(5, Math.min(candidate.plannedMinutes, remaining));
+    if (remaining < 5) break;
+    const minutes = Math.min(candidate.plannedMinutes, remaining);
     tasks.push({
       ...candidate,
       id: crypto.randomUUID(),
@@ -303,6 +304,12 @@ export function generateStudyPlan(
       trackedSeconds: 0,
     });
     planned += minutes;
+  }
+
+  // Ensure the scheduled total exactly matches the chosen target.
+  if (tasks.length > 0 && planned < targetMinutes) {
+    const lastTask = tasks[tasks.length - 1]!;
+    lastTask.plannedMinutes += targetMinutes - planned;
   }
 
   const iso = now.toISOString();
