@@ -28,7 +28,7 @@ import type {
 } from "@/lib/app-data/types";
 import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { answerMatches, matchesConcept } from "@/lib/fuzzy-match";
-import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
+import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import { selectedCertification } from "@/lib/adaptive-path";
 
 /**
@@ -99,7 +99,7 @@ function PracticePage() {
   const requested = requestedAssignmentId
     ? assignments.find((item) => item.id === requestedAssignmentId)
     : undefined;
-  const [seed, setSeed] = useState(() => newSeed());
+  const [seed, reshuffle] = useShuffleSeed();
   const [selectedId, setSelectedId] = useState(requested?.id ?? "");
   const [group, setGroup] = useState(() =>
     requested ? certificationIdFor(requested) : selectedCertification(user.settings).id,
@@ -134,7 +134,7 @@ function PracticePage() {
     activeGroup?.items.find((item) => item.id === selectedId) ?? activeGroup?.items[0];
 
   function refresh() {
-    setSeed(newSeed());
+    reshuffle();
     setSelectedId("");
   }
 

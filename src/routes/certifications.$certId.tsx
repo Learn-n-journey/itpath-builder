@@ -20,8 +20,8 @@ import {
   certificationStudyIndex,
   generateAssignments,
   generateExam,
-  newSeed,
 } from "@/lib/cert-path";
+import { useShuffleSeed } from "@/lib/shuffle";
 import { formatStudyTime, topicStudyMinutes } from "@/lib/study-time";
 import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getCertificationWorkedExamples } from "@/data/worked-examples";
@@ -112,8 +112,8 @@ function Certifications() {
   const [examNote, setExamNote] = useState("");
   const [confirmPass, setConfirmPass] = useState(false);
   const [draft, setDraft] = useState<CertificationObjective | null>(null);
-  const [examSeed, setExamSeed] = useState(() => newSeed());
-  const [assignmentSeed, setAssignmentSeed] = useState(() => newSeed());
+  const [examSeed, reshuffleExam] = useShuffleSeed();
+  const [assignmentSeed, reshuffleAssignments] = useShuffleSeed();
 
   const selected = readiness.find((row) => row.certification.id === certId);
   const stages = useMemo(() => certificationStages(certId), [certId]);
@@ -286,7 +286,7 @@ function Certifications() {
               : "No questions are available for this certification yet."
           }
         >
-          <Button type="button" variant="outline" onClick={() => setExamSeed(newSeed())}>
+          <Button type="button" variant="outline" onClick={reshuffleExam}>
             <RefreshCw /> Generate new exam
           </Button>
           {exam ? (
@@ -302,7 +302,7 @@ function Certifications() {
         </Panel>
 
         <Panel title="Practice" description="A fresh selection of practical work each time you generate.">
-          <Button type="button" variant="outline" onClick={() => setAssignmentSeed(newSeed())}>
+          <Button type="button" variant="outline" onClick={reshuffleAssignments}>
             <RefreshCw /> Generate new practice
           </Button>
           <ul className="mt-4 grid gap-2 sm:grid-cols-2">

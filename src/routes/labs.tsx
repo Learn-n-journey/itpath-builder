@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { labs, topics } from "@/data/static-content";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
 import { projectFromLabAttempt } from "@/lib/portfolio-engine";
-import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
+import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 import { adaptivePath } from "@/lib/adaptive-path";
 
@@ -73,7 +73,7 @@ const categoryLabels: Record<Lab["category"], string> = {
 function LabsPage() {
   const { user } = useAppState();
   const focus = useMemo(() => adaptivePath(user), [user]);
-  const [seed, setSeed] = useState(() => newSeed());
+  const [seed, reshuffle] = useShuffleSeed();
   const [selectedId, setSelectedId] = useState("");
   const shuffled = useMemo(() => {
     const focusIds = new Set(focus.topics.map((topic) => topic.id));
@@ -89,7 +89,7 @@ function LabsPage() {
         title="Labs"
         description="Guided practical work you perform in an environment you control, shown in a random order. IT PATH records your evidence but never claims to access that environment."
         actions={
-          <Button variant="outline" onClick={() => { setSeed(newSeed()); setSelectedId(""); }}>
+          <Button variant="outline" onClick={() => { reshuffle(); setSelectedId(""); }}>
             <RefreshCw /> Shuffle
           </Button>
         }
