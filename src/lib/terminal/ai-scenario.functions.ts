@@ -94,7 +94,7 @@ function buildScenario(
 
   if (fault === "service_stopped") {
     const target = pick(serviceChoices[shell], reply.target);
-    const spec: MachineSpec = { shell, services: undefined };
+    const spec: MachineSpec = { shell };
     return {
       ...base,
       goals: [{ id: "service", description: `Return ${target} to running`, kind: "service_running", target }],
