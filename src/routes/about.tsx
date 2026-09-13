@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Info, Mail, ShieldCheck, User } from "lucide-react";
+import { Mail } from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ function AboutPage() {
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Panel title="What IT PATH is" icon={ShieldCheck}>
+        <Panel title="What IT PATH is">
           <p className="text-sm text-muted-foreground">
             IT PATH is built for beginners who want a real path into IT and cybersecurity. It treats
             certification study as a skill you practice, not a list of videos to watch. Every topic
@@ -53,7 +53,7 @@ function AboutPage() {
           </p>
         </Panel>
 
-        <Panel title="Creator" icon={User}>
+        <Panel title="Creator">
           <div className="space-y-3 text-sm text-muted-foreground">
             <p>
               <span className="font-medium text-foreground">David Boley</span> — designer, developer
@@ -73,7 +73,7 @@ function AboutPage() {
           </div>
         </Panel>
 
-        <Panel title="Version" icon={Info}>
+        <Panel title="Version">
           <p className="font-display text-3xl font-semibold tabular-nums">1.0</p>
           <p className="mt-2 text-sm text-muted-foreground">
             This is the first public release. More certifications, labs and features are planned.

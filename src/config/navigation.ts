@@ -183,6 +183,13 @@ export const navItems: NavItem[] = [
     description: "What each section is for and how scoring is calculated.",
   },
   {
+    label: "About",
+    to: "/about",
+    icon: Info,
+    group: "You",
+    description: "Who built IT PATH, version number and contact details.",
+  },
+  {
     label: "Settings",
     to: "/settings",
     icon: SettingsIcon,
