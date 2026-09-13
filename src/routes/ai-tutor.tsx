@@ -319,6 +319,65 @@ function AiTutor() {
         </Panel>
 
         <Panel
+          title="Past conversations"
+          description="Chats save to your account automatically and are kept for 30 days."
+        >
+          {threads.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nothing saved yet. Your tutor chats will appear here as you have them.
+            </p>
+          ) : (
+            <>
+              <ul className="divide-y divide-border rounded-md border border-border">
+                {threads.map((thread) => (
+                  <li
+                    key={thread.id}
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 p-2.5"
+                  >
+                    <button
+                      type="button"
+                      className="min-w-0 text-left"
+                      disabled={historyBusy}
+                      onClick={() => void openThread(thread.id)}
+                    >
+                      <p className="truncate text-sm font-medium">{thread.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(thread.updatedAt).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                        })}{" "}
+                        · {thread.messageCount - 1}{" "}
+                        {thread.messageCount - 1 === 1 ? "message" : "messages"}
+                      </p>
+                    </button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      aria-label={`Delete ${thread.title}`}
+                      onClick={() => void dropThread(thread.id)}
+                    >
+                      <Trash2 className="size-4" aria-hidden />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3 w-full"
+                onClick={() => void clearHistory()}
+              >
+                <History className="size-4" aria-hidden />
+                Clear history
+              </Button>
+            </>
+          )}
+        </Panel>
+        </div>
+
+        <Panel
           title="Session"
           description={
             started
