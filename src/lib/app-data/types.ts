@@ -691,7 +691,8 @@ export type LearnerSignalKind =
   | "career"
   | "assignment"
   | "ai_tutor"
-  | "ai_grading";
+  | "ai_grading"
+  | "knowledge";
 
 /**
  * One immutable interaction record used by the learner intelligence engine.
