@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
+import { ProGate } from "@/components/pro-gate";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -41,8 +42,16 @@ export const Route = createFileRoute("/ai-tutor")({
       },
     ],
   }),
-  component: AiTutor,
+  component: AiTutorGated,
 });
+
+function AiTutorGated() {
+  return (
+    <ProGate feature="The AI Tutor">
+      <AiTutor />
+    </ProGate>
+  );
+}
 
 const NO_TOPIC = "__none__";
 

@@ -15,6 +15,7 @@ import { toast } from "sonner";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { ProGate } from "@/components/pro-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -39,8 +40,16 @@ export const Route = createFileRoute("/labs")({
       { property: "og:description", content: "Guided hardware, systems, networking, security, and cloud exercises." },
     ],
   }),
-  component: LabsPage,
+  component: LabsPageGated,
 });
+
+function LabsPageGated() {
+  return (
+    <ProGate feature="Hands-on labs">
+      <LabsPage />
+    </ProGate>
+  );
+}
 
 const statusLabels = {
   in_progress: "In Progress",

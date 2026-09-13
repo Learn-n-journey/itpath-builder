@@ -24,9 +24,11 @@ import { Route as MyPathRouteImport } from './routes/my-path'
 import { Route as PomodoroRouteImport } from './routes/pomodoro'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PracticeRouteImport } from './routes/practice'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as QuizMeRouteImport } from './routes/quiz-me'
 import { Route as RecordRouteImport } from './routes/record'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ReviewRouteImport } from './routes/review'
@@ -36,7 +38,9 @@ import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
 import { Route as WeakAreasRouteImport } from './routes/weak-areas'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
+import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
+import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -113,6 +117,11 @@ const PracticeRoute = PracticeRouteImport.update({
   path: '/practice',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProgressRoute = ProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
@@ -126,6 +135,11 @@ const QuizMeRoute = QuizMeRouteImport.update({
 const RecordRoute = RecordRouteImport.update({
   id: '/record',
   path: '/record',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -173,11 +187,22 @@ const CertificationsCertIdRoute = CertificationsCertIdRouteImport.update({
   path: '/certifications/$certId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
+  id: '/checkout/success',
+  path: '/checkout/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TopicsTopicIdRoute = TopicsTopicIdRouteImport.update({
   id: '/topics/$topicId',
   path: '/topics/$topicId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPaymentsWebhookRoute =
+  ApiPublicPaymentsWebhookRouteImport.update({
+    id: '/api/public/payments/webhook',
+    path: '/api/public/payments/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -195,9 +220,11 @@ export interface FileRoutesByFullPath {
   '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
+  '/pricing': typeof PricingRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/record': typeof RecordRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
@@ -206,8 +233,10 @@ export interface FileRoutesByFullPath {
   '/troubleshoot': typeof TroubleshootRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
+  '/checkout/success': typeof CheckoutSuccessRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -225,9 +254,11 @@ export interface FileRoutesByTo {
   '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
+  '/pricing': typeof PricingRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/record': typeof RecordRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
@@ -236,8 +267,10 @@ export interface FileRoutesByTo {
   '/troubleshoot': typeof TroubleshootRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
+  '/checkout/success': typeof CheckoutSuccessRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications': typeof CertificationsIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -256,9 +289,11 @@ export interface FileRoutesById {
   '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
+  '/pricing': typeof PricingRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/record': typeof RecordRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
@@ -267,8 +302,10 @@ export interface FileRoutesById {
   '/troubleshoot': typeof TroubleshootRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
+  '/checkout/success': typeof CheckoutSuccessRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
+  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -288,9 +325,11 @@ export interface FileRouteTypes {
     | '/pomodoro'
     | '/portfolio'
     | '/practice'
+    | '/pricing'
     | '/progress'
     | '/quiz-me'
     | '/record'
+    | '/refund-policy'
     | '/reset-password'
     | '/resources'
     | '/review'
@@ -299,8 +338,10 @@ export interface FileRouteTypes {
     | '/troubleshoot'
     | '/weak-areas'
     | '/certifications/$certId'
+    | '/checkout/success'
     | '/topics/$topicId'
     | '/certifications/'
+    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -318,9 +359,11 @@ export interface FileRouteTypes {
     | '/pomodoro'
     | '/portfolio'
     | '/practice'
+    | '/pricing'
     | '/progress'
     | '/quiz-me'
     | '/record'
+    | '/refund-policy'
     | '/reset-password'
     | '/resources'
     | '/review'
@@ -329,8 +372,10 @@ export interface FileRouteTypes {
     | '/troubleshoot'
     | '/weak-areas'
     | '/certifications/$certId'
+    | '/checkout/success'
     | '/topics/$topicId'
     | '/certifications'
+    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -348,9 +393,11 @@ export interface FileRouteTypes {
     | '/pomodoro'
     | '/portfolio'
     | '/practice'
+    | '/pricing'
     | '/progress'
     | '/quiz-me'
     | '/record'
+    | '/refund-policy'
     | '/reset-password'
     | '/resources'
     | '/review'
@@ -359,8 +406,10 @@ export interface FileRouteTypes {
     | '/troubleshoot'
     | '/weak-areas'
     | '/certifications/$certId'
+    | '/checkout/success'
     | '/topics/$topicId'
     | '/certifications/'
+    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -379,9 +428,11 @@ export interface RootRouteChildren {
   PomodoroRoute: typeof PomodoroRoute
   PortfolioRoute: typeof PortfolioRoute
   PracticeRoute: typeof PracticeRoute
+  PricingRoute: typeof PricingRoute
   ProgressRoute: typeof ProgressRoute
   QuizMeRoute: typeof QuizMeRoute
   RecordRoute: typeof RecordRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   ReviewRoute: typeof ReviewRoute
@@ -390,8 +441,10 @@ export interface RootRouteChildren {
   TroubleshootRoute: typeof TroubleshootRoute
   WeakAreasRoute: typeof WeakAreasRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
+  CheckoutSuccessRoute: typeof CheckoutSuccessRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
   CertificationsIndexRoute: typeof CertificationsIndexRoute
+  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -501,6 +554,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PracticeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/progress': {
       id: '/progress'
       path: '/progress'
@@ -520,6 +580,13 @@ declare module '@tanstack/react-router' {
       path: '/record'
       fullPath: '/record'
       preLoaderRoute: typeof RecordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -585,11 +652,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CertificationsCertIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout/success': {
+      id: '/checkout/success'
+      path: '/checkout/success'
+      fullPath: '/checkout/success'
+      preLoaderRoute: typeof CheckoutSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/topics/$topicId': {
       id: '/topics/$topicId'
       path: '/topics/$topicId'
       fullPath: '/topics/$topicId'
       preLoaderRoute: typeof TopicsTopicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/payments/webhook': {
+      id: '/api/public/payments/webhook'
+      path: '/api/public/payments/webhook'
+      fullPath: '/api/public/payments/webhook'
+      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -611,9 +692,11 @@ const rootRouteChildren: RootRouteChildren = {
   PomodoroRoute: PomodoroRoute,
   PortfolioRoute: PortfolioRoute,
   PracticeRoute: PracticeRoute,
+  PricingRoute: PricingRoute,
   ProgressRoute: ProgressRoute,
   QuizMeRoute: QuizMeRoute,
   RecordRoute: RecordRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   ReviewRoute: ReviewRoute,
@@ -622,8 +705,10 @@ const rootRouteChildren: RootRouteChildren = {
   TroubleshootRoute: TroubleshootRoute,
   WeakAreasRoute: WeakAreasRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
+  CheckoutSuccessRoute: CheckoutSuccessRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,
   CertificationsIndexRoute: CertificationsIndexRoute,
+  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
