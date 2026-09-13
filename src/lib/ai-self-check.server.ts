@@ -42,7 +42,7 @@ export function shouldSelfCheckTutorAnswer(answer: string): boolean {
   if (text.length < 400) {
     // Short replies are usually a single question or clarification — skip unless
     // they hand the learner something to run.
-    return /(^|\n)\s*(sudo |ipconfig|ifconfig|netstat|systemctl|Get-|adb |nslookup|dig |chmod|chown|reg |sfc )/i.test(text);
+    return /\b(sudo|ipconfig|ifconfig|netstat|systemctl|service|adb|nslookup|dig|chmod|chown|sfc|regedit|taskkill|Get-[A-Za-z]+|Set-[A-Za-z]+)\b|(^|\n)\s*\d+[.)]\s/i.test(text);
   }
   return true;
 }
