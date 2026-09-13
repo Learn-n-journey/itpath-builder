@@ -38,7 +38,7 @@ export function useAiMarking() {
 
   const reset = useCallback(() => setState({ busy: false, grade: null, error: null }), []);
 
-  return { ...state, mark, reset };
+  return useMemo(() => ({ ...state, mark, reset }), [state, mark, reset]);
 }
 
 function Section({ title, items }: { title: string; items: string[] }) {
