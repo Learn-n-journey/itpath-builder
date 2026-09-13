@@ -447,9 +447,9 @@ function AssignmentWorkspace({
                 Submit
               </Button>
               {attempt.status === "submitted" ? (
-                <Button onClick={evaluate}>
+                <Button onClick={() => void evaluate()} disabled={marking.busy}>
                   <CheckCircle2 />
-                  Evaluate
+                  {marking.busy ? "Marking…" : "Evaluate"}
                 </Button>
               ) : null}
               {attempt.status === "evaluated" ? (
