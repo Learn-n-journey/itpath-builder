@@ -397,18 +397,55 @@ function baseWindowsRoot(user: string): VfsNode {
   return root;
 }
 
+function baseAndroidRoot(user: string): VfsNode {
+  const root = dir("/");
+  const add = (path: string, node: VfsNode) => insert(root, path.split("/").filter(Boolean), node);
+  for (const folder of ["system", "data", "data/data", "data/local", "data/local/tmp", "sdcard", "sdcard/Download", "sdcard/DCIM", "sdcard/Android", "cache", "storage"]) {
+    add(folder, dir(folder.split("/").pop() as string, user, "755"));
+  }
+  add("sdcard/Download/support-notes.txt", file("support-notes.txt", "Battery drops fast after the last app update.\n", user, "644"));
+  add("data/data/com.corp.mail", dir("com.corp.mail", user, "700"));
+  add("data/data/com.corp.mail/cache", dir("cache", user, "700"));
+  add("data/data/com.corp.mail/cache/mail.tmp", file("mail.tmp", "corrupt sync state\n", user, "600"));
+  add("system/build.prop", file("build.prop", "ro.product.model=Pixel 8\nro.build.version.release=14\n", "root", "644"));
+  add("etc/hosts", file("hosts", "127.0.0.1 localhost\n", "root", "644"));
+  return root;
+}
+
+function baseIosRoot(user: string): VfsNode {
+  const root = dir("/");
+  const add = (path: string, node: VfsNode) => insert(root, path.split("/").filter(Boolean), node);
+  for (const folder of ["device", "profiles", "backups", "apps", "logs"]) {
+    add(folder, dir(folder.split("/").pop() as string, user, "755"));
+  }
+  add("device/summary.txt", file("summary.txt", "iPhone 15 · iOS 17.5 · 128 GB · battery health 87%\n", user, "644"));
+  add("logs/sync.log", file("sync.log", "iCloud sync last completed 4 days ago\n", user, "644"));
+  add("etc/hosts", file("hosts", "127.0.0.1 localhost\n", "root", "644"));
+  return root;
+}
+
 export function createMachine(spec: MachineSpec): MachineState {
-  const windows = spec.shell !== "bash";
-  const user = spec.user ?? (windows ? "student" : "student");
-  const hostname = spec.hostname ?? (windows ? "WS-041" : "lab-linux-01");
-  const root = windows ? baseWindowsRoot(user) : baseLinuxRoot(user);
+  const windows = spec.shell === "cmd" || spec.shell === "powershell";
+  const android = spec.shell === "android";
+  const ios = spec.shell === "ios";
+  const user = spec.user ?? (android ? "shell" : ios ? "support" : "student");
+  const hostname =
+    spec.hostname ??
+    (windows ? "WS-041" : android ? "pixel-8" : ios ? "iPhone-Sales-04" : "lab-linux-01");
+  const root = windows
+    ? baseWindowsRoot(user)
+    : android
+      ? baseAndroidRoot(user)
+      : ios
+        ? baseIosRoot(user)
+        : baseLinuxRoot(user);
 
   const state: MachineState = {
     shell: spec.shell,
     hostname,
     currentUser: user,
     elevated: spec.elevated ?? false,
-    cwd: windows ? ["Users", user] : ["home", user],
+    cwd: windows ? ["Users", user] : android ? ["sdcard"] : ios ? ["device"] : ["home", user],
     drive: "C:",
     users: spec.users ?? [
       {
@@ -444,11 +481,22 @@ export function createMachine(spec: MachineSpec): MachineState {
     blockedPorts: spec.blockedPorts ?? [],
     env: windows
       ? { USERNAME: user, COMPUTERNAME: hostname, PATH: "C:\\Windows\\System32" }
-      : { USER: user, HOSTNAME: hostname, PATH: "/usr/local/bin:/usr/bin:/bin", HOME: `/home/${user}` },
+      : {
+          USER: user,
+          HOSTNAME: hostname,
+          PATH: android ? "/system/bin:/system/xbin" : "/usr/local/bin:/usr/bin:/bin",
+          HOME: android ? "/sdcard" : ios ? "/device" : `/home/${user}`,
+        },
     diskUsedPercent: spec.diskUsedPercent ?? 46,
     memoryTotalMb: 8192,
     memoryUsedMb: spec.memoryUsedMb ?? 3100,
-    osName: windows ? "Microsoft Windows 11 Pro 10.0.22631" : "Ubuntu 22.04.4 LTS",
+    osName: windows
+      ? "Microsoft Windows 11 Pro 10.0.22631"
+      : android
+        ? "Android 14 (Pixel 8)"
+        : ios
+          ? "iOS 17.5 (iPhone 15)"
+          : "Ubuntu 22.04.4 LTS",
     history: [],
     nextPid: 4200,
     eventLog: spec.eventLog ?? [],
@@ -476,6 +524,23 @@ export function createMachine(spec: MachineSpec): MachineState {
 }
 
 function defaultProcesses(shell: ShellKind, user: string): ProcessInfo[] {
+  if (shell === "android") {
+    return [
+      { pid: 1, name: "init", user: "root", cpu: 0.1, memoryMb: 10 },
+      { pid: 540, name: "system_server", user: "system", cpu: 1.2, memoryMb: 320 },
+      { pid: 1822, name: "com.android.launcher", user, cpu: 0.6, memoryMb: 180 },
+      { pid: 2104, name: "com.corp.mail", user, cpu: 1.4, memoryMb: 210 },
+      { pid: 2380, name: "com.android.chrome", user, cpu: 2.1, memoryMb: 340 },
+    ];
+  }
+  if (shell === "ios") {
+    return [
+      { pid: 1, name: "launchd", user: "root", cpu: 0.1, memoryMb: 8 },
+      { pid: 220, name: "Mail", user, cpu: 0.8, memoryMb: 150 },
+      { pid: 318, name: "Safari", user, cpu: 1.6, memoryMb: 280 },
+      { pid: 402, name: "Maps", user, cpu: 2.4, memoryMb: 260 },
+    ];
+  }
   if (shell === "bash") {
     return [
       { pid: 1, name: "systemd", user: "root", cpu: 0.1, memoryMb: 12 },
@@ -495,6 +560,27 @@ function defaultProcesses(shell: ShellKind, user: string): ProcessInfo[] {
 }
 
 function defaultServices(shell: ShellKind): ServiceInfo[] {
+  if (shell === "android") {
+    return [
+      { name: "wifi", display: "Wi-Fi radio", status: "running", startType: "auto" },
+      { name: "bluetooth", display: "Bluetooth radio", status: "running", startType: "auto" },
+      { name: "data", display: "Mobile data", status: "running", startType: "auto" },
+      { name: "nfc", display: "NFC controller", status: "running", startType: "auto" },
+      { name: "location", display: "Location services", status: "running", startType: "auto" },
+      { name: "sync", display: "Account sync", status: "running", startType: "auto" },
+    ];
+  }
+  if (shell === "ios") {
+    return [
+      { name: "wifi", display: "Wi-Fi", status: "running", startType: "auto" },
+      { name: "bluetooth", display: "Bluetooth", status: "running", startType: "auto" },
+      { name: "cellular", display: "Cellular data", status: "running", startType: "auto" },
+      { name: "icloud", display: "iCloud sync", status: "running", startType: "auto" },
+      { name: "mail", display: "Mail account", status: "running", startType: "auto" },
+      { name: "mdm", display: "Mobile device management", status: "running", startType: "auto" },
+      { name: "findmy", display: "Find My iPhone", status: "running", startType: "auto" },
+    ];
+  }
   if (shell === "bash") {
     return [
       { name: "ssh", display: "OpenBSD Secure Shell server", status: "running", startType: "auto" },
@@ -515,6 +601,13 @@ function defaultServices(shell: ShellKind): ServiceInfo[] {
 }
 
 function defaultInterfaces(shell: ShellKind): NetInterface[] {
+  if (shell === "android" || shell === "ios") {
+    return [
+      { name: "lo", mac: "00:00:00:00:00:00", ip: "127.0.0.1", mask: "255.0.0.0", gateway: "", dhcp: false, up: true },
+      { name: "wlan0", mac: "a4:50:46:12:8c:31", ip: "10.0.0.88", mask: "255.255.255.0", gateway: "10.0.0.1", dhcp: true, up: true },
+      { name: "rmnet0", mac: "a4:50:46:12:8c:32", ip: "100.72.14.9", mask: "255.255.255.0", gateway: "100.72.14.1", dhcp: true, up: true },
+    ];
+  }
   if (shell === "bash") {
     return [
       { name: "lo", mac: "00:00:00:00:00:00", ip: "127.0.0.1", mask: "255.0.0.0", gateway: "", dhcp: false, up: true },
