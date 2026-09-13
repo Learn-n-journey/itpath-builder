@@ -72,8 +72,14 @@ function CommandLineRoute() {
   );
 }
 
-const shellLabels = { cmd: "Windows CMD", powershell: "Windows PowerShell", bash: "Mac/Linux" } as const;
-type TerminalEnvironment = "unix" | "windows";
+const shellLabels = {
+  cmd: "Windows CMD",
+  powershell: "Windows PowerShell",
+  bash: "Mac/Linux",
+  android: "Android",
+  ios: "iPhone / iPad",
+} as const;
+type TerminalEnvironment = "unix" | "windows" | "android" | "ios";
 
 function CommandLinePage() {
   const { user, actions } = useAppState();
@@ -89,7 +95,8 @@ function CommandLinePage() {
   const [windowsShell, setWindowsShell] = useState<Extract<TerminalAttempt["shell"], "cmd" | "powershell">>(
     recommended.shell === "powershell" ? "powershell" : "cmd",
   );
-  const environment: TerminalEnvironment = shell === "bash" ? "unix" : "windows";
+  const environment: TerminalEnvironment =
+    shell === "bash" ? "unix" : shell === "android" ? "android" : shell === "ios" ? "ios" : "windows";
   const shellScenarios = useMemo(() => scenariosForShell(shell), [shell]);
   const [scenarioId, setScenarioId] = useState(recommended.id);
   const [mode, setMode] = useState<TerminalMode>("guided");
@@ -128,7 +135,10 @@ function CommandLinePage() {
   }
 
   function changeEnvironment(value: TerminalEnvironment) {
-    changeShell(value === "unix" ? "bash" : windowsShell);
+    if (value === "unix") return changeShell("bash");
+    if (value === "android") return changeShell("android");
+    if (value === "ios") return changeShell("ios");
+    return changeShell(windowsShell);
   }
 
   function changeWindowsShell(value: "cmd" | "powershell") {
@@ -254,9 +264,11 @@ function CommandLinePage() {
         <div className={`grid gap-4 ${environment === "windows" ? "md:grid-cols-[220px_180px_minmax(0,1fr)_180px]" : "md:grid-cols-[220px_minmax(0,1fr)_180px]"}`}>
           <div className="space-y-2">
             <Label>Environment</Label>
-            <div className="grid grid-cols-2 rounded-md border border-input p-0.5" role="group" aria-label="Environment">
+            <div className="grid grid-cols-2 gap-0.5 rounded-md border border-input p-0.5" role="group" aria-label="Environment">
               <Button type="button" size="sm" variant={environment === "unix" ? "secondary" : "ghost"} onClick={() => changeEnvironment("unix")} className="px-2">Mac/Linux</Button>
               <Button type="button" size="sm" variant={environment === "windows" ? "secondary" : "ghost"} onClick={() => changeEnvironment("windows")} className="px-2">Windows</Button>
+              <Button type="button" size="sm" variant={environment === "android" ? "secondary" : "ghost"} onClick={() => changeEnvironment("android")} className="px-2">Android</Button>
+              <Button type="button" size="sm" variant={environment === "ios" ? "secondary" : "ghost"} onClick={() => changeEnvironment("ios")} className="px-2">iPhone</Button>
             </div>
           </div>
           {environment === "windows" ? (
