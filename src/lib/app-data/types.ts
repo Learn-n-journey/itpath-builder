@@ -1,7 +1,8 @@
 import type { MachineState, ShellKind } from "@/lib/terminal/machine";
+import type { TerminalScenario } from "@/lib/terminal/scenarios";
 
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 14;
+export const APP_DATA_VERSION = 15;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -517,6 +518,8 @@ export interface TerminalAttempt {
   scenarioId: EntityId;
   topicId: EntityId;
   shell: ShellKind;
+  /** Keeps randomized and AI-created scenarios playable after refresh. */
+  scenarioSnapshot?: TerminalScenario;
   mode: TerminalMode;
   status: TerminalAttemptStatus;
   machine: MachineState;
