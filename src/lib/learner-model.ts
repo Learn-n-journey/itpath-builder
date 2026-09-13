@@ -18,6 +18,7 @@ import type {
   LearnerSignalKind,
   UserData,
 } from "@/lib/app-data/types";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 const MS_DAY = 24 * 60 * 60 * 1000;
 
@@ -276,7 +277,9 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
   for (const topic of topics) {
     const signals = byTopicSignals.get(topic.id) ?? [];
     const graded = signals.filter((signal) => outcomeOf(signal) !== null);
-    const { mastery, weight } = masteryFrom(signals, nowMs);
+    const signalResult = masteryFrom(signals, nowMs);
+    const scope = topicScopeProgress(user, topic.id);
+    const mastery = scope.overall / 100;
     const lastExposureAt = signals.length > 0 ? signals[0]!.at : null;
     const daysSinceExposure =
       lastExposureAt === null ? null : (nowMs - new Date(lastExposureAt).getTime()) / MS_DAY;
@@ -290,7 +293,7 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
       title: topic.title,
       certificationId: topic.certificationId,
       mastery,
-      confidence: clamp01(weight / 8),
+      confidence: scope.available === 0 ? 0 : clamp01(scope.attempted / scope.available),
       retention,
       forgetting: lastExposureAt === null ? 0 : 1 - retention,
       lastExposureAt,
@@ -342,7 +345,7 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
     byTopic: Object.fromEntries(profiles.map((profile) => [profile.topicId, profile])),
     totalSignals: stream.length,
     studied: studiedProfiles.length,
-    averageMastery: mean(studiedProfiles.map((profile) => profile.mastery)),
+    averageMastery: mean(profiles.map((profile) => profile.mastery)),
     studyNext: profiles.filter((p) => p.action === "learn" || p.action === "practice").slice(0, 5),
     reviewNext: profiles.filter((p) => p.action === "review").slice(0, 5),
     testNext: profiles.filter((p) => p.action === "test").slice(0, 5),

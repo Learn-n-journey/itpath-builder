@@ -94,8 +94,8 @@
 - [x] Verify environment and shell switching on desktop and mobile
 
 ## Full-scope progress audit (Sep 2026)
-- [ ] Define one full-scope evidence model for topics, certifications, skills, and career readiness
-- [ ] Replace attempted-only progress percentages with correct/completed opportunities divided by all available opportunities
-- [ ] Distinguish performance averages from progress/readiness percentages in the interface
+- [x] Define one full-scope evidence model for topics, certifications, skills, and career readiness
+- [x] Replace attempted-only progress percentages with correct/completed opportunities divided by all available opportunities
+- [x] Distinguish performance averages from progress/readiness percentages in the interface
 - [ ] Add regression checks for one-perfect-attempt and untouched-content cases
 - [ ] Verify progress pages and dashboards on desktop and mobile

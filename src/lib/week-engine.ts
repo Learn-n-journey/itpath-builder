@@ -225,7 +225,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
           null,
         ),
     )
-    .filter((value): value is number => value !== null);
+    .map((value) => value ?? 0);
   const assignmentScores = assignments
     .map((assignment) =>
       user.assignmentAttempts
@@ -239,7 +239,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
           null,
         ),
     )
-    .filter((value): value is number => value !== null);
+    .map((value) => value ?? 0);
 
   const average = (values: number[]) =>
     values.length === 0 ? null : Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
@@ -255,7 +255,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
     { label: "Weekly quiz", value: quizBest },
     { label: "Assessment", value: assessmentBest },
   ];
-  const measured = performance.map((item) => item.value).filter((value): value is number => value !== null);
+  const measured = performance.map((item) => item.value ?? 0);
 
   const completedRequirements = requirements.filter((item) => item.done).length;
 
