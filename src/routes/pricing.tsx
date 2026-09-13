@@ -66,7 +66,7 @@ function PricingPage() {
       await openCheckout({
         priceId: "itpath_pro_lifetime_price",
         quantity: 1,
-        customerEmail: email ?? undefined,
+        ...(email ? { customerEmail: email } : {}),
         customData: { userId },
         successUrl: `${window.location.origin}/checkout/success`,
       });

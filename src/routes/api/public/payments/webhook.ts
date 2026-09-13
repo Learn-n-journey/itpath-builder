@@ -3,19 +3,26 @@ import { createClient } from "@supabase/supabase-js";
 
 import { verifyWebhook, EventName, type PaddleEnv } from "@/lib/paddle.server";
 
+// Untyped client: the generated Database types lag behind migrations, and the
+// subscriptions row shape is defined by this handler anyway.
 let _supabase: ReturnType<typeof createClient> | null = null;
 function getSupabase() {
   if (!_supabase) {
     _supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      process.env["SUPABASE_URL"]!,
+      process.env["SUPABASE_SERVICE_ROLE_KEY"]!,
     );
   }
   return _supabase;
 }
 
+function table() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (getSupabase() as any).from("subscriptions");
+}
+
 interface SubscriptionItem {
-  price?: { id?: string; importMeta?: { externalId?: string } };
+  price?: { id?: string; productId?: string; importMeta?: { externalId?: string } };
   product?: { id?: string; importMeta?: { externalId?: string } };
 }
 
@@ -27,9 +34,7 @@ function readExternalIds(items: SubscriptionItem[] | undefined) {
 }
 
 async function upsertSubscriptionRow(row: Record<string, unknown>) {
-  await getSupabase()
-    .from("subscriptions")
-    .upsert(row, { onConflict: "paddle_subscription_id" });
+  await table().upsert(row, { onConflict: "paddle_subscription_id" });
 }
 
 async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
@@ -60,8 +65,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
   const { id, status, currentBillingPeriod, scheduledChange } = data;
-  await getSupabase()
-    .from("subscriptions")
+  await table()
     .update({
       status,
       current_period_start: currentBillingPeriod?.startsAt,
@@ -74,8 +78,7 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
 }
 
 async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
-  await getSupabase()
-    .from("subscriptions")
+  await table()
     .update({ status: "canceled", updated_at: new Date().toISOString() })
     .eq("paddle_subscription_id", data.id)
     .eq("environment", env);
