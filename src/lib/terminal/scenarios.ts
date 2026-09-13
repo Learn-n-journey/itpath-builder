@@ -5,6 +5,7 @@ import {
   getNode,
   resolvePath,
   type MachineState,
+  type MachineSpec,
   type ShellKind,
 } from "./machine";
 
@@ -14,7 +15,9 @@ export type TerminalGoal =
   | { id: string; description: string; kind: "process_absent"; target: string }
   | { id: string; description: string; kind: "user_unlocked"; target: string }
   | { id: string; description: string; kind: "file_mode"; target: string; expected: string }
-  | { id: string; description: string; kind: "path_exists"; target: string };
+  | { id: string; description: string; kind: "path_exists"; target: string }
+  | { id: string; description: string; kind: "path_absent"; target: string }
+  | { id: string; description: string; kind: "port_unblocked"; target: string };
 
 export interface TerminalScenario {
   id: string;
@@ -32,6 +35,8 @@ export interface TerminalScenario {
   explanation: string;
   reasoningKeywords: string[];
   misconceptionRules: Array<{ pattern: string; label: string }>;
+  machineSpec?: MachineSpec;
+  source?: "curated" | "random" | "ai";
 }
 
 export const terminalScenarios: TerminalScenario[] = [
@@ -137,9 +142,107 @@ export const terminalScenarios: TerminalScenario[] = [
     reasoningKeywords: ["execute", "permission", "owner", "755", "least privilege"],
     misconceptionRules: [{ pattern: "chmod 777", label: "Granted write access to everyone instead of applying least privilege" }],
   },
+  {
+    id: "terminal-cmd-dhcp-renewal", topicId: "topic-ip-addressing", shell: "cmd",
+    title: "A workstation has an APIPA address", brief: "A Windows workstation assigned itself a 169.254 address and cannot reach company systems. Inspect its configuration, renew its DHCP lease, and verify normal connectivity.",
+    environment: "Windows 11 workstation with an elevated CMD prompt.", difficulty: "standard", estimatedMinutes: 12,
+    goals: [{ id: "address", description: "Restore a valid DHCP address and gateway", kind: "path_exists", target: "C:\\Users\\student" }],
+    diagnosticGroups: [["ipconfig /all", "ipconfig"], ["ipconfig /release"], ["ipconfig /renew"], ["ping 10.0.0.1"]], efficientCommandCount: 5,
+    hints: ["Inspect the current IPv4 address and gateway.", "Release the invalid lease before requesting a fresh one.", "Use ipconfig /renew, then test the gateway."],
+    explanation: "The self-assigned APIPA address showed DHCP had not supplied a usable lease. Releasing and renewing restored the workstation's valid address and default gateway.",
+    reasoningKeywords: ["apipa", "dhcp", "lease", "renew", "gateway"], misconceptionRules: [{ pattern: "flushdns", label: "Treated an address-assignment fault as a DNS-cache problem" }],
+  },
+  {
+    id: "terminal-cmd-update-service", topicId: "topic-windows-administration", shell: "cmd",
+    title: "Windows Update will not start", brief: "Updates fail because the Windows Update service is stopped. Inspect the service, restore it, and verify that it is running.",
+    environment: "Windows 11 workstation with an elevated CMD prompt.", difficulty: "standard", estimatedMinutes: 10,
+    goals: [{ id: "service", description: "Start the Windows Update service", kind: "service_running", target: "wuauserv" }],
+    diagnosticGroups: [["sc query wuauserv"], ["sc start wuauserv", "net start wuauserv"], ["sc query wuauserv"]], efficientCommandCount: 3,
+    hints: ["Query wuauserv first.", "Use sc start or net start from this elevated prompt.", "Query the service after the repair."], explanation: "The update service was stopped. A targeted service start restored it without changing unrelated components.",
+    reasoningKeywords: ["wuauserv", "service", "stopped", "start", "verify"], misconceptionRules: [{ pattern: "del|format", label: "Used a destructive action for a service-state fault" }],
+  },
+  {
+    id: "terminal-cmd-runaway-sync", topicId: "topic-operating-systems", shell: "cmd",
+    title: "File synchronization consumes the workstation", brief: "A sync process is consuming excessive memory. Identify it, terminate only the faulty process, and confirm it is gone.",
+    environment: "Windows 11 support workstation in an elevated CMD session.", difficulty: "challenging", estimatedMinutes: 12,
+    goals: [{ id: "process", description: "Stop sync-worker.exe", kind: "process_absent", target: "sync-worker.exe" }],
+    diagnosticGroups: [["tasklist"], ["taskkill /im sync-worker.exe", "taskkill /pid 4872"], ["tasklist"]], efficientCommandCount: 3,
+    hints: ["List running processes and compare memory use.", "Taskkill accepts /IM with an image name or /PID.", "List processes again to verify."], explanation: "The abnormal sync worker, not Windows itself, consumed the memory. Ending only that process was the least disruptive repair.",
+    reasoningKeywords: ["process", "memory", "tasklist", "taskkill", "verify"], misconceptionRules: [{ pattern: "taskkill .*system", label: "Tried to terminate a protected system process" }],
+    machineSpec: { shell: "cmd", elevated: true, memoryUsedMb: 7600, processes: [{ pid: 4, name: "System", user: "SYSTEM", cpu: 0.2, memoryMb: 24 }, { pid: 4872, name: "sync-worker.exe", user: "student", cpu: 81, memoryMb: 4100 }] },
+  },
+  {
+    id: "terminal-powershell-dns-cache", topicId: "topic-dns-fundamentals", shell: "powershell",
+    title: "PowerShell finds an outdated application server", brief: "The network is healthy, but app.corp.local is cached to a retired address. Prove name resolution is the fault and clear the stale answer.",
+    environment: "Windows 11 PowerShell as a support technician.", difficulty: "standard", estimatedMinutes: 10,
+    goals: [{ id: "flush", description: "Clear the stale DNS client cache", kind: "dns_cache_empty" }],
+    diagnosticGroups: [["test-connection 10.0.0.1"], ["resolve-dnsname app.corp.local"], ["clear-dnsclientcache"]], efficientCommandCount: 4,
+    hints: ["Test the gateway independently.", "Resolve the hostname before changing anything.", "Use Clear-DnsClientCache."], explanation: "Direct connectivity worked while the cached hostname answer was wrong. Clearing the client cache removed the stale record.",
+    reasoningKeywords: ["dns", "cache", "resolve", "hostname", "clear"], misconceptionRules: [{ pattern: "remove-item .*hosts", label: "Changed the hosts file without evidence it caused the fault" }],
+    machineSpec: { shell: "powershell", dnsRecords: { "app.corp.local": "10.0.0.20" }, dnsCache: { "app.corp.local": "10.0.0.88" }, targets: [{ host: "10.0.0.1", ip: "10.0.0.1", reachable: true, latencyMs: 2, openPorts: [53] }, { host: "app.corp.local", ip: "10.0.0.20", reachable: true, latencyMs: 4, openPorts: [443] }] },
+  },
+  {
+    id: "terminal-powershell-update-service", topicId: "topic-windows-administration", shell: "powershell",
+    title: "A required Windows service is disabled", brief: "Windows Update cannot run because wuauserv is disabled and stopped. Inspect it, set an appropriate startup type, start it, and verify the result.",
+    environment: "Windows 11 PowerShell opened as a standard user.", difficulty: "challenging", estimatedMinutes: 15,
+    goals: [{ id: "service", description: "Return wuauserv to running", kind: "service_running", target: "wuauserv" }],
+    diagnosticGroups: [["get-service -name wuauserv"], ["start-process powershell -verb runas"], ["set-service -name wuauserv -startuptype manual"], ["start-service -name wuauserv"], ["get-service -name wuauserv"]], efficientCommandCount: 5,
+    hints: ["Inspect the service state first.", "Elevate PowerShell before changing service configuration.", "Set StartupType to Manual, then start and verify it."], explanation: "The disabled startup type blocked the service. Elevating, changing only that setting, and starting the service restored update functionality.",
+    reasoningKeywords: ["disabled", "service", "startup", "elevate", "verify"], misconceptionRules: [{ pattern: "remove-item|stop-service", label: "Tried to remove data or stop an already unavailable service" }],
+    machineSpec: { shell: "powershell", services: [{ name: "wuauserv", display: "Windows Update", status: "stopped", startType: "disabled" }] },
+  },
+  {
+    id: "terminal-powershell-runaway-indexer", topicId: "topic-operating-systems", shell: "powershell",
+    title: "Search indexing overwhelms a laptop", brief: "A user reports freezing and high memory use. Find the abnormal index-helper process, stop it, and verify resource use.",
+    environment: "Windows 11 PowerShell under the affected user's account.", difficulty: "standard", estimatedMinutes: 12,
+    goals: [{ id: "process", description: "Stop index-helper.exe", kind: "process_absent", target: "index-helper.exe" }],
+    diagnosticGroups: [["get-process"], ["stop-process -name index-helper", "stop-process -id 5091"], ["get-process", "get-computerinfo"]], efficientCommandCount: 4,
+    hints: ["Get-Process shows working-set memory.", "Stop only the outlier by name or ID.", "Inspect the process list or free memory afterward."], explanation: "The index helper was the clear resource outlier. Stopping only it restored memory while preserving system processes.",
+    reasoningKeywords: ["process", "memory", "outlier", "stop", "verify"], misconceptionRules: [{ pattern: "stop-process -name system|stop-process -id 4", label: "Tried to stop a protected system process" }],
+    machineSpec: { shell: "powershell", memoryUsedMb: 7900, processes: [{ pid: 4, name: "System", user: "SYSTEM", cpu: 0.2, memoryMb: 24 }, { pid: 5091, name: "index-helper.exe", user: "student", cpu: 74, memoryMb: 4700 }] },
+  },
+  {
+    id: "terminal-linux-ssh-service", topicId: "topic-remote-access", shell: "bash",
+    title: "Remote administration stopped working", brief: "The server is reachable, but administrators cannot connect over SSH. Inspect the service, restore it, and verify that it is listening again.",
+    environment: "Ubuntu server with a sudo-capable account.", difficulty: "standard", estimatedMinutes: 13,
+    goals: [{ id: "ssh", description: "Return SSH to running", kind: "service_running", target: "ssh" }],
+    diagnosticGroups: [["ping 10.0.0.1"], ["systemctl status ssh"], ["sudo systemctl start ssh", "sudo systemctl restart ssh"], ["ss", "netstat", "systemctl status ssh"]], efficientCommandCount: 5,
+    hints: ["Separate host reachability from the remote-access service.", "Inspect ssh with systemctl.", "Start it with sudo and verify its state or listening sockets."], explanation: "The host was online, but SSH was stopped. Restoring only that service brought remote administration back.",
+    reasoningKeywords: ["ssh", "service", "reachability", "start", "verify"], misconceptionRules: [{ pattern: "ufw disable|chmod 777", label: "Weakened security instead of isolating the stopped service" }],
+  },
+  {
+    id: "terminal-linux-firewall-web", topicId: "topic-firewalls", shell: "bash",
+    title: "The web service runs but clients cannot connect", brief: "nginx is running, yet TCP port 80 is blocked locally. Confirm service health, inspect the firewall, allow only the required port, and verify access.",
+    environment: "Ubuntu web server with sudo access.", difficulty: "challenging", estimatedMinutes: 16,
+    goals: [{ id: "port", description: "Allow TCP port 80 through the local firewall", kind: "port_unblocked", target: "80" }],
+    diagnosticGroups: [["systemctl status nginx"], ["sudo ufw status", "ufw status"], ["sudo ufw allow 80"], ["curl intranet.corp.local"]], efficientCommandCount: 5,
+    hints: ["Confirm nginx is already healthy.", "Inspect UFW rules before changing them.", "Allow port 80 specifically rather than disabling the firewall."], explanation: "The application service was healthy, but a local firewall rule denied port 80. A narrow allow rule restored access without removing firewall protection.",
+    reasoningKeywords: ["firewall", "port 80", "nginx", "allow", "least privilege"], misconceptionRules: [{ pattern: "ufw disable", label: "Disabled the entire firewall instead of allowing the required port" }],
+    machineSpec: { shell: "bash", blockedPorts: [80] },
+  },
+  {
+    id: "terminal-linux-runaway-report", topicId: "topic-linux-fundamentals", shell: "bash",
+    title: "A reporting process exhausts memory", brief: "The server is swapping heavily. Identify the runaway report-worker process, stop only it, and confirm memory has recovered.",
+    environment: "Ubuntu application server as the process owner.", difficulty: "standard", estimatedMinutes: 12,
+    goals: [{ id: "process", description: "Stop report-worker", kind: "process_absent", target: "report-worker" }],
+    diagnosticGroups: [["free", "top", "ps"], ["kill 6120", "pkill report-worker"], ["free", "ps", "top"]], efficientCommandCount: 4,
+    hints: ["Compare processes and memory consumption.", "Use kill with the PID or pkill with the exact process name.", "Check free memory afterward."], explanation: "report-worker was the memory outlier. Ending that user process recovered capacity without disrupting core services.",
+    reasoningKeywords: ["memory", "process", "report-worker", "kill", "verify"], misconceptionRules: [{ pattern: "kill 1|pkill systemd", label: "Tried to terminate the init process" }],
+    machineSpec: { shell: "bash", memoryUsedMb: 7950, processes: [{ pid: 1, name: "systemd", user: "root", cpu: 0.1, memoryMb: 12 }, { pid: 6120, name: "report-worker", user: "student", cpu: 86, memoryMb: 4800 }] },
+  },
+  {
+    id: "terminal-linux-create-evidence", topicId: "topic-linux-fundamentals", shell: "bash",
+    title: "Prepare an incident evidence folder", brief: "Create /home/student/evidence so diagnostic output can be collected without placing files in a system directory. Verify the folder exists.",
+    environment: "Ubuntu workstation as student.", difficulty: "gentle", estimatedMinutes: 7,
+    goals: [{ id: "folder", description: "Create /home/student/evidence", kind: "path_exists", target: "/home/student/evidence" }],
+    diagnosticGroups: [["pwd", "ls"], ["mkdir /home/student/evidence", "mkdir evidence"], ["ls"]], efficientCommandCount: 3,
+    hints: ["Confirm your current directory.", "mkdir creates a directory.", "List the parent folder afterward."], explanation: "Creating a dedicated evidence directory under the user's home keeps collected diagnostics organized without requiring elevated access.",
+    reasoningKeywords: ["directory", "evidence", "mkdir", "home", "verify"], misconceptionRules: [{ pattern: "sudo mkdir /etc|rm -rf", label: "Used unnecessary privilege or destructive deletion" }],
+  },
 ];
 
 export function buildScenarioMachine(scenario: TerminalScenario): MachineState {
+  if (scenario.machineSpec) return createMachine(scenario.machineSpec);
   if (scenario.id === "terminal-cmd-stale-dns") {
     return createMachine({ shell: "cmd", dnsCache: { "intranet.corp.local": "10.0.0.99" } });
   }
@@ -165,6 +268,15 @@ export function buildScenarioMachine(scenario: TerminalScenario): MachineState {
     if (service) service.status = "stopped";
     return machine;
   }
+  if (scenario.goals.some((goal) => goal.kind === "service_running")) {
+    const machine = createMachine({ shell: scenario.shell, elevated: scenario.shell === "cmd" });
+    for (const goal of scenario.goals) {
+      if (goal.kind !== "service_running") continue;
+      const service = findService(machine, goal.target);
+      if (service) service.status = "stopped";
+    }
+    return machine;
+  }
   return createMachine({
     shell: "bash",
     dirs: ["/opt/deploy"],
@@ -184,9 +296,43 @@ export function goalMet(state: MachineState, goal: TerminalGoal): boolean {
   }
   const node = getNode(state, resolvePath(state, goal.target));
   if (goal.kind === "path_exists") return Boolean(node);
+  if (goal.kind === "path_absent") return !node;
+  if (goal.kind === "port_unblocked") return !state.blockedPorts.includes(Number.parseInt(goal.target, 10));
   return node?.mode === goal.expected;
 }
 
 export function scenariosForShell(shell: ShellKind): TerminalScenario[] {
   return terminalScenarios.filter((scenario) => scenario.shell === shell);
+}
+
+const hostnames = ["LAB-017", "OPS-204", "HELP-033", "BRANCH-112"];
+const contexts = ["after a routine update", "during a busy support shift", "after a user reported intermittent failures", "during a scheduled maintenance check"];
+
+export function randomizeTerminalScenario(base: TerminalScenario): TerminalScenario {
+  const nonce = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
+  const hostname = hostnames[Math.floor(Math.random() * hostnames.length)] ?? "LAB-017";
+  const context = contexts[Math.floor(Math.random() * contexts.length)] ?? contexts[0];
+  return {
+    ...base,
+    id: `${base.id}-random-${nonce}`,
+    title: `${base.title} — ${hostname}`,
+    brief: `${base.brief} This variation occurs ${context}.`,
+    environment: `${base.environment} Virtual host: ${hostname}.`,
+    machineSpec: { ...(base.machineSpec ?? { shell: base.shell }), shell: base.shell, hostname },
+    source: "random",
+  };
+}
+
+export function randomTerminalScenario(
+  shell: ShellKind,
+  attempts: Array<{ scenarioId: string; topicId: string }>,
+  weakTopicIds: string[],
+  currentId?: string,
+): TerminalScenario {
+  const pool = scenariosForShell(shell).filter((item) => item.id !== currentId);
+  const ranked = pool.map((scenario) => ({
+    scenario,
+    weight: (weakTopicIds.includes(scenario.topicId) ? 5 : 1) + (attempts.some((item) => item.scenarioId.startsWith(scenario.id)) ? 0 : 4) + Math.random(),
+  })).sort((a, b) => b.weight - a.weight);
+  return randomizeTerminalScenario((ranked[0]?.scenario ?? scenariosForShell(shell)[0]) as TerminalScenario);
 }
