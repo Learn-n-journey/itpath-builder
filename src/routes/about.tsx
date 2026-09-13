@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Mail } from "lucide-react";
+import { Bug, Mail } from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ function AboutPage() {
     <>
       <PageHeader
         title="About IT PATH"
-        description="I built IT PATH as a serious, certification-based study platform for people starting out in IT and cybersecurity."
+        description="I created IT PATH to give people starting out in IT and cybersecurity a structured, practical way to study."
         actions={
           <Button asChild variant="secondary">
             <Link to="/">Back to dashboard</Link>
@@ -42,14 +42,15 @@ function AboutPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel title="What IT PATH is">
           <p className="text-sm text-muted-foreground">
-            I built IT PATH for beginners who want a real path into IT and cybersecurity. I believe
-            certification study should be a skill you practice, not a list of videos you watch. Every
-            topic combines lessons, recall questions, practice tasks, hands-on labs, quizzes,
-            troubleshooting incidents and teach-back work so you can learn it, prove it and remember it.
+            I built IT PATH for beginners who want a clear route into IT and cybersecurity. I wanted
+            studying for a certification to feel active, not like working through an endless playlist.
+            Each topic brings together lessons, recall questions, practice tasks, hands-on labs,
+            quizzes, troubleshooting incidents and teach-back exercises to help you understand the
+            material and remember it.
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
-            I do not fake progress. Your readiness scores, weak areas and insights come from work you
-            actually record in the app.
+            The app only shows progress you have earned. Readiness scores, weak areas and insights are
+            based on the work you actually complete.
           </p>
         </Panel>
 
@@ -60,7 +61,7 @@ function AboutPage() {
               developer and maintainer of IT PATH.
             </p>
             <p>
-              If you have feedback, questions or just want to say hello, you can reach me at{" "}
+              If you have feedback, a question or just want to say hello, email me at{" "}
               <a
                 href="mailto:boleydavid7@outlook.com"
                 className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
@@ -70,35 +71,43 @@ function AboutPage() {
               </a>
               .
             </p>
+            <Button asChild variant="outline" size="sm">
+              <a href="mailto:boleydavid7@outlook.com?subject=IT%20PATH%20error%20report&body=Page%20or%20area%3A%0A%0AWhat%20happened%3A%0A%0AWhat%20you%20expected%3A%0A">
+                <Bug className="size-4" aria-hidden />
+                Report an error
+              </a>
+            </Button>
           </div>
         </Panel>
 
         <Panel title="Important: IT PATH does not issue certificates">
           <p className="text-sm text-muted-foreground">
-            IT PATH is a study tool, not a certifying body. It does not award or issue any
-            certificate, diploma or qualification, and it is not affiliated with CompTIA, Microsoft,
-            Cisco or any other vendor. Nothing you finish here counts towards a real certification.
+            IT PATH is a study tool, not a certification provider. It does not award certificates,
+            diplomas or qualifications, and it is not affiliated with CompTIA, Microsoft, Cisco or
+            any other vendor. Completing work here does not count as earning an official certification.
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
-            What it does give you is practice and an honest idea of how prepared you are: your
-            scores and readiness figures are estimates based on the work you record, not a
-            prediction or guarantee of passing an official exam. To become certified you still need
-            to register for and pass the real exam with the vendor.
+            What IT PATH can give you is meaningful practice and a realistic view of your preparation.
+            Scores and readiness estimates come from the work you record, but they cannot predict or
+            guarantee an exam result. To become certified, you still need to register for and pass the
+            official exam through the certification provider.
           </p>
         </Panel>
 
         <Panel title="Version">
           <p className="font-display text-3xl font-semibold tabular-nums">1.0</p>
           <p className="mt-2 text-sm text-muted-foreground">
-             This is my first public release. I plan to keep expanding the certifications, labs and features.
+            This is the first public release. I plan to keep improving the lessons, practice material,
+            labs and features over time.
           </p>
         </Panel>
 
 
         <Panel title="Data and privacy">
           <p className="text-sm text-muted-foreground">
-            Your study data is stored locally in your browser. If you sign in, I back it up to your
-            account so you can continue on another device. I do not sell or share your data.
+            An offline copy of your study data is kept in your browser. If you sign in, it is also
+            backed up to your account so you can continue on another device. I do not sell your
+            personal data.
           </p>
         </Panel>
       </div>

@@ -1,5 +1,9 @@
 # IT PATH Review Engine
 
+## About page polish (Sep 2026)
+- [x] Rewrite About page copy in a natural, professional voice
+- [x] Add an email action for reporting errors
+
 ## Adaptive certification path
 - [x] Remove learner-facing difficulty controls and labels
 - [x] Use certification target and experience to recommend a starting topic
