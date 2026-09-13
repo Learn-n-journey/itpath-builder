@@ -239,6 +239,7 @@ function AssignmentWorkspace({
   const [response, setResponse] = useState(attempt?.responses["main"] ?? "");
   const [selfChecks, setSelfChecks] = useState<Record<string, boolean>>({});
   const [showReview, setShowReview] = useState(false);
+  const marking = useAiMarking();
   const latestResponse = latestAttempt?.responses["main"] ?? "";
   const attemptResponse = attempt?.responses["main"] ?? "";
   const topic = topics.find((item) => item.id === assignment.topicId);
