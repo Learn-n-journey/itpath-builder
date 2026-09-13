@@ -1,23 +1,16 @@
 /**
- * Helpers that turn a recorded activity into a learner signal.
+ * The evidence stream behind the learner intelligence engine.
  *
- * Signals are the raw evidence stream behind the learner intelligence engine:
- * one immutable row per lesson, question, quiz, attempt and AI interaction.
- * Nothing here invents a result — every field comes from what the learner did.
+ * Most evidence is derived from records the app already keeps (quiz results,
+ * recall and practice answers, teach-backs, scenarios, labs, review grades), so
+ * a learner's full history counts from the first run. Interactions that leave
+ * no graded record of their own — opening a lesson, an AI tutor exchange, an AI
+ * marked answer, a troubleshooting incident, a career ticket — are appended to
+ * `user.learnerSignals` as they happen.
+ *
+ * Nothing here invents a result: every field comes from something the learner did.
  */
-import type {
-  IncidentAttempt,
-  LabAttempt,
-  LearnerSignal,
-  LearnerSignalKind,
-  PracticeResponse,
-  QuizAttempt,
-  RecallResponse,
-  ReviewAttempt,
-  ScenarioResponse,
-  TeachBackResponse,
-  TicketAttempt,
-} from "@/lib/app-data/types";
+import type { LearnerSignal, LearnerSignalKind, UserData } from "@/lib/app-data/types";
 
 let counter = 0;
 
@@ -40,6 +33,10 @@ export interface SignalInput {
   at?: string;
 }
 
+function clamp01(value: number): number {
+  return Math.max(0, Math.min(1, value));
+}
+
 export function createSignal(input: SignalInput): LearnerSignal {
   const signal: LearnerSignal = {
     id: signalId(),
@@ -56,127 +53,134 @@ export function createSignal(input: SignalInput): LearnerSignal {
   return signal;
 }
 
-function clamp01(value: number): number {
-  return Math.max(0, Math.min(1, value));
-}
-
-function elapsedBetween(start: string | undefined, end: string | undefined): number | undefined {
+/** Thinking time between two timestamps. Anything over two hours is a tab left open. */
+function elapsedBetween(start?: string, end?: string): number | undefined {
   if (!start || !end) return undefined;
   const ms = new Date(end).getTime() - new Date(start).getTime();
-  // Anything over two hours is a tab left open, not thinking time.
   if (!Number.isFinite(ms) || ms <= 0 || ms > 2 * 60 * 60 * 1000) return undefined;
   return ms;
 }
 
-/** One signal per graded question, with the attempt's time split across them. */
-export function signalsFromQuizAttempt(attempt: QuizAttempt): LearnerSignal[] {
-  if (attempt.status !== "submitted" || attempt.results.length === 0) return [];
-  const total = elapsedBetween(attempt.createdAt, attempt.submittedAt ?? attempt.updatedAt);
-  const perQuestion = total ? total / attempt.results.length : undefined;
-  return attempt.results.map((result) =>
-    createSignal({
-      topicId: result.topicId,
-      kind: "quiz",
-      correct: result.correct,
-      ...(perQuestion === undefined ? {} : { elapsedMs: perQuestion }),
-      at: attempt.submittedAt ?? attempt.updatedAt,
-    }),
+function withTiming(input: SignalInput, elapsedMs: number | undefined): LearnerSignal {
+  return createSignal(elapsedMs === undefined ? input : { ...input, elapsedMs });
+}
+
+/** Every signal that can be reconstructed from stored records. */
+export function derivedSignals(user: UserData): LearnerSignal[] {
+  const out: LearnerSignal[] = [];
+
+  for (const attempt of user.quizAttempts) {
+    if (attempt.status !== "submitted" || attempt.results.length === 0) continue;
+    const total = elapsedBetween(attempt.createdAt, attempt.submittedAt ?? attempt.updatedAt);
+    const perQuestion = total ? total / attempt.results.length : undefined;
+    for (const result of attempt.results) {
+      out.push(
+        withTiming(
+          {
+            topicId: result.topicId,
+            kind: "quiz",
+            correct: result.correct,
+            at: attempt.submittedAt ?? attempt.updatedAt,
+          },
+          perQuestion,
+        ),
+      );
+    }
+  }
+
+  for (const response of user.recallResponses) {
+    out.push(
+      createSignal({
+        topicId: response.topicId,
+        kind: "recall",
+        correct: response.correct,
+        at: response.createdAt,
+      }),
+    );
+  }
+
+  for (const response of user.practiceResponses) {
+    out.push(
+      createSignal({
+        topicId: response.topicId,
+        kind: "practice",
+        correct: response.correct,
+        at: response.createdAt,
+      }),
+    );
+  }
+
+  for (const response of Object.values(user.teachBackResponses)) {
+    const words = response.body.trim().split(/\s+/).filter(Boolean).length;
+    if (words < 20) continue;
+    out.push(
+      withTiming(
+        {
+          topicId: response.topicId,
+          kind: "teach_back",
+          score: Math.min(1, words / 120),
+          at: response.updatedAt,
+        },
+        elapsedBetween(response.createdAt, response.updatedAt),
+      ),
+    );
+  }
+
+  for (const response of Object.values(user.scenarioResponses)) {
+    if (response.response.trim().length < 20) continue;
+    out.push(
+      createSignal({
+        topicId: response.topicId,
+        kind: "scenario",
+        correct: response.meetsCriteria,
+        at: response.updatedAt,
+      }),
+    );
+  }
+
+  for (const attempt of user.labAttempts) {
+    if (attempt.status === "in_progress" || attempt.maxScore <= 0) continue;
+    const score = attempt.score / attempt.maxScore;
+    out.push(
+      withTiming(
+        {
+          topicId: attempt.topicId,
+          kind: "lab",
+          correct: score >= 0.7,
+          score,
+          at: attempt.completedAt ?? attempt.updatedAt,
+        },
+        elapsedBetween(attempt.createdAt, attempt.completedAt ?? attempt.updatedAt),
+      ),
+    );
+  }
+
+  for (const attempt of user.reviewAttempts) {
+    out.push(
+      createSignal({
+        topicId: attempt.topicId,
+        kind: "review",
+        correct: attempt.outcome === "pass",
+        at: attempt.gradedAt ?? attempt.createdAt ?? new Date(0).toISOString(),
+      }),
+    );
+  }
+
+  return out;
+}
+
+/** Derived records plus the appended live stream, newest first. */
+export function evidenceStream(user: UserData): LearnerSignal[] {
+  const appended = user.learnerSignals.filter(
+    (signal) =>
+      signal.kind === "lesson" ||
+      signal.kind === "ai_tutor" ||
+      signal.kind === "ai_grading" ||
+      signal.kind === "troubleshoot" ||
+      signal.kind === "career" ||
+      signal.kind === "assignment",
   );
-}
-
-export function signalFromRecall(response: RecallResponse): LearnerSignal {
-  return createSignal({
-    topicId: response.topicId,
-    kind: "recall",
-    correct: response.correct,
-    at: response.createdAt,
-  });
-}
-
-export function signalFromPractice(response: PracticeResponse): LearnerSignal {
-  return createSignal({
-    topicId: response.topicId,
-    kind: "practice",
-    correct: response.correct,
-    at: response.createdAt,
-  });
-}
-
-export function signalFromTeachBack(response: TeachBackResponse): LearnerSignal | null {
-  const words = response.body.trim().split(/\s+/).filter(Boolean).length;
-  if (words < 20) return null;
-  return createSignal({
-    topicId: response.topicId,
-    kind: "teach_back",
-    score: Math.min(1, words / 120),
-    ...(elapsedBetween(response.createdAt, response.updatedAt) === undefined
-      ? {}
-      : { elapsedMs: elapsedBetween(response.createdAt, response.updatedAt) }),
-    at: response.updatedAt,
-  });
-}
-
-export function signalFromScenario(response: ScenarioResponse): LearnerSignal | null {
-  if (response.response.trim().length < 20) return null;
-  return createSignal({
-    topicId: response.topicId,
-    kind: "scenario",
-    correct: response.meetsCriteria,
-    at: response.updatedAt,
-  });
-}
-
-export function signalFromLab(attempt: LabAttempt): LearnerSignal | null {
-  if (attempt.status === "in_progress" || attempt.maxScore <= 0) return null;
-  const score = attempt.score / attempt.maxScore;
-  return createSignal({
-    topicId: attempt.topicId,
-    kind: "lab",
-    correct: score >= 0.7,
-    score,
-    ...(elapsedBetween(attempt.createdAt, attempt.completedAt ?? attempt.updatedAt) === undefined
-      ? {}
-      : { elapsedMs: elapsedBetween(attempt.createdAt, attempt.completedAt ?? attempt.updatedAt) }),
-    at: attempt.completedAt ?? attempt.updatedAt,
-  });
-}
-
-export function signalFromReviewAttempt(attempt: ReviewAttempt): LearnerSignal {
-  return createSignal({
-    topicId: attempt.topicId,
-    kind: "review",
-    correct: attempt.outcome === "pass",
-    at: new Date().toISOString(),
-  });
-}
-
-export function signalFromIncident(
-  attempt: IncidentAttempt,
-  topicId: string,
-  correct: boolean,
-): LearnerSignal | null {
-  if (attempt.status !== "submitted" || !topicId) return null;
-  return createSignal({
-    topicId,
-    kind: "troubleshoot",
-    correct,
-    ...(elapsedBetween(attempt.createdAt, attempt.updatedAt) === undefined
-      ? {}
-      : { elapsedMs: elapsedBetween(attempt.createdAt, attempt.updatedAt) }),
-    at: attempt.updatedAt,
-  });
-}
-
-export function signalFromTicket(
-  attempt: TicketAttempt,
-  topicId: string,
-  correct: boolean,
-): LearnerSignal | null {
-  if (attempt.status !== "submitted" || !topicId) return null;
-  return createSignal({
-    topicId,
-    kind: "career",
-    correct,
-    at: attempt.updatedAt,
-  });
+  return [...derivedSignals(user), ...appended].sort(
+    (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime(),
+  );
 }
