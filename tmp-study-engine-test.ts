@@ -1,11 +1,11 @@
 import { generateStudyPlan } from "./src/lib/study-engine";
 import type { UserData } from "./src/lib/app-data/types";
-import { defaultUserData } from "./src/lib/app-data/defaults";
+import { createDefaultUserData, defaultSettings } from "./src/lib/app-data/defaults";
 
 const base: UserData = {
-  ...defaultUserData(),
+  ...createDefaultUserData(),
   settings: {
-    ...defaultUserData().settings,
+    ...defaultSettings,
     sessionLengthMinutes: 45,
   },
 };
