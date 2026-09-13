@@ -22,6 +22,7 @@ import {
   Compass,
   Info,
   FileDown,
+  Crown,
   Settings as SettingsIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -196,6 +197,13 @@ export const navItems: NavItem[] = [
     icon: Info,
     group: "You",
     description: "Who built IT PATH, version number and contact details.",
+  },
+  {
+    label: "Go Pro",
+    to: "/pricing",
+    icon: Crown,
+    group: "You",
+    description: "One-time upgrade that unlocks the AI Tutor, AI grading, labs and more.",
   },
   {
     label: "Settings",
