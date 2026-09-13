@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, ShieldCheck } from "lucide-react";
+import { Menu, Search, ShieldCheck } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { navGroups, navItems } from "@/config/navigation";
@@ -79,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <header className="sticky top-0 z-20 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
+      <header className="sticky top-0 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Open navigation">
@@ -96,6 +96,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           </SheetContent>
         </Sheet>
         <span className="min-w-0 truncate font-display text-sm font-semibold">{current}</span>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Search"
+          onClick={() => palette.setOpen(true)}
+        >
+          <Search className="size-5" />
+        </Button>
       </header>
 
       <main className={cn("lg:pl-64")}>
