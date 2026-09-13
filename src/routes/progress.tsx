@@ -64,7 +64,7 @@ function ProgressPage() {
     <>
       <PageHeader
         title="Progress"
-        description="Measured from your activity only. Nothing here is estimated or pre-filled."
+        description="Correct and completed work is measured against everything available. Untouched work counts as zero."
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -110,7 +110,7 @@ function ProgressPage() {
       </Panel>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <Panel title="By activity type" description="Counts and averages from recorded attempts.">
+        <Panel title="By activity type" description="Completion uses the full library; averages describe attempted work only.">
           <ul className="divide-y divide-border">
             {report.byActivity.map((row) => (
               <li key={row.key} className="flex flex-wrap items-center justify-between gap-2 py-3">
@@ -235,7 +235,7 @@ function ProgressPage() {
           </ul>
         </Panel>
 
-         <Panel title="By skill" description="Weighted from labs, quizzes, practice and real work.">
+         <Panel title="By skill" description="Correct work divided by every available activity for that skill.">
           <ul className="max-h-[26rem] divide-y divide-border overflow-y-auto pr-1">
             {report.bySkill.map((skill) => (
               <li key={skill.skillId} className="py-3">
@@ -248,7 +248,7 @@ function ProgressPage() {
                 <ProgressBar value={skill.score} className="mt-2 h-1.5" />
                 <p className="mt-1.5 text-xs text-muted-foreground">
                   {skill.hasEvidence
-                    ? `${skill.evidenceCount} piece${skill.evidenceCount === 1 ? "" : "s"} of evidence · ${skill.sources
+                    ? `${skill.accuracy}% accuracy · ${skill.coveredCount}/${skill.availableCount} activities covered · ${skill.sources
                         .map((source) => evidenceSourceLabels[source])
                         .join(", ")}`
                     : "No evidence yet"}

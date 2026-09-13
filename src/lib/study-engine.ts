@@ -14,6 +14,7 @@ import type {
   UserData,
 } from "@/lib/app-data/types";
 import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const STUDY_DURATIONS = [30, 60, 90, 120] as const;
 export type StudyDuration = (typeof STUDY_DURATIONS)[number];
@@ -51,16 +52,8 @@ function topicTitle(topicId: string): string {
 }
 
 function topicScore(user: UserData, topicId: string): number | null {
-  const p = user.topicProgress[topicId];
-  if (!p) return null;
-  return mean([
-    p.understanding,
-    p.recall,
-    p.application,
-    p.practicalAbility,
-    p.troubleshooting,
-    p.retention,
-  ]);
+  const progress = topicScopeProgress(user, topicId);
+  return progress.attempted > 0 ? progress.overall : null;
 }
 
 
@@ -171,8 +164,8 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   // 4. Practice — topics you have read but never applied.
   const practiced = new Set(user.practiceResponses.map((r) => r.topicId));
   const practiceTopic = orderedTopics.find((topic) => {
-    const p = user.topicProgress[topic.id];
-    return p && p.understanding > 0 && !practiced.has(topic.id);
+    const p = topicScopeProgress(user, topic.id);
+    return p.attempted > 0 && !practiced.has(topic.id);
   });
   if (practiceTopic) {
     out.push({

@@ -29,6 +29,8 @@ export interface RecordSkillRow {
   label: string;
   score: number;
   evidenceCount: number;
+  coveredCount: number;
+  availableCount: number;
 }
 
 export interface StudyRecord {
@@ -98,6 +100,8 @@ export function buildStudyRecord(user: UserData, now: Date = new Date()): StudyR
         label: skill.label,
         score: Math.round(skill.score),
         evidenceCount: skill.evidence.length,
+        coveredCount: skill.coveredCount,
+        availableCount: skill.availableCount,
       })),
   };
 }
@@ -135,7 +139,7 @@ export function recordAsText(record: StudyRecord, name?: string): string {
     "",
     "SKILLS EVIDENCED",
     ...(record.skills.length
-      ? record.skills.map((row) => `- ${row.label}: ${row.score}% from ${row.evidenceCount} records`)
+      ? record.skills.map((row) => `- ${row.label}: ${row.score}% — ${row.coveredCount}/${row.availableCount} available activities covered (${row.evidenceCount} evidence records)`)
       : ["- Nothing recorded yet"]),
     "",
     "TOPICS STUDIED",

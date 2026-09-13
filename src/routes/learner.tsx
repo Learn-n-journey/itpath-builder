@@ -165,7 +165,7 @@ function LearnerPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard label="Concepts studied" value={`${model.studied}`} icon={Brain} />
-            <StatCard label="Average mastery" value={`${pct(model.averageMastery)}%`} icon={Target} />
+            <StatCard label="Overall mastery" value={`${pct(model.averageMastery)}%`} hint="Across every available concept" icon={Target} />
             <StatCard label="Evidence recorded" value={`${model.totalSignals}`} icon={Clock} />
             <StatCard label="Fading now" value={`${fading.length}`} icon={TrendingDown} />
           </div>

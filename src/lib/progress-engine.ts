@@ -9,6 +9,7 @@ import type { EntityId, TopicProgress, UserData } from "@/lib/app-data/types";
 import { scoreAllCertifications } from "@/lib/certification-engine";
 import { summarizeMistakes, mistakeCauseLabels } from "@/lib/mistake-engine";
 import { scoreSkills, type SkillScore } from "@/lib/skills-engine";
+import { allTopicScopeProgress, topicScopeProgress } from "@/lib/scope-progress";
 
 const WEAK_SCORE = 60;
 
@@ -53,17 +54,21 @@ export function topicScore(progress: TopicProgress | undefined): number {
   ]);
 }
 
+export function fullScopeTopicScore(user: UserData, topicId: EntityId): number {
+  return topicScopeProgress(user, topicId).overall;
+}
+
 function dimensionsFor(user: UserData, topicIds: EntityId[]): Dimensions {
-  const list = topicIds.map((id) => user.topicProgress[id]);
-  const pick = (fn: (p: TopicProgress) => number) => round(mean(list.map((p) => (p ? fn(p) : 0))));
+  const list = topicIds.map((id) => topicScopeProgress(user, id));
+  const pick = (fn: (p: (typeof list)[number]) => number) => round(mean(list.map(fn)));
   return {
-    knowledge: pick((p) => (p.understanding + p.recall) / 2),
-    understanding: pick((p) => p.understanding),
-    recall: pick((p) => p.recall),
-    application: pick((p) => p.application),
-    practicalAbility: pick((p) => p.practicalAbility),
-    troubleshooting: pick((p) => p.troubleshooting),
-    retention: pick((p) => p.retention),
+    knowledge: pick((p) => (p.understanding.score + p.recall.score) / 2),
+    understanding: pick((p) => p.understanding.score),
+    recall: pick((p) => p.recall.score),
+    application: pick((p) => p.application.score),
+    practicalAbility: pick((p) => p.practicalAbility.score),
+    troubleshooting: pick((p) => p.troubleshooting.score),
+    retention: pick((p) => p.retention.score),
   };
 }
 
@@ -130,8 +135,11 @@ export function computeProgress(user: UserData, now: Date = new Date()): Progres
   const nowMs = now.getTime();
   const allIds = topics.map((topic) => topic.id);
 
+  const scopeByTopic = new Map(allTopicScopeProgress(user).map((row) => [row.topicId, row]));
   const byTopic: TopicRow[] = topics.map((topic) => {
-    const progress = user.topicProgress[topic.id];
+    const scope = scopeByTopic.get(topic.id);
+    const score = scope?.overall ?? 0;
+    const status = score >= 85 ? "mastered" : score >= 70 ? "completed" : (scope?.attempted ?? 0) > 0 ? "in_progress" : "not_started";
     return {
       topicId: topic.id,
       title: topic.title,
@@ -139,9 +147,9 @@ export function computeProgress(user: UserData, now: Date = new Date()): Progres
       month: topic.month,
       week: topic.week,
       certificationId: topic.certificationId,
-      score: round(topicScore(progress)),
-      status: progress?.status ?? "not_started",
-      hasActivity: Boolean(progress) && topicScore(progress) > 0,
+      score,
+      status,
+      hasActivity: (scope?.attempted ?? 0) > 0,
       dimensions: dimensionsFor(user, [topic.id]),
     };
   });

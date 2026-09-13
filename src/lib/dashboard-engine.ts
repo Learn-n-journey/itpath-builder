@@ -3,6 +3,7 @@ import type { EntityId, UserData } from "@/lib/app-data/types";
 import { scoreAllCertifications } from "@/lib/certification-engine";
 import { scoreSkills, scoreTracks } from "@/lib/skills-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
+import { allTopicScopeProgress } from "@/lib/scope-progress";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -61,36 +62,20 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
   const progressList = Object.values(user.topicProgress);
 
   // Overall progress: every curriculum topic counts, so a new user sees zero.
-  const perTopic = topics.map((topic) => {
-    const p = user.topicProgress[topic.id];
-    if (!p) return 0;
-    return mean([
-      p.understanding,
-      p.recall,
-      p.application,
-      p.practicalAbility,
-      p.troubleshooting,
-      p.retention,
-    ]);
-  });
+  const scope = allTopicScopeProgress(user);
+  const perTopic = scope.map((row) => row.overall);
   const overallProgress = round(mean(perTopic));
 
   const knowledge = round(
-    mean(topics.map((t) => {
-      const p = user.topicProgress[t.id];
-      return p ? mean([p.understanding, p.recall]) : 0;
-    })),
+    mean(scope.map((row) => mean([row.understanding.score, row.recall.score]))),
   );
   const practical = round(
-    mean(topics.map((t) => {
-      const p = user.topicProgress[t.id];
-      return p ? mean([p.application, p.practicalAbility]) : 0;
-    })),
+    mean(scope.map((row) => mean([row.application.score, row.practicalAbility.score]))),
   );
   const troubleshooting = round(
-    mean(topics.map((t) => user.topicProgress[t.id]?.troubleshooting ?? 0)),
+    mean(scope.map((row) => row.troubleshooting.score)),
   );
-  const retention = round(mean(topics.map((t) => user.topicProgress[t.id]?.retention ?? 0)));
+  const retention = round(mean(scope.map((row) => row.retention.score)));
 
   // Study time
   const studyMinutesTotal = user.studySessions.reduce((sum, s) => sum + (s.minutes || 0), 0);
@@ -122,7 +107,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       .filter((l) => l.status === "completed" || l.status === "mastered")
       .map((l) => l.labId),
   ).size;
-  const masteredTopics = progressList.filter((p) => p.status === "mastered").length;
+  const masteredTopics = scope.filter((row) => row.overall >= 85).length;
 
   // Topics needing review: due reviews, unresolved mistakes, weak recorded dimensions.
   const needing = new Map<EntityId, string>();

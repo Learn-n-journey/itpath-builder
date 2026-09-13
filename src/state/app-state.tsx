@@ -54,6 +54,7 @@ import {
   type UserData,
   type UserSettings,
 } from "@/lib/app-data/types";
+import { allTopicScopeProgress } from "@/lib/scope-progress";
 
 interface AppActions {
   addQuizAttempt: (attempt: QuizAttempt) => void;
@@ -406,16 +407,14 @@ export function useAppState(): AppStateContextValue {
 export function useStats() {
   const { user } = useAppState();
   return useMemo(() => {
-    const progress = Object.values(user.topicProgress);
-    const completed = progress.filter(
-      (p) => p.status === "completed" || p.status === "mastered",
-    ).length;
-    const mastered = progress.filter((p) => p.status === "mastered").length;
+    const progress = allTopicScopeProgress(user);
+    const completed = progress.filter((p) => p.overall >= 70).length;
+    const mastered = progress.filter((p) => p.overall >= 85).length;
     const studyMinutes = user.studySessions.reduce((sum, s) => sum + (s.minutes || 0), 0);
     return {
       topicsCompleted: completed,
       topicsMastered: mastered,
-      topicsInProgress: progress.filter((p) => p.status === "in_progress").length,
+      topicsInProgress: progress.filter((p) => p.attempted > 0 && p.overall < 70).length,
       assignmentsCompleted: user.assignmentAttempts.filter((a) => a.status === "completed").length,
       labsCompleted: user.labAttempts.filter(
         (l) => l.status === "completed" || l.status === "mastered",

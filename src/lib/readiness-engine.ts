@@ -17,6 +17,7 @@ import {
 } from "@/lib/certification-engine";
 import { EXAM_PREP_MINUTES, topicStudyMinutes } from "@/lib/study-time";
 import type { Certification, EntityId, UserData } from "@/lib/app-data/types";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 export type ReadinessBand =
   | "not_started"
@@ -174,8 +175,7 @@ export function buildReadinessReport(
 
   const courseTopics = certificationTopics(certification.id);
   const isDone = (topicId: EntityId) => {
-    const status = user.topicProgress[topicId]?.status;
-    return status === "completed" || status === "mastered";
+    return topicScopeProgress(user, topicId).overall >= 70;
   };
   const topicsDone = courseTopics.filter((topic) => isDone(topic.id)).length;
   const remainingTopicMinutes = courseTopics

@@ -8,6 +8,7 @@ import {
   weeks as allWeeks,
 } from "@/data/static-content";
 import { learningModules } from "@/data/learning-content";
+import { topicScopeProgress } from "@/lib/scope-progress";
 import type {
   Assignment,
   CurriculumWeek,
@@ -94,7 +95,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
   const now = Date.now();
 
   const reading: WeekLink[] = topics.map((topic) => {
-    const understanding = user.topicProgress[topic.id]?.understanding ?? 0;
+    const understanding = topicScopeProgress(user, topic.id).understanding.score;
     const module = learningModules.find((item) => item.topicId === topic.id);
     return {
       id: `reading-${topic.id}`,
@@ -225,7 +226,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
           null,
         ),
     )
-    .filter((value): value is number => value !== null);
+    .map((value) => value ?? 0);
   const assignmentScores = assignments
     .map((assignment) =>
       user.assignmentAttempts
@@ -239,7 +240,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
           null,
         ),
     )
-    .filter((value): value is number => value !== null);
+    .map((value) => value ?? 0);
 
   const average = (values: number[]) =>
     values.length === 0 ? null : Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
@@ -247,7 +248,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
   const performance: WeekPerformance[] = [
     {
       label: "Reading",
-      value: average(topics.map((topic) => user.topicProgress[topic.id]?.understanding ?? 0)),
+      value: average(topics.map((topic) => topicScopeProgress(user, topic.id).understanding.score)),
     },
     { label: "Recall and practice", value: pct(practiceDone, practice.length) },
     { label: "Labs", value: average(labScores) },
@@ -255,7 +256,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
     { label: "Weekly quiz", value: quizBest },
     { label: "Assessment", value: assessmentBest },
   ];
-  const measured = performance.map((item) => item.value).filter((value): value is number => value !== null);
+  const measured = performance.map((item) => item.value ?? 0);
 
   const completedRequirements = requirements.filter((item) => item.done).length;
 
