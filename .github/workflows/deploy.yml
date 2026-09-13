@@ -33,6 +33,8 @@ jobs:
 
       - name: Build
         run: npm run build
+      - name: Create index.html
+        run: cp .output/public/_shell.html .output/public/index.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
