@@ -22,6 +22,14 @@ import {
 import type { StudyPlan } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 
+function durationOptions(sessionLengthMinutes: number): number[] {
+  const set = new Set<number>(STUDY_DURATIONS);
+  const options = set.has(sessionLengthMinutes)
+    ? [...STUDY_DURATIONS]
+    : [...STUDY_DURATIONS, sessionLengthMinutes].sort((a, b) => a - b);
+  return options;
+}
+
 export const Route = createFileRoute("/study-plan")({
   head: () => ({
     meta: [
