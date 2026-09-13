@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { ProGate } from "@/components/pro-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -41,8 +42,16 @@ export const Route = createFileRoute("/troubleshoot")({
       },
     ],
   }),
-  component: TroubleshootPage,
+  component: TroubleshootPageGated,
 });
+
+function TroubleshootPageGated() {
+  return (
+    <ProGate feature="The incident simulator">
+      <TroubleshootPage />
+    </ProGate>
+  );
+}
 
 const METHOD = [
   "Identify the problem and gather information",
