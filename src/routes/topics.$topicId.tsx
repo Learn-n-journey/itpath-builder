@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, BookOpen } from "lucide-react";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
+import { TopicKnowledgePanel } from "@/components/knowledge/topic-knowledge-panel";
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
