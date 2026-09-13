@@ -26,6 +26,7 @@ import type {
   AssignmentCriterionResult,
   AssignmentRubricCriterion,
 } from "@/lib/app-data/types";
+import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { answerMatches, matchesConcept } from "@/lib/fuzzy-match";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { selectedCertification } from "@/lib/adaptive-path";
