@@ -4,6 +4,8 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { navGroups, navItems } from "@/config/navigation";
 import { AccountPanel } from "@/components/layout/account-panel";
+import { CommandPalette, CommandPaletteButton, useCommandPalette } from "@/components/command-palette";
+import { StudyReminder } from "@/components/study-reminder";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
