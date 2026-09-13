@@ -27,7 +27,6 @@ import {
   FileDown,
   Crown,
   Settings as SettingsIcon,
-  Terminal,
   type LucideIcon,
 } from "lucide-react";
 
@@ -96,13 +95,6 @@ export const navItems: NavItem[] = [
     icon: FlaskConical,
     group: "Practice",
     description: "Step-by-step hands-on walkthroughs and fault drills.",
-  },
-  {
-    label: "Command Prompt",
-    to: "/command-prompt",
-    icon: Terminal,
-    group: "Practice",
-    description: "Practice Windows command-line skills in a safe virtual terminal.",
   },
   {
     label: "Quiz Me",

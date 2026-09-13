@@ -72,7 +72,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-sidebar-border bg-sidebar lg:flex">
         <Brand />
-        <div className="px-5 pb-2 text-xs font-medium text-muted-foreground">TEST</div>
         <CommandPaletteButton onClick={() => palette.setOpen(true)} />
         <NavList />
         <div className="mt-auto border-t border-sidebar-border px-5 py-4">
