@@ -1,9 +1,6 @@
 # IT PATH desktop app
 
-A thin desktop window around the published IT PATH site
-(https://itpath-builder.lovable.app). The account, AI tutor, grading and
-payment features run on the server, so the desktop app needs an internet
-connection.
+A thin desktop window around the IT PATH site configured by `ITPATH_URL`. The account, AI tutor, grading and payment features run on the server, so the desktop app needs an internet connection.
 
 ## Build installers
 
@@ -21,9 +18,6 @@ npx @electron/packager . "IT PATH" --platform=darwin --arch=x64 --out=release --
 npx @electron/packager . "IT PATH" --platform=linux --arch=x64 --out=release --overwrite --icon=icon.png
 ```
 
-Zip the folder in `release/` and distribute it. Unsigned apps show a
-security warning on first launch; code signing certificates remove it
-(Apple Developer Program for macOS, an OV/EV code signing cert for Windows).
+Zip the folder in `release/` and distribute it. Unsigned apps show a security warning on first launch; code signing certificates remove it.
 
-Point the app at a different address with the `ITPATH_URL` environment
-variable.
+Set `ITPATH_URL` to your own production deployment before packaging.
