@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { askTutor } from "@/lib/tutor.functions";
+import { knowledgeDigest } from "@/lib/knowledge-context";
+import { useKnowledge } from "@/hooks/use-knowledge";
 import {
   clearTutorThreads,
   deleteTutorThread,
@@ -106,6 +108,7 @@ function AiTutor() {
   const [threads, setThreads] = useState<TutorThreadSummary[]>([]);
   const [historyBusy, setHistoryBusy] = useState(false);
 
+  const { items: knowledgeItems } = useKnowledge();
   const listThreads = useServerFn(listTutorThreads);
   const loadThread = useServerFn(getTutorThread);
   const saveThread = useServerFn(saveTutorThread);
@@ -146,7 +149,10 @@ function AiTutor() {
 
   async function send(next: ChatMessage[]) {
     setBusy(true);
-    const reply = await askTutor({ data: { messages: next } });
+    const digest = knowledgeDigest(knowledgeItems, topicId === NO_TOPIC ? undefined : topicId);
+    const reply = await askTutor({
+      data: { messages: next, ...(digest ? { knowledge: digest } : {}) },
+    });
     setBusy(false);
     if (reply.ok) {
       const updated = [...next, { role: "assistant" as const, content: reply.answer }];
