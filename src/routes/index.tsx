@@ -89,7 +89,7 @@ function Dashboard() {
 
   return (
     <>
-      <div className="mb-6 flex items-start gap-4">
+      <div className="flex items-start gap-4">
         <img
           src="/icons/icon-256.png"
           alt="IT PATH logo — a mountain path with circuit traces"
