@@ -475,8 +475,9 @@ function AssignmentWorkspace({
 
           <Panel
             title="Evaluation"
-            description="Your answer is compared with the correct answer point by point. It does not have to match the wording, only the idea."
+            description="An AI examiner reads your whole answer against each point of the correct answer. Wording does not matter, only the idea."
           >
+            <AiFeedback state={marking} showScore={false} />
             <div className="space-y-3">
               {assignment.rubric.map((criterion) => {
                 const result = resultMap.get(criterion.id);
