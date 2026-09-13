@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { gradeWrittenAnswer, type GradeInput, type WrittenGrade } from "@/lib/grading.functions";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useAppState } from "@/state/app-state";
 
 export interface MarkingState {
   busy: boolean;
@@ -21,12 +22,14 @@ export interface MarkingState {
 export function useAiMarking() {
   const grade = useServerFn(gradeWrittenAnswer);
   const { isPro } = useSubscription();
+  const { actions } = useAppState();
   const [state, setState] = useState<MarkingState>({ busy: false, grade: null, error: null });
 
   const mark = useCallback(
-    async (input: GradeInput): Promise<WrittenGrade | null> => {
+    async (input: GradeInput, topicId?: string): Promise<WrittenGrade | null> => {
       if (!isPro) return null;
       setState({ busy: true, grade: null, error: null });
+      const startedAt = Date.now();
       try {
         const reply = await grade({ data: input });
         if (!reply.ok) {
@@ -34,13 +37,23 @@ export function useAiMarking() {
           return null;
         }
         setState({ busy: false, grade: reply.grade, error: null });
+        if (topicId) {
+          // Marked answers are real evidence, so the learner model sees them too.
+          actions.addLearnerSignal({
+            topicId,
+            kind: "ai_grading",
+            correct: reply.grade.correct,
+            score: reply.grade.score / 100,
+            elapsedMs: Date.now() - startedAt,
+          });
+        }
         return reply.grade;
       } catch {
         setState({ busy: false, grade: null, error: "The marker could not be reached." });
         return null;
       }
     },
-    [grade, isPro],
+    [grade, isPro, actions],
   );
 
   const reset = useCallback(() => setState({ busy: false, grade: null, error: null }), []);
