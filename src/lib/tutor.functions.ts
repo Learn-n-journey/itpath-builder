@@ -2,8 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 const inputSchema = z.object({
-  prompt: z.string().min(20).max(20000),
-  interactive: z.boolean(),
+  messages: z
+    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(20000) }))
+    .min(1)
+    .max(40),
 });
 
 export type TutorReply = { ok: true; answer: string } | { ok: false; error: string };
@@ -14,9 +16,8 @@ export const askTutor = createServerFn({ method: "POST" })
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI service is not configured." };
 
-    const system = data.interactive
-      ? "You are an IT and cybersecurity tutor inside a study app. Follow the learner's task instructions exactly. Keep the reply focused and structured with short headings. When the task says to ask one question at a time, end your reply with the first question only."
-      : "You are an IT and cybersecurity tutor inside a study app. Follow the learner's task instructions exactly. Be concrete: real commands, real outputs, real examples. Structured with short headings. Do not pad.";
+    const system =
+      "You are an IT and cybersecurity tutor inside a study app. Follow the learner's task instructions exactly. Be concrete: real commands, real outputs, real examples. Structure replies with short headings, no padding. When the task says to ask one question at a time or to hold answers back, end your reply with the next question or prompt only. Correct wrong answers plainly instead of encouraging them.";
 
     try {
       const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -27,10 +28,7 @@ export const askTutor = createServerFn({ method: "POST" })
         },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: system },
-            { role: "user", content: data.prompt },
-          ],
+          messages: [{ role: "system", content: system }, ...data.messages],
         }),
       });
 
