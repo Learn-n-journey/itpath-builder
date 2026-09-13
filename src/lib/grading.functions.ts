@@ -17,6 +17,8 @@ const inputSchema = z.object({
   criteria: z.array(criterionSchema).max(12).optional(),
   /** What the learner was asked to do, so the marker applies the right standard. */
   task: z.string().max(400).optional(),
+  /** Digest of the learner's own saved material, from the Second Brain. */
+  knowledge: z.string().max(20000).optional(),
 });
 
 export type GradeInput = z.infer<typeof inputSchema>;
@@ -80,6 +82,7 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
       "Reply with a single JSON object and nothing else, using this shape:",
       '{"score": number 0-100, "verdict": "one or two sentences", "strengths": ["..."], "missed": ["..."], "correctedAnswer": "a full model answer in 3-8 sentences", "followUp": "one short question that checks the weakest point", "criteria": [{"id": "criterion id", "correct": true|false, "feedback": "one sentence"}]}',
       "Include every supplied criterion id in criteria, exactly once. If no criteria are supplied, return an empty criteria array.",
+      "If the learner's own saved material is supplied, use it: when their answer matches something they saved, mention it in strengths as coming from their own material, and when their saved material is wrong or incomplete on this point, say so in missed.",
     ].join("\n");
 
     const parts: string[] = [
@@ -93,6 +96,7 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
             .map((c) => `id=${c.id} | ${c.label} | ${c.description}${c.expected ? ` | expected: ${c.expected}` : ""}`)
             .join("\n")}`
         : "",
+      data.knowledge ? `The learner's own saved material (theirs, not course content):\n${data.knowledge}` : "",
       `Learner's answer:\n${data.answer}`,
       "Return the JSON object now.",
     ].filter(Boolean);
