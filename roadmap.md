@@ -59,3 +59,9 @@
 ## Lesson depth pass (Sep 2026)
 - Added a depth layer to every one of the 54 lessons: key ideas, a worked walkthrough, a reference table, misconceptions, exam traps and self-check questions (src/data/deep-lessons/depth-*.ts).
 - Rendered by src/components/learning/lesson-depth-reading.tsx under the main reading; study-time estimates now count the depth words.
+
+## Payments & launch (Sep 2026)
+- [x] Paddle payments, $99 lifetime Pro product, pricing + checkout success pages
+- [x] Pro gate on AI Tutor, AI grading, Labs, Troubleshoot
+- [x] Free access list (beta/creator) with owner-only management panel in Settings
+- [x] Terms of Use, Privacy Notice, Refund Policy pages linked from the app footer
