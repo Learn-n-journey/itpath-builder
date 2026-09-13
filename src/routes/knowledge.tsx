@@ -165,7 +165,7 @@ function KnowledgeWorkspace() {
 
     setSaving(true);
     try {
-      const payload: Parameters<typeof save>[0]["data"] = {
+      const payload = {
         kind,
         title: cleanTitle,
         ...(sourceUrl.trim() ? { sourceUrl: sourceUrl.trim() } : {}),
