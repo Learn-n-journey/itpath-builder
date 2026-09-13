@@ -20,6 +20,7 @@ import {
   Target,
   Timer,
   Compass,
+  Info,
   Settings as SettingsIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -180,6 +181,13 @@ export const navItems: NavItem[] = [
     icon: Compass,
     group: "You",
     description: "What each section is for and how scoring is calculated.",
+  },
+  {
+    label: "About",
+    to: "/about",
+    icon: Info,
+    group: "You",
+    description: "Who built IT PATH, version number and contact details.",
   },
   {
     label: "Settings",
