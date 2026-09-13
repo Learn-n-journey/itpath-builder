@@ -137,9 +137,13 @@ function runSingle(state: MachineState, input: string): ExecResult {
   const result =
     state.shell === "bash"
       ? runBash(state, command)
-      : state.shell === "cmd"
-        ? runCmd(state, command)
-        : runPowerShell(state, command);
+      : state.shell === "android"
+        ? runAndroid(state, command)
+        : state.shell === "ios"
+          ? runIos(state, command)
+          : state.shell === "cmd"
+            ? runCmd(state, command)
+            : runPowerShell(state, command);
 
   if (redirect && !result.error) {
     const path = (redirect[2] as string).replace(/^"(.*)"$/, "$1");
@@ -1408,6 +1412,319 @@ function runPowerShell(state: MachineState, input: string): ExecResult {
         state,
         `${tokens[0] ?? ""} : The term '${tokens[0] ?? ""}' is not recognized as the name of a cmdlet, function, or operable program.`,
       );
+  }
+}
+
+
+/* ------------------------------------------------------------------ */
+/* Android (adb shell)                                                 */
+/* ------------------------------------------------------------------ */
+
+function setToggle(state: MachineState, name: string, on: boolean): boolean {
+  const service = state.services.find((item) => item.name.toLowerCase() === name.toLowerCase());
+  if (!service) return false;
+  service.status = on ? "running" : "stopped";
+  state.eventLog.unshift(`${new Date().toISOString()} ${service.name}: ${on ? "enabled" : "disabled"}`);
+  return true;
+}
+
+function toggleState(state: MachineState, name: string): string {
+  const service = state.services.find((item) => item.name.toLowerCase() === name.toLowerCase());
+  if (!service) return "unavailable";
+  return service.status === "running" ? "on" : "off";
+}
+
+const androidHelp = [
+  "Supported Android commands (adb shell):",
+  "  adb devices                 list attached devices",
+  "  getprop [name]              read device properties",
+  "  pm list packages            list installed packages",
+  "  pm clear <package>          clear an app's data and cache",
+  "  am force-stop <package>     stop a running app",
+  "  dumpsys battery             battery level, health and drain",
+  "  dumpsys wifi | dumpsys sync subsystem status",
+  "  svc wifi|data|bluetooth|nfc enable|disable",
+  "  settings list | settings get <key> | settings put <key> <value>",
+  "  logcat                      recent device log lines",
+  "  ping, ip addr, ls, cd, cat, rm, mkdir, df, top, ps also work",
+];
+
+function runAndroid(state: MachineState, input: string): ExecResult {
+  const tokens = tokenize(input);
+  const name = (tokens[0] ?? "").toLowerCase();
+  const args = tokens.slice(1);
+  const arg = (index: number) => (args[index] ?? "").toLowerCase();
+
+  switch (name) {
+    case "help":
+      return ok(state, androidHelp);
+    case "adb": {
+      if (arg(0) === "devices") {
+        return ok(state, ["List of devices attached", `${state.hostname}\tdevice`]);
+      }
+      if (arg(0) === "shell") return ok(state, "Already in an adb shell session.");
+      return fail(state, `adb: unknown command '${args[0] ?? ""}'`);
+    }
+    case "getprop": {
+      const props: Record<string, string> = {
+        "ro.product.model": state.hostname,
+        "ro.build.version.release": "14",
+        "ro.serialno": "3A11F0C2K9",
+        "gsm.operator.alpha": "Corp Mobile",
+        "gsm.network.type": "NR (5G)",
+      };
+      if (args[0]) return ok(state, props[args[0] as string] ?? "");
+      return ok(state, Object.entries(props).map(([key, value]) => `[${key}]: [${value}]`));
+    }
+    case "pm": {
+      if (arg(0) === "list" && arg(1) === "packages") {
+        const packages = state.processes
+          .filter((process) => process.name.includes("."))
+          .map((process) => `package:${process.name}`);
+        return ok(state, ["package:com.android.settings", ...packages].join("\n"));
+      }
+      if (arg(0) === "clear") {
+        const pkg = args[1];
+        if (!pkg) return fail(state, "Error: no package specified");
+        const node = getNode(state, resolvePath(state, `/data/data/${pkg}`));
+        if (!node) return fail(state, `Error: package ${pkg} not found`);
+        node.children = { cache: { type: "dir", name: "cache", children: {}, owner: state.currentUser, group: state.currentUser, mode: "700" } };
+        state.eventLog.unshift(`${new Date().toISOString()} pm clear ${pkg}`);
+        return ok(state, "Success");
+      }
+      return fail(state, "Usage: pm list packages | pm clear <package>");
+    }
+    case "am": {
+      if (arg(0) === "force-stop") {
+        const pkg = args[1];
+        if (!pkg) return fail(state, "Error: no package specified");
+        const error = killProcess(state, pkg);
+        return error ? fail(state, `Error: no running process for ${pkg}`) : ok(state, "");
+      }
+      return fail(state, "Usage: am force-stop <package>");
+    }
+    case "dumpsys": {
+      const subsystem = arg(0);
+      if (subsystem === "battery" || subsystem === "") {
+        const drain = state.processes.reduce((worst, process) => (process.cpu > worst.cpu ? process : worst), state.processes[0] as ProcessLike);
+        return ok(state, [
+          "Current Battery Service state:",
+          "  level: 41",
+          "  health: good",
+          "  status: discharging",
+          "  temperature: 34.2C",
+          `  top consumer: ${drain?.name ?? "unknown"} (${drain?.cpu ?? 0}% cpu)`,
+        ]);
+      }
+      if (subsystem === "wifi") {
+        return ok(state, [`Wi-Fi is ${toggleState(state, "wifi")}`, `  SSID: CORP-WIFI`, `  ip: ${state.interfaces.find((i) => i.name === "wlan0")?.ip ?? "none"}`]);
+      }
+      if (subsystem === "sync") {
+        return ok(state, [`Account sync is ${toggleState(state, "sync")}`, "  last successful sync: 4 days ago"]);
+      }
+      if (subsystem === "bluetooth") return ok(state, `Bluetooth is ${toggleState(state, "bluetooth")}`);
+      if (subsystem === "nfc") return ok(state, `NFC is ${toggleState(state, "nfc")}`);
+      return fail(state, "Usage: dumpsys battery|wifi|sync|bluetooth|nfc");
+    }
+    case "svc": {
+      const subsystem = arg(0);
+      const action = arg(1);
+      if (!["wifi", "data", "bluetooth", "nfc", "sync", "location"].includes(subsystem)) {
+        return fail(state, "Usage: svc wifi|data|bluetooth|nfc|sync|location enable|disable");
+      }
+      if (action !== "enable" && action !== "disable") {
+        return fail(state, "Usage: svc <subsystem> enable|disable");
+      }
+      const changed = setToggle(state, subsystem, action === "enable");
+      if (!changed) return fail(state, `Unknown subsystem ${subsystem}`);
+      return ok(state, "");
+    }
+    case "settings": {
+      if (arg(0) === "list") {
+        return ok(state, state.services.map((service) => `${service.name}=${service.status === "running" ? "1" : "0"}`));
+      }
+      if (arg(0) === "get") {
+        const key = args[1];
+        if (!key) return fail(state, "Usage: settings get <key>");
+        return ok(state, toggleState(state, key) === "on" ? "1" : "0");
+      }
+      if (arg(0) === "put") {
+        const key = args[1];
+        const value = args[2];
+        if (!key || value === undefined) return fail(state, "Usage: settings put <key> <value>");
+        const changed = setToggle(state, key, value !== "0");
+        return changed ? ok(state, "") : fail(state, `Unknown setting ${key}`);
+      }
+      return fail(state, "Usage: settings list|get|put");
+    }
+    case "logcat":
+      return ok(state, state.eventLog.length > 0 ? state.eventLog.slice(0, 15) : ["--------- beginning of main", "I/System: device booted"]);
+    default:
+      return runBash(state, input);
+  }
+}
+
+interface ProcessLike {
+  name: string;
+  cpu: number;
+}
+
+/* ------------------------------------------------------------------ */
+/* iOS support console                                                 */
+/* ------------------------------------------------------------------ */
+
+const iosHelp = [
+  "iPhone support console. Apple devices have no shell, so this is a simulated",
+  "support tool with the actions a technician really has:",
+  "  device info                 model, iOS version, storage, battery health",
+  "  battery                     battery level and the top consuming app",
+  "  network status              Wi-Fi, cellular and address details",
+  "  network reset               clear cached network and DNS state",
+  "  wifi|bluetooth|cellular on|off",
+  "  sync status | sync on icloud|mail | sync off icloud|mail",
+  "  profiles list | profiles remove <name>",
+  "  mdm status | mdm lock | mdm wipe",
+  "  apps list | app quit <name> | app reinstall <name>",
+  "  esim list | storage | logs",
+];
+
+function iosProfiles(state: MachineState): VfsNode[] {
+  const node = getNode(state, ["profiles"]);
+  return Object.values(node?.children ?? {});
+}
+
+function runIos(state: MachineState, input: string): ExecResult {
+  const tokens = tokenize(input);
+  const name = (tokens[0] ?? "").toLowerCase();
+  const args = tokens.slice(1);
+  const arg = (index: number) => (args[index] ?? "").toLowerCase();
+
+  switch (name) {
+    case "help":
+      return ok(state, iosHelp);
+    case "device": {
+      if (arg(0) && arg(0) !== "info") return fail(state, "Usage: device info");
+      return ok(state, [
+        `Name: ${state.hostname}`,
+        `System: ${state.osName}`,
+        "Storage: 128 GB (31 GB free)",
+        "Battery health: 87%",
+        `Supervised: ${toggleState(state, "mdm") === "on" ? "yes (managed)" : "no"}`,
+      ]);
+    }
+    case "battery": {
+      const worst = [...state.processes].sort((a, b) => b.cpu - a.cpu)[0];
+      return ok(state, [
+        "Battery level: 38%",
+        "Battery health: 87% (peak performance capability normal)",
+        `Highest usage in the last 24 hours: ${worst?.name ?? "unknown"} (${worst?.cpu ?? 0}% activity)`,
+        "Low Power Mode: off",
+      ]);
+    }
+    case "network": {
+      if (arg(0) === "reset") {
+        state.dnsCache = {};
+        state.eventLog.unshift(`${new Date().toISOString()} network settings reset`);
+        return ok(state, "Network settings reset. Saved Wi-Fi networks and cached lookups cleared.");
+      }
+      const wifi = state.interfaces.find((iface) => iface.name === "wlan0");
+      return ok(state, [
+        `Wi-Fi: ${toggleState(state, "wifi")} (SSID CORP-WIFI, ${wifi?.ip ?? "no address"})`,
+        `Cellular: ${toggleState(state, "cellular")} (Corp Mobile, 5G)`,
+        `Bluetooth: ${toggleState(state, "bluetooth")}`,
+        `Cached lookups: ${Object.keys(state.dnsCache).length}`,
+      ]);
+    }
+    case "wifi":
+    case "bluetooth":
+    case "cellular": {
+      if (arg(0) !== "on" && arg(0) !== "off") return fail(state, `Usage: ${name} on|off`);
+      setToggle(state, name, arg(0) === "on");
+      return ok(state, `${name} ${arg(0)}`);
+    }
+    case "sync": {
+      if (arg(0) === "status" || args.length === 0) {
+        return ok(state, [
+          `iCloud sync: ${toggleState(state, "icloud")}`,
+          `Mail account: ${toggleState(state, "mail")}`,
+          "Last successful sync: 4 days ago",
+        ]);
+      }
+      if (arg(0) === "on" || arg(0) === "off") {
+        const service = arg(1);
+        if (!service) return fail(state, "Usage: sync on|off icloud|mail");
+        const changed = setToggle(state, service, arg(0) === "on");
+        return changed ? ok(state, `${service} sync ${arg(0)}`) : fail(state, `Unknown service ${service}`);
+      }
+      return fail(state, "Usage: sync status | sync on|off icloud|mail");
+    }
+    case "profiles": {
+      if (arg(0) === "list" || args.length === 0) {
+        const list = iosProfiles(state);
+        return ok(state, list.length > 0 ? list.map((node) => `${node.name}`) : "No configuration profiles installed.");
+      }
+      if (arg(0) === "remove") {
+        const target = args[1];
+        if (!target) return fail(state, "Usage: profiles remove <name>");
+        const error = removePath(state, `/profiles/${target}`, true);
+        return error ? fail(state, `Profile ${target} not found.`) : ok(state, `Removed profile ${target}.`);
+      }
+      return fail(state, "Usage: profiles list | profiles remove <name>");
+    }
+    case "mdm": {
+      if (arg(0) === "status" || args.length === 0) {
+        return ok(state, [
+          `Enrolment: ${toggleState(state, "mdm") === "on" ? "enrolled and reachable" : "not responding"}`,
+          `Find My: ${toggleState(state, "findmy")}`,
+          `Profiles installed: ${iosProfiles(state).length}`,
+        ]);
+      }
+      if (arg(0) === "enable") {
+        setToggle(state, "mdm", true);
+        return ok(state, "Management channel restored.");
+      }
+      if (arg(0) === "lock") return ok(state, "Lost mode enabled. Device locked with a contact message.");
+      if (arg(0) === "wipe") return ok(state, "Remote wipe queued. It runs when the device next checks in.");
+      return fail(state, "Usage: mdm status|enable|lock|wipe");
+    }
+    case "apps": {
+      if (arg(0) && arg(0) !== "list") return fail(state, "Usage: apps list");
+      return ok(state, state.processes.map((process) => `${process.name} (${process.memoryMb} MB, ${process.cpu}% activity)`));
+    }
+    case "app": {
+      const target = args[1];
+      if (arg(0) === "quit") {
+        if (!target) return fail(state, "Usage: app quit <name>");
+        const error = killProcess(state, target);
+        return error ? fail(state, `${target} is not running.`) : ok(state, `${target} closed.`);
+      }
+      if (arg(0) === "reinstall") {
+        if (!target) return fail(state, "Usage: app reinstall <name>");
+        killProcess(state, target);
+        state.eventLog.unshift(`${new Date().toISOString()} reinstalled ${target}`);
+        return ok(state, `${target} removed and reinstalled from the App Store.`);
+      }
+      return fail(state, "Usage: app quit <name> | app reinstall <name>");
+    }
+    case "esim": {
+      return ok(state, [
+        "Line 1: Corp Mobile (eSIM, active)",
+        "Line 2: Travel Data EU (eSIM, inactive)",
+        "Physical SIM: none installed",
+      ]);
+    }
+    case "storage":
+      return ok(state, [`Storage used: ${state.diskUsedPercent}%`, "128 GB total, 31 GB available"]);
+    case "logs":
+      return ok(state, state.eventLog.length > 0 ? state.eventLog.slice(0, 15) : ["No support events recorded yet."]);
+    case "ls":
+    case "cat":
+    case "cd":
+    case "pwd":
+    case "clear":
+      return runBash(state, input);
+    default:
+      return fail(state, `Unknown console command: ${name}. Type help for the supported actions.`);
   }
 }
 
