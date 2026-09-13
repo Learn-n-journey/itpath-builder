@@ -107,6 +107,10 @@ function TopicPage() {
 
       <TopicLearningExperience topic={topic} />
 
+      <div className="mt-4">
+        <TopicKnowledgePanel topicId={topic.id} />
+      </div>
+
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <Panel title="Prerequisites">
             {prerequisites.length === 0 ? (
