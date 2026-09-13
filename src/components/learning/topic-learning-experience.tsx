@@ -3,6 +3,7 @@ import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "l
 import { toast } from "sonner";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
+import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { Panel } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
