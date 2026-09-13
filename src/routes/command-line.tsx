@@ -294,18 +294,18 @@ function CommandLinePage() {
       </div>
 
       <Panel className="mt-5">
-        <div className={`grid gap-4 ${environment === "windows" ? "md:grid-cols-[220px_180px_minmax(0,1fr)_180px]" : "md:grid-cols-[220px_minmax(0,1fr)_180px]"}`}>
-          <div className="space-y-2">
+        <div className={`grid min-w-0 gap-4 sm:grid-cols-2 ${environment === "windows" ? "xl:grid-cols-[220px_180px_minmax(0,1fr)_180px]" : "xl:grid-cols-[220px_minmax(0,1fr)_180px]"}`}>
+          <div className="min-w-0 space-y-2">
             <Label>Environment</Label>
-            <div className="grid grid-cols-2 gap-0.5 rounded-md border border-input p-0.5" role="group" aria-label="Environment">
-              <Button type="button" size="sm" variant={environment === "unix" ? "secondary" : "ghost"} onClick={() => changeEnvironment("unix")} className="px-2">Mac/Linux</Button>
-              <Button type="button" size="sm" variant={environment === "windows" ? "secondary" : "ghost"} onClick={() => changeEnvironment("windows")} className="px-2">Windows</Button>
-              <Button type="button" size="sm" variant={environment === "android" ? "secondary" : "ghost"} onClick={() => changeEnvironment("android")} className="px-2">Android</Button>
-              <Button type="button" size="sm" variant={environment === "ios" ? "secondary" : "ghost"} onClick={() => changeEnvironment("ios")} className="px-2">iPhone</Button>
+            <div className="grid min-w-0 grid-cols-2 gap-0.5 overflow-hidden rounded-md border border-input p-0.5" role="group" aria-label="Environment">
+              <Button type="button" size="sm" variant={environment === "unix" ? "secondary" : "ghost"} onClick={() => changeEnvironment("unix")} className="min-w-0 w-full px-1 text-xs">Mac/Linux</Button>
+              <Button type="button" size="sm" variant={environment === "windows" ? "secondary" : "ghost"} onClick={() => changeEnvironment("windows")} className="min-w-0 w-full px-1 text-xs">Windows</Button>
+              <Button type="button" size="sm" variant={environment === "android" ? "secondary" : "ghost"} onClick={() => changeEnvironment("android")} className="min-w-0 w-full px-1 text-xs">Android</Button>
+              <Button type="button" size="sm" variant={environment === "ios" ? "secondary" : "ghost"} onClick={() => changeEnvironment("ios")} className="min-w-0 w-full px-1 text-xs">iPhone</Button>
             </div>
           </div>
           {environment === "windows" ? (
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Windows shell</Label>
               <Select value={shell} onValueChange={(value) => changeWindowsShell(value as "cmd" | "powershell")}>
                 <SelectTrigger aria-label="Windows shell"><SelectValue /></SelectTrigger>
@@ -316,9 +316,9 @@ function CommandLinePage() {
               </Select>
             </div>
           ) : null}
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <Label>Scenario</Label>
-            <div className="flex gap-2">
+            <div className="flex min-w-0 gap-2">
               <Select value={scenario.id} onValueChange={changeScenario}>
                 <SelectTrigger aria-label="Scenario" className="min-w-0 flex-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -337,7 +337,7 @@ function CommandLinePage() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="min-w-0 space-y-2">
             <Label>Mode</Label>
             <div className="grid grid-cols-2 rounded-md border border-input p-0.5">
               {(["guided", "challenge"] as const).map((item) => (
