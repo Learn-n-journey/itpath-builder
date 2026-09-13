@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
