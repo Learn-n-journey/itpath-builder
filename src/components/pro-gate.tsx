@@ -42,7 +42,7 @@ export function ProGate({
       </p>
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         <Button asChild>
-          <Link to="/pricing">See Pro — $99 lifetime</Link>
+          <Link to="/pricing">See Pro plans</Link>
         </Button>
         {!userId ? (
           <Button asChild variant="outline">

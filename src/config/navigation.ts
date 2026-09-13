@@ -27,6 +27,7 @@ import {
   FileDown,
   Crown,
   Settings as SettingsIcon,
+  SquareTerminal,
   type LucideIcon,
 } from "lucide-react";
 
@@ -123,6 +124,13 @@ export const navItems: NavItem[] = [
     icon: AlarmClock,
     group: "Practice",
     description: "A full-length timed mock exam with a pass or fail report.",
+  },
+  {
+    label: "Command Line",
+    to: "/command-line",
+    icon: SquareTerminal,
+    group: "Practice",
+    description: "Practice CMD, PowerShell and Linux in safe, persistent virtual computers.",
   },
   {
     label: "Weak Areas",
