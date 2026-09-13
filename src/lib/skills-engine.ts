@@ -214,24 +214,6 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
   const push = (item: EvidenceItem) => items.push(item);
   const forTopic = (topicId: EntityId) => topicSkills[topicId] ?? [];
 
-  // Learn: recorded understanding across the six progress dimensions.
-  for (const progress of Object.values(user.topicProgress)) {
-    const dims = [
-      progress.understanding, progress.recall, progress.application,
-      progress.practicalAbility, progress.troubleshooting, progress.retention,
-    ];
-    const value = dims.reduce((a, b) => a + b, 0) / dims.length;
-    if (value <= 0) continue;
-    for (const skillId of forTopic(progress.topicId)) {
-      push({
-        id: `learn-${progress.topicId}-${skillId}`,
-        skillId, source: "learn",
-        label: `${topicTitle(progress.topicId)} — recorded understanding`,
-        score: pct(value), weight: 1, at: progress.updatedAt,
-      });
-    }
-  }
-
   // Recall and practice: correctness per topic.
   const groupBy = <T,>(rows: T[], key: (row: T) => string) => {
     const map = new Map<string, T[]>();
@@ -439,13 +421,11 @@ function buildOpportunities(): Map<SkillId, SkillOpportunity> {
 function coveredContent(user: UserData, opportunity: SkillOpportunity): number {
   let covered = 0;
   for (const topicId of opportunity.topicIds) {
-    const p = user.topicProgress[topicId];
-    const progressMade = p && [p.understanding, p.recall, p.application, p.practicalAbility, p.troubleshooting, p.retention].some((v) => v > 0);
     const answered =
       user.recallResponses.some((r) => r.topicId === topicId) ||
       user.practiceResponses.some((r) => r.topicId === topicId) ||
       user.quizAttempts.some((a) => a.status === "submitted" && a.results.some((r) => r.topicId === topicId));
-    if (progressMade || answered) covered += 1;
+    if (answered) covered += 1;
   }
   for (const labId of opportunity.labIds) {
     if (user.labAttempts.some((a) => a.labId === labId && a.status !== "in_progress")) covered += 1;

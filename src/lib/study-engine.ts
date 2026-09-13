@@ -164,8 +164,8 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   // 4. Practice — topics you have read but never applied.
   const practiced = new Set(user.practiceResponses.map((r) => r.topicId));
   const practiceTopic = orderedTopics.find((topic) => {
-    const p = user.topicProgress[topic.id];
-    return p && p.understanding > 0 && !practiced.has(topic.id);
+    const p = topicScopeProgress(user, topic.id);
+    return p.attempted > 0 && !practiced.has(topic.id);
   });
   if (practiceTopic) {
     out.push({

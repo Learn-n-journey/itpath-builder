@@ -14,6 +14,7 @@ import { buildLearnerModel } from "@/lib/learner-model";
 import { missedQuestions } from "@/lib/missed-questions";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import type { EntityId, UserData } from "@/lib/app-data/types";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 export type NextActionRoute =
   | "/review"
@@ -144,11 +145,10 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
       .flatMap((attempt) => attempt.results.map((result) => result.topicId)),
   );
   const untested = topics.find((topic) => {
-    const progress = user.topicProgress[topic.id];
-    if (!progress) return false;
+    const progress = topicScopeProgress(user, topic.id);
     return (
       certTopicIds.has(topic.id) &&
-      mean([progress.understanding, progress.recall]) >= 50 &&
+      mean([progress.understanding.score, progress.recall.score]) >= 50 &&
       !quizzedTopics.has(topic.id)
     );
   });
@@ -164,9 +164,9 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
 
   // 5. Known in theory, unproven in practice.
   const unproven = topics.find((topic) => {
-    const progress = user.topicProgress[topic.id];
-    if (!progress || !certTopicIds.has(topic.id)) return false;
-    return mean([progress.understanding, progress.recall]) >= 60 && progress.practicalAbility < 40;
+    const progress = topicScopeProgress(user, topic.id);
+    if (!certTopicIds.has(topic.id)) return false;
+    return mean([progress.understanding.score, progress.recall.score]) >= 60 && progress.practicalAbility.score < 40;
   });
   if (unproven) {
     out.push({
