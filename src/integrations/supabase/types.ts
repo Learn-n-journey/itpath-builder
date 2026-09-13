@@ -32,6 +32,72 @@ export type Database = {
         }
         Relationships: []
       }
+      knowledge_items: {
+        Row: {
+          cert_ids: Json
+          concepts: Json
+          content: string | null
+          contradictions: Json
+          created_at: string
+          file_path: string | null
+          file_type: string | null
+          gaps: Json
+          id: string
+          key_terms: Json
+          kind: string
+          notes: string | null
+          source_url: string | null
+          status: string
+          summary: string | null
+          title: string
+          topic_ids: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cert_ids?: Json
+          concepts?: Json
+          content?: string | null
+          contradictions?: Json
+          created_at?: string
+          file_path?: string | null
+          file_type?: string | null
+          gaps?: Json
+          id?: string
+          key_terms?: Json
+          kind?: string
+          notes?: string | null
+          source_url?: string | null
+          status?: string
+          summary?: string | null
+          title: string
+          topic_ids?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cert_ids?: Json
+          concepts?: Json
+          content?: string | null
+          contradictions?: Json
+          created_at?: string
+          file_path?: string | null
+          file_type?: string | null
+          gaps?: Json
+          id?: string
+          key_terms?: Json
+          kind?: string
+          notes?: string | null
+          source_url?: string | null
+          status?: string
+          summary?: string | null
+          title?: string
+          topic_ids?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null

@@ -22,6 +22,7 @@ import {
   Timer,
   AlarmClock,
   Compass,
+  Sparkles,
   Info,
   FileDown,
   Crown,
@@ -164,6 +165,13 @@ export const navItems: NavItem[] = [
     icon: Bot,
     group: "You",
     description: "Builds a detailed question to ask a tutor or chatbot elsewhere.",
+  },
+  {
+    label: "Second Brain",
+    to: "/knowledge",
+    icon: Sparkles,
+    group: "You",
+    description: "Save notes, links, videos and files; IT PATH reads them and connects them to your topics.",
   },
   {
     label: "Bookmarks",

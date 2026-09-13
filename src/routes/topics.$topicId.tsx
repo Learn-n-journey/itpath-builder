@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, BookOpen } from "lucide-react";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
+import { TopicKnowledgePanel } from "@/components/knowledge/topic-knowledge-panel";
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
@@ -106,6 +107,10 @@ function TopicPage() {
       </Panel>
 
       <TopicLearningExperience topic={topic} />
+
+      <div className="mt-4">
+        <TopicKnowledgePanel topicId={topic.id} />
+      </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <Panel title="Prerequisites">

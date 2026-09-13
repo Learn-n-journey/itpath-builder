@@ -5,6 +5,8 @@ import { CheckCircle2, CircleAlert, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { gradeWrittenAnswer, type GradeInput, type WrittenGrade } from "@/lib/grading.functions";
+import { knowledgeDigest } from "@/lib/knowledge-context";
+import { useKnowledge } from "@/hooks/use-knowledge";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useAppState } from "@/state/app-state";
 
@@ -21,6 +23,7 @@ export interface MarkingState {
  */
 export function useAiMarking() {
   const grade = useServerFn(gradeWrittenAnswer);
+  const { items: knowledgeItems } = useKnowledge();
   const { isPro } = useSubscription();
   const { actions } = useAppState();
   const [state, setState] = useState<MarkingState>({ busy: false, grade: null, error: null });
@@ -30,7 +33,10 @@ export function useAiMarking() {
       if (!isPro) return null;
       setState({ busy: true, grade: null, error: null });
       try {
-        const reply = await grade({ data: input });
+        const digest = knowledgeDigest(knowledgeItems, topicId, 4);
+        const reply = await grade({
+          data: { ...input, ...(digest ? { knowledge: digest } : {}) },
+        });
         if (!reply.ok) {
           setState({ busy: false, grade: null, error: reply.error });
           return null;
@@ -51,7 +57,7 @@ export function useAiMarking() {
         return null;
       }
     },
-    [grade, isPro, actions],
+    [grade, isPro, actions, knowledgeItems],
   );
 
   const reset = useCallback(() => setState({ busy: false, grade: null, error: null }), []);
