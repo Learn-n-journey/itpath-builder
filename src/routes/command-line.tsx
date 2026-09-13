@@ -30,6 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { prompt } from "@/lib/terminal/machine";
 import {
+  randomTerminalScenario,
   scenariosForShell,
   terminalScenarios,
   type TerminalScenario,
