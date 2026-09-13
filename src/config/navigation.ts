@@ -22,6 +22,7 @@ import {
   Timer,
   AlarmClock,
   Compass,
+  Sparkles,
   Info,
   FileDown,
   Crown,
