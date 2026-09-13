@@ -10,6 +10,7 @@
 import { assignments, labs, topics } from "@/data/static-content";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationTopics } from "@/lib/cert-path";
+import { buildLearnerModel } from "@/lib/learner-model";
 import { missedQuestions } from "@/lib/missed-questions";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import type { EntityId, UserData } from "@/lib/app-data/types";
@@ -89,7 +90,30 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
     });
   }
 
-  // 3. Work already started and left hanging.
+  // 3. The learner model's top concept: fading recall or a repeated error pattern
+  // on the target certification, with the evidence that produced it.
+  const model = buildLearnerModel(user, now);
+  const focus = model.profiles.find(
+    (profile) =>
+      certTopicIds.has(profile.topicId) &&
+      profile.attempts > 0 &&
+      (profile.action === "practice" || profile.action === "review"),
+  );
+  if (focus) {
+    out.push({
+      id: "next-learner-focus",
+      label:
+        focus.action === "review"
+          ? `Refresh ${focus.title}`
+          : `Work through ${focus.title} again`,
+      reason: focus.reason,
+      minutes: focus.action === "review" ? 15 : 30,
+      topicId: focus.topicId,
+      to: "/topics/$topicId",
+    });
+  }
+
+  // 4. Work already started and left hanging.
   const openLab = user.labAttempts.find((attempt) => attempt.status === "in_progress");
   if (openLab) {
     out.push({
