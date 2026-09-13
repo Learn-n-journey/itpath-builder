@@ -1,4 +1,5 @@
 import {
+  Brain,
   LayoutDashboard,
   Route as RouteIcon,
   CalendarDays,
