@@ -46,7 +46,7 @@ function SkillRow({ skill, open, onToggle }: { skill: SkillScore; open: boolean;
           <p className="truncate text-sm font-medium">{skill.label}</p>
           <p className="mt-1 text-xs text-muted-foreground">
             {skill.hasEvidence
-              ? `${skill.evidenceCount} evidence item${skill.evidenceCount === 1 ? "" : "s"} · ${skill.sources
+              ? `${skill.accuracy}% accuracy across ${skill.coveredCount} of ${skill.availableCount} available activit${skill.availableCount === 1 ? "y" : "ies"} · ${skill.sources
                   .map((s) => evidenceSourceLabels[s])
                   .join(", ")}`
               : "No evidence yet"}
