@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { reviewGrade } from "@/lib/ai-self-check.server";
+
 const criterionSchema = z.object({
   id: z.string().min(1).max(200),
   label: z.string().min(1).max(300),
@@ -140,16 +142,28 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
         .filter((c) => supplied.has(c.id))
         .map((c) => ({ id: c.id, correct: c.correct, feedback: c.feedback.trim() }));
 
-      return {
-        ok: true,
+      // Silent self-check: marking drives progress, so every mark is moderated.
+      const reviewed = await reviewGrade({
+        topic: data.topic,
+        question: data.question,
+        answer: data.answer,
+        modelAnswer: data.modelAnswer,
+        expectedPoints: data.expectedPoints,
         grade: {
           score,
-          correct: score >= 70,
           verdict: parsed.data.verdict.trim(),
           strengths: parsed.data.strengths.map((s) => s.trim()).filter(Boolean).slice(0, 6),
           missed: parsed.data.missed.map((s) => s.trim()).filter(Boolean).slice(0, 8),
           correctedAnswer: parsed.data.correctedAnswer.trim(),
           followUp: parsed.data.followUp.trim(),
+        },
+      });
+
+      return {
+        ok: true,
+        grade: {
+          ...reviewed,
+          correct: reviewed.score >= 70,
           criteria,
           aiMarked: true,
         },

@@ -171,6 +171,32 @@ function runawayProcesses(shell: ShellKind, target: string) {
   ];
 }
 
+/**
+ * Deterministic self-check: the fault the scenario describes must be one the
+ * simulator really creates and the learner can really repair.
+ */
+function isSolvable(scenario: TerminalScenario, shell: ShellKind): boolean {
+  const goal = scenario.goals[0];
+  if (!goal) return false;
+  if (!scenario.title.trim() || !scenario.brief.trim()) return false;
+  if (scenario.machineSpec?.shell !== shell) return false;
+
+  if (goal.kind === "service_running") {
+    if (!goal.target || !serviceChoices[shell].includes(goal.target)) return false;
+    const services = scenario.machineSpec?.services ?? [];
+    return services.some((service) => service.name === goal.target && service.status === "stopped");
+  }
+  if (goal.kind === "process_absent") {
+    if (!goal.target || !processChoices[shell].includes(goal.target)) return false;
+    return (scenario.machineSpec?.processes ?? []).some((process) => process.name === goal.target);
+  }
+  if (goal.kind === "dns_cache_empty") {
+    return Object.keys(scenario.machineSpec?.dnsCache ?? {}).length > 0;
+  }
+  if (goal.kind === "path_exists") return Boolean(goal.target);
+  return true;
+}
+
 export const generateTerminalScenario = createServerFn({ method: "POST" })
   .inputValidator((data) => inputSchema.parse(data))
   .handler(async ({ data }): Promise<AiScenarioReply> => {
@@ -209,39 +235,55 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n");
 
-    try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          response_format: { type: "json_object" },
-          messages: [
-            { role: "system", content: system },
-            { role: "user", content: prompt },
-          ],
-        }),
-      });
+    // One retry: a generated scenario the simulator cannot actually complete is
+    // regenerated once before the learner ever sees it.
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            response_format: { type: "json_object" },
+            messages: [
+              { role: "system", content: system },
+              { role: "user", content: prompt },
+            ],
+          }),
+        });
 
-      if (res.status === 429) return { ok: false, error: "The scenario writer is busy — try again in a moment." };
-      if (res.status === 402) return { ok: false, error: "AI usage limit reached for this app." };
-      if (!res.ok) return { ok: false, error: `Could not create a scenario (${res.status}).` };
+        if (res.status === 429) return { ok: false, error: "The scenario writer is busy — try again in a moment." };
+        if (res.status === 402) return { ok: false, error: "AI usage limit reached for this app." };
+        if (!res.ok) return { ok: false, error: `Could not create a scenario (${res.status}).` };
 
-      const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-      const raw = json.choices?.[0]?.message?.content?.trim() ?? "";
-      const start = raw.indexOf("{");
-      const end = raw.lastIndexOf("}");
-      if (start === -1 || end === -1) return { ok: false, error: "The scenario writer returned an unreadable reply." };
+        const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+        const raw = json.choices?.[0]?.message?.content?.trim() ?? "";
+        const start = raw.indexOf("{");
+        const end = raw.lastIndexOf("}");
+        if (start === -1 || end === -1) {
+          if (attempt === 0) continue;
+          return { ok: false, error: "The scenario writer returned an unreadable reply." };
+        }
 
-      const parsed = replyShape.safeParse(JSON.parse(raw.slice(start, end + 1)));
-      if (!parsed.success) return { ok: false, error: "The scenario writer returned an unexpected format." };
+        const parsed = replyShape.safeParse(JSON.parse(raw.slice(start, end + 1)));
+        if (!parsed.success) {
+          if (attempt === 0) continue;
+          return { ok: false, error: "The scenario writer returned an unexpected format." };
+        }
 
-      const scenario = buildScenario(data.shell, data.topicId, data.difficulty, parsed.data);
-      if (scenario.hints.length === 0) {
-        scenario.hints = ["Gather evidence before changing anything.", "Check the state of the component named in the complaint.", "Fix only that component, then verify it."];
+        const scenario = buildScenario(data.shell, data.topicId, data.difficulty, parsed.data);
+        if (scenario.hints.length === 0) {
+          scenario.hints = ["Gather evidence before changing anything.", "Check the state of the component named in the complaint.", "Fix only that component, then verify it."];
+        }
+        if (!isSolvable(scenario, data.shell)) {
+          if (attempt === 0) continue;
+          return { ok: false, error: "Could not create a scenario you can finish here — try again." };
+        }
+        return { ok: true, scenario };
+      } catch {
+        return { ok: false, error: "Could not reach the scenario writer." };
       }
-      return { ok: true, scenario };
-    } catch {
-      return { ok: false, error: "Could not reach the scenario writer." };
     }
+
+    return { ok: false, error: "Could not create a scenario — try again." };
   });
