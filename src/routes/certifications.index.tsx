@@ -72,6 +72,11 @@ function CertificationsIndex() {
         description={`Certifications are grouped by level, from entry-level foundations to advanced specialisations. Open any certification to see its topics, objectives and readiness. Your target is ${user.settings.certificationTarget}.`}
       />
 
+      <p className="mb-4 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+        IT PATH does not issue certificates. Readiness here estimates how prepared you are for the
+        official vendor exam, which you still need to register for and pass separately.
+      </p>
+
       <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label="Certifications tracked" value={readiness.length} />
         <StatCard

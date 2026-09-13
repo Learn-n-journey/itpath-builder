@@ -189,6 +189,12 @@ function PricingPage() {
         ))}
       </div>
 
+      <p className="mt-6 text-center text-xs text-muted-foreground">
+        IT PATH is a study tool. It does not issue certificates and is not affiliated with CompTIA,
+        Microsoft, Cisco or any other vendor — it prepares you for their exams and gives you an
+        honest idea of your progress.
+      </p>
+
       {!isPro && (
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Secure checkout by Paddle. 30-day money-back guarantee on every plan — see the{" "}
