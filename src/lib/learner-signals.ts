@@ -161,7 +161,7 @@ export function derivedSignals(user: UserData): LearnerSignal[] {
         topicId: attempt.topicId,
         kind: "review",
         correct: attempt.outcome === "pass",
-        at: attempt.gradedAt ?? attempt.createdAt ?? new Date(0).toISOString(),
+        at: attempt.createdAt,
       }),
     );
   }
