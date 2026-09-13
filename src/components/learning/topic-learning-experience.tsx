@@ -69,12 +69,22 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     actions.setTopicProgress({ ...progress, ...patch, status: "in_progress", updatedAt: new Date().toISOString() });
   }
 
-  function submitRecall(questionId: string) {
+  async function submitRecall(questionId: string) {
     const question = recallQuestions.find((item) => item.id === questionId);
     const answer = recallAnswers[questionId]?.trim();
     if (!question || !answer) { toast.error("Write an answer before checking it."); return; }
     const matched = matchConcepts(answer, question.acceptedConcepts);
-    const correct = matched.length >= Math.min(2, question.acceptedConcepts.length);
+    setMarkedRecallId(questionId);
+    // The AI examiner marks the meaning; the concept matcher is the offline fallback.
+    const graded = await recallMarking.mark({
+      topic: topic.title,
+      task: "Recall question",
+      question: question.prompt,
+      answer,
+      modelAnswer: question.explanation,
+      expectedPoints: question.acceptedConcepts,
+    });
+    const correct = graded ? graded.correct : matched.length >= Math.min(2, question.acceptedConcepts.length);
     const now = new Date().toISOString();
     actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
     if (!correct) {
