@@ -110,7 +110,7 @@ function topicCatalogue(): string {
 }
 
 function certCatalogue(): string {
-  return certifications.map((c) => `${c.id} :: ${c.name}`).join("\n");
+  return certifications.map((c) => `${c.id} :: ${c.title}`).join("\n");
 }
 
 const EXTRACT_SYSTEM = `You index study material for an IT and cybersecurity certification study app.
