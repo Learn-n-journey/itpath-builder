@@ -166,6 +166,13 @@ export const navItems: NavItem[] = [
     description: "Builds a detailed question to ask a tutor or chatbot elsewhere.",
   },
   {
+    label: "Second Brain",
+    to: "/knowledge",
+    icon: Sparkles,
+    group: "You",
+    description: "Save notes, links, videos and files; IT PATH reads them and connects them to your topics.",
+  },
+  {
     label: "Bookmarks",
     to: "/bookmarks",
     icon: BookMarked,
