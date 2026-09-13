@@ -29,7 +29,6 @@ export function useAiMarking() {
     async (input: GradeInput, topicId?: string): Promise<WrittenGrade | null> => {
       if (!isPro) return null;
       setState({ busy: true, grade: null, error: null });
-      const startedAt = Date.now();
       try {
         const reply = await grade({ data: input });
         if (!reply.ok) {
@@ -44,7 +43,6 @@ export function useAiMarking() {
             kind: "ai_grading",
             correct: reply.grade.correct,
             score: reply.grade.score / 100,
-            elapsedMs: Date.now() - startedAt,
           });
         }
         return reply.grade;
