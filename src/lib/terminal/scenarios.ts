@@ -238,7 +238,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["pwd", "ls"], ["mkdir /home/student/evidence", "mkdir evidence"], ["ls"]], efficientCommandCount: 3,
     hints: ["Confirm your current directory.", "mkdir creates a directory.", "List the parent folder afterward."], explanation: "Creating a dedicated evidence directory under the user's home keeps collected diagnostics organized without requiring elevated access.",
     reasoningKeywords: ["directory", "evidence", "mkdir", "home", "verify"], misconceptionRules: [{ pattern: "sudo mkdir /etc|rm -rf", label: "Used unnecessary privilege or destructive deletion" }],
-  },,
+  },
   {
     id: "terminal-android-battery-drain",
     topicId: "topic-mobile-troubleshooting",
