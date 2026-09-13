@@ -1,6 +1,7 @@
 import { topics as allTopics } from "@/data/static-content";
 import { adaptivePath } from "@/lib/adaptive-path";
-import type { Topic, TopicProgress, UserData } from "@/lib/app-data/types";
+import type { Topic, UserData } from "@/lib/app-data/types";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 export interface AdaptiveEntry {
   topic: Topic;
@@ -24,17 +25,8 @@ export interface AdaptiveQueue {
   hasData: boolean;
 }
 
-function mastery(progress: TopicProgress | undefined): number {
-  if (!progress) return 0;
-  return Math.round(
-    (progress.understanding +
-      progress.recall +
-      progress.application +
-      progress.practicalAbility +
-      progress.troubleshooting +
-      progress.retention) /
-      6,
-  );
+function mastery(user: UserData, topicId: string): number {
+  return topicScopeProgress(user, topicId).overall;
 }
 
 /**
@@ -47,8 +39,7 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
   const nowMs = now.getTime();
 
   const entries: AdaptiveEntry[] = path.topics.map((topic, index) => {
-    const progress = user.topicProgress[topic.id];
-    const score = mastery(progress);
+    const score = mastery(user, topic.id);
     const openMistakes = user.mistakes.filter(
       (mistake) => mistake.topicId === topic.id && !mistake.resolved,
     ).length;
@@ -61,7 +52,7 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
       .filter((item): item is Topic => Boolean(item))
       .filter((item) => item.certificationId === topic.certificationId);
     const weakPrerequisite = prerequisites.find(
-      (item) => mastery(user.topicProgress[item.id]) < 60,
+      (item) => mastery(user, item.id) < 60,
     );
     const unlocked = !weakPrerequisite;
 

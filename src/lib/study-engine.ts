@@ -14,6 +14,7 @@ import type {
   UserData,
 } from "@/lib/app-data/types";
 import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const STUDY_DURATIONS = [30, 60, 90, 120] as const;
 export type StudyDuration = (typeof STUDY_DURATIONS)[number];
@@ -51,16 +52,8 @@ function topicTitle(topicId: string): string {
 }
 
 function topicScore(user: UserData, topicId: string): number | null {
-  const p = user.topicProgress[topicId];
-  if (!p) return null;
-  return mean([
-    p.understanding,
-    p.recall,
-    p.application,
-    p.practicalAbility,
-    p.troubleshooting,
-    p.retention,
-  ]);
+  const progress = topicScopeProgress(user, topicId);
+  return progress.attempted > 0 ? progress.overall : null;
 }
 
 

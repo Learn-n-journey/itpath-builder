@@ -1,6 +1,7 @@
 import { certifications, topics } from "@/data/static-content";
 import { certificationTopics, type StageId } from "@/lib/cert-path";
 import type { Certification, Difficulty, ExperienceLevel, Topic, UserData, UserSettings } from "@/lib/app-data/types";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const stageForDifficulty: Record<Difficulty, StageId> = {
   gentle: "foundation",
@@ -34,16 +35,7 @@ export function experienceStartStage(experience: ExperienceLevel): StageId {
 }
 
 function topicScore(user: UserData, topic: Topic): number {
-  const progress = user.topicProgress[topic.id];
-  if (!progress) return 0;
-  return (
-    progress.understanding +
-    progress.recall +
-    progress.application +
-    progress.practicalAbility +
-    progress.troubleshooting +
-    progress.retention
-  ) / 6;
+  return topicScopeProgress(user, topic.id).overall;
 }
 
 function unfinished(user: UserData, topic: Topic): boolean {

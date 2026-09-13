@@ -277,7 +277,6 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
   for (const topic of topics) {
     const signals = byTopicSignals.get(topic.id) ?? [];
     const graded = signals.filter((signal) => outcomeOf(signal) !== null);
-    const signalResult = masteryFrom(signals, nowMs);
     const scope = topicScopeProgress(user, topic.id);
     const mastery = scope.overall / 100;
     const lastExposureAt = signals.length > 0 ? signals[0]!.at : null;

@@ -14,6 +14,7 @@ import type {
   EntityId,
   UserData,
 } from "@/lib/app-data/types";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const certificationStatusLabels: Record<CertificationStatus, string> = {
   not_started: "Not Started",
@@ -96,25 +97,16 @@ export function scoreCertification(user: UserData, certification: Certification)
   const objectives = getObjectives(user, certification.id);
   const topicIds = [...new Set(objectives.flatMap((objective) => objective.topicIds ?? []))];
   const progressRows = topicScores(user, topicIds);
+  const scopeRows = topicIds.map((topicId) => topicScopeProgress(user, topicId));
 
   // Knowledge: recorded understanding and recall on the mapped topics.
-  const knowledge = pct(
-    mean(topicIds.map((_, i) => {
-      const p = progressRows[i];
-      return p ? mean([p.understanding, p.recall, p.application]) : 0;
-    })),
-  );
+  const knowledge = pct(mean(scopeRows.map((row) => mean([
+    row.understanding.score,
+    row.recall.score,
+    row.application.score,
+  ]))));
 
-  const retention = pct(
-    mean(topicIds.map((_, i) => {
-      const p = progressRows[i];
-      const reviews = user.reviews.filter((review) => review.topicId === topicIds[i]);
-      const reviewScore = reviews.length === 0
-        ? 0
-        : mean(reviews.map((review) => Math.min(100, review.intervalIndex * 20 + review.successStreak * 10)));
-      return mean([p ? p.retention : 0, reviewScore]);
-    })),
-  );
+  const retention = pct(mean(scopeRows.map((row) => row.retention.score)));
 
   // Labs mapped through their topic.
   const labs = staticContent.labs.filter((lab) => topicIds.includes(lab.topicId));
@@ -140,21 +132,13 @@ export function scoreCertification(user: UserData, certification: Certification)
     ? 0
     : pct((assignments.filter((a) => user.assignmentAttempts.some((x) => x.assignmentId === a.id && x.status === "completed")).length / assignments.length) * 100);
 
-  const practical = pct(mean([...labScores, ...assignmentScores].length ? [...labScores, ...assignmentScores] : [0]));
+  const practical = pct(mean(scopeRows.map((row) => mean([
+    row.application.score,
+    row.practicalAbility.score,
+  ]))));
 
   // Troubleshooting: incidents and tickets on the mapped topics.
-  const incidentScores = user.incidentAttempts
-    .filter((a) => a.status === "submitted" && a.scores && topicIds.includes(a.topicId))
-    .map((a) => a.totalScore ?? 0);
-  const ticketScores = user.ticketAttempts
-    .filter((a) => a.status === "submitted" && a.scores && topicIds.includes(a.topicId))
-    .map((a) => a.totalScore ?? 0);
-  const relevantIncidents = staticContent.incidents.filter((i) => topicIds.includes(i.topicId)).length;
-  const attempted = new Set([
-    ...user.incidentAttempts.filter((a) => a.status === "submitted" && topicIds.includes(a.topicId)).map((a) => a.incidentId),
-  ]).size;
-  const coverage = relevantIncidents === 0 ? 1 : Math.min(1, attempted / relevantIncidents);
-  const troubleshooting = pct(mean([...incidentScores, ...ticketScores].length ? [...incidentScores, ...ticketScores] : [0]) * coverage);
+  const troubleshooting = pct(mean(scopeRows.map((row) => row.troubleshooting.score)));
 
   // Quiz performance: questions tagged with this certification.
   const questionIds = new Set(
@@ -166,16 +150,12 @@ export function scoreCertification(user: UserData, certification: Certification)
     .filter((attempt) => attempt.status === "submitted")
     .flatMap((attempt) => attempt.results)
     .filter((result) => questionIds.has(result.questionId));
-  // Accuracy alone is misleading on a tiny sample: one correct answer would read
-  // as 100%. Scale the rate by how much of the question pool has actually been
-  // answered, so the score climbs gradually as evidence accumulates.
-  const QUIZ_EVIDENCE_TARGET = 50;
-  const quizAccuracy =
-    quizResults.length === 0
-      ? 0
-      : (quizResults.filter((r) => r.correct).length / quizResults.length) * 100;
   const quizPerformance = pct(
-    quizAccuracy * Math.min(1, quizResults.length / QUIZ_EVIDENCE_TARGET),
+    questionIds.size === 0
+      ? 0
+      : ([...questionIds].filter((questionId) =>
+          quizResults.some((result) => result.questionId === questionId && result.correct),
+        ).length / questionIds.size) * 100,
   );
 
   // Domains.
@@ -183,17 +163,13 @@ export function scoreCertification(user: UserData, certification: Certification)
   const domains: DomainReadiness[] = domainNames.map((domain) => {
     const rows = objectives.filter((o) => (o.domain ?? "General") === domain);
     const domainTopics = [...new Set(rows.flatMap((o) => o.topicIds ?? []))];
-    const scores = domainTopics.map((topicId) => {
-      const p = user.topicProgress[topicId];
-      if (!p) return 0;
-      return mean([p.understanding, p.recall, p.application, p.practicalAbility, p.troubleshooting, p.retention]);
-    });
+    const scores = domainTopics.map((topicId) => topicScopeProgress(user, topicId).overall);
     return {
       domain,
       objectiveCount: rows.length,
       coveredTopicCount: domainTopics.length,
       score: pct(mean(scores.length ? scores : [0])),
-      hasEvidence: domainTopics.some((topicId) => Boolean(user.topicProgress[topicId])),
+      hasEvidence: domainTopics.some((topicId) => topicScopeProgress(user, topicId).attempted > 0),
     };
   });
 
@@ -215,7 +191,7 @@ export function scoreCertification(user: UserData, certification: Certification)
 
   const progress = getCertificationProgress(user, certification.id);
   const hasEvidence =
-    overall > 0 || progressRows.some(Boolean) || quizResults.length > 0 || (progress?.examRecords.length ?? 0) > 0;
+    overall > 0 || scopeRows.some((row) => row.attempted > 0) || quizResults.length > 0 || (progress?.examRecords.length ?? 0) > 0;
 
   let status: CertificationStatus = "not_started";
   if (progress?.declaredStatus === "exam_passed") status = "exam_passed";

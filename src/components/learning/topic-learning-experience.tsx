@@ -20,6 +20,7 @@ import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getLearningModule, getPracticeActivity, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
 import type { TopicProgress } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 const progressLabels: Array<[keyof Pick<TopicProgress, "understanding" | "recall" | "application" | "practicalAbility" | "troubleshooting" | "retention">, string]> = [
   ["understanding", "Understanding"], ["recall", "Recall"], ["application", "Application"],
@@ -162,7 +163,8 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   }
 
 
-  const averageProgress = useMemo(() => Math.round(progressLabels.reduce((sum, [key]) => sum + progress[key], 0) / progressLabels.length), [progress]);
+  const scopeProgress = useMemo(() => topicScopeProgress(user, topic.id), [user, topic.id]);
+  const averageProgress = scopeProgress.overall;
   if (!lesson || !module || !practice || !scenario) return null;
 
   return <div className="space-y-4">
@@ -196,7 +198,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         title="Lesson notes and bookmark"
         description="Notes and bookmarks for this lesson, saved with everything else you have marked."
       />
-      <Panel title="Learning progress" description={`${averageProgress}% across six evidence areas. Reading alone does not change progress.`}><div className="space-y-4">{progressLabels.map(([key, label]) => <div key={key}><div className="mb-1.5 flex justify-between text-sm"><span>{label}</span><span className="tabular-nums text-muted-foreground">{progress[key]}%</span></div><Progress value={progress[key]} /></div>)}</div></Panel>
+      <Panel title="Learning progress" description={`${averageProgress}% across ${scopeProgress.available} available activities. Untouched work counts as zero.`}><div className="space-y-4">{progressLabels.map(([key, label]) => <div key={key}><div className="mb-1.5 flex justify-between text-sm"><span>{label}</span><span className="tabular-nums text-muted-foreground">{scopeProgress[key].score}% · {scopeProgress[key].attempted}/{scopeProgress[key].available}</span></div><Progress value={scopeProgress[key].score} /></div>)}</div></Panel>
     </div>
   </div>;
 }
