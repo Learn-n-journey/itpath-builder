@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, History, Loader2, Plus, RotateCcw, Send, Sparkles, Trash2 } from "lucide-react";
+import { Copy, History, Loader2, Plus, Send, Sparkles, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
