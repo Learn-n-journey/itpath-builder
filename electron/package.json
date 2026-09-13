@@ -1,0 +1,9 @@
+{
+  "name": "it-path",
+  "productName": "IT PATH",
+  "version": "1.0.0",
+  "description": "IT PATH — certification-based IT and cybersecurity training",
+  "author": "David Boley <boleydavid7@outlook.com>",
+  "main": "main.cjs",
+  "private": true
+}
