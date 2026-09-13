@@ -89,15 +89,24 @@ function Dashboard() {
 
   return (
     <>
-      <PageHeader
-        title="Dashboard"
-        description={`Target role: ${user.settings.targetJob}. Certification focus: ${user.settings.certificationTarget}.`}
-        actions={
-          <Button asChild>
-            <Link to="/study-plan">Open study plan</Link>
-          </Button>
-        }
-      />
+      <div className="mb-6 flex items-start gap-4">
+        <img
+          src="/icons/icon-256.png"
+          alt="IT PATH logo — a mountain path with circuit traces"
+          className="h-14 w-14 shrink-0 rounded-2xl sm:h-16 sm:w-16"
+        />
+        <div className="min-w-0 flex-1">
+          <PageHeader
+            title="Dashboard"
+            description={`Target role: ${user.settings.targetJob}. Certification focus: ${user.settings.certificationTarget}.`}
+            actions={
+              <Button asChild>
+                <Link to="/study-plan">Open study plan</Link>
+              </Button>
+            }
+          />
+        </div>
+      </div>
 
       {!d.hasAnyActivity ? (
         <Panel
