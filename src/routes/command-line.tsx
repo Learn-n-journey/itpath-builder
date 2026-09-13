@@ -120,6 +120,7 @@ function CommandLinePage() {
   function changeShell(value: TerminalAttempt["shell"]) {
     const next = scenariosForShell(value);
     setShell(value);
+    setGenerated(null);
     setScenarioId(next[0]?.id ?? recommended.id);
     setAttemptId("");
     setReasoning("");
@@ -135,10 +136,26 @@ function CommandLinePage() {
   }
 
   function changeScenario(id: string) {
+    setGenerated(null);
     setScenarioId(id);
     setAttemptId("");
     const saved = user.terminalAttempts.find((item) => item.scenarioId === id && item.status === "in_progress");
     setReasoning(saved?.reasoning ?? "");
+  }
+
+  function rollRandomScenario() {
+    const next = randomTerminalScenario(
+      shell,
+      user.terminalAttempts.map((item) => ({ scenarioId: item.scenarioId, topicId: item.topicId })),
+      weakTopicIds,
+      scenario.id,
+    );
+    setGenerated(next);
+    setScenarioId(next.id);
+    setAttemptId("");
+    setReasoning("");
+    setCommand("");
+    toast.success("New random scenario ready");
   }
 
   function start(reset = false) {
