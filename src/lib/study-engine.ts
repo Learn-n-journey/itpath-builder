@@ -308,7 +308,8 @@ export function generateStudyPlan(
 
   // Ensure the scheduled total exactly matches the chosen target.
   if (tasks.length > 0 && planned < targetMinutes) {
-    tasks[tasks.length - 1].plannedMinutes += targetMinutes - planned;
+    const lastTask = tasks[tasks.length - 1]!;
+    lastTask.plannedMinutes += targetMinutes - planned;
   }
 
   const iso = now.toISOString();
