@@ -5,6 +5,7 @@ import { CheckCircle2, CircleAlert, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { gradeWrittenAnswer, type GradeInput, type WrittenGrade } from "@/lib/grading.functions";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export interface MarkingState {
   busy: boolean;
@@ -12,13 +13,19 @@ export interface MarkingState {
   error: string | null;
 }
 
-/** Sends a written answer to the AI marker and keeps the result for display. */
+/**
+ * Sends a written answer to the AI marker and keeps the result for display.
+ * AI marking is a Pro feature: on the free tier `mark` returns null so
+ * callers fall back to the built-in meaning-based grading.
+ */
 export function useAiMarking() {
   const grade = useServerFn(gradeWrittenAnswer);
+  const { isPro } = useSubscription();
   const [state, setState] = useState<MarkingState>({ busy: false, grade: null, error: null });
 
   const mark = useCallback(
     async (input: GradeInput): Promise<WrittenGrade | null> => {
+      if (!isPro) return null;
       setState({ busy: true, grade: null, error: null });
       try {
         const reply = await grade({ data: input });
@@ -33,7 +40,7 @@ export function useAiMarking() {
         return null;
       }
     },
-    [grade],
+    [grade, isPro],
   );
 
   const reset = useCallback(() => setState({ busy: false, grade: null, error: null }), []);
