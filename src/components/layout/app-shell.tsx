@@ -56,6 +56,8 @@ function Brand() {
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const palette = useCommandPalette();
+
   
 
   useEffect(() => {
@@ -66,8 +68,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
+      <StudyReminder />
+      <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-sidebar-border bg-sidebar lg:flex">
         <Brand />
+        <CommandPaletteButton onClick={() => palette.setOpen(true)} />
         <NavList />
         <div className="mt-auto border-t border-sidebar-border px-5 py-4">
           <AccountPanel />
