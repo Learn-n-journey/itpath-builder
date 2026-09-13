@@ -36,7 +36,6 @@ import {
   type CertificationObjectiveOverride,
   type IncidentAttempt,
   type LabAttempt,
-  type LearnerSignal,
   type Note,
   type Mistake,
   type PracticeResponse,
