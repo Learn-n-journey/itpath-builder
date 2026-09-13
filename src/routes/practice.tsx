@@ -253,7 +253,8 @@ function AssignmentWorkspace({
     setResponse(latestResponse);
     setSelfChecks({});
     setShowReview(false);
-  }, [assignment.id, latestAttempt?.id, latestResponse]);
+    marking.reset();
+  }, [assignment.id, latestAttempt?.id, latestResponse, marking]);
   useEffect(() => {
     setResponse(attemptResponse);
   }, [attempt?.id, attemptResponse]);
