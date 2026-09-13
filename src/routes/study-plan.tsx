@@ -65,6 +65,7 @@ function useTicker(active: boolean) {
 
 function StudyPlanPage() {
   const { user, actions } = useAppState();
+  const options = useMemo(() => durationOptions(user.settings.sessionLengthMinutes), [user.settings.sessionLengthMinutes]);
   const [minutes, setMinutes] = useState(String(user.settings.sessionLengthMinutes));
   const [target, setTarget] = useState<number>(user.settings.sessionLengthMinutes);
 
