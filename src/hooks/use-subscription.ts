@@ -40,9 +40,30 @@ function rowGrantsAccess(row: SubscriptionRow, now = new Date()): boolean {
  * expire; subscriptions follow their billing period).
  */
 export function useSubscription() {
-  const { userId, ready } = useAuth();
+  const { userId, email, ready } = useAuth();
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(null);
+  const [betaAccess, setBetaAccess] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Beta / creator access: an email on the beta list unlocks Pro without paying.
+  useEffect(() => {
+    if (!ready || !userId || !email) {
+      setBetaAccess(false);
+      return;
+    }
+    let active = true;
+    void supabase
+      .from("beta_access")
+      .select("email")
+      .ilike("email", email)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (active) setBetaAccess(Boolean(data));
+      });
+    return () => {
+      active = false;
+    };
+  }, [userId, email, ready]);
 
   useEffect(() => {
     if (!ready) return;
@@ -88,6 +109,7 @@ export function useSubscription() {
     };
   }, [userId, ready]);
 
-  const isPro = subscription ? rowGrantsAccess(subscription) : false;
-  return { subscription, isPro, loading: loading || !ready };
+  const paid = subscription ? rowGrantsAccess(subscription) : false;
+  const isPro = paid || betaAccess;
+  return { subscription, isPro, paid, betaAccess, loading: loading || !ready };
 }
