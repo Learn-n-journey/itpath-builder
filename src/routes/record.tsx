@@ -36,7 +36,7 @@ export const Route = createFileRoute("/record")({
       },
     ],
   }),
-  component: RecordPage;
+  component: RecordPage,
 });
 
 function stamp(): string {

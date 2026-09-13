@@ -21,6 +21,7 @@ import {
   Timer,
   Compass,
   Info,
+  FileDown,
   Settings as SettingsIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -181,6 +182,13 @@ export const navItems: NavItem[] = [
     icon: Compass,
     group: "You",
     description: "What each section is for and how scoring is calculated.",
+  },
+  {
+    label: "Study record",
+    to: "/record",
+    icon: FileDown,
+    group: "You",
+    description: "Download a transcript of your recorded work, or back up and restore progress.",
   },
   {
     label: "About",
