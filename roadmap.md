@@ -97,5 +97,5 @@
 - [x] Define one full-scope evidence model for topics, certifications, skills, and career readiness
 - [x] Replace attempted-only progress percentages with correct/completed opportunities divided by all available opportunities
 - [x] Distinguish performance averages from progress/readiness percentages in the interface
-- [ ] Add regression checks for one-perfect-attempt and untouched-content cases
+- [x] Add regression checks for one-perfect-attempt and untouched-content cases
 - [ ] Verify progress pages and dashboards on desktop and mobile
