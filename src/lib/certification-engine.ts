@@ -166,9 +166,17 @@ export function scoreCertification(user: UserData, certification: Certification)
     .filter((attempt) => attempt.status === "submitted")
     .flatMap((attempt) => attempt.results)
     .filter((result) => questionIds.has(result.questionId));
-  const quizPerformance = quizResults.length === 0
-    ? 0
-    : pct((quizResults.filter((r) => r.correct).length / quizResults.length) * 100);
+  // Accuracy alone is misleading on a tiny sample: one correct answer would read
+  // as 100%. Scale the rate by how much of the question pool has actually been
+  // answered, so the score climbs gradually as evidence accumulates.
+  const QUIZ_EVIDENCE_TARGET = 50;
+  const quizAccuracy =
+    quizResults.length === 0
+      ? 0
+      : (quizResults.filter((r) => r.correct).length / quizResults.length) * 100;
+  const quizPerformance = pct(
+    quizAccuracy * Math.min(1, quizResults.length / QUIZ_EVIDENCE_TARGET),
+  );
 
   // Domains.
   const domainNames = [...new Set(objectives.map((o) => o.domain ?? "General"))];
