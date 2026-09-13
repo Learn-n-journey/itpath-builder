@@ -3,8 +3,13 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-/** The single account allowed to manage the beta access list. */
-export const OWNER_EMAIL = "boleydavid7@outlook.com";
+/**
+ * Accounts allowed to manage the beta access list. The creator signs in
+ * with either email+password (Outlook) or Google (Gmail), so both are owner.
+ */
+export const OWNER_EMAILS = ["boleydavid7@outlook.com", "boleydavid7@gmail.com"];
+/** Primary owner email — cannot be removed from the list. */
+export const OWNER_EMAIL = OWNER_EMAILS[0]!;
 
 export interface BetaTester {
   email: string;
@@ -18,7 +23,7 @@ export type BetaListReply =
   | { ok: false; error: string };
 
 function isOwner(email: string | undefined | null) {
-  return (email ?? "").trim().toLowerCase() === OWNER_EMAIL;
+  return OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
 }
 
 export const listBetaTesters = createServerFn({ method: "GET" })
