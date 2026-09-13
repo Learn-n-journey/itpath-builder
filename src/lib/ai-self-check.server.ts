@@ -60,7 +60,7 @@ const tutorReview = z.object({
 export async function reviewTutorAnswer(input: {
   question: string;
   answer: string;
-  knowledge?: string;
+  knowledge?: string | undefined;
 }): Promise<string> {
   const system = [
     "You are a senior IT and cybersecurity reviewer checking another tutor's answer before a learner sees it.",
@@ -120,8 +120,8 @@ export async function reviewGrade(input: {
   topic: string;
   question: string;
   answer: string;
-  modelAnswer?: string;
-  expectedPoints?: string[];
+  modelAnswer?: string | undefined;
+  expectedPoints?: string[] | undefined;
   grade: ReviewableGrade;
 }): Promise<ReviewableGrade> {
   const system = [
