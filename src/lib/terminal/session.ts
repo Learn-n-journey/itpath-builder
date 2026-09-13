@@ -27,6 +27,9 @@ export function createTerminalAttempt(
     reasoning: "",
     createdAt: now,
     updatedAt: now,
+    // Generated variations are not in the static library, so the attempt keeps
+    // its own copy and stays playable after a refresh.
+    ...(scenario.source && scenario.source !== "curated" ? { scenarioSnapshot: scenario } : {}),
   };
 }
 
