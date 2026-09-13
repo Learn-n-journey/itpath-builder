@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { ShieldCheck } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/state/auth-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,15 +79,18 @@ function AuthPage() {
   async function handleGoogle() {
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: window.location.origin,
-        },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
       });
-      if (error) throw error;
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Google sign-in did not complete.");
+      if (result.error) {
+        toast.error("Google sign-in did not complete.");
+        return;
+      }
+      if (result.redirected) return;
+      void navigate({ to: "/", replace: true });
+    } catch {
+      toast.error("Google sign-in did not complete.");
+    } finally {
       setBusy(false);
     }
   }
