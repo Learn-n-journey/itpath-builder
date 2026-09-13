@@ -64,7 +64,7 @@ function ProgressPage() {
     <>
       <PageHeader
         title="Progress"
-        description="Measured from your activity only. Nothing here is estimated or pre-filled."
+        description="Correct and completed work is measured against everything available. Untouched work counts as zero."
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -110,7 +110,7 @@ function ProgressPage() {
       </Panel>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <Panel title="By activity type" description="Counts and averages from recorded attempts.">
+        <Panel title="By activity type" description="Completion uses the full library; averages describe attempted work only.">
           <ul className="divide-y divide-border">
             {report.byActivity.map((row) => (
               <li key={row.key} className="flex flex-wrap items-center justify-between gap-2 py-3">

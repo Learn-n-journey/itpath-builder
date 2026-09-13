@@ -290,13 +290,13 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     const value = pct((attempt.score / attempt.maxScore) * 100);
     for (const skillId of labCategorySkills[lab.category] ?? []) {
       push({
-        id: `lab-${attempt.id}-${skillId}`, skillId, source: "lab",
+        id: `lab-${lab.id}-${skillId}`, skillId, source: "lab",
         label: `${lab.title} — lab scored ${value}%`,
         score: value, weight: 3, at: attempt.updatedAt,
       });
     }
     push({
-      id: `lab-${attempt.id}-documentation`, skillId: "documentation", source: "lab",
+      id: `lab-${lab.id}-documentation`, skillId: "documentation", source: "lab",
       label: `${lab.title} — written reflection`,
       score: pct(Math.min(100, attempt.reflection.trim().length)), weight: 1, at: attempt.updatedAt,
     });
@@ -317,7 +317,7 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     if (assignment.type === "command_challenge") { skills.add("powershell"); skills.add("bash"); }
     for (const skillId of skills) {
       push({
-        id: `assignment-${attempt.id}-${skillId}`, skillId, source: "assignment",
+        id: `assignment-${assignment.id}-${skillId}`, skillId, source: "assignment",
         label: `${assignment.title} — assignment scored ${value}%`,
         score: value, weight: 2.5, at: attempt.updatedAt,
       });
@@ -333,19 +333,19 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     const at = attempt.submittedAt ?? attempt.updatedAt;
     for (const skillId of incidentCategorySkills[incident.category] ?? []) {
       push({
-        id: `incident-${attempt.id}-${skillId}`, skillId, source: "troubleshoot",
+        id: `incident-${incident.id}-${skillId}`, skillId, source: "troubleshoot",
         label: `${incident.title} — technical accuracy ${pct(s.technicalAccuracy)}%`,
         score: pct(s.technicalAccuracy), weight: 3, at,
       });
     }
     push({
-      id: `incident-${attempt.id}-troubleshooting`, skillId: "troubleshooting", source: "troubleshoot",
+      id: `incident-${incident.id}-troubleshooting`, skillId: "troubleshooting", source: "troubleshoot",
       label: `${incident.title} — diagnosis, reasoning and verification`,
       score: pct((s.diagnosticChoices + s.reasoning + s.verification + s.efficiency) / 4),
       weight: 3, at,
     });
     push({
-      id: `incident-${attempt.id}-documentation`, skillId: "documentation", source: "troubleshoot",
+      id: `incident-${incident.id}-documentation`, skillId: "documentation", source: "troubleshoot",
       label: `${incident.title} — incident write-up`,
       score: pct(s.documentation), weight: 2, at,
     });
@@ -361,7 +361,7 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     const title = ticket.title;
     for (const skillId of trackSkills[ticket.track]) {
       push({
-        id: `ticket-${attempt.id}-${skillId}`, skillId, source: "career",
+        id: `ticket-${ticket.id}-${skillId}`, skillId, source: "career",
         label: `${title} — technical accuracy ${pct(s.technicalAccuracy)}%`,
         score: pct(s.technicalAccuracy), weight: 3.5, at,
       });
@@ -374,7 +374,7 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     ];
     for (const [skillId, value, what] of dimension) {
       push({
-        id: `ticket-${attempt.id}-${skillId}`, skillId, source: "career",
+        id: `ticket-${ticket.id}-${skillId}`, skillId, source: "career",
         label: `${title} — ${what} ${pct(value)}%`,
         score: pct(value), weight: 3, at,
       });
@@ -466,9 +466,14 @@ export function scoreSkills(user: UserData): SkillScore[] {
   const evidence = collectEvidence(user);
   const opportunities = buildOpportunities();
   return skillIds.map((skillId) => {
-    const rows = evidence
-      .filter((item) => item.skillId === skillId)
-      .sort((a, b) => (a.at < b.at ? 1 : -1));
+    const bestByActivity = new Map<string, EvidenceItem>();
+    for (const item of evidence.filter((row) => row.skillId === skillId)) {
+      const current = bestByActivity.get(item.id);
+      if (!current || item.score > current.score || (item.score === current.score && item.at > current.at)) {
+        bestByActivity.set(item.id, item);
+      }
+    }
+    const rows = [...bestByActivity.values()].sort((a, b) => (a.at < b.at ? 1 : -1));
     const totalWeight = rows.reduce((sum, row) => sum + row.weight, 0);
     const accuracy = totalWeight === 0
       ? 0

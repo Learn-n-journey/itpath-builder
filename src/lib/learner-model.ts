@@ -282,7 +282,7 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
     const lastExposureAt = signals.length > 0 ? signals[0]!.at : null;
     const daysSinceExposure =
       lastExposureAt === null ? null : (nowMs - new Date(lastExposureAt).getTime()) / MS_DAY;
-    const retention = retentionFrom(mastery, signals.length, daysSinceExposure);
+    const retention = scope.retention.score / 100;
     const timed = signals.filter((signal) => typeof signal.elapsedMs === "number");
     const correct = graded.filter((signal) => (outcomeOf(signal) ?? 0) >= 0.7).length;
     const { velocity, trend } = velocityFrom(signals, nowMs);
