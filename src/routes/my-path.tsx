@@ -38,6 +38,7 @@ function MyPath() {
   const stats = useStats();
   const { user } = useAppState();
   const path = adaptivePath(user);
+  const queue = adaptiveQueue(user);
   const levels = certificationsByLevel();
   const certCount = levels.reduce((sum, group) => sum + group.items.length, 0);
 
