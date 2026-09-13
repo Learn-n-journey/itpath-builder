@@ -6,7 +6,7 @@
  * object, so a session can be saved, restored and resumed later.
  */
 
-export type ShellKind = "cmd" | "powershell" | "bash";
+export type ShellKind = "cmd" | "powershell" | "bash" | "android" | "ios";
 
 export interface VfsNode {
   type: "dir" | "file";
@@ -127,7 +127,13 @@ export function clone(state: MachineState): MachineState {
 }
 
 export function isWindows(state: MachineState): boolean {
-  return state.shell !== "bash";
+  return state.shell === "cmd" || state.shell === "powershell";
+}
+
+/** Android and iOS build on the same Unix-style tree as Linux. */
+export function isMobile(state: MachineState | ShellKind): boolean {
+  const shell = typeof state === "string" ? state : state.shell;
+  return shell === "android" || shell === "ios";
 }
 
 export function sep(state: MachineState): string {
@@ -149,11 +155,15 @@ export function promptPath(state: MachineState): string {
 export function prompt(state: MachineState): string {
   if (state.shell === "cmd") return `${promptPath(state)}>`;
   if (state.shell === "powershell") return `PS ${promptPath(state)}>`;
+  if (state.shell === "ios") return `${state.hostname} support>`;
+  if (state.shell === "android") return `${state.hostname}:${promptPath(state)}${state.elevated ? "#" : "$"} `;
   return `${state.currentUser}@${state.hostname}:${promptPath(state)}${state.elevated ? "#" : "$"} `;
 }
 
 export function homeDir(state: MachineState): string[] {
   if (isWindows(state)) return ["Users", state.currentUser];
+  if (state.shell === "android") return ["sdcard"];
+  if (state.shell === "ios") return ["device"];
   return state.currentUser === "root" ? ["root"] : ["home", state.currentUser];
 }
 
@@ -686,7 +696,7 @@ export function pingHost(state: MachineState, host: string): { lines: string[]; 
   if (!ip) {
     return {
       lines:
-        state.shell === "bash"
+        !isWindows(state)
           ? [`ping: ${host}: Temporary failure in name resolution`]
           : [`Ping request could not find host ${host}. Please check the name and try again.`],
       ok: false,
@@ -701,14 +711,14 @@ export function pingHost(state: MachineState, host: string): { lines: string[]; 
   if (!reachable) {
     return {
       lines:
-        state.shell === "bash"
+        !isWindows(state)
           ? [`PING ${host} (${ip}) 56(84) bytes of data.`, "", `--- ${host} ping statistics ---`, "4 packets transmitted, 0 received, 100% packet loss"]
           : [`Pinging ${host} [${ip}] with 32 bytes of data:`, "Request timed out.", "Request timed out.", "", `Ping statistics for ${ip}:`, "    Packets: Sent = 4, Received = 0, Lost = 4 (100% loss),"],
       ok: false,
     };
   }
   const latency = target?.latencyMs ?? 5;
-  if (state.shell === "bash") {
+  if (!isWindows(state)) {
     return {
       lines: [
         `PING ${host} (${ip}) 56(84) bytes of data.`,
