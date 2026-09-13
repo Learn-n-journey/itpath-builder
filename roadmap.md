@@ -89,6 +89,6 @@
 - [x] Verify commands, persistence, scoring, desktop, and mobile behavior
 
 ## Command-line environment switch (Sep 2026)
-- [ ] Add a Mac/Linux and Windows environment switch
-- [ ] Keep CMD and PowerShell selectable inside Windows
-- [ ] Verify environment and shell switching on desktop and mobile
+- [x] Add a Mac/Linux and Windows environment switch
+- [x] Keep CMD and PowerShell selectable inside Windows
+- [x] Verify environment and shell switching on desktop and mobile
