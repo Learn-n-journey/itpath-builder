@@ -52,3 +52,6 @@
 - [x] AuthProvider + cloud sync in AppStateProvider: pull on sign-in (larger record wins), debounced push on change
 - [x] Sidebar account panel with backup status and sign out
 - [ ] Next: deeper written lessons, AI-checked free responses, progress/portfolio export
+
+## AI grading
+- Written answers in Practice, Recall, Teach Back and Real-World Scenario are marked by AI (google/gemini-2.5-flash) with a full tutoring response; meaning-based local matching is the offline fallback.
