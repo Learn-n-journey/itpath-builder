@@ -33,10 +33,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      # GitHub Pages serves unknown paths through 404.html. Copying the SPA
-      # entry point there lets TanStack Router handle direct/deep links.
+      # TanStack Start outputs the static site under .output/public.
+      # GitHub Pages needs a 404 fallback for direct client-side routes.
       - name: Configure SPA fallback
-        run: cp dist/index.html dist/404.html
+        run: cp .output/public/index.html .output/public/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -44,7 +44,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./.output/public
 
   deploy:
     environment:
