@@ -15,6 +15,7 @@ import { lessons, resources, type Resource, type Topic } from "@/data/static-con
 import { getWorkedExamples } from "@/data/worked-examples";
 import { getDeepLesson } from "@/data/deep-lessons";
 import { DeepLessonReading } from "@/components/learning/deep-lesson-reading";
+import { LessonDepthReading } from "@/components/learning/lesson-depth-reading";
 import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getLearningModule, getPracticeActivity, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
 import type { TopicProgress } from "@/lib/app-data/types";
@@ -161,7 +162,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
         <TabsTrigger value="learn">Learn</TabsTrigger><TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Teach Back</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
       </TabsList>
-      <TabsContent value="learn" className="space-y-4">{deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}<Panel title={deepLesson ? "Quick reference" : lesson.title} description={deepLesson ? "A condensed summary of the lesson above, for revision." : lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
+      <TabsContent value="learn" className="space-y-4">{deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}{deepLesson?.depth ? <LessonDepthReading depth={deepLesson.depth} /> : null}<Panel title={deepLesson ? "Quick reference" : lesson.title} description={deepLesson ? "A condensed summary of the lesson above, for revision." : lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
         <ContentSection title="What It Is" text={lesson.definition} /><ContentSection title="Why It Matters" text={lesson.whyItMatters} />
         <ListSection title="How It Works" items={module.howItWorks} /><ListSection title="Where You See It" items={module.whereYouSeeIt} />
         <section><h2 className="mb-3 text-base font-semibold text-foreground">Key Terms</h2><dl className="divide-y divide-border border-y border-border">{lesson.keyTerms.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>

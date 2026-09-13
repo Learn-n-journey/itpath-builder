@@ -8,9 +8,9 @@ import { advancedSecurityDeepLessons } from "./deep-lessons/phase-advanced-secur
 import { fundamentalsAPlusDeepLessons } from "./deep-lessons/phase-fundamentals-aplus";
 import { linuxServersCloudDeepLessons } from "./deep-lessons/phase-linux-servers-cloud";
 import { networkSecurityDeepLessons } from "./deep-lessons/phase-network-security";
-import type { DeepLesson, DeepLessonSection } from "./deep-lessons/types";
+import type { DeepLesson, DeepLessonSection, LessonDepth } from "./deep-lessons/types";
 
-export type { DeepLesson, DeepLessonSection };
+export type { DeepLesson, DeepLessonSection, LessonDepth };
 
 const foundationDeepLessons: DeepLesson[] = [
   {
