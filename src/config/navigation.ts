@@ -1,4 +1,5 @@
 import {
+  Brain,
   LayoutDashboard,
   Route as RouteIcon,
   CalendarDays,
@@ -177,6 +178,13 @@ export const navItems: NavItem[] = [
     icon: TrendingUp,
     group: "You",
     description: "Detailed scores per topic and per skill dimension.",
+  },
+  {
+    label: "Learner profile",
+    to: "/learner",
+    icon: Brain,
+    group: "You",
+    description: "Mastery, retention and error patterns per concept, with what to study next.",
   },
   {
     label: "Insights",

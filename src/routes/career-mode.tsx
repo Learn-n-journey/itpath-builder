@@ -252,6 +252,14 @@ function TicketWorkspace({
       });
     }
 
+    actions.addLearnerSignal({
+      topicId: ticket.topicId,
+      kind: "career",
+      correct: passed,
+      score: total / 100,
+      elapsedMs: new Date(finished.updatedAt).getTime() - new Date(finished.createdAt).getTime(),
+    });
+
     if (passed) {
       updateUser((current) => {
         const passedAttempts = current.ticketAttempts.filter(

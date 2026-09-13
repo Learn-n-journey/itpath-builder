@@ -222,6 +222,10 @@ export function sanitizeUser(raw: unknown): UserData {
       documentation: attempt.documentation ?? "",
       updatedAt: attempt.updatedAt ?? attempt.createdAt,
     })),
+    learnerSignals: arr(r.learnerSignals, base.learnerSignals).filter(
+      (signal) =>
+        signal && typeof signal.topicId === "string" && typeof signal.at === "string",
+    ),
     settings: {
       ...defaultSettings,
       ...(r.settings ?? {}),

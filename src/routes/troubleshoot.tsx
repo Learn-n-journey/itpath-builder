@@ -301,6 +301,13 @@ function IncidentWorkspace({
         attemptId: finished.id,
       });
     }
+    actions.addLearnerSignal({
+      topicId: incident.topicId,
+      kind: "troubleshoot",
+      correct: total >= 70,
+      score: total / 100,
+      elapsedMs: new Date(finished.updatedAt).getTime() - new Date(finished.createdAt).getTime(),
+    });
     if (total < 70) {
       actions.ensureReview({ topicId: incident.topicId });
     }

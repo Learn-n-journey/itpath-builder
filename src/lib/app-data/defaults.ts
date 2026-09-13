@@ -48,6 +48,7 @@ export function createDefaultUserData(): UserData {
 
     incidentAttempts: [],
     ticketAttempts: [],
+    learnerSignals: [],
     settings: { ...defaultSettings },
   };
 }

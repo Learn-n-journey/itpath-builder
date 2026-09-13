@@ -13,6 +13,7 @@ import { createDefaultUserData } from "@/lib/app-data/defaults";
 import { useAuth } from "@/state/auth-state";
 import { activityCount, fetchCloudState, pushCloudState } from "@/lib/cloud-sync";
 import { buildMistake, type MistakeInput } from "@/lib/mistake-engine";
+import { createSignal, type SignalInput } from "@/lib/learner-signals";
 import { userMutations } from "@/lib/app-data/mutations";
 import { clearExamDeclaration, declareExamOutcome } from "@/lib/certification-engine";
 import {
@@ -78,6 +79,7 @@ interface AppActions {
   updateStudyPlan: (plan: StudyPlan) => void;
   removeStudyPlan: (id: string) => void;
   addRecallResponse: (response: RecallResponse) => void;
+  addLearnerSignal: (input: SignalInput) => void;
   addMistake: (mistake: Mistake) => void;
   recordMistake: (input: MistakeInput) => void;
   setMistakeResolved: (id: string, resolved: boolean) => void;
@@ -263,6 +265,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       removeStudyPlan: (id) => setUser((current) => userMutations.removeStudyPlan(current, id)),
       addRecallResponse: (response) =>
         setUser((current) => userMutations.addRecallResponse(current, response)),
+      addLearnerSignal: (input) =>
+        setUser((current) => userMutations.addLearnerSignal(current, createSignal(input))),
       addMistake: (mistake) => setUser((current) => userMutations.addMistake(current, mistake)),
       recordMistake: (input) =>
         setUser((current) => userMutations.addMistake(current, buildMistake(current, input))),

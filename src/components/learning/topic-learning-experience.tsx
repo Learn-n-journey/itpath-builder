@@ -56,6 +56,19 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const scenarioMarking = useAiMarking();
   
 
+  // Opening a topic is exposure evidence: it feeds retention, not mastery.
+  useEffect(() => {
+    const recent = user.learnerSignals.some(
+      (signal) =>
+        signal.kind === "lesson" &&
+        signal.topicId === topic.id &&
+        Date.now() - new Date(signal.at).getTime() < 6 * 60 * 60 * 1000,
+    );
+    if (!recent) actions.addLearnerSignal({ topicId: topic.id, kind: "lesson" });
+    // Runs once per topic view; the recency guard prevents repeat rows.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topic.id]);
+
   useEffect(() => { setTeachBack(savedTeachBack?.body ?? ""); setTeachBackEditing(!savedTeachBack); }, [savedTeachBack, topic.id]);
   useEffect(() => { setScenarioAnswer(savedScenario?.response ?? ""); setScenarioFeedback(savedScenario ? scenario?.guidance ?? null : null); }, [savedScenario, scenario, topic.id]);
   
