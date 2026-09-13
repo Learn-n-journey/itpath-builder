@@ -155,13 +155,12 @@ function LearnerPage() {
       {model.studied === 0 ? (
         <EmptyState
           title="Nothing recorded yet"
-          description="Answer a recall question, take a quiz or finish a lab and your profile starts building immediately."
-          action={
-            <Button asChild>
-              <Link to="/learn">Start learning</Link>
-            </Button>
-          }
-        />
+          body="Answer a recall question, take a quiz or finish a lab and your profile starts building immediately."
+        >
+          <Button asChild>
+            <Link to="/learn">Start learning</Link>
+          </Button>
+        </EmptyState>
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
