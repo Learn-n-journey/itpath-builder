@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Sparkles } from "lucide-react";
+import { Copy, Loader2, RotateCcw, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { askTutor } from "@/lib/tutor.functions";
 import {
   generateTutorPrompt,
   tutorModes,
@@ -27,16 +28,16 @@ export const Route = createFileRoute("/ai-tutor")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "AI Tutor Prompts — IT PATH" },
+      { title: "AI Tutor — IT PATH" },
       {
         name: "description",
         content:
-          "Generate a tutoring prompt built from your own study records, then copy it into the AI assistant of your choice.",
+          "A built-in AI tutor that teaches, quizzes and drills you using your real progress, mistakes and reviews as context.",
       },
-      { property: "og:title", content: "AI Tutor Prompts — IT PATH" },
+      { property: "og:title", content: "AI Tutor — IT PATH" },
       {
         property: "og:description",
-        content: "Build context-aware study prompts from your real progress, mistakes and reviews.",
+        content: "Get tutoring built on your actual study records — weak areas, mistakes and review history included.",
       },
     ],
   }),
@@ -44,6 +45,11 @@ export const Route = createFileRoute("/ai-tutor")({
 });
 
 const NO_TOPIC = "__none__";
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
 
 async function copyText(text: string): Promise<boolean> {
   try {
@@ -75,42 +81,74 @@ function AiTutor() {
   const [mode, setMode] = useState<TutorMode>("teach_me");
   const [topicId, setTopicId] = useState<string>(NO_TOPIC);
   const [answer, setAnswer] = useState("");
-  const [prompt, setPrompt] = useState("");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [followUp, setFollowUp] = useState("");
+  const [busy, setBusy] = useState(false);
 
   const activeMode = tutorModes.find((m) => m.id === mode)!;
+  const started = messages.length > 0;
 
-  function generate() {
-    const text = generateTutorPrompt(user, mode, {
+  async function send(next: ChatMessage[]) {
+    setBusy(true);
+    const reply = await askTutor({ data: { messages: next } });
+    setBusy(false);
+    if (reply.ok) {
+      setMessages([...next, { role: "assistant", content: reply.answer }]);
+    } else {
+      setMessages(next);
+      toast.error(reply.error);
+    }
+  }
+
+  async function start() {
+    if (mode === "review_answer" && !answer.trim()) {
+      toast.error("Paste the answer you want reviewed first.");
+      return;
+    }
+    const prompt = generateTutorPrompt(user, mode, {
       ...(topicId === NO_TOPIC ? {} : { topicId }),
       learnerAnswer: answer,
     });
-    setPrompt(text);
-    toast.success("Prompt generated. Copy it into your AI assistant.");
+    await send([{ role: "user", content: prompt }]);
   }
 
-  async function copy() {
-    if (!prompt) {
-      toast.error("Generate a prompt first.");
-      return;
-    }
-    const ok = await copyText(prompt);
+  async function reply() {
+    const text = followUp.trim();
+    if (!text) return;
+    setFollowUp("");
+    await send([...messages, { role: "user", content: text }]);
+  }
+
+  function reset() {
+    setMessages([]);
+    setFollowUp("");
+  }
+
+  async function copyPrompt() {
+    const first = messages[0];
+    if (!first) return;
+    const ok = await copyText(first.content);
     if (ok) toast.success("Prompt copied to your clipboard.");
-    else toast.error("Copying was blocked. Select the prompt text and copy it manually.");
+    else toast.error("Copying was blocked. Select the text and copy it manually.");
   }
 
   return (
     <>
       <PageHeader
         title="AI Tutor"
-        description="IT PATH does not answer questions itself. It builds a detailed prompt from your real progress, mistakes and reviews, which you copy into the AI assistant you already use."
+        description="A built-in tutor that answers here in the app. It starts every session from your real progress, mistakes and reviews — pick a mode and a topic, then ask."
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
-        <Panel title="Build your prompt">
+        <Panel title="Set up the session">
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="tutor-mode">Mode</Label>
-              <Select value={mode} onValueChange={(v) => setMode(v as TutorMode)}>
+              <Select
+                value={mode}
+                onValueChange={(v) => setMode(v as TutorMode)}
+                disabled={started}
+              >
                 <SelectTrigger id="tutor-mode">
                   <SelectValue />
                 </SelectTrigger>
@@ -127,7 +165,7 @@ function AiTutor() {
 
             <div className="grid gap-2">
               <Label htmlFor="tutor-topic">Topic</Label>
-              <Select value={topicId} onValueChange={setTopicId}>
+              <Select value={topicId} onValueChange={setTopicId} disabled={started}>
                 <SelectTrigger id="tutor-topic">
                   <SelectValue />
                 </SelectTrigger>
@@ -142,7 +180,7 @@ function AiTutor() {
               </Select>
             </div>
 
-            {mode === "review_answer" ? (
+            {mode === "review_answer" && !started ? (
               <div className="grid gap-2">
                 <Label htmlFor="tutor-answer">Your answer</Label>
                 <Textarea
@@ -155,37 +193,94 @@ function AiTutor() {
               </div>
             ) : null}
 
-            <Button onClick={generate}>
-              <Sparkles className="size-4" aria-hidden />
-              Generate AI prompt
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              {!started ? (
+                <Button onClick={start} disabled={busy}>
+                  {busy ? (
+                    <Loader2 className="size-4 animate-spin" aria-hidden />
+                  ) : (
+                    <Sparkles className="size-4" aria-hidden />
+                  )}
+                  Ask the tutor
+                </Button>
+              ) : (
+                <Button variant="secondary" onClick={reset} disabled={busy}>
+                  <RotateCcw className="size-4" aria-hidden />
+                  Start over
+                </Button>
+              )}
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Prefer your own assistant? Start a session, then copy the generated prompt — it
+              contains the same context the built-in tutor receives.
+            </p>
           </div>
         </Panel>
 
         <Panel
-          title="Your prompt"
-          description="Nothing is sent anywhere. No answer is generated here — the assistant you paste this into produces the response."
+          title="Session"
+          description={
+            started
+              ? "Reply below to keep going — quiz answers, diagnoses and interview responses all go in the same box."
+              : "The tutor's reply will appear here, built on your recorded progress and weak areas."
+          }
         >
-          {prompt ? (
-            <div className="grid gap-3">
-              <Textarea
-                aria-label="Generated prompt"
-                readOnly
-                value={prompt}
-                rows={20}
-                className="font-mono text-xs"
-              />
-              <div>
-                <Button variant="secondary" onClick={copy}>
-                  <Copy className="size-4" aria-hidden />
-                  Copy prompt
-                </Button>
+          {started ? (
+            <div className="grid gap-4">
+              <div className="grid max-h-[32rem] gap-3 overflow-y-auto pr-1">
+                {messages.slice(1).map((m, i) =>
+                  m.role === "assistant" ? (
+                    <div key={i} className="rounded-lg border border-border bg-secondary/40 p-3">
+                      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Tutor
+                      </p>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed">{m.content}</p>
+                    </div>
+                  ) : (
+                    <div key={i} className="rounded-lg border border-primary/30 bg-primary/10 p-3">
+                      <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        You
+                      </p>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed">{m.content}</p>
+                    </div>
+                  ),
+                )}
+                {busy ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin" aria-hidden />
+                    The tutor is thinking…
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="tutor-followup">Your reply</Label>
+                <Textarea
+                  id="tutor-followup"
+                  rows={4}
+                  value={followUp}
+                  onChange={(e) => setFollowUp(e.target.value)}
+                  placeholder="Answer the tutor's question, or ask for clarification…"
+                  disabled={busy}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <Button onClick={reply} disabled={busy || !followUp.trim()}>
+                    <Send className="size-4" aria-hidden />
+                    Send
+                  </Button>
+                  <Button variant="outline" onClick={copyPrompt} disabled={busy}>
+                    <Copy className="size-4" aria-hidden />
+                    Copy starting prompt
+                  </Button>
+                </div>
               </div>
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Choose a mode and a topic, then generate a prompt. It will include your objectives,
-              measured progress, weak areas, unresolved mistakes and review history.
+              Choose a mode and a topic, then press “Ask the tutor”. The session opens with your
+              objectives, measured progress, weak areas, unresolved mistakes and review history
+              already included — so answers are about what you actually need, not a generic lesson.
             </p>
           )}
         </Panel>
