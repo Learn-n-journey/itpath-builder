@@ -25,6 +25,7 @@ import { Route as PomodoroRouteImport } from './routes/pomodoro'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as QuizMeRouteImport } from './routes/quiz-me'
 import { Route as RecordRouteImport } from './routes/record'
@@ -121,6 +122,11 @@ const PracticeRoute = PracticeRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProgressRoute = ProgressRouteImport.update({
@@ -227,6 +233,7 @@ export interface FileRoutesByFullPath {
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/record': typeof RecordRoute
@@ -262,6 +269,7 @@ export interface FileRoutesByTo {
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/record': typeof RecordRoute
@@ -298,6 +306,7 @@ export interface FileRoutesById {
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
   '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/record': typeof RecordRoute
@@ -335,6 +344,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/practice'
     | '/pricing'
+    | '/privacy'
     | '/progress'
     | '/quiz-me'
     | '/record'
@@ -370,6 +380,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/practice'
     | '/pricing'
+    | '/privacy'
     | '/progress'
     | '/quiz-me'
     | '/record'
@@ -405,6 +416,7 @@ export interface FileRouteTypes {
     | '/portfolio'
     | '/practice'
     | '/pricing'
+    | '/privacy'
     | '/progress'
     | '/quiz-me'
     | '/record'
@@ -441,6 +453,7 @@ export interface RootRouteChildren {
   PortfolioRoute: typeof PortfolioRoute
   PracticeRoute: typeof PracticeRoute
   PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProgressRoute: typeof ProgressRoute
   QuizMeRoute: typeof QuizMeRoute
   RecordRoute: typeof RecordRoute
@@ -572,6 +585,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/progress': {
@@ -713,6 +733,7 @@ const rootRouteChildren: RootRouteChildren = {
   PortfolioRoute: PortfolioRoute,
   PracticeRoute: PracticeRoute,
   PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
   ProgressRoute: ProgressRoute,
   QuizMeRoute: QuizMeRoute,
   RecordRoute: RecordRoute,
