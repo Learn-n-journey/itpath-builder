@@ -19,6 +19,7 @@ import {
   LineChart,
   Target,
   Timer,
+  AlarmClock,
   Compass,
   Info,
   FileDown,
@@ -113,6 +114,13 @@ export const navItems: NavItem[] = [
     icon: Briefcase,
     group: "Practice",
     description: "A simulated support queue across five job roles.",
+  },
+  {
+    label: "Exam Simulator",
+    to: "/exam",
+    icon: AlarmClock,
+    group: "Practice",
+    description: "A full-length timed mock exam with a pass or fail report.",
   },
   {
     label: "Weak Areas",
