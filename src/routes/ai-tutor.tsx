@@ -102,16 +102,56 @@ function AiTutor() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [followUp, setFollowUp] = useState("");
   const [busy, setBusy] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const [threads, setThreads] = useState<TutorThreadSummary[]>([]);
+  const [historyBusy, setHistoryBusy] = useState(false);
+
+  const listThreads = useServerFn(listTutorThreads);
+  const loadThread = useServerFn(getTutorThread);
+  const saveThread = useServerFn(saveTutorThread);
+  const removeThread = useServerFn(deleteTutorThread);
+  const clearThreads = useServerFn(clearTutorThreads);
 
   const activeMode = tutorModes.find((m) => m.id === mode)!;
   const started = messages.length > 0;
+
+  const refreshHistory = useCallback(async () => {
+    const reply = await listThreads({});
+    if (reply.ok) setThreads(reply.threads);
+  }, [listThreads]);
+
+  useEffect(() => {
+    void refreshHistory();
+  }, [refreshHistory]);
+
+  async function persist(next: ChatMessage[]) {
+    const topicTitle =
+      topicId === NO_TOPIC
+        ? "Weakest areas"
+        : (tutorTopicOptions.find((t) => t.id === topicId)?.title ?? "General");
+    const reply = await saveThread({
+      data: {
+        ...(threadId ? { id: threadId } : {}),
+        title: `${activeMode.label} — ${topicTitle}`,
+        mode,
+        ...(topicId === NO_TOPIC ? {} : { topicId }),
+        messages: next,
+      },
+    });
+    if (reply.ok) {
+      if (!threadId) setThreadId(reply.id);
+      void refreshHistory();
+    }
+  }
 
   async function send(next: ChatMessage[]) {
     setBusy(true);
     const reply = await askTutor({ data: { messages: next } });
     setBusy(false);
     if (reply.ok) {
-      setMessages([...next, { role: "assistant", content: reply.answer }]);
+      const updated = [...next, { role: "assistant" as const, content: reply.answer }];
+      setMessages(updated);
+      void persist(updated);
     } else {
       setMessages(next);
       toast.error(reply.error);
@@ -137,9 +177,50 @@ function AiTutor() {
     await send([...messages, { role: "user", content: text }]);
   }
 
-  function reset() {
+  function newChat() {
     setMessages([]);
     setFollowUp("");
+    setAnswer("");
+    setThreadId(null);
+  }
+
+  async function openThread(id: string) {
+    setHistoryBusy(true);
+    const reply = await loadThread({ data: { id } });
+    setHistoryBusy(false);
+    if (!reply.ok) {
+      toast.error(reply.error);
+      void refreshHistory();
+      return;
+    }
+    setThreadId(reply.thread.id);
+    setMessages(reply.thread.messages);
+    setFollowUp("");
+    if (reply.thread.mode && tutorModes.some((m) => m.id === reply.thread.mode)) {
+      setMode(reply.thread.mode as TutorMode);
+    }
+    setTopicId(reply.thread.topicId ?? NO_TOPIC);
+  }
+
+  async function dropThread(id: string) {
+    const reply = await removeThread({ data: { id } });
+    if (!reply.ok) {
+      toast.error(reply.error);
+      return;
+    }
+    if (threadId === id) newChat();
+    void refreshHistory();
+  }
+
+  async function clearHistory() {
+    const reply = await clearThreads({});
+    if (!reply.ok) {
+      toast.error(reply.error);
+      return;
+    }
+    setThreads([]);
+    if (threadId) newChat();
+    toast.success("Tutor history cleared.");
   }
 
   async function copyPrompt() {
