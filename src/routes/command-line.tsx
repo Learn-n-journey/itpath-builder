@@ -7,6 +7,7 @@ import {
   Play,
   RefreshCw,
   ShieldCheck,
+  Shuffle,
   SquareTerminal,
   Trash2,
 } from "lucide-react";
@@ -272,11 +273,22 @@ function CommandLinePage() {
           ) : null}
           <div className="space-y-2">
             <Label>Scenario</Label>
-            <Select value={scenario.id} onValueChange={changeScenario}>
-              <SelectTrigger aria-label="Scenario"><SelectValue /></SelectTrigger>
-              <SelectContent>{shellScenarios.map((item) => <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>)}</SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={scenario.id} onValueChange={changeScenario}>
+                <SelectTrigger aria-label="Scenario" className="min-w-0 flex-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {scenario.source && scenario.source !== "curated"
+                    ? <SelectItem value={scenario.id}>{scenario.title}</SelectItem>
+                    : null}
+                  {shellScenarios.map((item) => <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" onClick={rollRandomScenario} title="Random scenario">
+                <Shuffle aria-hidden /> <span className="hidden sm:inline">Random</span>
+              </Button>
+            </div>
           </div>
+
           <div className="space-y-2">
             <Label>Mode</Label>
             <div className="grid grid-cols-2 rounded-md border border-input p-0.5">
