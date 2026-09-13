@@ -302,20 +302,44 @@ function AssignmentWorkspace({
     toast.success("Assignment submitted for evaluation.");
   }
 
-  function evaluate() {
+  async function evaluate() {
     if (!attempt || attempt.status !== "submitted") return;
     const written = attempt.responses["main"] ?? "";
+
+    // The AI marker reads the whole answer against the rubric. When it is
+    // unreachable, the offline concept matcher still grades the attempt.
+    const graded = await marking.mark({
+      topic: topic?.title ?? assignment.title,
+      task: typeLabels[assignment.type],
+      question: `${assignment.brief}\n\n${assignment.responsePrompt}`,
+      answer: written,
+      ...(assignment.modelAnswer ? { modelAnswer: assignment.modelAnswer } : {}),
+      criteria: assignment.rubric.map((criterion) => ({
+        id: criterion.id,
+        label: criterion.label,
+        description: criterion.description,
+        ...(criterion.expectedAnswer ? { expected: criterion.expectedAnswer } : {}),
+      })),
+    });
+
+    const aiCriteria = new Map(graded?.criteria.map((item) => [item.id, item]));
     const results: AssignmentCriterionResult[] = assignment.rubric.map((criterion) => {
-      const passed = criterionPassed(written, criterion, selfChecks[criterion.id]);
+      const marked = aiCriteria.get(criterion.id);
+      const passed = marked
+        ? marked.correct
+        : criterionPassed(written, criterion, selfChecks[criterion.id]);
       return {
         criterionId: criterion.id,
         earnedPoints: passed ? criterion.points : 0,
-        feedback: passed
-          ? "Correct — your answer carries this idea."
-          : `Incorrect — this idea is missing. Expected: ${criterion.expectedAnswer ?? criterion.description}`,
+        feedback:
+          marked?.feedback ||
+          (passed
+            ? "Correct — your answer carries this idea."
+            : `Incorrect — this idea is missing. Expected: ${criterion.expectedAnswer ?? criterion.description}`),
       };
     });
-    const score = Math.round(results.reduce((sum, item) => sum + item.earnedPoints, 0));
+    const score =
+      graded?.score ?? Math.round(results.reduce((sum, item) => sum + item.earnedPoints, 0));
     const now = new Date().toISOString();
     update({
       status: "evaluated",
