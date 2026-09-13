@@ -33,10 +33,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      # TanStack Start outputs the static site under .output/public.
-      # GitHub Pages needs a 404 fallback for direct client-side routes.
+      # TanStack Start SPA mode generates the application shell as _shell.html.
+      # GitHub Pages uses 404.html for unknown paths, so use the shell as the
+      # fallback and publish the actual static output from .output/public.
       - name: Configure SPA fallback
-        run: cp .output/public/index.html .output/public/404.html
+        run: cp .output/public/_shell.html .output/public/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
