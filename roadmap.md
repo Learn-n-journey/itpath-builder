@@ -65,3 +65,8 @@
 - [x] Pro gate on AI Tutor, AI grading, Labs, Troubleshoot
 - [x] Free access list (beta/creator) with owner-only management panel in Settings
 - [x] Terms of Use, Privacy Notice, Refund Policy pages linked from the app footer
+
+## Pricing plans (Sep 2026)
+- [x] Pro plans: $8/mo (itpath_pro_monthly), $70/yr (itpath_pro_yearly), $149 lifetime (itpath_pro_lifetime_price, was $99)
+- [x] Pricing page shows Free + three paid tiers; yearly flagged Best value
+- [x] Webhook already handles recurring subs + one-time lifetime; access until period end on cancel

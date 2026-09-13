@@ -15,12 +15,13 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs and certification tracking with IT PATH Pro — one payment, forever.",
+          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs and certification tracking with IT PATH Pro — monthly, yearly or lifetime.",
       },
       { property: "og:title", content: "IT PATH Pricing" },
       {
         property: "og:description",
-        content: "Free tier plus a one-time Pro upgrade that unlocks everything forever.",
+        content:
+          "Free tier plus Pro plans from $8/month — unlock AI tutoring, AI grading, labs and the troubleshooting simulator.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -44,7 +45,44 @@ const PRO_FEATURES = [
   "All 100+ hands-on labs and fault drills",
   "Troubleshooting incident simulator",
   "Certification readiness scoring",
-  "Lifetime access — one payment, no subscription",
+];
+
+interface PaidPlan {
+  id: string;
+  name: string;
+  price: string;
+  cadence: string;
+  priceId: string;
+  note: string;
+  featured?: boolean;
+}
+
+const PAID_PLANS: PaidPlan[] = [
+  {
+    id: "monthly",
+    name: "Pro — Monthly",
+    price: "$8",
+    cadence: "per month",
+    priceId: "itpath_pro_monthly",
+    note: "Flexible. Cancel anytime, keep access until the period ends.",
+  },
+  {
+    id: "yearly",
+    name: "Pro — Yearly",
+    price: "$70",
+    cadence: "per year",
+    priceId: "itpath_pro_yearly",
+    note: "Two months free compared to paying monthly.",
+    featured: true,
+  },
+  {
+    id: "lifetime",
+    name: "Pro — Lifetime",
+    price: "$149",
+    cadence: "one-time payment",
+    priceId: "itpath_pro_lifetime_price",
+    note: "Pay once. Every current and future Pro feature, forever.",
+  },
 ];
 
 function PricingPage() {
@@ -53,7 +91,7 @@ function PricingPage() {
   const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
   const navigate = useNavigate();
 
-  const buy = async () => {
+  const buy = async (plan: PaidPlan) => {
     if (!ready) return;
     if (!userId) {
       toast.message("Sign in first", {
@@ -64,7 +102,7 @@ function PricingPage() {
     }
     try {
       await openCheckout({
-        priceId: "itpath_pro_lifetime_price",
+        priceId: plan.priceId,
         quantity: 1,
         ...(email ? { customerEmail: email } : {}),
         customData: { userId },
@@ -81,10 +119,10 @@ function PricingPage() {
     <div>
       <PageHeader
         title="Pricing"
-        description="Study free for as long as you like. Upgrade once to unlock the full toolkit — no subscription, no renewal dates."
+        description="Study free for as long as you like. Upgrade to Pro whenever you're ready — monthly, yearly, or one payment for life."
       />
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
         <Panel title="Free" description="The complete study system, at no cost.">
           <p className="font-display text-3xl font-semibold">$0</p>
           <p className="mt-1 text-sm text-muted-foreground">Forever</p>
@@ -103,54 +141,64 @@ function PricingPage() {
           </div>
         </Panel>
 
-        <Panel
-          title="Pro — Lifetime"
-          description="One payment. Every advanced feature, forever."
-          className="border-primary/40"
-        >
-          <div className="flex items-center gap-2 text-primary">
-            <Crown className="size-4" aria-hidden />
-            <span className="text-xs font-semibold uppercase tracking-wide">
-              Most popular
-            </span>
-          </div>
-          <p className="mt-3 font-display text-3xl font-semibold">$99</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            One-time payment, lifetime access
-          </p>
-          <ul className="mt-5 space-y-2.5">
-            {PRO_FEATURES.map((feature) => (
-              <li key={feature} className="flex items-start gap-2.5 text-sm">
-                <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-                <span>{feature}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-6">
-            {isPro ? (
-              <div className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
-                <ShieldCheck className="size-4 text-primary" aria-hidden />
-                You have IT PATH Pro. Thank you for supporting the app.
+        {PAID_PLANS.map((plan) => (
+          <Panel
+            key={plan.id}
+            title={plan.name}
+            description={plan.note}
+            className={plan.featured ? "border-primary/40" : undefined}
+          >
+            {plan.featured && (
+              <div className="flex items-center gap-2 text-primary">
+                <Crown className="size-4" aria-hidden />
+                <span className="text-xs font-semibold uppercase tracking-wide">
+                  Best value
+                </span>
               </div>
-            ) : (
-              <Button
-                className="w-full"
-                onClick={() => void buy()}
-                disabled={checkoutLoading || loading}
-              >
-                {checkoutLoading ? "Opening checkout…" : "Upgrade to Pro — $99"}
-              </Button>
             )}
-            <p className="mt-3 text-center text-xs text-muted-foreground">
-              Secure checkout by Paddle. 30-day money-back guarantee — see the{" "}
-              <Link to="/refund-policy" className="underline">
-                refund policy
-              </Link>
-              .
-            </p>
-          </div>
-        </Panel>
+            <p className="mt-3 font-display text-3xl font-semibold">{plan.price}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{plan.cadence}</p>
+            <ul className="mt-5 space-y-2.5">
+              {PRO_FEATURES.map((feature) => (
+                <li key={feature} className="flex items-start gap-2.5 text-sm">
+                  <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6">
+              {isPro ? (
+                <div className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
+                  <ShieldCheck className="size-4 text-primary" aria-hidden />
+                  You have IT PATH Pro. Thank you for supporting the app.
+                </div>
+              ) : (
+                <Button
+                  className="w-full"
+                  variant={plan.featured ? "default" : "outline"}
+                  onClick={() => void buy(plan)}
+                  disabled={checkoutLoading || loading}
+                >
+                  {checkoutLoading
+                    ? "Opening checkout…"
+                    : `Get ${plan.name.replace("Pro — ", "")} — ${plan.price}`}
+                </Button>
+              )}
+            </div>
+          </Panel>
+        ))}
       </div>
+
+      {!isPro && (
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          Secure checkout by Paddle. 30-day money-back guarantee on every plan — see the{" "}
+          <Link to="/refund-policy" className="underline">
+            refund policy
+          </Link>
+          . Subscriptions can be cancelled anytime; you keep access until the end of the
+          paid period.
+        </p>
+      )}
     </div>
   );
 }
