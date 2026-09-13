@@ -83,7 +83,7 @@ function AboutPage() {
         <Panel title="Data and privacy">
           <p className="text-sm text-muted-foreground">
             Your study data is stored locally in your browser. If you sign in, it is backed up to
-            your account so you can continue on another device. We do not sell or share your data.
+            your account so you can continue on another device. I do not sell or share your data.
           </p>
         </Panel>
       </div>
