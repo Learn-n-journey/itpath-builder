@@ -8,6 +8,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Shuffle,
+  Sparkles,
   SquareTerminal,
   Trash2,
 } from "lucide-react";
@@ -30,6 +31,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { prompt } from "@/lib/terminal/machine";
+import { generateTerminalScenario } from "@/lib/terminal/ai-scenario.functions";
 import {
   randomTerminalScenario,
   scenariosForShell,
@@ -106,6 +108,7 @@ function CommandLinePage() {
   const [reasoning, setReasoning] = useState("");
   const terminalEnd = useRef<HTMLDivElement>(null);
   const [generated, setGenerated] = useState<TerminalScenario | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const openedAttempt = user.terminalAttempts.find((item) => item.id === attemptId);
   const scenario =
@@ -167,6 +170,36 @@ function CommandLinePage() {
     setReasoning("");
     setCommand("");
     toast.success("New random scenario ready");
+  }
+
+  async function createAiScenario() {
+    if (creating) return;
+    setCreating(true);
+    try {
+      const reply = await generateTerminalScenario({
+        data: {
+          shell,
+          topicId: scenario.topicId,
+          topicTitle: scenario.title,
+          weakAreas: weakTopicIds.slice(0, 5).map((id) => id.replace("topic-", "").replace(/-/g, " ")),
+          difficulty: "standard",
+        },
+      });
+      if (!reply.ok) {
+        toast.error(reply.error);
+        return;
+      }
+      setGenerated(reply.scenario);
+      setScenarioId(reply.scenario.id);
+      setAttemptId("");
+      setReasoning("");
+      setCommand("");
+      toast.success("AI scenario ready");
+    } catch {
+      toast.error("Could not create a scenario right now.");
+    } finally {
+      setCreating(false);
+    }
   }
 
   function start(reset = false) {
@@ -297,6 +330,9 @@ function CommandLinePage() {
               </Select>
               <Button type="button" variant="outline" onClick={rollRandomScenario} title="Random scenario">
                 <Shuffle aria-hidden /> <span className="hidden sm:inline">Random</span>
+              </Button>
+              <Button type="button" variant="outline" onClick={createAiScenario} disabled={creating} title="Create a new scenario with AI">
+                <Sparkles aria-hidden /> <span className="hidden sm:inline">{creating ? "Creating…" : "AI"}</span>
               </Button>
             </div>
           </div>
