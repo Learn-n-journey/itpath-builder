@@ -20,6 +20,7 @@ import {
   Target,
   Timer,
   Compass,
+  Info,
   Settings as SettingsIcon,
   type LucideIcon,
 } from "lucide-react";
