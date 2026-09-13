@@ -49,6 +49,10 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const [teachBackEditing, setTeachBackEditing] = useState(!savedTeachBack);
   const [scenarioAnswer, setScenarioAnswer] = useState(savedScenario?.response ?? "");
   const [scenarioFeedback, setScenarioFeedback] = useState<string | null>(savedScenario ? scenario?.guidance ?? null : null);
+  const recallMarking = useAiMarking();
+  const [markedRecallId, setMarkedRecallId] = useState<string | null>(null);
+  const teachBackMarking = useAiMarking();
+  const scenarioMarking = useAiMarking();
   
 
   useEffect(() => { setTeachBack(savedTeachBack?.body ?? ""); setTeachBackEditing(!savedTeachBack); }, [savedTeachBack, topic.id]);
