@@ -55,3 +55,7 @@
 
 ## AI grading
 - Written answers in Practice, Recall, Teach Back and Real-World Scenario are marked by AI (google/gemini-2.5-flash) with a full tutoring response; meaning-based local matching is the offline fallback.
+
+## Lesson depth pass (Sep 2026)
+- Added a depth layer to every one of the 54 lessons: key ideas, a worked walkthrough, a reference table, misconceptions, exam traps and self-check questions (src/data/deep-lessons/depth-*.ts).
+- Rendered by src/components/learning/lesson-depth-reading.tsx under the main reading; study-time estimates now count the depth words.
