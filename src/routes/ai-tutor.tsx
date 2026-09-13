@@ -239,6 +239,7 @@ function AiTutor() {
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+        <div className="grid content-start gap-4">
         <Panel title="Set up the session">
           <div className="grid gap-4">
             <div className="grid gap-2">
