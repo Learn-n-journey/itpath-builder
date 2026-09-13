@@ -20,8 +20,8 @@ import {
   certificationStudyIndex,
   generateAssignments,
   generateExam,
-  newSeed,
 } from "@/lib/cert-path";
+import { useShuffleSeed } from "@/lib/shuffle";
 import { formatStudyTime, topicStudyMinutes } from "@/lib/study-time";
 import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getCertificationWorkedExamples } from "@/data/worked-examples";
