@@ -7,10 +7,9 @@
  */
 import { computeProgress } from "@/lib/progress-engine";
 import { buildAllReadinessReports, readinessBandLabels } from "@/lib/readiness-engine";
-import { scoreSkills, skillLabels } from "@/lib/skills-engine";
+import { scoreSkills } from "@/lib/skills-engine";
 import { portfolioToMarkdown } from "@/lib/portfolio-engine";
-import { APP_DATA_VERSION } from "@/lib/app-data/schema";
-import type { UserData } from "@/lib/app-data/types";
+import { APP_DATA_VERSION, type UserData } from "@/lib/app-data/types";
 
 export interface RecordTopicRow {
   title: string;
@@ -96,7 +95,7 @@ export function buildStudyRecord(user: UserData, now: Date = new Date()): StudyR
     skills: skills
       .filter((skill) => skill.score > 0)
       .map((skill) => ({
-        label: skillLabels[skill.id],
+        label: skill.label,
         score: Math.round(skill.score),
         evidenceCount: skill.evidence.length,
       })),
