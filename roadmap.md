@@ -98,4 +98,4 @@
 - [x] Replace attempted-only progress percentages with correct/completed opportunities divided by all available opportunities
 - [x] Distinguish performance averages from progress/readiness percentages in the interface
 - [x] Add regression checks for one-perfect-attempt and untouched-content cases
-- [ ] Verify progress pages and dashboards on desktop and mobile
+- [x] Verify progress pages and dashboards on desktop and mobile
