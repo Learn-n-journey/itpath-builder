@@ -109,6 +109,7 @@ export function useSubscription() {
     };
   }, [userId, ready]);
 
-  const isPro = subscription ? rowGrantsAccess(subscription) : false;
-  return { subscription, isPro, loading: loading || !ready };
+  const paid = subscription ? rowGrantsAccess(subscription) : false;
+  const isPro = paid || betaAccess;
+  return { subscription, isPro, paid, betaAccess, loading: loading || !ready };
 }
