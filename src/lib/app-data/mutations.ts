@@ -6,6 +6,7 @@ import type {
   CertificationProgress,
   IncidentAttempt,
   LabAttempt,
+  LearnerSignal,
   Mistake,
   Note,
   PortfolioProject,
@@ -40,7 +41,8 @@ type UserCollectionKey =
   | "studySessions"
   | "studyPlans"
   | "incidentAttempts"
-  | "ticketAttempts";
+  | "ticketAttempts"
+  | "learnerSignals";
 
 function prepend<T>(user: UserData, key: UserCollectionKey, item: T): UserData {
   return { ...user, [key]: [item, ...user[key]] };
@@ -50,7 +52,18 @@ function removeById(user: UserData, key: UserCollectionKey, id: string): UserDat
   return { ...user, [key]: user[key].filter((item) => item.id !== id) };
 }
 
+const MAX_SIGNALS = 4000;
+
 export const userMutations = {
+  /** Appends one interaction record, keeping the newest MAX_SIGNALS. */
+  addLearnerSignal: (user: UserData, item: LearnerSignal): UserData => ({
+    ...user,
+    learnerSignals: [item, ...user.learnerSignals].slice(0, MAX_SIGNALS),
+  }),
+  addLearnerSignals: (user: UserData, items: LearnerSignal[]): UserData =>
+    items.length === 0
+      ? user
+      : { ...user, learnerSignals: [...items, ...user.learnerSignals].slice(0, MAX_SIGNALS) },
   updateSettings: (user: UserData, patch: Partial<Omit<UserSettings, "id">>): UserData => ({
     ...user,
     settings: { ...user.settings, ...patch },
