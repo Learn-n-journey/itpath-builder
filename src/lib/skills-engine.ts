@@ -384,20 +384,115 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
   return items;
 }
 
+/* ------------------------------------------------------------------ */
+/* Coverage: what exists for a skill vs what has been attempted        */
+/* ------------------------------------------------------------------ */
+
+interface SkillOpportunity {
+  topicIds: Set<EntityId>;
+  labIds: Set<EntityId>;
+  incidentIds: Set<EntityId>;
+  ticketIds: Set<EntityId>;
+  assignmentIds: Set<EntityId>;
+}
+
+function emptyOpportunity(): SkillOpportunity {
+  return { topicIds: new Set(), labIds: new Set(), incidentIds: new Set(), ticketIds: new Set(), assignmentIds: new Set() };
+}
+
+/** Every piece of content that could produce evidence for each skill. */
+function buildOpportunities(): Map<SkillId, SkillOpportunity> {
+  const map = new Map<SkillId, SkillOpportunity>(skillIds.map((id) => [id, emptyOpportunity()]));
+  const add = (skillId: SkillId, kind: keyof SkillOpportunity, id: EntityId) => {
+    map.get(skillId)?.[kind].add(id);
+  };
+  for (const [topicId, skills] of Object.entries(topicSkills)) {
+    for (const skillId of skills) add(skillId, "topicIds", topicId);
+  }
+  for (const lab of staticContent.labs) {
+    for (const skillId of labCategorySkills[lab.category] ?? []) add(skillId, "labIds", lab.id);
+    add("documentation", "labIds", lab.id);
+  }
+  for (const incident of staticContent.incidents) {
+    for (const skillId of incidentCategorySkills[incident.category] ?? []) add(skillId, "incidentIds", incident.id);
+    add("troubleshooting", "incidentIds", incident.id);
+    add("documentation", "incidentIds", incident.id);
+  }
+  for (const ticket of staticContent.tickets) {
+    for (const skillId of trackSkills[ticket.track]) add(skillId, "ticketIds", ticket.id);
+    add("troubleshooting", "ticketIds", ticket.id);
+    add("communication", "ticketIds", ticket.id);
+    add("documentation", "ticketIds", ticket.id);
+    add("ticketing", "ticketIds", ticket.id);
+  }
+  for (const assignment of staticContent.assignments) {
+    const skills = new Set<SkillId>(topicSkills[assignment.topicId] ?? []);
+    if (assignment.type === "explain" || assignment.type === "teach_back") skills.add("communication");
+    if (assignment.type === "incident" || assignment.type === "design" || assignment.type === "capstone") skills.add("documentation");
+    if (assignment.type === "troubleshoot" || assignment.type === "scenario") skills.add("troubleshooting");
+    if (assignment.type === "command_challenge") { skills.add("powershell"); skills.add("bash"); }
+    for (const skillId of skills) add(skillId, "assignmentIds", assignment.id);
+  }
+  return map;
+}
+
+function coveredContent(user: UserData, opportunity: SkillOpportunity): number {
+  let covered = 0;
+  for (const topicId of opportunity.topicIds) {
+    const p = user.topicProgress[topicId];
+    const progressMade = p && [p.understanding, p.recall, p.application, p.practicalAbility, p.troubleshooting, p.retention].some((v) => v > 0);
+    const answered =
+      user.recallResponses.some((r) => r.topicId === topicId) ||
+      user.practiceResponses.some((r) => r.topicId === topicId) ||
+      user.quizAttempts.some((a) => a.status === "submitted" && a.results.some((r) => r.topicId === topicId));
+    if (progressMade || answered) covered += 1;
+  }
+  for (const labId of opportunity.labIds) {
+    if (user.labAttempts.some((a) => a.labId === labId && a.status !== "in_progress")) covered += 1;
+  }
+  for (const incidentId of opportunity.incidentIds) {
+    if (user.incidentAttempts.some((a) => a.incidentId === incidentId && a.status === "submitted")) covered += 1;
+  }
+  for (const ticketId of opportunity.ticketIds) {
+    if (user.ticketAttempts.some((a) => a.ticketId === ticketId && a.status === "submitted")) covered += 1;
+  }
+  for (const assignmentId of opportunity.assignmentIds) {
+    if (user.assignmentAttempts.some((a) => a.assignmentId === assignmentId && a.score !== undefined)) covered += 1;
+  }
+  return covered;
+}
+
 export function scoreSkills(user: UserData): SkillScore[] {
   const evidence = collectEvidence(user);
+  const opportunities = buildOpportunities();
   return skillIds.map((skillId) => {
     const rows = evidence
       .filter((item) => item.skillId === skillId)
       .sort((a, b) => (a.at < b.at ? 1 : -1));
     const totalWeight = rows.reduce((sum, row) => sum + row.weight, 0);
-    const score = totalWeight === 0
+    const accuracy = totalWeight === 0
       ? 0
       : pct(rows.reduce((sum, row) => sum + row.score * row.weight, 0) / totalWeight);
+    const opportunity = opportunities.get(skillId)!;
+    const availableCount =
+      opportunity.topicIds.size +
+      opportunity.labIds.size +
+      opportunity.incidentIds.size +
+      opportunity.ticketIds.size +
+      opportunity.assignmentIds.size;
+    const coveredCount = coveredContent(user, opportunity);
+    // A skill is only as strong as the share of available material actually
+    // attempted: one perfect practice task cannot read as mastery.
+    const coverageRatio = availableCount === 0 ? 0 : coveredCount / availableCount;
+    const score = pct(accuracy * coverageRatio);
     return {
       skillId,
       label: skillLabels[skillId],
       score,
+      coverage: pct(coverageRatio * 100),
+      accuracy,
+      availableCount,
+      coveredCount,
       evidenceCount: rows.length,
       hasEvidence: rows.length > 0,
       sources: [...new Set(rows.map((row) => row.source))],
