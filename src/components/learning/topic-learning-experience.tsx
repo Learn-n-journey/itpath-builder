@@ -110,19 +110,37 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     raiseProgress({ application: Math.max(progress.application, correct ? 35 : 10), practicalAbility: Math.max(progress.practicalAbility, correct ? 25 : 10) });
   }
 
-  function saveTeachBack() {
+  async function saveTeachBack() {
     const body = teachBack.trim();
     if (!body) { toast.error("Write your explanation before saving."); return; }
     const now = new Date().toISOString();
     actions.setTeachBackResponse({ id: savedTeachBack?.id ?? crypto.randomUUID(), topicId: topic.id, body, createdAt: savedTeachBack?.createdAt ?? now, updatedAt: now });
-    raiseProgress({ understanding: Math.max(progress.understanding, 25), retention: Math.max(progress.retention, 10) });
-    setTeachBackEditing(false); toast.success("Teach back saved.");
+    setTeachBackEditing(false); toast.success("Teach back saved. Marking your explanation…");
+    const graded = await teachBackMarking.mark({
+      topic: topic.title,
+      task: "Teach back: the learner explains the topic in their own words",
+      question: `Explain ${topic.title} in your own words, as if teaching someone new to IT.`,
+      answer: body,
+      modelAnswer: `${lesson?.definition ?? ""} ${lesson?.whyItMatters ?? ""}`.trim() || topic.summary,
+      expectedPoints: topic.learningObjectives,
+    });
+    // Understanding rises with the quality of the explanation, never just for saving it.
+    const understanding = graded ? Math.max(25, Math.round(graded.score * 0.8)) : 25;
+    raiseProgress({ understanding: Math.max(progress.understanding, understanding), retention: Math.max(progress.retention, graded?.correct ? 25 : 10) });
   }
 
-  function submitScenario() {
+  async function submitScenario() {
     if (!scenario || !scenarioAnswer.trim()) { toast.error("Explain your decision first."); return; }
     const matched = matchConcepts(scenarioAnswer, scenario.expectedConcepts);
-    const meetsCriteria = matched.length >= Math.min(2, scenario.expectedConcepts.length);
+    const graded = await scenarioMarking.mark({
+      topic: topic.title,
+      task: "Real-world scenario decision and reasoning",
+      question: `${scenario.situation}\n\n${scenario.decisionPrompt}`,
+      answer: scenarioAnswer.trim(),
+      modelAnswer: scenario.guidance,
+      expectedPoints: scenario.expectedConcepts,
+    });
+    const meetsCriteria = graded ? graded.correct : matched.length >= Math.min(2, scenario.expectedConcepts.length);
     const now = new Date().toISOString();
     actions.setScenarioResponse({ id: savedScenario?.id ?? crypto.randomUUID(), scenarioId: scenario.id, topicId: topic.id, response: scenarioAnswer.trim(), matchedConcepts: matched, meetsCriteria, createdAt: savedScenario?.createdAt ?? now, updatedAt: now });
     setScenarioFeedback(`${meetsCriteria ? "Your reasoning includes key evidence. " : "Strengthen your reasoning. "}${scenario.guidance}`);
