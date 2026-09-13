@@ -3,6 +3,7 @@ import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "l
 import { toast } from "sonner";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
+import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { Panel } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,10 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const [teachBackEditing, setTeachBackEditing] = useState(!savedTeachBack);
   const [scenarioAnswer, setScenarioAnswer] = useState(savedScenario?.response ?? "");
   const [scenarioFeedback, setScenarioFeedback] = useState<string | null>(savedScenario ? scenario?.guidance ?? null : null);
+  const recallMarking = useAiMarking();
+  const [markedRecallId, setMarkedRecallId] = useState<string | null>(null);
+  const teachBackMarking = useAiMarking();
+  const scenarioMarking = useAiMarking();
   
 
   useEffect(() => { setTeachBack(savedTeachBack?.body ?? ""); setTeachBackEditing(!savedTeachBack); }, [savedTeachBack, topic.id]);
@@ -64,12 +69,22 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     actions.setTopicProgress({ ...progress, ...patch, status: "in_progress", updatedAt: new Date().toISOString() });
   }
 
-  function submitRecall(questionId: string) {
+  async function submitRecall(questionId: string) {
     const question = recallQuestions.find((item) => item.id === questionId);
     const answer = recallAnswers[questionId]?.trim();
     if (!question || !answer) { toast.error("Write an answer before checking it."); return; }
     const matched = matchConcepts(answer, question.acceptedConcepts);
-    const correct = matched.length >= Math.min(2, question.acceptedConcepts.length);
+    setMarkedRecallId(questionId);
+    // The AI examiner marks the meaning; the concept matcher is the offline fallback.
+    const graded = await recallMarking.mark({
+      topic: topic.title,
+      task: "Recall question",
+      question: question.prompt,
+      answer,
+      modelAnswer: question.explanation,
+      expectedPoints: question.acceptedConcepts,
+    });
+    const correct = graded ? graded.correct : matched.length >= Math.min(2, question.acceptedConcepts.length);
     const now = new Date().toISOString();
     actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
     if (!correct) {
@@ -95,19 +110,37 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     raiseProgress({ application: Math.max(progress.application, correct ? 35 : 10), practicalAbility: Math.max(progress.practicalAbility, correct ? 25 : 10) });
   }
 
-  function saveTeachBack() {
+  async function saveTeachBack() {
     const body = teachBack.trim();
     if (!body) { toast.error("Write your explanation before saving."); return; }
     const now = new Date().toISOString();
     actions.setTeachBackResponse({ id: savedTeachBack?.id ?? crypto.randomUUID(), topicId: topic.id, body, createdAt: savedTeachBack?.createdAt ?? now, updatedAt: now });
-    raiseProgress({ understanding: Math.max(progress.understanding, 25), retention: Math.max(progress.retention, 10) });
-    setTeachBackEditing(false); toast.success("Teach back saved.");
+    setTeachBackEditing(false); toast.success("Teach back saved. Marking your explanation…");
+    const graded = await teachBackMarking.mark({
+      topic: topic.title,
+      task: "Teach back: the learner explains the topic in their own words",
+      question: `Explain ${topic.title} in your own words, as if teaching someone new to IT.`,
+      answer: body,
+      modelAnswer: `${lesson?.definition ?? ""} ${lesson?.whyItMatters ?? ""}`.trim() || topic.summary,
+      expectedPoints: topic.learningObjectives,
+    });
+    // Understanding rises with the quality of the explanation, never just for saving it.
+    const understanding = graded ? Math.max(25, Math.round(graded.score * 0.8)) : 25;
+    raiseProgress({ understanding: Math.max(progress.understanding, understanding), retention: Math.max(progress.retention, graded?.correct ? 25 : 10) });
   }
 
-  function submitScenario() {
+  async function submitScenario() {
     if (!scenario || !scenarioAnswer.trim()) { toast.error("Explain your decision first."); return; }
     const matched = matchConcepts(scenarioAnswer, scenario.expectedConcepts);
-    const meetsCriteria = matched.length >= Math.min(2, scenario.expectedConcepts.length);
+    const graded = await scenarioMarking.mark({
+      topic: topic.title,
+      task: "Real-world scenario decision and reasoning",
+      question: `${scenario.situation}\n\n${scenario.decisionPrompt}`,
+      answer: scenarioAnswer.trim(),
+      modelAnswer: scenario.guidance,
+      expectedPoints: scenario.expectedConcepts,
+    });
+    const meetsCriteria = graded ? graded.correct : matched.length >= Math.min(2, scenario.expectedConcepts.length);
     const now = new Date().toISOString();
     actions.setScenarioResponse({ id: savedScenario?.id ?? crypto.randomUUID(), scenarioId: scenario.id, topicId: topic.id, response: scenarioAnswer.trim(), matchedConcepts: matched, meetsCriteria, createdAt: savedScenario?.createdAt ?? now, updatedAt: now });
     setScenarioFeedback(`${meetsCriteria ? "Your reasoning includes key evidence. " : "Strengthen your reasoning. "}${scenario.guidance}`);

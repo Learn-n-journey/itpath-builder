@@ -26,6 +26,7 @@ import type {
   AssignmentCriterionResult,
   AssignmentRubricCriterion,
 } from "@/lib/app-data/types";
+import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { answerMatches, matchesConcept } from "@/lib/fuzzy-match";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { selectedCertification } from "@/lib/adaptive-path";
@@ -238,6 +239,7 @@ function AssignmentWorkspace({
   const [response, setResponse] = useState(attempt?.responses["main"] ?? "");
   const [selfChecks, setSelfChecks] = useState<Record<string, boolean>>({});
   const [showReview, setShowReview] = useState(false);
+  const marking = useAiMarking();
   const latestResponse = latestAttempt?.responses["main"] ?? "";
   const attemptResponse = attempt?.responses["main"] ?? "";
   const topic = topics.find((item) => item.id === assignment.topicId);
@@ -251,7 +253,8 @@ function AssignmentWorkspace({
     setResponse(latestResponse);
     setSelfChecks({});
     setShowReview(false);
-  }, [assignment.id, latestAttempt?.id, latestResponse]);
+    marking.reset();
+  }, [assignment.id, latestAttempt?.id, latestResponse, marking]);
   useEffect(() => {
     setResponse(attemptResponse);
   }, [attempt?.id, attemptResponse]);
@@ -301,20 +304,44 @@ function AssignmentWorkspace({
     toast.success("Assignment submitted for evaluation.");
   }
 
-  function evaluate() {
+  async function evaluate() {
     if (!attempt || attempt.status !== "submitted") return;
     const written = attempt.responses["main"] ?? "";
+
+    // The AI marker reads the whole answer against the rubric. When it is
+    // unreachable, the offline concept matcher still grades the attempt.
+    const graded = await marking.mark({
+      topic: topic?.title ?? assignment.title,
+      task: typeLabels[assignment.type],
+      question: `${assignment.brief}\n\n${assignment.responsePrompt}`,
+      answer: written,
+      ...(assignment.modelAnswer ? { modelAnswer: assignment.modelAnswer } : {}),
+      criteria: assignment.rubric.map((criterion) => ({
+        id: criterion.id,
+        label: criterion.label,
+        description: criterion.description,
+        ...(criterion.expectedAnswer ? { expected: criterion.expectedAnswer } : {}),
+      })),
+    });
+
+    const aiCriteria = new Map(graded?.criteria.map((item) => [item.id, item]));
     const results: AssignmentCriterionResult[] = assignment.rubric.map((criterion) => {
-      const passed = criterionPassed(written, criterion, selfChecks[criterion.id]);
+      const marked = aiCriteria.get(criterion.id);
+      const passed = marked
+        ? marked.correct
+        : criterionPassed(written, criterion, selfChecks[criterion.id]);
       return {
         criterionId: criterion.id,
         earnedPoints: passed ? criterion.points : 0,
-        feedback: passed
-          ? "Correct — your answer carries this idea."
-          : `Incorrect — this idea is missing. Expected: ${criterion.expectedAnswer ?? criterion.description}`,
+        feedback:
+          marked?.feedback ||
+          (passed
+            ? "Correct — your answer carries this idea."
+            : `Incorrect — this idea is missing. Expected: ${criterion.expectedAnswer ?? criterion.description}`),
       };
     });
-    const score = Math.round(results.reduce((sum, item) => sum + item.earnedPoints, 0));
+    const score =
+      graded?.score ?? Math.round(results.reduce((sum, item) => sum + item.earnedPoints, 0));
     const now = new Date().toISOString();
     update({
       status: "evaluated",
@@ -322,9 +349,10 @@ function AssignmentWorkspace({
       maxScore: 100,
       criterionResults: results,
       feedback:
-        score >= 70
+        graded?.verdict ||
+        (score >= 70
           ? `Correct — you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer.`
-          : `Incorrect — you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer. Compare your work with the answer below and retake.`,
+          : `Incorrect — you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer. Compare your work with the answer below and retake.`),
       evaluationMode: assignment.evaluationMode,
       evaluatedAt: now,
     });
@@ -419,9 +447,9 @@ function AssignmentWorkspace({
                 Submit
               </Button>
               {attempt.status === "submitted" ? (
-                <Button onClick={evaluate}>
+                <Button onClick={() => void evaluate()} disabled={marking.busy}>
                   <CheckCircle2 />
-                  Evaluate
+                  {marking.busy ? "Marking…" : "Evaluate"}
                 </Button>
               ) : null}
               {attempt.status === "evaluated" ? (
@@ -447,8 +475,9 @@ function AssignmentWorkspace({
 
           <Panel
             title="Evaluation"
-            description="Your answer is compared with the correct answer point by point. It does not have to match the wording, only the idea."
+            description="An AI examiner reads your whole answer against each point of the correct answer. Wording does not matter, only the idea."
           >
+            <AiFeedback state={marking} showScore={false} />
             <div className="space-y-3">
               {assignment.rubric.map((criterion) => {
                 const result = resultMap.get(criterion.id);
