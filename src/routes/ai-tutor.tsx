@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Loader2, RotateCcw, Send, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { Copy, History, Loader2, Plus, Send, Sparkles, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
@@ -16,6 +17,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { askTutor } from "@/lib/tutor.functions";
+import {
+  clearTutorThreads,
+  deleteTutorThread,
+  getTutorThread,
+  listTutorThreads,
+  saveTutorThread,
+  type TutorThreadSummary,
+} from "@/lib/tutor-threads.functions";
 import {
   generateTutorPrompt,
   tutorModes,
@@ -93,16 +102,56 @@ function AiTutor() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [followUp, setFollowUp] = useState("");
   const [busy, setBusy] = useState(false);
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const [threads, setThreads] = useState<TutorThreadSummary[]>([]);
+  const [historyBusy, setHistoryBusy] = useState(false);
+
+  const listThreads = useServerFn(listTutorThreads);
+  const loadThread = useServerFn(getTutorThread);
+  const saveThread = useServerFn(saveTutorThread);
+  const removeThread = useServerFn(deleteTutorThread);
+  const clearThreads = useServerFn(clearTutorThreads);
 
   const activeMode = tutorModes.find((m) => m.id === mode)!;
   const started = messages.length > 0;
+
+  const refreshHistory = useCallback(async () => {
+    const reply = await listThreads({});
+    if (reply.ok) setThreads(reply.threads);
+  }, [listThreads]);
+
+  useEffect(() => {
+    void refreshHistory();
+  }, [refreshHistory]);
+
+  async function persist(next: ChatMessage[]) {
+    const topicTitle =
+      topicId === NO_TOPIC
+        ? "Weakest areas"
+        : (tutorTopicOptions.find((t) => t.id === topicId)?.title ?? "General");
+    const reply = await saveThread({
+      data: {
+        ...(threadId ? { id: threadId } : {}),
+        title: `${activeMode.label} — ${topicTitle}`,
+        mode,
+        ...(topicId === NO_TOPIC ? {} : { topicId }),
+        messages: next,
+      },
+    });
+    if (reply.ok) {
+      if (!threadId) setThreadId(reply.id);
+      void refreshHistory();
+    }
+  }
 
   async function send(next: ChatMessage[]) {
     setBusy(true);
     const reply = await askTutor({ data: { messages: next } });
     setBusy(false);
     if (reply.ok) {
-      setMessages([...next, { role: "assistant", content: reply.answer }]);
+      const updated = [...next, { role: "assistant" as const, content: reply.answer }];
+      setMessages(updated);
+      void persist(updated);
     } else {
       setMessages(next);
       toast.error(reply.error);
@@ -128,9 +177,50 @@ function AiTutor() {
     await send([...messages, { role: "user", content: text }]);
   }
 
-  function reset() {
+  function newChat() {
     setMessages([]);
     setFollowUp("");
+    setAnswer("");
+    setThreadId(null);
+  }
+
+  async function openThread(id: string) {
+    setHistoryBusy(true);
+    const reply = await loadThread({ data: { id } });
+    setHistoryBusy(false);
+    if (!reply.ok) {
+      toast.error(reply.error);
+      void refreshHistory();
+      return;
+    }
+    setThreadId(reply.thread.id);
+    setMessages(reply.thread.messages);
+    setFollowUp("");
+    if (reply.thread.mode && tutorModes.some((m) => m.id === reply.thread.mode)) {
+      setMode(reply.thread.mode as TutorMode);
+    }
+    setTopicId(reply.thread.topicId ?? NO_TOPIC);
+  }
+
+  async function dropThread(id: string) {
+    const reply = await removeThread({ data: { id } });
+    if (!reply.ok) {
+      toast.error(reply.error);
+      return;
+    }
+    if (threadId === id) newChat();
+    void refreshHistory();
+  }
+
+  async function clearHistory() {
+    const reply = await clearThreads({});
+    if (!reply.ok) {
+      toast.error(reply.error);
+      return;
+    }
+    setThreads([]);
+    if (threadId) newChat();
+    toast.success("Tutor history cleared.");
   }
 
   async function copyPrompt() {
@@ -149,6 +239,7 @@ function AiTutor() {
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+        <div className="grid content-start gap-4">
         <Panel title="Set up the session">
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -213,9 +304,9 @@ function AiTutor() {
                   Ask the tutor
                 </Button>
               ) : (
-                <Button variant="secondary" onClick={reset} disabled={busy}>
-                  <RotateCcw className="size-4" aria-hidden />
-                  Start over
+                <Button variant="secondary" onClick={newChat} disabled={busy}>
+                  <Plus className="size-4" aria-hidden />
+                  New chat
                 </Button>
               )}
             </div>
@@ -226,6 +317,65 @@ function AiTutor() {
             </p>
           </div>
         </Panel>
+
+        <Panel
+          title="Past conversations"
+          description="Chats save to your account automatically and are kept for 30 days."
+        >
+          {threads.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nothing saved yet. Your tutor chats will appear here as you have them.
+            </p>
+          ) : (
+            <>
+              <ul className="divide-y divide-border rounded-md border border-border">
+                {threads.map((thread) => (
+                  <li
+                    key={thread.id}
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 p-2.5"
+                  >
+                    <button
+                      type="button"
+                      className="min-w-0 text-left"
+                      disabled={historyBusy}
+                      onClick={() => void openThread(thread.id)}
+                    >
+                      <p className="truncate text-sm font-medium">{thread.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(thread.updatedAt).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                        })}{" "}
+                        · {thread.messageCount - 1}{" "}
+                        {thread.messageCount - 1 === 1 ? "message" : "messages"}
+                      </p>
+                    </button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      aria-label={`Delete ${thread.title}`}
+                      onClick={() => void dropThread(thread.id)}
+                    >
+                      <Trash2 className="size-4" aria-hidden />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3 w-full"
+                onClick={() => void clearHistory()}
+              >
+                <History className="size-4" aria-hidden />
+                Clear history
+              </Button>
+            </>
+          )}
+        </Panel>
+        </div>
 
         <Panel
           title="Session"

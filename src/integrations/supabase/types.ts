@@ -80,6 +80,39 @@ export type Database = {
         }
         Relationships: []
       }
+      tutor_threads: {
+        Row: {
+          created_at: string
+          id: string
+          messages: Json
+          mode: string | null
+          title: string
+          topic_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          messages?: Json
+          mode?: string | null
+          title?: string
+          topic_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          messages?: Json
+          mode?: string | null
+          title?: string
+          topic_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_state: {
         Row: {
           created_at: string
