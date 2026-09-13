@@ -48,6 +48,7 @@ import {
   type StudySession,
   type StudyPlan,
   type TeachBackResponse,
+  type TerminalAttempt,
   type TicketAttempt,
   type TopicProgress,
   type UserData,
@@ -95,6 +96,9 @@ interface AppActions {
   clearExamDeclaration: (certificationId: string) => void;
   saveCertificationObjective: (objective: CertificationObjectiveOverride) => void;
   resetCertificationObjectives: (certificationId: string) => void;
+  addTerminalAttempt: (attempt: TerminalAttempt) => void;
+  updateTerminalAttempt: (attempt: TerminalAttempt) => void;
+  removeTerminalAttempt: (id: string) => void;
 }
 
 export type CloudStatus = "signed_out" | "syncing" | "synced" | "error";
@@ -334,6 +338,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) =>
           userMutations.clearCertificationObjectiveEdits(current, certificationId),
         ),
+      addTerminalAttempt: (attempt) =>
+        setUser((current) => userMutations.addTerminalAttempt(current, attempt)),
+      updateTerminalAttempt: (attempt) =>
+        setUser((current) => userMutations.updateTerminalAttempt(current, attempt)),
+      removeTerminalAttempt: (id) =>
+        setUser((current) => userMutations.removeTerminalAttempt(current, id)),
     }),
     [],
   );

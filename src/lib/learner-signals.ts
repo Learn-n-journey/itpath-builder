@@ -179,7 +179,8 @@ export function evidenceStream(user: UserData): LearnerSignal[] {
       signal.kind === "troubleshoot" ||
       signal.kind === "career" ||
       signal.kind === "assignment" ||
-      signal.kind === "knowledge",
+      signal.kind === "knowledge" ||
+      signal.kind === "terminal",
   );
   return [...derivedSignals(user), ...appended].sort(
     (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime(),

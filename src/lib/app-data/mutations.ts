@@ -20,6 +20,7 @@ import type {
   StudyPlan,
   TicketAttempt,
   TeachBackResponse,
+  TerminalAttempt,
   TopicProgress,
   UserData,
   UserSettings,
@@ -40,6 +41,7 @@ type UserCollectionKey =
   | "portfolio"
   | "studySessions"
   | "studyPlans"
+  | "terminalAttempts"
   | "incidentAttempts"
   | "ticketAttempts"
   | "learnerSignals";
@@ -177,6 +179,16 @@ export const userMutations = {
     studyPlans: user.studyPlans.map((plan) => (plan.id === item.id ? item : plan)),
   }),
   removeStudyPlan: (user: UserData, id: string) => removeById(user, "studyPlans", id),
+  addTerminalAttempt: (user: UserData, item: TerminalAttempt) =>
+    prepend(user, "terminalAttempts", item),
+  updateTerminalAttempt: (user: UserData, item: TerminalAttempt): UserData => ({
+    ...user,
+    terminalAttempts: user.terminalAttempts.map((attempt) =>
+      attempt.id === item.id ? item : attempt,
+    ),
+  }),
+  removeTerminalAttempt: (user: UserData, id: string) =>
+    removeById(user, "terminalAttempts", id),
 
   setCertificationProgress: (user: UserData, progress: CertificationProgress): UserData => ({
     ...user,
