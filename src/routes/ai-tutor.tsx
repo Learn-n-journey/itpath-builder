@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Copy, Loader2, RotateCcw, Send, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { Copy, History, Loader2, Plus, RotateCcw, Send, Sparkles, Trash2 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
@@ -16,6 +17,14 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { askTutor } from "@/lib/tutor.functions";
+import {
+  clearTutorThreads,
+  deleteTutorThread,
+  getTutorThread,
+  listTutorThreads,
+  saveTutorThread,
+  type TutorThreadSummary,
+} from "@/lib/tutor-threads.functions";
 import {
   generateTutorPrompt,
   tutorModes,
