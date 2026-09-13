@@ -89,8 +89,11 @@ export function useSubscription() {
     };
     void load();
 
+    // Several Pro-aware controls can mount on the same page. Realtime channel
+    // names must be unique or a later hook can reuse an already-subscribed
+    // channel and throw while registering its callback.
     const channel = supabase
-      .channel(`subscriptions-${userId}`)
+      .channel(`subscriptions-${userId}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         {
