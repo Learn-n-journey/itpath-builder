@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { generatedQuestions } from "@/data/question-bank";
 import { questions as staticQuestions, topics } from "@/data/static-content";
 import { missedQuestions } from "@/lib/missed-questions";
-import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
+import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import type { Question, Quiz } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 
@@ -37,7 +37,7 @@ const TARGET = 12;
 
 function WeakAreas() {
   const { user, actions } = useAppState();
-  const [seed, setSeed] = useState(() => newSeed());
+  const [seed, reshuffle] = useShuffleSeed();
 
   const missed = useMemo(() => missedQuestions(user), [user]);
 
@@ -120,7 +120,7 @@ function WeakAreas() {
         title="Weak Areas"
         description="A quiz assembled from your own mistakes. Nothing appears here until you have missed something."
         actions={
-          <Button variant="outline" onClick={() => setSeed(newSeed())} disabled={pool.length === 0}>
+          <Button variant="outline" onClick={reshuffle} disabled={pool.length === 0}>
             <RefreshCw /> Rebuild set
           </Button>
         }

@@ -8,7 +8,7 @@ import { QuizRunner, quizQuestions } from "@/components/quiz/quiz-runner";
 import { Button } from "@/components/ui/button";
 import { quizzes, topics } from "@/data/static-content";
 import { certQuizQuestions, certQuizzes } from "@/data/cert-quizzes";
-import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
+import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import { selectedCertification } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
 
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/quiz-me")({
 
 function QuizMe() {
   const { user } = useAppState();
-  const [seed, setSeed] = useState(() => newSeed());
+  const [seed, reshuffle] = useShuffleSeed();
   const focus = selectedCertification(user.settings);
   const focusTopicIds = useMemo(() => new Set(topics.filter((topic) => topic.certificationId === focus.id).map((topic) => topic.id)), [focus.id]);
   const available = useMemo(() => {
@@ -56,7 +56,7 @@ function QuizMe() {
         title="Quiz Me"
         description={`A ${focus.title} quiz is picked at random when available. Question and choice order change with every attempt.`}
         actions={
-          <Button variant="outline" onClick={() => setSeed(newSeed())}>
+          <Button variant="outline" onClick={reshuffle}>
             <RefreshCw /> New quiz
           </Button>
         }
