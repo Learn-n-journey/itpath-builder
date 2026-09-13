@@ -50,6 +50,7 @@ export function activityCount(user: UserData): number {
     user.labAttempts.length +
     user.ticketAttempts.length +
     user.incidentAttempts.length +
+    user.terminalAttempts.length +
     user.recallResponses.length +
     user.practiceResponses.length +
     user.studySessions.length +

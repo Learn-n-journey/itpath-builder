@@ -1,5 +1,7 @@
+import type { MachineState, ShellKind } from "@/lib/terminal/machine";
+
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 13;
+export const APP_DATA_VERSION = 14;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -385,7 +387,8 @@ export type MistakeActivity =
   | "lab"
   | "scenario"
   | "troubleshoot"
-  | "career";
+  | "career"
+  | "terminal";
 
 export type MistakeSeverity = "low" | "medium" | "high";
 
@@ -495,6 +498,39 @@ export interface StudySession {
   minutes: number;
   /** Set when the session was produced by the daily study engine. */
   studyPlanId?: EntityId;
+}
+
+export type TerminalMode = "guided" | "challenge";
+export type TerminalAttemptStatus = "in_progress" | "submitted";
+
+export interface TerminalTranscriptEntry {
+  id: EntityId;
+  command: string;
+  prompt: string;
+  output: string;
+  error: boolean;
+  createdAt: string;
+}
+
+export interface TerminalAttempt {
+  id: EntityId;
+  scenarioId: EntityId;
+  topicId: EntityId;
+  shell: ShellKind;
+  mode: TerminalMode;
+  status: TerminalAttemptStatus;
+  machine: MachineState;
+  transcript: TerminalTranscriptEntry[];
+  hintsUsed: number;
+  reasoning: string;
+  score?: number;
+  objectiveScore?: number;
+  processScore?: number;
+  efficiencyScore?: number;
+  misconceptions?: string[];
+  createdAt: string;
+  updatedAt: string;
+  submittedAt?: string;
 }
 
 /** Daily study engine. Every task points at an activity that really exists. */
@@ -692,7 +728,8 @@ export type LearnerSignalKind =
   | "assignment"
   | "ai_tutor"
   | "ai_grading"
-  | "knowledge";
+  | "knowledge"
+  | "terminal";
 
 /**
  * One immutable interaction record used by the learner intelligence engine.
@@ -736,6 +773,7 @@ export interface UserData {
   certificationObjectives: Record<EntityId, CertificationObjectiveOverride>;
   studySessions: StudySession[];
   studyPlans: StudyPlan[];
+  terminalAttempts: TerminalAttempt[];
 
   incidentAttempts: IncidentAttempt[];
   ticketAttempts: TicketAttempt[];

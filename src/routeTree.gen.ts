@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
 import { Route as CareerSkillsRouteImport } from './routes/career-skills'
+import { Route as CommandLineRouteImport } from './routes/command-line'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as InsightsRouteImport } from './routes/insights'
@@ -81,6 +82,11 @@ const CareerModeRoute = CareerModeRouteImport.update({
 const CareerSkillsRoute = CareerSkillsRouteImport.update({
   id: '/career-skills',
   path: '/career-skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommandLineRoute = CommandLineRouteImport.update({
+  id: '/command-line',
+  path: '/command-line',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExamRoute = ExamRouteImport.update({
@@ -248,6 +254,7 @@ export interface FileRoutesByFullPath {
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
+  '/command-line': typeof CommandLineRoute
   '/exam': typeof ExamRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
@@ -288,6 +295,7 @@ export interface FileRoutesByTo {
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
+  '/command-line': typeof CommandLineRoute
   '/exam': typeof ExamRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
@@ -329,6 +337,7 @@ export interface FileRoutesById {
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
+  '/command-line': typeof CommandLineRoute
   '/exam': typeof ExamRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
@@ -371,6 +380,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
+    | '/command-line'
     | '/exam'
     | '/guide'
     | '/insights'
@@ -411,6 +421,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
+    | '/command-line'
     | '/exam'
     | '/guide'
     | '/insights'
@@ -451,6 +462,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
+    | '/command-line'
     | '/exam'
     | '/guide'
     | '/insights'
@@ -492,6 +504,7 @@ export interface RootRouteChildren {
   BookmarksRoute: typeof BookmarksRoute
   CareerModeRoute: typeof CareerModeRoute
   CareerSkillsRoute: typeof CareerSkillsRoute
+  CommandLineRoute: typeof CommandLineRoute
   ExamRoute: typeof ExamRoute
   GuideRoute: typeof GuideRoute
   InsightsRoute: typeof InsightsRoute
@@ -574,6 +587,13 @@ declare module '@tanstack/react-router' {
       path: '/career-skills'
       fullPath: '/career-skills'
       preLoaderRoute: typeof CareerSkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/command-line': {
+      id: '/command-line'
+      path: '/command-line'
+      fullPath: '/command-line'
+      preLoaderRoute: typeof CommandLineRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/exam': {
@@ -804,6 +824,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookmarksRoute: BookmarksRoute,
   CareerModeRoute: CareerModeRoute,
   CareerSkillsRoute: CareerSkillsRoute,
+  CommandLineRoute: CommandLineRoute,
   ExamRoute: ExamRoute,
   GuideRoute: GuideRoute,
   InsightsRoute: InsightsRoute,

@@ -51,7 +51,7 @@
 - [x] user_state table (per-user RLS) storing the whole progress snapshot
 - [x] AuthProvider + cloud sync in AppStateProvider: pull on sign-in (larger record wins), debounced push on change
 - [x] Sidebar account panel with backup status and sign out
-- [ ] Next: deeper written lessons, AI-checked free responses, progress/portfolio export
+- [x] Deeper written lessons, AI-checked free responses, and progress/portfolio export
 
 ## AI grading
 - Written answers in Practice, Recall, Teach Back and Real-World Scenario are marked by AI (google/gemini-2.5-flash) with a full tutoring response; meaning-based local matching is the offline fallback.
@@ -80,10 +80,10 @@
 - Adaptive ordering engine src/lib/adaptive-engine.ts surfaced on My Path.
 
 ## Command-line simulator completion (Sep 2026)
-- [ ] Rewrite About page in first person
-- [ ] Add realistic guided and challenge scenarios for CMD, PowerShell, and Linux
-- [ ] Add persistent resumable virtual machines and terminal transcripts
-- [ ] Score command choice, diagnostic process, and final machine state
-- [ ] Feed results and misconceptions into the learner model
-- [ ] Add adaptive task selection, hints, explanations, and navigation
-- [ ] Verify commands, persistence, scoring, desktop, and mobile behavior
+- [x] Rewrite About page in first person
+- [x] Add realistic guided and challenge scenarios for CMD, PowerShell, and Linux
+- [x] Add persistent resumable virtual machines and terminal transcripts
+- [x] Score command choice, diagnostic process, and final machine state
+- [x] Feed results and misconceptions into the learner model
+- [x] Add adaptive task selection, hints, explanations, and navigation
+- [x] Verify commands, persistence, scoring, desktop, and mobile behavior

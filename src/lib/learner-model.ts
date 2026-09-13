@@ -37,6 +37,7 @@ const KIND_WEIGHT: Record<LearnerSignalKind, number> = {
   ai_grading: 1,
   ai_tutor: 0.2,
   knowledge: 0.1,
+  terminal: 1,
 };
 
 export type ConceptAction = "learn" | "practice" | "review" | "test" | "maintain";

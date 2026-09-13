@@ -199,6 +199,15 @@ export function sanitizeUser(raw: unknown): UserData {
           }))
         : [],
     })),
+    terminalAttempts: arr(r.terminalAttempts, base.terminalAttempts).filter(
+      (attempt) =>
+        attempt &&
+        typeof attempt.id === "string" &&
+        typeof attempt.scenarioId === "string" &&
+        attempt.machine &&
+        typeof attempt.machine === "object" &&
+        Array.isArray(attempt.transcript),
+    ),
 
     incidentAttempts: arr(r.incidentAttempts, base.incidentAttempts).map((attempt) => ({
       ...attempt,
