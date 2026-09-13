@@ -98,6 +98,20 @@ export function topicStudyTime(topicId: string): StudyTimeEstimate {
       readingWords += wordsIn(section.paragraphs);
       readingWords += wordsIn(section.bullets ?? []);
     }
+    if (deep.depth) {
+      const depth = deep.depth;
+      readingWords += wordsIn(depth.keyIdeas);
+      readingWords += countWords(depth.walkthrough.scenario) + countWords(depth.walkthrough.outcome);
+      readingWords += wordsIn(
+        depth.walkthrough.steps.map((step) => `${step.label} ${step.detail}`),
+      );
+      readingWords += wordsIn(depth.reference.rows.map((row) => `${row.term} ${row.detail}`));
+      readingWords += wordsIn(
+        depth.misconceptions.map((item) => `${item.claim} ${item.correction}`),
+      );
+      readingWords += wordsIn(depth.examTraps);
+      readingWords += wordsIn(depth.checkYourself.map((item) => `${item.question} ${item.answer}`));
+    }
   }
   if (lesson) {
     readingWords +=
