@@ -8,6 +8,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Shuffle,
+  Sparkles,
   SquareTerminal,
   Trash2,
 } from "lucide-react";
@@ -30,6 +31,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { prompt } from "@/lib/terminal/machine";
+import { generateTerminalScenario } from "@/lib/terminal/ai-scenario.functions";
 import {
   randomTerminalScenario,
   scenariosForShell,
@@ -72,8 +74,14 @@ function CommandLineRoute() {
   );
 }
 
-const shellLabels = { cmd: "Windows CMD", powershell: "Windows PowerShell", bash: "Mac/Linux" } as const;
-type TerminalEnvironment = "unix" | "windows";
+const shellLabels = {
+  cmd: "Windows CMD",
+  powershell: "Windows PowerShell",
+  bash: "Mac/Linux",
+  android: "Android",
+  ios: "iPhone / iPad",
+} as const;
+type TerminalEnvironment = "unix" | "windows" | "android" | "ios";
 
 function CommandLinePage() {
   const { user, actions } = useAppState();
@@ -89,7 +97,8 @@ function CommandLinePage() {
   const [windowsShell, setWindowsShell] = useState<Extract<TerminalAttempt["shell"], "cmd" | "powershell">>(
     recommended.shell === "powershell" ? "powershell" : "cmd",
   );
-  const environment: TerminalEnvironment = shell === "bash" ? "unix" : "windows";
+  const environment: TerminalEnvironment =
+    shell === "bash" ? "unix" : shell === "android" ? "android" : shell === "ios" ? "ios" : "windows";
   const shellScenarios = useMemo(() => scenariosForShell(shell), [shell]);
   const [scenarioId, setScenarioId] = useState(recommended.id);
   const [mode, setMode] = useState<TerminalMode>("guided");
@@ -99,6 +108,7 @@ function CommandLinePage() {
   const [reasoning, setReasoning] = useState("");
   const terminalEnd = useRef<HTMLDivElement>(null);
   const [generated, setGenerated] = useState<TerminalScenario | null>(null);
+  const [creating, setCreating] = useState(false);
 
   const openedAttempt = user.terminalAttempts.find((item) => item.id === attemptId);
   const scenario =
@@ -128,7 +138,10 @@ function CommandLinePage() {
   }
 
   function changeEnvironment(value: TerminalEnvironment) {
-    changeShell(value === "unix" ? "bash" : windowsShell);
+    if (value === "unix") return changeShell("bash");
+    if (value === "android") return changeShell("android");
+    if (value === "ios") return changeShell("ios");
+    return changeShell(windowsShell);
   }
 
   function changeWindowsShell(value: "cmd" | "powershell") {
@@ -157,6 +170,36 @@ function CommandLinePage() {
     setReasoning("");
     setCommand("");
     toast.success("New random scenario ready");
+  }
+
+  async function createAiScenario() {
+    if (creating) return;
+    setCreating(true);
+    try {
+      const reply = await generateTerminalScenario({
+        data: {
+          shell,
+          topicId: scenario.topicId,
+          topicTitle: scenario.title,
+          weakAreas: weakTopicIds.slice(0, 5).map((id) => id.replace("topic-", "").replace(/-/g, " ")),
+          difficulty: "standard",
+        },
+      });
+      if (!reply.ok) {
+        toast.error(reply.error);
+        return;
+      }
+      setGenerated(reply.scenario);
+      setScenarioId(reply.scenario.id);
+      setAttemptId("");
+      setReasoning("");
+      setCommand("");
+      toast.success("AI scenario ready");
+    } catch {
+      toast.error("Could not create a scenario right now.");
+    } finally {
+      setCreating(false);
+    }
   }
 
   function start(reset = false) {
@@ -240,7 +283,7 @@ function CommandLinePage() {
     <>
       <PageHeader
         title="Command-line simulator"
-        description="Switch between safe virtual Mac/Linux and Windows computers. Your commands never affect your real device."
+        description="Switch between safe virtual Mac/Linux, Windows, Android and iPhone devices. Your commands never affect your real device."
         actions={<Badge variant="outline"><ShieldCheck className="mr-1 size-3" aria-hidden /> Isolated</Badge>}
       />
 
@@ -254,9 +297,11 @@ function CommandLinePage() {
         <div className={`grid gap-4 ${environment === "windows" ? "md:grid-cols-[220px_180px_minmax(0,1fr)_180px]" : "md:grid-cols-[220px_minmax(0,1fr)_180px]"}`}>
           <div className="space-y-2">
             <Label>Environment</Label>
-            <div className="grid grid-cols-2 rounded-md border border-input p-0.5" role="group" aria-label="Environment">
+            <div className="grid grid-cols-2 gap-0.5 rounded-md border border-input p-0.5" role="group" aria-label="Environment">
               <Button type="button" size="sm" variant={environment === "unix" ? "secondary" : "ghost"} onClick={() => changeEnvironment("unix")} className="px-2">Mac/Linux</Button>
               <Button type="button" size="sm" variant={environment === "windows" ? "secondary" : "ghost"} onClick={() => changeEnvironment("windows")} className="px-2">Windows</Button>
+              <Button type="button" size="sm" variant={environment === "android" ? "secondary" : "ghost"} onClick={() => changeEnvironment("android")} className="px-2">Android</Button>
+              <Button type="button" size="sm" variant={environment === "ios" ? "secondary" : "ghost"} onClick={() => changeEnvironment("ios")} className="px-2">iPhone</Button>
             </div>
           </div>
           {environment === "windows" ? (
@@ -285,6 +330,9 @@ function CommandLinePage() {
               </Select>
               <Button type="button" variant="outline" onClick={rollRandomScenario} title="Random scenario">
                 <Shuffle aria-hidden /> <span className="hidden sm:inline">Random</span>
+              </Button>
+              <Button type="button" variant="outline" onClick={createAiScenario} disabled={creating} title="Create a new scenario with AI">
+                <Sparkles aria-hidden /> <span className="hidden sm:inline">{creating ? "Creating…" : "AI"}</span>
               </Button>
             </div>
           </div>
