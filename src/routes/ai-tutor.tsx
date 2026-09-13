@@ -304,9 +304,9 @@ function AiTutor() {
                   Ask the tutor
                 </Button>
               ) : (
-                <Button variant="secondary" onClick={reset} disabled={busy}>
-                  <RotateCcw className="size-4" aria-hidden />
-                  Start over
+                <Button variant="secondary" onClick={newChat} disabled={busy}>
+                  <Plus className="size-4" aria-hidden />
+                  New chat
                 </Button>
               )}
             </div>
