@@ -12,6 +12,7 @@ import {
 } from "@/lib/cert-path";
 import { useAppState, useStats } from "@/state/app-state";
 import { adaptivePath } from "@/lib/adaptive-path";
+import { adaptiveQueue } from "@/lib/adaptive-engine";
 
 export const Route = createFileRoute("/my-path")({
   head: () => ({
@@ -55,6 +56,38 @@ function MyPath() {
           </div>
         </Panel>
       ) : null}
+
+      <Panel
+        className="mb-4"
+        title="Your adapted order"
+        description={`Recalculated from your scores, open mistakes and due reviews for ${queue.certificationTitle}.`}
+      >
+        <ul className="space-y-2">
+          {queue.entries.slice(0, 6).map((entry) => (
+            <li
+              key={entry.topic.id}
+              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border bg-background/40 p-3"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{entry.topic.title}</p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {entry.reason} {entry.mastery}% recorded.
+                </p>
+              </div>
+              <Button asChild size="sm" variant="secondary">
+                <Link to="/topics/$topicId" params={{ topicId: entry.topic.id }}>
+                  Open
+                </Link>
+              </Button>
+            </li>
+          ))}
+        </ul>
+        {!queue.hasData ? (
+          <p className="mt-3 text-xs text-muted-foreground">
+            This order is curriculum order until you record some work; then it adapts to you.
+          </p>
+        ) : null}
+      </Panel>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Certifications" value={certCount} />
