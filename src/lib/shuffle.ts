@@ -21,6 +21,21 @@ export function newSeed(): number {
   return Math.floor(Math.random() * 0xffffffff) || 1;
 }
 
+/**
+ * Seed state that is stable during server rendering and hydration, then
+ * randomised on the client after mount. Using `newSeed()` directly inside
+ * `useState` produces a different order on the server than in the browser,
+ * which React reports as a hydration mismatch.
+ */
+export function useShuffleSeed(): [number, () => void] {
+  const [seed, setSeed] = useState(1);
+  useEffect(() => {
+    setSeed(newSeed());
+  }, []);
+  const reshuffle = useCallback(() => setSeed(newSeed()), []);
+  return [seed, reshuffle];
+}
+
 export function shuffleWithSeed<T>(items: readonly T[], seed: number): T[] {
   const next = seededRandom(seed);
   const copy = [...items];
