@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { reviewTutorAnswer, shouldSelfCheckTutorAnswer } from "@/lib/ai-self-check.server";
+
 const inputSchema = z.object({
   messages: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().min(1).max(20000) }))
@@ -49,6 +51,13 @@ export const askTutor = createServerFn({ method: "POST" })
       };
       const answer = json.choices?.[0]?.message?.content?.trim();
       if (!answer) return { ok: false, error: "The tutor returned an empty reply. Try again." };
+
+      // Silent self-check: only for substantial or command-bearing answers.
+      if (shouldSelfCheckTutorAnswer(answer)) {
+        const question = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
+        const checked = await reviewTutorAnswer({ question, answer, knowledge: data.knowledge });
+        return { ok: true, answer: checked };
+      }
       return { ok: true, answer };
     } catch {
       return { ok: false, error: "Could not reach the AI service. Check your connection and try again." };
