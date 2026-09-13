@@ -8,6 +8,11 @@ import { advancedSecurityDeepLessons } from "./deep-lessons/phase-advanced-secur
 import { fundamentalsAPlusDeepLessons } from "./deep-lessons/phase-fundamentals-aplus";
 import { linuxServersCloudDeepLessons } from "./deep-lessons/phase-linux-servers-cloud";
 import { networkSecurityDeepLessons } from "./deep-lessons/phase-network-security";
+import { advancedSecurityLessonDepth } from "./deep-lessons/depth-advanced-security";
+import { foundationLessonDepth } from "./deep-lessons/depth-foundation";
+import { fundamentalsAPlusLessonDepth } from "./deep-lessons/depth-fundamentals-aplus";
+import { linuxServersCloudLessonDepth } from "./deep-lessons/depth-linux-servers-cloud";
+import { networkSecurityLessonDepth } from "./deep-lessons/depth-network-security";
 import type { DeepLesson, DeepLessonSection, LessonDepth } from "./deep-lessons/types";
 
 export type { DeepLesson, DeepLessonSection, LessonDepth };
@@ -688,13 +693,24 @@ const foundationDeepLessons: DeepLesson[] = [
   },
 ];
 
+const lessonDepthByTopic: Record<string, LessonDepth> = {
+  ...foundationLessonDepth,
+  ...fundamentalsAPlusLessonDepth,
+  ...networkSecurityLessonDepth,
+  ...linuxServersCloudLessonDepth,
+  ...advancedSecurityLessonDepth,
+};
+
 export const deepLessons: DeepLesson[] = [
   ...foundationDeepLessons,
   ...fundamentalsAPlusDeepLessons,
   ...networkSecurityDeepLessons,
   ...linuxServersCloudDeepLessons,
   ...advancedSecurityDeepLessons,
-];
+].map((lesson) => {
+  const depth = lessonDepthByTopic[lesson.topicId];
+  return depth ? { ...lesson, depth } : lesson;
+});
 
 export function getDeepLesson(topicId: string): DeepLesson | undefined {
   return deepLessons.find((lesson) => lesson.topicId === topicId);
