@@ -34,6 +34,7 @@ import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StudyPlanRouteImport } from './routes/study-plan'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
 import { Route as WeakAreasRouteImport } from './routes/weak-areas'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
@@ -167,6 +168,11 @@ const StudyPlanRoute = StudyPlanRouteImport.update({
   path: '/study-plan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TroubleshootRoute = TroubleshootRouteImport.update({
   id: '/troubleshoot',
   path: '/troubleshoot',
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
   '/study-plan': typeof StudyPlanRoute
+  '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
@@ -264,6 +271,7 @@ export interface FileRoutesByTo {
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
   '/study-plan': typeof StudyPlanRoute
+  '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
@@ -299,6 +307,7 @@ export interface FileRoutesById {
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
   '/study-plan': typeof StudyPlanRoute
+  '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
@@ -335,6 +344,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/settings'
     | '/study-plan'
+    | '/terms'
     | '/troubleshoot'
     | '/weak-areas'
     | '/certifications/$certId'
@@ -369,6 +379,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/settings'
     | '/study-plan'
+    | '/terms'
     | '/troubleshoot'
     | '/weak-areas'
     | '/certifications/$certId'
@@ -403,6 +414,7 @@ export interface FileRouteTypes {
     | '/review'
     | '/settings'
     | '/study-plan'
+    | '/terms'
     | '/troubleshoot'
     | '/weak-areas'
     | '/certifications/$certId'
@@ -438,6 +450,7 @@ export interface RootRouteChildren {
   ReviewRoute: typeof ReviewRoute
   SettingsRoute: typeof SettingsRoute
   StudyPlanRoute: typeof StudyPlanRoute
+  TermsRoute: typeof TermsRoute
   TroubleshootRoute: typeof TroubleshootRoute
   WeakAreasRoute: typeof WeakAreasRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
@@ -624,6 +637,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudyPlanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/troubleshoot': {
       id: '/troubleshoot'
       path: '/troubleshoot'
@@ -702,6 +722,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewRoute: ReviewRoute,
   SettingsRoute: SettingsRoute,
   StudyPlanRoute: StudyPlanRoute,
+  TermsRoute: TermsRoute,
   TroubleshootRoute: TroubleshootRoute,
   WeakAreasRoute: WeakAreasRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
