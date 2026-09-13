@@ -89,14 +89,9 @@ export interface CertificationReadiness {
   examRecordCount: number;
 }
 
-function topicScores(user: UserData, topicIds: EntityId[]) {
-  return topicIds.map((topicId) => user.topicProgress[topicId]);
-}
-
 export function scoreCertification(user: UserData, certification: Certification): CertificationReadiness {
   const objectives = getObjectives(user, certification.id);
   const topicIds = [...new Set(objectives.flatMap((objective) => objective.topicIds ?? []))];
-  const progressRows = topicScores(user, topicIds);
   const scopeRows = topicIds.map((topicId) => topicScopeProgress(user, topicId));
 
   // Knowledge: recorded understanding and recall on the mapped topics.
@@ -112,22 +107,12 @@ export function scoreCertification(user: UserData, certification: Certification)
   const labs = staticContent.labs.filter((lab) => topicIds.includes(lab.topicId));
   const labAttemptsFor = (labId: EntityId) =>
     user.labAttempts.filter((attempt) => attempt.labId === labId && attempt.status !== "in_progress");
-  const labScores = labs.map((lab) => {
-    const attempts = labAttemptsFor(lab.id);
-    if (attempts.length === 0) return 0;
-    return pct(Math.max(...attempts.map((a) => (a.maxScore > 0 ? (a.score / a.maxScore) * 100 : 0))));
-  });
   const labCompletion = labs.length === 0 ? 0 : pct((labs.filter((lab) => labAttemptsFor(lab.id).some((a) => a.status === "completed" || a.status === "mastered")).length / labs.length) * 100);
 
   // Assignments mapped through their topic.
   const assignments = staticContent.assignments.filter((a) => topicIds.includes(a.topicId));
   const assignmentAttemptsFor = (assignmentId: EntityId) =>
     user.assignmentAttempts.filter((a) => a.assignmentId === assignmentId && a.score !== undefined);
-  const assignmentScores = assignments.map((assignment) => {
-    const attempts = assignmentAttemptsFor(assignment.id);
-    if (attempts.length === 0) return 0;
-    return pct(Math.max(...attempts.map((a) => ((a.score ?? 0) / (a.maxScore || 100)) * 100)));
-  });
   const assignmentCompletion = assignments.length === 0
     ? 0
     : pct((assignments.filter((a) => user.assignmentAttempts.some((x) => x.assignmentId === a.id && x.status === "completed")).length / assignments.length) * 100);
@@ -184,10 +169,7 @@ export function scoreCertification(user: UserData, certification: Certification)
 
   const curriculumComplete =
     topicIds.length > 0 &&
-    topicIds.every((topicId) => {
-      const p = user.topicProgress[topicId];
-      return p?.status === "completed" || p?.status === "mastered";
-    });
+    scopeRows.every((row) => row.overall >= 70);
 
   const progress = getCertificationProgress(user, certification.id);
   const hasEvidence =

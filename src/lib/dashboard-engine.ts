@@ -107,7 +107,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       .filter((l) => l.status === "completed" || l.status === "mastered")
       .map((l) => l.labId),
   ).size;
-  const masteredTopics = progressList.filter((p) => p.status === "mastered").length;
+  const masteredTopics = scope.filter((row) => row.overall >= 85).length;
 
   // Topics needing review: due reviews, unresolved mistakes, weak recorded dimensions.
   const needing = new Map<EntityId, string>();

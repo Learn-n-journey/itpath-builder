@@ -137,9 +137,9 @@ export function computeProgress(user: UserData, now: Date = new Date()): Progres
 
   const scopeByTopic = new Map(allTopicScopeProgress(user).map((row) => [row.topicId, row]));
   const byTopic: TopicRow[] = topics.map((topic) => {
-    const progress = user.topicProgress[topic.id];
     const scope = scopeByTopic.get(topic.id);
     const score = scope?.overall ?? 0;
+    const status = score >= 85 ? "mastered" : score >= 70 ? "completed" : (scope?.attempted ?? 0) > 0 ? "in_progress" : "not_started";
     return {
       topicId: topic.id,
       title: topic.title,
@@ -148,7 +148,7 @@ export function computeProgress(user: UserData, now: Date = new Date()): Progres
       week: topic.week,
       certificationId: topic.certificationId,
       score,
-      status: progress?.status ?? "not_started",
+      status,
       hasActivity: (scope?.attempted ?? 0) > 0,
       dimensions: dimensionsFor(user, [topic.id]),
     };
