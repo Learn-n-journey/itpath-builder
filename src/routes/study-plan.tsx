@@ -138,7 +138,7 @@ function StudyPlanPage() {
             <div>
               <Label>Session length</Label>
               <div className="mt-2 flex flex-wrap gap-2">
-                {STUDY_DURATIONS.map((option) => (
+                {options.map((option) => (
                   <Button
                     key={option}
                     type="button"
