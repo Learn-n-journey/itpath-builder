@@ -80,10 +80,10 @@
 - Adaptive ordering engine src/lib/adaptive-engine.ts surfaced on My Path.
 
 ## Command-line simulator completion (Sep 2026)
-- [ ] Rewrite About page in first person
-- [ ] Add realistic guided and challenge scenarios for CMD, PowerShell, and Linux
-- [ ] Add persistent resumable virtual machines and terminal transcripts
-- [ ] Score command choice, diagnostic process, and final machine state
-- [ ] Feed results and misconceptions into the learner model
-- [ ] Add adaptive task selection, hints, explanations, and navigation
-- [ ] Verify commands, persistence, scoring, desktop, and mobile behavior
+- [x] Rewrite About page in first person
+- [x] Add realistic guided and challenge scenarios for CMD, PowerShell, and Linux
+- [x] Add persistent resumable virtual machines and terminal transcripts
+- [x] Score command choice, diagnostic process, and final machine state
+- [x] Feed results and misconceptions into the learner model
+- [x] Add adaptive task selection, hints, explanations, and navigation
+- [x] Verify commands, persistence, scoring, desktop, and mobile behavior
