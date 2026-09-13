@@ -70,3 +70,4 @@
 - [x] Pro plans: $8/mo (itpath_pro_monthly), $70/yr (itpath_pro_yearly), $149 lifetime (itpath_pro_lifetime_price, was $99)
 - [x] Pricing page shows Free + three paid tiers; yearly flagged Best value
 - [x] Webhook already handles recurring subs + one-time lifetime; access until period end on cancel
+- [x] AI Tutor history: chats auto-save to account (tutor_threads), New chat archives + starts fresh, 30-day auto-expiry, Clear history button
