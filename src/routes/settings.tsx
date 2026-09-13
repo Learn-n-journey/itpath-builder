@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
@@ -159,6 +161,48 @@ function SettingsPage() {
                   : weeklyHours <= 10
                     ? "This sits inside the recommended 8–10 hours a week for steady certification progress."
                     : "This is above the recommended 8–10 hours a week — ambitious, but watch out for burnout and keep your review sessions."}
+              </p>
+            </div>
+          </div>
+        </Panel>
+
+        <Panel
+          title="Daily reminder"
+          description="One nudge a day, only if you have not met your daily study time yet."
+        >
+          <div className="space-y-5">
+            <div className="flex items-center justify-between gap-3">
+              <Label htmlFor="reminder-toggle">Remind me to study</Label>
+              <Switch
+                id="reminder-toggle"
+                checked={s.reminderEnabled === true}
+                onCheckedChange={(checked) => {
+                  updateSettings({ reminderEnabled: checked });
+                  if (checked) {
+                    try {
+                      if (typeof Notification !== "undefined" && Notification.permission === "default") {
+                        void Notification.requestPermission();
+                      }
+                    } catch {
+                      /* notifications unavailable in this browser */
+                    }
+                    toast.success("Reminder on.");
+                  }
+                }}
+              />
+            </div>
+            <div>
+              <Label htmlFor="reminder-time">Reminder time</Label>
+              <Input
+                id="reminder-time"
+                type="time"
+                className="mt-2 w-40"
+                value={s.reminderTime ?? "18:00"}
+                onChange={(event) => updateSettings({ reminderTime: event.target.value })}
+              />
+              <p className="mt-2 text-xs text-muted-foreground">
+                Shown inside the app, and as a desktop notification if you allow them. It appears
+                once a day at most.
               </p>
             </div>
           </div>

@@ -17,6 +17,7 @@ import {
 import { NextActionCard } from "@/components/next-action-card";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { ReadinessPanel } from "@/components/readiness-panel";
+import { StreakPanel } from "@/components/streak-panel";
 import { Button } from "@/components/ui/button";
 import { computeDashboard } from "@/lib/dashboard-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
@@ -156,6 +157,7 @@ function Dashboard() {
         <div className="mb-4 grid gap-4 lg:grid-cols-2">
           <NextActionCard actions={actions} />
           <ReadinessPanel report={readiness} />
+          <StreakPanel />
         </div>
       )}
 

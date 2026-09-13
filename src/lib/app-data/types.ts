@@ -233,6 +233,12 @@ export interface UserSettings {
   targetJob: string;
   certificationTarget: string;
   difficulty: Difficulty;
+  /** Minutes of study aimed at each day. Falls back to the session length. */
+  dailyGoalMinutes?: number;
+  /** Show one daily reminder when the goal is not met. */
+  reminderEnabled?: boolean;
+  /** 24-hour local time for the reminder, e.g. "18:30". */
+  reminderTime?: string;
 }
 
 export interface TopicProgress {

@@ -71,3 +71,10 @@
 - [x] Pricing page shows Free + three paid tiers; yearly flagged Best value
 - [x] Webhook already handles recurring subs + one-time lifetime; access until period end on cancel
 - [x] AI Tutor history: chats auto-save to account (tutor_threads), New chat archives + starts fresh, 30-day auto-expiry, Clear history button
+
+## Intelligence pass (Sep 2026)
+- Quick search palette (Ctrl/Cmd+K) over pages, topics, certifications and labs.
+- Streak panel on the dashboard (current/longest run, daily goal, 7-day grid) from src/lib/streak-engine.ts.
+- Optional daily study reminder (Settings → Daily reminder, in-app toast + browser notification).
+- Exam Simulator route /exam: timed, randomised, 75% pass mark, Pro-gated.
+- Adaptive ordering engine src/lib/adaptive-engine.ts surfaced on My Path.
