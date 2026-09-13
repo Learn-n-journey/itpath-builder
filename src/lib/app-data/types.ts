@@ -677,6 +677,41 @@ export type ReviewItem = Review;
 export type NoteRecord = Note;
 export type BookmarkRecord = Bookmark;
 
+/** Where a learner signal came from. Every graded or exposure event carries one. */
+export type LearnerSignalKind =
+  | "lesson"
+  | "recall"
+  | "practice"
+  | "quiz"
+  | "teach_back"
+  | "scenario"
+  | "lab"
+  | "review"
+  | "troubleshoot"
+  | "career"
+  | "assignment"
+  | "ai_tutor"
+  | "ai_grading";
+
+/**
+ * One immutable interaction record used by the learner intelligence engine.
+ * Written after every lesson, question, quiz and AI interaction.
+ */
+export interface LearnerSignal {
+  id: EntityId;
+  topicId: EntityId;
+  kind: LearnerSignalKind;
+  /** Graded outcome. Omitted for exposure-only events such as opening a lesson. */
+  correct?: boolean;
+  /** Normalised 0-1 score when the activity produced one. */
+  score?: number;
+  /** Time the learner took to answer, in milliseconds, when it was measured. */
+  elapsedMs?: number;
+  /** Recorded misconception or error label, when the activity identified one. */
+  errorTag?: string;
+  at: string;
+}
+
 export interface UserData {
   createdAt: string;
   topicProgress: Record<EntityId, TopicProgress>;
@@ -703,6 +738,8 @@ export interface UserData {
 
   incidentAttempts: IncidentAttempt[];
   ticketAttempts: TicketAttempt[];
+  /** Interaction stream feeding the learner intelligence engine. */
+  learnerSignals: LearnerSignal[];
   settings: UserSettings;
 }
 
