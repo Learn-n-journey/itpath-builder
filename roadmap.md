@@ -87,3 +87,8 @@
 - [x] Feed results and misconceptions into the learner model
 - [x] Add adaptive task selection, hints, explanations, and navigation
 - [x] Verify commands, persistence, scoring, desktop, and mobile behavior
+
+## Command-line environment switch (Sep 2026)
+- [x] Add a Mac/Linux and Windows environment switch
+- [x] Keep CMD and PowerShell selectable inside Windows
+- [x] Verify environment and shell switching on desktop and mobile

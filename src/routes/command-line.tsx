@@ -48,7 +48,7 @@ export const Route = createFileRoute("/command-line")({
       { title: "Command-Line Simulator — IT PATH" },
       {
         name: "description",
-        content: "Practice Windows CMD, PowerShell and Linux troubleshooting in safe persistent virtual computers.",
+        content: "Practice Mac/Linux Bash, Windows CMD and PowerShell troubleshooting in safe persistent virtual computers.",
       },
       { property: "og:title", content: "Command-Line Simulator — IT PATH" },
       {
@@ -70,7 +70,8 @@ function CommandLineRoute() {
   );
 }
 
-const shellLabels = { cmd: "Windows CMD", powershell: "PowerShell", bash: "Linux" } as const;
+const shellLabels = { cmd: "Windows CMD", powershell: "Windows PowerShell", bash: "Mac/Linux" } as const;
+type TerminalEnvironment = "unix" | "windows";
 
 function CommandLinePage() {
   const { user, actions } = useAppState();
@@ -83,6 +84,10 @@ function CommandLinePage() {
     [user.terminalAttempts, weakTopicIds],
   );
   const [shell, setShell] = useState<TerminalAttempt["shell"]>(recommended.shell);
+  const [windowsShell, setWindowsShell] = useState<Extract<TerminalAttempt["shell"], "cmd" | "powershell">>(
+    recommended.shell === "powershell" ? "powershell" : "cmd",
+  );
+  const environment: TerminalEnvironment = shell === "bash" ? "unix" : "windows";
   const shellScenarios = useMemo(() => scenariosForShell(shell), [shell]);
   const [scenarioId, setScenarioId] = useState(recommended.id);
   const [mode, setMode] = useState<TerminalMode>("guided");
@@ -110,6 +115,15 @@ function CommandLinePage() {
     setScenarioId(next[0]?.id ?? recommended.id);
     setAttemptId("");
     setReasoning("");
+  }
+
+  function changeEnvironment(value: TerminalEnvironment) {
+    changeShell(value === "unix" ? "bash" : windowsShell);
+  }
+
+  function changeWindowsShell(value: "cmd" | "powershell") {
+    setWindowsShell(value);
+    changeShell(value);
   }
 
   function changeScenario(id: string) {
@@ -200,7 +214,7 @@ function CommandLinePage() {
     <>
       <PageHeader
         title="Command-line simulator"
-        description="Work inside safe virtual Windows and Linux computers. Your commands never affect your real device."
+        description="Switch between safe virtual Mac/Linux and Windows computers. Your commands never affect your real device."
         actions={<Badge variant="outline"><ShieldCheck className="mr-1 size-3" aria-hidden /> Isolated</Badge>}
       />
 
@@ -211,18 +225,26 @@ function CommandLinePage() {
       </div>
 
       <Panel className="mt-5">
-        <div className="grid gap-4 md:grid-cols-[180px_minmax(0,1fr)_180px]">
+        <div className={`grid gap-4 ${environment === "windows" ? "md:grid-cols-[220px_180px_minmax(0,1fr)_180px]" : "md:grid-cols-[220px_minmax(0,1fr)_180px]"}`}>
           <div className="space-y-2">
             <Label>Environment</Label>
-            <Select value={shell} onValueChange={(value) => changeShell(value as TerminalAttempt["shell"])}>
-              <SelectTrigger aria-label="Environment"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cmd">Windows CMD</SelectItem>
-                <SelectItem value="powershell">PowerShell</SelectItem>
-                <SelectItem value="bash">Linux</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-2 rounded-md border border-input p-0.5" role="group" aria-label="Environment">
+              <Button type="button" size="sm" variant={environment === "unix" ? "secondary" : "ghost"} onClick={() => changeEnvironment("unix")} className="px-2">Mac/Linux</Button>
+              <Button type="button" size="sm" variant={environment === "windows" ? "secondary" : "ghost"} onClick={() => changeEnvironment("windows")} className="px-2">Windows</Button>
+            </div>
           </div>
+          {environment === "windows" ? (
+            <div className="space-y-2">
+              <Label>Windows shell</Label>
+              <Select value={shell} onValueChange={(value) => changeWindowsShell(value as "cmd" | "powershell")}>
+                <SelectTrigger aria-label="Windows shell"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cmd">CMD</SelectItem>
+                  <SelectItem value="powershell">PowerShell</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          ) : null}
           <div className="space-y-2">
             <Label>Scenario</Label>
             <Select value={scenario.id} onValueChange={changeScenario}>
