@@ -254,7 +254,7 @@ function AssignmentWorkspace({
     setSelfChecks({});
     setShowReview(false);
     marking.reset();
-  }, [assignment.id, latestAttempt?.id, latestResponse, marking]);
+  }, [assignment.id, latestAttempt?.id, latestResponse, marking.reset]);
   useEffect(() => {
     setResponse(attemptResponse);
   }, [attempt?.id, attemptResponse]);
