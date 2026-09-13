@@ -322,7 +322,7 @@ function AssignmentWorkspace({
         description: criterion.description,
         ...(criterion.expectedAnswer ? { expected: criterion.expectedAnswer } : {}),
       })),
-    });
+    }, assignment.topicId);
 
     const aiCriteria = new Map(graded?.criteria.map((item) => [item.id, item]));
     const results: AssignmentCriterionResult[] = assignment.rubric.map((criterion) => {
