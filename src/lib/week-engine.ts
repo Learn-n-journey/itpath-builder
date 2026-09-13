@@ -8,6 +8,7 @@ import {
   weeks as allWeeks,
 } from "@/data/static-content";
 import { learningModules } from "@/data/learning-content";
+import { topicScopeProgress } from "@/lib/scope-progress";
 import type {
   Assignment,
   CurriculumWeek,
@@ -94,7 +95,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
   const now = Date.now();
 
   const reading: WeekLink[] = topics.map((topic) => {
-    const understanding = user.topicProgress[topic.id]?.understanding ?? 0;
+    const understanding = topicScopeProgress(user, topic.id).understanding.score;
     const module = learningModules.find((item) => item.topicId === topic.id);
     return {
       id: `reading-${topic.id}`,
@@ -247,7 +248,7 @@ export function buildWeekBundle(user: UserData, week: CurriculumWeek): WeekBundl
   const performance: WeekPerformance[] = [
     {
       label: "Reading",
-      value: average(topics.map((topic) => user.topicProgress[topic.id]?.understanding ?? 0)),
+      value: average(topics.map((topic) => topicScopeProgress(user, topic.id).understanding.score)),
     },
     { label: "Recall and practice", value: pct(practiceDone, practice.length) },
     { label: "Labs", value: average(labScores) },
