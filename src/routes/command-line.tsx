@@ -97,13 +97,20 @@ function CommandLinePage() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [reasoning, setReasoning] = useState("");
   const terminalEnd = useRef<HTMLDivElement>(null);
+  const [generated, setGenerated] = useState<TerminalScenario | null>(null);
 
-  const scenario = terminalScenarios.find((item) => item.id === scenarioId) ?? shellScenarios[0] ?? recommended;
+  const openedAttempt = user.terminalAttempts.find((item) => item.id === attemptId);
+  const scenario =
+    openedAttempt?.scenarioSnapshot ??
+    (generated && generated.id === scenarioId ? generated : undefined) ??
+    terminalScenarios.find((item) => item.id === scenarioId) ??
+    shellScenarios[0] ??
+    recommended;
   const latestAttempt = useMemo(
     () => user.terminalAttempts.find((item) => item.scenarioId === scenario.id && item.status === "in_progress"),
     [scenario.id, user.terminalAttempts],
   );
-  const attempt = user.terminalAttempts.find((item) => item.id === attemptId) ?? latestAttempt;
+  const attempt = openedAttempt ?? latestAttempt;
   const evaluation = attempt?.status === "submitted" ? evaluateTerminalAttempt(scenario, attempt) : null;
 
   useEffect(() => {
