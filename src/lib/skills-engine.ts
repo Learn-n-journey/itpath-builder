@@ -94,8 +94,14 @@ export interface EvidenceItem {
 export interface SkillScore {
   skillId: SkillId;
   label: string;
-  /** 0-100, weighted mean of every piece of evidence. Zero when there is none. */
+  /** 0-100, weighted mean of every piece of evidence, scaled by coverage. Zero when there is none. */
   score: number;
+  /** 0-100: share of the available content for this skill that has been attempted. */
+  coverage: number;
+  /** Quality of the recorded evidence alone, before coverage scaling. */
+  accuracy: number;
+  availableCount: number;
+  coveredCount: number;
   evidenceCount: number;
   hasEvidence: boolean;
   sources: EvidenceSource[];
