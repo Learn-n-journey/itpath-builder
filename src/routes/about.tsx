@@ -73,12 +73,27 @@ function AboutPage() {
           </div>
         </Panel>
 
+        <Panel title="Important: IT PATH does not issue certificates">
+          <p className="text-sm text-muted-foreground">
+            IT PATH is a study tool, not a certifying body. It does not award or issue any
+            certificate, diploma or qualification, and it is not affiliated with CompTIA, Microsoft,
+            Cisco or any other vendor. Nothing you finish here counts towards a real certification.
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            What it does give you is practice and an honest idea of how prepared you are: your
+            scores and readiness figures are estimates based on the work you record, not a
+            prediction or guarantee of passing an official exam. To become certified you still need
+            to register for and pass the real exam with the vendor.
+          </p>
+        </Panel>
+
         <Panel title="Version">
           <p className="font-display text-3xl font-semibold tabular-nums">1.0</p>
           <p className="mt-2 text-sm text-muted-foreground">
              This is my first public release. I plan to keep expanding the certifications, labs and features.
           </p>
         </Panel>
+
 
         <Panel title="Data and privacy">
           <p className="text-sm text-muted-foreground">

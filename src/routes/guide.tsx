@@ -190,6 +190,11 @@ function GuidePage() {
               you recorded on this device, and your data is saved locally in this browser. If you have
               done nothing yet, everything reads zero — that is correct, not a fault.
             </p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              IT PATH does not issue certificates and is not affiliated with any exam vendor. Readiness
+              is an estimate of your preparation, not a qualification or a guarantee of passing the
+              real exam.
+            </p>
           </Panel>
         </div>
       </div>

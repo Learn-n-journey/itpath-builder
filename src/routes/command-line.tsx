@@ -7,6 +7,7 @@ import {
   Play,
   RefreshCw,
   ShieldCheck,
+  Shuffle,
   SquareTerminal,
   Trash2,
 } from "lucide-react";
@@ -30,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { prompt } from "@/lib/terminal/machine";
 import {
+  randomTerminalScenario,
   scenariosForShell,
   terminalScenarios,
   type TerminalScenario,
@@ -96,13 +98,20 @@ function CommandLinePage() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [reasoning, setReasoning] = useState("");
   const terminalEnd = useRef<HTMLDivElement>(null);
+  const [generated, setGenerated] = useState<TerminalScenario | null>(null);
 
-  const scenario = terminalScenarios.find((item) => item.id === scenarioId) ?? shellScenarios[0] ?? recommended;
+  const openedAttempt = user.terminalAttempts.find((item) => item.id === attemptId);
+  const scenario =
+    openedAttempt?.scenarioSnapshot ??
+    (generated && generated.id === scenarioId ? generated : undefined) ??
+    terminalScenarios.find((item) => item.id === scenarioId) ??
+    shellScenarios[0] ??
+    recommended;
   const latestAttempt = useMemo(
     () => user.terminalAttempts.find((item) => item.scenarioId === scenario.id && item.status === "in_progress"),
     [scenario.id, user.terminalAttempts],
   );
-  const attempt = user.terminalAttempts.find((item) => item.id === attemptId) ?? latestAttempt;
+  const attempt = openedAttempt ?? latestAttempt;
   const evaluation = attempt?.status === "submitted" ? evaluateTerminalAttempt(scenario, attempt) : null;
 
   useEffect(() => {
@@ -112,6 +121,7 @@ function CommandLinePage() {
   function changeShell(value: TerminalAttempt["shell"]) {
     const next = scenariosForShell(value);
     setShell(value);
+    setGenerated(null);
     setScenarioId(next[0]?.id ?? recommended.id);
     setAttemptId("");
     setReasoning("");
@@ -127,10 +137,26 @@ function CommandLinePage() {
   }
 
   function changeScenario(id: string) {
+    setGenerated(null);
     setScenarioId(id);
     setAttemptId("");
     const saved = user.terminalAttempts.find((item) => item.scenarioId === id && item.status === "in_progress");
     setReasoning(saved?.reasoning ?? "");
+  }
+
+  function rollRandomScenario() {
+    const next = randomTerminalScenario(
+      shell,
+      user.terminalAttempts.map((item) => ({ scenarioId: item.scenarioId, topicId: item.topicId })),
+      weakTopicIds,
+      scenario.id,
+    );
+    setGenerated(next);
+    setScenarioId(next.id);
+    setAttemptId("");
+    setReasoning("");
+    setCommand("");
+    toast.success("New random scenario ready");
   }
 
   function start(reset = false) {
@@ -247,11 +273,22 @@ function CommandLinePage() {
           ) : null}
           <div className="space-y-2">
             <Label>Scenario</Label>
-            <Select value={scenario.id} onValueChange={changeScenario}>
-              <SelectTrigger aria-label="Scenario"><SelectValue /></SelectTrigger>
-              <SelectContent>{shellScenarios.map((item) => <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>)}</SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={scenario.id} onValueChange={changeScenario}>
+                <SelectTrigger aria-label="Scenario" className="min-w-0 flex-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {scenario.source && scenario.source !== "curated"
+                    ? <SelectItem value={scenario.id}>{scenario.title}</SelectItem>
+                    : null}
+                  {shellScenarios.map((item) => <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" onClick={rollRandomScenario} title="Random scenario">
+                <Shuffle aria-hidden /> <span className="hidden sm:inline">Random</span>
+              </Button>
+            </div>
           </div>
+
           <div className="space-y-2">
             <Label>Mode</Label>
             <div className="grid grid-cols-2 rounded-md border border-input p-0.5">
