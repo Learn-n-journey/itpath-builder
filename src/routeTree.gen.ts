@@ -28,6 +28,7 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as QuizMeRouteImport } from './routes/quiz-me'
 import { Route as RecordRouteImport } from './routes/record'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ReviewRouteImport } from './routes/review'
@@ -136,6 +137,11 @@ const RecordRoute = RecordRouteImport.update({
   path: '/record',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -218,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/record': typeof RecordRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
@@ -251,6 +258,7 @@ export interface FileRoutesByTo {
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/record': typeof RecordRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/progress': typeof ProgressRoute
   '/quiz-me': typeof QuizMeRoute
   '/record': typeof RecordRoute
+  '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
@@ -320,6 +329,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/quiz-me'
     | '/record'
+    | '/refund-policy'
     | '/reset-password'
     | '/resources'
     | '/review'
@@ -353,6 +363,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/quiz-me'
     | '/record'
+    | '/refund-policy'
     | '/reset-password'
     | '/resources'
     | '/review'
@@ -386,6 +397,7 @@ export interface FileRouteTypes {
     | '/progress'
     | '/quiz-me'
     | '/record'
+    | '/refund-policy'
     | '/reset-password'
     | '/resources'
     | '/review'
@@ -420,6 +432,7 @@ export interface RootRouteChildren {
   ProgressRoute: typeof ProgressRoute
   QuizMeRoute: typeof QuizMeRoute
   RecordRoute: typeof RecordRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ResourcesRoute: typeof ResourcesRoute
   ReviewRoute: typeof ReviewRoute
@@ -569,6 +582,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -676,6 +696,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProgressRoute: ProgressRoute,
   QuizMeRoute: QuizMeRoute,
   RecordRoute: RecordRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ResourcesRoute: ResourcesRoute,
   ReviewRoute: ReviewRoute,
