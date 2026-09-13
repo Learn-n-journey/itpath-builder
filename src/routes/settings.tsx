@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 
+import { BetaAccessPanel } from "@/components/beta-access-panel";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { SystemDiagnostics } from "@/components/system-diagnostics";
 import { Button } from "@/components/ui/button";
@@ -249,6 +250,8 @@ function SettingsPage() {
           Reset all local data
         </Button>
       </Panel>
+
+      <BetaAccessPanel />
     </>
   );
 }
