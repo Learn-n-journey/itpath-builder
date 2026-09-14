@@ -444,7 +444,9 @@ export function createMachine(spec: MachineSpec): MachineState {
     shell: spec.shell,
     hostname,
     currentUser: user,
-    elevated: spec.elevated ?? false,
+    // CMD scenarios are written as elevated support sessions; PowerShell scenarios
+    // teach elevation explicitly with Start-Process -Verb RunAs.
+    elevated: spec.elevated ?? spec.shell === "cmd",
     cwd: windows ? ["Users", user] : android ? ["sdcard"] : ios ? ["device"] : ["home", user],
     drive: "C:",
     users: spec.users ?? [
