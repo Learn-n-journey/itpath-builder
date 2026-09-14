@@ -91,7 +91,7 @@ export function ProGate({
                 <span className="text-sm">
                   <span className="inline-flex items-center gap-1.5 font-medium">
                     {entry.name.replace(/^The ./, (c) => c.slice(4).toUpperCase())}
-                    <Crown className="size-3 text-primary" aria-hidden title="Pro" />
+                    <Crown className="size-3 text-primary" aria-hidden />
                   </span>
                   <span className="text-muted-foreground"> — {entry.description}</span>
                 </span>
