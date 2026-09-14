@@ -418,6 +418,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 }
 
+export function useAppStateOptional(): AppStateContextValue | null {
+  return useContext(AppStateContext);
+}
+
 export function useAppState(): AppStateContextValue {
   const ctx = useContext(AppStateContext);
   if (!ctx) throw new Error("useAppState must be used inside <AppStateProvider>");
