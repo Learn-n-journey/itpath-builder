@@ -3,12 +3,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CloudCheck, CloudAlert, CloudUpload, HardDrive } from "lucide-react";
 
 import { useAuth } from "@/state/auth-state";
-import { useAppState } from "@/state/app-state";
+import { useAppStateOptional } from "@/state/app-state";
 import { Button } from "@/components/ui/button";
 
 export function AccountPanel({ onNavigate }: { onNavigate?: () => void }) {
   const { email, userId, ready, signOut } = useAuth();
-  const { hydrated, cloudStatus, cloudError } = useAppState();
+  const app = useAppStateOptional();
+  const hydrated = app?.hydrated ?? false;
+  const cloudStatus = app?.cloudStatus;
+  const cloudError = app?.cloudError;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
