@@ -7,8 +7,8 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { useAuth } from "@/state/auth-state";
 
 /**
- * Gates a Pro feature behind the lifetime purchase. Signed-in Pro users see
- * the children; everyone else sees an upgrade prompt.
+ * Gates a Pro feature behind an active Pro subscription. Signed-in Pro users
+ * see the children; everyone else sees an upgrade prompt.
  */
 export function ProGate({
   feature,
