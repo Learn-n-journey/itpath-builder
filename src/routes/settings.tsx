@@ -66,7 +66,7 @@ const JOBS = [
 
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const s = user.settings;
 
   // Weekly study time is always derived: selected days x daily study time.
