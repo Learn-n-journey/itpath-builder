@@ -48,6 +48,7 @@ import {
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/command-line")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Command-Line Simulator — IT PATH" },

@@ -38,6 +38,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StudyPlanRouteImport } from './routes/study-plan'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
@@ -194,6 +195,11 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudyPlanRoute = StudyPlanRouteImport.update({
   id: '/study-plan',
   path: '/study-plan',
@@ -276,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/study-plan': typeof StudyPlanRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
@@ -317,6 +324,7 @@ export interface FileRoutesByTo {
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/study-plan': typeof StudyPlanRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
@@ -359,6 +367,7 @@ export interface FileRoutesById {
   '/resources': typeof ResourcesRoute
   '/review': typeof ReviewRoute
   '/settings': typeof SettingsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/study-plan': typeof StudyPlanRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
@@ -402,6 +411,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/review'
     | '/settings'
+    | '/sitemap.xml'
     | '/study-plan'
     | '/terms'
     | '/troubleshoot'
@@ -443,6 +453,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/review'
     | '/settings'
+    | '/sitemap.xml'
     | '/study-plan'
     | '/terms'
     | '/troubleshoot'
@@ -484,6 +495,7 @@ export interface FileRouteTypes {
     | '/resources'
     | '/review'
     | '/settings'
+    | '/sitemap.xml'
     | '/study-plan'
     | '/terms'
     | '/troubleshoot'
@@ -526,6 +538,7 @@ export interface RootRouteChildren {
   ResourcesRoute: typeof ResourcesRoute
   ReviewRoute: typeof ReviewRoute
   SettingsRoute: typeof SettingsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StudyPlanRoute: typeof StudyPlanRoute
   TermsRoute: typeof TermsRoute
   TroubleshootRoute: typeof TroubleshootRoute
@@ -743,6 +756,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/study-plan': {
       id: '/study-plan'
       path: '/study-plan'
@@ -846,6 +866,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesRoute: ResourcesRoute,
   ReviewRoute: ReviewRoute,
   SettingsRoute: SettingsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   StudyPlanRoute: StudyPlanRoute,
   TermsRoute: TermsRoute,
   TroubleshootRoute: TroubleshootRoute,

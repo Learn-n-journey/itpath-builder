@@ -29,6 +29,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { useAuth } from "@/state/auth-state";
 
 export const Route = createFileRoute("/pricing")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Pricing — IT PATH" },

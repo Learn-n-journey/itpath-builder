@@ -25,6 +25,7 @@ import {
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/troubleshoot")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

@@ -11,6 +11,7 @@ import { formatStudyTime, topicStudyTimeForSession } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/topics/$topicId")({
+  staticData: { sitemap: false },
   head: ({ params }) => {
     const topic = getTopic(params.topicId);
     const title = topic ? `${topic.title} — IT PATH` : "Topic not found — IT PATH";

@@ -12,6 +12,7 @@ import { useAppState } from "@/state/app-state";
 import { TrendingUp } from "lucide-react";
 
 export const Route = createFileRoute("/progress")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

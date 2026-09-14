@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/checkout/success")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Purchase complete — IT PATH" },

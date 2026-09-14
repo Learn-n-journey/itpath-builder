@@ -32,6 +32,7 @@ import { ReadinessPanel } from "@/components/readiness-panel";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 
 export const Route = createFileRoute("/certifications/$certId")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

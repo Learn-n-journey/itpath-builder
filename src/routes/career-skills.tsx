@@ -12,6 +12,7 @@ import {
 } from "@/lib/skills-engine";
 
 export const Route = createFileRoute("/career-skills")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

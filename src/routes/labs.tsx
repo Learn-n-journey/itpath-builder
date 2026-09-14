@@ -30,6 +30,7 @@ import { useAppState } from "@/state/app-state";
 import { adaptivePath } from "@/lib/adaptive-path";
 
 export const Route = createFileRoute("/labs")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
