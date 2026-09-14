@@ -14,7 +14,7 @@ function resolveTheme(preference: ThemePreference | null): ResolvedTheme {
   return "dark";
 }
 
-export const themeBootScript = `(function(){try{var t=localStorage.getItem("${STORAGE_KEY}");var e=document.documentElement;var m=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches;var r=t==="light"||(!t||t==="system")&&!m?"light":"dark";if(r==="light"){e.classList.remove("dark");e.classList.add("light")}else{e.classList.add("dark");e.classList.remove("light")}}catch(_){}})();`;
+export const themeBootScript = `(function(){try{var t=localStorage.getItem("${STORAGE_KEY}");var e=document.documentElement;var m=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches;var r=t==="light"||((!t||t==="system")&&m)?"light":"dark";if(r==="light"){e.classList.remove("dark");e.classList.add("light")}else{e.classList.add("dark");e.classList.remove("light")}}catch(_){}})();`;
 
 function applyTheme(theme: ResolvedTheme) {
   const el = document.documentElement;
