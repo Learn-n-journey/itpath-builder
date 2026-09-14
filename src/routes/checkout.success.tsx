@@ -21,12 +21,14 @@ export const Route = createFileRoute("/checkout/success")({
 });
 
 function CheckoutSuccessPage() {
-  const { isPro, loading } = useSubscription();
+  const { tier, loading } = useSubscription();
 
   useEffect(() => {
     // The webhook usually lands within seconds; the realtime subscription in
     // useSubscription picks it up automatically.
   }, []);
+
+  const active = tier !== "free";
 
   return (
     <div className="mx-auto max-w-lg">
@@ -34,14 +36,20 @@ function CheckoutSuccessPage() {
       <div className="panel p-6 text-center sm:p-8">
         <CheckCircle2 className="mx-auto size-10 text-primary" aria-hidden />
         <h2 className="mt-4 font-display text-xl font-semibold">
-          {isPro ? "Welcome to IT PATH Pro" : "Confirming your purchase…"}
+          {tier === "pro"
+            ? "Welcome to IT PATH Pro"
+            : tier === "plus"
+              ? "Welcome to IT PATH Plus"
+              : "Confirming your purchase…"}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          {isPro
+          {tier === "pro"
             ? "Your Pro access is active. The AI Tutor, AI grading, labs and the incident simulator are all unlocked."
-            : loading
-              ? "Checking your account…"
-              : "Your payment went through. Pro features unlock automatically the moment the payment provider confirms it — this usually takes a few seconds."}
+            : tier === "plus"
+              ? "Your Plus access is active. The labs, simulators and adaptive learning engine are all unlocked."
+              : loading
+                ? "Checking your account…"
+                : "Your payment went through. Paid features unlock automatically the moment the payment provider confirms it — this usually takes a few seconds."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Button asChild>
