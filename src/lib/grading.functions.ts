@@ -1,7 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { reviewGrade } from "@/lib/ai-self-check.server";
+import { aiCacheKey, allowAiCall, readAiCache, writeAiCache } from "@/lib/ai-budget.server";
+import { GATEWAY_CHAT_URL, GRADING_MODEL } from "@/lib/ai-models";
+import { offlineGrade } from "@/lib/offline-grade";
 
 const criterionSchema = z.object({
   id: z.string().min(1).max(200),
