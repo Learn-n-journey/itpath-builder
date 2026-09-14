@@ -36,6 +36,7 @@ import {
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/ai-tutor")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

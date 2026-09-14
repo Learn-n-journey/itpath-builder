@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { navGroups, navItems } from "@/config/navigation";
 
 export const Route = createFileRoute("/guide")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

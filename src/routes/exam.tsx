@@ -25,6 +25,7 @@ const PASS_SCORE = 75;
 const SECONDS_PER_QUESTION = 72;
 
 export const Route = createFileRoute("/exam")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

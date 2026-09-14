@@ -31,6 +31,7 @@ function durationOptions(sessionLengthMinutes: number): number[] {
 }
 
 export const Route = createFileRoute("/study-plan")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

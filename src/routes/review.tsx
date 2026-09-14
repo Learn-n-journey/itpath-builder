@@ -25,6 +25,7 @@ import { missedQuestionCount, missedQuestions, type MissedQuestion } from "@/lib
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/review")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

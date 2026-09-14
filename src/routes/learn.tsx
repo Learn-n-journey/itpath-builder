@@ -11,6 +11,7 @@ import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/learn")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

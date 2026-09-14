@@ -5,6 +5,7 @@ import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/about")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

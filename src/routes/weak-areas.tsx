@@ -14,6 +14,7 @@ import type { Question, Quiz } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/weak-areas")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

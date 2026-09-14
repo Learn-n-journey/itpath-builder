@@ -32,6 +32,7 @@ import { useAppState } from "@/state/app-state";
 
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

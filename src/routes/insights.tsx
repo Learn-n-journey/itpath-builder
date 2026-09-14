@@ -8,6 +8,7 @@ import { computeInsights, type DayPoint, type TopicAccuracy } from "@/lib/insigh
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/insights")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

@@ -20,6 +20,7 @@ import type { AnnotationKind } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/bookmarks")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

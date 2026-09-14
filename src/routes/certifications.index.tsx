@@ -9,6 +9,7 @@ import { certificationsByLevel, certificationTopics } from "@/lib/cert-path";
 import { selectedCertification } from "@/lib/adaptive-path";
 
 export const Route = createFileRoute("/certifications/")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

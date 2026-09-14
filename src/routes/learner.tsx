@@ -10,6 +10,7 @@ import { useLearnerModel } from "@/hooks/use-learner-model";
 import type { ConceptProfile } from "@/lib/learner-model";
 
 export const Route = createFileRoute("/learner")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

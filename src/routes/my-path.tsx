@@ -15,6 +15,7 @@ import { adaptivePath } from "@/lib/adaptive-path";
 import { adaptiveQueue } from "@/lib/adaptive-engine";
 
 export const Route = createFileRoute("/my-path")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
