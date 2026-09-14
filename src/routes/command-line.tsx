@@ -33,6 +33,7 @@ import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { prompt } from "@/lib/terminal/machine";
 import { generateTerminalScenario } from "@/lib/terminal/ai-scenario.functions";
 import {
+  hintStepsFor,
   randomTerminalScenario,
   scenariosForShell,
   terminalScenarios,
@@ -109,6 +110,7 @@ function CommandLinePage() {
   const terminalEnd = useRef<HTMLDivElement>(null);
   const [generated, setGenerated] = useState<TerminalScenario | null>(null);
   const [creating, setCreating] = useState(false);
+  const [revealedSteps, setRevealedSteps] = useState<number[]>([]);
 
   const openedAttempt = user.terminalAttempts.find((item) => item.id === attemptId);
   const scenario =
