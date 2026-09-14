@@ -209,6 +209,7 @@ export const navItems: NavItem[] = [
     icon: Brain,
     group: "You",
     description: "Mastery, retention and error patterns per concept, with what to study next.",
+    pro: true,
   },
   {
     label: "Insights",

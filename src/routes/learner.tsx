@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Brain, Clock, GitBranch, Target, TrendingDown, TrendingUp } from "lucide-react";
 
 import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { ProGate } from "@/components/pro-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -140,6 +141,14 @@ function Section({ title, description, items }: { title: string; description: st
 }
 
 function LearnerPage() {
+  return (
+    <ProGate feature="The adaptive learning engine">
+      <LearnerContent />
+    </ProGate>
+  );
+}
+
+function LearnerContent() {
   const model = useLearnerModel();
   const fading = model.profiles
     .filter((profile) => profile.attempts > 0 && profile.retention < 0.55)
