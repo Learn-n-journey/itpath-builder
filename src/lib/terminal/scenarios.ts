@@ -151,6 +151,10 @@ export const terminalScenarios: TerminalScenario[] = [
     hints: ["Inspect the current IPv4 address and gateway.", "Release the invalid lease before requesting a fresh one.", "Use ipconfig /renew, then test the gateway."],
     explanation: "The self-assigned APIPA address showed DHCP had not supplied a usable lease. Releasing and renewing restored the workstation's valid address and default gateway.",
     reasoningKeywords: ["apipa", "dhcp", "lease", "renew", "gateway"], misconceptionRules: [{ pattern: "flushdns", label: "Treated an address-assignment fault as a DNS-cache problem" }],
+    machineSpec: {
+      shell: "cmd",
+      interfaces: [{ name: "Ethernet", up: true, dhcp: true, ip: "169.254.18.4", mask: "255.255.0.0", gateway: "", mac: "00-15-5D-3C-11-04" }],
+    },
   },
   {
     id: "terminal-cmd-update-service", topicId: "topic-windows-administration", shell: "cmd",
@@ -403,12 +407,15 @@ export function buildScenarioMachine(scenario: TerminalScenario): MachineState {
     }
     return machine;
   }
-  return createMachine({
-    shell: "bash",
-    dirs: ["/opt/deploy"],
-    files: { "/opt/deploy/release.sh": "#!/bin/bash\necho Deploying IT PATH\n" },
-    perms: { "/opt/deploy/release.sh": "student:student:644" },
-  });
+  if (scenario.shell === "bash") {
+    return createMachine({
+      shell: "bash",
+      dirs: ["/opt/deploy"],
+      files: { "/opt/deploy/release.sh": "#!/bin/bash\necho Deploying IT PATH\n" },
+      perms: { "/opt/deploy/release.sh": "student:student:644" },
+    });
+  }
+  return createMachine({ shell: scenario.shell });
 }
 
 export function goalMet(state: MachineState, goal: TerminalGoal): boolean {
