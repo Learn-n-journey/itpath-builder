@@ -520,6 +520,15 @@ function runBashCommand(
         `Address: ${ip}`,
       ]);
     }
+    case "resolvectl":
+    case "systemd-resolve": {
+      const sub = args.join(" ");
+      if (sub === "flush-caches" || sub === "--flush-caches") {
+        state.dnsCache = {};
+        return ok(state, "");
+      }
+      return fail(state, `${name}: usage: ${name} flush-caches`);
+    }
     case "traceroute": {
       const host = operands[0];
       if (!host) return fail(state, "traceroute: missing host operand");
