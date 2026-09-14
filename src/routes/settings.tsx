@@ -3,6 +3,8 @@ import { toast } from "sonner";
 
 import { BetaAccessPanel } from "@/components/beta-access-panel";
 import { PageHeader, Panel } from "@/components/page-kit";
+import { ProfileNamePanel } from "@/components/profile-name-panel";
+
 import { SystemDiagnostics } from "@/components/system-diagnostics";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -96,7 +98,12 @@ function SettingsPage() {
         description="Your study plan. Changes save to this device the moment you make them."
       />
 
+      <div className="mb-4">
+        <ProfileNamePanel />
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
+
         <Panel title="Study schedule">
           <div className="space-y-6">
             <div>

@@ -37,10 +37,12 @@ function AuthPage() {
   const navigate = useNavigate();
   const { userId, ready } = useAuth();
   const [mode, setMode] = useState<Mode>("signin");
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [sentConfirmation, setSentConfirmation] = useState(false);
+
 
   useEffect(() => {
     if (ready && userId) void navigate({ to: "/", replace: true });
@@ -55,9 +57,13 @@ function AuthPage() {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { first_name: firstName.trim() },
+          },
         });
         if (error) throw error;
+
         if (!data.session) {
           setSentConfirmation(true);
           toast.success("Check your email to confirm your account.");
@@ -150,7 +156,22 @@ function AuthPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === "signup" ? (
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First name</Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  autoComplete="given-name"
+                  required
+                  maxLength={40}
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </div>
+            ) : null}
             <div className="space-y-2">
+
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"

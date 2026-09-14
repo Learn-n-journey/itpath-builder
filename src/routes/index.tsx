@@ -26,7 +26,10 @@ import type { CertificationStatus } from "@/lib/app-data/types";
 import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
 import { nextActions } from "@/lib/next-action";
 import { buildReadinessReport } from "@/lib/readiness-engine";
+import { greetingFor } from "@/lib/greeting";
+import { useProfile } from "@/hooks/use-profile";
 import { useAppState } from "@/state/app-state";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -76,7 +79,9 @@ function MeterRow({ label, value, suffix = "%" }: { label: string; value: number
 
 function Dashboard() {
   const { user, hydrated } = useAppState();
+  const { firstName } = useProfile();
   const d = useMemo(() => computeDashboard(user), [user]);
+
   const path = useMemo(() => adaptivePath(user), [user]);
   const actions = useMemo(() => nextActions(user), [user]);
   const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
@@ -98,7 +103,7 @@ function Dashboard() {
         />
         <div className="min-w-0 flex-1">
           <PageHeader
-            title="Dashboard"
+            title={firstName ? greetingFor(firstName) : "Dashboard"}
             description={`Target role: ${user.settings.targetJob}. Certification focus: ${user.settings.certificationTarget}.`}
             actions={
               <Button asChild>
@@ -107,6 +112,7 @@ function Dashboard() {
             }
           />
         </div>
+
       </div>
 
       {!d.hasAnyActivity ? (
