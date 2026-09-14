@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { streakSummary } from "@/lib/streak-engine";
-import { useAppState } from "@/state/app-state";
+import { useAppStateOptional } from "@/state/app-state";
 
 const STORAGE_KEY = "it-path.reminder.lastShown";
 
