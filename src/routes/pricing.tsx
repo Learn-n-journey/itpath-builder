@@ -55,7 +55,7 @@ const PLUS_FEATURES = [
   "Adaptive learning engine that picks your next best topic",
   "All 100+ hands-on labs and fault drills",
   "Troubleshooting incident simulator",
-  "Command-line simulator for CMD, PowerShell and Linux",
+  "Command-line simulator for Windows CMD, PowerShell, Linux, Android and iOS",
   "Exam simulator and certification readiness scoring",
 ];
 
@@ -113,7 +113,7 @@ const TOP_FEATURES: TopFeature[] = [
     icon: Terminal,
     title: "Command-line simulator",
     description:
-      "Run realistic Windows CMD, PowerShell and Linux commands in persistent virtual environments. Solve networking, service and permission problems safely.",
+      "Run realistic Windows CMD, PowerShell, Linux, Android (adb-style) and iOS (support-console) commands in persistent virtual environments. Solve networking, service, permission and mobile-device problems safely.",
   },
   {
     icon: Cpu,
