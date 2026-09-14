@@ -32,6 +32,8 @@ export interface TerminalScenario {
   diagnosticGroups: string[][];
   efficientCommandCount: number;
   hints: string[];
+  /** Optional exact instructions revealed after each hint (index-aligned with hints). Derived from diagnosticGroups when absent. */
+  hintSteps?: string[][];
   explanation: string;
   reasoningKeywords: string[];
   misconceptionRules: Array<{ pattern: string; label: string }>;
