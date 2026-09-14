@@ -1,0 +1,2 @@
+REVOKE ALL ON FUNCTION public.bump_ai_usage(UUID, TEXT, INTEGER) FROM anon, authenticated;
+CREATE POLICY "No direct access to the AI cache" ON public.ai_cache FOR ALL TO authenticated USING (false) WITH CHECK (false);
