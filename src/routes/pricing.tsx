@@ -246,7 +246,7 @@ function PricingPage() {
     <div>
       <PageHeader
         title="Pricing"
-        description="Study free for as long as you like. Plus unlocks the hands-on practice tools; Pro adds the AI features — both monthly or yearly."
+        description="Study free for as long as you like. Plus unlocks the hands-on practice tools; Pro adds the AI features — both monthly or yearly. IT PATH is designed for certification students, but the same lessons and labs are useful for anyone who wants to understand the devices and networks they use every day."
       />
 
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">

@@ -49,6 +49,12 @@ function AboutPage() {
             material and remember it.
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
+            It is designed with students in mind, but it is just as useful if you are simply curious
+            about the technology you use every day. Most of us spend our lives interfacing with
+            devices, networks and accounts — understanding how they work is practical knowledge for
+            almost anyone.
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground">
             The app only shows progress you have earned. Readiness scores, weak areas and insights are
             based on the work you actually complete.
           </p>

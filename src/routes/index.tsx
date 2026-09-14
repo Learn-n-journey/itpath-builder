@@ -119,7 +119,7 @@ function Dashboard() {
         <Panel
           className="mb-4"
           title="Start here"
-          description="You have no recorded activity yet, so every figure below reads zero. Three steps will change that."
+          description="You have no recorded activity yet, so every figure below reads zero. IT PATH is built for certification students, but it is also a practical way to understand the technology you use every day. Three steps will change that."
         >
           <ol className="space-y-3 text-sm">
             <li>

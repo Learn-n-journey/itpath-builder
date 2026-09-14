@@ -110,6 +110,16 @@ function GuidePage() {
         }
       />
 
+      <Panel title="Who IT PATH is for">
+        <p className="text-sm text-muted-foreground">
+          IT PATH is built to help students study for IT and cybersecurity certifications, but the
+          same material is useful if you just want to understand the devices, networks and accounts
+          you interact with every day. Whether you are preparing for an exam or simply tired of
+          feeling mystified by technology, the lessons, labs and practice activities start from the
+          basics and build from there.
+        </p>
+      </Panel>
+
       <Panel
         title="The study loop"
         description="Follow this order the first time through. After that, the dashboard tells you what is next."
