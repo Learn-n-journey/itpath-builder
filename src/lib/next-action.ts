@@ -10,7 +10,8 @@
 import { assignments, labs, topics } from "@/data/static-content";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationTopics } from "@/lib/cert-path";
-import { buildLearnerModel } from "@/lib/learner-model";
+import { buildIntelligence } from "@/lib/intelligence/engine";
+import { METHOD_LABEL } from "@/lib/intelligence/types";
 import { missedQuestions } from "@/lib/missed-questions";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import type { EntityId, UserData } from "@/lib/app-data/types";
@@ -28,6 +29,8 @@ export type NextActionRoute =
   | "/certifications"
   | "/study-plan"
   | "/settings"
+  | "/ai-tutor"
+  | "/command-line"
   | "/topics/$topicId";
 
 export interface NextAction {
@@ -91,26 +94,18 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
     });
   }
 
-  // 3. The learner model's top concept: fading recall or a repeated error pattern
-  // on the target certification, with the evidence that produced it.
-  const model = buildLearnerModel(user, now);
-  const focus = model.profiles.find(
-    (profile) =>
-      certTopicIds.has(profile.topicId) &&
-      profile.attempts > 0 &&
-      (profile.action === "practice" || profile.action === "review"),
-  );
-  if (focus) {
+  // 3. The learning intelligence engine's top concept: the diagnosed cause of
+  // the current struggle, taught the way that cause needs to be taught.
+  const intelligence = buildIntelligence(user, now);
+  for (const concept of intelligence.queue.slice(0, 2)) {
+    if (concept.attempts === 0 && concept.diagnosis === "never_learned") continue;
     out.push({
-      id: "next-learner-focus",
-      label:
-        focus.action === "review"
-          ? `Refresh ${focus.title}`
-          : `Work through ${focus.title} again`,
-      reason: focus.reason,
-      minutes: focus.action === "review" ? 15 : 30,
-      topicId: focus.topicId,
-      to: "/topics/$topicId",
+      id: `next-intel-${concept.topicId}`,
+      label: `${concept.instruction} — ${METHOD_LABEL[concept.method].toLowerCase()}`,
+      reason: concept.evidence,
+      minutes: concept.estimatedMinutes,
+      topicId: concept.topicId,
+      to: concept.route as NextActionRoute,
     });
   }
 

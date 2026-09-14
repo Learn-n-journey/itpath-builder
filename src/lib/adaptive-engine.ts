@@ -1,5 +1,6 @@
 import { topics as allTopics } from "@/data/static-content";
 import { adaptivePath } from "@/lib/adaptive-path";
+import { buildIntelligence } from "@/lib/intelligence/engine";
 import type { Topic, UserData } from "@/lib/app-data/types";
 import { topicScopeProgress } from "@/lib/scope-progress";
 
@@ -37,6 +38,9 @@ function mastery(user: UserData, topicId: string): number {
 export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQueue {
   const path = adaptivePath(user);
   const nowMs = now.getTime();
+  // The intelligence engine supplies the diagnosed cause and its urgency; this
+  // queue keeps curriculum order as the tie-breaker.
+  const intelligence = buildIntelligence(user, now);
 
   const entries: AdaptiveEntry[] = path.topics.map((topic, index) => {
     const score = mastery(user, topic.id);
@@ -64,6 +68,8 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
     priority += Math.max(0, 100 - score) / 10;
     priority -= index * 0.4; // keep curriculum order as a tie-breaker
     if (!unlocked) priority -= 25;
+    const intel = intelligence.byTopic[topic.id];
+    if (intel) priority += intel.priority * 0.35;
 
     let reason: string;
     if (openMistakes > 0) {
@@ -72,6 +78,8 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
       reason = `${dueReviews} review${dueReviews === 1 ? "" : "s"} due.`;
     } else if (!unlocked && weakPrerequisite) {
       reason = `Build ${weakPrerequisite.title} first.`;
+    } else if (intel && intel.diagnosis !== "solid" && intel.diagnosis !== "never_learned") {
+      reason = intel.evidence;
     } else if (score === 0) {
       reason = "Not started yet.";
     } else if (score < 60) {

@@ -2,6 +2,8 @@ import { certifications, topics } from "@/data/static-content";
 import { getTopic, getTopicProgress } from "@/lib/app-data/selectors";
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { computeDashboard } from "@/lib/dashboard-engine";
+import { buildIntelligence } from "@/lib/intelligence/engine";
+import { DIAGNOSIS_LABEL, METHOD_LABEL } from "@/lib/intelligence/types";
 import { mistakeActivityLabels, mistakeCauseLabels, scoreAllSkills } from "@/lib/mistake-engine";
 
 export type TutorMode =
@@ -100,6 +102,21 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
       ].join("\n"),
     );
   }
+
+  const intelligence = buildIntelligence(user);
+  sections.push(
+    [
+      "LEARNING DIAGNOSIS (what my recorded work says about how I am struggling)",
+      list(
+        intelligence.queue
+          .slice(0, 5)
+          .map(
+            (concept) =>
+              `${concept.title}: ${DIAGNOSIS_LABEL[concept.diagnosis]} — ${concept.evidence} Best taught by: ${METHOD_LABEL[concept.method].toLowerCase()} at ${concept.difficulty} level.`,
+          ),
+      ),
+    ].join("\n"),
+  );
 
   const weak = scoreAllSkills(user)
     .filter((s) => s.weak)
