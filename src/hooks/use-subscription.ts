@@ -36,8 +36,8 @@ function rowGrantsAccess(row: SubscriptionRow, now = new Date()): boolean {
 
 /**
  * Reads the signed-in user's purchases from the subscriptions table.
- * `isPro` is true while any row grants access (lifetime purchases never
- * expire; subscriptions follow their billing period).
+ * `isPro` is true while any row grants access (subscriptions follow their
+ * billing period; one-time purchases are recorded as active without an end).
  */
 export function useSubscription() {
   const { userId, email, ready } = useAuth();

@@ -7,8 +7,8 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { useAuth } from "@/state/auth-state";
 
 /**
- * Gates a Pro feature behind the lifetime purchase. Signed-in Pro users see
- * the children; everyone else sees an upgrade prompt.
+ * Gates a Pro feature behind an active Pro subscription. Signed-in Pro users
+ * see the children; everyone else sees an upgrade prompt.
  */
 export function ProGate({
   feature,
@@ -37,8 +37,8 @@ export function ProGate({
       </h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
         {userId
-          ? "Upgrade once to unlock it forever — along with the AI Tutor, AI grading, labs and the incident simulator."
-          : "Create a free account and upgrade once to unlock it forever — along with the AI Tutor, AI grading, labs and the incident simulator."}
+          ? "Upgrade to Pro to unlock this — along with the AI Tutor, AI grading, labs and the incident simulator."
+          : "Create a free account and upgrade to Pro to unlock this — along with the AI Tutor, AI grading, labs and the incident simulator."}
       </p>
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         <Button asChild>

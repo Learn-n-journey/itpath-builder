@@ -85,9 +85,9 @@ async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
 }
 
 /**
- * One-time purchases (like IT PATH Pro lifetime) arrive as completed
- * transactions, not subscriptions. Record them as a permanent active row so
- * the same access checks work for both models.
+ * One-time purchases arrive as completed transactions, not subscriptions.
+ * Record them as a permanent active row so the same access checks work for
+ * both subscription and one-time purchase models.
  */
 async function handleTransactionCompleted(data: any, env: PaddleEnv) {
   const { id, customerId, items, customData, subscriptionId } = data;
@@ -109,7 +109,7 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
     user_id: userId,
     paddle_subscription_id: id,
     paddle_customer_id: customerId,
-    product_id: productId ?? "itpath_pro_lifetime",
+    product_id: productId ?? "itpath_pro",
     price_id: priceId,
     status: "active",
     current_period_start: new Date().toISOString(),

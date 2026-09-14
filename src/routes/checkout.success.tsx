@@ -38,7 +38,7 @@ function CheckoutSuccessPage() {
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           {isPro
-            ? "Your lifetime access is active. The AI Tutor, AI grading, labs and the incident simulator are all unlocked."
+            ? "Your Pro access is active. The AI Tutor, AI grading, labs and the incident simulator are all unlocked."
             : loading
               ? "Checking your account…"
               : "Your payment went through. Pro features unlock automatically the moment the payment provider confirms it — this usually takes a few seconds."}

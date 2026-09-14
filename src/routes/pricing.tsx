@@ -15,13 +15,13 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs and certification tracking with IT PATH Pro — monthly, yearly or lifetime.",
+          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs and certification tracking with IT PATH Pro — monthly or yearly.",
       },
       { property: "og:title", content: "IT PATH Pricing" },
       {
         property: "og:description",
         content:
-          "Free tier plus Pro plans from $8/month — unlock AI tutoring, AI grading, labs and the troubleshooting simulator.",
+          "Free tier plus Pro plans from $15/month — unlock AI tutoring, AI grading, labs and the troubleshooting simulator.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -61,7 +61,7 @@ const PAID_PLANS: PaidPlan[] = [
   {
     id: "monthly",
     name: "Pro — Monthly",
-    price: "$8",
+    price: "$15",
     cadence: "per month",
     priceId: "itpath_pro_monthly",
     note: "Flexible. Cancel anytime, keep access until the period ends.",
@@ -69,19 +69,11 @@ const PAID_PLANS: PaidPlan[] = [
   {
     id: "yearly",
     name: "Pro — Yearly",
-    price: "$70",
+    price: "$149",
     cadence: "per year",
     priceId: "itpath_pro_yearly",
-    note: "Two months free compared to paying monthly.",
+    note: "Save $31 compared to paying monthly.",
     featured: true,
-  },
-  {
-    id: "lifetime",
-    name: "Pro — Lifetime",
-    price: "$149",
-    cadence: "one-time payment",
-    priceId: "itpath_pro_lifetime_price",
-    note: "Pay once. Every current and future Pro feature, forever.",
   },
 ];
 
@@ -119,10 +111,10 @@ function PricingPage() {
     <div>
       <PageHeader
         title="Pricing"
-        description="Study free for as long as you like. Upgrade to Pro whenever you're ready — monthly, yearly, or one payment for life."
+        description="Study free for as long as you like. Upgrade to Pro whenever you're ready — monthly or yearly."
       />
 
-      <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-5 lg:grid-cols-3">
         <Panel title="Free" description="The complete study system, at no cost.">
           <p className="font-display text-3xl font-semibold">$0</p>
           <p className="mt-1 text-sm text-muted-foreground">Forever</p>
