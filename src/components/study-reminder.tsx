@@ -44,6 +44,7 @@ export function StudyReminder() {
     const minute = Number(minutePart);
     if (Number.isNaN(hour) || Number.isNaN(minute)) return;
 
+    const currentUser = user;
     function check() {
       const now = new Date();
       const key = todayKey(now);
