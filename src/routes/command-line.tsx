@@ -130,6 +130,10 @@ function CommandLinePage() {
     terminalEnd.current?.scrollIntoView({ block: "nearest" });
   }, [attempt?.transcript.length]);
 
+  useEffect(() => {
+    setRevealedSteps([]);
+  }, [attempt?.id]);
+
   function changeShell(value: TerminalAttempt["shell"]) {
     const next = scenariosForShell(value);
     setShell(value);
@@ -430,7 +434,28 @@ function CommandLinePage() {
 
             {attempt.mode === "guided" && attempt.status !== "submitted" ? (
               <Panel title="Hints" description="Hints are staged so you can stop when you have enough.">
-                {scenario.hints.slice(0, attempt.hintsUsed).map((hint, index) => <p key={hint} className="mb-3 text-sm"><span className="font-medium">Hint {index + 1}: </span><span className="text-muted-foreground">{hint}</span></p>)}
+                {scenario.hints.slice(0, attempt.hintsUsed).map((hint, index) => {
+                  const steps = hintStepsFor(scenario, index);
+                  const stepsShown = revealedSteps.includes(index);
+                  return (
+                    <div key={hint} className="mb-3 text-sm">
+                      <p><span className="font-medium">Hint {index + 1}: </span><span className="text-muted-foreground">{hint}</span></p>
+                      {steps.length > 0 ? (
+                        stepsShown ? (
+                          <div className="mt-2 rounded-md border bg-muted/40 p-2.5">
+                            <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">Exact steps</p>
+                            <ul className="space-y-1">
+                              {steps.map((step) => <li key={step} className="font-mono text-xs break-all">{step}</li>)}
+                            </ul>
+                            <button type="button" onClick={() => setRevealedSteps((current) => current.filter((item) => item !== index))} className="mt-2 text-xs font-medium text-primary underline-offset-2 hover:underline">Hide steps</button>
+                          </div>
+                        ) : (
+                          <button type="button" onClick={() => setRevealedSteps((current) => [...current, index])} className="mt-1 text-xs font-medium text-primary underline-offset-2 hover:underline">Show exact steps</button>
+                        )
+                      ) : null}
+                    </div>
+                  );
+                })}
                 <Button variant="outline" onClick={useHint} disabled={attempt.hintsUsed >= scenario.hints.length}><Lightbulb aria-hidden /> {attempt.hintsUsed === 0 ? "Get a hint" : "Next hint"}</Button>
               </Panel>
             ) : null}
