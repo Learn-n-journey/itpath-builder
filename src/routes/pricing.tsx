@@ -253,7 +253,33 @@ function PricingPage() {
         ))}
       </div>
 
-      <p className="mt-6 text-center text-xs text-muted-foreground">
+      <section className="mt-10">
+        <h2 className="font-display text-xl font-semibold">Top Pro features</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Everything that makes IT PATH more than a static course.
+        </p>
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {TOP_FEATURES.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <div
+                key={feature.title}
+                className="rounded-xl border border-border/60 bg-card p-4 shadow-sm"
+              >
+                <div className="flex items-center gap-2 text-primary">
+                  <Icon className="size-5" aria-hidden />
+                  <h3 className="text-sm font-semibold">{feature.title}</h3>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <p className="mt-8 text-center text-xs text-muted-foreground">
         IT PATH is a study tool. It does not issue certificates and is not affiliated with CompTIA,
         Microsoft, Cisco or any other vendor — it prepares you for their exams and gives you an
         honest idea of your progress.
