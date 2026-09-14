@@ -10,7 +10,8 @@
 import { assignments, labs, topics } from "@/data/static-content";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationTopics } from "@/lib/cert-path";
-import { buildLearnerModel } from "@/lib/learner-model";
+import { buildIntelligence } from "@/lib/intelligence/engine";
+import { METHOD_LABEL } from "@/lib/intelligence/types";
 import { missedQuestions } from "@/lib/missed-questions";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import type { EntityId, UserData } from "@/lib/app-data/types";
@@ -28,6 +29,8 @@ export type NextActionRoute =
   | "/certifications"
   | "/study-plan"
   | "/settings"
+  | "/ai-tutor"
+  | "/command-line"
   | "/topics/$topicId";
 
 export interface NextAction {
