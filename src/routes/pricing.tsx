@@ -111,10 +111,10 @@ function PricingPage() {
     <div>
       <PageHeader
         title="Pricing"
-        description="Study free for as long as you like. Upgrade to Pro whenever you're ready — monthly, yearly, or one payment for life."
+        description="Study free for as long as you like. Upgrade to Pro whenever you're ready — monthly or yearly."
       />
 
-      <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-5 lg:grid-cols-3">
         <Panel title="Free" description="The complete study system, at no cost.">
           <p className="font-display text-3xl font-semibold">$0</p>
           <p className="mt-1 text-sm text-muted-foreground">Forever</p>
