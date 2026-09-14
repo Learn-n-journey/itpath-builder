@@ -1,7 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { reviewTutorAnswer, shouldSelfCheckTutorAnswer } from "@/lib/ai-self-check.server";
+import { allowAiCall } from "@/lib/ai-budget.server";
+import { GATEWAY_CHAT_URL, TUTOR_MODEL } from "@/lib/ai-models";
 
 const inputSchema = z.object({
   messages: z

@@ -25,7 +25,6 @@ export interface OfflineGradeInput {
 }
 
 const COVERED = 0.75;
-const PARTIAL = 0.4;
 
 /**
  * Returns a mark when the answer is unambiguous, or null when the AI marker
@@ -83,6 +82,5 @@ export function offlineGrade(input: OfflineGradeInput): OfflineGrade | null {
   }
 
   // Everything else — partly right, differently worded, arguable — goes to AI.
-  void PARTIAL;
   return null;
 }
