@@ -732,6 +732,10 @@ function runCmd(state: MachineState, input: string): ExecResult {
       return ok(state, expandEnv(state, input.replace(/^\s*echo\s*/i, "")));
     case "whoami":
       return ok(state, `${state.hostname.toLowerCase()}\\${state.currentUser}`);
+    case "runas": {
+      state.elevated = true;
+      return ok(state, "Elevated command prompt started. Administrative commands are now allowed.");
+    }
     case "hostname":
       return ok(state, state.hostname);
     case "ver":
@@ -969,13 +973,13 @@ function runCmd(state: MachineState, input: string): ExecResult {
       }
       if (action === "start" || action === "stop") {
         const outcome = setServiceStatus(state, svc.name, action === "start" ? "running" : "stopped");
-        if (outcome.error === "denied") return fail(state, "[SC] OpenService FAILED 5: Access is denied.");
+        if (outcome.error === "denied") return fail(state, "[SC] OpenService FAILED 5: Access is denied.\nRun: runas /user:Administrator cmd");
         if (outcome.error === "disabled") return fail(state, "[SC] StartService FAILED 1058: The service cannot be started because it is disabled.");
         if (outcome.error === "failed") return fail(state, `[SC] StartService FAILED 1053: ${outcome.reason ?? "The service did not respond in a timely fashion."}`);
         return ok(state, `SERVICE_NAME: ${svc.name}\n        STATE              : ${action === "start" ? "4  RUNNING" : "1  STOPPED"}`);
       }
       if (action === "config") {
-        if (!isAdmin(state)) return fail(state, "[SC] OpenService FAILED 5: Access is denied.");
+        if (!isAdmin(state)) return fail(state, "[SC] OpenService FAILED 5: Access is denied.\nRun: runas /user:Administrator cmd");
         const start = args.find((arg) => arg.toLowerCase().startsWith("start="));
         const value = start?.split("=")[1]?.toLowerCase();
         if (value === "auto") svc.startType = "auto";
@@ -995,7 +999,7 @@ function runCmd(state: MachineState, input: string): ExecResult {
         const found = state.users.find((user) => user.name.toLowerCase() === account.toLowerCase());
         if (!found) return fail(state, "The user name could not be found.");
         if (args.some((arg) => arg.toLowerCase() === "/active:yes")) {
-          if (!isAdmin(state)) return fail(state, "System error 5 has occurred. Access is denied.");
+          if (!isAdmin(state)) return fail(state, "System error 5 has occurred. Access is denied.\nThis command needs an elevated prompt. Run: runas /user:Administrator cmd");
           found.locked = false;
           return ok(state, "The command completed successfully.");
         }
@@ -1014,7 +1018,7 @@ function runCmd(state: MachineState, input: string): ExecResult {
         }
         const outcome = setServiceStatus(state, serviceName, action === "start" ? "running" : "stopped");
         if (outcome.error === "not_found") return fail(state, "The service name is invalid.");
-        if (outcome.error === "denied") return fail(state, "System error 5 has occurred. Access is denied.");
+        if (outcome.error === "denied") return fail(state, "System error 5 has occurred. Access is denied.\nThis command needs an elevated prompt. Run: runas /user:Administrator cmd");
         if (outcome.error === "disabled") return fail(state, "The service cannot be started because it is disabled.");
         if (outcome.error === "failed") return fail(state, `The service did not start: ${outcome.reason ?? "unknown error"}`);
         return ok(state, `The ${serviceName} service was ${action === "start" ? "started" : "stopped"} successfully.`);
@@ -1053,7 +1057,7 @@ function runCmd(state: MachineState, input: string): ExecResult {
       return ok(state, [
         "Supported here: dir cd type copy move del md rd findstr echo set ver cls",
         "                ipconfig ping tracert nslookup netstat arp route",
-        "                tasklist taskkill sc net systeminfo chkdsk sfc gpupdate whoami hostname",
+        "                tasklist taskkill sc net systeminfo chkdsk sfc gpupdate whoami hostname runas",
       ]);
     default:
       return fail(state, `'${name}' is not recognized as an internal or external command,\noperable program or batch file.`);
