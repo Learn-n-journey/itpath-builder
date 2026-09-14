@@ -21,6 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
+import { useTheme } from "@/state/theme";
 import type { ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 
 export const Route = createFileRoute("/settings")({
@@ -65,6 +66,7 @@ const JOBS = [
 
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
+  const { theme, setTheme } = useTheme();
   const s = user.settings;
 
   // Weekly study time is always derived: selected days x daily study time.
@@ -103,6 +105,24 @@ function SettingsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
+
+        <Panel
+          title="Appearance"
+          description="Choose how IT PATH looks. Your choice is remembered on this device."
+        >
+          <div className="flex items-center justify-between gap-3">
+            <Label htmlFor="theme-toggle">Light mode</Label>
+            <Switch
+              id="theme-toggle"
+              checked={theme === "light"}
+              onCheckedChange={(checked) => setTheme(checked ? "light" : "dark")}
+            />
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Currently using {theme === "light" ? "light" : "dark"} mode.
+          </p>
+        </Panel>
+
 
         <Panel title="Study schedule">
           <div className="space-y-6">
