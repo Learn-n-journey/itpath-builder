@@ -89,7 +89,9 @@ export function ProGate({
               <li key={entry.name} className="flex items-start gap-2.5 text-left">
                 <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
                 <span className="text-sm">
-                  <span className="font-medium">{entry.name.replace(/^The /, "")}</span>
+                  <span className="font-medium">
+                    {entry.name.replace(/^The ./, (c) => c.slice(4).toUpperCase())}
+                  </span>
                   <span className="text-muted-foreground"> — {entry.description}</span>
                 </span>
               </li>
