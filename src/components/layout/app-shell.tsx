@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Menu, Search, ShieldCheck } from "lucide-react";
+import { Crown, Menu, Search, ShieldCheck } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { navGroups, navItems } from "@/config/navigation";

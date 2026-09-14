@@ -38,6 +38,8 @@ export interface NavItem {
   group: "Study" | "Practice" | "Career" | "You";
   /** One line explaining what this section is for, shown in the guide and as a tooltip. */
   description: string;
+  /** True if this route is gated behind Pro. A small crown is shown in the sidebar. */
+  pro?: boolean;
 }
 
 export const navItems: NavItem[] = [
