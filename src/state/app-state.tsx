@@ -27,6 +27,8 @@ import {
   saveState,
   clearState,
   isStorageAvailable,
+  readStateOwner,
+  writeStateOwner,
   type LoadOutcome,
 } from "@/lib/app-data/storage";
 import {
@@ -158,11 +160,19 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
   }, [user, hydrated]);
 
-  // Pull the account copy once per sign-in. Whichever copy holds more recorded
-  // work wins, so signing in on a fresh device never erases existing progress.
+  // Pull the account copy once per sign-in. The device cache is tagged with the
+  // account that owns it: a different account never inherits it, so a new user
+  // on this machine always starts from their own (empty) record.
   useEffect(() => {
     if (!hydrated || !authReady) return;
     if (!userId) {
+      // Signing out wipes the device cache so the next person starts clean.
+      if (readStateOwner()) {
+        clearState();
+        writeStateOwner(null);
+        skipNextSave.current = true;
+        setUser(createDefaultUserData());
+      }
       setSyncedUserId(null);
       setCloudStatus("signed_out");
       setCloudError(null);
@@ -170,6 +180,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       return;
     }
     if (syncedUserId === userId) return;
+
+    const owner = readStateOwner();
+    // Cache belongs to someone else: drop it before touching the account copy.
+    const foreignCache = owner !== null && owner !== userId;
+    if (foreignCache) {
+      clearState();
+      setUser(createDefaultUserData());
+    }
 
     let cancelled = false;
     setCloudStatus("syncing");
@@ -182,8 +200,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
       if (result.found && result.user) {
         const remote = result.user;
-        setUser((local) => (activityCount(local) > activityCount(remote) ? local : remote));
+        setUser((local) =>
+          !foreignCache && activityCount(local) > activityCount(remote) ? local : remote,
+        );
       }
+      writeStateOwner(userId);
       pushedSnapshot.current = "";
       setCloudError(null);
       setSyncedUserId(userId);
