@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_cache: {
+        Row: {
+          cache_key: string
+          created_at: string
+          hits: number
+          kind: string
+          value: Json
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string
+          hits?: number
+          kind: string
+          value: Json
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string
+          hits?: number
+          kind?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      ai_usage: {
+        Row: {
+          count: number
+          day: string
+          kind: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          count?: number
+          day: string
+          kind: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          kind?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       beta_access: {
         Row: {
           created_at: string
@@ -229,6 +277,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bump_ai_usage: {
+        Args: { _kind: string; _limit: number; _user_id: string }
+        Returns: {
+          allowed: boolean
+          used: number
+        }[]
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
