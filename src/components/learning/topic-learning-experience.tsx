@@ -170,7 +170,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       modelAnswer: scenario.guidance,
       expectedPoints: scenario.expectedConcepts,
     });
-    const meetsCriteria = graded ? graded.correct : matched.length >= Math.min(2, scenario.expectedConcepts.length);
+    const meetsCriteria = graded ? graded.correct : passesOffline(scenarioAnswer.trim(), scenario.expectedConcepts, scenario.guidance);
     const now = new Date().toISOString();
     actions.setScenarioResponse({ id: savedScenario?.id ?? crypto.randomUUID(), scenarioId: scenario.id, topicId: topic.id, response: scenarioAnswer.trim(), matchedConcepts: matched, meetsCriteria, createdAt: savedScenario?.createdAt ?? now, updatedAt: now });
     setScenarioFeedback(`${meetsCriteria ? "Your reasoning includes key evidence. " : "Strengthen your reasoning. "}${scenario.guidance}`);
