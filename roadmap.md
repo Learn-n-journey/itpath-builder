@@ -103,3 +103,8 @@
 - [x] Distinguish performance averages from progress/readiness percentages in the interface
 - [x] Add regression checks for one-perfect-attempt and untouched-content cases
 - [x] Verify progress pages and dashboards on desktop and mobile
+
+## Lesson quality pass (requested 2026-09-14)
+- [ ] Review lessons for accuracy/up-to-date content
+- [ ] Add links to relevant in-app resources from lessons
+- [ ] Align quiz/recall questions with what lessons actually cover
