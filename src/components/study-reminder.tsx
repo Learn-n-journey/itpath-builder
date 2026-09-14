@@ -31,9 +31,11 @@ function markShown(key: string) {
  * yet met. Silent unless the user turned reminders on in Settings.
  */
 export function StudyReminder() {
-  const { user, hydrated } = useAppState();
-  const enabled = user.settings.reminderEnabled === true;
-  const time = user.settings.reminderTime ?? "18:00";
+  const state = useAppStateOptional();
+  const user = state?.user ?? null;
+  const hydrated = state?.hydrated ?? false;
+  const enabled = user?.settings.reminderEnabled === true;
+  const time = user?.settings.reminderTime ?? "18:00";
 
   useEffect(() => {
     if (!hydrated || !enabled) return;
