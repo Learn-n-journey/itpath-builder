@@ -21,6 +21,8 @@ import { getLearningModule, getPracticeActivity, getRealWorldScenario, getRecall
 import type { TopicProgress } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { topicScopeProgress } from "@/lib/scope-progress";
+import { answerMatches, coveredConcepts } from "@/lib/fuzzy-match";
+
 
 const progressLabels: Array<[keyof Pick<TopicProgress, "understanding" | "recall" | "application" | "practicalAbility" | "troubleshooting" | "retention">, string]> = [
   ["understanding", "Understanding"], ["recall", "Recall"], ["application", "Application"],
