@@ -81,9 +81,10 @@ function featureByName(name: string): ProFeature {
 }
 
 /**
- * Gates a Pro feature behind an active Pro subscription. Signed-in Pro users
- * see the children; everyone else sees an upgrade prompt that names the
- * current page's feature and lists every other Pro feature.
+ * Gates a paid feature behind the plan that includes it. Users on a high
+ * enough plan see the children; everyone else sees an upgrade prompt that
+ * names the current page's feature and lists every other paid feature.
+ * "plus" features unlock with Plus or Pro; "pro" features need full Pro.
  */
 export function ProGate({
   feature,
@@ -94,7 +95,7 @@ export function ProGate({
   children: ReactNode;
 }) {
   const { userId, ready } = useAuth();
-  const { isPro, loading } = useSubscription();
+  const { tier, loading } = useSubscription();
 
   if (!ready || loading) {
     return (
@@ -102,9 +103,12 @@ export function ProGate({
     );
   }
 
-  if (isPro) return <>{children}</>;
-
   const current = featureByName(feature);
+  const unlocked =
+    tier === "pro" || (current.tier === "plus" && tier === "plus");
+  if (unlocked) return <>{children}</>;
+
+  const planName = current.tier === "plus" ? "Plus or Pro" : "Pro";
   const others = PRO_FEATURES.filter((entry) => entry.name !== feature);
 
   return (
@@ -116,14 +120,14 @@ export function ProGate({
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
           {userId
-            ? `Upgrade to IT PATH Pro to use ${current.shortName} — and every other Pro feature below.`
-            : `Create a free account and upgrade to Pro to use ${current.shortName} — and every other Pro feature below.`}
+            ? `Upgrade to IT PATH ${planName} to use ${current.shortName} — and the other paid features below.`
+            : `Create a free account and upgrade to ${planName} to use ${current.shortName} — and the other paid features below.`}
         </p>
       </div>
       {others.length > 0 ? (
         <div className="mx-auto mt-6 max-w-md">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Pro also includes
+            Paid plans also include
           </p>
           <ul className="mt-3 space-y-2.5">
             {others.map((entry) => (
@@ -133,6 +137,11 @@ export function ProGate({
                   <span className="inline-flex items-center gap-1.5 font-medium">
                     {entry.shortName}
                     <Crown className="size-3 text-primary" aria-hidden />
+                    {entry.tier === "pro" ? (
+                      <span className="rounded border border-primary/40 px-1 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                        Pro
+                      </span>
+                    ) : null}
                   </span>
                   <span className="text-muted-foreground"> — {entry.description}</span>
                 </span>
