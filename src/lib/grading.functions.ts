@@ -45,7 +45,7 @@ export interface WrittenGrade {
   followUp: string;
   criteria: CriterionGrade[];
   /** True when the marking came from the AI marker rather than the offline fallback. */
-  aiMarked: true;
+  aiMarked: boolean;
 }
 
 export type GradeReply = { ok: true; grade: WrittenGrade } | { ok: false; error: string };
@@ -74,10 +74,63 @@ function clamp(value: number): number {
 }
 
 export const gradeWrittenAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
-  .handler(async ({ data }): Promise<GradeReply> => {
+  .handler(async ({ data, context }): Promise<GradeReply> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI marking is not configured." };
+
+    const allCriteria = (data.criteria ?? []).map((c) => ({
+      id: c.id,
+      correct: false,
+      feedback: "",
+    }));
+
+    // 1. Clear-cut answers are marked here, with no AI call at all.
+    if (!data.knowledge) {
+      const offline = offlineGrade({
+        question: data.question,
+        answer: data.answer,
+        modelAnswer: data.modelAnswer,
+        expectedPoints: data.expectedPoints,
+      });
+      if (offline) {
+        const passed = offline.score >= 70;
+        return {
+          ok: true,
+          grade: {
+            ...offline,
+            correct: passed,
+            criteria: allCriteria.map((c) => ({
+              ...c,
+              correct: passed,
+              feedback: passed ? "Covered in your answer." : "Not covered in your answer.",
+            })),
+            aiMarked: false,
+          },
+        };
+      }
+    }
+
+    // 2. The same answer to the same task is only ever paid for once.
+    const cacheKey = data.knowledge
+      ? null
+      : await aiCacheKey("grading", [
+          data.topic,
+          data.question,
+          data.modelAnswer,
+          (data.expectedPoints ?? []).join("|"),
+          (data.criteria ?? []).map((c) => c.id).join("|"),
+          data.answer,
+        ]);
+    if (cacheKey) {
+      const cached = await readAiCache<WrittenGrade>(cacheKey);
+      if (cached) return { ok: true, grade: cached };
+    }
+
+    // 3. Daily allowance, so one person cannot drain the AI budget.
+    const budget = await allowAiCall(context.userId, "grading");
+    if (!budget.ok) return { ok: false, error: budget.error };
 
     const system = [
       "You are a strict but fair IT and cybersecurity examiner marking a learner's written answer.",
