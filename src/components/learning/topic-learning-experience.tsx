@@ -27,11 +27,24 @@ const progressLabels: Array<[keyof Pick<TopicProgress, "understanding" | "recall
   ["practicalAbility", "Practical ability"], ["troubleshooting", "Troubleshooting"], ["retention", "Retention"],
 ];
 
-function normalize(text: string) { return text.toLowerCase().replace(/[^a-z0-9\s]/g, " "); }
+/**
+ * Meaning-based matching, so a correct answer in the learner's own words counts.
+ * An idea is credited when enough of its meaningful words appear (allowing small
+ * spelling slips), rather than requiring the exact phrase.
+ */
 function matchConcepts(answer: string, concepts: string[]) {
-  const normalized = normalize(answer);
-  return concepts.filter((concept) => normalized.includes(normalize(concept)));
+  return coveredConcepts(answer, concepts, 0.45);
 }
+
+/** Enough of the expected ideas, or an answer that tracks the model answer. */
+function passesOffline(answer: string, concepts: string[], modelAnswer?: string) {
+  if (concepts.length === 0) return modelAnswer ? answerMatches(answer, modelAnswer) : false;
+  const matched = matchConcepts(answer, concepts).length;
+  const needed = Math.max(1, Math.ceil(concepts.length / 2));
+  if (matched >= needed) return true;
+  return modelAnswer ? answerMatches(answer, modelAnswer) : false;
+}
+
 
 export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const { user, actions } = useAppState();
