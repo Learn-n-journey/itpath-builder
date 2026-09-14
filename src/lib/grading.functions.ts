@@ -1,7 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { reviewGrade } from "@/lib/ai-self-check.server";
+import { aiCacheKey, allowAiCall, readAiCache, writeAiCache } from "@/lib/ai-budget.server";
+import { GATEWAY_CHAT_URL, GRADING_MODEL } from "@/lib/ai-models";
+import { offlineGrade } from "@/lib/offline-grade";
 
 const criterionSchema = z.object({
   id: z.string().min(1).max(200),
@@ -41,7 +45,7 @@ export interface WrittenGrade {
   followUp: string;
   criteria: CriterionGrade[];
   /** True when the marking came from the AI marker rather than the offline fallback. */
-  aiMarked: true;
+  aiMarked: boolean;
 }
 
 export type GradeReply = { ok: true; grade: WrittenGrade } | { ok: false; error: string };
@@ -70,10 +74,63 @@ function clamp(value: number): number {
 }
 
 export const gradeWrittenAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
-  .handler(async ({ data }): Promise<GradeReply> => {
+  .handler(async ({ data, context }): Promise<GradeReply> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI marking is not configured." };
+
+    const allCriteria = (data.criteria ?? []).map((c) => ({
+      id: c.id,
+      correct: false,
+      feedback: "",
+    }));
+
+    // 1. Clear-cut answers are marked here, with no AI call at all.
+    if (!data.knowledge) {
+      const offline = offlineGrade({
+        question: data.question,
+        answer: data.answer,
+        modelAnswer: data.modelAnswer,
+        expectedPoints: data.expectedPoints,
+      });
+      if (offline) {
+        const passed = offline.score >= 70;
+        return {
+          ok: true,
+          grade: {
+            ...offline,
+            correct: passed,
+            criteria: allCriteria.map((c) => ({
+              ...c,
+              correct: passed,
+              feedback: passed ? "Covered in your answer." : "Not covered in your answer.",
+            })),
+            aiMarked: false,
+          },
+        };
+      }
+    }
+
+    // 2. The same answer to the same task is only ever paid for once.
+    const cacheKey = data.knowledge
+      ? null
+      : await aiCacheKey("grading", [
+          data.topic,
+          data.question,
+          data.modelAnswer,
+          (data.expectedPoints ?? []).join("|"),
+          (data.criteria ?? []).map((c) => c.id).join("|"),
+          data.answer,
+        ]);
+    if (cacheKey) {
+      const cached = await readAiCache<WrittenGrade>(cacheKey);
+      if (cached) return { ok: true, grade: cached };
+    }
+
+    // 3. Daily allowance, so one person cannot drain the AI budget.
+    const budget = await allowAiCall(context.userId, "grading");
+    if (!budget.ok) return { ok: false, error: budget.error };
 
     const system = [
       "You are a strict but fair IT and cybersecurity examiner marking a learner's written answer.",
@@ -104,14 +161,14 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
     ].filter(Boolean);
 
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const res = await fetch(GATEWAY_CHAT_URL, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: GRADING_MODEL,
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: system },
@@ -159,15 +216,14 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
         },
       });
 
-      return {
-        ok: true,
-        grade: {
-          ...reviewed,
-          correct: reviewed.score >= 70,
-          criteria,
-          aiMarked: true,
-        },
+      const grade: WrittenGrade = {
+        ...reviewed,
+        correct: reviewed.score >= 70,
+        criteria,
+        aiMarked: true,
       };
+      if (cacheKey) await writeAiCache(cacheKey, "grading", grade);
+      return { ok: true, grade };
     } catch {
       return { ok: false, error: "Could not reach the AI marker. Your answer was still saved." };
     }

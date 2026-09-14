@@ -11,6 +11,8 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { certifications, topics } from "@/data/static-content";
+import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
+import { allowAiCall } from "@/lib/ai-budget.server";
 
 export type KnowledgeKind =
   | "note"
@@ -143,11 +145,11 @@ async function extract(
   apiKey: string,
   parts: GatewayPart[],
 ): Promise<{ ok: true; data: Extraction } | { ok: false; error: string }> {
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const res = await fetch(GATEWAY_CHAT_URL, {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: UTILITY_MODEL,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: EXTRACT_SYSTEM },
@@ -382,6 +384,9 @@ export const searchKnowledge = createServerFn({ method: "POST" })
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI service is not configured." };
 
+    const budget = await allowAiCall(context.userId, "knowledge");
+    if (!budget.ok) return { ok: false, error: budget.error };
+
     const { data: rows, error } = await context.supabase
       .from("knowledge_items")
       .select(SELECT)
@@ -394,11 +399,11 @@ export const searchKnowledge = createServerFn({ method: "POST" })
     if (items.length === 0)
       return { ok: true, answer: "You have not saved any material yet.", matches: [] };
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch(GATEWAY_CHAT_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: UTILITY_MODEL,
         response_format: { type: "json_object" },
         messages: [
           {

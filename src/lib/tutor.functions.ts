@@ -1,7 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { reviewTutorAnswer, shouldSelfCheckTutorAnswer } from "@/lib/ai-self-check.server";
+import { allowAiCall } from "@/lib/ai-budget.server";
+import { GATEWAY_CHAT_URL, TUTOR_MODEL } from "@/lib/ai-models";
 
 const inputSchema = z.object({
   messages: z
@@ -15,10 +18,14 @@ const inputSchema = z.object({
 export type TutorReply = { ok: true; answer: string } | { ok: false; error: string };
 
 export const askTutor = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
-  .handler(async ({ data }): Promise<TutorReply> => {
+  .handler(async ({ data, context }): Promise<TutorReply> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI service is not configured." };
+
+    const budget = await allowAiCall(context.userId, "tutor");
+    if (!budget.ok) return { ok: false, error: budget.error };
 
     const base =
       "You are an IT and cybersecurity tutor inside a study app. Follow the learner's task instructions exactly. Be concrete: real commands, real outputs, real examples. Structure replies with short headings, no padding. When the task says to ask one question at a time or to hold answers back, end your reply with the next question or prompt only. Correct wrong answers plainly instead of encouraging them. Write in plain text only: no markdown symbols such as **, ## or backticks. Use short headings on their own line and simple dashes for lists.";
@@ -30,14 +37,14 @@ export const askTutor = createServerFn({ method: "POST" })
     const system = base + sourcing;
 
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const res = await fetch(GATEWAY_CHAT_URL, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: TUTOR_MODEL,
           messages: [{ role: "system", content: system }, ...data.messages],
         }),
       });

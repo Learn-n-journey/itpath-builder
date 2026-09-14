@@ -2,6 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { MachineSpec, ShellKind } from "./machine";
 import type { TerminalScenario } from "./scenarios";
+import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
+import { allowAiCall } from "@/lib/ai-budget.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const shellKinds = ["cmd", "powershell", "bash", "android", "ios"] as const;
 
@@ -198,10 +201,14 @@ function isSolvable(scenario: TerminalScenario, shell: ShellKind): boolean {
 }
 
 export const generateTerminalScenario = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
-  .handler(async ({ data }): Promise<AiScenarioReply> => {
+  .handler(async ({ data, context }): Promise<AiScenarioReply> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI practice is not configured." };
+
+    const budget = await allowAiCall(context.userId, "scenario");
+    if (!budget.ok) return { ok: false, error: budget.error };
 
     const allowed = faultsFor(data.shell);
     const system = [
@@ -239,11 +246,11 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
     // regenerated once before the learner ever sees it.
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        const res = await fetch(GATEWAY_CHAT_URL, {
           method: "POST",
           headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
+            model: UTILITY_MODEL,
             response_format: { type: "json_object" },
             messages: [
               { role: "system", content: system },
