@@ -3,6 +3,25 @@ import { createDefaultState, createDefaultUserData, defaultSettings } from "./de
 import { APP_DATA_VERSION, type PersistedState, type UserData } from "./types";
 
 export const STORAGE_KEY = "itpath:state:v1";
+/** Which account the cached copy on this device belongs to (null = not signed in yet). */
+export const STORAGE_OWNER_KEY = "itpath:state-owner:v1";
+
+export function readStateOwner(): string | null {
+  try {
+    return window.localStorage.getItem(STORAGE_OWNER_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function writeStateOwner(userId: string | null): void {
+  try {
+    if (userId) window.localStorage.setItem(STORAGE_OWNER_KEY, userId);
+    else window.localStorage.removeItem(STORAGE_OWNER_KEY);
+  } catch {
+    /* ignore */
+  }
+}
 
 export type LoadOutcome = "fresh" | "loaded" | "recovered" | "migrated" | "unavailable";
 
