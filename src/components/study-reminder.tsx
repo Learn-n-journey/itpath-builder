@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { streakSummary } from "@/lib/streak-engine";
-import { useAppState } from "@/state/app-state";
+import { useAppStateOptional } from "@/state/app-state";
 
 const STORAGE_KEY = "it-path.reminder.lastShown";
 
@@ -31,24 +31,27 @@ function markShown(key: string) {
  * yet met. Silent unless the user turned reminders on in Settings.
  */
 export function StudyReminder() {
-  const { user, hydrated } = useAppState();
-  const enabled = user.settings.reminderEnabled === true;
-  const time = user.settings.reminderTime ?? "18:00";
+  const state = useAppStateOptional();
+  const user = state?.user ?? null;
+  const hydrated = state?.hydrated ?? false;
+  const enabled = user?.settings.reminderEnabled === true;
+  const time = user?.settings.reminderTime ?? "18:00";
 
   useEffect(() => {
-    if (!hydrated || !enabled) return;
+    if (!hydrated || !enabled || !user) return;
     const [hourPart, minutePart] = time.split(":");
     const hour = Number(hourPart);
     const minute = Number(minutePart);
     if (Number.isNaN(hour) || Number.isNaN(minute)) return;
 
+    const currentUser = user;
     function check() {
       const now = new Date();
       const key = todayKey(now);
       if (alreadyShown(key)) return;
       const dueMinutes = hour * 60 + minute;
       if (now.getHours() * 60 + now.getMinutes() < dueMinutes) return;
-      const summary = streakSummary(user, now);
+      const summary = streakSummary(currentUser, now);
       if (summary.goalMet) return;
       markShown(key);
       const remaining = Math.max(0, summary.goalMinutes - summary.todayMinutes);
