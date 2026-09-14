@@ -104,6 +104,24 @@ function SettingsPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
 
+        <Panel
+          title="Appearance"
+          description="Choose how IT PATH looks. Your choice is remembered on this device."
+        >
+          <div className="flex items-center justify-between gap-3">
+            <Label htmlFor="theme-toggle">Light mode</Label>
+            <Switch
+              id="theme-toggle"
+              checked={theme === "light"}
+              onCheckedChange={(checked) => setTheme(checked ? "light" : "dark")}
+            />
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Currently using {theme === "light" ? "light" : "dark"} mode.
+          </p>
+        </Panel>
+
+
         <Panel title="Study schedule">
           <div className="space-y-6">
             <div>
