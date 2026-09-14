@@ -12,6 +12,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { certifications, topics } from "@/data/static-content";
 import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
+import { allowAiCall } from "@/lib/ai-budget.server";
 
 export type KnowledgeKind =
   | "note"
@@ -382,6 +383,9 @@ export const searchKnowledge = createServerFn({ method: "POST" })
   .handler(async ({ context, data }): Promise<SearchReply> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI service is not configured." };
+
+    const budget = await allowAiCall(context.userId, "knowledge");
+    if (!budget.ok) return { ok: false, error: budget.error };
 
     const { data: rows, error } = await context.supabase
       .from("knowledge_items")

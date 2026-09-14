@@ -3,6 +3,8 @@ import { z } from "zod";
 import type { MachineSpec, ShellKind } from "./machine";
 import type { TerminalScenario } from "./scenarios";
 import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
+import { allowAiCall } from "@/lib/ai-budget.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const shellKinds = ["cmd", "powershell", "bash", "android", "ios"] as const;
 
@@ -199,10 +201,14 @@ function isSolvable(scenario: TerminalScenario, shell: ShellKind): boolean {
 }
 
 export const generateTerminalScenario = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
-  .handler(async ({ data }): Promise<AiScenarioReply> => {
+  .handler(async ({ data, context }): Promise<AiScenarioReply> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI practice is not configured." };
+
+    const budget = await allowAiCall(context.userId, "scenario");
+    if (!budget.ok) return { ok: false, error: budget.error };
 
     const allowed = faultsFor(data.shell);
     const system = [
