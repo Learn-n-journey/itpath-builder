@@ -17,6 +17,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { themeBootScript } from "@/state/theme";
 
 function NotFoundComponent() {
   return (
