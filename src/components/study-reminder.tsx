@@ -51,7 +51,7 @@ export function StudyReminder() {
       if (alreadyShown(key)) return;
       const dueMinutes = hour * 60 + minute;
       if (now.getHours() * 60 + now.getMinutes() < dueMinutes) return;
-      const summary = streakSummary(user, now);
+      const summary = streakSummary(currentUser, now);
       if (summary.goalMet) return;
       markShown(key);
       const remaining = Math.max(0, summary.goalMinutes - summary.todayMinutes);
