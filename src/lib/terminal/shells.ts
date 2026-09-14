@@ -1403,6 +1403,7 @@ function runPowerShell(state: MachineState, input: string): ExecResult {
       });
       return ok(state, "");
     }
+    case "help":
     case "get-help":
       return ok(state, [
         "Supported here: Get-ChildItem Set-Location Get-Content Set-Content Add-Content New-Item Remove-Item",
