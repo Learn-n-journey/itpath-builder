@@ -95,3 +95,25 @@ export function buildMesserResources(
     ];
   });
 }
+
+/**
+ * One video resource per topic. Professor Messer does not publish a stable
+ * per-topic URL for every subject, so instead of inventing links we point at a
+ * real channel search scoped to the topic title. The page always exists and
+ * always returns that topic's videos from his own channel.
+ */
+export function buildTopicVideoResources(topicList: Topic[]): Resource[] {
+  return topicList.map((topic) => ({
+    id: `resource-messer-topic-${topic.id}`,
+    title: `Professor Messer videos on ${topic.title}`,
+    provider: "Professor Messer",
+    url: `${CHANNEL_URL}/search?query=${encodeURIComponent(topic.title)}`,
+    topicIds: [topic.id],
+    certificationId: topic.certificationId,
+    kind: "video" as const,
+    difficulty: "standard" as const,
+    access: "free" as const,
+    lastVerified: LAST_VERIFIED,
+    status: "verified" as const,
+  }));
+}

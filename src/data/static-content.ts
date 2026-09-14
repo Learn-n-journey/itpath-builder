@@ -24,7 +24,7 @@ import { buildTopicLabs } from "@/data/lab-generator";
 import { buildTopicTickets } from "@/data/ticket-generator";
 import { questions, quizzes } from "@/data/quiz-content";
 import { tickets as coreTickets } from "@/data/ticket-content";
-import { buildMesserResources } from "@/data/video-library";
+import { buildMesserResources, buildTopicVideoResources } from "@/data/video-library";
 
 export type {
   Assignment,
@@ -696,6 +696,7 @@ export const resources: Resource[] = [
     lastVerified: "2026-09-11",
     status: "verified",
   },
+  ...buildTopicVideoResources(topics),
   ...buildMesserResources(certifications, topics),
 ];
 export const assignments: Assignment[] = [
