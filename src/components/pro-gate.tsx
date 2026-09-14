@@ -25,7 +25,7 @@ const PRO_FEATURES: ProFeature[] = [
   {
     name: "The AI Tutor",
     shortName: "AI Tutor",
-    description: "Ask anything and get answers focused on your weak areas and study goals.",
+    description: "Ask any IT or cybersecurity question and get clear explanations, step-by-step walkthroughs, and study guidance.",
   },
   {
     name: "AI grading and feedback",
