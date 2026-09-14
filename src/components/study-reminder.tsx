@@ -38,7 +38,7 @@ export function StudyReminder() {
   const time = user?.settings.reminderTime ?? "18:00";
 
   useEffect(() => {
-    if (!hydrated || !enabled) return;
+    if (!hydrated || !enabled || !user) return;
     const [hourPart, minutePart] = time.split(":");
     const hour = Number(hourPart);
     const minute = Number(minutePart);
