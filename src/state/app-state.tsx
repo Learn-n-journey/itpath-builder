@@ -27,6 +27,8 @@ import {
   saveState,
   clearState,
   isStorageAvailable,
+  readStateOwner,
+  writeStateOwner,
   type LoadOutcome,
 } from "@/lib/app-data/storage";
 import {
