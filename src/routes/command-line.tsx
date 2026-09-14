@@ -305,7 +305,7 @@ function CommandLinePage() {
       <div className="grid gap-3 sm:grid-cols-3">
         <StatCard label="Completed" value={completedCount} hint="Submitted scenarios" />
         <StatCard label="Best score" value={`${bestScore}%`} hint="From real attempts" />
-        <StatCard label="Recommended" value={shellLabels[recommended.shell]} hint={recommended.title} />
+        <StatCard label="Recommended" value={shellLabels[recommendedShell]} hint="Practice here to keep your skills balanced across devices" />
       </div>
 
       <Panel className="mt-5">
