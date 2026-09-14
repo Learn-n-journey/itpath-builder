@@ -122,6 +122,12 @@ export function useSubscription() {
   }, [userId, ready]);
 
   const paid = subscription ? rowGrantsAccess(subscription) : false;
-  const isPro = paid || betaAccess;
-  return { subscription, isPro, paid, betaAccess, loading: loading || !ready };
+  const tier: PlanTier = betaAccess
+    ? "pro"
+    : paid && subscription
+      ? tierForRow(subscription)
+      : "free";
+  const isPro = tier === "pro";
+  const isPlus = tier !== "free";
+  return { subscription, tier, isPro, isPlus, paid, betaAccess, loading: loading || !ready };
 }
