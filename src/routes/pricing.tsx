@@ -27,13 +27,13 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs, the command-line simulator and the adaptive learning engine with IT PATH Pro — monthly or yearly.",
+          "Start free with the full lesson library. Plus ($7/month) unlocks labs and simulators; Pro ($15/month) adds AI tutoring, AI grading and the Second Brain.",
       },
       { property: "og:title", content: "IT PATH Pricing" },
       {
         property: "og:description",
         content:
-          "Free tier plus Pro plans from $15/month — unlock AI tutoring, AI grading, labs, the troubleshooting simulator and the adaptive learning engine.",
+          "Free tier, Plus from $7/month for hands-on labs and simulators, and Pro from $15/month with AI tutoring and AI grading.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -181,9 +181,12 @@ const PAID_PLANS: PaidPlan[] = [
 
 function PricingPage() {
   const { userId, email, ready } = useAuth();
-  const { isPro, loading } = useSubscription();
+  const { tier, loading } = useSubscription();
   const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
   const navigate = useNavigate();
+
+  const planCovered = (plan: PaidPlan) =>
+    tier === "pro" || (plan.tier === "plus" && tier === "plus");
 
   const buy = async (plan: PaidPlan) => {
     if (!ready) return;
