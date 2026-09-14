@@ -101,11 +101,26 @@ export function recommendedTerminalScenario(
   attempts: TerminalAttempt[],
   weakTopicIds: string[],
 ): TerminalScenario {
+  const attemptsByShell = new Map<string, number>();
+  for (const attempt of attempts) {
+    attemptsByShell.set(attempt.shell, (attemptsByShell.get(attempt.shell) ?? 0) + 1);
+  }
+
   return [...scenarios].sort((a, b) => {
     const aWeak = weakTopicIds.includes(a.topicId) ? 1 : 0;
     const bWeak = weakTopicIds.includes(b.topicId) ? 1 : 0;
     const aBest = Math.max(0, ...attempts.filter((item) => item.scenarioId === a.id).map((item) => item.score ?? 0));
     const bBest = Math.max(0, ...attempts.filter((item) => item.scenarioId === b.id).map((item) => item.score ?? 0));
-    return bWeak - aWeak || aBest - bBest;
+    const aShellAttempts = attemptsByShell.get(a.shell) ?? 0;
+    const bShellAttempts = attemptsByShell.get(b.shell) ?? 0;
+    const aAttempts = attempts.filter((item) => item.scenarioId === a.id).length;
+    const bAttempts = attempts.filter((item) => item.scenarioId === b.id).length;
+    // 1. weak topics first; 2. lowest best score; 3. least-practiced shell; 4. least-practiced scenario.
+    return (
+      bWeak - aWeak ||
+      aBest - bBest ||
+      aShellAttempts - bShellAttempts ||
+      aAttempts - bAttempts
+    );
   })[0] as TerminalScenario;
 }
