@@ -27,13 +27,13 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs, the command-line simulator and the adaptive learning engine with IT PATH Pro — monthly or yearly.",
+          "Start free with the full lesson library. Plus ($7/month) unlocks labs and simulators; Pro ($15/month) adds AI tutoring, AI grading and the Second Brain.",
       },
       { property: "og:title", content: "IT PATH Pricing" },
       {
         property: "og:description",
         content:
-          "Free tier plus Pro plans from $15/month — unlock AI tutoring, AI grading, labs, the troubleshooting simulator and the adaptive learning engine.",
+          "Free tier, Plus from $7/month for hands-on labs and simulators, and Pro from $15/month with AI tutoring and AI grading.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -50,16 +50,20 @@ const FREE_FEATURES = [
   "Cloud backup of your progress",
 ];
 
-const PRO_FEATURES = [
+const PLUS_FEATURES = [
   "Everything in Free",
   "Adaptive learning engine that picks your next best topic",
-  "AI Tutor with context-aware answers and study guidance",
-  "AI grading and detailed feedback on written answers",
-  "Second Brain for notes, screenshots, PDFs, articles and videos",
   "All 100+ hands-on labs and fault drills",
   "Troubleshooting incident simulator",
   "Command-line simulator for CMD, PowerShell and Linux",
-  "Certification readiness scoring",
+  "Exam simulator and certification readiness scoring",
+];
+
+const PRO_FEATURES = [
+  "Everything in Plus",
+  "AI Tutor with context-aware answers and study guidance",
+  "AI grading and detailed feedback on written answers",
+  "Second Brain for notes, screenshots, PDFs, articles and videos",
 ];
 
 interface TopFeature {
@@ -126,34 +130,63 @@ interface PaidPlan {
   cadence: string;
   priceId: string;
   note: string;
+  tier: "plus" | "pro";
+  features: string[];
   featured?: boolean;
 }
 
 const PAID_PLANS: PaidPlan[] = [
   {
-    id: "monthly",
+    id: "plus-monthly",
+    name: "Plus — Monthly",
+    price: "$7",
+    cadence: "per month",
+    priceId: "itpath_plus_monthly",
+    note: "All the hands-on practice, without the AI features.",
+    tier: "plus",
+    features: PLUS_FEATURES,
+  },
+  {
+    id: "plus-yearly",
+    name: "Plus — Yearly",
+    price: "$69",
+    cadence: "per year",
+    priceId: "itpath_plus_yearly",
+    note: "Save $15 compared to paying monthly.",
+    tier: "plus",
+    features: PLUS_FEATURES,
+  },
+  {
+    id: "pro-monthly",
     name: "Pro — Monthly",
     price: "$15",
     cadence: "per month",
     priceId: "itpath_pro_monthly",
     note: "Flexible. Cancel anytime, keep access until the period ends.",
+    tier: "pro",
+    features: PRO_FEATURES,
   },
   {
-    id: "yearly",
+    id: "pro-yearly",
     name: "Pro — Yearly",
     price: "$149",
     cadence: "per year",
     priceId: "itpath_pro_yearly",
     note: "Save $31 compared to paying monthly.",
+    tier: "pro",
+    features: PRO_FEATURES,
     featured: true,
   },
 ];
 
 function PricingPage() {
   const { userId, email, ready } = useAuth();
-  const { isPro, loading } = useSubscription();
+  const { tier, loading } = useSubscription();
   const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
   const navigate = useNavigate();
+
+  const planCovered = (plan: PaidPlan) =>
+    tier === "pro" || (plan.tier === "plus" && tier === "plus");
 
   const buy = async (plan: PaidPlan) => {
     if (!ready) return;
@@ -183,10 +216,10 @@ function PricingPage() {
     <div>
       <PageHeader
         title="Pricing"
-        description="Study free for as long as you like. Upgrade to Pro whenever you're ready — monthly or yearly."
+        description="Study free for as long as you like. Plus unlocks the hands-on practice tools; Pro adds the AI features — both monthly or yearly."
       />
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         <Panel title="Free" description="The complete study system, at no cost.">
           <p className="font-display text-3xl font-semibold">$0</p>
           <p className="mt-1 text-sm text-muted-foreground">Forever</p>
@@ -223,7 +256,7 @@ function PricingPage() {
             <p className="mt-3 font-display text-3xl font-semibold">{plan.price}</p>
             <p className="mt-1 text-sm text-muted-foreground">{plan.cadence}</p>
             <ul className="mt-5 space-y-2.5">
-              {PRO_FEATURES.map((feature) => (
+              {plan.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-2.5 text-sm">
                   <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
                   <span>{feature}</span>
@@ -231,10 +264,12 @@ function PricingPage() {
               ))}
             </ul>
             <div className="mt-6">
-              {isPro ? (
+              {planCovered(plan) ? (
                 <div className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
                   <ShieldCheck className="size-4 text-primary" aria-hidden />
-                  You have IT PATH Pro. Thank you for supporting the app.
+                  {tier === "pro"
+                    ? "You have IT PATH Pro. Thank you for supporting the app."
+                    : "You have IT PATH Plus. Thank you for supporting the app."}
                 </div>
               ) : (
                 <Button
@@ -245,7 +280,7 @@ function PricingPage() {
                 >
                   {checkoutLoading
                     ? "Opening checkout…"
-                    : `Get ${plan.name.replace("Pro — ", "")} — ${plan.price}`}
+                    : `Get ${plan.name.split(" — ")[1]} — ${plan.price}`}
                 </Button>
               )}
             </div>
@@ -254,7 +289,7 @@ function PricingPage() {
       </div>
 
       <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold">Top Pro features</h2>
+        <h2 className="font-display text-xl font-semibold">Top paid features</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Everything that makes IT PATH more than a static course.
         </p>
@@ -285,7 +320,7 @@ function PricingPage() {
         honest idea of your progress.
       </p>
 
-      {!isPro && (
+      {tier === "free" && (
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Secure checkout by Paddle. 30-day money-back guarantee on every plan — see the{" "}
           <Link to="/refund-policy" className="underline">

@@ -34,10 +34,19 @@ function rowGrantsAccess(row: SubscriptionRow, now = new Date()): boolean {
   return false;
 }
 
+export type PlanTier = "free" | "plus" | "pro";
+
+/** Plus unlocks the non-AI Pro features; Pro unlocks everything. */
+function tierForRow(row: SubscriptionRow): Exclude<PlanTier, "free"> {
+  return row.product_id === "itpath_plus" ? "plus" : "pro";
+}
+
 /**
  * Reads the signed-in user's purchases from the subscriptions table.
- * `isPro` is true while any row grants access (subscriptions follow their
- * billing period; one-time purchases are recorded as active without an end).
+ * `tier` is "pro" while any full-Pro row grants access, "plus" for a Plus
+ * row, otherwise "free" (subscriptions follow their billing period; one-time
+ * purchases are recorded as active without an end). Beta access counts as Pro.
+ * `isPro` = full Pro, `isPlus` = Plus or Pro.
  */
 export function useSubscription() {
   const { userId, email, ready } = useAuth();
@@ -113,6 +122,12 @@ export function useSubscription() {
   }, [userId, ready]);
 
   const paid = subscription ? rowGrantsAccess(subscription) : false;
-  const isPro = paid || betaAccess;
-  return { subscription, isPro, paid, betaAccess, loading: loading || !ready };
+  const tier: PlanTier = betaAccess
+    ? "pro"
+    : paid && subscription
+      ? tierForRow(subscription)
+      : "free";
+  const isPro = tier === "pro";
+  const isPlus = tier !== "free";
+  return { subscription, tier, isPro, isPlus, paid, betaAccess, loading: loading || !ready };
 }
