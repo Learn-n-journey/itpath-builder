@@ -79,7 +79,12 @@ export async function readAiCache<T>(cacheKey: string): Promise<T | null> {
 export async function writeAiCache(cacheKey: string, kind: AiKind, value: unknown): Promise<void> {
   try {
     const db = await admin();
-    await db.from("ai_cache").upsert({ cache_key: cacheKey, kind, value }, { onConflict: "cache_key" });
+    await db
+      .from("ai_cache")
+      .upsert(
+        { cache_key: cacheKey, kind, value: value as never },
+        { onConflict: "cache_key" },
+      );
   } catch {
     /* ignore */
   }
