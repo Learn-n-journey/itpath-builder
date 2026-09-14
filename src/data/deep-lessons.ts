@@ -7,11 +7,13 @@
 import { advancedSecurityDeepLessons } from "./deep-lessons/phase-advanced-security";
 import { fundamentalsAPlusDeepLessons } from "./deep-lessons/phase-fundamentals-aplus";
 import { linuxServersCloudDeepLessons } from "./deep-lessons/phase-linux-servers-cloud";
+import { mobileDevicesDeepLessons } from "./deep-lessons/phase-mobile-devices";
 import { networkSecurityDeepLessons } from "./deep-lessons/phase-network-security";
 import { advancedSecurityLessonDepth } from "./deep-lessons/depth-advanced-security";
 import { foundationLessonDepth } from "./deep-lessons/depth-foundation";
 import { fundamentalsAPlusLessonDepth } from "./deep-lessons/depth-fundamentals-aplus";
 import { linuxServersCloudLessonDepth } from "./deep-lessons/depth-linux-servers-cloud";
+import { mobileDevicesLessonDepth } from "./deep-lessons/depth-mobile-devices";
 import { networkSecurityLessonDepth } from "./deep-lessons/depth-network-security";
 import type { DeepLesson, DeepLessonSection, LessonDepth } from "./deep-lessons/types";
 
@@ -696,6 +698,7 @@ const foundationDeepLessons: DeepLesson[] = [
 const lessonDepthByTopic: Record<string, LessonDepth> = {
   ...foundationLessonDepth,
   ...fundamentalsAPlusLessonDepth,
+  ...mobileDevicesLessonDepth,
   ...networkSecurityLessonDepth,
   ...linuxServersCloudLessonDepth,
   ...advancedSecurityLessonDepth,
@@ -704,6 +707,7 @@ const lessonDepthByTopic: Record<string, LessonDepth> = {
 export const deepLessons: DeepLesson[] = [
   ...foundationDeepLessons,
   ...fundamentalsAPlusDeepLessons,
+  ...mobileDevicesDeepLessons,
   ...networkSecurityDeepLessons,
   ...linuxServersCloudDeepLessons,
   ...advancedSecurityDeepLessons,

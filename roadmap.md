@@ -105,6 +105,7 @@
 - [x] Verify progress pages and dashboards on desktop and mobile
 
 ## Lesson quality pass (requested 2026-09-14)
-- [ ] Review lessons for accuracy/up-to-date content
-- [ ] Add links to relevant in-app resources from lessons
-- [ ] Align quiz/recall questions with what lessons actually cover
+- [x] Audit lesson/question alignment across all phases (only gap found: 5 Mobile Devices topics had questions but no deep lesson)
+- [x] Write full deep lessons + depth layer for the 5 Mobile Devices topics (hardware, connectivity, configuration, security/MDM, troubleshooting)
+- [x] Confirmed lessons already link in-app resources via the MediaPanel on each topic page
+- [ ] Optional: add per-topic (rather than per-certification) video resources — today every topic links the whole Messer course
