@@ -9,6 +9,8 @@ import { useAuth } from "@/state/auth-state";
 interface ProFeature {
   /** Matches the `feature` prop passed by the gated page. */
   name: string;
+  /** Shorter, natural name shown in headings and lists. */
+  shortName: string;
   description: string;
 }
 
@@ -16,29 +18,44 @@ interface ProFeature {
 const PRO_FEATURES: ProFeature[] = [
   {
     name: "The AI Tutor",
+    shortName: "AI Tutor",
     description: "Ask anything and get answers that know your weak areas.",
   },
   {
+    name: "AI grading and feedback",
+    shortName: "AI grading and feedback",
+    description: "Get detailed feedback on written answers, not just a right-or-wrong score.",
+  },
+  {
     name: "Second Brain",
+    shortName: "Second Brain",
     description: "Save notes, links and files; the AI connects them to your studies.",
   },
   {
     name: "Hands-on labs",
+    shortName: "Hands-on labs",
     description: "Guided, real-tool practice for every certification topic.",
   },
   {
     name: "The incident simulator",
+    shortName: "Incident simulator",
     description: "Work realistic troubleshooting tickets like a help-desk pro.",
   },
   {
     name: "The command-line simulator",
+    shortName: "Command-line simulator",
     description: "Practice Windows, PowerShell, Linux and mobile shells safely.",
   },
   {
     name: "The exam simulator",
+    shortName: "Exam simulator",
     description: "Full timed practice exams that mirror the real thing.",
   },
 ];
+
+function featureByName(name: string) {
+  return PRO_FEATURES.find((f) => f.name === name) ?? { name, shortName: name, description: "" };
+}
 
 /**
  * Gates a Pro feature behind an active Pro subscription. Signed-in Pro users
@@ -64,6 +81,7 @@ export function ProGate({
 
   if (isPro) return <>{children}</>;
 
+  const current = featureByName(feature);
   const others = PRO_FEATURES.filter((entry) => entry.name !== feature);
 
   return (
@@ -71,12 +89,12 @@ export function ProGate({
       <div className="text-center">
         <Crown className="mx-auto size-8 text-primary" aria-hidden />
         <h2 className="mt-3 font-display text-lg font-semibold">
-          {feature} is a Pro feature
+          Unlock {current.shortName}
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
           {userId
-            ? "Upgrade to Pro to unlock this page — and everything else below."
-            : "Create a free account and upgrade to Pro to unlock this page — and everything else below."}
+            ? `Upgrade to IT PATH Pro to use ${current.shortName} — and every other Pro feature below.`
+            : `Create a free account and upgrade to Pro to use ${current.shortName} — and every other Pro feature below.`}
         </p>
       </div>
       {others.length > 0 ? (
@@ -90,7 +108,7 @@ export function ProGate({
                 <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
                 <span className="text-sm">
                   <span className="inline-flex items-center gap-1.5 font-medium">
-                    {entry.name.replace(/^The ./, (c) => c.slice(4).toUpperCase())}
+                    {entry.shortName}
                     <Crown className="size-3 text-primary" aria-hidden />
                   </span>
                   <span className="text-muted-foreground"> — {entry.description}</span>

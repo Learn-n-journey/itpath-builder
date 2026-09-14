@@ -38,6 +38,8 @@ export interface NavItem {
   group: "Study" | "Practice" | "Career" | "You";
   /** One line explaining what this section is for, shown in the guide and as a tooltip. */
   description: string;
+  /** True if this route is gated behind Pro. A small crown is shown in the sidebar. */
+  pro?: boolean;
 }
 
 export const navItems: NavItem[] = [
@@ -96,6 +98,7 @@ export const navItems: NavItem[] = [
     icon: FlaskConical,
     group: "Practice",
     description: "Step-by-step hands-on walkthroughs and fault drills.",
+    pro: true,
   },
   {
     label: "Quiz Me",
@@ -110,6 +113,7 @@ export const navItems: NavItem[] = [
     icon: Wrench,
     group: "Practice",
     description: "Simulated incidents: diagnose, fix, verify and document.",
+    pro: true,
   },
   {
     label: "Career Mode",
@@ -124,6 +128,7 @@ export const navItems: NavItem[] = [
     icon: AlarmClock,
     group: "Practice",
     description: "A full-length timed mock exam with a pass or fail report.",
+    pro: true,
   },
   {
     label: "Command Line",
@@ -131,6 +136,7 @@ export const navItems: NavItem[] = [
     icon: SquareTerminal,
     group: "Practice",
     description: "Practice CMD, PowerShell and Linux in safe, persistent virtual computers.",
+    pro: true,
   },
   {
     label: "Weak Areas",
@@ -172,7 +178,8 @@ export const navItems: NavItem[] = [
     to: "/ai-tutor",
     icon: Bot,
     group: "You",
-    description: "Builds a detailed question to ask a tutor or chatbot elsewhere.",
+    description: "Ask anything and get answers that know your weak areas.",
+    pro: true,
   },
   {
     label: "Second Brain",
@@ -180,6 +187,7 @@ export const navItems: NavItem[] = [
     icon: Sparkles,
     group: "You",
     description: "Save notes, links, videos and files; IT PATH reads them and connects them to your topics.",
+    pro: true,
   },
   {
     label: "Bookmarks",
