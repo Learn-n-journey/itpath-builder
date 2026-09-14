@@ -37,8 +37,8 @@ export function ProGate({
       </h2>
       <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
         {userId
-          ? "Upgrade once to unlock it forever — along with the AI Tutor, AI grading, labs and the incident simulator."
-          : "Create a free account and upgrade once to unlock it forever — along with the AI Tutor, AI grading, labs and the incident simulator."}
+          ? "Upgrade to Pro to unlock this — along with the AI Tutor, AI grading, labs and the incident simulator."
+          : "Create a free account and upgrade to Pro to unlock this — along with the AI Tutor, AI grading, labs and the incident simulator."}
       </p>
       <div className="mt-5 flex flex-wrap justify-center gap-2">
         <Button asChild>
