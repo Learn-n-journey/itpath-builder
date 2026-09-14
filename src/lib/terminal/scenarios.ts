@@ -359,7 +359,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["mdm status|device info"], ["profiles list"]],
     efficientCommandCount: 4,
     hints: ["Check the management state before removing anything.", "profiles list shows what is installed.", "profiles remove <name> deletes a single profile."],
-    hintSteps: [["mdm status"], ["profiles list"], ["profiles remove legacy-restrictions", "profiles list"]],
+    hintSteps: [["mdm status"], ["profiles list"], ["profiles remove legacy-restrictions.mobileconfig", "profiles list"]],
     explanation: "A stale restrictions profile survived the device handover and blocked installs. Removing that one profile fixed it without wiping the phone.",
     reasoningKeywords: ["profile", "restriction", "mdm", "remove", "verify"],
     misconceptionRules: [{ pattern: "mdm wipe", label: "Wiped a working device instead of removing one profile" }],
