@@ -61,7 +61,7 @@ const PAID_PLANS: PaidPlan[] = [
   {
     id: "monthly",
     name: "Pro — Monthly",
-    price: "$8",
+    price: "$15",
     cadence: "per month",
     priceId: "itpath_pro_monthly",
     note: "Flexible. Cancel anytime, keep access until the period ends.",
@@ -69,19 +69,11 @@ const PAID_PLANS: PaidPlan[] = [
   {
     id: "yearly",
     name: "Pro — Yearly",
-    price: "$70",
+    price: "$149",
     cadence: "per year",
     priceId: "itpath_pro_yearly",
-    note: "Two months free compared to paying monthly.",
+    note: "Save $31 compared to paying monthly.",
     featured: true,
-  },
-  {
-    id: "lifetime",
-    name: "Pro — Lifetime",
-    price: "$149",
-    cadence: "one-time payment",
-    priceId: "itpath_pro_lifetime_price",
-    note: "Pay once. Every current and future Pro feature, forever.",
   },
 ];
 
