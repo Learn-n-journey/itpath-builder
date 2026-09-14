@@ -17,6 +17,12 @@ interface ProFeature {
 /** Every Pro-gated feature. Order is the order shown on paywall screens. */
 const PRO_FEATURES: ProFeature[] = [
   {
+    name: "The adaptive learning engine",
+    shortName: "Adaptive learning",
+    description:
+      "A live model of what you know that picks your next best topic, difficulty and review timing.",
+  },
+  {
     name: "The AI Tutor",
     shortName: "AI Tutor",
     description: "Ask anything and get answers that know your weak areas.",
