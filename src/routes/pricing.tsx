@@ -15,13 +15,13 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs and certification tracking with IT PATH Pro — monthly, yearly or lifetime.",
+          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs and certification tracking with IT PATH Pro — monthly or yearly.",
       },
       { property: "og:title", content: "IT PATH Pricing" },
       {
         property: "og:description",
         content:
-          "Free tier plus Pro plans from $8/month — unlock AI tutoring, AI grading, labs and the troubleshooting simulator.",
+          "Free tier plus Pro plans from $15/month — unlock AI tutoring, AI grading, labs and the troubleshooting simulator.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
