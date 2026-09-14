@@ -69,11 +69,6 @@ export async function readAiCache<T>(cacheKey: string): Promise<T | null> {
     const db = await admin();
     const { data, error } = await db.from("ai_cache").select("value").eq("cache_key", cacheKey).maybeSingle();
     if (error || !data) return null;
-    void db
-      .from("ai_cache")
-      .update({ hits: 1 })
-      .eq("cache_key", cacheKey)
-      .then(() => undefined);
     return (data as { value: T }).value;
   } catch {
     return null;
