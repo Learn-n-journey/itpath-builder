@@ -216,10 +216,10 @@ function PricingPage() {
     <div>
       <PageHeader
         title="Pricing"
-        description="Study free for as long as you like. Upgrade to Pro whenever you're ready — monthly or yearly."
+        description="Study free for as long as you like. Plus unlocks the hands-on practice tools; Pro adds the AI features — both monthly or yearly."
       />
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         <Panel title="Free" description="The complete study system, at no cost.">
           <p className="font-display text-3xl font-semibold">$0</p>
           <p className="mt-1 text-sm text-muted-foreground">Forever</p>
@@ -256,7 +256,7 @@ function PricingPage() {
             <p className="mt-3 font-display text-3xl font-semibold">{plan.price}</p>
             <p className="mt-1 text-sm text-muted-foreground">{plan.cadence}</p>
             <ul className="mt-5 space-y-2.5">
-              {PRO_FEATURES.map((feature) => (
+              {plan.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-2.5 text-sm">
                   <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
                   <span>{feature}</span>
@@ -264,10 +264,12 @@ function PricingPage() {
               ))}
             </ul>
             <div className="mt-6">
-              {isPro ? (
+              {planCovered(plan) ? (
                 <div className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
                   <ShieldCheck className="size-4 text-primary" aria-hidden />
-                  You have IT PATH Pro. Thank you for supporting the app.
+                  {tier === "pro"
+                    ? "You have IT PATH Pro. Thank you for supporting the app."
+                    : "You have IT PATH Plus. Thank you for supporting the app."}
                 </div>
               ) : (
                 <Button
@@ -278,7 +280,7 @@ function PricingPage() {
                 >
                   {checkoutLoading
                     ? "Opening checkout…"
-                    : `Get ${plan.name.replace("Pro — ", "")} — ${plan.price}`}
+                    : `Get ${plan.name.split(" — ")[1]} — ${plan.price}`}
                 </Button>
               )}
             </div>
@@ -287,7 +289,7 @@ function PricingPage() {
       </div>
 
       <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold">Top Pro features</h2>
+        <h2 className="font-display text-xl font-semibold">Top paid features</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Everything that makes IT PATH more than a static course.
         </p>
@@ -318,7 +320,7 @@ function PricingPage() {
         honest idea of your progress.
       </p>
 
-      {!isPro && (
+      {tier === "free" && (
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Secure checkout by Paddle. 30-day money-back guarantee on every plan — see the{" "}
           <Link to="/refund-policy" className="underline">
