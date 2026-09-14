@@ -131,6 +131,7 @@ function buildScenario(
       ...base,
       goals: [{ id: "service", description: `Return ${target} to running`, kind: "service_running", target }],
       diagnosticGroups: [["status", "query", "list"], ["start", "enable", "on"]],
+      hintSteps: aiHintSteps(shell, fault, target),
       machineSpec: { ...spec, services: stoppedServices(shell, target) },
     };
   }
@@ -141,6 +142,7 @@ function buildScenario(
       ...base,
       goals: [{ id: "process", description: `Stop ${target}`, kind: "process_absent", target }],
       diagnosticGroups: [["tasklist", "ps", "top", "get-process", "dumpsys", "apps"], ["kill", "stop", "force-stop", "taskkill", "quit"]],
+      hintSteps: aiHintSteps(shell, fault, target),
       machineSpec: { shell, memoryUsedMb: 7600, processes: runawayProcesses(shell, target) },
     };
   }
@@ -150,6 +152,7 @@ function buildScenario(
       ...base,
       goals: [{ id: "dns", description: "Clear the stale cached lookup", kind: "dns_cache_empty" }],
       diagnosticGroups: [["ipconfig", "ip addr", "network status", "nslookup", "dig"], ["flush", "reset", "clear"]],
+      hintSteps: aiHintSteps(shell, fault, ""),
       machineSpec: { shell, dnsCache: { "intranet.corp.local": "10.0.0.99" } },
     };
   }
@@ -159,6 +162,7 @@ function buildScenario(
     ...base,
     goals: [{ id: "folder", description: `Create ${folder}`, kind: "path_exists", target: folder }],
     diagnosticGroups: [["pwd", "cd", "dir", "ls"], ["mkdir", "md", "new-item"]],
+    hintSteps: aiHintSteps(shell, "missing_folder", ""),
     machineSpec: { shell },
   };
 }
