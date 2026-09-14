@@ -67,6 +67,35 @@ function homeFolder(shell: ShellKind): string {
   return "C:\\Users\\student\\evidence";
 }
 
+/** Real, shell-correct commands revealed under each hint for AI-generated scenarios. */
+function aiHintSteps(shell: ShellKind, fault: FaultKind, target: string): string[][] {
+  if (fault === "service_stopped") {
+    if (shell === "cmd") return [[`sc query ${target}`], ["net start"], [`sc start ${target}`, `sc query ${target}`]];
+    if (shell === "powershell") return [[`Get-Service -Name ${target}`], ["Start-Process powershell -Verb RunAs"], [`Start-Service -Name ${target}`, `Get-Service -Name ${target}`]];
+    if (shell === "bash") return [[`systemctl status ${target}`], ["ping 10.0.0.1"], [`sudo systemctl start ${target}`, `systemctl status ${target}`]];
+    if (shell === "android") return [[`dumpsys ${target}`], ["settings list"], [`svc ${target} enable`, `dumpsys ${target}`]];
+    return [["sync status"], ["device info"], [`sync on ${target}`, "sync status"]];
+  }
+  if (fault === "runaway_process") {
+    if (shell === "cmd") return [["tasklist"], ["tasklist"], [`taskkill /im ${target}`, "tasklist"]];
+    if (shell === "powershell") return [["Get-Process"], ["Get-Process"], [`Stop-Process -Name ${target.replace(/\.exe$/i, "")}`, "Get-Process"]];
+    if (shell === "bash") return [["ps aux", "free -m"], ["top"], [`pkill ${target}`, "free -m"]];
+    if (shell === "android") return [["dumpsys battery"], ["ps"], [`am force-stop ${target}`, "dumpsys battery"]];
+    return [["apps list"], ["device info"], [`app quit ${target}`, "apps list"]];
+  }
+  if (fault === "stale_dns") {
+    if (shell === "cmd") return [["ping 10.0.0.1"], ["nslookup intranet.corp.local"], ["ipconfig /flushdns", "nslookup intranet.corp.local"]];
+    if (shell === "powershell") return [["Test-Connection 10.0.0.1"], ["Resolve-DnsName intranet.corp.local"], ["Clear-DnsClientCache", "Resolve-DnsName intranet.corp.local"]];
+    if (shell === "bash") return [["ping 10.0.0.1"], ["dig intranet.corp.local"], ["resolvectl flush-caches", "dig intranet.corp.local"]];
+    return [["network status"], ["logs"], ["network reset", "network status"]];
+  }
+  const folder = homeFolder(shell);
+  if (shell === "cmd") return [["cd"], ["dir"], [`mkdir ${folder}`, "dir"]];
+  if (shell === "powershell") return [["Get-Location"], ["ls"], [`New-Item -ItemType Directory -Path ${folder}`, "ls"]];
+  if (shell === "android") return [["pwd"], ["ls /sdcard"], [`mkdir ${folder}`, "ls /sdcard"]];
+  return [["pwd"], ["ls"], [`mkdir ${folder}`, "ls"]];
+}
+
 function buildScenario(
   shell: ShellKind,
   topicId: string,
@@ -102,6 +131,7 @@ function buildScenario(
       ...base,
       goals: [{ id: "service", description: `Return ${target} to running`, kind: "service_running", target }],
       diagnosticGroups: [["status", "query", "list"], ["start", "enable", "on"]],
+      hintSteps: aiHintSteps(shell, fault, target),
       machineSpec: { ...spec, services: stoppedServices(shell, target) },
     };
   }
@@ -112,6 +142,7 @@ function buildScenario(
       ...base,
       goals: [{ id: "process", description: `Stop ${target}`, kind: "process_absent", target }],
       diagnosticGroups: [["tasklist", "ps", "top", "get-process", "dumpsys", "apps"], ["kill", "stop", "force-stop", "taskkill", "quit"]],
+      hintSteps: aiHintSteps(shell, fault, target),
       machineSpec: { shell, memoryUsedMb: 7600, processes: runawayProcesses(shell, target) },
     };
   }
@@ -121,6 +152,7 @@ function buildScenario(
       ...base,
       goals: [{ id: "dns", description: "Clear the stale cached lookup", kind: "dns_cache_empty" }],
       diagnosticGroups: [["ipconfig", "ip addr", "network status", "nslookup", "dig"], ["flush", "reset", "clear"]],
+      hintSteps: aiHintSteps(shell, fault, ""),
       machineSpec: { shell, dnsCache: { "intranet.corp.local": "10.0.0.99" } },
     };
   }
@@ -130,6 +162,7 @@ function buildScenario(
     ...base,
     goals: [{ id: "folder", description: `Create ${folder}`, kind: "path_exists", target: folder }],
     diagnosticGroups: [["pwd", "cd", "dir", "ls"], ["mkdir", "md", "new-item"]],
+    hintSteps: aiHintSteps(shell, "missing_folder", ""),
     machineSpec: { shell },
   };
 }

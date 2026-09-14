@@ -32,6 +32,8 @@ export interface TerminalScenario {
   diagnosticGroups: string[][];
   efficientCommandCount: number;
   hints: string[];
+  /** Optional exact instructions revealed after each hint (index-aligned with hints). Derived from diagnosticGroups when absent. */
+  hintSteps?: string[][];
   explanation: string;
   reasoningKeywords: string[];
   misconceptionRules: Array<{ pattern: string; label: string }>;
@@ -53,6 +55,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["ipconfig", "ping 10.0.0.1"], ["nslookup intranet.corp.local", "ping intranet.corp.local"]],
     efficientCommandCount: 4,
     hints: ["Test the local network separately from name resolution.", "Compare a direct IP test with a hostname lookup.", "CMD can clear cached resolver answers with ipconfig /flushdns."],
+    hintSteps: [["ping 10.0.0.1"], ["nslookup intranet.corp.local", "ping intranet.corp.local"], ["ipconfig /flushdns", "nslookup intranet.corp.local"]],
     explanation: "The network path was healthy. A stale local resolver cache sent the hostname to 10.0.0.99, so flushing that cache allowed the current DNS record to be used.",
     reasoningKeywords: ["dns", "cache", "hostname", "ip", "flush"],
     misconceptionRules: [{ pattern: "route delete|format|del .*hosts", label: "Used a destructive fix before isolating DNS" }],
@@ -70,6 +73,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["sc query spooler", "net start"], ["sc start spooler", "net start spooler"]],
     efficientCommandCount: 3,
     hints: ["Printing depends on a Windows service.", "Use sc query to inspect a named service.", "Start Spooler, then query it again to verify."],
+    hintSteps: [["net start"], ["sc query spooler"], ["sc start spooler", "sc query spooler"]],
     explanation: "The Spooler service was stopped. Querying it established the cause; starting it and checking again restored the print dependency.",
     reasoningKeywords: ["spooler", "service", "stopped", "start", "verify"],
     misconceptionRules: [{ pattern: "del |rd |format", label: "Deleted data for a service-state problem" }],
@@ -138,6 +142,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["ls -l /opt/deploy/release.sh"], ["chmod 755 /opt/deploy/release.sh"]],
     efficientCommandCount: 3,
     hints: ["Inspect the current permission bits with ls -l.", "The owner needs read, write and execute; everyone else needs read and execute.", "That permission set is represented by 755."],
+    hintSteps: [["ls -l /opt/deploy/release.sh"], ["chmod u=rwx,go=rx /opt/deploy/release.sh"], ["chmod 755 /opt/deploy/release.sh", "ls -l /opt/deploy/release.sh"]],
     explanation: "The script lacked execute permission. Mode 755 adds execution while keeping write access limited to the owner; 777 would expose an unnecessary integrity risk.",
     reasoningKeywords: ["execute", "permission", "owner", "755", "least privilege"],
     misconceptionRules: [{ pattern: "chmod 777", label: "Granted write access to everyone instead of applying least privilege" }],
@@ -149,6 +154,7 @@ export const terminalScenarios: TerminalScenario[] = [
     goals: [{ id: "address", description: "Restore a valid DHCP address and gateway", kind: "path_exists", target: "C:\\Users\\student" }],
     diagnosticGroups: [["ipconfig /all", "ipconfig"], ["ipconfig /release"], ["ipconfig /renew"], ["ping 10.0.0.1"]], efficientCommandCount: 5,
     hints: ["Inspect the current IPv4 address and gateway.", "Release the invalid lease before requesting a fresh one.", "Use ipconfig /renew, then test the gateway."],
+    hintSteps: [["ipconfig /all"], ["ipconfig /release"], ["ipconfig /renew", "ping 10.0.0.1"]],
     explanation: "The self-assigned APIPA address showed DHCP had not supplied a usable lease. Releasing and renewing restored the workstation's valid address and default gateway.",
     reasoningKeywords: ["apipa", "dhcp", "lease", "renew", "gateway"], misconceptionRules: [{ pattern: "flushdns", label: "Treated an address-assignment fault as a DNS-cache problem" }],
     machineSpec: {
@@ -191,7 +197,9 @@ export const terminalScenarios: TerminalScenario[] = [
     environment: "Windows 11 PowerShell opened as a standard user.", difficulty: "challenging", estimatedMinutes: 15,
     goals: [{ id: "service", description: "Return wuauserv to running", kind: "service_running", target: "wuauserv" }],
     diagnosticGroups: [["get-service -name wuauserv"], ["start-process powershell -verb runas"], ["set-service -name wuauserv -startuptype manual"], ["start-service -name wuauserv"], ["get-service -name wuauserv"]], efficientCommandCount: 5,
-    hints: ["Inspect the service state first.", "Elevate PowerShell before changing service configuration.", "Set StartupType to Manual, then start and verify it."], explanation: "The disabled startup type blocked the service. Elevating, changing only that setting, and starting the service restored update functionality.",
+    hints: ["Inspect the service state first.", "Elevate PowerShell before changing service configuration.", "Set StartupType to Manual, then start and verify it."],
+    hintSteps: [["Get-Service -Name wuauserv"], ["Start-Process powershell -Verb RunAs"], ["Set-Service -Name wuauserv -StartupType Manual", "Start-Service -Name wuauserv", "Get-Service -Name wuauserv"]],
+    explanation: "The disabled startup type blocked the service. Elevating, changing only that setting, and starting the service restored update functionality.",
     reasoningKeywords: ["disabled", "service", "startup", "elevate", "verify"], misconceptionRules: [{ pattern: "remove-item|stop-service", label: "Tried to remove data or stop an already unavailable service" }],
     machineSpec: { shell: "powershell", services: [{ name: "wuauserv", display: "Windows Update", status: "stopped", startType: "disabled" }] },
   },
@@ -211,7 +219,9 @@ export const terminalScenarios: TerminalScenario[] = [
     environment: "Ubuntu server with a sudo-capable account.", difficulty: "standard", estimatedMinutes: 13,
     goals: [{ id: "ssh", description: "Return SSH to running", kind: "service_running", target: "ssh" }],
     diagnosticGroups: [["ping 10.0.0.1"], ["systemctl status ssh"], ["sudo systemctl start ssh", "sudo systemctl restart ssh"], ["ss", "netstat", "systemctl status ssh"]], efficientCommandCount: 5,
-    hints: ["Separate host reachability from the remote-access service.", "Inspect ssh with systemctl.", "Start it with sudo and verify its state or listening sockets."], explanation: "The host was online, but SSH was stopped. Restoring only that service brought remote administration back.",
+    hints: ["Separate host reachability from the remote-access service.", "Inspect ssh with systemctl.", "Start it with sudo and verify its state or listening sockets."],
+    hintSteps: [["ping 10.0.0.1"], ["systemctl status ssh"], ["sudo systemctl start ssh", "systemctl status ssh"]],
+    explanation: "The host was online, but SSH was stopped. Restoring only that service brought remote administration back.",
     reasoningKeywords: ["ssh", "service", "reachability", "start", "verify"], misconceptionRules: [{ pattern: "ufw disable|chmod 777", label: "Weakened security instead of isolating the stopped service" }],
   },
   {
@@ -220,7 +230,9 @@ export const terminalScenarios: TerminalScenario[] = [
     environment: "Ubuntu web server with sudo access.", difficulty: "challenging", estimatedMinutes: 16,
     goals: [{ id: "port", description: "Allow TCP port 80 through the local firewall", kind: "port_unblocked", target: "80" }],
     diagnosticGroups: [["systemctl status nginx"], ["sudo ufw status", "ufw status"], ["sudo ufw allow 80"], ["curl intranet.corp.local"]], efficientCommandCount: 5,
-    hints: ["Confirm nginx is already healthy.", "Inspect UFW rules before changing them.", "Allow port 80 specifically rather than disabling the firewall."], explanation: "The application service was healthy, but a local firewall rule denied port 80. A narrow allow rule restored access without removing firewall protection.",
+    hints: ["Confirm nginx is already healthy.", "Inspect UFW rules before changing them.", "Allow port 80 specifically rather than disabling the firewall."],
+    hintSteps: [["systemctl status nginx"], ["sudo ufw status"], ["sudo ufw allow 80", "curl intranet.corp.local"]],
+    explanation: "The application service was healthy, but a local firewall rule denied port 80. A narrow allow rule restored access without removing firewall protection.",
     reasoningKeywords: ["firewall", "port 80", "nginx", "allow", "least privilege"], misconceptionRules: [{ pattern: "ufw disable", label: "Disabled the entire firewall instead of allowing the required port" }],
     machineSpec: { shell: "bash", blockedPorts: [80] },
   },
@@ -256,6 +268,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["dumpsys battery", "adb devices"], ["ps|top|pm list packages"]],
     efficientCommandCount: 4,
     hints: ["Read the battery report before changing anything.", "dumpsys battery names the top consumer.", "am force-stop stops a named package."],
+    hintSteps: [["dumpsys battery"], ["ps", "dumpsys battery"], ["am force-stop com.android.chrome", "dumpsys battery"]],
     explanation: "Battery statistics named the browser as the top consumer. Force-stopping it removed the drain; the correct long-term fix is restricting its background activity.",
     reasoningKeywords: ["battery", "app", "drain", "force-stop", "evidence"],
     misconceptionRules: [{ pattern: "reset|wipe|factory", label: "Reached for a factory reset before identifying the cause" }],
@@ -274,6 +287,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["dumpsys wifi", "settings list"], ["ping 10.0.0.1|ping intranet.corp.local"]],
     efficientCommandCount: 3,
     hints: ["Check the radio state before blaming the network.", "dumpsys wifi reports whether the radio is on.", "svc wifi enable turns the radio back on."],
+    hintSteps: [["ping 10.0.0.1"], ["dumpsys wifi"], ["svc wifi enable", "ping 10.0.0.1"]],
     explanation: "The Wi-Fi radio had been switched off, so nothing on the local network was reachable. Enabling it restored service without touching the access point.",
     reasoningKeywords: ["wifi", "radio", "off", "enable", "verify"],
     misconceptionRules: [{ pattern: "rm -rf|factory|wipe", label: "Used a destructive action for a settings problem" }],
@@ -299,6 +313,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["pm list packages", "ls /data/data/com.corp.mail"], ["logcat|dumpsys sync"]],
     efficientCommandCount: 5,
     hints: ["List the installed packages to confirm the exact package name.", "Look inside the app's data directory for cached state.", "pm clear com.corp.mail wipes the app's data and cache."],
+    hintSteps: [["pm list packages"], ["ls /data/data/com.corp.mail/cache"], ["pm clear com.corp.mail", "ls /data/data/com.corp.mail/cache"]],
     explanation: "A corrupt cached sync file crashed the app at launch. Clearing the app data removed it, and the account signs in again on next launch.",
     reasoningKeywords: ["cache", "app", "crash", "clear", "package"],
     misconceptionRules: [{ pattern: "factory|wipe|rm -rf /", label: "Wiped the device instead of the single app" }],
@@ -317,6 +332,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["device info|sync status"], ["logs|network status"]],
     efficientCommandCount: 4,
     hints: ["Type help to see what the console can do.", "sync status shows which services are on.", "sync on icloud re-enables the service."],
+    hintSteps: [["help"], ["sync status"], ["sync on icloud", "sync status"]],
     explanation: "iCloud sync had been switched off, so nothing reached the account. Re-enabling it restored syncing without a reset or restore.",
     reasoningKeywords: ["sync", "icloud", "account", "enable", "verify"],
     misconceptionRules: [{ pattern: "mdm wipe|network reset", label: "Erased or reset before checking the sync setting" }],
@@ -343,6 +359,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["mdm status|device info"], ["profiles list"]],
     efficientCommandCount: 4,
     hints: ["Check the management state before removing anything.", "profiles list shows what is installed.", "profiles remove <name> deletes a single profile."],
+    hintSteps: [["mdm status"], ["profiles list"], ["profiles remove legacy-restrictions.mobileconfig", "profiles list"]],
     explanation: "A stale restrictions profile survived the device handover and blocked installs. Removing that one profile fixed it without wiping the phone.",
     reasoningKeywords: ["profile", "restriction", "mdm", "remove", "verify"],
     misconceptionRules: [{ pattern: "mdm wipe", label: "Wiped a working device instead of removing one profile" }],
@@ -364,6 +381,7 @@ export const terminalScenarios: TerminalScenario[] = [
     diagnosticGroups: [["network status|device info"], ["logs|sync status"]],
     efficientCommandCount: 4,
     hints: ["Check the network state before changing settings.", "network status reports how many lookups are cached.", "network reset clears saved networks and cached lookups."],
+    hintSteps: [["network status"], ["logs"], ["network reset", "network status"]],
     explanation: "The phone held a cached answer pointing at the retired server. Resetting network settings cleared it; warn the user that saved Wi-Fi passwords are cleared too.",
     reasoningKeywords: ["cache", "dns", "reset", "network", "verify"],
     misconceptionRules: [{ pattern: "mdm wipe|profiles remove", label: "Erased data for a cached-lookup problem" }],
@@ -436,6 +454,24 @@ export function goalMet(state: MachineState, goal: TerminalGoal): boolean {
 
 export function scenariosForShell(shell: ShellKind): TerminalScenario[] {
   return terminalScenarios.filter((scenario) => scenario.shell === shell);
+}
+
+/**
+ * Exact commands/instructions to reveal after a given hint. Uses explicit
+ * hintSteps when the scenario defines them; otherwise maps the hint position
+ * onto the scenario's diagnostic groups (first hint → first diagnostics,
+ * final hint → the repair/verification stage). Alternate commands joined by
+ * "|" are shown as separate options.
+ */
+export function hintStepsFor(scenario: TerminalScenario, hintIndex: number): string[] {
+  const explicit = scenario.hintSteps?.[hintIndex];
+  if (explicit && explicit.length > 0) return explicit;
+  const groups = scenario.diagnosticGroups;
+  if (groups.length === 0) return [];
+  const hintCount = Math.max(1, scenario.hints.length);
+  const ratio = hintCount <= 1 ? 1 : hintIndex / (hintCount - 1);
+  const groupIndex = Math.min(groups.length - 1, Math.round(ratio * (groups.length - 1)));
+  return (groups[groupIndex] ?? []).flatMap((entry) => entry.split("|").map((command) => command.trim()).filter(Boolean));
 }
 
 const hostnames = ["LAB-017", "OPS-204", "HELP-033", "BRANCH-112"];
