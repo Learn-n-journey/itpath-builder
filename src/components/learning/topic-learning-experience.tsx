@@ -114,7 +114,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       modelAnswer: question.explanation,
       expectedPoints: question.acceptedConcepts,
     });
-    const correct = graded ? graded.correct : matched.length >= Math.min(2, question.acceptedConcepts.length);
+    const correct = graded ? graded.correct : passesOffline(answer, question.acceptedConcepts, question.explanation);
     const now = new Date().toISOString();
     actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
     if (!correct) {
