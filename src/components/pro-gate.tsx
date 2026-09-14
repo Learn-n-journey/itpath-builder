@@ -12,55 +12,72 @@ interface ProFeature {
   /** Shorter, natural name shown in headings and lists. */
   shortName: string;
   description: string;
+  /** Minimum plan that unlocks this feature. "plus" = Plus or Pro; "pro" = Pro only. */
+  tier: "plus" | "pro";
 }
 
-/** Every Pro-gated feature. Order is the order shown on paywall screens. */
+/** Every paid feature. Order is the order shown on paywall screens. */
 const PRO_FEATURES: ProFeature[] = [
   {
     name: "The adaptive learning engine",
     shortName: "Adaptive learning",
     description:
       "A live model of what you know that picks your next best topic, difficulty and review timing.",
+    tier: "plus",
   },
   {
     name: "The AI Tutor",
     shortName: "AI Tutor",
     description: "Ask any IT or cybersecurity question and get clear explanations, step-by-step walkthroughs, and study guidance.",
+    tier: "pro",
   },
   {
     name: "AI grading and feedback",
     shortName: "AI grading and feedback",
     description: "Get detailed feedback on written answers, not just a right-or-wrong score.",
+    tier: "pro",
   },
   {
     name: "Second Brain",
     shortName: "Second Brain",
     description: "Save notes, links and files; the AI connects them to your studies.",
+    tier: "pro",
   },
   {
     name: "Hands-on labs",
     shortName: "Hands-on labs",
     description: "Guided, real-tool practice for every certification topic.",
+    tier: "plus",
   },
   {
     name: "The incident simulator",
     shortName: "Incident simulator",
     description: "Work realistic troubleshooting tickets like a help-desk pro.",
+    tier: "plus",
   },
   {
     name: "The command-line simulator",
     shortName: "Command-line simulator",
     description: "Practice Windows, PowerShell, Linux and mobile shells safely.",
+    tier: "plus",
   },
   {
     name: "The exam simulator",
     shortName: "Exam simulator",
     description: "Full timed practice exams that mirror the real thing.",
+    tier: "plus",
   },
 ];
 
-function featureByName(name: string) {
-  return PRO_FEATURES.find((f) => f.name === name) ?? { name, shortName: name, description: "" };
+function featureByName(name: string): ProFeature {
+  return (
+    PRO_FEATURES.find((f) => f.name === name) ?? {
+      name,
+      shortName: name,
+      description: "",
+      tier: "pro",
+    }
+  );
 }
 
 /**
