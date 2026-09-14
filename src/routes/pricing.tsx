@@ -50,16 +50,20 @@ const FREE_FEATURES = [
   "Cloud backup of your progress",
 ];
 
-const PRO_FEATURES = [
+const PLUS_FEATURES = [
   "Everything in Free",
   "Adaptive learning engine that picks your next best topic",
-  "AI Tutor with context-aware answers and study guidance",
-  "AI grading and detailed feedback on written answers",
-  "Second Brain for notes, screenshots, PDFs, articles and videos",
   "All 100+ hands-on labs and fault drills",
   "Troubleshooting incident simulator",
   "Command-line simulator for CMD, PowerShell and Linux",
-  "Certification readiness scoring",
+  "Exam simulator and certification readiness scoring",
+];
+
+const PRO_FEATURES = [
+  "Everything in Plus",
+  "AI Tutor with context-aware answers and study guidance",
+  "AI grading and detailed feedback on written answers",
+  "Second Brain for notes, screenshots, PDFs, articles and videos",
 ];
 
 interface TopFeature {
@@ -126,25 +130,51 @@ interface PaidPlan {
   cadence: string;
   priceId: string;
   note: string;
+  tier: "plus" | "pro";
+  features: string[];
   featured?: boolean;
 }
 
 const PAID_PLANS: PaidPlan[] = [
   {
-    id: "monthly",
+    id: "plus-monthly",
+    name: "Plus — Monthly",
+    price: "$7",
+    cadence: "per month",
+    priceId: "itpath_plus_monthly",
+    note: "All the hands-on practice, without the AI features.",
+    tier: "plus",
+    features: PLUS_FEATURES,
+  },
+  {
+    id: "plus-yearly",
+    name: "Plus — Yearly",
+    price: "$69",
+    cadence: "per year",
+    priceId: "itpath_plus_yearly",
+    note: "Save $15 compared to paying monthly.",
+    tier: "plus",
+    features: PLUS_FEATURES,
+  },
+  {
+    id: "pro-monthly",
     name: "Pro — Monthly",
     price: "$15",
     cadence: "per month",
     priceId: "itpath_pro_monthly",
     note: "Flexible. Cancel anytime, keep access until the period ends.",
+    tier: "pro",
+    features: PRO_FEATURES,
   },
   {
-    id: "yearly",
+    id: "pro-yearly",
     name: "Pro — Yearly",
     price: "$149",
     cadence: "per year",
     priceId: "itpath_pro_yearly",
     note: "Save $31 compared to paying monthly.",
+    tier: "pro",
+    features: PRO_FEATURES,
     featured: true,
   },
 ];
