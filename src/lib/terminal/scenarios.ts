@@ -440,6 +440,24 @@ export function scenariosForShell(shell: ShellKind): TerminalScenario[] {
   return terminalScenarios.filter((scenario) => scenario.shell === shell);
 }
 
+/**
+ * Exact commands/instructions to reveal after a given hint. Uses explicit
+ * hintSteps when the scenario defines them; otherwise maps the hint position
+ * onto the scenario's diagnostic groups (first hint → first diagnostics,
+ * final hint → the repair/verification stage). Alternate commands joined by
+ * "|" are shown as separate options.
+ */
+export function hintStepsFor(scenario: TerminalScenario, hintIndex: number): string[] {
+  const explicit = scenario.hintSteps?.[hintIndex];
+  if (explicit && explicit.length > 0) return explicit;
+  const groups = scenario.diagnosticGroups;
+  if (groups.length === 0) return [];
+  const hintCount = Math.max(1, scenario.hints.length);
+  const ratio = hintCount <= 1 ? 1 : hintIndex / (hintCount - 1);
+  const groupIndex = Math.min(groups.length - 1, Math.round(ratio * (groups.length - 1)));
+  return (groups[groupIndex] ?? []).flatMap((entry) => entry.split("|").map((command) => command.trim()).filter(Boolean));
+}
+
 const hostnames = ["LAB-017", "OPS-204", "HELP-033", "BRANCH-112"];
 const contexts = ["after a routine update", "during a busy support shift", "after a user reported intermittent failures", "during a scheduled maintenance check"];
 
