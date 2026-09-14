@@ -21,17 +21,32 @@ import { getLearningModule, getPracticeActivity, getRealWorldScenario, getRecall
 import type { TopicProgress } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { topicScopeProgress } from "@/lib/scope-progress";
+import { answerMatches, coveredConcepts } from "@/lib/fuzzy-match";
+
 
 const progressLabels: Array<[keyof Pick<TopicProgress, "understanding" | "recall" | "application" | "practicalAbility" | "troubleshooting" | "retention">, string]> = [
   ["understanding", "Understanding"], ["recall", "Recall"], ["application", "Application"],
   ["practicalAbility", "Practical ability"], ["troubleshooting", "Troubleshooting"], ["retention", "Retention"],
 ];
 
-function normalize(text: string) { return text.toLowerCase().replace(/[^a-z0-9\s]/g, " "); }
+/**
+ * Meaning-based matching, so a correct answer in the learner's own words counts.
+ * An idea is credited when enough of its meaningful words appear (allowing small
+ * spelling slips), rather than requiring the exact phrase.
+ */
 function matchConcepts(answer: string, concepts: string[]) {
-  const normalized = normalize(answer);
-  return concepts.filter((concept) => normalized.includes(normalize(concept)));
+  return coveredConcepts(answer, concepts, 0.45);
 }
+
+/** Enough of the expected ideas, or an answer that tracks the model answer. */
+function passesOffline(answer: string, concepts: string[], modelAnswer?: string) {
+  if (concepts.length === 0) return modelAnswer ? answerMatches(answer, modelAnswer) : false;
+  const matched = matchConcepts(answer, concepts).length;
+  const needed = Math.max(1, Math.ceil(concepts.length / 2));
+  if (matched >= needed) return true;
+  return modelAnswer ? answerMatches(answer, modelAnswer) : false;
+}
+
 
 export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const { user, actions } = useAppState();
@@ -99,7 +114,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       modelAnswer: question.explanation,
       expectedPoints: question.acceptedConcepts,
     });
-    const correct = graded ? graded.correct : matched.length >= Math.min(2, question.acceptedConcepts.length);
+    const correct = graded ? graded.correct : passesOffline(answer, question.acceptedConcepts, question.explanation);
     const now = new Date().toISOString();
     actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
     if (!correct) {
@@ -155,7 +170,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       modelAnswer: scenario.guidance,
       expectedPoints: scenario.expectedConcepts,
     });
-    const meetsCriteria = graded ? graded.correct : matched.length >= Math.min(2, scenario.expectedConcepts.length);
+    const meetsCriteria = graded ? graded.correct : passesOffline(scenarioAnswer.trim(), scenario.expectedConcepts, scenario.guidance);
     const now = new Date().toISOString();
     actions.setScenarioResponse({ id: savedScenario?.id ?? crypto.randomUUID(), scenarioId: scenario.id, topicId: topic.id, response: scenarioAnswer.trim(), matchedConcepts: matched, meetsCriteria, createdAt: savedScenario?.createdAt ?? now, updatedAt: now });
     setScenarioFeedback(`${meetsCriteria ? "Your reasoning includes key evidence. " : "Strengthen your reasoning. "}${scenario.guidance}`);
