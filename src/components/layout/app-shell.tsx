@@ -31,7 +31,12 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:font-medium data-[status=active]:text-sidebar-primary"
                   >
                     <item.icon className="size-4 shrink-0" aria-hidden />
-                    <span>{item.label}</span>
+                    <span className="flex flex-1 items-center justify-between gap-2">
+                      <span>{item.label}</span>
+                      {item.pro ? (
+                        <Crown className="size-3 text-primary" aria-hidden />
+                      ) : null}
+                    </span>
                   </Link>
                 </li>
               ))}
