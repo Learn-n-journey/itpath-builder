@@ -94,9 +94,18 @@ function CommandLinePage() {
     () => recommendedTerminalScenario(terminalScenarios, user.terminalAttempts, weakTopicIds),
     [user.terminalAttempts, weakTopicIds],
   );
-  const [shell, setShell] = useState<TerminalAttempt["shell"]>(recommended.shell);
+  const recommendedShell = useMemo(() => {
+    const submitted = user.terminalAttempts.filter((item) => item.status === "submitted");
+    const counts = new Map<TerminalAttempt["shell"], number>();
+    for (const attempt of submitted) {
+      counts.set(attempt.shell, (counts.get(attempt.shell) ?? 0) + 1);
+    }
+    const shells: TerminalAttempt["shell"][] = ["cmd", "powershell", "bash", "android", "ios"];
+    return shells.sort((a, b) => (counts.get(a) ?? 0) - (counts.get(b) ?? 0))[0] ?? recommended.shell;
+  }, [user.terminalAttempts, recommended.shell]);
+  const [shell, setShell] = useState<TerminalAttempt["shell"]>(recommendedShell);
   const [windowsShell, setWindowsShell] = useState<Extract<TerminalAttempt["shell"], "cmd" | "powershell">>(
-    recommended.shell === "powershell" ? "powershell" : "cmd",
+    recommendedShell === "powershell" ? "powershell" : "cmd",
   );
   const environment: TerminalEnvironment =
     shell === "bash" ? "unix" : shell === "android" ? "android" : shell === "ios" ? "ios" : "windows";
