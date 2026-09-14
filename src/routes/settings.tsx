@@ -110,16 +110,26 @@ function SettingsPage() {
           title="Appearance"
           description="Choose how IT PATH looks. Your choice is remembered on this device."
         >
-          <div className="flex items-center justify-between gap-3">
-            <Label htmlFor="theme-toggle">Light mode</Label>
-            <Switch
-              id="theme-toggle"
-              checked={theme === "light"}
-              onCheckedChange={(checked) => setTheme(checked ? "light" : "dark")}
-            />
+          <div className="space-y-3">
+            <Label htmlFor="theme-select">Theme</Label>
+            <Select
+              value={theme}
+              onValueChange={(v) => setTheme(v as "dark" | "light" | "system")}
+            >
+              <SelectTrigger id="theme-select" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="dark">Dark</SelectItem>
+                <SelectItem value="light">Light</SelectItem>
+                <SelectItem value="system">System</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Currently using {theme === "light" ? "light" : "dark"} mode.
+          <p className="mt-3 text-sm text-muted-foreground">
+            {theme === "system"
+              ? `Following your system setting (${resolvedTheme === "light" ? "light" : "dark"} mode right now).`
+              : `Currently using ${theme === "light" ? "light" : "dark"} mode.`}
           </p>
         </Panel>
 
