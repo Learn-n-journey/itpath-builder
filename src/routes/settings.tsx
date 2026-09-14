@@ -21,6 +21,7 @@ import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
+import { useTheme } from "@/state/theme";
 import type { ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 
 export const Route = createFileRoute("/settings")({
@@ -65,6 +66,7 @@ const JOBS = [
 
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
+  const { theme, setTheme } = useTheme();
   const s = user.settings;
 
   // Weekly study time is always derived: selected days x daily study time.
