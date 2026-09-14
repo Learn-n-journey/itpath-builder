@@ -109,7 +109,7 @@ async function handleTransactionCompleted(data: any, env: PaddleEnv) {
     user_id: userId,
     paddle_subscription_id: id,
     paddle_customer_id: customerId,
-    product_id: productId ?? "itpath_pro_lifetime",
+    product_id: productId ?? "itpath_pro",
     price_id: priceId,
     status: "active",
     current_period_start: new Date().toISOString(),
