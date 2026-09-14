@@ -208,7 +208,7 @@ function PricingPage() {
   });
 
   const selectedPrice = (product: PaidProduct) =>
-    product.prices.find((p) => p.period === selectedPeriods[product.id]) ?? product.prices[0];
+    product.prices.find((p) => p.period === selectedPeriods[product.id]) ?? product.prices[0]!;
 
   const planCovered = (product: PaidProduct) =>
     tier === "pro" || (product.tier === "plus" && tier === "plus");
