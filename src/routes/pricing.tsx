@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Brain,
@@ -16,6 +17,13 @@ import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useSubscription } from "@/hooks/use-subscription";
 import { useAuth } from "@/state/auth-state";
@@ -123,59 +131,68 @@ const TOP_FEATURES: TopFeature[] = [
   },
 ];
 
-interface PaidPlan {
+type BillingPeriod = "monthly" | "yearly";
+
+interface ProductPrice {
   id: string;
-  name: string;
+  period: BillingPeriod;
   price: string;
   cadence: string;
-  priceId: string;
   note: string;
-  tier: "plus" | "pro";
-  features: string[];
-  featured?: boolean;
 }
 
-const PAID_PLANS: PaidPlan[] = [
+interface PaidProduct {
+  id: string;
+  name: string;
+  tier: "plus" | "pro";
+  features: string[];
+  prices: ProductPrice[];
+}
+
+const PAID_PRODUCTS: PaidProduct[] = [
   {
-    id: "plus-monthly",
-    name: "Plus — Monthly",
-    price: "$7",
-    cadence: "per month",
-    priceId: "itpath_plus_monthly",
-    note: "All the hands-on practice, without the AI features.",
+    id: "plus",
+    name: "Plus",
     tier: "plus",
     features: PLUS_FEATURES,
+    prices: [
+      {
+        id: "itpath_plus_monthly",
+        period: "monthly",
+        price: "$7",
+        cadence: "per month",
+        note: "All the hands-on practice, without the AI features.",
+      },
+      {
+        id: "itpath_plus_yearly",
+        period: "yearly",
+        price: "$69",
+        cadence: "per year",
+        note: "Save $15 compared to paying monthly.",
+      },
+    ],
   },
   {
-    id: "plus-yearly",
-    name: "Plus — Yearly",
-    price: "$69",
-    cadence: "per year",
-    priceId: "itpath_plus_yearly",
-    note: "Save $15 compared to paying monthly.",
-    tier: "plus",
-    features: PLUS_FEATURES,
-  },
-  {
-    id: "pro-monthly",
-    name: "Pro — Monthly",
-    price: "$15",
-    cadence: "per month",
-    priceId: "itpath_pro_monthly",
-    note: "Flexible. Cancel anytime, keep access until the period ends.",
+    id: "pro",
+    name: "Pro",
     tier: "pro",
     features: PRO_FEATURES,
-  },
-  {
-    id: "pro-yearly",
-    name: "Pro — Yearly",
-    price: "$149",
-    cadence: "per year",
-    priceId: "itpath_pro_yearly",
-    note: "Save $31 compared to paying monthly.",
-    tier: "pro",
-    features: PRO_FEATURES,
-    featured: true,
+    prices: [
+      {
+        id: "itpath_pro_monthly",
+        period: "monthly",
+        price: "$15",
+        cadence: "per month",
+        note: "Flexible. Cancel anytime, keep access until the period ends.",
+      },
+      {
+        id: "itpath_pro_yearly",
+        period: "yearly",
+        price: "$149",
+        cadence: "per year",
+        note: "Save $31 compared to paying monthly.",
+      },
+    ],
   },
 ];
 
@@ -185,10 +202,18 @@ function PricingPage() {
   const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
   const navigate = useNavigate();
 
-  const planCovered = (plan: PaidPlan) =>
-    tier === "pro" || (plan.tier === "plus" && tier === "plus");
+  const [selectedPeriods, setSelectedPeriods] = useState<Record<string, BillingPeriod>>({
+    plus: "monthly",
+    pro: "monthly",
+  });
 
-  const buy = async (plan: PaidPlan) => {
+  const selectedPrice = (product: PaidProduct) =>
+    product.prices.find((p) => p.period === selectedPeriods[product.id]) ?? product.prices[0]!;
+
+  const planCovered = (product: PaidProduct) =>
+    tier === "pro" || (product.tier === "plus" && tier === "plus");
+
+  const buy = async (product: PaidProduct) => {
     if (!ready) return;
     if (!userId) {
       toast.message("Sign in first", {
@@ -197,9 +222,10 @@ function PricingPage() {
       void navigate({ to: "/auth" });
       return;
     }
+    const price = selectedPrice(product);
     try {
       await openCheckout({
-        priceId: plan.priceId,
+        priceId: price.id,
         quantity: 1,
         ...(email ? { customerEmail: email } : {}),
         customData: { userId },
@@ -210,6 +236,10 @@ function PricingPage() {
         description: e instanceof Error ? e.message : "Please try again.",
       });
     }
+  };
+
+  const updatePeriod = (productId: string, period: BillingPeriod) => {
+    setSelectedPeriods((prev) => ({ ...prev, [productId]: period }));
   };
 
   return (
@@ -238,54 +268,80 @@ function PricingPage() {
           </div>
         </Panel>
 
-        {PAID_PLANS.map((plan) => (
-          <Panel
-            key={plan.id}
-            title={plan.name}
-            description={plan.note}
-            className={plan.featured ? "border-primary/40" : undefined}
-          >
-            {plan.featured && (
-              <div className="flex items-center gap-2 text-primary">
-                <Crown className="size-4" aria-hidden />
-                <span className="text-xs font-semibold uppercase tracking-wide">
-                  Best value
-                </span>
-              </div>
-            )}
-            <p className="mt-3 font-display text-3xl font-semibold">{plan.price}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{plan.cadence}</p>
-            <ul className="mt-5 space-y-2.5">
-              {plan.features.map((feature) => (
-                <li key={feature} className="flex items-start gap-2.5 text-sm">
-                  <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6">
-              {planCovered(plan) ? (
-                <div className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
-                  <ShieldCheck className="size-4 text-primary" aria-hidden />
-                  {tier === "pro"
-                    ? "You have IT PATH Pro. Thank you for supporting the app."
-                    : "You have IT PATH Plus. Thank you for supporting the app."}
+        {PAID_PRODUCTS.map((product) => {
+          const price = selectedPrice(product);
+          const isYearlyBestValue = product.id === "pro" && price.period === "yearly";
+
+          return (
+            <Panel
+              key={product.id}
+              title={product.name}
+              description={price.note}
+              className={isYearlyBestValue ? "border-primary/40" : undefined}
+            >
+              {isYearlyBestValue && (
+                <div className="flex items-center gap-2 text-primary">
+                  <Crown className="size-4" aria-hidden />
+                  <span className="text-xs font-semibold uppercase tracking-wide">Best value</span>
                 </div>
-              ) : (
-                <Button
-                  className="w-full"
-                  variant={plan.featured ? "default" : "outline"}
-                  onClick={() => void buy(plan)}
-                  disabled={checkoutLoading || loading}
-                >
-                  {checkoutLoading
-                    ? "Opening checkout…"
-                    : `Get ${plan.name.split(" — ")[1]} — ${plan.price}`}
-                </Button>
               )}
-            </div>
-          </Panel>
-        ))}
+
+              <div className="mt-3 flex items-baseline gap-3">
+                <p className="font-display text-3xl font-semibold">{price.price}</p>
+                <p className="text-sm text-muted-foreground">{price.cadence}</p>
+              </div>
+
+              <div className="mt-4">
+                <Select
+                  value={price.period}
+                  onValueChange={(value) => updatePeriod(product.id, value as BillingPeriod)}
+                >
+                  <SelectTrigger className="w-full" aria-label={`${product.name} billing period`}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {product.prices.map((p) => (
+                      <SelectItem key={p.id} value={p.period}>
+                        {p.period === "monthly" ? "Monthly" : "Yearly"} — {p.price}/{p.period === "monthly" ? "mo" : "yr"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <ul className="mt-5 space-y-2.5">
+                {product.features.map((feature) => (
+                  <li key={feature} className="flex items-start gap-2.5 text-sm">
+                    <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-6">
+                {planCovered(product) ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm">
+                    <ShieldCheck className="size-4 text-primary" aria-hidden />
+                    {tier === "pro"
+                      ? "You have IT PATH Pro. Thank you for supporting the app."
+                      : "You have IT PATH Plus. Thank you for supporting the app."}
+                  </div>
+                ) : (
+                  <Button
+                    className="w-full"
+                    variant={isYearlyBestValue ? "default" : "outline"}
+                    onClick={() => void buy(product)}
+                    disabled={checkoutLoading || loading}
+                  >
+                    {checkoutLoading
+                      ? "Opening checkout…"
+                      : `Get ${product.name} ${price.period === "monthly" ? "Monthly" : "Yearly"} — ${price.price}`}
+                  </Button>
+                )}
+              </div>
+            </Panel>
+          );
+        })}
       </div>
 
       <section className="mt-10">
