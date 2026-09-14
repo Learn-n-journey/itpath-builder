@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { MachineSpec, ShellKind } from "./machine";
 import type { TerminalScenario } from "./scenarios";
+import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
 
 const shellKinds = ["cmd", "powershell", "bash", "android", "ios"] as const;
 
@@ -239,11 +240,11 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
     // regenerated once before the learner ever sees it.
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        const res = await fetch(GATEWAY_CHAT_URL, {
           method: "POST",
           headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
+            model: UTILITY_MODEL,
             response_format: { type: "json_object" },
             messages: [
               { role: "system", content: system },

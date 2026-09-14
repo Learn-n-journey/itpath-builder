@@ -5,8 +5,7 @@
  */
 import { z } from "zod";
 
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL = "google/gemini-2.5-flash";
+import { GATEWAY_CHAT_URL as GATEWAY, UTILITY_MODEL as MODEL } from "@/lib/ai-models";
 
 async function askJson(system: string, user: string): Promise<unknown | null> {
   const apiKey = process.env["LOVABLE_API_KEY"];

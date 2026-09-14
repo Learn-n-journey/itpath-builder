@@ -11,6 +11,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { certifications, topics } from "@/data/static-content";
+import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
 
 export type KnowledgeKind =
   | "note"
@@ -143,11 +144,11 @@ async function extract(
   apiKey: string,
   parts: GatewayPart[],
 ): Promise<{ ok: true; data: Extraction } | { ok: false; error: string }> {
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const res = await fetch(GATEWAY_CHAT_URL, {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: UTILITY_MODEL,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: EXTRACT_SYSTEM },
@@ -394,11 +395,11 @@ export const searchKnowledge = createServerFn({ method: "POST" })
     if (items.length === 0)
       return { ok: true, answer: "You have not saved any material yet.", matches: [] };
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch(GATEWAY_CHAT_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: UTILITY_MODEL,
         response_format: { type: "json_object" },
         messages: [
           {
