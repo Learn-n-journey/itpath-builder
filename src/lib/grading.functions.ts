@@ -161,14 +161,14 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
     ].filter(Boolean);
 
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const res = await fetch(GATEWAY_CHAT_URL, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: GRADING_MODEL,
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: system },
@@ -216,15 +216,14 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
         },
       });
 
-      return {
-        ok: true,
-        grade: {
-          ...reviewed,
-          correct: reviewed.score >= 70,
-          criteria,
-          aiMarked: true,
-        },
+      const grade: WrittenGrade = {
+        ...reviewed,
+        correct: reviewed.score >= 70,
+        criteria,
+        aiMarked: true,
       };
+      if (cacheKey) await writeAiCache(cacheKey, "grading", grade);
+      return { ok: true, grade };
     } catch {
       return { ok: false, error: "Could not reach the AI marker. Your answer was still saved." };
     }
