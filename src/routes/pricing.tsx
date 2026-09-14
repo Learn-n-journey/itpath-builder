@@ -1,5 +1,17 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Check, Crown, ShieldCheck } from "lucide-react";
+import {
+  Brain,
+  Check,
+  Crown,
+  Cpu,
+  FileText,
+  GraduationCap,
+  MessageSquareText,
+  MonitorCog,
+  ShieldCheck,
+  Terminal,
+  Wrench,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
@@ -15,13 +27,13 @@ export const Route = createFileRoute("/pricing")({
       {
         name: "description",
         content:
-          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs and certification tracking with IT PATH Pro — monthly or yearly.",
+          "Start free with the full lesson library, or unlock AI tutoring, AI grading, labs, the command-line simulator and the adaptive learning engine with IT PATH Pro — monthly or yearly.",
       },
       { property: "og:title", content: "IT PATH Pricing" },
       {
         property: "og:description",
         content:
-          "Free tier plus Pro plans from $15/month — unlock AI tutoring, AI grading, labs and the troubleshooting simulator.",
+          "Free tier plus Pro plans from $15/month — unlock AI tutoring, AI grading, labs, the troubleshooting simulator and the adaptive learning engine.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -40,11 +52,71 @@ const FREE_FEATURES = [
 
 const PRO_FEATURES = [
   "Everything in Free",
-  "AI Tutor that answers in the app, in context",
-  "AI grading with a full tutoring response on every written answer",
+  "Adaptive learning engine that picks your next best topic",
+  "AI Tutor with context-aware answers and study guidance",
+  "AI grading and detailed feedback on written answers",
+  "Second Brain for notes, screenshots, PDFs, articles and videos",
   "All 100+ hands-on labs and fault drills",
   "Troubleshooting incident simulator",
+  "Command-line simulator for CMD, PowerShell and Linux",
   "Certification readiness scoring",
+];
+
+interface TopFeature {
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  title: string;
+  description: string;
+}
+
+const TOP_FEATURES: TopFeature[] = [
+  {
+    icon: Brain,
+    title: "Adaptive learning engine",
+    description:
+      "A live model of what you know, what you are forgetting and where you are guessing. It routes you to the exact topic, difficulty and activity you need next.",
+  },
+  {
+    icon: MessageSquareText,
+    title: "AI Tutor",
+    description:
+      "Ask any IT or cybersecurity question and get clear explanations, step-by-step walkthroughs and study guidance tied to your current progress.",
+  },
+  {
+    icon: GraduationCap,
+    title: "AI grading and feedback",
+    description:
+      "Type your answer in your own words. The AI evaluates meaning, explains what you missed and teaches the concept before you move on.",
+  },
+  {
+    icon: FileText,
+    title: "Second Brain",
+    description:
+      "Save notes, screenshots, PDFs, articles, videos and links. The AI extracts concepts and connects them to your lessons, quizzes and tutor sessions.",
+  },
+  {
+    icon: Wrench,
+    title: "Hands-on labs",
+    description:
+      "Work through guided and challenge-mode labs covering hardware, networking, Windows, Linux, mobile devices and security.",
+  },
+  {
+    icon: MonitorCog,
+    title: "Incident simulator",
+    description:
+      "Practice troubleshooting realistic IT incidents with random faults, guided hints and full scoring reports that update your learner model.",
+  },
+  {
+    icon: Terminal,
+    title: "Command-line simulator",
+    description:
+      "Run realistic Windows CMD, PowerShell and Linux commands in persistent virtual environments. Solve networking, service and permission problems safely.",
+  },
+  {
+    icon: Cpu,
+    title: "Certification readiness",
+    description:
+      "See exactly how prepared you are for A+, Security+, Network+ and other exams based on real activity, not guesswork.",
+  },
 ];
 
 interface PaidPlan {
