@@ -37,10 +37,12 @@ function AuthPage() {
   const navigate = useNavigate();
   const { userId, ready } = useAuth();
   const [mode, setMode] = useState<Mode>("signin");
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [sentConfirmation, setSentConfirmation] = useState(false);
+
 
   useEffect(() => {
     if (ready && userId) void navigate({ to: "/", replace: true });
