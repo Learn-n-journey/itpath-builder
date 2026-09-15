@@ -343,5 +343,6 @@ export function buildQuizDiagnostic(
     }),
     recommendation,
     recommendedTitles,
+    calibration: buildCalibration(items),
   };
 }

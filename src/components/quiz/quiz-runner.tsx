@@ -416,9 +416,16 @@ function QuizReview({
       </div>
       {diagnostic.items.length > 0 ? (
         <GaylNote
-          message={`${diagnostic.explanation} ${diagnostic.guidance}`}
+          message={[diagnostic.explanation, diagnostic.calibration.note, diagnostic.guidance]
+            .filter(Boolean)
+            .join(" ")}
           why={[
             `${attempt.correct} of ${attempt.total} answers landed in this attempt.`,
+            ...(diagnostic.calibration.rated > 0
+              ? [
+                  `You rated ${diagnostic.calibration.rated} answer(s): sure on ${diagnostic.calibration.sureTotal} (${diagnostic.calibration.sureWrong} missed), unsure on ${diagnostic.calibration.unsureTotal}, guessing on ${diagnostic.calibration.guessTotal}.`,
+                ]
+              : []),
             ...diagnostic.weakest
               .slice(0, 2)
               .map(
