@@ -277,14 +277,48 @@ export function pathInsight(intel: Intelligence): GaylInsight | null {
   };
 }
 
+/** One named problem GAYL can point at, with the exact thing that is unresolved. */
+export interface GaylProblem {
+  topicId: string;
+  title: string;
+  /** What is unresolved, in plain words. */
+  issue: string;
+  /** The exact question or idea it keeps showing up on, when one is recorded. */
+  detail: string | null;
+  route: string;
+}
+
+/** Names the exact problem on one topic, in plain words. */
+function problemIssue(concept: ConceptIntel): string {
+  if (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure") {
+    return "your answers have slipped since you last got them right";
+  }
+  if (concept.misconceptions[0]) {
+    return `the same mix-up keeps coming back: ${concept.misconceptions[0].toLowerCase()}`;
+  }
+  if (concept.diagnosis === "confident_but_wrong") {
+    return "some quick answers here turned out wrong";
+  }
+  if (concept.unresolvedMistakes > 0) {
+    return `${concept.unresolvedMistakes} answer${concept.unresolvedMistakes === 1 ? "" : "s"} here ${
+      concept.unresolvedMistakes === 1 ? "is" : "are"
+    } still unfixed`;
+  }
+  return "an idea here is being remembered differently to how it works";
+}
+
 /**
  * The only thing worth interrupting for.
  *
  * Returns a note when something already recorded looks like it is slipping or
  * staying unfixed, and nothing at all otherwise. No new scoring happens here,
- * it only reads what the engine already worked out.
+ * it only reads what the engine already worked out. `openDetail` supplies the
+ * exact question text behind a topic when the caller has the records to hand.
  */
-export function alertInsight(intel: Intelligence): (GaylInsight & { id: string }) | null {
+export function alertInsight(
+  intel: Intelligence,
+  openDetail?: (topicId: string) => string | null,
+): (GaylInsight & { id: string; problems: GaylProblem[] }) | null {
   if (!intel.hasEvidence) return null;
 
   const slipping = intel.concepts.filter(
@@ -303,37 +337,28 @@ export function alertInsight(intel: Intelligence): (GaylInsight & { id: string }
   const focus = open[0] ?? null;
   if (!focus) return null;
 
-  /** Names the exact problem on one topic, in plain words. */
-  const problem = (concept: ConceptIntel): string => {
-    if (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure") {
-      return "your answers have slipped since you last got them right";
-    }
-    if (concept.misconceptions[0]) {
-      return `the same mix-up keeps coming back: ${concept.misconceptions[0]}`;
-    }
-    if (concept.diagnosis === "confident_but_wrong") {
-      return "some quick answers here turned out wrong";
-    }
-    if (concept.unresolvedMistakes > 0) {
-      return `${concept.unresolvedMistakes} mistake${concept.unresolvedMistakes === 1 ? "" : "s"} here ${
-        concept.unresolvedMistakes === 1 ? "is" : "are"
-      } still open, meaning you have not answered ${concept.unresolvedMistakes === 1 ? "it" : "them"} correctly since`;
-    }
-    return "an idea here is being remembered slightly differently than it works";
-  };
+  const problems: GaylProblem[] = open.slice(0, 4).map((concept) => ({
+    topicId: concept.topicId,
+    title: concept.title,
+    issue: problemIssue(concept),
+    detail: openDetail?.(concept.topicId) ?? null,
+    route: concept.route,
+  }));
 
-  const rest = open.slice(1, 4);
+  const first = problems[0]!;
   const tail =
     open.length > 1
-      ? ` Still open after that: ${rest
-          .map((concept) => `${concept.title}, where ${problem(concept)}`)
-          .join("; ")}${open.length > 4 ? `, and ${open.length - 4} more` : ""}.`
+      ? ` ${open.length - 1} other topic${open.length - 1 === 1 ? " is" : "s are"} open too, listed below.`
       : "";
 
   return {
     id: `${focus.topicId}:${focus.diagnosis}:${focus.unresolvedMistakes}:${open.length}`,
-    message: `On ${focus.title}, ${problem(focus)}. ${focus.instruction}${tail}`,
+    message: `On ${focus.title}, ${first.issue}.${
+      first.detail ? ` The part it keeps showing up on is: ${first.detail}` : ""
+    } ${focus.instruction}${tail}`,
+    problems,
     why: [...evidenceLines(focus), ...open.slice(1).map((concept) => `${concept.title}: ${concept.evidence}`)],
   };
 }
+
 
