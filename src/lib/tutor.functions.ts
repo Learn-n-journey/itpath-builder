@@ -22,11 +22,13 @@ export const askTutor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
   .handler(async ({ data, context }): Promise<TutorReply> => {
-    const apiKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey) return { ok: false, error: "AI service is not configured." };
+    const question = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
 
-    const budget = await allowAiCall(context.userId, "tutor");
-    if (!budget.ok) return { ok: false, error: budget.error };
+    // Only the part of the learner's saved material that relates to the
+    // question is sent — the rest is paid-for tokens with no effect.
+    const knowledge = data.knowledge
+      ? compressContext(data.knowledge, question, 8000)
+      : undefined;
 
     const base =
       "You are an IT and cybersecurity tutor inside a study app. Follow the learner's task instructions exactly. Be concrete: real commands, real outputs, real examples. Structure replies with short headings, no padding. When the task says to ask one question at a time or to hold answers back, end your reply with the next question or prompt only. Correct wrong answers plainly instead of encouraging them. Write in plain text only: no markdown symbols such as **, ## or backticks. Use short headings on their own line and simple dashes for lists.";
