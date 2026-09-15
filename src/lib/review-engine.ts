@@ -77,6 +77,7 @@ export function createReview(input: CreateReviewInput): Review {
     interval,
     intervalIndex: index,
     status: "scheduled",
+    ease: DEFAULT_EASE,
     successStreak: 0,
     lapses: 0,
     totalReviews: 0,
