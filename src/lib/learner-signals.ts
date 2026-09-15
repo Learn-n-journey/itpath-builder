@@ -10,7 +10,12 @@
  *
  * Nothing here invents a result: every field comes from something the learner did.
  */
-import type { LearnerSignal, LearnerSignalKind, UserData } from "@/lib/app-data/types";
+import type {
+  AnswerConfidence,
+  LearnerSignal,
+  LearnerSignalKind,
+  UserData,
+} from "@/lib/app-data/types";
 
 let counter = 0;
 
