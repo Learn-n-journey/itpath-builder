@@ -25,6 +25,7 @@ import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as LearnerRouteImport } from './routes/learner'
+import { Route as MeetGaylRouteImport } from './routes/meet-gayl'
 import { Route as MyPathRouteImport } from './routes/my-path'
 import { Route as PomodoroRouteImport } from './routes/pomodoro'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
@@ -129,6 +130,11 @@ const LearnRoute = LearnRouteImport.update({
 const LearnerRoute = LearnerRouteImport.update({
   id: '/learner',
   path: '/learner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetGaylRoute = MeetGaylRouteImport.update({
+  id: '/meet-gayl',
+  path: '/meet-gayl',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MyPathRoute = MyPathRouteImport.update({
@@ -275,6 +281,7 @@ export interface FileRoutesByFullPath {
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/learner': typeof LearnerRoute
+  '/meet-gayl': typeof MeetGaylRoute
   '/my-path': typeof MyPathRoute
   '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
@@ -318,6 +325,7 @@ export interface FileRoutesByTo {
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/learner': typeof LearnerRoute
+  '/meet-gayl': typeof MeetGaylRoute
   '/my-path': typeof MyPathRoute
   '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
@@ -362,6 +370,7 @@ export interface FileRoutesById {
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/learner': typeof LearnerRoute
+  '/meet-gayl': typeof MeetGaylRoute
   '/my-path': typeof MyPathRoute
   '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
@@ -407,6 +416,7 @@ export interface FileRouteTypes {
     | '/labs'
     | '/learn'
     | '/learner'
+    | '/meet-gayl'
     | '/my-path'
     | '/pomodoro'
     | '/portfolio'
@@ -450,6 +460,7 @@ export interface FileRouteTypes {
     | '/labs'
     | '/learn'
     | '/learner'
+    | '/meet-gayl'
     | '/my-path'
     | '/pomodoro'
     | '/portfolio'
@@ -493,6 +504,7 @@ export interface FileRouteTypes {
     | '/labs'
     | '/learn'
     | '/learner'
+    | '/meet-gayl'
     | '/my-path'
     | '/pomodoro'
     | '/portfolio'
@@ -537,6 +549,7 @@ export interface RootRouteChildren {
   LabsRoute: typeof LabsRoute
   LearnRoute: typeof LearnRoute
   LearnerRoute: typeof LearnerRoute
+  MeetGaylRoute: typeof MeetGaylRoute
   MyPathRoute: typeof MyPathRoute
   PomodoroRoute: typeof PomodoroRoute
   PortfolioRoute: typeof PortfolioRoute
@@ -676,6 +689,13 @@ declare module '@tanstack/react-router' {
       path: '/learner'
       fullPath: '/learner'
       preLoaderRoute: typeof LearnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meet-gayl': {
+      id: '/meet-gayl'
+      path: '/meet-gayl'
+      fullPath: '/meet-gayl'
+      preLoaderRoute: typeof MeetGaylRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/my-path': {
@@ -873,6 +893,7 @@ const rootRouteChildren: RootRouteChildren = {
   LabsRoute: LabsRoute,
   LearnRoute: LearnRoute,
   LearnerRoute: LearnerRoute,
+  MeetGaylRoute: MeetGaylRoute,
   MyPathRoute: MyPathRoute,
   PomodoroRoute: PomodoroRoute,
   PortfolioRoute: PortfolioRoute,
