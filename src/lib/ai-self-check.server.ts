@@ -5,45 +5,36 @@
  */
 import { z } from "zod";
 
-import { GATEWAY_CHAT_URL as GATEWAY, UTILITY_MODEL as MODEL } from "@/lib/ai-models";
+import { runAi } from "@/lib/ai/run.server";
 
-async function askJson(system: string, user: string): Promise<unknown | null> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) return null;
+/**
+ * Risk-based self-checking: the review is a second paid call, so the layer only
+ * spends it where a wrong answer would actually reach a learner as fact or as a
+ * recorded mark. It runs on the cheap model, never blocks, and silently returns
+ * the original answer if anything goes wrong.
+ */
+async function askJson(system: string, user: string, userId?: string): Promise<unknown | null> {
+  const result = await runAi({
+    feature: "self_check",
+    ...(userId ? { userId } : {}),
+    system,
+    prompt: user,
+    risk: "low",
+    priority: "interactive",
+    json: true,
+    // The first call already paid the learner's daily allowance for this task.
+    skipBudget: true,
+  });
+  if (!result.ok) return null;
+  const raw = result.text;
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  if (start === -1 || end === -1) return null;
   try {
-    const res = await fetch(GATEWAY, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: MODEL,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-      }),
-    });
-    if (!res.ok) return null;
-    const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    const raw = json.choices?.[0]?.message?.content?.trim() ?? "";
-    const start = raw.indexOf("{");
-    const end = raw.lastIndexOf("}");
-    if (start === -1 || end === -1) return null;
     return JSON.parse(raw.slice(start, end + 1)) as unknown;
   } catch {
     return null;
   }
-}
-
-/** Cheap gate: only spend a second call where a mistake would actually matter. */
-export function shouldSelfCheckTutorAnswer(answer: string): boolean {
-  const text = answer.trim();
-  if (text.length < 400) {
-    // Short replies are usually a single question or clarification — skip unless
-    // they hand the learner something to run.
-    return /\b(sudo|ipconfig|ifconfig|netstat|systemctl|service|adb|nslookup|dig|chmod|chown|sfc|regedit|taskkill|Get-[A-Za-z]+|Set-[A-Za-z]+)\b|(^|\n)\s*\d+[.)]\s/i.test(text);
-  }
-  return true;
 }
 
 const tutorReview = z.object({
@@ -60,6 +51,7 @@ export async function reviewTutorAnswer(input: {
   question: string;
   answer: string;
   knowledge?: string | undefined;
+  userId?: string | undefined;
 }): Promise<string> {
   const system = [
     "You are a senior IT and cybersecurity reviewer checking another tutor's answer before a learner sees it.",
@@ -79,7 +71,7 @@ export async function reviewTutorAnswer(input: {
     .filter(Boolean)
     .join("\n\n");
 
-  const parsed = tutorReview.safeParse(await askJson(system, user));
+  const parsed = tutorReview.safeParse(await askJson(system, user, input.userId));
   if (!parsed.success) return input.answer;
   if (parsed.data.ok) return input.answer;
   const revised = parsed.data.revised.trim();
@@ -122,6 +114,7 @@ export async function reviewGrade(input: {
   modelAnswer?: string | undefined;
   expectedPoints?: string[] | undefined;
   grade: ReviewableGrade;
+  userId?: string | undefined;
 }): Promise<ReviewableGrade> {
   const system = [
     "You are a moderator checking an examiner's marking before the learner sees it.",
@@ -145,7 +138,7 @@ export async function reviewGrade(input: {
     .filter(Boolean)
     .join("\n\n");
 
-  const parsed = gradeReview.safeParse(await askJson(system, user));
+  const parsed = gradeReview.safeParse(await askJson(system, user, input.userId));
   if (!parsed.success || parsed.data.ok) return input.grade;
 
   const d = parsed.data;
