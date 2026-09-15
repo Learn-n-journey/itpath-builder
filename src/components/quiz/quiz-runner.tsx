@@ -305,7 +305,7 @@ function ConfidencePicker({
   value,
   onChange,
 }: {
-  value?: AnswerConfidence;
+  value: AnswerConfidence | undefined;
   onChange: (value: AnswerConfidence) => void;
 }) {
   return (
