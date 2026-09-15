@@ -37,8 +37,9 @@ function graded(signal: LearnerSignal): number | null {
 }
 
 /**
- * Fast, assured, wrong: an answer under the fast threshold that was wrong on a
- * concept the learner had already answered correctly at least once.
+ * Sure and wrong: a miss on a concept the learner had already answered
+ * correctly, where they said they were sure. Where no confidence was given,
+ * a very fast miss is counted at half weight as a weaker stand-in.
  */
 export function measure(
   signals: LearnerSignal[],
