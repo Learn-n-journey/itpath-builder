@@ -153,7 +153,14 @@ function LearnerPage() {
 function LearnerContent() {
   const model = useLearnerModel();
   const fading = model.profiles
-    .filter((profile) => profile.attempts > 0 && profile.retention < 0.55)
+    .filter(
+      (profile) =>
+        profile.attempts >= 4 &&
+        profile.correct >= 2 &&
+        profile.retention < 0.55 &&
+        profile.daysSinceExposure !== null &&
+        profile.daysSinceExposure >= 7,
+    )
     .slice(0, 5);
 
   return (

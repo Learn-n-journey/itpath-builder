@@ -89,7 +89,17 @@ export function diagnose(input: DiagnoseInput): Diagnosis {
   if (knows >= 55 && scope.practicalAbility.score < 40) return "application_failure";
   if (knows >= 55 && scope.troubleshooting.score < 35) return "troubleshooting_failure";
 
-  if (retention < 0.55) return "fading";
+  // Fading means something proven has decayed. That needs a record to decay
+  // from, so a low recall number on thin evidence is not treated as forgetting.
+  if (
+    retention < 0.55 &&
+    profile.attempts >= 4 &&
+    profile.correct >= 2 &&
+    profile.daysSinceExposure !== null &&
+    profile.daysSinceExposure >= 7
+  ) {
+    return "fading";
+  }
   if (profile.mastery < 0.6) return "application_failure";
   return "solid";
 }
