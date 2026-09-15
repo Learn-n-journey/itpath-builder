@@ -43,7 +43,7 @@ export function ReadinessPanel({
     <Panel
       className={className}
       title={`Exam readiness: ${report.certification.title}`}
-      description={`${readinessBandLabels[report.band]} — ${readinessBandAdvice[report.band]}`}
+      description={`${readinessBandLabels[report.band]}, ${readinessBandAdvice[report.band]}`}
     >
       <div className="flex flex-wrap items-center gap-5">
         <Ring value={readiness.overall} />

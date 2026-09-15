@@ -14,7 +14,7 @@ export const Route = createFileRoute("/topics/$topicId")({
   staticData: { sitemap: false },
   head: ({ params }) => {
     const topic = getTopic(params.topicId);
-    const title = topic ? `${topic.title} — IT PATH` : "Topic not found — IT PATH";
+    const title = topic ? `${topic.title} | IT PATH` : "Topic not found | IT PATH";
     const description = topic?.summary ?? "The requested IT PATH curriculum topic could not be found.";
     return {
       meta: [

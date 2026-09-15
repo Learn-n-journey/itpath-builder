@@ -4,7 +4,7 @@
  * Estimates when a concept should come back, from its own forgetting curve, and
  * interleaves the queue so consecutive items are never the same certification
  * section back to back. Existing review records stay the source of truth for
- * anything the learner has already scheduled — this only adds an estimate for
+ * anything the learner has already scheduled, this only adds an estimate for
  * concepts that have no review record yet.
  */
 import type { Review } from "@/lib/app-data/types";

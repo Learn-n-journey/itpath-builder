@@ -2,7 +2,7 @@
  * Intervention effectiveness.
  *
  * The engine does not assume its own advice works. Every teaching event the
- * learner records — a lesson opened, a lab worked, a tutor session, a review —
+ * learner records, a lesson opened, a lab worked, a tutor session, a review —
  * is treated as an intervention, and the graded results before and after it are
  * compared. A method that has not moved this learner's results is demoted in
  * favour of one that has.

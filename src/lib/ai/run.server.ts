@@ -66,7 +66,7 @@ export type RunAiResult =
   | { ok: false; error: string; outcome: AiOutcome; status?: number | undefined };
 
 const ERROR_BY_STATUS: Record<number, string> = {
-  429: "The AI service is busy right now — wait a moment and try again.",
+  429: "The AI service is busy right now, wait a moment and try again.",
   402: "AI usage limit reached for this app.",
   403: "AI access is currently blocked for this workspace.",
 };
@@ -175,7 +175,7 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
     return result;
   };
 
-  // 1. Cached answers — exact first, then near-identical.
+  // 1. Cached answers, exact first, then near-identical.
   if (key) {
     const exact = await readExact<string>(key);
     if (typeof exact === "string" && exact.length > 0) {

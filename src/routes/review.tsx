@@ -31,9 +31,9 @@ export const Route = createFileRoute("/review")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Review — IT PATH" },
+      { title: "Review | IT PATH" },
       { name: "description", content: "Spaced review of past topics and unresolved mistakes." },
-      { property: "og:title", content: "Review — IT PATH" },
+      { property: "og:title", content: "Review | IT PATH" },
       { property: "og:description", content: "Spaced repetition keeps what you learn from fading." },
     ],
   }),

@@ -18,9 +18,9 @@ export const Route = createFileRoute("/quiz-me")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "IT Foundations Quiz — IT PATH" },
+      { title: "IT Foundations Quiz | IT PATH" },
       { name: "description", content: "Take randomized IT quizzes with saved results and targeted review." },
-      { property: "og:title", content: "IT Foundations Quiz — IT PATH" },
+      { property: "og:title", content: "IT Foundations Quiz | IT PATH" },
       {
         property: "og:description",
         content: "Reasoning-focused IT quizzes with explanations and immutable attempt history.",
@@ -66,10 +66,10 @@ function QuizMe() {
         <StatCard label="Questions" value={pool.length} />
         <StatCard
           label="Reasoning"
-          value={pool.length ? `${Math.round((reasoning / pool.length) * 100)}%` : "—"}
+          value={pool.length ? `${Math.round((reasoning / pool.length) * 100)}%` : "-"}
         />
         <StatCard label="Attempts" value={attempts.length} />
-        <StatCard label="Best score" value={attempts.length ? `${best}%` : "—"} />
+        <StatCard label="Best score" value={attempts.length ? `${best}%` : "-"} />
       </div>
       <div className="mt-6 space-y-4">
         <QuizRunner quiz={quiz} questions={pool} />

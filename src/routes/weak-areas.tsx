@@ -19,12 +19,12 @@ export const Route = createFileRoute("/weak-areas")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Weak Areas Quiz — IT PATH" },
+      { title: "Weak Areas Quiz | IT PATH" },
       {
         name: "description",
         content: "A quiz built from the questions and topics you have actually got wrong, so retakes clear your review list.",
       },
-      { property: "og:title", content: "Weak Areas Quiz — IT PATH" },
+      { property: "og:title", content: "Weak Areas Quiz | IT PATH" },
       {
         property: "og:description",
         content: "Retake the questions you missed and the topics behind them; correct answers clear them from Review.",

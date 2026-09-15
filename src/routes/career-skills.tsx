@@ -17,9 +17,9 @@ export const Route = createFileRoute("/career-skills")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Career Skills — IT PATH" },
+      { title: "Career Skills | IT PATH" },
       { name: "description", content: "Skill scores and job readiness calculated from your recorded work." },
-      { property: "og:title", content: "Career Skills — IT PATH" },
+      { property: "og:title", content: "Career Skills | IT PATH" },
       { property: "og:description", content: "Evidence-based skill tracking across thirteen IT skill areas." },
     ],
   }),
@@ -64,7 +64,7 @@ function SkillRow({ skill, open, onToggle }: { skill: SkillScore; open: boolean;
             {skill.evidence.map((item) => (
               <li key={item.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
                 <span className="min-w-0">
-                  <span className="text-foreground">{evidenceSourceLabels[item.source]}</span> — {item.label}
+                  <span className="text-foreground">{evidenceSourceLabels[item.source]}</span>, {item.label}
                 </span>
                 <span className="tabular-nums">{item.score}%</span>
               </li>

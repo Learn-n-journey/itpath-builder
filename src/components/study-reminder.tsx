@@ -22,7 +22,7 @@ function markShown(key: string) {
   try {
     window.localStorage.setItem(STORAGE_KEY, key);
   } catch {
-    /* storage unavailable — the reminder simply repeats next session */
+    /* storage unavailable, the reminder simply repeats next session */
   }
 }
 

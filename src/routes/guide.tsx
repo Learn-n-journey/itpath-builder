@@ -11,13 +11,13 @@ export const Route = createFileRoute("/guide")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "How IT PATH Works — Study Guide" },
+      { title: "How IT PATH Works, Study Guide" },
       {
         name: "description",
         content:
           "What every section of IT PATH is for, the order to use them in, and exactly how progress, readiness and mastery are calculated.",
       },
-      { property: "og:title", content: "How IT PATH Works — Study Guide" },
+      { property: "og:title", content: "How IT PATH Works, Study Guide" },
       {
         property: "og:description",
         content: "A short orientation: the study loop, each section's job, and what every score means.",
@@ -72,7 +72,7 @@ const DIMENSIONS: Array<[string, string]> = [
 const VOCABULARY: Array<[string, string]> = [
   [
     "Mastered topic",
-    "All six skill dimensions for that topic are high, backed by recorded work — not just by opening the lesson.",
+    "All six skill dimensions for that topic are high, backed by recorded work, not just by opening the lesson.",
   ],
   [
     "Mastered review",
@@ -157,7 +157,7 @@ function GuidePage() {
                         <Link to={item.to} className="font-medium text-primary hover:underline">
                           {item.label}
                         </Link>
-                        <span className="text-muted-foreground"> — {item.description}</span>
+                        <span className="text-muted-foreground">, {item.description}</span>
                       </li>
                     ))}
                 </ul>
@@ -175,7 +175,7 @@ function GuidePage() {
               {DIMENSIONS.map(([term, meaning]) => (
                 <li key={term}>
                   <span className="font-medium">{term}</span>
-                  <span className="text-muted-foreground"> — {meaning}</span>
+                  <span className="text-muted-foreground">, {meaning}</span>
                 </li>
               ))}
             </ul>
@@ -189,7 +189,7 @@ function GuidePage() {
               {VOCABULARY.map(([term, meaning]) => (
                 <li key={term}>
                   <span className="font-medium">{term}</span>
-                  <span className="text-muted-foreground"> — {meaning}</span>
+                  <span className="text-muted-foreground">, {meaning}</span>
                 </li>
               ))}
             </ul>
@@ -199,7 +199,7 @@ function GuidePage() {
             <p className="text-sm text-muted-foreground">
               Nothing here is simulated. Every percentage, streak and readiness figure comes from work
               you recorded on this device, and your data is saved locally in this browser. If you have
-              done nothing yet, everything reads zero — that is correct, not a fault.
+              done nothing yet, everything reads zero, that is correct, not a fault.
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
               IT PATH does not issue certificates and is not affiliated with any exam vendor. Readiness

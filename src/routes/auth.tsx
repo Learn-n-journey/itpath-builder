@@ -14,13 +14,13 @@ export const Route = createFileRoute("/auth")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Sign in — IT PATH" },
+      { title: "Sign in | IT PATH" },
       {
         name: "description",
         content:
           "Sign in to IT PATH to save your certification study progress to your account and pick up on any device.",
       },
-      { property: "og:title", content: "Sign in — IT PATH" },
+      { property: "og:title", content: "Sign in | IT PATH" },
       {
         property: "og:description",
         content: "Save your IT and cybersecurity study progress to your IT PATH account.",
@@ -218,7 +218,7 @@ function AuthPage() {
       )}
 
       <p className="mt-6 text-sm text-muted-foreground">
-        You can keep studying without an account —{" "}
+        You can keep studying without an account,{" "}
         <Link to="/" className="text-primary hover:underline">
           continue on this device
         </Link>

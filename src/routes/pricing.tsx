@@ -32,7 +32,7 @@ export const Route = createFileRoute("/pricing")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Pricing — IT PATH" },
+      { title: "Pricing | IT PATH" },
       {
         name: "description",
         content:
@@ -247,7 +247,7 @@ function PricingPage() {
     <div>
       <PageHeader
         title="Pricing"
-        description="Study free for as long as you like. Plus unlocks the hands-on practice tools; Pro adds the AI features — both monthly or yearly. IT PATH is designed for certification students, but the same lessons and labs are useful for anyone who wants to understand the devices and networks they use every day."
+        description="Study free for as long as you like. Plus unlocks the hands-on practice tools; Pro adds the AI features, both monthly or yearly. IT PATH is designed for certification students, but the same lessons and labs are useful for anyone who wants to understand the devices and networks they use every day."
       />
 
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -303,7 +303,7 @@ function PricingPage() {
                   <SelectContent>
                     {product.prices.map((p) => (
                       <SelectItem key={p.id} value={p.period}>
-                        {p.period === "monthly" ? "Monthly" : "Yearly"} — {p.price}/{p.period === "monthly" ? "mo" : "yr"}
+                        {p.period === "monthly" ? "Monthly" : "Yearly"}, {p.price}/{p.period === "monthly" ? "mo" : "yr"}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -336,7 +336,7 @@ function PricingPage() {
                   >
                     {checkoutLoading
                       ? "Opening checkout…"
-                      : `Get ${product.name} ${price.period === "monthly" ? "Monthly" : "Yearly"} — ${price.price}`}
+                      : `Get ${product.name} ${price.period === "monthly" ? "Monthly" : "Yearly"}, ${price.price}`}
                   </Button>
                 )}
               </div>
@@ -373,13 +373,13 @@ function PricingPage() {
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
         IT PATH is a study tool. It does not issue certificates and is not affiliated with CompTIA,
-        Microsoft, Cisco or any other vendor — it prepares you for their exams and gives you an
+        Microsoft, Cisco or any other vendor, it prepares you for their exams and gives you an
         honest idea of your progress.
       </p>
 
       {tier === "free" && (
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Secure checkout by Paddle. 30-day money-back guarantee on every plan — see the{" "}
+          Secure checkout by Paddle. 30-day money-back guarantee on every plan, see the{" "}
           <Link to="/refund-policy" className="underline">
             refund policy
           </Link>

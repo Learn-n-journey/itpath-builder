@@ -17,7 +17,7 @@ export function TopicKnowledgePanel({ topicId }: { topicId: string }) {
   return (
     <Panel
       title="Your material on this topic"
-      description="Saved by you in Second Brain — kept separate from the IT PATH lesson above."
+      description="Saved by you in Second Brain, kept separate from the IT PATH lesson above."
     >
       <ul className="space-y-3">
         {items.slice(0, 6).map((item) => (

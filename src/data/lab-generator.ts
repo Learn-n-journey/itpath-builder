@@ -100,7 +100,7 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
     const drillInstructions = [
       `Pick one fault to work through: ${problems.join("; ")}.`,
       ...failures.map((failure) => `Write the symptoms a user would report when this happens: ${sentence(failure)}`),
-      ...steps.map((step, index) => `Step ${index + 1} — carry out and record the result of: ${sentence(step)}`),
+      ...steps.map((step, index) => `Step ${index + 1}, carry out and record the result of: ${sentence(step)}`),
       "State the single most likely cause, and say which observation rules out the alternatives.",
       "Write the fix, the verification you would run, and what you would put in the ticket notes.",
     ];

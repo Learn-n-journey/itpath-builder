@@ -353,7 +353,7 @@ const weeklyQuizzes: Quiz[] = weekPlan.flatMap((week) => {
   return [
     {
       id: `quiz-week-${week.number}`,
-      title: `Week ${week.number} quiz — ${week.title}`,
+      title: `Week ${week.number} quiz, ${week.title}`,
       description: `${questionIds.length} questions drawn from this week's topics.`,
       topicIds: week.topicIds,
       questionIds,

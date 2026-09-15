@@ -11,12 +11,12 @@ export const Route = createFileRoute("/reset-password")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Set a new password — IT PATH" },
+      { title: "Set a new password | IT PATH" },
       {
         name: "description",
         content: "Choose a new password for your IT PATH study account.",
       },
-      { property: "og:title", content: "Set a new password — IT PATH" },
+      { property: "og:title", content: "Set a new password | IT PATH" },
       { property: "og:description", content: "Choose a new password for your IT PATH account." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

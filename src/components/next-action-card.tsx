@@ -44,7 +44,7 @@ export function NextActionCard({
     <Panel
       className={className}
       title="Do this next"
-      description="Chosen from your own records — due reviews, open work and the gaps between what you know and what you have proven."
+      description="Chosen from your own records, due reviews, open work and the gaps between what you know and what you have proven."
     >
       <div className="rounded-lg bg-secondary/50 p-4">
         <div className="flex items-start gap-3">

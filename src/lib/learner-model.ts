@@ -173,7 +173,7 @@ export const PROVEN_MASTERY = 0.7;
 /**
  * Evidence raises mastery; forgetting, repeated errors and unproven
  * prerequisites lower it. Nothing here can raise an unattempted concept above
- * zero — unknown stays unknown.
+ * zero, unknown stays unknown.
  */
 function adjustMastery(
   profile: ConceptProfile,
@@ -262,7 +262,7 @@ function decide(
     const gap = profile.prerequisites.find((p) => !p.satisfied);
     return {
       action: "learn",
-      reason: `Build ${gap ? gap.title : "the prerequisite"} first — it underpins this concept.`,
+      reason: `Build ${gap ? gap.title : "the prerequisite"} first, it underpins this concept.`,
       priority: 55,
     };
   }
@@ -289,7 +289,7 @@ function decide(
   if (retention < 0.55 && daysSinceExposure !== null) {
     return {
       action: "review",
-      reason: `Last worked ${Math.round(daysSinceExposure)} days ago — recall is fading.`,
+      reason: `Last worked ${Math.round(daysSinceExposure)} days ago, recall is fading.`,
       priority: 70 + (1 - retention) * 20,
     };
   }

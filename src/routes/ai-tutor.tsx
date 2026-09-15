@@ -41,16 +41,16 @@ export const Route = createFileRoute("/ai-tutor")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "AI Tutor — IT PATH" },
+      { title: "AI Tutor | IT PATH" },
       {
         name: "description",
         content:
           "A built-in AI tutor that teaches, quizzes and drills you using your real progress, mistakes and reviews as context.",
       },
-      { property: "og:title", content: "AI Tutor — IT PATH" },
+      { property: "og:title", content: "AI Tutor | IT PATH" },
       {
         property: "og:description",
-        content: "Get tutoring built on your actual study records — weak areas, mistakes and review history included.",
+        content: "Get tutoring built on your actual study records, weak areas, mistakes and review history included.",
       },
     ],
   }),
@@ -136,7 +136,7 @@ function AiTutor() {
     const reply = await saveThread({
       data: {
         ...(threadId ? { id: threadId } : {}),
-        title: `${activeMode.label} — ${topicTitle}`,
+        title: `${activeMode.label}, ${topicTitle}`,
         mode,
         ...(topicId === NO_TOPIC ? {} : { topicId }),
         messages: next,
@@ -242,7 +242,7 @@ function AiTutor() {
     <>
       <PageHeader
         title="AI Tutor"
-        description="A built-in tutor that answers here in the app. It starts every session from your real progress, mistakes and reviews — pick a mode and a topic, then ask."
+        description="A built-in tutor that answers here in the app. It starts every session from your real progress, mistakes and reviews, pick a mode and a topic, then ask."
       />
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
@@ -319,7 +319,7 @@ function AiTutor() {
             </div>
 
             <p className="text-xs text-muted-foreground">
-              Prefer your own assistant? Start a session, then copy the generated prompt — it
+              Prefer your own assistant? Start a session, then copy the generated prompt, it
               contains the same context the built-in tutor receives.
             </p>
           </div>
@@ -388,7 +388,7 @@ function AiTutor() {
           title="Session"
           description={
             started
-              ? "Reply below to keep going — quiz answers, diagnoses and interview responses all go in the same box."
+              ? "Reply below to keep going, quiz answers, diagnoses and interview responses all go in the same box."
               : "The tutor's reply will appear here, built on your recorded progress and weak areas."
           }
         >
@@ -446,7 +446,7 @@ function AiTutor() {
             <p className="text-sm text-muted-foreground">
               Choose a mode and a topic, then press “Ask the tutor”. The session opens with your
               objectives, measured progress, weak areas, unresolved mistakes and review history
-              already included — so answers are about what you actually need, not a generic lesson.
+              already included, so answers are about what you actually need, not a generic lesson.
             </p>
           )}
         </Panel>

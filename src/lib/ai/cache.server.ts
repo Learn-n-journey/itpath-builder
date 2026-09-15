@@ -1,11 +1,11 @@
 /**
  * Multi-level response cache for the AI layer.
  *
- * Level 1 — in-flight de-duplication: two identical requests arriving at once
+ * Level 1, in-flight de-duplication: two identical requests arriving at once
  *           share one gateway call instead of paying twice.
- * Level 2 — exact cache: the same request, word for word, is never paid for
+ * Level 2, exact cache: the same request, word for word, is never paid for
  *           twice by anyone.
- * Level 3 — semantic cache: a near-identical request (same meaning, different
+ * Level 3, semantic cache: a near-identical request (same meaning, different
  *           wording) reuses the stored answer, matched deterministically on
  *           shared terms rather than with a paid embedding call.
  *

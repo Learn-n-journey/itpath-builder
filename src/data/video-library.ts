@@ -101,7 +101,7 @@ export function buildTopicVideoResources(topicList: Topic[]): Resource[] {
     if (curated && curated.length > 0) {
       return curated.map((video, index) => ({
         id: `resource-messer-video-${topic.id}-${index + 1}`,
-        title: `${video.title} — Professor Messer, ${video.exam} objective ${video.objective}`,
+        title: `${video.title}, Professor Messer, ${video.exam} objective ${video.objective}`,
         provider: "Professor Messer",
         url: video.url,
         topicIds: [topic.id],

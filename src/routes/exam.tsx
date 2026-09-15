@@ -30,12 +30,12 @@ export const Route = createFileRoute("/exam")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Exam Simulator — IT PATH" },
+      { title: "Exam Simulator | IT PATH" },
       {
         name: "description",
         content: "Sit a full timed mock certification exam with a pass or fail report and a review of every question you missed.",
       },
-      { property: "og:title", content: "Exam Simulator — IT PATH" },
+      { property: "og:title", content: "Exam Simulator | IT PATH" },
       {
         property: "og:description",
         content: "Randomised timed mock exams drawn from the full question bank for your certification.",
@@ -163,10 +163,10 @@ function ExamPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="25">25 questions — short</SelectItem>
-                  <SelectItem value="50">50 questions — standard</SelectItem>
-                  <SelectItem value="75">75 questions — full length</SelectItem>
-                  <SelectItem value="90">90 questions — maximum</SelectItem>
+                  <SelectItem value="25">25 questions, short</SelectItem>
+                  <SelectItem value="50">50 questions, standard</SelectItem>
+                  <SelectItem value="75">75 questions, full length</SelectItem>
+                  <SelectItem value="90">90 questions, maximum</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -188,7 +188,7 @@ function ExamPage() {
               <p className="text-sm font-medium">{certification.title} mock exam</p>
               <p className="text-xs text-muted-foreground">
                 {expired
-                  ? "Time is up. Submit now — anything unanswered is marked wrong, exactly like the real exam."
+                  ? "Time is up. Submit now, anything unanswered is marked wrong, exactly like the real exam."
                   : `${questionCount} questions · ${Math.round(totalSeconds / 60)} minutes · ${PASS_SCORE}% to pass`}
               </p>
             </div>

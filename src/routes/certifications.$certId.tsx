@@ -37,13 +37,13 @@ export const Route = createFileRoute("/certifications/$certId")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Certification study path — IT PATH" },
+      { title: "Certification study path | IT PATH" },
       {
         name: "description",
         content:
           "Study, reading and watching material, practice exams and applied work for a single IT certification.",
       },
-      { property: "og:title", content: "Certification study path — IT PATH" },
+      { property: "og:title", content: "Certification study path | IT PATH" },
       {
         property: "og:description",
         content: "Topics from beginner to advanced, generated practice exams, domain readiness and exam results.",
@@ -330,7 +330,7 @@ function Certifications() {
           >
             <p className="text-sm">
               Status: <span className="font-medium">{certificationStatusLabels[selected.status]}</span>
-              {selected.hasEvidence ? "" : " — no evidence recorded yet"}
+              {selected.hasEvidence ? "" : ", no evidence recorded yet"}
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Metric label="Knowledge readiness" value={selected.knowledge} />
@@ -416,7 +416,7 @@ function Certifications() {
               {selected.objectives.map((objective) => (
                 <li key={objective.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                   <span className="min-w-0">
-                    <span className="font-medium">{objective.code}</span> — {objective.title}
+                    <span className="font-medium">{objective.code}</span>, {objective.title}
                     <span className="block text-xs text-muted-foreground">
                       {objective.domain ?? "General"} ·{" "}
                       {(objective.topicIds ?? []).length > 0

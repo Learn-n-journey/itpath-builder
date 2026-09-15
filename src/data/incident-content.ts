@@ -2,7 +2,7 @@ import type { Incident } from "@/lib/app-data/types";
 
 /**
  * Realistic support incidents. Every diagnostic action returns its own finding,
- * so evidence — not guessing — is what separates the possible causes.
+ * so evidence, not guessing, is what separates the possible causes.
  */
 export const incidents: Incident[] = [
   {
@@ -20,7 +20,7 @@ export const incidents: Incident[] = [
       { id: "a2", label: "Ping the default gateway", command: "ping 192.168.10.1", finding: "4 replies, average 2 ms, 0% loss. Layer 2 and 3 to the gateway are healthy.", informative: true },
       { id: "a3", label: "Ping the configured DNS server", command: "ping 192.168.10.9", finding: "Request timed out on all four attempts. 192.168.10.10 also times out. Neither configured resolver answers.", informative: true },
       { id: "a4", label: "Run a name lookup", command: "nslookup www.microsoft.com", finding: "\"DNS request timed out. timeout was 2 seconds. *** Can't find server name for address 192.168.10.9: Timed out.\" A lookup against 1.1.1.1 returns an answer immediately.", informative: true },
-      { id: "a5", label: "Check DHCP", command: "ipconfig /all + DHCP console", finding: "The scope is active and leasing normally, but scope option 006 was changed during the maintenance window to 192.168.10.9 and 192.168.10.10 — two addresses that are not assigned to any running server.", informative: true },
+      { id: "a5", label: "Check DHCP", command: "ipconfig /all + DHCP console", finding: "The scope is active and leasing normally, but scope option 006 was changed during the maintenance window to 192.168.10.9 and 192.168.10.10, two addresses that are not assigned to any running server.", informative: true },
       { id: "a6", label: "Check the network adapter", command: "Get-NetAdapter", finding: "Ethernet is Up at 1 Gbps, no errors, no duplicate address warning, static entries absent.", informative: true },
       { id: "a7", label: "View event logs", command: "Event Viewer → System", finding: "No client-side network errors. The DNS server role event log on 192.168.10.5 shows the service running and answering queries on its own address.", informative: true },
       { id: "a8", label: "Ask the users", finding: "\"It worked yesterday. Nothing changed on our machines. The site works fine on my phone using mobile data.\"", informative: true },
@@ -49,7 +49,7 @@ export const incidents: Incident[] = [
     reasoningKeywords: ["dns", "dhcp", "option", "resolv", "gateway", "lookup", "scope"],
     documentationKeywords: ["dns", "dhcp", "scope", "renew", "verif"],
     rootCause:
-      "Maintenance changed DHCP scope option 006 to two DNS addresses with no listening service. Clients kept full connectivity — gateway, file shares and routing to public IPs all worked — but every name lookup timed out, which presents to users as \"the internet is down\". Correcting the scope option and renewing leases restores resolution for every device, not just the six who called.",
+      "Maintenance changed DHCP scope option 006 to two DNS addresses with no listening service. Clients kept full connectivity, gateway, file shares and routing to public IPs all worked, but every name lookup timed out, which presents to users as \"the internet is down\". Correcting the scope option and renewing leases restores resolution for every device, not just the six who called.",
   },
   {
     id: "incident-dhcp-no-address",
@@ -63,14 +63,14 @@ export const incidents: Incident[] = [
     efficientActionCount: 4,
     actions: [
       { id: "a1", label: "Check IP configuration", command: "ipconfig /all", finding: "IPv4 169.254.88.19, subnet 255.255.0.0, no default gateway, \"Autoconfiguration Enabled: Yes\". The client never received a lease.", informative: true },
-      { id: "a2", label: "Ping the default gateway", command: "ping 192.168.10.1", finding: "\"Destination host unreachable\" — expected, since the client has no route off its link-local address.", informative: true },
+      { id: "a2", label: "Ping the default gateway", command: "ping 192.168.10.1", finding: "\"Destination host unreachable\", expected, since the client has no route off its link-local address.", informative: true },
       { id: "a3", label: "Ping the DNS server", command: "ping 192.168.10.9", finding: "Unreachable for the same reason. Nothing can be concluded about DNS until addressing is fixed.", informative: false },
       { id: "a4", label: "Run a name lookup", command: "nslookup intranet", finding: "\"Default Server: UnKnown\". Without a lease there is no resolver configured, so this test is not diagnostic yet.", informative: false },
       { id: "a5", label: "Check DHCP", command: "DHCP console → scope statistics", finding: "The scope holds 254 addresses and shows 254 leases in use, 0 available. The lease duration is set to 30 days and dozens of leases belong to devices no longer on site.", informative: true },
       { id: "a6", label: "Check the network adapter", command: "Get-NetAdapter", finding: "Ethernet is Up at 1 Gbps and the link light is solid. The physical path to the switch is fine.", informative: true },
       { id: "a7", label: "View event logs", command: "Event Viewer → System", finding: "Repeated DHCP client events: \"Your computer was not able to renew its address from the network (DHCP server)\".", informative: true },
       { id: "a8", label: "Ask the users", finding: "\"The room was cabled last week. We've never had these laptops online here.\"", informative: true },
-      { id: "a9", label: "Release and renew the address", command: "ipconfig /release && ipconfig /renew", finding: "\"DHCP server unreachable\" — the client discovers, but no offer is returned.", informative: true },
+      { id: "a9", label: "Release and renew the address", command: "ipconfig /release && ipconfig /renew", finding: "\"DHCP server unreachable\", the client discovers, but no offer is returned.", informative: true },
       { id: "a10", label: "Replace the patch cables", finding: "No change, and the link was already up at full speed, so cabling was never implicated.", informative: false },
     ],
     keyActionIds: ["a1", "a5", "a7", "a9"],
@@ -78,7 +78,7 @@ export const incidents: Incident[] = [
       { id: "c1", label: "The DHCP scope is exhausted", correct: true },
       { id: "c2", label: "The training room cabling is faulty", correct: false, hint: "Check what the adapter and link state already told you before suspecting the physical layer." },
       { id: "c3", label: "The laptops have a driver problem", correct: false, hint: "Twelve machines failing in one room while the same build works next door points away from the local driver." },
-      { id: "c4", label: "The DHCP service is stopped", correct: false, hint: "Look at the scope statistics again — the server is clearly doing something for other clients." },
+      { id: "c4", label: "The DHCP service is stopped", correct: false, hint: "Look at the scope statistics again, the server is clearly doing something for other clients." },
     ],
     fixes: [
       { id: "f1", label: "Reclaim stale leases and shorten the lease duration, or extend the scope range", correct: true },
@@ -140,7 +140,7 @@ export const incidents: Incident[] = [
     reasoningKeywords: ["thermal", "temperature", "dust", "fan", "load", "kernel-power"],
     documentationKeywords: ["thermal", "clean", "fan", "verif", "temperature"],
     rootCause:
-      "Blocked cooling let the CPU reach its thermal limit under sustained load, and the firmware cut power to protect the processor — hence a power event with no software shutdown. Restoring airflow and re-testing under the same load is what confirms the repair.",
+      "Blocked cooling let the CPU reach its thermal limit under sustained load, and the firmware cut power to protect the processor, hence a power event with no software shutdown. Restoring airflow and re-testing under the same load is what confirms the repair.",
   },
   {
     id: "incident-windows-profile-slow-logon",
@@ -157,7 +157,7 @@ export const incidents: Incident[] = [
       { id: "a2", label: "Compare a second account on the same machine", finding: "A test account signs in on the same workstation in 22 seconds, so the machine and its network path are healthy.", informative: true },
       { id: "a3", label: "Measure the profile size on the file server", finding: "The roaming profile is 47 GB; the desktop folder alone holds 41 GB of archived PDFs. Comparable users sit under 500 MB.", informative: true },
       { id: "a4", label: "View event logs", command: "Event Viewer → User Profile Service", finding: "Event 6005/6006 pairs show the profile copy stage consuming 11 minutes 40 seconds of the sign-in.", informative: true },
-      { id: "a5", label: "Check network throughput to the profile share", finding: "A 1 GB test file copies from the share in 9 seconds — around 110 MB/s, which is normal for the link.", informative: true },
+      { id: "a5", label: "Check network throughput to the profile share", finding: "A 1 GB test file copies from the share in 9 seconds, around 110 MB/s, which is normal for the link.", informative: true },
       { id: "a6", label: "Review Group Policy processing time", command: "gpresult /h", finding: "Policy processing completes in 4 seconds; no logon script exceeds 2 seconds.", informative: true },
       { id: "a7", label: "Check disk health on the workstation", command: "SMART report", finding: "Local SSD is healthy with no errors.", informative: true },
       { id: "a8", label: "Check antivirus scan exclusions", finding: "Real-time scanning is enabled with standard exclusions; scan activity during logon is brief and not the dominant cost.", informative: true },
@@ -200,9 +200,9 @@ export const incidents: Incident[] = [
     actions: [
       { id: "a1", label: "Check IP configuration", command: "ipconfig /all", finding: "Clients hold 169.254 addresses; the DHCP request never gets an answer, though the switch port shows the PC as connected.", informative: true },
       { id: "a2", label: "Check the switch port configuration", command: "show run interface", finding: "Access ports carry \"switchport voice vlan 30\" but the data access VLAN was left at the default VLAN 1 on the replacement switch.", informative: true },
-      { id: "a3", label: "Check the trunk to the core", command: "show interfaces trunk", finding: "The trunk is up and forwarding, allowed VLANs 20 and 30 — but VLAN 1 is not carried beyond the access switch.", informative: true },
+      { id: "a3", label: "Check the trunk to the core", command: "show interfaces trunk", finding: "The trunk is up and forwarding, allowed VLANs 20 and 30, but VLAN 1 is not carried beyond the access switch.", informative: true },
       { id: "a4", label: "Check DHCP", finding: "The VLAN 20 scope is healthy with plenty of free addresses and is still leasing to other floors.", informative: true },
-      { id: "a5", label: "Check the network adapter", command: "Get-NetAdapter", finding: "Up at 1 Gbps, no errors — the PC has link to the switch.", informative: true },
+      { id: "a5", label: "Check the network adapter", command: "Get-NetAdapter", finding: "Up at 1 Gbps, no errors, the PC has link to the switch.", informative: true },
       { id: "a6", label: "Ping the gateway", command: "ping 10.20.0.1", finding: "Destination host unreachable; the client is not in the VLAN where that gateway lives.", informative: true },
       { id: "a7", label: "View switch logs", finding: "Interfaces came up cleanly at the replacement time. No errdisable, no port security violations, no spanning-tree blocking.", informative: true },
       { id: "a8", label: "Ask the users", finding: "\"Nothing changed for us. The desk phones work, so we know the cables are fine.\"", informative: true },
@@ -247,11 +247,11 @@ export const incidents: Incident[] = [
       { id: "a2", label: "Find the largest directories", command: "du -xh /var --max-depth=2 | sort -h | tail", finding: "/var/log/app is 34 GB. A single debug.log file accounts for 31 GB and is still growing.", informative: true },
       { id: "a3", label: "Check the service status", command: "systemctl status reporting", finding: "Active (running) since 41 days ago, with recent \"No space left on device\" messages in the journal.", informative: true },
       { id: "a4", label: "Check log rotation", command: "cat /etc/logrotate.d/app", finding: "The rotation rule targets /var/log/app/*.log.1 only, so the live debug.log has never been rotated. Debug logging was enabled during a fault six weeks ago and never turned off.", informative: true },
-      { id: "a5", label: "Check inode usage", command: "df -i", finding: "Inode usage on /var is 4% — the exhaustion is capacity, not inodes.", informative: true },
+      { id: "a5", label: "Check inode usage", command: "df -i", finding: "Inode usage on /var is 4%, the exhaustion is capacity, not inodes.", informative: true },
       { id: "a6", label: "Check permissions on the write path", command: "ls -ld /var/lib/app/data", finding: "Owned by the service account with drwxr-xr-x; permissions are correct.", informative: true },
       { id: "a7", label: "Check disk health", command: "smartctl -H /dev/sda", finding: "SMART overall-health self-assessment: PASSED.", informative: true },
       { id: "a8", label: "Ask the application owner", finding: "\"Nothing changed recently that I know of. We did have someone debugging an export problem last month.\"", informative: true },
-      { id: "a9", label: "Reboot the server", finding: "The service restarts and immediately fails to write again — nothing about the underlying capacity has changed.", informative: false },
+      { id: "a9", label: "Reboot the server", finding: "The service restarts and immediately fails to write again, nothing about the underlying capacity has changed.", informative: false },
     ],
     keyActionIds: ["a1", "a2", "a4", "a5"],
     causes: [
@@ -319,7 +319,7 @@ export const incidents: Incident[] = [
     reasoningKeywords: ["phish", "credential", "rule", "sign-in", "mfa", "session"],
     documentationKeywords: ["phish", "mfa", "rule", "notif", "verif", "reset"],
     rootCause:
-      "Credential phishing without MFA gave an attacker a valid session; the hidden mailbox rule concealed replies while fraudulent payment-change mails went out. Containment is identity-first — revoke sessions, reset, enforce MFA, remove rules — and the incident is not closed until finance and the suppliers are informed.",
+      "Credential phishing without MFA gave an attacker a valid session; the hidden mailbox rule concealed replies while fraudulent payment-change mails went out. Containment is identity-first, revoke sessions, reset, enforce MFA, remove rules, and the incident is not closed until finance and the suppliers are informed.",
   },
   {
     id: "incident-cloud-vm-unreachable",
@@ -334,11 +334,11 @@ export const incidents: Incident[] = [
     actions: [
       { id: "a1", label: "Check instance state and metrics in the console", finding: "Instance is Running with 4% CPU, no host events and 19 days uptime; the boot log shows a clean start.", informative: true },
       { id: "a2", label: "Review the network security group rules", finding: "An inbound rule allowing TCP 443 from the corporate range was removed at 14:52 during a security clean-up; only TCP 22 from a management range remains.", informative: true },
-      { id: "a3", label: "Test connectivity from inside the VM", command: "curl -I http://localhost", finding: "HTTP/1.1 200 OK — the web service is healthy on the machine itself.", informative: true },
+      { id: "a3", label: "Test connectivity from inside the VM", command: "curl -I http://localhost", finding: "HTTP/1.1 200 OK, the web service is healthy on the machine itself.", informative: true },
       { id: "a4", label: "Test the port from outside", command: "Test-NetConnection host -Port 443", finding: "TcpTestSucceeded: False; connection times out rather than being refused, which suggests filtering rather than a stopped service.", informative: true },
-      { id: "a5", label: "Check the OS firewall", command: "ufw status", finding: "443/tcp ALLOW Anywhere — the host firewall is not blocking the traffic.", informative: true },
+      { id: "a5", label: "Check the OS firewall", command: "ufw status", finding: "443/tcp ALLOW Anywhere, the host firewall is not blocking the traffic.", informative: true },
       { id: "a6", label: "Check DNS for the hostname", command: "nslookup test.example.internal", finding: "Resolves to the instance's current public address; no stale record.", informative: true },
-      { id: "a7", label: "Check the service logs on the VM", finding: "Access log shows requests up to 14:51 and none after, with no errors — traffic simply stopped arriving.", informative: true },
+      { id: "a7", label: "Check the service logs on the VM", finding: "Access log shows requests up to 14:51 and none after, with no errors, traffic simply stopped arriving.", informative: true },
       { id: "a8", label: "Ask the developer", finding: "\"I didn't change anything. Someone mentioned a security review this afternoon.\"", informative: true },
       { id: "a9", label: "Restart the virtual machine", finding: "Comes back with the same behaviour; a reboot cannot restore a deleted network rule.", informative: false },
     ],
@@ -364,7 +364,7 @@ export const incidents: Incident[] = [
     reasoningKeywords: ["security group", "rule", "443", "firewall", "inbound", "filter"],
     documentationKeywords: ["rule", "443", "security", "verif", "change"],
     rootCause:
-      "A security clean-up removed the inbound 443 rule from the network security group. The service and host firewall were fine, so the failure sat between the client and the instance — a timeout rather than a refusal is the tell. Reinstating a scoped rule with a documented purpose keeps both access and least privilege.",
+      "A security clean-up removed the inbound 443 rule from the network security group. The service and host firewall were fine, so the failure sat between the client and the instance, a timeout rather than a refusal is the tell. Reinstating a scoped rule with a documented purpose keeps both access and least privilege.",
   },
   {
     id: "incident-authentication-locked-out",
@@ -372,7 +372,7 @@ export const incidents: Incident[] = [
     category: "authentication",
     title: "User is locked out repeatedly, minutes after each unlock",
     report:
-      "A field engineer is locked out of his account several times a day. Help desk unlocks it, and within about fifteen minutes it locks again — even while he is driving and not typing anything.",
+      "A field engineer is locked out of his account several times a day. Help desk unlocks it, and within about fifteen minutes it locks again, even while he is driving and not typing anything.",
     environment: "Active Directory domain with a lockout threshold of five bad attempts, mail on a phone and a laptop, one shared kiosk in the workshop.",
     difficulty: "challenging",
     efficientActionCount: 4,

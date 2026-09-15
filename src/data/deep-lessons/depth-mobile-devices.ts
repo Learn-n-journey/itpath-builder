@@ -7,7 +7,7 @@ export const mobileDevicesLessonDepth: Record<string, LessonDepth> = {
       "The display panel and the touch digitizer are separate layers and fail independently, so a perfect image with ghost touches is a digitizer fault.",
       "USB-C is a connector shape, not a speed or power standard; the cable and both devices decide what the port can actually do.",
       "A swollen lithium-ion battery is a safety hazard, not a performance complaint, and the device must be taken out of service immediately.",
-      "Most 'software' complaints on a phone — auto-rotate, screen blanking on calls, auto-brightness — are really sensor outputs.",
+      "Most 'software' complaints on a phone, auto-rotate, screen blanking on calls, auto-brightness, are really sensor outputs.",
       "Charging faults are diagnosed cheapest-first: cable, then charger, then port, then internal circuit or battery.",
       "Battery health and cycle count are reported by the device itself, so wear can be proven before any part is ordered.",
     ],
@@ -32,7 +32,7 @@ export const mobileDevicesLessonDepth: Record<string, LessonDepth> = {
       rows: [
         { term: "Digitizer", detail: "Touch-sensing layer bonded over the display; ghost touches and dead zones live here" },
         { term: "Display panel", detail: "Image layer beneath the digitizer; lines, dead pixels, and backlight loss live here" },
-        { term: "Lithium-ion swelling", detail: "Failed cell releasing gas — stop charging, isolate, do not puncture or compress" },
+        { term: "Lithium-ion swelling", detail: "Failed cell releasing gas, stop charging, isolate, do not puncture or compress" },
         { term: "USB Power Delivery", detail: "Negotiated fast-charging profile; needs support in the device, charger, and cable" },
         { term: "Alternate mode", detail: "USB-C carrying DisplayPort or Thunderbolt instead of plain USB data" },
         { term: "Accelerometer", detail: "Linear motion sensor driving auto-rotate and step counting" },
@@ -221,7 +221,7 @@ export const mobileDevicesLessonDepth: Record<string, LessonDepth> = {
       { claim: "A fingerprint replaces the PIN.", correction: "Biometrics sit in front of the PIN, which backs the encryption keys and is required after a restart." },
       { claim: "Issuing a wipe means the data is gone.", correction: "The command queues until the device reconnects; a powered-off handset may never receive it." },
       { claim: "MDM on a personal phone lets IT read personal messages and photos.", correction: "Containerisation limits management to the work profile, which is also all that gets wiped." },
-      { claim: "The first action on a lost device is a full wipe.", correction: "Lock and locate first — they are reversible — and revoke server-side sessions immediately." },
+      { claim: "The first action on a lost device is a full wipe.", correction: "Lock and locate first, they are reversible, and revoke server-side sessions immediately." },
     ],
     examTraps: [
       "Lost-device scenarios usually reward lock and locate over an immediate wipe.",
@@ -239,7 +239,7 @@ export const mobileDevicesLessonDepth: Record<string, LessonDepth> = {
 
   "topic-mobile-troubleshooting": {
     keyIdeas: [
-      "Scope the symptom first: one app, one account, one network, or the whole device — that answer routes the entire ticket.",
+      "Scope the symptom first: one app, one account, one network, or the whole device, that answer routes the entire ticket.",
       "Battery usage statistics identify drain causes far faster than guesswork, and battery health separates wear from a misbehaving app.",
       "Airplane mode restarts every radio without deleting configuration, making it the safest first step for connectivity symptoms.",
       "Safe mode proves whether a third-party app causes a device-wide behaviour.",
@@ -281,7 +281,7 @@ export const mobileDevicesLessonDepth: Record<string, LessonDepth> = {
       { claim: "Overheating while charging means the charger is faulty.", correction: "Devices deliberately throttle charging under heat or heavy load, which is protective behaviour." },
     ],
     examTraps: [
-      "Troubleshooting scenarios reward the methodical order — identify, theorise, test, resolve, verify, document — over the fastest fix.",
+      "Troubleshooting scenarios reward the methodical order, identify, theorise, test, resolve, verify, document, over the fastest fix.",
       "Answers proposing a factory reset before non-destructive isolation are almost always wrong.",
       "A symptom that follows the location rather than the device is an environment question.",
       "App crashes in a scenario mentioning a nearly full device are testing storage, not the app.",

@@ -7,12 +7,12 @@ export const Route = createFileRoute("/refund-policy")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Refund Policy — IT PATH" },
+      { title: "Refund Policy | IT PATH" },
       {
         name: "description",
         content: "IT PATH offers a 30-day money-back guarantee on all purchases, processed by Paddle.",
       },
-      { property: "og:title", content: "Refund Policy — IT PATH" },
+      { property: "og:title", content: "Refund Policy | IT PATH" },
       {
         property: "og:description",
         content: "30-day money-back guarantee on all IT PATH purchases.",
@@ -36,7 +36,7 @@ function RefundPolicyPage() {
           <p>
             We offer a 30-day money-back guarantee. If you're not satisfied with
             your purchase, you can request a full refund within 30 days of your
-            order date — no questions asked.
+            order date, no questions asked.
           </p>
           <p>
             Refunds are processed by our payment provider, Paddle. To request a

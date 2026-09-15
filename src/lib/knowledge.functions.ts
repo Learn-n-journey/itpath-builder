@@ -131,7 +131,7 @@ JSON shape:
   "contradictions": ["statements in the material that are wrong, outdated, or conflict with standard IT practice; empty when there are none"]
 }
 
-Rules: never invent topic or certification ids — copy them from the catalogues or leave the list empty.
+Rules: never invent topic or certification ids, copy them from the catalogues or leave the list empty.
 Keep each list under 10 entries. Never invent facts that are not in the material; if the material is only a link
 with no readable text, say so in the summary and base concepts on the title and the learner's notes only.`;
 
@@ -168,7 +168,7 @@ async function extract(
     }),
   });
 
-  if (res.status === 429) return { ok: false, error: "The AI is busy right now — try again in a moment." };
+  if (res.status === 429) return { ok: false, error: "The AI is busy right now, try again in a moment." };
   if (res.status === 402) return { ok: false, error: "AI usage limit reached for this app." };
   if (!res.ok) return { ok: false, error: `AI request failed (${res.status}).` };
 

@@ -16,9 +16,9 @@ export const Route = createFileRoute("/learn")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Learn — IT PATH" },
+      { title: "Learn | IT PATH" },
       { name: "description", content: "Lessons and your personal study notes in one place." },
-      { property: "og:title", content: "Learn — IT PATH" },
+      { property: "og:title", content: "Learn | IT PATH" },
       { property: "og:description", content: "Work through lessons and keep your own notes." },
     ],
   }),

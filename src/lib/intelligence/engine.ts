@@ -3,7 +3,7 @@
  *
  * One model the whole app asks: what does this learner need next, why are they
  * struggling, how should it be taught, at what difficulty, and when does it
- * come back. It is derived state — rebuilt from `UserData` — so every recorded
+ * come back. It is derived state, rebuilt from `UserData`, so every recorded
  * answer, grade, lab, ticket or terminal attempt updates it immediately.
  *
  * It reuses the existing pieces rather than duplicating them: the evidence
@@ -72,7 +72,7 @@ function evidenceSentence(intel: Omit<ConceptIntel, "evidence">): string {
         : "A prerequisite for this is still unproven.";
     }
     case "retrieval_failure":
-      return `You had this right before and missed it again recently — ${pct}% overall.`;
+      return `You had this right before and missed it again recently, ${pct}% overall.`;
     case "misconception":
       return intel.misconceptions[0]
         ? `Same error keeps coming back: ${intel.misconceptions[0].toLowerCase()}.`
@@ -85,7 +85,7 @@ function evidenceSentence(intel: Omit<ConceptIntel, "evidence">): string {
       return `${intel.confidentErrors} fast, assured answers on this were wrong.`;
     case "fading":
       return intel.daysOverdue > 0
-        ? `Recall is fading — ${intel.daysOverdue} day(s) past its best review point.`
+        ? `Recall is fading, ${intel.daysOverdue} day(s) past its best review point.`
         : "Recall is fading against its spacing interval.";
     case "solid":
       return `Strong at ${pct}% with recent evidence. Spaced review only.`;
@@ -123,11 +123,11 @@ function buildTrace(input: TraceInput): TraceStep[] {
       detail:
         strength.gradedSignals === 0
           ? "No graded work recorded on this concept."
-          : `${strength.gradedSignals} graded result(s) across ${strength.independentSources} activity type(s) on ${strength.distinctDays} separate day(s) — ${strength.level} evidence.`,
+          : `${strength.gradedSignals} graded result(s) across ${strength.independentSources} activity type(s) on ${strength.distinctDays} separate day(s), ${strength.level} evidence.`,
     },
     {
       stage: "diagnose",
-      detail: `${DIAGNOSIS_LABEL[input.diagnosis]} — ${STATE_LABEL[input.state]}: ${STATE_MEANING[input.state]}${input.stateBlockedBy ? ` ${input.stateBlockedBy}` : ""}`,
+      detail: `${DIAGNOSIS_LABEL[input.diagnosis]}, ${STATE_LABEL[input.state]}: ${STATE_MEANING[input.state]}${input.stateBlockedBy ? ` ${input.stateBlockedBy}` : ""}`,
     },
     {
       stage: "hypothesize",
@@ -140,8 +140,8 @@ function buildTrace(input: TraceInput): TraceStep[] {
     {
       stage: "intervene",
       detail: prescription.isDiagnostic
-        ? `Controlled test first — ${prescription.instruction}`
-        : `${METHOD_LABEL[prescription.method]} at ${prescription.difficulty} level — ${prescription.instruction}${prescription.methodReason ? ` ${prescription.methodReason}` : ""}`,
+        ? `Controlled test first, ${prescription.instruction}`
+        : `${METHOD_LABEL[prescription.method]} at ${prescription.difficulty} level, ${prescription.instruction}${prescription.methodReason ? ` ${prescription.methodReason}` : ""}`,
     },
     {
       stage: "retest",
@@ -204,13 +204,13 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
         mastery: prerequisite.mastery,
       }));
 
-    // 1. Observe — graded evidence, its breadth and its spacing.
+    // 1. Observe, graded evidence, its breadth and its spacing.
     const graded = gradedSignals(signals);
     const strength = evidenceStrength(graded, nowMs);
     const transfer = transferEvidence(graded);
     const velocity = velocityFrom(graded, nowMs);
 
-    // 2. Diagnose — the rule chain names the failure type.
+    // 2. Diagnose, the rule chain names the failure type.
     const diagnosis = diagnose({
       profile,
       scope,
@@ -221,7 +221,7 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
       retention: profile.retention,
     });
 
-    // 3. Hypothesize — competing causes, each needing independent support.
+    // 3. Hypothesize, competing causes, each needing independent support.
     const hypotheses = hypothesize({
       profile,
       scope,
@@ -263,7 +263,7 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
       daysSinceExposure: profile.daysSinceExposure,
     });
 
-    // 5. Intervene — treatment when the cause is confirmed, a test when it is not.
+    // 5. Intervene, treatment when the cause is confirmed, a test when it is not.
     const prescription = prescribe(profile, diagnosis, {
       state: stateAssessment.state,
       interventions: history,
@@ -282,7 +282,7 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
     const onTargetPath = targetIds.has(topic.id);
     const forgettingRisk = (1 - profile.retention) * (0.4 + 0.6 * profile.mastery);
 
-    // 8. Adapt — ranking reflects cause, decay, uncertainty and measured progress.
+    // 8. Adapt, ranking reflects cause, decay, uncertainty and measured progress.
     let priority = DIAGNOSIS_WEIGHT[diagnosis];
     priority += (1 - profile.mastery) * 20;
     priority += forgettingRisk * 18;

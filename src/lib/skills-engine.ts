@@ -229,7 +229,7 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     for (const skillId of forTopic(topicId)) {
       push({
         id: `recall-${topicId}-${skillId}`, skillId, source: "recall",
-        label: `${topicTitle(topicId)} — ${correct}/${rows.length} recall answers correct`,
+        label: `${topicTitle(topicId)}, ${correct}/${rows.length} recall answers correct`,
         score: pct(ratio(correct, rows.length)), weight: 1.5,
         at: rows[rows.length - 1]!.createdAt,
       });
@@ -241,7 +241,7 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     for (const skillId of forTopic(topicId)) {
       push({
         id: `practice-${topicId}-${skillId}`, skillId, source: "practice",
-        label: `${topicTitle(topicId)} — ${correct}/${rows.length} practice activities correct`,
+        label: `${topicTitle(topicId)}, ${correct}/${rows.length} practice activities correct`,
         score: pct(ratio(correct, rows.length)), weight: 1.5,
         at: rows[rows.length - 1]!.createdAt,
       });
@@ -257,7 +257,7 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     for (const skillId of forTopic(topicId)) {
       push({
         id: `quiz-${topicId}-${skillId}`, skillId, source: "quiz",
-        label: `${topicTitle(topicId)} — ${correct}/${rows.length} quiz questions correct`,
+        label: `${topicTitle(topicId)}, ${correct}/${rows.length} quiz questions correct`,
         score: pct(ratio(correct, rows.length)), weight: 2,
         at: rows[rows.length - 1]!.at,
       });
@@ -273,13 +273,13 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     for (const skillId of labCategorySkills[lab.category] ?? []) {
       push({
         id: `lab-${lab.id}-${skillId}`, skillId, source: "lab",
-        label: `${lab.title} — lab scored ${value}%`,
+        label: `${lab.title}, lab scored ${value}%`,
         score: value, weight: 3, at: attempt.updatedAt,
       });
     }
     push({
       id: `lab-${lab.id}-documentation`, skillId: "documentation", source: "lab",
-      label: `${lab.title} — written reflection`,
+      label: `${lab.title}, written reflection`,
       score: pct(Math.min(100, attempt.reflection.trim().length)), weight: 1, at: attempt.updatedAt,
     });
   }
@@ -300,7 +300,7 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     for (const skillId of skills) {
       push({
         id: `assignment-${assignment.id}-${skillId}`, skillId, source: "assignment",
-        label: `${assignment.title} — assignment scored ${value}%`,
+        label: `${assignment.title}, assignment scored ${value}%`,
         score: value, weight: 2.5, at: attempt.updatedAt,
       });
     }
@@ -316,19 +316,19 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     for (const skillId of incidentCategorySkills[incident.category] ?? []) {
       push({
         id: `incident-${incident.id}-${skillId}`, skillId, source: "troubleshoot",
-        label: `${incident.title} — technical accuracy ${pct(s.technicalAccuracy)}%`,
+        label: `${incident.title}, technical accuracy ${pct(s.technicalAccuracy)}%`,
         score: pct(s.technicalAccuracy), weight: 3, at,
       });
     }
     push({
       id: `incident-${incident.id}-troubleshooting`, skillId: "troubleshooting", source: "troubleshoot",
-      label: `${incident.title} — diagnosis, reasoning and verification`,
+      label: `${incident.title}, diagnosis, reasoning and verification`,
       score: pct((s.diagnosticChoices + s.reasoning + s.verification + s.efficiency) / 4),
       weight: 3, at,
     });
     push({
       id: `incident-${incident.id}-documentation`, skillId: "documentation", source: "troubleshoot",
-      label: `${incident.title} — incident write-up`,
+      label: `${incident.title}, incident write-up`,
       score: pct(s.documentation), weight: 2, at,
     });
   }
@@ -344,7 +344,7 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     for (const skillId of trackSkills[ticket.track]) {
       push({
         id: `ticket-${ticket.id}-${skillId}`, skillId, source: "career",
-        label: `${title} — technical accuracy ${pct(s.technicalAccuracy)}%`,
+        label: `${title}, technical accuracy ${pct(s.technicalAccuracy)}%`,
         score: pct(s.technicalAccuracy), weight: 3.5, at,
       });
     }
@@ -357,7 +357,7 @@ export function collectEvidence(user: UserData): EvidenceItem[] {
     for (const [skillId, value, what] of dimension) {
       push({
         id: `ticket-${ticket.id}-${skillId}`, skillId, source: "career",
-        label: `${title} — ${what} ${pct(value)}%`,
+        label: `${title}, ${what} ${pct(value)}%`,
         score: pct(value), weight: 3, at,
       });
     }

@@ -35,9 +35,9 @@ export const Route = createFileRoute("/labs")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Hands-on IT Labs — IT PATH" },
+      { title: "Hands-on IT Labs | IT PATH" },
       { name: "description", content: "Complete guided practical IT labs with saved evidence and review." },
-      { property: "og:title", content: "Hands-on IT Labs — IT PATH" },
+      { property: "og:title", content: "Hands-on IT Labs | IT PATH" },
       { property: "og:description", content: "Guided hardware, systems, networking, security, and cloud exercises." },
     ],
   }),

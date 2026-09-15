@@ -16,13 +16,13 @@ export const Route = createFileRoute("/learner")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Learner Profile — IT PATH" },
+      { title: "Learner Profile | IT PATH" },
       {
         name: "description",
         content:
           "Your concept-by-concept learner profile: mastery, confidence, retention, response time, error patterns and what to study next.",
       },
-      { property: "og:title", content: "Learner Profile — IT PATH" },
+      { property: "og:title", content: "Learner Profile | IT PATH" },
       {
         property: "og:description",
         content:

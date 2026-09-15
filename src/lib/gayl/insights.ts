@@ -3,7 +3,7 @@
  *
  * Read-only. It turns what the Learning Intelligence Engine already calculated
  * into short, plain sentences. No scoring, no decisions and no state changes
- * happen here — the engine stays exactly as it is.
+ * happen here, the engine stays exactly as it is.
  *
  * Tone rule: describe what happened and what it may mean. Never describe the
  * learner. Grades aren't your legacy.
@@ -52,7 +52,7 @@ export function dashboardInsight(intel: Intelligence): GaylInsight | null {
       : "";
 
   return {
-    message: `${opener}${top.title} looks like the one worth attention next — ${top.instruction.toLowerCase()}`,
+    message: `${opener}${top.title} looks like the one worth attention next, ${top.instruction.toLowerCase()}`,
     why: evidenceLines(top),
   };
 }
@@ -65,7 +65,7 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
   if (concept.attempts === 0) {
     return {
       message:
-        "Nothing recorded here yet. Read through, then try the recall questions — that gives me something real to work from instead of guessing.",
+        "Nothing recorded here yet. Read through, then try the recall questions, that gives me something real to work from instead of guessing.",
     };
   }
 
@@ -76,7 +76,7 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
     case "retrieval_failure":
       return {
         message:
-          "You've had this before, so it isn't new learning — it just needs bringing back. A short review pass should be enough.",
+          "You've had this before, so it isn't new learning, it just needs bringing back. A short review pass should be enough.",
         why,
       };
     case "misconception":
@@ -89,7 +89,7 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
     case "prerequisite_gap":
       return {
         message: `Something underneath this is still unproven${
-          concept.prerequisiteGaps[0] ? ` — ${concept.prerequisiteGaps[0].title}` : ""
+          concept.prerequisiteGaps[0] ? `, ${concept.prerequisiteGaps[0].title}` : ""
         }. Shoring that up first usually makes this one much easier.`,
         why,
       };
@@ -139,7 +139,7 @@ export function quizResultInsight(input: {
   } else if (score >= 60) {
     message =
       spread <= 1
-        ? "A mixed result concentrated in one area — that's usually one idea to clear up rather than the whole subject."
+        ? "A mixed result concentrated in one area, that's usually one idea to clear up rather than the whole subject."
         : `Misses spread across ${spread} topics. That often means recall is fading rather than the material being misunderstood.`;
   } else {
     message =
@@ -181,8 +181,8 @@ export function troubleshootingInsight(scores: {
 
   const message =
     best[1] - worst[1] < 15
-      ? `Your work was even across the whole process — no single step is dragging the rest down.`
-      : `The strongest part of this was ${best[0]}. The step costing you most was ${worst[0]} — that's process, not knowledge, and process is quick to change.`;
+      ? `Your work was even across the whole process, no single step is dragging the rest down.`
+      : `The strongest part of this was ${best[0]}. The step costing you most was ${worst[0]}, that's process, not knowledge, and process is quick to change.`;
 
   return {
     message,
@@ -200,7 +200,7 @@ export function reviewInsight(intel: Intelligence): GaylInsight | null {
   if (due.length === 0 && fading.length === 0 && errors.length === 0) {
     return {
       message:
-        "Nothing is overdue. Topics come back here when the timing says recall is slipping, or when the same mistake is still open — not on a fixed schedule.",
+        "Nothing is overdue. Topics come back here when the timing says recall is slipping, or when the same mistake is still open, not on a fixed schedule.",
     };
   }
 
@@ -227,7 +227,7 @@ export function progressInsight(intel: Intelligence): GaylInsight | null {
   if (!top) return null;
 
   return {
-    message: `Most of your work sits at "${STATE_LABEL[top[0]]}" right now — ${STATE_MEANING[top[0]].toLowerCase()} About ${Math.round(
+    message: `Most of your work sits at "${STATE_LABEL[top[0]]}" right now, ${STATE_MEANING[top[0]].toLowerCase()} About ${Math.round(
       intel.pathFunctional * 100,
     )}% of ${intel.certificationTitle} is functional or better.`,
     why: present.map(([state, count]) => `${STATE_LABEL[state]}: ${count} concept${count === 1 ? "" : "s"}`),

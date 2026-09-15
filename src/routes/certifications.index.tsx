@@ -14,12 +14,12 @@ export const Route = createFileRoute("/certifications/")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Certifications — IT PATH" },
+      { title: "Certifications | IT PATH" },
       {
         name: "description",
         content: "Every certification in the IT PATH programme, grouped by level, with topic coverage and readiness.",
       },
-      { property: "og:title", content: "Certifications — IT PATH" },
+      { property: "og:title", content: "Certifications | IT PATH" },
       {
         property: "og:description",
         content: "Level, topic coverage, readiness and status for each CompTIA certification you are working towards.",

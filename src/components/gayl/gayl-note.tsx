@@ -3,7 +3,7 @@
  *
  * One quiet, consistent surface used everywhere the learning intelligence has
  * something worth saying. It never speaks unless there is evidence behind it,
- * and it never labels the learner — only what happened and what to do next.
+ * and it never labels the learner, only what happened and what to do next.
  *
  * This component only presents what the existing engine already calculated.
  */

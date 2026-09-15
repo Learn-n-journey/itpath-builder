@@ -191,9 +191,9 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[]): Inciden
         ...keywords(primary, 3),
       ],
       documentationKeywords: ["symptom", "check", "cause", "fix", "verif"],
-      rootCause: `${sentence(primary)} ${sentence(failure)} Working the documented order — ${steps
+      rootCause: `${sentence(primary)} ${sentence(failure)} Working the documented order, ${steps
         .map((step) => lower(sentence(step)).replace(/\.$/, ""))
-        .join("; then ")} — separates this cause from ${lower(sentence(secondary))}`,
+        .join("; then ")}, separates this cause from ${lower(sentence(secondary))}`,
     });
   }
 

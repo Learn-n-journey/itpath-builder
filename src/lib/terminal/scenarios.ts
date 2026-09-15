@@ -484,7 +484,7 @@ export function randomizeTerminalScenario(base: TerminalScenario): TerminalScena
   return {
     ...base,
     id: `${base.id}-random-${nonce}`,
-    title: `${base.title} — ${hostname}`,
+    title: `${base.title}, ${hostname}`,
     brief: `${base.brief} This variation occurs ${context}.`,
     environment: `${base.environment} Virtual host: ${hostname}.`,
     machineSpec: { ...(base.machineSpec ?? { shell: base.shell }), shell: base.shell, hostname },

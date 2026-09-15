@@ -51,12 +51,12 @@ export const Route = createFileRoute("/command-line")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Command-Line Simulator — IT PATH" },
+      { title: "Command-Line Simulator | IT PATH" },
       {
         name: "description",
         content: "Practice Mac/Linux Bash, Windows CMD and PowerShell troubleshooting in safe persistent virtual computers.",
       },
-      { property: "og:title", content: "Command-Line Simulator — IT PATH" },
+      { property: "og:title", content: "Command-Line Simulator | IT PATH" },
       {
         property: "og:description",
         content: "Realistic guided and challenge-mode command-line troubleshooting practice.",
@@ -288,7 +288,7 @@ function CommandLinePage() {
       });
       actions.ensureReview({ topicId: scenario.topicId });
     }
-    toast.success(`Scenario checked — ${result.score}%`);
+    toast.success(`Scenario checked, ${result.score}%`);
   }
 
   const commands = attempt?.machine.history ?? [];

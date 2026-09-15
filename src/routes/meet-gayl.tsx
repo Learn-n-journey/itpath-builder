@@ -10,13 +10,13 @@ export const Route = createFileRoute("/meet-gayl")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Meet GAYL — Grades Aren't Your Legacy" },
+      { title: "Meet GAYL, Grades Aren't Your Legacy" },
       {
         name: "description",
         content:
           "GAYL is IT PATH's learning guide. She believes grades are a snapshot, not a sentence, and helps you figure out what to do next.",
       },
-      { property: "og:title", content: "Meet GAYL — Grades Aren't Your Legacy" },
+      { property: "og:title", content: "Meet GAYL, Grades Aren't Your Legacy" },
       {
         property: "og:description",
         content:
@@ -69,7 +69,7 @@ function MeetGaylPage() {
             been reviewed in a while.
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
-            Whatever the reason, GAYL uses it to help figure out what should happen next — not to
+            Whatever the reason, GAYL uses it to help figure out what should happen next, not to
             judge you.
           </p>
         </Panel>

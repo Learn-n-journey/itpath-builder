@@ -85,7 +85,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const orderedTopics = focusedTopicsFirst(user);
   const focusTopicIds = new Set(focus.topics.map((topic) => topic.id));
 
-  // 1. Review — reviews the learner actually has scheduled and due.
+  // 1. Review, reviews the learner actually has scheduled and due.
   const dueReviews = user.reviews
     .filter((r) => r.status === "scheduled" && new Date(r.dueAt).getTime() <= nowMs)
     .sort((a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime());
@@ -103,7 +103,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 2. Weak topics — recorded low scores or unresolved mistakes, prerequisite first.
+  // 2. Weak topics, recorded low scores or unresolved mistakes, prerequisite first.
   const weakTopics = new Map<string, string>();
   for (const mistake of user.mistakes) {
     if (mistake.resolved) continue;
@@ -138,7 +138,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 3. New material — the next untouched topic in path order, prerequisites respected.
+  // 3. New material, the next untouched topic in path order, prerequisites respected.
   const untouched = orderedTopics.filter((topic) => {
     const p = user.topicProgress[topic.id];
     return !p || p.status === "not_started";
@@ -161,7 +161,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 4. Practice — topics you have read but never applied.
+  // 4. Practice, topics you have read but never applied.
   const practiced = new Set(user.practiceResponses.map((r) => r.topicId));
   const practiceTopic = orderedTopics.find((topic) => {
     const p = topicScopeProgress(user, topic.id);
@@ -180,7 +180,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 5. Lab — finish an open lab first, otherwise the next lab you can support.
+  // 5. Lab, finish an open lab first, otherwise the next lab you can support.
   const openLab = user.labAttempts.find((attempt) => attempt.status === "in_progress");
   const openLabDef = openLab ? labs.find((lab) => lab.id === openLab.labId) : undefined;
   const doneLabIds = new Set(
@@ -208,7 +208,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 6. Assignment — an open attempt first, otherwise one on a topic you have started.
+  // 6. Assignment, an open attempt first, otherwise one on a topic you have started.
   const openAssignment = user.assignmentAttempts.find(
     (a) => a.status === "started" || a.status === "submitted" || a.status === "evaluated",
   );
@@ -242,7 +242,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 7. Quiz — only when a quiz exists.
+  // 7. Quiz, only when a quiz exists.
   const quiz = quizzes[0];
   if (quiz) {
     const lastScore = user.quizAttempts.find((a) => a.status === "submitted")?.score;
@@ -426,7 +426,7 @@ export function skipTask(plan: StudyPlan, taskId: string, now: Date = new Date()
 
 export interface FinishResult {
   plan: StudyPlan;
-  /** Only created when real tracked time exists — never a fabricated session. */
+  /** Only created when real tracked time exists, never a fabricated session. */
   session?: StudySession;
 }
 

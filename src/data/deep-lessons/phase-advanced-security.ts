@@ -14,7 +14,7 @@ export const advancedSecurityDeepLessons: DeepLesson[] = [
         heading: "In Plain Words",
         paragraphs: [
           "Imagine a large office building with hundreds of security cameras, badge readers, and alarm sensors. No single guard can watch every feed at once, so instead all of that footage and every badge swipe is sent to one control room. A SIEM is that control room for computers: it pulls in records from laptops, servers, firewalls, and cloud apps, and puts them on one screen.",
-          "The control room only becomes useful once someone writes rules like 'tell me if the same badge is used at two doors five minutes apart in different buildings' — because a human could never notice that by watching separate cameras. A SIEM does the same thing with digital events: it looks for combinations across many systems that a person staring at one log file would never catch.",
+          "The control room only becomes useful once someone writes rules like 'tell me if the same badge is used at two doors five minutes apart in different buildings', because a human could never notice that by watching separate cameras. A SIEM does the same thing with digital events: it looks for combinations across many systems that a person staring at one log file would never catch.",
         ],
       },
       {
@@ -44,7 +44,7 @@ export const advancedSecurityDeepLessons: DeepLesson[] = [
         paragraphs: [
           "Consider a single alert from creation to closure. An identity provider logs a sign-in from a country the user has never used before, thirty minutes after a sign-in from their home country. A correlation rule watching for 'impossible travel' compares the two events by time and distance, calculates that the travel speed required is physically impossible, and raises an alert.",
           "The alert lands in the analyst's queue with a severity and the two contributing sign-in events attached. The analyst opens the case, pulls the raw sign-in logs to confirm IP address, device identifier, and whether multi-factor authentication was satisfied, and checks whether the user has a VPN or travel history that would explain it. They also check whether other alerts touch the same account.",
-          "If the evidence supports compromise, the analyst escalates to incident response with a written timeline: first sign-in, second sign-in, distance and time calculated, and any subsequent activity such as mailbox rule changes. If evidence explains it away — a corporate VPN egress point in another country, for instance — the analyst closes the alert with that specific evidence recorded, not just a guess.",
+          "If the evidence supports compromise, the analyst escalates to incident response with a written timeline: first sign-in, second sign-in, distance and time calculated, and any subsequent activity such as mailbox rule changes. If evidence explains it away, a corporate VPN egress point in another country, for instance, the analyst closes the alert with that specific evidence recorded, not just a guess.",
         ],
       },
       {
@@ -89,7 +89,7 @@ export const advancedSecurityDeepLessons: DeepLesson[] = [
         paragraphs: [
           "When a SIEM appears too quiet, the first question is whether it is actually receiving data, not whether the environment is genuinely calm. Check collector health dashboards and compare expected daily event volume per source against actual volume; a source that dropped from thousands of events per day to zero is a broken pipe, not good news.",
           "When an alert seems wrong, always pull the raw events behind it rather than trusting the summary text, since summaries can mask a parsing error or a stale enrichment lookup. Cross-check timestamps in UTC consistently, because time zone mismatches between log sources are a frequent source of false conclusions during timeline building.",
-          "When investigating repeated false positives, look for a pattern in the closures themselves — a common department, application, or time of day — which usually points to a legitimate business process the rule never accounted for, rather than genuinely random noise.",
+          "When investigating repeated false positives, look for a pattern in the closures themselves, a common department, application, or time of day, which usually points to a legitimate business process the rule never accounted for, rather than genuinely random noise.",
         ],
       },
       {
@@ -118,7 +118,7 @@ export const advancedSecurityDeepLessons: DeepLesson[] = [
         heading: "In Plain Words",
         paragraphs: [
           "Think of a building's smoke detectors. A cheap one just checks 'is there smoke', which also goes off from toast. A good fire safety engineer designs a detector that distinguishes cooking smoke from an actual electrical fire by looking at multiple signals together: smoke density, heat rise rate, and location. Detection engineering does the same thing for computer behaviour, combining several weak signals into one reliable alarm.",
-          "Log analysis is like being a detective reading witness statements after the fact. Each log line is one small statement — 'this program started', 'this file was created', 'this connection was made' — and the analyst's job is to line up dozens of these statements in the right order to understand the full story of what an attacker actually did.",
+          "Log analysis is like being a detective reading witness statements after the fact. Each log line is one small statement, 'this program started', 'this file was created', 'this connection was made', and the analyst's job is to line up dozens of these statements in the right order to understand the full story of what an attacker actually did.",
         ],
       },
       {
@@ -294,7 +294,7 @@ export const advancedSecurityDeepLessons: DeepLesson[] = [
         heading: "How to Troubleshoot It",
         paragraphs: [
           "When a hunting programme feels unproductive, first check whether hunts are actually starting from written hypotheses with defined data sources, because unstructured 'just looking around' work is the most common root cause of wasted effort. Confirm that the telemetry each hypothesis depends on genuinely exists and is collected reliably before spending time building queries against it.",
-          "When intelligence feeds seem to generate constant unhelpful noise, review the source evaluation criteria being applied — reliability, relevance to your technology stack, and timeliness — and remove or deprioritise sources that consistently fail those checks. Finally, audit whether past hunt findings were actually converted into permanent detections; a pattern of one-off findings with no lasting coverage points to a missing handoff process between hunters and detection engineers.",
+          "When intelligence feeds seem to generate constant unhelpful noise, review the source evaluation criteria being applied, reliability, relevance to your technology stack, and timeliness, and remove or deprioritise sources that consistently fail those checks. Finally, audit whether past hunt findings were actually converted into permanent detections; a pattern of one-off findings with no lasting coverage points to a missing handoff process between hunters and detection engineers.",
         ],
       },
       {

@@ -4,20 +4,20 @@ const MORNING = [
   "Good morning",
   "Morning",
   "Fresh start this morning",
-  "Good morning — early focus pays off",
+  "Good morning, early focus pays off",
 ];
 
 const AFTERNOON = [
   "Good afternoon",
   "Afternoon",
-  "Good afternoon — nice time for a session",
+  "Good afternoon, nice time for a session",
   "Afternoon check-in",
 ];
 
 const EVENING = [
   "Good evening",
   "Evening",
-  "Good evening — a short session still counts",
+  "Good evening, a short session still counts",
   "Evening study time",
 ];
 

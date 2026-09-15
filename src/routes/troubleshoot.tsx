@@ -32,13 +32,13 @@ export const Route = createFileRoute("/troubleshoot")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Troubleshoot Real IT Incidents — IT PATH" },
+      { title: "Troubleshoot Real IT Incidents | IT PATH" },
       {
         name: "description",
         content:
           "Work realistic hardware, Windows, networking, DNS, DHCP, Linux, security, cloud and identity incidents with scored diagnosis, fix, verification and documentation.",
       },
-      { property: "og:title", content: "Troubleshoot Real IT Incidents — IT PATH" },
+      { property: "og:title", content: "Troubleshoot Real IT Incidents | IT PATH" },
       {
         property: "og:description",
         content: "Run diagnostic steps, justify your reasoning and prove the fix worked.",
@@ -113,7 +113,7 @@ function TroubleshootPage() {
           value={attempts.filter((attempt) => attempt.status === "in_progress").length}
         />
         <StatCard label="Resolved" value={resolved.length} />
-        <StatCard label="Average score" value={resolved.length ? `${averageScore}%` : "—"} />
+        <StatCard label="Average score" value={resolved.length ? `${averageScore}%` : "-"} />
       </div>
 
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
@@ -314,7 +314,7 @@ function IncidentWorkspace({
     if (total < 70) {
       actions.ensureReview({ topicId: incident.topicId });
     }
-    toast.success(`Incident submitted — ${total}%`);
+    toast.success(`Incident submitted, ${total}%`);
   }
 
   if (!attempt) {

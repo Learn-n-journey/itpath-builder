@@ -223,7 +223,7 @@ function MissedQuestionRow({ item }: { item: MissedQuestion }) {
             </p>
           ) : (
             <p className="mt-2 text-sm text-destructive">
-              Not correct yet — the answer stays hidden so the retry still counts.
+              Not correct yet, the answer stays hidden so the retry still counts.
             </p>
           )}
         </>

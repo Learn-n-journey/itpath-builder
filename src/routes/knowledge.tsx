@@ -46,13 +46,13 @@ export const Route = createFileRoute("/knowledge")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Second Brain — IT PATH" },
+      { title: "Second Brain | IT PATH" },
       {
         name: "description",
         content:
           "Save notes, links, videos, screenshots and documents, and let IT PATH connect them to your topics, certifications and learner profile.",
       },
-      { property: "og:title", content: "Second Brain — IT PATH" },
+      { property: "og:title", content: "Second Brain | IT PATH" },
       {
         property: "og:description",
         content:
@@ -104,7 +104,7 @@ function KnowledgePage() {
     <>
       <PageHeader
         title="Second Brain"
-        description="Save anything you study — notes, links, videos, screenshots, PDFs — and IT PATH reads it, pulls out the concepts and wires them into your topics, certifications and learner profile."
+        description="Save anything you study, notes, links, videos, screenshots, PDFs, and IT PATH reads it, pulls out the concepts and wires them into your topics, certifications and learner profile."
       />
       <ProGate feature="Second Brain">
         <KnowledgeWorkspace />
@@ -253,7 +253,7 @@ function KnowledgeWorkspace() {
 
       <Panel
         title="Ask your own material"
-        description="Plain English. Answers come only from what you have saved — never from general AI knowledge."
+        description="Plain English. Answers come only from what you have saved, never from general AI knowledge."
       >
         <div className="flex flex-col gap-2 sm:flex-row">
           <Input
@@ -279,7 +279,7 @@ function KnowledgeWorkspace() {
               <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
                 {matches.map((m) => (
                   <li key={m.id}>
-                    <span className="text-foreground">{m.title}</span> — {m.why}
+                    <span className="text-foreground">{m.title}</span>, {m.why}
                   </li>
                 ))}
               </ul>
@@ -314,7 +314,7 @@ function KnowledgeWorkspace() {
               id="k-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Professor Messer — DHCP process"
+              placeholder="Professor Messer, DHCP process"
             />
           </div>
           <div className="space-y-2 md:col-span-2">
@@ -347,7 +347,7 @@ function KnowledgeWorkspace() {
             />
           </div>
           <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="k-file">File (optional — image, PDF or text, under 8 MB)</Label>
+            <Label htmlFor="k-file">File (optional, image, PDF or text, under 8 MB)</Label>
             <Input
               id="k-file"
               ref={fileRef}
@@ -489,7 +489,7 @@ function KnowledgeCard({
       {item.contradictions.length ? (
         <div className="mt-3">
           <p className="text-xs font-medium uppercase tracking-wide text-destructive">
-            Check this — conflicts with standard practice
+            Check this, conflicts with standard practice
           </p>
           <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-muted-foreground">
             {item.contradictions.map((c) => (

@@ -112,7 +112,7 @@ const foundationDeepLessons: DeepLesson[] = [
         heading: "What It Is",
         paragraphs: [
           "An operating system provides four services that applications cannot safely provide for themselves: process management (which code runs and when), memory management (who gets which region of RAM), filesystem and device management (how storage and hardware are addressed), and security (who may do what).",
-          "It enforces these with a hardware-supported privilege boundary. Kernel mode has unrestricted access to memory and devices; user mode does not. When your application needs to read a file or send a packet it makes a system call, which traps into the kernel, does the privileged work, and returns. That boundary is why one crashing application usually does not take the machine down, and why a bad driver — which runs in kernel space — can.",
+          "It enforces these with a hardware-supported privilege boundary. Kernel mode has unrestricted access to memory and devices; user mode does not. When your application needs to read a file or send a packet it makes a system call, which traps into the kernel, does the privileged work, and returns. That boundary is why one crashing application usually does not take the machine down, and why a bad driver, which runs in kernel space, can.",
         ],
       },
       {
@@ -131,7 +131,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works: From Power to Login",
         paragraphs: [
-          "Firmware (UEFI, or legacy BIOS) initialises hardware and runs POST. It reads the boot entry, loads the bootloader from the EFI System Partition — Windows Boot Manager, or GRUB on Linux — which loads the kernel and an initial RAM image. The kernel initialises drivers, mounts the root filesystem, and starts the first user-space process: services.exe and the Session Manager on Windows, systemd (PID 1) on most Linux systems.",
+          "Firmware (UEFI, or legacy BIOS) initialises hardware and runs POST. It reads the boot entry, loads the bootloader from the EFI System Partition, Windows Boot Manager, or GRUB on Linux, which loads the kernel and an initial RAM image. The kernel initialises drivers, mounts the root filesystem, and starts the first user-space process: services.exe and the Session Manager on Windows, systemd (PID 1) on most Linux systems.",
           "Only then do services, the login manager, and finally your user profile load. Knowing this sequence lets you place a boot failure precisely: no firmware screen is hardware; 'no bootable device' is disk or boot entry; a kernel panic or stop code is driver or filesystem; a hang after login is profile or startup applications.",
         ],
       },
@@ -193,14 +193,14 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "What It Is",
         paragraphs: [
-          "A network is a set of devices that agree on protocols — shared rules for formatting, addressing, and sequencing data. Most communication follows the client-server model: a client initiates a request, a server listens on a known port and responds. Peer-to-peer networks let each device act as both.",
+          "A network is a set of devices that agree on protocols, shared rules for formatting, addressing, and sequencing data. Most communication follows the client-server model: a client initiates a request, a server listens on a known port and responds. Peer-to-peer networks let each device act as both.",
           "Devices are grouped by scale: a LAN covers one site, a WAN links sites over provider circuits, a WLAN is the wireless portion of a LAN, and the internet is the global interconnection of independently operated networks.",
         ],
       },
       {
         heading: "The Layered Model",
         paragraphs: [
-          "The OSI model has seven layers; the TCP/IP model collapses them to four. You will use OSI vocabulary to describe problems and TCP/IP structure to describe reality. Each layer wraps the layer above in its own header — that is encapsulation — and the receiving device unwraps them in reverse.",
+          "The OSI model has seven layers; the TCP/IP model collapses them to four. You will use OSI vocabulary to describe problems and TCP/IP structure to describe reality. Each layer wraps the layer above in its own header, that is encapsulation, and the receiving device unwraps them in reverse.",
         ],
         bullets: [
           "Layer 1 Physical: cable, radio, connectors, light. Symptoms: no link light, damaged cable, bad SFP.",
@@ -221,7 +221,7 @@ const foundationDeepLessons: DeepLesson[] = [
         heading: "How a Web Request Actually Travels",
         paragraphs: [
           "You type an address. The OS resolves the hostname to an IP address through DNS. It compares the destination against its own address and subnet mask: local destinations are sent directly, remote destinations go to the default gateway. To send to either, it needs the destination's MAC address, obtained with ARP.",
-          "The frame reaches the switch, which forwards it to the router. The router strips the frame, examines the destination IP, consults its routing table, rewrites the frame for the next hop, and forwards it. This repeats across many routers — each one a hop — until the packet reaches the destination network. TCP then completes a three-way handshake (SYN, SYN-ACK, ACK), TLS negotiates encryption, and only then does the HTTP request travel. The reply retraces the path.",
+          "The frame reaches the switch, which forwards it to the router. The router strips the frame, examines the destination IP, consults its routing table, rewrites the frame for the next hop, and forwards it. This repeats across many routers, each one a hop, until the packet reaches the destination network. TCP then completes a three-way handshake (SYN, SYN-ACK, ACK), TLS negotiates encryption, and only then does the HTTP request travel. The reply retraces the path.",
           "That description is also a troubleshooting script. Every step is a place the request can stop, and every step has a test.",
         ],
       },
@@ -229,7 +229,7 @@ const foundationDeepLessons: DeepLesson[] = [
         heading: "Real-World Applications",
         paragraphs: [
           "Scope tells you the layer. One device affected points at that device's configuration or cable. One room points at a switch or access point. One application for everyone points at the server or its port. Everyone and everything points at the router, ISP, or DNS.",
-          "Comparing against a known-good device on the same network is the fastest diagnostic in existence — it eliminates the entire shared path in one test.",
+          "Comparing against a known-good device on the same network is the fastest diagnostic in existence, it eliminates the entire shared path in one test.",
         ],
       },
       {
@@ -248,7 +248,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "Troubleshooting Approach",
         paragraphs: [
-          "Work bottom-up when the symptom is total loss, and top-down when one application misbehaves while everything else works. Confirm link, then addressing, then gateway, then name resolution, then the service port. Use ping for reachability, traceroute for path, and a port test for the service itself. Record what worked as carefully as what failed — a successful test eliminates an entire layer.",
+          "Work bottom-up when the symptom is total loss, and top-down when one application misbehaves while everything else works. Confirm link, then addressing, then gateway, then name resolution, then the service port. Use ping for reachability, traceroute for path, and a port test for the service itself. Record what worked as carefully as what failed, a successful test eliminates an entire layer.",
         ],
       },
       {
@@ -260,7 +260,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "Interview Relevance",
         paragraphs: [
-          "'Explain what happens when you type a URL and press enter' is the most common technical interview question in all of IT. Answer it in order — DNS, ARP, routing, TCP handshake, TLS, HTTP — and you demonstrate the whole subject in ninety seconds.",
+          "'Explain what happens when you type a URL and press enter' is the most common technical interview question in all of IT. Answer it in order, DNS, ARP, routing, TCP handshake, TLS, HTTP, and you demonstrate the whole subject in ninety seconds.",
         ],
       },
     ],
@@ -284,7 +284,7 @@ const foundationDeepLessons: DeepLesson[] = [
         heading: "Command Structure and Paths",
         paragraphs: [
           "Every command has the same shape: the command name, then options (also called flags or switches), then arguments. In `ls -la /var/log`, `ls` is the command, `-la` combines two options, and `/var/log` is the argument. PowerShell uses a Verb-Noun convention with named parameters: `Get-ChildItem -Path C:\\Logs -Recurse`.",
-          "An absolute path starts from the root (`/etc/hosts` or `C:\\Windows\\System32`) and means the same thing from anywhere. A relative path starts from your current working directory: `.` is here, `..` is the parent, and `~` is your home directory. Most beginner errors are simply being in the wrong directory — print it before you act.",
+          "An absolute path starts from the root (`/etc/hosts` or `C:\\Windows\\System32`) and means the same thing from anywhere. A relative path starts from your current working directory: `.` is here, `..` is the parent, and `~` is your home directory. Most beginner errors are simply being in the wrong directory, print it before you act.",
           "The shell finds executables by searching the directories listed in the PATH variable. 'command not found' usually means a typo, a missing package, or a program that exists but is not on PATH.",
         ],
       },
@@ -313,13 +313,13 @@ const foundationDeepLessons: DeepLesson[] = [
         paragraphs: [
           "Every command has three streams: standard input (stdin), standard output (stdout), and standard error (stderr). Redirection sends them somewhere else: `>` overwrites a file, `>>` appends, `2>` captures errors, and `<` feeds input. A pipe `|` connects one command's stdout to the next command's stdin, which is how small tools combine into powerful ones: `cat access.log | grep 500 | wc -l` counts server errors.",
           "Every command also returns an exit code: 0 means success, anything else means failure. Bash exposes it as `$?`, PowerShell as `$LASTEXITCODE` or `$?`. Scripts rely on this, which is why silently ignoring a non-zero exit is such a common source of broken automation.",
-          "Wildcards are expanded by the shell before the command runs. `rm *.log` never sees the asterisk — the shell hands it a full list of filenames. This is precisely why an unquoted or mistyped wildcard is dangerous.",
+          "Wildcards are expanded by the shell before the command runs. `rm *.log` never sees the asterisk, the shell hands it a full list of filenames. This is precisely why an unquoted or mistyped wildcard is dangerous.",
         ],
       },
       {
         heading: "Real-World Applications",
         paragraphs: [
-          "Reading a log on a server with no desktop: `tail -f /var/log/syslog` shows events as they happen while you reproduce the fault. Finding which process holds a port: `ss -tulpn | grep :443`. Bulk-renaming or archiving files, checking certificate expiry, restarting a service across twenty machines — all are one line in a shell and an afternoon of clicking in a GUI.",
+          "Reading a log on a server with no desktop: `tail -f /var/log/syslog` shows events as they happen while you reproduce the fault. Finding which process holds a port: `ss -tulpn | grep :443`. Bulk-renaming or archiving files, checking certificate expiry, restarting a service across twenty machines, all are one line in a shell and an afternoon of clicking in a GUI.",
           "The command line also produces evidence. You can paste the exact command and its output into a ticket, and the next technician can reproduce it precisely.",
         ],
       },
@@ -340,7 +340,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "Working Safely",
         paragraphs: [
-          "Adopt three habits permanently. First, run a read-only version before the destructive version: list what a wildcard matches before you delete it, and use PowerShell's `-WhatIf` parameter. Second, never paste a command from the internet that you cannot explain word by word — resolve every path and flag first. Third, use least privilege: work as a normal user and elevate only for the specific command that needs it.",
+          "Adopt three habits permanently. First, run a read-only version before the destructive version: list what a wildcard matches before you delete it, and use PowerShell's `-WhatIf` parameter. Second, never paste a command from the internet that you cannot explain word by word, resolve every path and flag first. Third, use least privilege: work as a normal user and elevate only for the specific command that needs it.",
         ],
       },
       {
@@ -382,13 +382,13 @@ const foundationDeepLessons: DeepLesson[] = [
           "Memory allocation: RAM is the resource that genuinely runs out. Overcommitting memory across guests forces host swapping and destroys performance for everyone.",
           "Virtual disk: a file (VHDX, VMDK, QCOW2) on the host. Thin provisioning allocates space as it is used; thick provisioning reserves it up front.",
           "Virtual networking: bridged puts the guest on the physical LAN with its own address; NAT hides guests behind the host; host-only creates a private lab network with no internet access. Choosing the wrong mode is the most common lab connectivity fault.",
-          "Snapshot: a point-in-time state you can roll back to. Snapshots are a short-term safety net for changes, not a backup — they usually depend on the original disk files and grow until they fill the datastore.",
+          "Snapshot: a point-in-time state you can roll back to. Snapshots are a short-term safety net for changes, not a backup, they usually depend on the original disk files and grow until they fill the datastore.",
         ],
       },
       {
         heading: "How It Works",
         paragraphs: [
-          "Modern CPUs include hardware virtualisation extensions — Intel VT-x or AMD-V — that let guest instructions execute directly on the processor while the hypervisor intercepts only the privileged operations. Nested paging (EPT/RVI) does the same for memory translation. This is why a VM runs at close to native speed and why virtualisation must be enabled in firmware before any hypervisor will start a 64-bit guest.",
+          "Modern CPUs include hardware virtualisation extensions, Intel VT-x or AMD-V, that let guest instructions execute directly on the processor while the hypervisor intercepts only the privileged operations. Nested paging (EPT/RVI) does the same for memory translation. This is why a VM runs at close to native speed and why virtualisation must be enabled in firmware before any hypervisor will start a 64-bit guest.",
           "Guest additions or integration tools install paravirtualised drivers inside the guest, giving faster disk and network I/O, clipboard sharing, and proper display resizing. Installing them is normally the first step after a guest OS installation.",
         ],
       },
@@ -422,7 +422,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "Troubleshooting Approach",
         paragraphs: [
-          "Always ask whether the problem is at host level or guest level. Check host CPU, memory, and datastore capacity first — a host under pressure produces symptoms in every guest at once. If only one guest is affected, inspect its virtual hardware, network attachment, and snapshot chain, then treat it as an ordinary operating system problem inside the guest.",
+          "Always ask whether the problem is at host level or guest level. Check host CPU, memory, and datastore capacity first, a host under pressure produces symptoms in every guest at once. If only one guest is affected, inspect its virtual hardware, network attachment, and snapshot chain, then treat it as an ordinary operating system problem inside the guest.",
         ],
       },
       {
@@ -443,7 +443,7 @@ const foundationDeepLessons: DeepLesson[] = [
     topicId: "topic-it-career-overview",
     readingMinutes: 15,
     intro:
-      "IT is not one job; it is a set of connected roles with different daily work, different evidence of competence, and different entry points. This lesson maps those roles and the professional behaviour — ticket discipline, escalation, communication — that determines who gets promoted out of the service desk.",
+      "IT is not one job; it is a set of connected roles with different daily work, different evidence of competence, and different entry points. This lesson maps those roles and the professional behaviour, ticket discipline, escalation, communication, that determines who gets promoted out of the service desk.",
     whereYouMeetIt:
       "Your first role, your first performance review, every ticket you write, and every interview you sit.",
     sections: [
@@ -478,7 +478,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "Evidence of Competence",
         paragraphs: [
-          "Employers hire on evidence, and there are only four kinds that matter early: certifications, demonstrable hands-on work, documented projects, and the ability to explain your reasoning out loud. Certifications open interviews — A+ then Network+ then Security+ is the standard entry sequence — but a home lab you can describe in detail is what wins them.",
+          "Employers hire on evidence, and there are only four kinds that matter early: certifications, demonstrable hands-on work, documented projects, and the ability to explain your reasoning out loud. Certifications open interviews, A+ then Network+ then Security+ is the standard entry sequence, but a home lab you can describe in detail is what wins them.",
           "This is why IT PATH stores labs, assignments, and portfolio entries: they become the specific, concrete answers you give when an interviewer asks what you have actually built or fixed.",
         ],
       },
@@ -489,7 +489,7 @@ const foundationDeepLessons: DeepLesson[] = [
         ],
         bullets: [
           "Thin ticket notes: 'fixed it' teaches nobody and guarantees the repeat incident lands on you again.",
-          "Skipping identity verification before an account or password change — the classic social engineering opening.",
+          "Skipping identity verification before an account or password change, the classic social engineering opening.",
           "Escalating instantly without collecting evidence, or refusing to escalate and burning an SLA.",
           "Making an undocumented change outside your authority, then being unable to explain the outage.",
           "Talking to non-technical users in jargon and mistaking their confusion for hostility.",
@@ -499,7 +499,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "How to Work Well",
         paragraphs: [
-          "Write every note in the same shape: symptom, evidence, action, result. Confirm the fix with the user rather than assuming. Protect confidential information, verify identity every time, and stay inside your authority — 'I need to escalate this because it requires domain admin' is a professional answer, not an admission of weakness.",
+          "Write every note in the same shape: symptom, evidence, action, result. Confirm the fix with the user rather than assuming. Protect confidential information, verify identity every time, and stay inside your authority, 'I need to escalate this because it requires domain admin' is a professional answer, not an admission of weakness.",
           "Communicate impact in the user's language. 'Your mailbox is fine and I have restored access, but I need ten minutes to confirm nothing else was affected' is better than any technical explanation of what you did.",
         ],
       },
@@ -512,7 +512,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "Interview Relevance",
         paragraphs: [
-          "Expect behavioural questions: describe a time you could not solve something; how do you explain a technical problem to a non-technical user; when do you escalate. Use a structured answer — situation, action, result — and name the evidence you collected. Interviewers are testing whether you will be safe and clear under pressure.",
+          "Expect behavioural questions: describe a time you could not solve something; how do you explain a technical problem to a non-technical user; when do you escalate. Use a structured answer, situation, action, result, and name the evidence you collected. Interviewers are testing whether you will be safe and clear under pressure.",
         ],
       },
     ],
@@ -528,7 +528,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "What It Is",
         paragraphs: [
-          "An IPv4 address is 32 bits, written as four decimal octets such as 192.168.1.40. It has two parts: a network portion and a host portion. The subnet mask defines the split — 255.255.255.0, also written /24, means the first 24 bits identify the network and the remaining 8 bits identify hosts on it.",
+          "An IPv4 address is 32 bits, written as four decimal octets such as 192.168.1.40. It has two parts: a network portion and a host portion. The subnet mask defines the split, 255.255.255.0, also written /24, means the first 24 bits identify the network and the remaining 8 bits identify hosts on it.",
           "That split answers one question, and it is the question the operating system asks for every single packet: is this destination on my own network? If yes, deliver it directly over the local link. If no, hand it to the default gateway.",
         ],
       },
@@ -548,7 +548,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "How Addressing Is Assigned: DHCP",
         paragraphs: [
-          "Most clients are configured automatically by DHCP through a four-message exchange — Discover, Offer, Request, Acknowledge (DORA). The server supplies an address, a subnet mask, a default gateway, DNS servers, and a lease time. Reservations tie a specific MAC address to a specific IP so that printers and servers stay predictable.",
+          "Most clients are configured automatically by DHCP through a four-message exchange, Discover, Offer, Request, Acknowledge (DORA). The server supplies an address, a subnet mask, a default gateway, DNS servers, and a lease time. Reservations tie a specific MAC address to a specific IP so that printers and servers stay predictable.",
           "Static configuration is used for infrastructure. The risk with static addressing is duplication and stale settings: a laptop hard-coded for the old office subnet will fail silently on a new one, and a duplicate address takes two devices offline at once.",
         ],
       },
@@ -579,7 +579,7 @@ const foundationDeepLessons: DeepLesson[] = [
         heading: "Real-World Applications",
         paragraphs: [
           "A user cannot reach anything. `ipconfig /all` shows 169.254.14.7. You now know DHCP failed, so you check the physical link and switch port, verify the DHCP scope has free addresses, and renew the lease. You never touch DNS, because APIPA already told you the fault is below it.",
-          "Another user reaches websites but not the file server. Ping to the server succeeds. `Test-NetConnection fileserver -Port 445` fails. The network is healthy and the fault is the SMB service or a firewall rule — a completely different team and a completely different fix.",
+          "Another user reaches websites but not the file server. Ping to the server succeeds. `Test-NetConnection fileserver -Port 445` fails. The network is healthy and the fault is the SMB service or a firewall rule, a completely different team and a completely different fix.",
         ],
       },
       {
@@ -599,13 +599,13 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "Exam Relevance",
         paragraphs: [
-          "Network+ and A+ Core 1 both test private ranges, APIPA recognition, subnet masks, DHCP behaviour, common ports, and command output interpretation. Performance-based questions often show `ipconfig /all` output and ask what is wrong — practise reading that output until the diagnosis is immediate.",
+          "Network+ and A+ Core 1 both test private ranges, APIPA recognition, subnet masks, DHCP behaviour, common ports, and command output interpretation. Performance-based questions often show `ipconfig /all` output and ask what is wrong, practise reading that output until the diagnosis is immediate.",
         ],
       },
       {
         heading: "Interview Relevance",
         paragraphs: [
-          "'What does 169.254.x.x tell you?', 'what does the default gateway do?', and 'a user has no internet — walk me through your first five checks' are near-universal. Answer with the tests in narrowing order and state what each result would eliminate.",
+          "'What does 169.254.x.x tell you?', 'what does the default gateway do?', and 'a user has no internet, walk me through your first five checks' are near-universal. Answer with the tests in narrowing order and state what each result would eliminate.",
         ],
       },
     ],
@@ -637,13 +637,13 @@ const foundationDeepLessons: DeepLesson[] = [
           "TXT: arbitrary published text, used in practice for SPF, DKIM, DMARC, and domain-ownership verification.",
           "NS: which servers are authoritative for the zone. SOA: the zone's primary server, contact, serial number, and timers.",
           "PTR: reverse lookup, IP address back to a name, held in a separate reverse zone and used by mail filtering and logging.",
-          "SRV: locates a service by protocol and port — the mechanism Active Directory uses to find domain controllers.",
+          "SRV: locates a service by protocol and port, the mechanism Active Directory uses to find domain controllers.",
         ],
       },
       {
         heading: "How Resolution Actually Works",
         paragraphs: [
-          "Your application asks the OS resolver. The OS checks its own cache and the hosts file first — an entry there overrides all of DNS, which makes the hosts file both a useful test tool and a nasty hidden cause of faults. If there is no local answer, the query goes to the configured recursive resolver.",
+          "Your application asks the OS resolver. The OS checks its own cache and the hosts file first, an entry there overrides all of DNS, which makes the hosts file both a useful test tool and a nasty hidden cause of faults. If there is no local answer, the query goes to the configured recursive resolver.",
           "If the resolver has a valid cached answer, it returns it immediately. Otherwise it starts at a root server, which refers it to the TLD servers for .com; those refer it to the authoritative name servers for example.com; those return the record. The resolver caches the answer for the record's TTL and passes it back. All of this typically takes tens of milliseconds and is invisible until it breaks.",
           "TTL is the number of seconds any cache may keep the answer. It explains the single most confusing DNS symptom in existence: after a record change, some users see the new value and others still see the old one, because their resolvers hold different unexpired copies.",
         ],
@@ -674,7 +674,7 @@ const foundationDeepLessons: DeepLesson[] = [
       {
         heading: "How to Troubleshoot DNS",
         paragraphs: [
-          "Prove basic IP connectivity first — ping the gateway and a public IP such as 8.8.8.8. If IP works and names do not, you have isolated DNS in two commands.",
+          "Prove basic IP connectivity first, ping the gateway and a public IP such as 8.8.8.8. If IP works and names do not, you have isolated DNS in two commands.",
           "Then query deliberately. `nslookup example.com`, or `dig example.com A +noall +answer`, shows the answer and which server gave it. Query a second resolver explicitly (`nslookup example.com 1.1.1.1`) to compare a cached answer against a different cache. Query the authoritative server directly (`dig @ns1.example.com example.com`) to see the truth without any cache. Ask for the specific record type you care about rather than assuming.",
           "Check the TTL in the answer to predict how long a stale answer will persist. Clear the local cache (`ipconfig /flushdns`, or restart the resolver service) to eliminate the client. Finally, inspect the hosts file before concluding that the zone is wrong.",
         ],
