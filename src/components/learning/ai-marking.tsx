@@ -60,7 +60,7 @@ export function useAiMarking() {
         }
         return reply.grade;
       } catch {
-        setState({ busy: false, grade: null, error: "The marker could not be reached." });
+        setState({ busy: false, grade: null, error: "I could not read your answer just then. Your writing is saved, so try again in a moment." });
         return null;
       }
     },
