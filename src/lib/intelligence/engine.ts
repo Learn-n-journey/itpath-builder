@@ -80,7 +80,7 @@ function evidenceSentence(intel: Omit<ConceptIntel, "evidence">): string {
     case "application_failure":
       return `You can explain it, but applied work on it is behind at ${pct}%.`;
     case "troubleshooting_failure":
-      return "Your facts hold up; the fault-finding process on this is the weak part.";
+      return "Your facts hold up; the fault-finding process on this is the part that needs work.";
     case "confident_but_wrong":
       return `${intel.confidentErrors} fast, assured answers on this were wrong.`;
     case "fading":

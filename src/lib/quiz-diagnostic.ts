@@ -123,7 +123,7 @@ function buildExplanation(input: {
     if (appliedGap && recallOk) {
       return `you're struggling to apply ${weak.title.toLowerCase()} in scenarios`;
     }
-    if (appliedGap) return `using ${weak.title.toLowerCase()} in a scenario is where it comes apart`;
+    if (appliedGap) return `using ${weak.title.toLowerCase()} in a scenario is the part that needs work`;
     return `${weak.title.toLowerCase()} is where the misses sat`;
   })();
 

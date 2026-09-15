@@ -42,7 +42,7 @@ export const STATE_LABEL: Record<LearningState, string> = {
 export const STATE_MEANING: Record<LearningState, string> = {
   unknown: "No recorded work yet, so nothing is known either way.",
   emerging: "First attempts recorded, but not enough to say it is understood.",
-  fragile: "It comes back sometimes and fails other times.",
+  fragile: "It comes back sometimes and not others.",
   functional: "It holds up consistently in questions about the topic.",
   transferable: "It holds up in two different kinds of work, not just questions.",
   reliable: "Accurate across independent activities with no repeating error.",
