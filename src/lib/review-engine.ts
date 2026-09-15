@@ -5,13 +5,39 @@ import type {
   UserData,
 } from "@/lib/app-data/types";
 
-/** The fixed spacing ladder, in days. */
+/** Reference spacing steps, in days. Used for display and for starting points. */
 export const REVIEW_INTERVALS = [1, 3, 7, 14, 30, 60, 90] as const;
 
-/** How many steps a failed review drops back down the ladder. */
-const FAILURE_STEP_BACK = 2;
+/**
+ * Adaptive spacing.
+ *
+ * The gap is no longer a fixed ladder. Each item carries an "ease": how fast
+ * its spacing grows for this learner. A pass multiplies the gap by the ease and
+ * nudges the ease up, a pass on an overdue item nudges it up further because
+ * recall lasted longer than predicted, and a miss shortens the gap sharply and
+ * nudges the ease down. Two learners on the same topic therefore end up on
+ * different schedules, drawn from their own results.
+ */
+const DEFAULT_EASE = 2.2;
+const MIN_EASE = 1.3;
+const MAX_EASE = 3.2;
+/** Longest gap we will schedule, so nothing disappears for a year. */
+const MAX_INTERVAL_DAYS = 180;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+function clampEase(value: number): number {
+  return Math.min(MAX_EASE, Math.max(MIN_EASE, Number(value.toFixed(2))));
+}
+
+/** Nearest reference step, kept so existing displays and sorts still work. */
+function nearestIndex(days: number): number {
+  let best = 0;
+  for (let i = 0; i < REVIEW_INTERVALS.length; i += 1) {
+    if (Math.abs(REVIEW_INTERVALS[i]! - days) < Math.abs(REVIEW_INTERVALS[best]! - days)) best = i;
+  }
+  return best;
+}
 
 function addDays(from: Date, days: number): string {
   return new Date(from.getTime() + days * DAY_MS).toISOString();
