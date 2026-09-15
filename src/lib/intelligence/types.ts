@@ -160,6 +160,10 @@ export interface Intelligence {
   queue: ConceptIntel[];
   /** How many concepts carry each diagnosis. */
   diagnosisMix: Record<Diagnosis, number>;
+  /** How many concepts sit at each learning state. */
+  stateMix: Record<LearningState, number>;
+  /** Share of the path's concepts at functional or above, 0-1. */
+  pathFunctional: number;
   hasEvidence: boolean;
   planFor: (minutes: number) => LearningPlan;
 }
@@ -186,3 +190,9 @@ export const METHOD_LABEL: Record<TeachingMethod, string> = {
   explain_back: "Explain it back",
   tutor: "Ask the AI tutor",
 };
+
+export type { EvidenceStrength, TransferEvidence } from "./evidence";
+export type { DiagnosticTest, Hypothesis, HypothesisSet } from "./hypothesis";
+export type { InterventionHistory, MethodEffect } from "./interventions";
+export type { LearningState } from "./states";
+export { STATE_LABEL, STATE_MEANING, STATE_ORDER } from "./states";
