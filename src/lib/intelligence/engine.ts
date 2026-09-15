@@ -124,6 +124,13 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
         mastery: prerequisite.mastery,
       }));
 
+    // 1. Observe — graded evidence, its breadth and its spacing.
+    const graded = gradedSignals(signals);
+    const strength = evidenceStrength(graded, nowMs);
+    const transfer = transferEvidence(graded);
+    const velocity = velocityFrom(graded, nowMs);
+
+    // 2. Diagnose — the rule chain names the failure type.
     const diagnosis = diagnose({
       profile,
       scope,
@@ -134,7 +141,55 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
       retention: profile.retention,
     });
 
-    const prescription = prescribe(profile, diagnosis);
+    // 3. Hypothesize — competing causes, each needing independent support.
+    const hypotheses = hypothesize({
+      profile,
+      scope,
+      measures,
+      evidence: strength,
+      transfer,
+      unresolvedMistakes,
+      repeatedMisconception,
+      prerequisiteGap: prerequisiteGaps.length > 0,
+    });
+
+    // 4. Measure past interventions before prescribing another one.
+    const history = interventionHistory(
+      graded,
+      signals.map((signal) => ({
+        kind: signal.kind,
+        atMs: new Date(signal.at).getTime(),
+        at: signal.at,
+      })),
+    );
+
+    const passes = graded.filter((entry) => entry.outcome >= 0.7);
+    const passSpanDays =
+      passes.length >= 2
+        ? Math.round(
+            (passes[passes.length - 1]!.atMs - passes[0]!.atMs) / (24 * 60 * 60 * 1000),
+          )
+        : 0;
+
+    const stateAssessment = assessState({
+      mastery: profile.mastery,
+      accuracy: profile.accuracy,
+      retention: profile.retention,
+      evidence: strength,
+      transfer,
+      recentFailureAfterSuccess: measures.recentFailureAfterSuccess,
+      unresolvedMisconception: repeatedMisconception && unresolvedMistakes > 0,
+      passSpanDays,
+      daysSinceExposure: profile.daysSinceExposure,
+    });
+
+    // 5. Intervene — treatment when the cause is confirmed, a test when it is not.
+    const prescription = prescribe(profile, diagnosis, {
+      state: stateAssessment.state,
+      interventions: history,
+      diagnosticTest: hypotheses.test,
+      certainty: hypotheses.certainty,
+    });
     const timing = timingFor(
       topic.id,
       profile.mastery,
