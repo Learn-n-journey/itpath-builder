@@ -353,9 +353,7 @@ export function alertInsight(
 
   return {
     id: `${focus.topicId}:${focus.diagnosis}:${focus.unresolvedMistakes}:${open.length}`,
-    message: `On ${focus.title}, ${first.issue}.${
-      first.detail ? ` The part it keeps showing up on is: ${first.detail}` : ""
-    } ${focus.instruction}${tail}`,
+    message: `On ${focus.title}, ${first.issue}. ${focus.instruction}${tail}`,
     problems,
     why: [...evidenceLines(focus), ...open.slice(1).map((concept) => `${concept.title}: ${concept.evidence}`)],
   };

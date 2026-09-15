@@ -169,7 +169,7 @@ export function GaylBubble() {
           className="size-11 rounded-full"
         />
         {!open ? (
-          <span className="absolute right-1 top-1 size-2 rounded-full bg-primary" aria-hidden />
+          <span className="absolute right-0.5 top-0.5 size-3 rounded-full border-2 border-card bg-destructive" aria-hidden />
         ) : null}
       </button>
     </div>
