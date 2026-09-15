@@ -91,28 +91,43 @@ export interface GradeResult {
 }
 
 /**
- * Grades one review. Passing advances one step up the ladder; a pass at the top
- * marks the item mastered. Failing drops it back down and shortens the interval.
+ * Grades one review and learns the next gap from the outcome.
+ *
+ * Pass: the gap is multiplied by this item's ease, and the ease itself moves up
+ * a little, further if the item was already overdue when it was still recalled.
+ * Miss: the gap collapses to roughly a third and the ease moves down, so the
+ * item comes back sooner and grows more slowly from then on.
  */
 export function gradeReview(review: Review, outcome: ReviewOutcome, nowInput?: Date): GradeResult {
   const now = nowInput ?? new Date();
   const iso = now.toISOString();
-  const lastIndex = REVIEW_INTERVALS.length - 1;
   const passed = outcome === "pass";
-  const atTop = review.intervalIndex >= lastIndex;
+  const currentEase = review.ease ?? DEFAULT_EASE;
+  const daysLate = Math.max(
+    0,
+    Math.floor((startOfDay(now) - startOfDay(new Date(review.dueAt))) / DAY_MS),
+  );
 
-  const nextIndex = passed
-    ? Math.min(review.intervalIndex + 1, lastIndex)
-    : Math.max(review.intervalIndex - FAILURE_STEP_BACK, 0);
-  const nextInterval = intervalForIndex(nextIndex);
+  // Recalled later than predicted means the memory held longer than expected.
+  const recalledLate = passed && daysLate >= Math.max(1, review.interval * 0.5);
+  const nextEase = clampEase(
+    passed ? currentEase + (recalledLate ? 0.15 : 0.05) : currentEase - 0.25,
+  );
+
+  const nextInterval = passed
+    ? Math.min(MAX_INTERVAL_DAYS, Math.max(2, Math.round(review.interval * nextEase)))
+    : Math.max(1, Math.round(review.interval * 0.35));
+  const nextIndex = nearestIndex(nextInterval);
   const dueAt = addDays(now, nextInterval);
 
   const next: Review = {
     ...review,
+    ease: nextEase,
     intervalIndex: nextIndex,
     interval: nextInterval,
     dueAt,
-    status: passed && atTop ? "mastered" : "scheduled",
+    // Held for six months of spacing with no miss: nothing more to schedule.
+    status: passed && nextInterval >= MAX_INTERVAL_DAYS ? "mastered" : "scheduled",
     successStreak: passed ? review.successStreak + 1 : 0,
     lapses: passed ? review.lapses : review.lapses + 1,
     totalReviews: review.totalReviews + 1,
