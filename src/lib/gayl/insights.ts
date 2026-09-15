@@ -17,14 +17,39 @@ export interface GaylInsight {
   why?: string[];
 }
 
+/** Plain reason clause, written to follow the word "because". */
+function becauseClause(concept: ConceptIntel): string {
+  switch (concept.diagnosis) {
+    case "never_learned":
+      return "you have not answered anything on it yet, so I have nothing to go on";
+    case "prerequisite_gap":
+      return concept.prerequisiteGaps[0]
+        ? `it builds on ${concept.prerequisiteGaps[0].title}, and that one is not solid yet`
+        : "something it builds on is not solid yet";
+    case "retrieval_failure":
+      return "you got it right before and missed it recently, so it needs bringing back";
+    case "misconception":
+      return "the same kind of mistake keeps coming back on it";
+    case "confident_but_wrong":
+      return "a few quick answers on it turned out wrong";
+    case "application_failure":
+      return "you can explain it, but using it in a task is where it slips";
+    case "troubleshooting_failure":
+      return "you know the facts, but working through a fault is where it slips";
+    case "fading":
+      return "it has been a while since you worked on it and your answers have slipped";
+    case "solid":
+      return "it is holding up well and a harder check would tell me more";
+  }
+}
+
 function evidenceLines(concept: ConceptIntel): string[] {
   const lines = [concept.evidence];
-  lines.push(`Read as: ${DIAGNOSIS_LABEL[concept.diagnosis].toLowerCase()}.`);
   if (concept.attempts > 0) {
-    lines.push(`Based on ${concept.attempts} recorded attempt${concept.attempts === 1 ? "" : "s"}.`);
+    lines.push(`This comes from ${concept.attempts} answer${concept.attempts === 1 ? "" : "s"} you have recorded here.`);
   }
   if (concept.certainty < 0.6) {
-    lines.push("There isn't much evidence yet, so this is a starting guess rather than a conclusion.");
+    lines.push("There is not much recorded yet, so treat this as a first read rather than a conclusion.");
   }
   return lines;
 }
@@ -52,7 +77,7 @@ export function dashboardInsight(intel: Intelligence): GaylInsight | null {
       : "";
 
   return {
-    message: `${opener}${top.title} looks like the one worth attention next. ${top.instruction}`,
+    message: `${opener}${top.title} is the one I would look at next, because ${becauseClause(top)}. ${top.instruction}`,
     why: evidenceLines(top),
   };
 }
@@ -205,12 +230,12 @@ export function reviewInsight(intel: Intelligence): GaylInsight | null {
   }
 
   const parts: string[] = [];
-  if (due.length > 0) parts.push(`${due.length} past the point where recall usually starts slipping`);
-  if (fading.length > 0) parts.push(`${fading.length} fading since the last correct answer`);
-  if (errors.length > 0) parts.push(`${errors.length} with a mistake still open`);
+  if (due.length > 0) parts.push(`${due.length} you have not seen for a while`);
+  if (fading.length > 0) parts.push(`${fading.length} where your answers have slipped since you last got them right`);
+  if (errors.length > 0) parts.push(`${errors.length} where a mistake is still unfixed`);
 
   return {
-    message: `These are back because of timing and open mistakes, not because you did badly: ${parts.join(", ")}.`,
+    message: `These came back because of timing and mistakes still open, not because you did badly. There ${due.length + fading.length + errors.length === 1 ? "is" : "are"} ${parts.join(", ")}.`,
     why: intel.queue
       .slice(0, 4)
       .map((concept) => `${concept.title}: ${concept.evidence}`),
@@ -227,9 +252,9 @@ export function progressInsight(intel: Intelligence): GaylInsight | null {
   if (!top) return null;
 
   return {
-    message: `Most of your work sits at "${STATE_LABEL[top[0]]}" right now, ${STATE_MEANING[top[0]].toLowerCase()} About ${Math.round(
+    message: `Most of your topics are at the "${STATE_LABEL[top[0]]}" stage. That means: ${STATE_MEANING[top[0]].toLowerCase()} Across ${intel.certificationTitle}, about ${Math.round(
       intel.pathFunctional * 100,
-    )}% of ${intel.certificationTitle} is functional or better.`,
+    )}% of the topics now hold up in questions.`,
     why: present.map(([state, count]) => `${STATE_LABEL[state]}: ${count} concept${count === 1 ? "" : "s"}`),
   };
 }
@@ -241,11 +266,13 @@ export function pathInsight(intel: Intelligence): GaylInsight | null {
   if (!top) return null;
 
   const reason = top.isDiagnostic
-    ? "a short check to work out what's actually going on before spending time on the wrong fix"
-    : top.evidence;
+    ? "I am not sure yet what is going wrong there, and a short check tells us before you spend time on the wrong thing"
+    : becauseClause(top);
 
   return {
-    message: `Your order changed because of what you recorded, not a fixed curriculum. ${top.title} moved up because ${reason}`,
-    why: intel.queue.slice(0, 4).map((concept) => `${concept.title}: ${concept.instruction}`),
+    message: `This order comes from your own work, not a fixed course plan. ${top.title} is first because ${reason}. ${top.instruction}`,
+    why: intel.queue
+      .slice(0, 4)
+      .map((concept) => `${concept.title}: ${concept.instruction}`),
   };
 }
