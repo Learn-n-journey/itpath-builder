@@ -11,6 +11,15 @@ export const Route = createFileRoute("/sitemap.xml")({
       GET: async () => {
         const router = await getRouterInstance();
         const entries: SitemapEntry[] = sitemapStaticPaths(router).map((path) => ({ path }));
+        // Parameterised public content pages the static builder cannot list.
+        const practiceTestPaths = [
+          "comptia-a-plus",
+          "comptia-network-plus",
+          "comptia-security-plus",
+        ].map((slug) => `/practice-tests/cert-${slug}`);
+        for (const path of practiceTestPaths) {
+          if (!entries.some((entry) => entry.path === path)) entries.push({ path });
+        }
         if (entries.length === 0) {
           return new Response(
             'No pages are included in this sitemap. Check route decisions and ancestor exclusions. Setting "exclude-subtree" on the root excludes the entire site.',
