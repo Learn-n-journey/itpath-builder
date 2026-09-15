@@ -3,6 +3,7 @@ import { getTopic, getTopicProgress } from "@/lib/app-data/selectors";
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { computeDashboard } from "@/lib/dashboard-engine";
 import { buildIntelligence } from "@/lib/intelligence/engine";
+import { STATE_LABEL } from "@/lib/intelligence/states";
 import { DIAGNOSIS_LABEL, METHOD_LABEL } from "@/lib/intelligence/types";
 import { mistakeActivityLabels, mistakeCauseLabels, scoreAllSkills } from "@/lib/mistake-engine";
 
@@ -112,7 +113,7 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
           .slice(0, 5)
           .map(
             (concept) =>
-              `${concept.title}: ${DIAGNOSIS_LABEL[concept.diagnosis]} — ${concept.evidence} Best taught by: ${METHOD_LABEL[concept.method].toLowerCase()} at ${concept.difficulty} level.`,
+              `${concept.title}: ${STATE_LABEL[concept.state]} — ${DIAGNOSIS_LABEL[concept.diagnosis]} (${Math.round(concept.certainty * 100)}% certainty) — ${concept.evidence} Best taught by: ${METHOD_LABEL[concept.method].toLowerCase()} at ${concept.difficulty} level.${concept.isDiagnostic ? " The cause is unconfirmed: check it before teaching around it." : ""}`,
           ),
       ),
     ].join("\n"),

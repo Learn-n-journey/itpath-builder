@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Brain, Clock, GitBranch, Target, TrendingDown, TrendingUp } from "lucide-react";
 
 import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { IntelligenceExplainer } from "@/components/learning/intelligence-explainer";
 import { ProGate } from "@/components/pro-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -194,6 +195,8 @@ function LearnerContent() {
             />
             <StatCard label="Fading now" value={`${fading.length}`} icon={TrendingDown} />
           </div>
+
+          <IntelligenceExplainer />
 
           <Section
             title="Study next"
