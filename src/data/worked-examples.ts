@@ -30,7 +30,7 @@ export const workedExamples: WorkedExample[] = [
   {
     id: "example-binary-to-decimal",
     title: "Convert binary to decimal",
-    topicIds: ["topic-basic-networking-concepts", "topic-networking-basics", "topic-computer-hardware-basics"],
+    topicIds: ["topic-basic-networking-concepts", "topic-networking-basics", "topic-binary-and-number-systems"],
     certificationId: "cert-comptia-a-plus",
     question: "Convert the 8-bit binary number 11000000 to decimal.",
     steps: [
