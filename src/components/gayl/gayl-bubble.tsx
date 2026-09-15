@@ -162,7 +162,7 @@ export function GaylBubble() {
             </button>
           </div>
 
-          <div className="max-h-[60vh] space-y-3 overflow-y-auto p-3">
+          <div key={showAll ? "all" : "latest"} className="gayl-rise max-h-[60vh] space-y-3 overflow-y-auto p-3">
             {(showAll ? messages : [latest]).map((message) => (
               <MessageCard key={message.id} message={message} showWhy={showWhy} />
             ))}
