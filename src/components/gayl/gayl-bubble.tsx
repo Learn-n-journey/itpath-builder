@@ -173,14 +173,14 @@ export function GaylBubble() {
               )}
               {showWhy ? "Hide why" : "Why this?"}
             </button>
-            {messages.length > 1 && !showAll ? (
+            {!showAll ? (
               <button
                 type="button"
                 onClick={() => setShowAll(true)}
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+                className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs font-medium text-foreground hover:border-primary/60 hover:text-primary"
               >
                 <MessageSquare className="size-3" aria-hidden />
-                See all {messages.length}
+                {messages.length > 1 ? `See all ${messages.length} messages` : "See all messages"}
               </button>
             ) : null}
             <button
