@@ -98,3 +98,18 @@ export function missedQuestionExplanation(item: MissedQuestion): string {
 export function missedQuestionCount(user: UserData): number {
   return missedQuestions(user).length;
 }
+
+/**
+ * The open mistakes a learner can actually see and work on, one per distinct
+ * question or task. Every counter in the app reads this so the number quoted
+ * always matches the items flagged in Review.
+ */
+export function openMistakes(user: UserData, topicId?: string): MissedQuestion[] {
+  const items = missedQuestions(user);
+  return topicId ? items.filter((item) => item.mistake.topicId === topicId) : items;
+}
+
+/** How many distinct open mistakes are recorded, overall or on one topic. */
+export function openMistakeCount(user: UserData, topicId?: string): number {
+  return openMistakes(user, topicId).length;
+}
