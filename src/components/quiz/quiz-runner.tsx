@@ -184,6 +184,14 @@ function QuizWorkspace({
     });
   }
 
+  function updateConfidence(value: AnswerConfidence) {
+    actions.updateQuizAttempt({
+      ...attempt,
+      confidence: { ...(attempt.confidence ?? {}), [currentQuestionId]: value },
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
   function submit() {
     if (answered !== attempt.total) {
       toast.error(`Answer all questions before submitting. ${attempt.total - answered} remaining.`);
