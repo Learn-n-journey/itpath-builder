@@ -10,6 +10,7 @@
 import { getSkill, getSkillByTopic, type SkillNode } from "@/data/prerequisite-graph";
 import { topics } from "@/data/static-content";
 import type {
+  AnswerConfidence,
   Difficulty,
   MistakeCause,
   Question,
@@ -41,6 +42,8 @@ export interface QuestionDiagnostic {
   correctAnswer: string[];
   cause: MistakeCause;
   causeLabel: string;
+  /** What the learner said about this answer, when they said anything. */
+  confidence?: AnswerConfidence;
 }
 
 export interface SkillOutcome {
@@ -56,6 +59,26 @@ export interface SkillOutcome {
   appliedCorrect: number;
 }
 
+/**
+ * How well the learner's own sense of certainty matched the marking.
+ *
+ * Seeing "you were sure on four and three of those missed" is one of the few
+ * things that reliably breaks the feeling of knowing something you do not, so
+ * it is reported back rather than kept inside the engine.
+ */
+export interface Calibration {
+  /** Answers where the learner said how sure they were. */
+  rated: number;
+  sureTotal: number;
+  sureWrong: number;
+  unsureTotal: number;
+  unsureRight: number;
+  guessTotal: number;
+  guessRight: number;
+  /** GAYL reading the match between certainty and outcome. Empty when too thin. */
+  note: string;
+}
+
 export interface QuizDiagnostic {
   items: QuestionDiagnostic[];
   missed: QuestionDiagnostic[];
@@ -69,6 +92,46 @@ export interface QuizDiagnostic {
   guidance: string;
   recommendation: Recommendation | null;
   recommendedTitles: string[];
+  calibration: Calibration;
+}
+
+/** Deterministic: counts stated certainty against the marking, nothing inferred. */
+function buildCalibration(items: QuestionDiagnostic[]): Calibration {
+  const rated = items.filter((item) => item.confidence);
+  const sure = rated.filter((item) => item.confidence === "sure");
+  const unsure = rated.filter((item) => item.confidence === "unsure");
+  const guess = rated.filter((item) => item.confidence === "guess");
+  const sureWrong = sure.filter((item) => !item.correct).length;
+  const unsureRight = unsure.filter((item) => item.correct).length;
+  const guessRight = guess.filter((item) => item.correct).length;
+
+  const note = (() => {
+    if (rated.length < 3) return "";
+    if (sureWrong >= 2) {
+      return `Worth knowing: you marked ${sure.length} as sure and ${sureWrong} of those missed. That gap is the useful bit, because it shows where something feels settled before it is, and those are the ones I would check again rather than skip.`;
+    }
+    if (sureWrong === 0 && sure.length >= 2) {
+      return `One thing I noticed: everything you marked as sure came back correct. Your read on your own answers is accurate, which means I can trust it when you say you are unsure.`;
+    }
+    if (guessRight >= 2) {
+      return `Heads up on the ${guessRight} you guessed and still got right. Those look fine on the score but I am not counting them as proven, so they will come back around.`;
+    }
+    if (unsureRight >= 2) {
+      return `You got ${unsureRight} right that you were not sure about. The knowledge is further along than it feels, which is normal at this stage.`;
+    }
+    return "";
+  })();
+
+  return {
+    rated: rated.length,
+    sureTotal: sure.length,
+    sureWrong,
+    unsureTotal: unsure.length,
+    unsureRight,
+    guessTotal: guess.length,
+    guessRight,
+    note,
+  };
 }
 
 function topicTitle(topicId: string): string {
@@ -194,6 +257,7 @@ export function buildQuizDiagnostic(
         correctAnswer: question.correctAnswer,
         cause,
         causeLabel: mistakeCauseLabels[cause],
+        ...(result.confidence ? { confidence: result.confidence } : {}),
       },
     ];
   });
@@ -279,5 +343,6 @@ export function buildQuizDiagnostic(
     }),
     recommendation,
     recommendedTitles,
+    calibration: buildCalibration(items),
   };
 }

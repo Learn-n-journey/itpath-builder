@@ -10,6 +10,39 @@ export function shuffle<T>(items: T[]): T[] {
   return result;
 }
 
+/**
+ * Mix the set instead of just shuffling it.
+ *
+ * A plain shuffle can still deal out five recall questions on one topic in a
+ * row, and blocked practice feels easier while teaching less. This spreads the
+ * set so neighbouring questions differ in how they ask and what they cover,
+ * which is where the benefit of interleaving actually comes from.
+ */
+export function mixQuestions(questions: Question[]): Question[] {
+  const remaining = shuffle(questions);
+  const out: Question[] = [];
+
+  while (remaining.length > 0) {
+    const previous = out[out.length - 1];
+    let index = 0;
+    if (previous) {
+      const best = remaining.findIndex(
+        (question) => question.type !== previous.type && question.topicId !== previous.topicId,
+      );
+      const fallback = remaining.findIndex(
+        (question) => question.type !== previous.type || question.topicId !== previous.topicId,
+      );
+      // Only look a little way ahead, so the set stays varied without becoming
+      // a strict rotation the learner can predict.
+      if (best > 0 && best <= 3) index = best;
+      else if (fallback > 0 && fallback <= 3) index = fallback;
+    }
+    out.push(remaining.splice(index, 1)[0]!);
+  }
+
+  return out;
+}
+
 export function createQuizAttempt(
   quizId: string,
   questions: Question[],
@@ -20,7 +53,7 @@ export function createQuizAttempt(
     id: crypto.randomUUID(),
     quizId,
     status: "in_progress",
-    questionOrder: shuffle(questions.map((question) => question.id)),
+    questionOrder: mixQuestions(questions).map((question) => question.id),
     choiceOrder: Object.fromEntries(
       questions
         .filter((question) => question.choices.length > 0)
