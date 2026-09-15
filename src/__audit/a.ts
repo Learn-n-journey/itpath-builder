@@ -1,5 +1,5 @@
 import { deepLessons } from "../data/deep-lessons";
-import { allTopics } from "../data/curriculum";
+import { expansionTopics as allTopics } from "../data/curriculum";
 const byId = new Map((allTopics as any[]).map((t:any)=>[t.id,t]));
 const rows = (deepLessons as any[]).map((l) => ({
   topic: l.topicId,
