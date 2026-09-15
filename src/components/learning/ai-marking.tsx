@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, CircleAlert, Sparkles } from "lucide-react";
+import { CheckCircle2, CircleAlert } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { GaylMark } from "@/components/gayl/gayl-note";
 import { Progress } from "@/components/ui/progress";
 import { gradeWrittenAnswer, type GradeInput, type WrittenGrade } from "@/lib/grading.functions";
 import { knowledgeDigest } from "@/lib/knowledge-context";
@@ -30,7 +31,14 @@ export function useAiMarking() {
 
   const mark = useCallback(
     async (input: GradeInput, topicId?: string): Promise<WrittenGrade | null> => {
-      if (!isPro) return null;
+      if (!isPro) {
+        setState({
+          busy: false,
+          grade: null,
+          error: "I can only read written answers on Pro. Your answer is saved, so I can come back to it once you upgrade.",
+        });
+        return null;
+      }
       setState({ busy: true, grade: null, error: null });
       try {
         const digest = knowledgeDigest(knowledgeItems, topicId, 4);
@@ -53,7 +61,7 @@ export function useAiMarking() {
         }
         return reply.grade;
       } catch {
-        setState({ busy: false, grade: null, error: "The marker could not be reached." });
+        setState({ busy: false, grade: null, error: "I could not read your answer just then. Your writing is saved, so try again in a moment." });
         return null;
       }
     },
@@ -93,8 +101,10 @@ export function AiFeedback({
   if (state.busy)
     return (
       <p role="status" className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-        <Sparkles aria-hidden className="size-4 animate-pulse text-primary" />
-        Marking your answer…
+        <span className="animate-pulse">
+          <GaylMark />
+        </span>
+        GAYL is reading your answer…
       </p>
     );
 
@@ -121,7 +131,10 @@ export function AiFeedback({
           <Badge variant={grade.correct ? "default" : "destructive"}>
             {grade.correct ? "Correct" : "Not yet"}
           </Badge>
-          <Badge variant="outline">Marked by AI</Badge>
+          <Badge variant="outline" className="gap-1.5">
+            <GaylMark />
+            Read by GAYL
+          </Badge>
         </div>
         {showScore ? <span className="text-sm tabular-nums">{grade.score}/100</span> : null}
       </div>
@@ -131,11 +144,11 @@ export function AiFeedback({
       {grade.verdict ? <p className="text-sm text-muted-foreground">{grade.verdict}</p> : null}
 
       <Section title="What you got right" items={grade.strengths} />
-      <Section title="What you missed" items={grade.missed} />
+      <Section title="What I could not see in your answer" items={grade.missed} />
 
       {grade.correctedAnswer ? (
         <div>
-          <p className="text-sm font-medium text-foreground">A full answer</p>
+          <p className="text-sm font-medium text-foreground">How I would answer it</p>
           <p className="mt-2 whitespace-pre-wrap rounded-md border border-border p-3 text-sm text-muted-foreground">
             {grade.correctedAnswer}
           </p>
@@ -144,7 +157,7 @@ export function AiFeedback({
 
       {grade.followUp ? (
         <div>
-          <p className="text-sm font-medium text-foreground">Check yourself</p>
+          <p className="text-sm font-medium text-foreground">One thing to check yourself on</p>
           <p className="mt-1 text-sm text-muted-foreground">{grade.followUp}</p>
         </div>
       ) : null}
