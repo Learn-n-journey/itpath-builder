@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, CircleAlert, Sparkles } from "lucide-react";
+import { CheckCircle2, CircleAlert } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { GaylMark } from "@/components/gayl/gayl-note";
 import { Progress } from "@/components/ui/progress";
 import { gradeWrittenAnswer, type GradeInput, type WrittenGrade } from "@/lib/grading.functions";
 import { knowledgeDigest } from "@/lib/knowledge-context";
@@ -156,7 +157,7 @@ export function AiFeedback({
 
       {grade.followUp ? (
         <div>
-          <p className="text-sm font-medium text-foreground">Check yourself</p>
+          <p className="text-sm font-medium text-foreground">One thing to check yourself on</p>
           <p className="mt-1 text-sm text-muted-foreground">{grade.followUp}</p>
         </div>
       ) : null}
