@@ -72,6 +72,28 @@ function pct(value: number): string {
   return `${Math.round(value)}%`;
 }
 
+/** Minimum recorded history before decay can be claimed rather than assumed. */
+export const FADING_MIN_GRADED = 4;
+export const FADING_MIN_CORRECT = 2;
+export const FADING_MIN_DAYS_RECORDED = 2;
+export const FADING_MIN_DAYS_SINCE = 7;
+
+/**
+ * True only when there is enough recorded work for recall to have measurably
+ * faded: several graded results, more than one of them correct, recorded on
+ * separate days, and enough time since the last one for forgetting to apply.
+ */
+export function hasFadingHistory(input: HypothesisInput): boolean {
+  const { profile, evidence } = input;
+  if (profile.daysSinceExposure === null) return false;
+  return (
+    evidence.gradedSignals >= FADING_MIN_GRADED &&
+    profile.correct >= FADING_MIN_CORRECT &&
+    evidence.distinctDays >= FADING_MIN_DAYS_RECORDED &&
+    profile.daysSinceExposure >= FADING_MIN_DAYS_SINCE
+  );
+}
+
 /** Builds every candidate cause the recorded evidence can support. */
 function candidates(input: HypothesisInput): Candidate[] {
   const { profile, scope, measures, evidence, transfer, unresolvedMistakes } = input;
