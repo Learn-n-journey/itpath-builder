@@ -227,6 +227,13 @@ export const navItems: NavItem[] = [
     description: "What each section is for and how scoring is calculated.",
   },
   {
+    label: "Meet GAYL",
+    to: "/meet-gayl",
+    icon: BrainCircuit,
+    group: "You",
+    description: "An introduction to the learning intelligence behind IT PATH.",
+  },
+  {
     label: "Study record",
     to: "/record",
     icon: FileDown,
