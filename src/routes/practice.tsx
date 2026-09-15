@@ -476,7 +476,7 @@ function AssignmentWorkspace({
 
           <Panel
             title="Evaluation"
-            description="An AI examiner reads your whole answer against each point of the correct answer. Wording does not matter, only the idea."
+            description="GAYL reads your whole answer against each point of the correct answer. Wording does not matter, only the idea."
           >
             <AiFeedback state={marking} showScore={false} />
             <div className="space-y-3">
