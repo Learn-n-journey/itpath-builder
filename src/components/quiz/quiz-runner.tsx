@@ -291,6 +291,44 @@ function QuizWorkspace({
   );
 }
 
+const CONFIDENCE_OPTIONS: { value: AnswerConfidence; label: string }[] = [
+  { value: "guess", label: "Guessing" },
+  { value: "unsure", label: "Not sure" },
+  { value: "sure", label: "Sure" },
+];
+
+/**
+ * Asking beats guessing. A stated answer is a far better signal than how fast
+ * someone clicked, and it is optional, so skipping it costs nothing.
+ */
+function ConfidencePicker({
+  value,
+  onChange,
+}: {
+  value: AnswerConfidence | undefined;
+  onChange: (value: AnswerConfidence) => void;
+}) {
+  return (
+    <div className="mt-6 border-t border-border pt-4">
+      <p className="text-sm text-muted-foreground">How sure are you? Optional.</p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {CONFIDENCE_OPTIONS.map((option) => (
+          <Button
+            key={option.value}
+            type="button"
+            size="sm"
+            variant={value === option.value ? "default" : "outline"}
+            aria-pressed={value === option.value}
+            onClick={() => onChange(option.value)}
+          >
+            {option.label}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function QuestionInput({
   question,
   choices,
