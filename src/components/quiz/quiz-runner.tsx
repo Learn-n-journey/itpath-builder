@@ -10,6 +10,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { GaylNote } from "@/components/gayl/gayl-note";
+import { quizResultInsight } from "@/lib/gayl/insights";
 import { Panel, StatCard } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -352,6 +354,14 @@ function QuizReview({
           value={passScore ? (attempt.score >= passScore ? "Passed" : "Not passed") : attempt.total}
         />
       </div>
+      <GaylNote
+        {...quizResultInsight({
+          score: attempt.score,
+          correct: attempt.correct,
+          total: attempt.total,
+          weakTopicTitles: attempt.recommendedTopicIds.map((id) => topicName(id)),
+        })}
+      />
       <Panel
         title="Recommended review"
         description="Recommendations come directly from incorrect answers in this attempt."

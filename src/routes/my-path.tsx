@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Award } from "lucide-react";
 
+import { GaylPathNote } from "@/components/gayl/gayl-insights";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,8 @@ function MyPath() {
           </div>
         </Panel>
       ) : null}
+
+      <GaylPathNote className="mb-4" />
 
       <Panel
         className="mb-4"

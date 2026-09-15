@@ -3,6 +3,8 @@ import { AlertTriangle, CheckCircle2, RotateCcw, Save, Send, Terminal } from "lu
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { GaylNote } from "@/components/gayl/gayl-note";
+import { troubleshootingInsight } from "@/lib/gayl/insights";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { ProGate } from "@/components/pro-gate";
 import { Badge } from "@/components/ui/badge";
@@ -523,6 +525,7 @@ function IncidentWorkspace({
             </p>
             <p className="mt-2 text-sm text-muted-foreground">{incident.rootCause}</p>
           </div>
+          <GaylNote className="mt-5" {...troubleshootingInsight(scores)} />
           <Button className="mt-5" variant="secondary" onClick={() => start(attempt.id)}>
             <RotateCcw className="size-4" aria-hidden />
             Retake incident
