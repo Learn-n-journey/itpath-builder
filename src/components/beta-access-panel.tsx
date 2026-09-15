@@ -137,6 +137,15 @@ export function BetaAccessPanel() {
           ))
         )}
       </ul>
+
+      <div className="mt-5 border-t border-border/60 pt-4">
+        <Button asChild size="sm" variant="outline">
+          <Link to="/ai-usage">AI usage and cost</Link>
+        </Button>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Private figures: AI calls, tokens, reused answers, estimated cost and savings.
+        </p>
+      </div>
     </Panel>
   );
 }
