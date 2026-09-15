@@ -100,8 +100,10 @@ export function AiFeedback({
   if (state.busy)
     return (
       <p role="status" className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
-        <Sparkles aria-hidden className="size-4 animate-pulse text-primary" />
-        Marking your answer…
+        <span className="animate-pulse">
+          <GaylMark />
+        </span>
+        GAYL is reading your answer…
       </p>
     );
 
