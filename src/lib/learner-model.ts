@@ -359,13 +359,29 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
       }));
     const blocked =
       profile.attempts === 0 && prerequisites.some((p) => !p.satisfied && p.mastery < 0.5);
-    const withLinks = { ...profile, prerequisites, blocked };
+    const mastery = adjustMastery(profile, prerequisites);
+    const withLinks = {
+      ...profile,
+      prerequisites,
+      blocked,
+      mastery,
+      proven: mastery >= PROVEN_MASTERY,
+    };
     const decision = decide(withLinks);
     profiles.push({ ...withLinks, ...decision });
   }
 
   profiles.sort((a, b) => b.priority - a.priority);
   const studiedProfiles = profiles.filter((profile) => profile.attempts > 0);
+
+  const path = adaptivePath(user);
+  const pathIds = new Set(certificationTopics(path.certification.id).map((topic) => topic.id));
+  const pathProfiles = profiles.filter((profile) => pathIds.has(profile.topicId));
+  const pathScope = [...pathIds].map((id) => scopeByTopic.get(id)).filter(Boolean) as Array<
+    ReturnType<typeof topicScopeProgress>
+  >;
+  const pathAvailable = pathScope.reduce((sum, scope) => sum + scope.available, 0);
+  const pathAttempted = pathScope.reduce((sum, scope) => sum + scope.attempted, 0);
 
   return {
     generatedAt: now.toISOString(),
@@ -374,6 +390,13 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
     totalSignals: stream.length,
     studied: studiedProfiles.length,
     averageMastery: mean(profiles.map((profile) => profile.mastery)),
+    pathCertificationId: path.certification.id,
+    pathCertificationTitle: path.certification.title,
+    pathTopics: pathProfiles.length,
+    pathMastery: mean(pathProfiles.map((profile) => profile.mastery)),
+    pathCoverage: pathAvailable === 0 ? 0 : clamp01(pathAttempted / pathAvailable),
+    pathProven: pathProfiles.filter((profile) => profile.proven).length,
+    pathUnproven: pathProfiles.filter((profile) => !profile.proven).length,
     studyNext: profiles.filter((p) => p.action === "learn" || p.action === "practice").slice(0, 5),
     reviewNext: profiles.filter((p) => p.action === "review").slice(0, 5),
     testNext: profiles.filter((p) => p.action === "test").slice(0, 5),
