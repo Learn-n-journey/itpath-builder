@@ -63,7 +63,7 @@ export type RunAiResult =
       /** Set when the answer came from cache and cost nothing. */
       cached: boolean;
     }
-  | { ok: false; error: string; outcome: AiOutcome; status?: number };
+  | { ok: false; error: string; outcome: AiOutcome; status?: number | undefined };
 
 const ERROR_BY_STATUS: Record<number, string> = {
   429: "The AI service is busy right now — wait a moment and try again.",
