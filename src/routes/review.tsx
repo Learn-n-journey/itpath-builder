@@ -3,7 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { GaylReviewNote } from "@/components/gayl/gayl-insights";
 import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { MissedQuestionsPanel } from "@/components/review/missed-questions-panel";
 import { Badge } from "@/components/ui/badge";
@@ -85,7 +84,6 @@ function Review() {
         title="Review"
         description="Every mistake is logged with its cause and the prerequisite it points back to, so review starts at the root cause instead of the newest topic."
       />
-      <GaylReviewNote className="mb-4" />
 
       <div className="grid grid-cols-2 gap-3">
         <StatCard label="To work on" value={missedCount} />
