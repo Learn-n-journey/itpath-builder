@@ -195,10 +195,7 @@ function adjustMastery(
   const gaps = prerequisites.filter((prerequisite) => !prerequisite.satisfied).length;
   const foundation = 1 - Math.min(gaps, 3) * 0.08;
 
-  // Thin coverage keeps a perfect run on one activity from reading as mastery.
-  const proof = 0.6 + 0.4 * profile.coverage;
-
-  return clamp01(profile.evidenceMastery * decay * errors * foundation * proof);
+  return clamp01(profile.evidenceMastery * decay * errors * foundation);
 }
 
 /** Half-life grows with mastery and with how often the concept has been revisited. */
