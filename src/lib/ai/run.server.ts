@@ -26,6 +26,11 @@ export interface RunAiInput {
   system: string;
   /** User-side prompt. Already compressed by the caller where it matters. */
   prompt: string;
+  /**
+   * Conversation turns, when the feature is a chat. The prompt is still used
+   * for routing, caching and compression decisions.
+   */
+  messages?: Array<{ role: "user" | "assistant"; content: string }>;
   risk: AiRisk;
   priority?: AiPriority;
   /** Ask the model for a single JSON object. */
@@ -76,7 +81,7 @@ interface GatewayReply {
 async function callGateway(
   model: ModelSpec,
   system: string,
-  prompt: string,
+  turns: Array<{ role: "user" | "assistant"; content: string }>,
   json: boolean,
   apiKey: string,
 ): Promise<GatewayReply | { error: number }> {
@@ -86,10 +91,7 @@ async function callGateway(
     body: JSON.stringify({
       model: model.id,
       ...(json ? { response_format: { type: "json_object" } } : {}),
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: prompt },
-      ],
+      messages: [{ role: "system", content: system }, ...turns],
     }),
   });
   if (!res.ok) return { error: res.status };
@@ -101,7 +103,9 @@ async function callGateway(
   const text = body.choices?.[0]?.message?.content?.trim() ?? "";
   return {
     text,
-    promptTokens: body.usage?.prompt_tokens ?? estimateTokens(system + prompt),
+    promptTokens:
+      body.usage?.prompt_tokens ??
+      estimateTokens(system + turns.map((turn) => turn.content).join(" ")),
     completionTokens: body.usage?.completion_tokens ?? estimateTokens(text),
     status: res.status,
   };
@@ -131,6 +135,10 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
     estimateTokens(system + prompt),
     Math.max(200, estimateTokens(prompt) / 2),
   );
+
+  const turns = input.messages?.length
+    ? input.messages
+    : [{ role: "user" as const, content: prompt }];
 
   const key = input.cache ? await cacheKey(input.feature, input.cache.parts) : null;
   const bucket =
@@ -220,7 +228,7 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       let reply: GatewayReply | { error: number };
       try {
-        reply = await callGateway(model, system, prompt, input.json ?? false, apiKey);
+        reply = await callGateway(model, system, turns, input.json ?? false, apiKey);
       } catch {
         return { failed: "Could not reach the AI service. Check your connection and try again.", status: 0 } as const;
       }
