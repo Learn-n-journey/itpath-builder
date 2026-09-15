@@ -179,6 +179,8 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
   const stream: LearnerSignal[] = evidenceStream(user);
   const path = adaptivePath(user);
   const targetIds = new Set(certificationTopics(path.certification.id).map((topic) => topic.id));
+  // Spacing estimates are scaled by how this learner has actually held material.
+  const halfLifeFactor = personalHalfLifeFactor(user.reviewAttempts);
 
   const byTopicSignals = new Map<EntityId, LearnerSignal[]>();
   for (const signal of stream) {
