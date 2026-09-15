@@ -245,6 +245,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       void pushCloudState(userId, user).then((result) => {
         if (result.ok) {
           pushedSnapshot.current = snapshot;
+          // Safely in the account now, so the local safety copy is no longer needed.
+          clearStateBackup(userId);
           setCloudError(null);
           setCloudSyncedAt(new Date().toISOString());
           setCloudStatus("synced");
