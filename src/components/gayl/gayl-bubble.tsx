@@ -6,20 +6,37 @@
  * open, and it stays quiet the rest of the time. Once a message is dismissed,
  * it does not come back until the underlying evidence changes.
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight, X } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronRight, X } from "lucide-react";
 
 import gaylAvatar from "@/assets/gayl-avatar.png";
+import { useAppState } from "@/hooks/use-app-state";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import { alertInsight } from "@/lib/gayl/insights";
+import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
 import { cn } from "@/lib/utils";
 
 const DISMISS_KEY = "itpath.gayl.bubble.dismissed";
 
+/** Shortens a question prompt so the note stays readable. */
+function trim(text: string): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  return clean.length > 120 ? `${clean.slice(0, 117)}...` : clean;
+}
+
 export function GaylBubble() {
   const intel = useIntelligence();
-  const alert = alertInsight(intel);
+  const { user } = useAppState();
+  const openDetail = useCallback(
+    (topicId: string) => {
+      const item = missedQuestions(user).find((entry) => entry.mistake.topicId === topicId);
+      return item ? trim(missedQuestionPrompt(item)) : null;
+    },
+    [user],
+  );
+  const alert = alertInsight(intel, openDetail);
+
   const [dismissed, setDismissed] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [showWhy, setShowWhy] = useState(false);
