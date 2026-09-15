@@ -63,8 +63,10 @@ export interface QuizDiagnostic {
   strongest: SkillOutcome[];
   weakest: SkillOutcome[];
   topCauses: Array<{ cause: MistakeCause; label: string; count: number }>;
-  /** Plain-language reading of the pattern, not a score. */
+  /** GAYL reading the pattern out loud, not a score. */
   explanation: string;
+  /** GAYL guiding the next move, in the same voice. */
+  guidance: string;
   recommendation: Recommendation | null;
   recommendedTitles: string[];
 }
