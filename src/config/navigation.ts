@@ -28,6 +28,7 @@ import {
   Crown,
   Settings as SettingsIcon,
   SquareTerminal,
+  BrainCircuit,
   type LucideIcon,
 } from "lucide-react";
 
