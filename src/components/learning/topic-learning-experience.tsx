@@ -233,16 +233,22 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     </Panel>
 
 
-    <Tabs defaultValue="learn" className="space-y-4">
-      <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
-        <TabsTrigger value="learn">Learn</TabsTrigger><TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Teach Back</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
-      </TabsList>
-      <TabsContent value="learn" className="space-y-4">{deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}{deepLesson?.depth ? <LessonDepthReading depth={deepLesson.depth} /> : null}<Panel title={deepLesson ? "Quick reference" : lesson.title} description={deepLesson ? "A condensed summary of the lesson above, for revision." : lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
+    <div className="space-y-4">{deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}{deepLesson?.depth ? <LessonDepthReading depth={deepLesson.depth} /> : null}<Panel title={deepLesson ? "Quick reference" : lesson.title} description={deepLesson ? "A condensed summary of the lesson above, for revision." : lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
         <ContentSection title="What It Is" text={lesson.definition} /><ContentSection title="Why It Matters" text={lesson.whyItMatters} />
         <ListSection title="How It Works" items={module.howItWorks} /><ListSection title="Where You See It" items={module.whereYouSeeIt} />
         <section><h2 className="mb-3 text-base font-semibold text-foreground">Key Terms</h2><dl className="divide-y divide-border border-y border-border">{lesson.keyTerms.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
         <ListSection title="Examples" items={lesson.realWorldExamples} /><ListSection title="Common Problems" items={module.commonProblems} /><ListSection title="How It Fails" items={module.howItFails} /><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /><ListSection title="Exam Coverage" items={module.examCoverage} /><ListSection title="Interview Questions" items={module.interviewQuestions} />
-      </div></Panel><WorkedExamples examples={getWorkedExamples(topic.id)} /><MediaPanel topic={topic} /></TabsContent>
+      </div></Panel><WorkedExamples examples={getWorkedExamples(topic.id)} /><MediaPanel topic={topic} /></div>
+
+    <section className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">Work on it</h2>
+        <p className="text-sm text-muted-foreground">Read the lesson first, then check yourself here. Your answers are saved as you go.</p>
+      </div>
+      <Tabs defaultValue="recall" className="space-y-4">
+      <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
+        <TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Your Own Words</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
+      </TabsList>
       <TabsContent value="recall"><div className="space-y-4">{recallQuestions.map((question, index) => {
         const feedback = recallFeedback[question.id];
         return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={question.id}>Your answer</Label><Textarea id={question.id} className="mt-2" rows={4} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "Marking…" : "Check answer"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-primary" : "text-destructive"}`}>{feedback.correct ? "Correct. " : "Needs review. "}{feedback.message}</p> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
@@ -255,7 +261,8 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
       <TabsContent value="teach-back"><Panel title="Teach Back" description="Explain this topic in your own words. GAYL reads it back and tells you what your explanation shows.">{teachBackEditing ? <><Label htmlFor="teach-back">Your explanation</Label><Textarea id="teach-back" className="mt-2" rows={7} value={teachBack} onChange={(event) => setTeachBack(event.target.value)} /><div className="mt-3 flex flex-wrap gap-2"><Button disabled={teachBackMarking.busy} onClick={() => void saveTeachBack()}><Save />{teachBackMarking.busy ? "GAYL is reading…" : "Save"}</Button>{savedTeachBack ? <Button variant="outline" onClick={() => { setTeachBack(savedTeachBack.body); setTeachBackEditing(false); }}><FileText />Review saved response</Button> : null}</div></> : <><div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">{savedTeachBack?.body}</div><Button className="mt-3" variant="outline" onClick={() => setTeachBackEditing(true)}><Edit3 />Edit</Button></>}<AiFeedback state={teachBackMarking} /></Panel></TabsContent>
       <TabsContent value="scenario"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}<AiFeedback state={scenarioMarking} /></Panel></TabsContent>
-    </Tabs>
+      </Tabs>
+    </section>
 
     <div className="grid gap-4 lg:grid-cols-2">
       <AnnotationPanel
