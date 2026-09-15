@@ -309,6 +309,8 @@ export interface QuizAttempt {
   questionOrder: EntityId[];
   choiceOrder: Record<EntityId, string[]>;
   responses: Record<EntityId, string[]>;
+  /** Stated confidence per question, when the learner chose one. */
+  confidence?: Record<EntityId, AnswerConfidence>;
   results: QuizQuestionResult[];
   score: number;
   total: number;
