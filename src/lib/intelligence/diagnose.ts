@@ -51,6 +51,7 @@ export function measure(
 
   let seenCorrect = false;
   let confidentErrors = 0;
+  let statedConfidentErrors = 0;
   let recentFailureAfterSuccess = false;
   let totalMs = 0;
 
@@ -65,8 +66,15 @@ export function measure(
     if (outcome <= 0.4 && seenCorrect) {
       const ageDays = (nowMs - new Date(signal.at).getTime()) / MS_DAY;
       if (ageDays <= 30) recentFailureAfterSuccess = true;
-      if (typeof signal.elapsedMs === "number" && signal.elapsedMs < FAST_ANSWER_MS) {
-        confidentErrors += 1;
+
+      if (signal.confidence) {
+        // The learner told us. Nothing is inferred from how quick they were.
+        if (signal.confidence === "sure") {
+          confidentErrors += 1;
+          statedConfidentErrors += 1;
+        }
+      } else if (typeof signal.elapsedMs === "number" && signal.elapsedMs < FAST_ANSWER_MS) {
+        confidentErrors += SPEED_WEIGHT;
       }
     }
   }
@@ -74,7 +82,12 @@ export function measure(
   const hours = totalMs / (60 * 60 * 1000);
   const efficiency = hours >= 0.1 ? Math.round(scope.overall / hours) : null;
 
-  return { confidentErrors, efficiency, recentFailureAfterSuccess };
+  return {
+    confidentErrors: Number(confidentErrors.toFixed(1)),
+    statedConfidentErrors,
+    efficiency,
+    recentFailureAfterSuccess,
+  };
 }
 
 export interface DiagnoseInput {
