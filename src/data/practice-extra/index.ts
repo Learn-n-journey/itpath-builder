@@ -22,12 +22,19 @@ const seeds: PracticeSeed[] = [
   ...advanced_securityPractice,
 ];
 
-export const extraPracticeActivities: PracticeActivity[] = seeds.map((seed, index) => ({
-  id: `practice-${seed.slug}-x${index + 1}`,
-  topicId: `topic-${seed.slug}`,
-  title: seed.title,
-  prompt: seed.prompt,
-  choices: seed.choices,
-  answerIndex: seed.answerIndex,
-  explanation: seed.explanation,
-}));
+const perTopic = new Map<string, number>();
+
+export const extraPracticeActivities: PracticeActivity[] = seeds.map((seed) => {
+  const next = (perTopic.get(seed.slug) ?? 0) + 1;
+  perTopic.set(seed.slug, next);
+  return {
+    id: `practice-${seed.slug}-x${next}`,
+    topicId: `topic-${seed.slug}`,
+    title: seed.title,
+    prompt: seed.prompt,
+    choices: seed.choices,
+    answerIndex: seed.answerIndex,
+    explanation: seed.explanation,
+  };
+});
+
