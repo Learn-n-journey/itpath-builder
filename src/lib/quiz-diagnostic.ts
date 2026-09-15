@@ -253,21 +253,29 @@ export function buildQuizDiagnostic(
       ].filter((title, index, list) => list.indexOf(title) === index)
     : [];
 
+  const topCauses = [...causeCounts.entries()]
+    .map(([cause, count]) => ({ cause, label: mistakeCauseLabels[cause], count }))
+    .sort((a, b) => b.count - a.count);
+
   return {
     items,
     missed,
     skills,
     strongest,
     weakest,
-    topCauses: [...causeCounts.entries()]
-      .map(([cause, count]) => ({ cause, label: mistakeCauseLabels[cause], count }))
-      .sort((a, b) => b.count - a.count),
+    topCauses,
     explanation: buildExplanation({
       strongest,
       weakest,
       missed,
       total: items.length,
       correct: items.filter((item) => item.correct).length,
+    }),
+    guidance: buildGuidance({
+      weakest,
+      missed,
+      recommendedTitles,
+      ...(topCauses[0] ? { topCause: topCauses[0].cause } : {}),
     }),
     recommendation,
     recommendedTitles,
