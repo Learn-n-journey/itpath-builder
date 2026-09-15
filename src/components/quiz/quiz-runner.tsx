@@ -203,25 +203,24 @@ function QuizWorkspace({
       submittedAt: now,
     };
     actions.updateQuizAttempt(submittedAttempt);
-    result.results
-      .filter((item) => !item.correct)
-      .forEach((item) => {
-        const missed = orderedQuestions.find((entry) => entry.id === item.questionId);
-        actions.recordMistake({
-          topicId: item.topicId,
-          activity: "quiz",
-          category: missed
-            ? causeFromQuestionCategory(missed.mistakeCategory, missed.requiresReasoning)
-            : "misunderstood_concept",
-          severity: missed?.difficulty === "challenging" ? "high" : "medium",
-          questionId: item.questionId,
-          quizAttemptId: attempt.id,
-          attemptId: attempt.id,
-          createdAt: now,
-        });
+    // Every missed question becomes evidence: skill, type, answers, difficulty and likely cause.
+    const diagnostic = buildQuizDiagnostic(user, orderedQuestions, result.results);
+    diagnostic.missed.forEach((item) => {
+      actions.recordMistake({
+        topicId: item.topicId,
+        activity: "quiz",
+        category: item.cause,
+        severity:
+          item.difficulty === "challenging" ? "high" : item.difficulty === "foundational" ? "low" : "medium",
+        ...(item.skillId ? { skillId: item.skillId } : {}),
+        questionId: item.questionId,
+        quizAttemptId: attempt.id,
+        attemptId: attempt.id,
+        createdAt: now,
       });
+    });
     // Review the root cause first: a weak prerequisite outranks the advanced topic that exposed it.
-    const reviewTopicIds = new Set<string>();
+    const reviewTopicIds = new Set<string>(diagnostic.recommendation?.topicIds ?? []);
     result.weakTopicIds.forEach((topicId) => {
       const recommendation = recommendReview(user, { topicId });
       (recommendation.topicIds.length > 0 ? recommendation.topicIds : [topicId]).forEach((id) =>
