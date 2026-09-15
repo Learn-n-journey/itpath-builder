@@ -67,7 +67,7 @@ export function timingFor(
     return { nextReviewAt: new Date(nowMs).toISOString(), daysOverdue: 0 };
   }
 
-  const halfLife = 1.5 + mastery * 18 + Math.min(attempts, 12) * 1.5;
+  const halfLife = (1.5 + mastery * 18 + Math.min(attempts, 12) * 1.5) * personalFactor;
   const intervalDays = Math.max(1, halfLife * 0.32);
   const dueMs = new Date(lastExposureAt).getTime() + intervalDays * MS_DAY;
   return {
