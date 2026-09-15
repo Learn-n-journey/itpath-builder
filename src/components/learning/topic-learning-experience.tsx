@@ -99,7 +99,15 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topic.id]);
 
+  // Bring saved recall work back when the topic changes or a new answer is stored.
+  useEffect(() => {
+    setRecallAnswers((current) => ({ ...savedRecall.answers, ...current }));
+    setRecallFeedback((current) => ({ ...savedRecall.feedback, ...current }));
+  }, [savedRecall]);
+  useEffect(() => { setRecallAnswers(savedRecall.answers); setRecallFeedback(savedRecall.feedback); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [topic.id]);
+
   useEffect(() => { setTeachBack(savedTeachBack?.body ?? ""); setTeachBackEditing(!savedTeachBack); }, [savedTeachBack, topic.id]);
+
   useEffect(() => { setScenarioAnswer(savedScenario?.response ?? ""); setScenarioFeedback(savedScenario ? scenario?.guidance ?? null : null); }, [savedScenario, scenario, topic.id]);
   
 
