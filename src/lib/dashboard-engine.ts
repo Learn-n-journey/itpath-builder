@@ -4,6 +4,7 @@ import { scoreAllCertifications } from "@/lib/certification-engine";
 import { scoreSkills, scoreTracks } from "@/lib/skills-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { allTopicScopeProgress } from "@/lib/scope-progress";
+import { openMistakeCount, openMistakes } from "@/lib/missed-questions";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -116,9 +117,10 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
       needing.set(review.topicId, "Review due");
     }
   }
-  for (const mistake of user.mistakes) {
-    if (!mistake.resolved && !needing.has(mistake.topicId)) {
-      needing.set(mistake.topicId, "Unresolved mistake");
+  for (const item of openMistakes(user)) {
+    if (!needing.has(item.mistake.topicId)) {
+      const count = openMistakeCount(user, item.mistake.topicId);
+      needing.set(item.mistake.topicId, count === 1 ? "1 open mistake" : `${count} open mistakes`);
     }
   }
   for (const p of progressList) {

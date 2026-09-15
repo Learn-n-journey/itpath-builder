@@ -7,6 +7,7 @@
  */
 import { topics } from "@/data/static-content";
 import { mistakeCauseLabels } from "@/lib/mistake-engine";
+import { openMistakeCount } from "@/lib/missed-questions";
 import type { EntityId, MistakeCause, UserData } from "@/lib/app-data/types";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -187,7 +188,7 @@ export function computeInsights(user: UserData, now: Date = new Date()): StudyIn
       total: row.open + row.resolved,
     }))
     .sort((a, b) => b.total - a.total);
-  const mistakesOpen = user.mistakes.filter((mistake) => !mistake.resolved).length;
+  const mistakesOpen = openMistakeCount(user);
   const mistakesResolved = user.mistakes.length - mistakesOpen;
   const resolutionRate =
     user.mistakes.length === 0 ? 0 : round((mistakesResolved / user.mistakes.length) * 100);
