@@ -11,6 +11,8 @@
  * zero confidence, and is reported as untouched rather than weak.
  */
 import { topics } from "@/data/static-content";
+import { adaptivePath } from "@/lib/adaptive-path";
+import { certificationTopics } from "@/lib/cert-path";
 import { evidenceStream } from "@/lib/learner-signals";
 import type {
   EntityId,
@@ -61,8 +63,18 @@ export interface ConceptProfile {
   topicId: EntityId;
   title: string;
   certificationId: EntityId;
-  /** 0-1 probability the learner knows this concept right now. */
+  /**
+   * 0-1 probability the learner knows this concept right now, after the raw
+   * evidence has been adjusted for forgetting, repeated errors and unproven
+   * prerequisites. Unattempted work counts as zero, never as mastered.
+   */
   mastery: number;
+  /** Raw full-scope evidence score before those adjustments, 0-1. */
+  evidenceMastery: number;
+  /** Share of the topic's available activities that has been attempted, 0-1. */
+  coverage: number;
+  /** True once mastery is high enough to call the concept demonstrated. */
+  proven: boolean;
   /** 0-1 confidence in the mastery number, from how much evidence exists. */
   confidence: number;
   /** 0-1 probability the concept is still retrievable today. */
@@ -96,8 +108,21 @@ export interface LearnerModel {
   totalSignals: number;
   /** Concepts with any evidence at all. */
   studied: number;
-  /** Mean mastery across studied concepts. */
+  /** Mean mastery across every available concept, unattempted ones included. */
   averageMastery: number;
+  /** The certification path the learner is working towards. */
+  pathCertificationId: EntityId;
+  pathCertificationTitle: string;
+  /** Number of concepts in that path. */
+  pathTopics: number;
+  /** Mean mastery across every concept in the path, unattempted counted as zero. */
+  pathMastery: number;
+  /** Share of the path's available activities attempted so far, 0-1. */
+  pathCoverage: number;
+  /** Concepts in the path with demonstrated mastery. */
+  pathProven: number;
+  /** Concepts in the path still unproven (weak or never attempted). */
+  pathUnproven: number;
   studyNext: ConceptProfile[];
   reviewNext: ConceptProfile[];
   testNext: ConceptProfile[];
@@ -140,6 +165,37 @@ function masteryFrom(signals: LearnerSignal[], nowMs: number): { mastery: number
   const priorWeight = 1.5;
   const mastery = (weighted + priorWeight * 0.35) / (weight + priorWeight);
   return { mastery: clamp01(mastery), weight };
+}
+
+/** Mastery at or above this counts as demonstrated rather than assumed. */
+export const PROVEN_MASTERY = 0.7;
+
+/**
+ * Evidence raises mastery; forgetting, repeated errors and unproven
+ * prerequisites lower it. Nothing here can raise an unattempted concept above
+ * zero — unknown stays unknown.
+ */
+function adjustMastery(
+  profile: ConceptProfile,
+  prerequisites: PrerequisiteState[],
+): number {
+  if (profile.evidenceMastery <= 0) return 0;
+
+  // Forgetting: recall that has decayed since the last exposure discounts the
+  // evidence, but never wipes it out.
+  const decay = profile.daysSinceExposure === null
+    ? 1
+    : 0.85 + 0.15 * retentionFrom(profile.evidenceMastery, profile.attempts, profile.daysSinceExposure);
+
+  // Repeated unresolved errors on the concept.
+  const errorCount = profile.errorPatterns.reduce((sum, pattern) => sum + pattern.count, 0);
+  const errors = 1 - Math.min(errorCount, 6) * 0.03;
+
+  // Unproven prerequisites: knowledge resting on unproven ground is less certain.
+  const gaps = prerequisites.filter((prerequisite) => !prerequisite.satisfied).length;
+  const foundation = 1 - Math.min(gaps, 3) * 0.08;
+
+  return clamp01(profile.evidenceMastery * decay * errors * foundation);
 }
 
 /** Half-life grows with mastery and with how often the concept has been revisited. */
@@ -274,11 +330,14 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
 
   // First pass: the numbers that do not depend on other concepts.
   const base = new Map<EntityId, ConceptProfile>();
+  const scopeByTopic = new Map<EntityId, ReturnType<typeof topicScopeProgress>>();
   for (const topic of topics) {
     const signals = byTopicSignals.get(topic.id) ?? [];
     const graded = signals.filter((signal) => outcomeOf(signal) !== null);
     const scope = topicScopeProgress(user, topic.id);
+    scopeByTopic.set(topic.id, scope);
     const mastery = scope.overall / 100;
+    const coverage = scope.available === 0 ? 0 : clamp01(scope.attempted / scope.available);
     const lastExposureAt = signals.length > 0 ? signals[0]!.at : null;
     const daysSinceExposure =
       lastExposureAt === null ? null : (nowMs - new Date(lastExposureAt).getTime()) / MS_DAY;
@@ -292,7 +351,10 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
       title: topic.title,
       certificationId: topic.certificationId,
       mastery,
-      confidence: scope.available === 0 ? 0 : clamp01(scope.attempted / scope.available),
+      evidenceMastery: mastery,
+      coverage,
+      proven: mastery >= PROVEN_MASTERY,
+      confidence: coverage,
       retention,
       forgetting: lastExposureAt === null ? 0 : 1 - retention,
       lastExposureAt,
@@ -330,13 +392,29 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
       }));
     const blocked =
       profile.attempts === 0 && prerequisites.some((p) => !p.satisfied && p.mastery < 0.5);
-    const withLinks = { ...profile, prerequisites, blocked };
+    const mastery = adjustMastery(profile, prerequisites);
+    const withLinks = {
+      ...profile,
+      prerequisites,
+      blocked,
+      mastery,
+      proven: mastery >= PROVEN_MASTERY,
+    };
     const decision = decide(withLinks);
     profiles.push({ ...withLinks, ...decision });
   }
 
   profiles.sort((a, b) => b.priority - a.priority);
   const studiedProfiles = profiles.filter((profile) => profile.attempts > 0);
+
+  const path = adaptivePath(user);
+  const pathIds = new Set(certificationTopics(path.certification.id).map((topic) => topic.id));
+  const pathProfiles = profiles.filter((profile) => pathIds.has(profile.topicId));
+  const pathScope = [...pathIds].map((id) => scopeByTopic.get(id)).filter(Boolean) as Array<
+    ReturnType<typeof topicScopeProgress>
+  >;
+  const pathAvailable = pathScope.reduce((sum, scope) => sum + scope.available, 0);
+  const pathAttempted = pathScope.reduce((sum, scope) => sum + scope.attempted, 0);
 
   return {
     generatedAt: now.toISOString(),
@@ -345,6 +423,13 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
     totalSignals: stream.length,
     studied: studiedProfiles.length,
     averageMastery: mean(profiles.map((profile) => profile.mastery)),
+    pathCertificationId: path.certification.id,
+    pathCertificationTitle: path.certification.title,
+    pathTopics: pathProfiles.length,
+    pathMastery: mean(pathProfiles.map((profile) => profile.mastery)),
+    pathCoverage: pathAvailable === 0 ? 0 : clamp01(pathAttempted / pathAvailable),
+    pathProven: pathProfiles.filter((profile) => profile.proven).length,
+    pathUnproven: pathProfiles.filter((profile) => !profile.proven).length,
     studyNext: profiles.filter((p) => p.action === "learn" || p.action === "practice").slice(0, 5),
     reviewNext: profiles.filter((p) => p.action === "review").slice(0, 5),
     testNext: profiles.filter((p) => p.action === "test").slice(0, 5),
