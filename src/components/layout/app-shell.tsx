@@ -58,6 +58,8 @@ function Brand() {
   );
 }
 
+import { GaylBubble } from "@/components/gayl/gayl-bubble";
+
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -115,6 +117,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
           {children}
         </div>
+        <GaylBubble />
         <footer className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
             <span>IT PATH · David Boley</span>

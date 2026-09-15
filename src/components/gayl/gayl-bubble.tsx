@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronRight, X } from "lucide-react";
 
-import { GaylMark } from "@/components/gayl/gayl-note";
+import gaylAvatar from "@/assets/gayl-avatar.png";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import { alertInsight } from "@/lib/gayl/insights";
 import { cn } from "@/lib/utils";
@@ -49,7 +49,14 @@ export function GaylBubble() {
       {open ? (
         <div className="w-80 max-w-full rounded-lg border border-border bg-card p-4 shadow-lg">
           <div className="flex items-start gap-3">
-            <GaylMark />
+            <img
+              src={gaylAvatar}
+              alt=""
+              width={816}
+              height={816}
+              loading="lazy"
+              className="size-8 shrink-0 rounded-full"
+            />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 <Link to="/meet-gayl" className="hover:text-primary">
@@ -110,7 +117,14 @@ export function GaylBubble() {
           "relative flex size-12 items-center justify-center rounded-full border border-border bg-card shadow-lg transition-colors hover:border-primary/60",
         )}
       >
-        <GaylMark className="size-7" />
+        <img
+          src={gaylAvatar}
+          alt=""
+          width={816}
+          height={816}
+          loading="lazy"
+          className="size-11 rounded-full"
+        />
         {!open ? (
           <span className="absolute right-1 top-1 size-2 rounded-full bg-primary" aria-hidden />
         ) : null}
