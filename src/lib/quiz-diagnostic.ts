@@ -56,6 +56,26 @@ export interface SkillOutcome {
   appliedCorrect: number;
 }
 
+/**
+ * How well the learner's own sense of certainty matched the marking.
+ *
+ * Seeing "you were sure on four and three of those missed" is one of the few
+ * things that reliably breaks the feeling of knowing something you do not, so
+ * it is reported back rather than kept inside the engine.
+ */
+export interface Calibration {
+  /** Answers where the learner said how sure they were. */
+  rated: number;
+  sureTotal: number;
+  sureWrong: number;
+  unsureTotal: number;
+  unsureRight: number;
+  guessTotal: number;
+  guessRight: number;
+  /** GAYL reading the match between certainty and outcome. Empty when too thin. */
+  note: string;
+}
+
 export interface QuizDiagnostic {
   items: QuestionDiagnostic[];
   missed: QuestionDiagnostic[];
