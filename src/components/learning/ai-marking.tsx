@@ -143,11 +143,11 @@ export function AiFeedback({
       {grade.verdict ? <p className="text-sm text-muted-foreground">{grade.verdict}</p> : null}
 
       <Section title="What you got right" items={grade.strengths} />
-      <Section title="What you missed" items={grade.missed} />
+      <Section title="What I could not see in your answer" items={grade.missed} />
 
       {grade.correctedAnswer ? (
         <div>
-          <p className="text-sm font-medium text-foreground">A full answer</p>
+          <p className="text-sm font-medium text-foreground">How I would answer it</p>
           <p className="mt-2 whitespace-pre-wrap rounded-md border border-border p-3 text-sm text-muted-foreground">
             {grade.correctedAnswer}
           </p>
