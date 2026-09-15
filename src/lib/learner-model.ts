@@ -297,11 +297,14 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
 
   // First pass: the numbers that do not depend on other concepts.
   const base = new Map<EntityId, ConceptProfile>();
+  const scopeByTopic = new Map<EntityId, ReturnType<typeof topicScopeProgress>>();
   for (const topic of topics) {
     const signals = byTopicSignals.get(topic.id) ?? [];
     const graded = signals.filter((signal) => outcomeOf(signal) !== null);
     const scope = topicScopeProgress(user, topic.id);
+    scopeByTopic.set(topic.id, scope);
     const mastery = scope.overall / 100;
+    const coverage = scope.available === 0 ? 0 : clamp01(scope.attempted / scope.available);
     const lastExposureAt = signals.length > 0 ? signals[0]!.at : null;
     const daysSinceExposure =
       lastExposureAt === null ? null : (nowMs - new Date(lastExposureAt).getTime()) / MS_DAY;
@@ -315,7 +318,10 @@ export function buildLearnerModel(user: UserData, now: Date = new Date()): Learn
       title: topic.title,
       certificationId: topic.certificationId,
       mastery,
-      confidence: scope.available === 0 ? 0 : clamp01(scope.attempted / scope.available),
+      evidenceMastery: mastery,
+      coverage,
+      proven: mastery >= PROVEN_MASTERY,
+      confidence: coverage,
       retention,
       forgetting: lastExposureAt === null ? 0 : 1 - retention,
       lastExposureAt,
