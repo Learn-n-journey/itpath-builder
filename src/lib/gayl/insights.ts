@@ -276,3 +276,47 @@ export function pathInsight(intel: Intelligence): GaylInsight | null {
       .map((concept) => `${concept.title}: ${concept.instruction}`),
   };
 }
+
+/**
+ * The only thing worth interrupting for.
+ *
+ * Returns a note when something already recorded looks like it is slipping or
+ * staying unfixed, and nothing at all otherwise. No new scoring happens here,
+ * it only reads what the engine already worked out.
+ */
+export function alertInsight(intel: Intelligence): (GaylInsight & { id: string }) | null {
+  if (!intel.hasEvidence) return null;
+
+  const slipping = intel.concepts.filter(
+    (concept) =>
+      concept.attempts > 0 &&
+      (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure"),
+  );
+  const stuck = intel.concepts.filter(
+    (concept) =>
+      concept.unresolvedMistakes > 0 ||
+      concept.diagnosis === "misconception" ||
+      concept.diagnosis === "confident_but_wrong",
+  );
+
+  const focus =
+    [...slipping, ...stuck].sort((a, b) => b.priority - a.priority)[0] ?? null;
+  if (!focus) return null;
+
+  const others = new Set([...slipping, ...stuck].map((concept) => concept.title));
+  others.delete(focus.title);
+  const tail =
+    others.size > 0
+      ? ` ${others.size} other topic${others.size === 1 ? "" : "s"} ${others.size === 1 ? "is" : "are"} in the same place, so they can wait their turn.`
+      : "";
+
+  const opener = slipping.includes(focus)
+    ? `Your answers on ${focus.title} have slipped since you last got them right.`
+    : `A mistake on ${focus.title} is still open.`;
+
+  return {
+    id: `${focus.topicId}:${focus.diagnosis}:${focus.unresolvedMistakes}`,
+    message: `${opener} ${focus.instruction}${tail}`,
+    why: evidenceLines(focus),
+  };
+}
