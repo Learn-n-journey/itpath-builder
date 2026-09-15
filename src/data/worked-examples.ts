@@ -81,7 +81,7 @@ export const workedExamples: WorkedExample[] = [
   {
     id: "example-binary-to-hex",
     title: "Convert binary to hexadecimal",
-    topicIds: ["topic-basic-networking-concepts", "topic-computer-hardware-basics", "topic-networking-basics"],
+    topicIds: ["topic-basic-networking-concepts", "topic-binary-and-number-systems", "topic-networking-basics"],
     certificationId: "cert-comptia-a-plus",
     question: "Convert 11011110 to hexadecimal (the form used by MAC and IPv6 addresses).",
     steps: [
