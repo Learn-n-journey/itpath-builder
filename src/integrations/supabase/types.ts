@@ -16,25 +16,91 @@ export type Database = {
     Tables: {
       ai_cache: {
         Row: {
+          bucket: string | null
           cache_key: string
           created_at: string
           hits: number
           kind: string
+          last_used_at: string
+          model: string | null
+          norm: string | null
           value: Json
         }
         Insert: {
+          bucket?: string | null
           cache_key: string
           created_at?: string
           hits?: number
           kind: string
+          last_used_at?: string
+          model?: string | null
+          norm?: string | null
           value: Json
         }
         Update: {
+          bucket?: string | null
           cache_key?: string
           created_at?: string
           hits?: number
           kind?: string
+          last_used_at?: string
+          model?: string | null
+          norm?: string | null
           value?: Json
+        }
+        Relationships: []
+      }
+      ai_events: {
+        Row: {
+          completion_tokens: number
+          created_at: string
+          duration_ms: number
+          escalated: boolean
+          est_cost: number
+          feature: string
+          id: string
+          model: string | null
+          outcome: string
+          priority: string | null
+          prompt_tokens: number
+          risk: string | null
+          saved_cost: number
+          self_checked: boolean
+          user_id: string | null
+        }
+        Insert: {
+          completion_tokens?: number
+          created_at?: string
+          duration_ms?: number
+          escalated?: boolean
+          est_cost?: number
+          feature: string
+          id?: string
+          model?: string | null
+          outcome: string
+          priority?: string | null
+          prompt_tokens?: number
+          risk?: string | null
+          saved_cost?: number
+          self_checked?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          completion_tokens?: number
+          created_at?: string
+          duration_ms?: number
+          escalated?: boolean
+          est_cost?: number
+          feature?: string
+          id?: string
+          model?: string | null
+          outcome?: string
+          priority?: string | null
+          prompt_tokens?: number
+          risk?: string | null
+          saved_cost?: number
+          self_checked?: boolean
+          user_id?: string | null
         }
         Relationships: []
       }
