@@ -4,7 +4,6 @@ import { ArrowRight, BookOpen, CheckCircle2, CircleDashed, ExternalLink } from "
 
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { certifications } from "@/data/certification-content";
 import { practiceActivities } from "@/data/learning-content";
 import { topics } from "@/data/static-content";
 import { getCertification } from "@/lib/app-data/selectors";
@@ -267,10 +266,10 @@ function PracticeTestPage() {
             </Link>
           </Button>
           <Button asChild variant="ghost">
-            <a href={certPath}>
+            <Link to="/certifications/$certId" params={{ certId: spec.certId }}>
               <ExternalLink aria-hidden />
               {certification ? `${certification.title} topics` : "All certifications"}
-            </a>
+            </Link>
           </Button>
         </div>
       </Panel>
