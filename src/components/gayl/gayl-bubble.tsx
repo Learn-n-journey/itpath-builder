@@ -199,8 +199,9 @@ export function GaylBubble() {
               Got it
             </button>
           </div>
+          </div>
         </div>
-      ) : null}
+      </div>
 
       <button
         type="button"
