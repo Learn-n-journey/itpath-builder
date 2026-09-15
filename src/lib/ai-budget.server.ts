@@ -11,7 +11,7 @@
 export type AiKind = "tutor" | "grading" | "scenario" | "knowledge";
 
 /** Daily calls per person, per kind. Generous for real study, capped for abuse. */
-const DAILY_LIMIT: Record<AiKind, number> = {
+export const DAILY_LIMIT: Record<AiKind, number> = {
   tutor: 80,
   grading: 120,
   scenario: 30,

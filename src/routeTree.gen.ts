@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
+import { Route as AiUsageRouteImport } from './routes/ai-usage'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
@@ -63,6 +64,11 @@ const AboutRoute = AboutRouteImport.update({
 const AiTutorRoute = AiTutorRouteImport.update({
   id: '/ai-tutor',
   path: '/ai-tutor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiUsageRoute = AiUsageRouteImport.update({
+  id: '/ai-usage',
+  path: '/ai-usage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -256,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/ai-tutor': typeof AiTutorRoute
+  '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/ai-tutor': typeof AiTutorRoute
+  '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
@@ -341,6 +349,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/ai-tutor': typeof AiTutorRoute
+  '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
@@ -385,6 +394,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/ai-tutor'
+    | '/ai-usage'
     | '/auth'
     | '/bookmarks'
     | '/career-mode'
@@ -427,6 +437,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/ai-tutor'
+    | '/ai-usage'
     | '/auth'
     | '/bookmarks'
     | '/career-mode'
@@ -469,6 +480,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/ai-tutor'
+    | '/ai-usage'
     | '/auth'
     | '/bookmarks'
     | '/career-mode'
@@ -512,6 +524,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AiTutorRoute: typeof AiTutorRoute
+  AiUsageRoute: typeof AiUsageRoute
   AuthRoute: typeof AuthRoute
   BookmarksRoute: typeof BookmarksRoute
   CareerModeRoute: typeof CareerModeRoute
@@ -572,6 +585,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-tutor'
       fullPath: '/ai-tutor'
       preLoaderRoute: typeof AiTutorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-usage': {
+      id: '/ai-usage'
+      path: '/ai-usage'
+      fullPath: '/ai-usage'
+      preLoaderRoute: typeof AiUsageRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -840,6 +860,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AiTutorRoute: AiTutorRoute,
+  AiUsageRoute: AiUsageRoute,
   AuthRoute: AuthRoute,
   BookmarksRoute: BookmarksRoute,
   CareerModeRoute: CareerModeRoute,

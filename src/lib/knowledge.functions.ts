@@ -13,6 +13,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { certifications, topics } from "@/data/static-content";
 import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
 import { allowAiCall } from "@/lib/ai-budget.server";
+import { runAi } from "@/lib/ai/run.server";
 
 export type KnowledgeKind =
   | "note"
@@ -384,9 +385,6 @@ export const searchKnowledge = createServerFn({ method: "POST" })
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI service is not configured." };
 
-    const budget = await allowAiCall(context.userId, "knowledge");
-    if (!budget.ok) return { ok: false, error: budget.error };
-
     const { data: rows, error } = await context.supabase
       .from("knowledge_items")
       .select(SELECT)
@@ -399,33 +397,32 @@ export const searchKnowledge = createServerFn({ method: "POST" })
     if (items.length === 0)
       return { ok: true, answer: "You have not saved any material yet.", matches: [] };
 
-    const res = await fetch(GATEWAY_CHAT_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: UTILITY_MODEL,
-        response_format: { type: "json_object" },
-        messages: [
-          {
-            role: "system",
-            content: `You search a learner's own saved IT study material. Answer only from the material provided.
+    const system = `You search a learner's own saved IT study material. Answer only from the material provided.
 Return strict JSON: {"answer":"plain text answer, or a clear statement that the saved material does not cover it","matches":[{"id":"item id","why":"one line on why it is relevant"}]}
-Never use ids that are not in the material list. Never add outside facts to the answer; if the saved material is thin, say what is missing.`,
-          },
-          {
-            role: "user",
-            content: `Question: ${data.query}\n\nSaved material:\n\n${items.map(itemDigest).join("\n---\n")}`,
-          },
-        ],
-      }),
+Never use ids that are not in the material list. Never add outside facts to the answer; if the saved material is thin, say what is missing.`;
+
+    const digest = items.map(itemDigest).join("\n---\n");
+
+    // Searching the same library for the same thing twice costs nothing the
+    // second time, and a reworded question reuses the same answer.
+    const result = await runAi({
+      feature: "knowledge",
+      userId: context.userId,
+      system,
+      prompt: `Question: ${data.query}\n\nSaved material:\n\n${digest}`,
+      risk: "low",
+      priority: "interactive",
+      json: true,
+      cache: {
+        parts: [context.userId, data.query, String(items.length), digest.slice(0, 2000)],
+        scope: `knowledge-search:${context.userId}:${items.length}`,
+        semantic: true,
+        threshold: 0.95,
+      },
     });
+    if (!result.ok) return { ok: false, error: result.error };
 
-    if (res.status === 429) return { ok: false, error: "Too many requests — wait a moment and try again." };
-    if (res.status === 402) return { ok: false, error: "AI usage limit reached for this app." };
-    if (!res.ok) return { ok: false, error: `AI request failed (${res.status}).` };
-
-    const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    const raw = (json.choices?.[0]?.message?.content ?? "").replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+    const raw = result.text.replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
     try {
       const parsed = JSON.parse(raw) as { answer?: string; matches?: { id?: string; why?: string }[] };
       const byId = new Map(items.map((i) => [i.id, i]));

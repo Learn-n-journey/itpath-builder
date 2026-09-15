@@ -3,8 +3,9 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { reviewGrade } from "@/lib/ai-self-check.server";
-import { aiCacheKey, allowAiCall, readAiCache, writeAiCache } from "@/lib/ai-budget.server";
-import { GATEWAY_CHAT_URL, GRADING_MODEL } from "@/lib/ai-models";
+import { cacheKey as buildCacheKey, readExact, writeCache } from "@/lib/ai/cache.server";
+import { compressContext } from "@/lib/ai/compress.server";
+import { runAi } from "@/lib/ai/run.server";
 import { offlineGrade } from "@/lib/offline-grade";
 
 const criterionSchema = z.object({
@@ -112,10 +113,11 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
       }
     }
 
-    // 2. The same answer to the same task is only ever paid for once.
-    const cacheKey = data.knowledge
+    // 2. The same answer to the same task is only ever paid for once. A mark
+    //    must match the answer exactly, so this cache is exact, never fuzzy.
+    const key = data.knowledge
       ? null
-      : await aiCacheKey("grading", [
+      : await buildCacheKey("grading", [
           data.topic,
           data.question,
           data.modelAnswer,
@@ -123,14 +125,10 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
           (data.criteria ?? []).map((c) => c.id).join("|"),
           data.answer,
         ]);
-    if (cacheKey) {
-      const cached = await readAiCache<WrittenGrade>(cacheKey);
+    if (key) {
+      const cached = await readExact<WrittenGrade>(key);
       if (cached) return { ok: true, grade: cached };
     }
-
-    // 3. Daily allowance, so one person cannot drain the AI budget.
-    const budget = await allowAiCall(context.userId, "grading");
-    if (!budget.ok) return { ok: false, error: budget.error };
 
     const system = [
       "You are a strict but fair IT and cybersecurity examiner marking a learner's written answer.",
@@ -144,6 +142,10 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
       "If the learner's own saved material is supplied, use it: when their answer matches something they saved, mention it in strengths as coming from their own material, and when their saved material is wrong or incomplete on this point, say so in missed.",
     ].join("\n");
 
+    const knowledge = data.knowledge
+      ? compressContext(data.knowledge, `${data.question}\n${data.answer}`, 6000)
+      : undefined;
+
     const parts: string[] = [
       `Topic: ${data.topic}`,
       data.task ? `Task type: ${data.task}` : "",
@@ -155,76 +157,68 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
             .map((c) => `id=${c.id} | ${c.label} | ${c.description}${c.expected ? ` | expected: ${c.expected}` : ""}`)
             .join("\n")}`
         : "",
-      data.knowledge ? `The learner's own saved material (theirs, not course content):\n${data.knowledge}` : "",
+      knowledge ? `The learner's own saved material (theirs, not course content):\n${knowledge}` : "",
       `Learner's answer:\n${data.answer}`,
       "Return the JSON object now.",
     ].filter(Boolean);
 
+    // Marking changes recorded progress, so it is high risk: the layer routes it
+    // to the stronger model and always moderates the result.
+    const result = await runAi({
+      feature: "grading",
+      userId: context.userId,
+      system,
+      prompt: parts.join("\n\n"),
+      risk: "high",
+      priority: "interactive",
+      json: true,
+      needsEscalation: (text) => !text.includes("score"),
+    });
+    if (!result.ok) return { ok: false, error: result.error };
+
+    const raw = result.text;
+    const start = raw.indexOf("{");
+    const end = raw.lastIndexOf("}");
+    if (start === -1 || end === -1) return { ok: false, error: "The marker returned an unreadable reply." };
+
+    let parsed: ReturnType<typeof responseShape.safeParse>;
     try {
-      const res = await fetch(GATEWAY_CHAT_URL, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: GRADING_MODEL,
-          response_format: { type: "json_object" },
-          messages: [
-            { role: "system", content: system },
-            { role: "user", content: parts.join("\n\n") },
-          ],
-        }),
-      });
-
-      if (res.status === 429)
-        return { ok: false, error: "The marker is busy right now — try again in a moment." };
-      if (res.status === 402) return { ok: false, error: "AI usage limit reached for this app." };
-      if (!res.ok) return { ok: false, error: `AI marking failed (${res.status}).` };
-
-      const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-      const raw = json.choices?.[0]?.message?.content?.trim();
-      if (!raw) return { ok: false, error: "The marker returned an empty reply." };
-
-      const start = raw.indexOf("{");
-      const end = raw.lastIndexOf("}");
-      if (start === -1 || end === -1) return { ok: false, error: "The marker returned an unreadable reply." };
-
-      const parsed = responseShape.safeParse(JSON.parse(raw.slice(start, end + 1)));
-      if (!parsed.success) return { ok: false, error: "The marker returned an unexpected format." };
-
-      const score = clamp(parsed.data.score);
-      const supplied = new Set((data.criteria ?? []).map((c) => c.id));
-      const criteria = parsed.data.criteria
-        .filter((c) => supplied.has(c.id))
-        .map((c) => ({ id: c.id, correct: c.correct, feedback: c.feedback.trim() }));
-
-      // Silent self-check: marking drives progress, so every mark is moderated.
-      const reviewed = await reviewGrade({
-        topic: data.topic,
-        question: data.question,
-        answer: data.answer,
-        modelAnswer: data.modelAnswer,
-        expectedPoints: data.expectedPoints,
-        grade: {
-          score,
-          verdict: parsed.data.verdict.trim(),
-          strengths: parsed.data.strengths.map((s) => s.trim()).filter(Boolean).slice(0, 6),
-          missed: parsed.data.missed.map((s) => s.trim()).filter(Boolean).slice(0, 8),
-          correctedAnswer: parsed.data.correctedAnswer.trim(),
-          followUp: parsed.data.followUp.trim(),
-        },
-      });
-
-      const grade: WrittenGrade = {
-        ...reviewed,
-        correct: reviewed.score >= 70,
-        criteria,
-        aiMarked: true,
-      };
-      if (cacheKey) await writeAiCache(cacheKey, "grading", grade);
-      return { ok: true, grade };
+      parsed = responseShape.safeParse(JSON.parse(raw.slice(start, end + 1)));
     } catch {
-      return { ok: false, error: "Could not reach the AI marker. Your answer was still saved." };
+      return { ok: false, error: "The marker returned an unreadable reply." };
     }
+    if (!parsed.success) return { ok: false, error: "The marker returned an unexpected format." };
+
+    const score = clamp(parsed.data.score);
+    const supplied = new Set((data.criteria ?? []).map((c) => c.id));
+    const criteria = parsed.data.criteria
+      .filter((c) => supplied.has(c.id))
+      .map((c) => ({ id: c.id, correct: c.correct, feedback: c.feedback.trim() }));
+
+    // Selective self-check: marking drives progress, so every mark is moderated.
+    const reviewed = await reviewGrade({
+      topic: data.topic,
+      question: data.question,
+      answer: data.answer,
+      modelAnswer: data.modelAnswer,
+      expectedPoints: data.expectedPoints,
+      userId: context.userId,
+      grade: {
+        score,
+        verdict: parsed.data.verdict.trim(),
+        strengths: parsed.data.strengths.map((s) => s.trim()).filter(Boolean).slice(0, 6),
+        missed: parsed.data.missed.map((s) => s.trim()).filter(Boolean).slice(0, 8),
+        correctedAnswer: parsed.data.correctedAnswer.trim(),
+        followUp: parsed.data.followUp.trim(),
+      },
+    });
+
+    const grade: WrittenGrade = {
+      ...reviewed,
+      correct: reviewed.score >= 70,
+      criteria,
+      aiMarked: true,
+    };
+    if (key) await writeCache({ key, feature: "grading", value: grade, model: result.model });
+    return { ok: true, grade };
   });
