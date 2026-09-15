@@ -89,6 +89,46 @@ export interface QuizDiagnostic {
   guidance: string;
   recommendation: Recommendation | null;
   recommendedTitles: string[];
+  calibration: Calibration;
+}
+
+/** Deterministic: counts stated certainty against the marking, nothing inferred. */
+function buildCalibration(items: QuestionDiagnostic[]): Calibration {
+  const rated = items.filter((item) => item.confidence);
+  const sure = rated.filter((item) => item.confidence === "sure");
+  const unsure = rated.filter((item) => item.confidence === "unsure");
+  const guess = rated.filter((item) => item.confidence === "guess");
+  const sureWrong = sure.filter((item) => !item.correct).length;
+  const unsureRight = unsure.filter((item) => item.correct).length;
+  const guessRight = guess.filter((item) => item.correct).length;
+
+  const note = (() => {
+    if (rated.length < 3) return "";
+    if (sureWrong >= 2) {
+      return `Worth knowing: you marked ${sure.length} as sure and ${sureWrong} of those missed. That gap is the useful bit, because it shows where something feels settled before it is, and those are the ones I would check again rather than skip.`;
+    }
+    if (sureWrong === 0 && sure.length >= 2) {
+      return `One thing I noticed: everything you marked as sure came back correct. Your read on your own answers is accurate, which means I can trust it when you say you are unsure.`;
+    }
+    if (guessRight >= 2) {
+      return `Heads up on the ${guessRight} you guessed and still got right. Those look fine on the score but I am not counting them as proven, so they will come back around.`;
+    }
+    if (unsureRight >= 2) {
+      return `You got ${unsureRight} right that you were not sure about. The knowledge is further along than it feels, which is normal at this stage.`;
+    }
+    return "";
+  })();
+
+  return {
+    rated: rated.length,
+    sureTotal: sure.length,
+    sureWrong,
+    unsureTotal: unsure.length,
+    unsureRight,
+    guessTotal: guess.length,
+    guessRight,
+    note,
+  };
 }
 
 function topicTitle(topicId: string): string {
