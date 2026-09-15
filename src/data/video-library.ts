@@ -6,10 +6,10 @@
  * Where he does not, we link his video channel and say so plainly rather than
  * inventing a course that does not exist.
  */
+import { messerTopicVideos } from "@/data/messer-topic-videos";
 import type { Certification, Resource, Topic } from "@/lib/app-data/types";
 
-const LAST_VERIFIED = "2026-09-12";
-const CHANNEL_URL = "https://www.youtube.com/@professormesser";
+const LAST_VERIFIED = "2026-09-15";
 
 interface MesserCourse {
   slug: string;
@@ -78,14 +78,50 @@ export function buildMesserResources(
       }));
     }
 
+    // No dedicated course exists for this certification, and linking the bare
+    // channel sends learners to a front page. Their topics carry curated
+    // per-topic videos instead, so nothing cert-wide is added here.
+    return [];
+  });
+}
+
+/**
+ * Real Professor Messer video links for each topic.
+ *
+ * Each topic gets its curated set of specific video pages (see
+ * messer-topic-videos.ts), so a learner lands on the video for the subject they
+ * are studying instead of a channel front page. Any topic without a curated set
+ * falls back to a search of Professor Messer's own site, which still returns his
+ * videos on that subject.
+ */
+export function buildTopicVideoResources(topicList: Topic[]): Resource[] {
+  return topicList.flatMap((topic): Resource[] => {
+    const curated = messerTopicVideos[topic.id];
+
+    if (curated && curated.length > 0) {
+      return curated.map((video, index) => ({
+        id: `resource-messer-video-${topic.id}-${index + 1}`,
+        title: `${video.title} — Professor Messer, ${video.exam} objective ${video.objective}`,
+        provider: "Professor Messer",
+        url: video.url,
+        topicIds: [topic.id],
+        certificationId: topic.certificationId,
+        kind: "video" as const,
+        difficulty: "standard" as const,
+        access: "free" as const,
+        lastVerified: LAST_VERIFIED,
+        status: "verified" as const,
+      }));
+    }
+
     return [
       {
-        id: `resource-messer-channel-${certification.id}`,
-        title: `Professor Messer video channel — general CompTIA training (no dedicated ${certification.title} course)`,
+        id: `resource-messer-topic-${topic.id}`,
+        title: `Professor Messer videos on ${topic.title}`,
         provider: "Professor Messer",
-        url: CHANNEL_URL,
-        topicIds,
-        certificationId: certification.id,
+        url: `https://www.professormesser.com/?s=${encodeURIComponent(topic.title)}`,
+        topicIds: [topic.id],
+        certificationId: topic.certificationId,
         kind: "video" as const,
         difficulty: "standard" as const,
         access: "free" as const,
@@ -94,26 +130,4 @@ export function buildMesserResources(
       },
     ];
   });
-}
-
-/**
- * One video resource per topic. Professor Messer does not publish a stable
- * per-topic URL for every subject, so instead of inventing links we point at a
- * real channel search scoped to the topic title. The page always exists and
- * always returns that topic's videos from his own channel.
- */
-export function buildTopicVideoResources(topicList: Topic[]): Resource[] {
-  return topicList.map((topic) => ({
-    id: `resource-messer-topic-${topic.id}`,
-    title: `Professor Messer videos on ${topic.title}`,
-    provider: "Professor Messer",
-    url: `${CHANNEL_URL}/search?query=${encodeURIComponent(topic.title)}`,
-    topicIds: [topic.id],
-    certificationId: topic.certificationId,
-    kind: "video" as const,
-    difficulty: "standard" as const,
-    access: "free" as const,
-    lastVerified: LAST_VERIFIED,
-    status: "verified" as const,
-  }));
 }
