@@ -358,20 +358,39 @@ function QuizReview({
           value={passScore ? (attempt.score >= passScore ? "Passed" : "Not passed") : attempt.total}
         />
       </div>
-      <GaylNote
-        {...quizResultInsight({
-          score: attempt.score,
-          correct: attempt.correct,
-          total: attempt.total,
-          weakTopicTitles: attempt.recommendedTopicIds.map((id) => topicName(id)),
-        })}
-      />
+      {diagnostic.items.length > 0 ? (
+        <GaylNote
+          message={`${diagnostic.explanation} ${diagnostic.guidance}`}
+          why={[
+            `${attempt.correct} of ${attempt.total} answers landed in this attempt.`,
+            ...diagnostic.weakest
+              .slice(0, 2)
+              .map(
+                (skill) =>
+                  `${skill.title}: ${skill.correct} of ${skill.total}${
+                    skill.appliedTotal > 0 ? `, applied ${skill.appliedCorrect} of ${skill.appliedTotal}` : ""
+                  }.`,
+              ),
+            ...diagnostic.topCauses.slice(0, 2).map((entry) => `${entry.label} came up ${entry.count} time(s).`),
+            "I use this as evidence about the work, never as a label for you.",
+          ]}
+        />
+      ) : (
+        <GaylNote
+          {...quizResultInsight({
+            score: attempt.score,
+            correct: attempt.correct,
+            total: attempt.total,
+            weakTopicTitles: attempt.recommendedTopicIds.map((id) => topicName(id)),
+          })}
+        />
+      )}
       {diagnostic.items.length > 0 ? (
         <Panel
-          title="What this attempt showed"
-          description="Read from every answer in this attempt: the skill behind each question, how it was asked, and where it held or slipped."
+          title="What I looked at"
+          description="Every answer in this attempt: the skill behind the question, how it was asked, and where it held or slipped."
         >
-          <p className="text-sm">{diagnostic.explanation}</p>
+
 
           {diagnostic.strongest.length > 0 || diagnostic.weakest.length > 0 ? (
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
