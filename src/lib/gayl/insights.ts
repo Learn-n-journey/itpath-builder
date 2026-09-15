@@ -108,7 +108,7 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
     case "confident_but_wrong":
       return {
         message:
-          "Some answers here went wrong quickly, which usually means an idea is being remembered slightly differently than it works. Worth slowing down on the explanation rather than repeating the questions.",
+          "A few answers here came back as quick misses, which usually means an idea is being remembered slightly differently than it works. Worth slowing down on the explanation rather than repeating the questions.",
         why,
       };
     case "prerequisite_gap":
@@ -127,7 +127,7 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
     case "troubleshooting_failure":
       return {
         message:
-          "The facts are here, but the fault-finding process is where it comes apart. An incident or scenario is the better next step.",
+          "The facts are here, but the fault-finding process is the part that needs work. An incident or scenario is the better next step.",
         why,
       };
     case "solid":
@@ -168,7 +168,7 @@ export function quizResultInsight(input: {
         : `Misses spread across ${spread} topics rather than sitting in one place. One attempt does not tell me whether that is thin coverage or slipping recall, so a second pass on those topics will.`;
   } else {
     message =
-      "A low score here is information, not a verdict. It usually means the material hasn't had enough exposure yet, or something underneath it is still shaky.";
+      "A low score here is information, not a verdict. It usually means the material hasn't had enough exposure yet, or something underneath it is not solid yet.";
   }
 
   return {
@@ -235,7 +235,7 @@ export function reviewInsight(intel: Intelligence): GaylInsight | null {
   if (errors.length > 0) parts.push(`${errors.length} where a mistake is still unfixed`);
 
   return {
-    message: `These came back because of timing and mistakes still open, not because you did badly. There ${due.length + fading.length + errors.length === 1 ? "is" : "are"} ${parts.join(", ")}.`,
+    message: `These came back because of timing and mistakes still open, not as a judgement of your work. There ${due.length + fading.length + errors.length === 1 ? "is" : "are"} ${parts.join(", ")}.`,
     why: intel.queue
       .slice(0, 4)
       .map((concept) => `${concept.title}: ${concept.evidence}`),
