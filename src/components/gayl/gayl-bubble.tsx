@@ -82,6 +82,32 @@ export function GaylBubble() {
               </p>
               <p className="mt-1 text-sm leading-6 text-foreground">{alert.message}</p>
 
+              <ul className="mt-3 space-y-2">
+                {alert.problems.map((problem) => (
+                  <li
+                    key={problem.topicId}
+                    className="rounded-md border border-destructive/40 bg-destructive/5 p-2"
+                  >
+                    <p className="flex items-start gap-1.5 text-xs font-medium text-foreground">
+                      <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" aria-hidden />
+                      <Link
+                        to="/topics/$topicId"
+                        params={{ topicId: problem.topicId }}
+                        className="hover:text-primary"
+                      >
+                        {problem.title}
+                      </Link>
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {problem.issue}
+                      {problem.detail ? `. Still open on: ${problem.detail}` : ""}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+
+
+
               {alert.why && alert.why.length > 0 ? (
                 <>
                   <button
