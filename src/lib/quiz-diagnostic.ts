@@ -257,6 +257,7 @@ export function buildQuizDiagnostic(
         correctAnswer: question.correctAnswer,
         cause,
         causeLabel: mistakeCauseLabels[cause],
+        ...(result.confidence ? { confidence: result.confidence } : {}),
       },
     ];
   });
