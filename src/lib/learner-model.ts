@@ -286,11 +286,28 @@ function decide(
     };
   }
 
-  if (retention < 0.55 && daysSinceExposure !== null) {
+  // Only call it fading when there is a record to fade from: several graded
+  // results, at least two of them right, and real time since the last one.
+  // A thin record with a low recall number is unproven, not forgotten.
+  if (
+    retention < 0.55 &&
+    daysSinceExposure !== null &&
+    daysSinceExposure >= 7 &&
+    attempts >= 4 &&
+    profile.correct >= 2
+  ) {
     return {
       action: "review",
-      reason: `Last worked ${Math.round(daysSinceExposure)} days ago, recall is fading.`,
+      reason: `Last worked ${Math.round(daysSinceExposure)} days ago, and recall has dropped since then.`,
       priority: 70 + (1 - retention) * 20,
+    };
+  }
+
+  if (retention < 0.55 && (attempts < 4 || profile.correct < 2)) {
+    return {
+      action: "test",
+      reason: `Only ${attempts} graded answer(s) recorded here, so this is unproven rather than forgotten.`,
+      priority: 55,
     };
   }
 
