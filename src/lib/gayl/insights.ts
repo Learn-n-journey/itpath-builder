@@ -140,7 +140,7 @@ export function quizResultInsight(input: {
     message =
       spread <= 1
         ? "A mixed result concentrated in one area. That's usually one idea to clear up rather than the whole subject."
-        : `Misses spread across ${spread} topics. That often means recall is fading rather than the material being misunderstood.`;
+        : `Misses spread across ${spread} topics rather than sitting in one place. One attempt does not tell me whether that is thin coverage or slipping recall, so a second pass on those topics will.`;
   } else {
     message =
       "A low score here is information, not a verdict. It usually means the material hasn't had enough exposure yet, or something underneath it is still shaky.";
