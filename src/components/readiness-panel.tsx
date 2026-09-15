@@ -66,7 +66,7 @@ export function ReadinessPanel({
             <p className="text-muted-foreground">No study time outstanding at your current pace.</p>
           ) : (
             <p className="text-muted-foreground">
-              About {report.weeksRemaining} week{report.weeksRemaining === 1 ? "" : "s"} away —
+              About {report.weeksRemaining} week{report.weeksRemaining === 1 ? "" : "s"} away,
               roughly {report.projectedReadyDate?.toLocaleDateString(undefined, {
                 month: "long",
                 year: "numeric",

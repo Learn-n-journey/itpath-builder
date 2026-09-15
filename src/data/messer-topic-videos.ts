@@ -1,7 +1,7 @@
 /**
  * Curated Professor Messer videos, one small set per topic.
  *
- * Every entry below points at a specific video page on professormesser.com —
+ * Every entry below points at a specific video page on professormesser.com,
  * not the channel, not a search. Each URL was opened and returned HTTP 200 on
  * the date in LAST_VERIFIED. Where a topic belongs to a certification Professor
  * Messer does not cover directly (Linux+, Server+, Cloud+, CySA+, PenTest+,
