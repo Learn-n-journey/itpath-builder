@@ -202,12 +202,34 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
     const onTargetPath = targetIds.has(topic.id);
     const forgettingRisk = (1 - profile.retention) * (0.4 + 0.6 * profile.mastery);
 
+    // 8. Adapt — ranking reflects cause, decay, uncertainty and measured progress.
     let priority = DIAGNOSIS_WEIGHT[diagnosis];
     priority += (1 - profile.mastery) * 20;
     priority += forgettingRisk * 18;
     priority += Math.min(timing.daysOverdue, 14) * 1.5;
     priority += Math.min(unresolvedMistakes, 5) * 3;
+    // A cheap test that settles an unclear cause is worth doing early.
+    if (prescription.isDiagnostic) priority += 6;
+    // Concepts already climbing need less intervention than stalled ones.
+    if (velocity > 5) priority -= 6;
+    if (velocity < -5) priority += 6;
+    // Claiming a concept is fine on one activity type is not enough to drop it.
+    if (diagnosis === "solid" && strength.independentSources < 2) priority += 14;
     if (!onTargetPath) priority -= 30;
+
+    const trace = buildTrace({
+      strength,
+      transfer,
+      state: stateAssessment.state,
+      stateBlockedBy: stateAssessment.blockedBy,
+      diagnosis,
+      hypotheses,
+      prescription,
+      history,
+      velocity,
+      timing,
+      priority,
+    });
 
     const partial: Omit<ConceptIntel, "evidence"> = {
       topicId: topic.id,
