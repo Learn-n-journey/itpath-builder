@@ -341,7 +341,12 @@ function QuizReview({
   onRetake: () => void;
   onSelectAttempt: (id: string) => void;
 }) {
+  const { user } = useAppState();
   const topicName = (id: string) => topics.find((topic) => topic.id === id)?.title ?? id;
+  const diagnostic = useMemo(
+    () => buildQuizDiagnostic(user, pool, attempt.results),
+    [attempt.results, pool, user],
+  );
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
