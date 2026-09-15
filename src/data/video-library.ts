@@ -10,7 +10,6 @@ import { messerTopicVideos } from "@/data/messer-topic-videos";
 import type { Certification, Resource, Topic } from "@/lib/app-data/types";
 
 const LAST_VERIFIED = "2026-09-15";
-const CHANNEL_URL = "https://www.youtube.com/@professormesser";
 
 interface MesserCourse {
   slug: string;
@@ -79,21 +78,10 @@ export function buildMesserResources(
       }));
     }
 
-    return [
-      {
-        id: `resource-messer-channel-${certification.id}`,
-        title: `Professor Messer video channel — general CompTIA training (no dedicated ${certification.title} course)`,
-        provider: "Professor Messer",
-        url: CHANNEL_URL,
-        topicIds,
-        certificationId: certification.id,
-        kind: "video" as const,
-        difficulty: "standard" as const,
-        access: "free" as const,
-        lastVerified: LAST_VERIFIED,
-        status: "verified" as const,
-      },
-    ];
+    // No dedicated course exists for this certification, and linking the bare
+    // channel sends learners to a front page. Their topics carry curated
+    // per-topic videos instead, so nothing cert-wide is added here.
+    return [];
   });
 }
 
