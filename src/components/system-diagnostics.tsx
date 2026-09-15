@@ -343,17 +343,18 @@ export function SystemDiagnostics() {
     );
     const intervalsOk =
       seedReview.interval === 1 &&
-      firstPass.review.interval === 3 &&
-      secondPass.review.interval === 7 &&
-      afterFail.review.interval === 1 &&
+      firstPass.review.interval > seedReview.interval &&
+      secondPass.review.interval > firstPass.review.interval &&
+      afterFail.review.interval < secondPass.review.interval &&
+      (afterFail.review.ease ?? 0) < (secondPass.review.ease ?? 0) &&
       afterFail.review.lapses === 1 &&
       afterFail.review.successStreak === 0;
     results.push({
-      name: "Review interval ladder",
+      name: "Adaptive review spacing",
       pass: intervalsOk,
       detail: intervalsOk
-        ? "Passing advances 1 → 3 → 7 days and failing shortens the interval back down."
-        : "Interval scheduling did not follow the 1/3/7/14/30/60/90 ladder.",
+        ? "Each pass stretches the gap and each miss shortens it, with the growth rate learned from the outcomes."
+        : "Spacing did not respond to pass and fail outcomes as expected.",
     });
 
     const storedAttempts =
