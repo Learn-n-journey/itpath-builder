@@ -61,8 +61,18 @@ export interface ConceptProfile {
   topicId: EntityId;
   title: string;
   certificationId: EntityId;
-  /** 0-1 probability the learner knows this concept right now. */
+  /**
+   * 0-1 probability the learner knows this concept right now, after the raw
+   * evidence has been adjusted for forgetting, repeated errors and unproven
+   * prerequisites. Unattempted work counts as zero, never as mastered.
+   */
   mastery: number;
+  /** Raw full-scope evidence score before those adjustments, 0-1. */
+  evidenceMastery: number;
+  /** Share of the topic's available activities that has been attempted, 0-1. */
+  coverage: number;
+  /** True once mastery is high enough to call the concept demonstrated. */
+  proven: boolean;
   /** 0-1 confidence in the mastery number, from how much evidence exists. */
   confidence: number;
   /** 0-1 probability the concept is still retrievable today. */
@@ -96,8 +106,21 @@ export interface LearnerModel {
   totalSignals: number;
   /** Concepts with any evidence at all. */
   studied: number;
-  /** Mean mastery across studied concepts. */
+  /** Mean mastery across every available concept, unattempted ones included. */
   averageMastery: number;
+  /** The certification path the learner is working towards. */
+  pathCertificationId: EntityId;
+  pathCertificationTitle: string;
+  /** Number of concepts in that path. */
+  pathTopics: number;
+  /** Mean mastery across every concept in the path, unattempted counted as zero. */
+  pathMastery: number;
+  /** Share of the path's available activities attempted so far, 0-1. */
+  pathCoverage: number;
+  /** Concepts in the path with demonstrated mastery. */
+  pathProven: number;
+  /** Concepts in the path still unproven (weak or never attempted). */
+  pathUnproven: number;
   studyNext: ConceptProfile[];
   reviewNext: ConceptProfile[];
   testNext: ConceptProfile[];
