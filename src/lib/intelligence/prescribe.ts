@@ -66,9 +66,11 @@ export interface PrescribeOptions {
 }
 
 /**
- * Difficulty steps up when the learner is accurate and quick, and down after
- * repeated failure, so material is never pitched above current ability. The
- * learning state acts as a ceiling: nothing fragile is set at advanced.
+ * Difficulty steps up when the learner is accurate over enough recorded work,
+ * and down after repeated failure, so material is never pitched above current
+ * ability. The learning state acts as a ceiling: nothing fragile is set at
+ * advanced. Speed is deliberately not a condition, because rewarding quick
+ * answers encourages rushing, which is the very habit the engine flags.
  */
 export function difficultyFor(
   profile: ConceptProfile,
@@ -78,9 +80,9 @@ export function difficultyFor(
   if (diagnosis === "never_learned" || diagnosis === "prerequisite_gap") return "foundation";
   if (state === "unknown" || state === "emerging") return "foundation";
 
-  const fast = profile.avgResponseSeconds !== null && profile.avgResponseSeconds <= 30;
+  const enoughWork = profile.attempts >= 6;
   let band: DifficultyBand = "foundation";
-  if (profile.mastery >= 0.8 && profile.accuracy >= 0.8 && fast) band = "advanced";
+  if (profile.mastery >= 0.8 && profile.accuracy >= 0.8 && enoughWork) band = "advanced";
   else if (profile.mastery >= 0.6 && profile.accuracy >= 0.6) band = "core";
 
   // A fragile concept is never pitched above core, whatever the averages say.
