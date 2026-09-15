@@ -109,3 +109,6 @@
 - [x] Write full deep lessons + depth layer for the 5 Mobile Devices topics (hardware, connectivity, configuration, security/MDM, troubleshooting)
 - [x] Confirmed lessons already link in-app resources via the MediaPanel on each topic page
 - [ ] Optional: add per-topic (rather than per-certification) video resources — today every topic links the whole Messer course
+
+## Open
+- [ ] Practice stage: more than one question per topic (currently getPracticeActivity returns a single activity)

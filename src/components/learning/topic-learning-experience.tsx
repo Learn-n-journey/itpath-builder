@@ -17,7 +17,7 @@ import { getDeepLesson } from "@/data/deep-lessons";
 import { DeepLessonReading } from "@/components/learning/deep-lesson-reading";
 import { LessonDepthReading } from "@/components/learning/lesson-depth-reading";
 import { WorkedExamples } from "@/components/learning/worked-examples";
-import { getLearningModule, getPracticeActivity, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
+import { getLearningModule, getPracticeActivities, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
 import type { TopicProgress } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { topicScopeProgress } from "@/lib/scope-progress";
@@ -54,7 +54,8 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const module = getLearningModule(topic.id);
   const deepLesson = getDeepLesson(topic.id);
   const recallQuestions = getRecallQuestions(topic.id);
-  const practice = getPracticeActivity(topic.id);
+  const practiceActivities = getPracticeActivities(topic.id);
+  const practice = practiceActivities[0];
   const scenario = getRealWorldScenario(topic.id);
   const savedTeachBack = user.teachBackResponses[topic.id];
   const savedScenario = user.scenarioResponses[topic.id];
@@ -74,8 +75,21 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const [recallAnswers, setRecallAnswers] = useState<Record<string, string>>(savedRecall.answers);
   const [recallFeedback, setRecallFeedback] = useState<Record<string, { correct: boolean; message: string }>>(savedRecall.feedback);
 
-  const [practiceChoice, setPracticeChoice] = useState<number | null>(null);
-  const [practiceFeedback, setPracticeFeedback] = useState<string | null>(null);
+  // Practice work is kept per question, so leaving the page does not wipe it.
+  const savedPractice = useMemo(() => {
+    const choices: Record<string, number> = {};
+    const feedback: Record<string, string> = {};
+    for (const response of [...user.practiceResponses]
+      .filter((item) => item.topicId === topic.id)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
+      choices[response.activityId] = response.selectedIndex;
+      const activity = practiceActivities.find((item) => item.id === response.activityId);
+      feedback[response.activityId] = `${response.correct ? "Correct. " : "Not yet. "}${activity?.explanation ?? ""}`;
+    }
+    return { choices, feedback };
+  }, [user.practiceResponses, topic.id, practiceActivities]);
+  const [practiceChoices, setPracticeChoices] = useState<Record<string, number>>(savedPractice.choices);
+  const [practiceFeedback, setPracticeFeedback] = useState<Record<string, string>>(savedPractice.feedback);
   const [teachBack, setTeachBack] = useState(savedTeachBack?.body ?? "");
   const [teachBackEditing, setTeachBackEditing] = useState(!savedTeachBack);
   const [scenarioAnswer, setScenarioAnswer] = useState(savedScenario?.response ?? "");
@@ -105,6 +119,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     setRecallFeedback((current) => ({ ...savedRecall.feedback, ...current }));
   }, [savedRecall]);
   useEffect(() => { setRecallAnswers(savedRecall.answers); setRecallFeedback(savedRecall.feedback); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [topic.id]);
+
+  useEffect(() => {
+    setPracticeChoices((current) => ({ ...savedPractice.choices, ...current }));
+    setPracticeFeedback((current) => ({ ...savedPractice.feedback, ...current }));
+  }, [savedPractice]);
+  useEffect(() => { setPracticeChoices(savedPractice.choices); setPracticeFeedback(savedPractice.feedback); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [topic.id]);
 
   useEffect(() => { setTeachBack(savedTeachBack?.body ?? ""); setTeachBackEditing(!savedTeachBack); }, [savedTeachBack, topic.id]);
 
@@ -155,10 +175,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   }
 
   function submitPractice() {
-    if (!practice || practiceChoice === null) { toast.error("Choose an answer first."); return; }
-    const correct = practiceChoice === practice.answerIndex;
-    actions.addPracticeResponse({ id: crypto.randomUUID(), activityId: practice.id, topicId: topic.id, selectedIndex: practiceChoice, correct, createdAt: new Date().toISOString() });
-    setPracticeFeedback(`${correct ? "Correct. " : "Not yet. "}${practice.explanation}`);
+    const activity = practiceActivities.find((item) => item.id === activityId);
+    const choice = practiceChoices[activityId];
+    if (!activity || choice === undefined) { toast.error("Choose an answer first."); return; }
+    const correct = choice === activity.answerIndex;
+    actions.addPracticeResponse({ id: crypto.randomUUID(), activityId: activity.id, topicId: topic.id, selectedIndex: choice, correct, createdAt: new Date().toISOString() });
+    setPracticeFeedback((current) => ({ ...current, [activity.id]: `${correct ? "Correct. " : "Not yet. "}${activity.explanation}` }));
     raiseProgress({ application: Math.max(progress.application, correct ? 35 : 10), practicalAbility: Math.max(progress.practicalAbility, correct ? 25 : 10) });
   }
 

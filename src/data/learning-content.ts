@@ -1,3 +1,4 @@
+import { extraPracticeActivities } from "@/data/practice-extra";
 import { expansionModules, expansionPractice, expansionRecall, expansionScenarios } from "@/data/curriculum";
 import type { LearningModule, PracticeActivity, RecallQuestion, RealWorldScenario } from "@/lib/app-data/types";
 
@@ -137,7 +138,7 @@ const activitySeed: Array<[string, string, string, string[], number, string]> = 
   ["networking-basics", "Interpret address evidence", "A laptop has 169.254.22.9 and cannot reach its gateway. What should you investigate first?", ["DHCP availability", "Monitor cable", "DNS MX record", "Browser bookmarks"], 0, "APIPA strongly suggests the client did not receive a DHCP lease."],
   ["dns-fundamentals", "Separate DNS from connectivity", "A server answers by IP but its hostname fails. Which test is most direct?", ["Replace the network cable", "Query its A or AAAA record", "Add RAM", "Reinstall the OS"], 1, "Direct record queries test name resolution without confusing it with reachability."],
 ];
-export const practiceActivities: PracticeActivity[] = activitySeed.map(([slug, title, prompt, choices, answerIndex, explanation]) => ({ id: `practice-${slug}`, topicId: `topic-${slug}`, title, prompt, choices, answerIndex, explanation })).concat(expansionPractice);
+export const practiceActivities: PracticeActivity[] = activitySeed.map(([slug, title, prompt, choices, answerIndex, explanation]) => ({ id: `practice-${slug}`, topicId: `topic-${slug}`, title, prompt, choices, answerIndex, explanation })).concat(expansionPractice).concat(extraPracticeActivities);
 
 const scenarioSeed: Array<[string, string, string, string, string[], string]> = [
   ["computer-hardware-basics", "Intermittent workstation shutdown", "A design workstation powers off during rendering but runs normally at idle. Dust is visible around the rear vents.", "What is your first decision, and what evidence will you collect before replacing hardware?", ["temperature", "cooling", "fan", "power"], "Prioritize safe cooling and temperature checks, then verify power if heat is not the cause."],
@@ -154,4 +155,6 @@ export const realWorldScenarios: RealWorldScenario[] = scenarioSeed.map(([slug, 
 export function getLearningModule(topicId: string) { return learningModules.find((item) => item.topicId === topicId); }
 export function getRecallQuestions(topicId: string) { return recallQuestions.filter((item) => item.topicId === topicId); }
 export function getPracticeActivity(topicId: string) { return practiceActivities.find((item) => item.topicId === topicId); }
+/** Every practice question available on a topic, in a stable order. */
+export function getPracticeActivities(topicId: string) { return practiceActivities.filter((item) => item.topicId === topicId); }
 export function getRealWorldScenario(topicId: string) { return realWorldScenarios.find((item) => item.topicId === topicId); }

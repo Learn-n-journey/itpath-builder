@@ -37,7 +37,7 @@ const BY_DIAGNOSIS: Record<
   never_learned: { method: "read", route: "/topics/$topicId", minutes: 35, verb: "Start" },
   prerequisite_gap: { method: "read", route: "/topics/$topicId", minutes: 30, verb: "Go back to" },
   retrieval_failure: { method: "retrieval_drill", route: "/review", minutes: 15, verb: "Re-test" },
-  misconception: { method: "worked_example", route: "/weak-areas", minutes: 20, verb: "Unpick" },
+  misconception: { method: "worked_example", route: "/weak-areas", minutes: 20, verb: "Clear up" },
   application_failure: { method: "guided_practice", route: "/practice", minutes: 25, verb: "Apply" },
   troubleshooting_failure: { method: "scenario", route: "/troubleshoot", minutes: 25, verb: "Work a fault on" },
   confident_but_wrong: { method: "explain_back", route: "/quiz-me", minutes: 20, verb: "Slow down on" },

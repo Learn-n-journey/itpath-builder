@@ -6,20 +6,37 @@
  * open, and it stays quiet the rest of the time. Once a message is dismissed,
  * it does not come back until the underlying evidence changes.
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight, X } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronRight, X } from "lucide-react";
 
 import gaylAvatar from "@/assets/gayl-avatar.png";
+import { useAppState } from "@/state/app-state";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import { alertInsight } from "@/lib/gayl/insights";
+import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
 import { cn } from "@/lib/utils";
 
 const DISMISS_KEY = "itpath.gayl.bubble.dismissed";
 
+/** Shortens a question prompt so the note stays readable. */
+function trim(text: string): string {
+  const clean = text.replace(/\s+/g, " ").trim();
+  return clean.length > 120 ? `${clean.slice(0, 117)}...` : clean;
+}
+
 export function GaylBubble() {
   const intel = useIntelligence();
-  const alert = alertInsight(intel);
+  const { user } = useAppState();
+  const openDetail = useCallback(
+    (topicId: string) => {
+      const item = missedQuestions(user).find((entry) => entry.mistake.topicId === topicId);
+      return item ? trim(missedQuestionPrompt(item)) : null;
+    },
+    [user],
+  );
+  const alert = alertInsight(intel, openDetail);
+
   const [dismissed, setDismissed] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [showWhy, setShowWhy] = useState(false);
@@ -64,6 +81,32 @@ export function GaylBubble() {
                 </Link>
               </p>
               <p className="mt-1 text-sm leading-6 text-foreground">{alert.message}</p>
+
+              <ul className="mt-3 space-y-2">
+                {alert.problems.map((problem) => (
+                  <li
+                    key={problem.topicId}
+                    className="rounded-md border border-destructive/40 bg-destructive/5 p-2"
+                  >
+                    <p className="flex items-start gap-1.5 text-xs font-medium text-foreground">
+                      <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" aria-hidden />
+                      <Link
+                        to="/topics/$topicId"
+                        params={{ topicId: problem.topicId }}
+                        className="hover:text-primary"
+                      >
+                        {problem.title}
+                      </Link>
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      {problem.issue}
+                      {problem.detail ? `. Still open on: ${problem.detail}` : ""}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+
+
 
               {alert.why && alert.why.length > 0 ? (
                 <>
@@ -126,7 +169,7 @@ export function GaylBubble() {
           className="size-11 rounded-full"
         />
         {!open ? (
-          <span className="absolute right-1 top-1 size-2 rounded-full bg-primary" aria-hidden />
+          <span className="absolute right-0.5 top-0.5 size-3 rounded-full border-2 border-card bg-destructive" aria-hidden />
         ) : null}
       </button>
     </div>
