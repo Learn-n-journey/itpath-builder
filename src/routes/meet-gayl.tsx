@@ -44,7 +44,7 @@ function MeetGaylPage() {
         <Panel title="What GAYL stands for">
           <p className="text-sm text-muted-foreground">
             <span className="font-semibold text-foreground">GAYL</span> is short for{" "}
-            <span className="italic">Guided Adaptive Learning</span>. She is not a chatbot you talk
+            <span className="italic">Grades Aren't Your Legacy</span>. She is not a chatbot you talk
             to — she is the quiet engine running behind every page, turning your recorded work into
             a clear picture of what you know, what you are shaky on, and what you should do next.
           </p>
