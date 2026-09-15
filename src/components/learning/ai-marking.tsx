@@ -130,7 +130,10 @@ export function AiFeedback({
           <Badge variant={grade.correct ? "default" : "destructive"}>
             {grade.correct ? "Correct" : "Not yet"}
           </Badge>
-          <Badge variant="outline">Marked by AI</Badge>
+          <Badge variant="outline" className="gap-1.5">
+            <GaylMark />
+            Read by GAYL
+          </Badge>
         </div>
         {showScore ? <span className="text-sm tabular-nums">{grade.score}/100</span> : null}
       </div>
