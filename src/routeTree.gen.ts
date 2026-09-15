@@ -48,6 +48,7 @@ import { Route as WeakAreasRouteImport } from './routes/weak-areas'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
 import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
+import { Route as PracticeTestsCertIdRouteImport } from './routes/practice-tests.$certId'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -247,6 +248,11 @@ const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
   path: '/checkout/success',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PracticeTestsCertIdRoute = PracticeTestsCertIdRouteImport.update({
+  id: '/practice-tests/$certId',
+  path: '/practice-tests/$certId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TopicsIndexRoute = TopicsIndexRouteImport.update({
   id: '/topics/',
   path: '/topics/',
@@ -303,6 +309,7 @@ export interface FileRoutesByFullPath {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
   '/topics/': typeof TopicsIndexRoute
@@ -347,6 +354,7 @@ export interface FileRoutesByTo {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications': typeof CertificationsIndexRoute
   '/topics': typeof TopicsIndexRoute
@@ -392,6 +400,7 @@ export interface FileRoutesById {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
   '/topics/': typeof TopicsIndexRoute
@@ -438,6 +447,7 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/practice-tests/$certId'
     | '/topics/$topicId'
     | '/certifications/'
     | '/topics/'
@@ -482,6 +492,7 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/practice-tests/$certId'
     | '/topics/$topicId'
     | '/certifications'
     | '/topics'
@@ -526,6 +537,7 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/practice-tests/$certId'
     | '/topics/$topicId'
     | '/certifications/'
     | '/topics/'
@@ -571,6 +583,7 @@ export interface RootRouteChildren {
   WeakAreasRoute: typeof WeakAreasRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
+  PracticeTestsCertIdRoute: typeof PracticeTestsCertIdRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
   CertificationsIndexRoute: typeof CertificationsIndexRoute
   TopicsIndexRoute: typeof TopicsIndexRoute
@@ -852,6 +865,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/practice-tests/$certId': {
+      id: '/practice-tests/$certId'
+      path: '/practice-tests/$certId'
+      fullPath: '/practice-tests/$certId'
+      preLoaderRoute: typeof PracticeTestsCertIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/topics/': {
       id: '/topics/'
       path: '/topics'
@@ -915,6 +935,7 @@ const rootRouteChildren: RootRouteChildren = {
   WeakAreasRoute: WeakAreasRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
   CheckoutSuccessRoute: CheckoutSuccessRoute,
+  PracticeTestsCertIdRoute: PracticeTestsCertIdRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,
   CertificationsIndexRoute: CertificationsIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
