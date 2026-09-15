@@ -21,7 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { questions as allQuestions, topics } from "@/data/static-content";
-import type { Question, QuestionType, Quiz, QuizAttempt } from "@/lib/app-data/types";
+import type { AnswerConfidence, Question, QuestionType, Quiz, QuizAttempt } from "@/lib/app-data/types";
 import { recommendReview } from "@/lib/mistake-engine";
 import { buildQuizDiagnostic } from "@/lib/quiz-diagnostic";
 import { createQuizAttempt, scoreQuiz } from "@/lib/quiz-engine";
@@ -201,6 +201,12 @@ function QuizWorkspace({
       .map((id) => pool.find((item) => item.id === id))
       .filter((item): item is Question => Boolean(item));
     const result = scoreQuiz(orderedQuestions, attempt.responses);
+    // Keep what the learner said about each answer alongside the mark, so the
+    // engine reads confidence from them rather than guessing it from speed.
+    const stated = attempt.confidence ?? {};
+    result.results = result.results.map((item) =>
+      stated[item.questionId] ? { ...item, confidence: stated[item.questionId]! } : item,
+    );
     const now = new Date().toISOString();
     const submittedAttempt: QuizAttempt = {
       ...attempt,
@@ -262,6 +268,10 @@ function QuizWorkspace({
         <div className="mt-6">
           <QuestionInput question={question} choices={choices} response={response} onChange={updateResponse} />
         </div>
+        <ConfidencePicker
+          value={attempt.confidence?.[question.id]}
+          onChange={updateConfidence}
+        />
       </Panel>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Button variant="outline" onClick={() => setQuestionIndex(questionIndex - 1)} disabled={questionIndex === 0}>
