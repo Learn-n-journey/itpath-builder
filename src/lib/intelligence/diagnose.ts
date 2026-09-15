@@ -10,11 +10,22 @@ import type { TopicScopeProgress } from "@/lib/scope-progress";
 import type { Diagnosis } from "./types";
 
 const MS_DAY = 24 * 60 * 60 * 1000;
-/** Answers faster than this are not considered reasoned. */
+/**
+ * Speed is only a fallback signal. It says something about how an answer was
+ * given, but not much about how sure the learner was, so a fast miss counts as
+ * half of a stated one and never decides the diagnosis on its own.
+ */
 const FAST_ANSWER_MS = 12_000;
+const SPEED_WEIGHT = 0.5;
 
 export interface Measures {
+  /**
+   * Wrong answers the learner was sure about. Counted from what they said when
+   * asked, and only estimated from speed where nothing was said.
+   */
   confidentErrors: number;
+  /** How many of those came from a stated answer rather than an estimate. */
+  statedConfidentErrors: number;
   efficiency: number | null;
   recentFailureAfterSuccess: boolean;
 }
@@ -26,8 +37,9 @@ function graded(signal: LearnerSignal): number | null {
 }
 
 /**
- * Fast, assured, wrong: an answer under the fast threshold that was wrong on a
- * concept the learner had already answered correctly at least once.
+ * Sure and wrong: a miss on a concept the learner had already answered
+ * correctly, where they said they were sure. Where no confidence was given,
+ * a very fast miss is counted at half weight as a weaker stand-in.
  */
 export function measure(
   signals: LearnerSignal[],
@@ -40,6 +52,7 @@ export function measure(
 
   let seenCorrect = false;
   let confidentErrors = 0;
+  let statedConfidentErrors = 0;
   let recentFailureAfterSuccess = false;
   let totalMs = 0;
 
@@ -54,8 +67,15 @@ export function measure(
     if (outcome <= 0.4 && seenCorrect) {
       const ageDays = (nowMs - new Date(signal.at).getTime()) / MS_DAY;
       if (ageDays <= 30) recentFailureAfterSuccess = true;
-      if (typeof signal.elapsedMs === "number" && signal.elapsedMs < FAST_ANSWER_MS) {
-        confidentErrors += 1;
+
+      if (signal.confidence) {
+        // The learner told us. Nothing is inferred from how quick they were.
+        if (signal.confidence === "sure") {
+          confidentErrors += 1;
+          statedConfidentErrors += 1;
+        }
+      } else if (typeof signal.elapsedMs === "number" && signal.elapsedMs < FAST_ANSWER_MS) {
+        confidentErrors += SPEED_WEIGHT;
       }
     }
   }
@@ -63,7 +83,12 @@ export function measure(
   const hours = totalMs / (60 * 60 * 1000);
   const efficiency = hours >= 0.1 ? Math.round(scope.overall / hours) : null;
 
-  return { confidentErrors, efficiency, recentFailureAfterSuccess };
+  return {
+    confidentErrors: Number(confidentErrors.toFixed(1)),
+    statedConfidentErrors,
+    efficiency,
+    recentFailureAfterSuccess,
+  };
 }
 
 export interface DiagnoseInput {

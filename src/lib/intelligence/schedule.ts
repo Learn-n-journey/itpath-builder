@@ -7,7 +7,7 @@
  * anything the learner has already scheduled, this only adds an estimate for
  * concepts that have no review record yet.
  */
-import type { Review } from "@/lib/app-data/types";
+import type { Review, ReviewAttempt } from "@/lib/app-data/types";
 import type { ConceptIntel } from "./types";
 
 const MS_DAY = 24 * 60 * 60 * 1000;
@@ -18,8 +18,29 @@ export interface Timing {
 }
 
 /**
- * Half-life grows with mastery and exposure; the next touch is scheduled at the
- * point recall is expected to drop to about 80%.
+ * How this learner's memory compares with the default assumption.
+ *
+ * Taken from their own graded reviews: passing most of them means the gaps were
+ * too short for them and can stretch, missing many means the opposite. Below
+ * eight graded reviews there is not enough to personalise, so the default is
+ * used unchanged.
+ */
+export function personalHalfLifeFactor(attempts: ReviewAttempt[]): number {
+  const recent = attempts
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 30);
+  if (recent.length < 8) return 1;
+  const passRate = recent.filter((attempt) => attempt.outcome === "pass").length / recent.length;
+  // 0.8 is the recall the schedule aims for, so that point leaves it unchanged.
+  const factor = 1 + (passRate - 0.8) * 1.5;
+  return Number(Math.min(1.6, Math.max(0.6, factor)).toFixed(2));
+}
+
+/**
+ * Half-life grows with mastery and exposure, then is scaled by how this learner
+ * has actually held material. The next touch is scheduled at the point recall
+ * is expected to drop to about 80%.
  */
 export function timingFor(
   topicId: string,
@@ -28,6 +49,7 @@ export function timingFor(
   lastExposureAt: string | null,
   reviews: Review[],
   nowMs: number,
+  personalFactor = 1,
 ): Timing {
   const scheduled = reviews
     .filter((review) => review.topicId === topicId && review.status === "scheduled")
@@ -45,7 +67,7 @@ export function timingFor(
     return { nextReviewAt: new Date(nowMs).toISOString(), daysOverdue: 0 };
   }
 
-  const halfLife = 1.5 + mastery * 18 + Math.min(attempts, 12) * 1.5;
+  const halfLife = (1.5 + mastery * 18 + Math.min(attempts, 12) * 1.5) * personalFactor;
   const intervalDays = Math.max(1, halfLife * 0.32);
   const dueMs = new Date(lastExposureAt).getTime() + intervalDays * MS_DAY;
   return {

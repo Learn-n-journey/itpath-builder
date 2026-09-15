@@ -10,7 +10,12 @@
  *
  * Nothing here invents a result: every field comes from something the learner did.
  */
-import type { LearnerSignal, LearnerSignalKind, UserData } from "@/lib/app-data/types";
+import type {
+  AnswerConfidence,
+  LearnerSignal,
+  LearnerSignalKind,
+  UserData,
+} from "@/lib/app-data/types";
 
 let counter = 0;
 
@@ -30,6 +35,7 @@ export interface SignalInput {
   score?: number;
   elapsedMs?: number;
   errorTag?: string;
+  confidence?: AnswerConfidence;
   at?: string;
 }
 
@@ -50,6 +56,7 @@ export function createSignal(input: SignalInput): LearnerSignal {
     signal.elapsedMs = Math.round(input.elapsedMs);
   }
   if (input.errorTag) signal.errorTag = input.errorTag;
+  if (input.confidence) signal.confidence = input.confidence;
   return signal;
 }
 
@@ -80,6 +87,7 @@ export function derivedSignals(user: UserData): LearnerSignal[] {
             topicId: result.topicId,
             kind: "quiz",
             correct: result.correct,
+            ...(result.confidence ? { confidence: result.confidence } : {}),
             at: attempt.submittedAt ?? attempt.updatedAt,
           },
           perQuestion,

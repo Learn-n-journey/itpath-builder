@@ -23,7 +23,7 @@ import { evidenceStrength, gradedSignals, transferEvidence, velocityFrom } from 
 import { hypothesize } from "./hypothesis";
 import { interventionHistory } from "./interventions";
 import { prescribe } from "./prescribe";
-import { interleave, timingFor } from "./schedule";
+import { interleave, personalHalfLifeFactor, timingFor } from "./schedule";
 import { assessState, STATE_LABEL, STATE_MEANING, type LearningState } from "./states";
 import {
   DIAGNOSIS_LABEL,
@@ -179,6 +179,8 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
   const stream: LearnerSignal[] = evidenceStream(user);
   const path = adaptivePath(user);
   const targetIds = new Set(certificationTopics(path.certification.id).map((topic) => topic.id));
+  // Spacing estimates are scaled by how this learner has actually held material.
+  const halfLifeFactor = personalHalfLifeFactor(user.reviewAttempts);
 
   const byTopicSignals = new Map<EntityId, LearnerSignal[]>();
   for (const signal of stream) {
@@ -276,6 +278,7 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
       profile.lastExposureAt,
       user.reviews,
       nowMs,
+      halfLifeFactor,
     );
 
     const onTargetPath = targetIds.has(topic.id);

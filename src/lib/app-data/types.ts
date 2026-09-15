@@ -309,6 +309,8 @@ export interface QuizAttempt {
   questionOrder: EntityId[];
   choiceOrder: Record<EntityId, string[]>;
   responses: Record<EntityId, string[]>;
+  /** Stated confidence per question, when the learner chose one. */
+  confidence?: Record<EntityId, AnswerConfidence>;
   results: QuizQuestionResult[];
   score: number;
   total: number;
@@ -323,11 +325,16 @@ export interface QuizAttempt {
   submittedAt?: string;
 }
 
+/** How sure the learner said they were, asked before the answer is marked. */
+export type AnswerConfidence = "guess" | "unsure" | "sure";
+
 export interface QuizQuestionResult {
   questionId: EntityId;
   topicId: EntityId;
   correct: boolean;
   response: string[];
+  /** Stated confidence, when the learner chose one. */
+  confidence?: AnswerConfidence;
 }
 
 export interface RecallResponse {
@@ -435,6 +442,12 @@ export interface Review {
   successStreak: number;
   lapses: number;
   totalReviews: number;
+  /**
+   * How quickly this item's spacing grows for this learner. Starts at the
+   * default and moves with each graded review, so intervals are learned from
+   * outcomes rather than fixed.
+   */
+  ease?: number;
   lastReviewedAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -748,6 +761,8 @@ export interface LearnerSignal {
   score?: number;
   /** Time the learner took to answer, in milliseconds, when it was measured. */
   elapsedMs?: number;
+  /** What the learner said about how sure they were, when they were asked. */
+  confidence?: AnswerConfidence;
   /** Recorded misconception or error label, when the activity identified one. */
   errorTag?: string;
   at: string;

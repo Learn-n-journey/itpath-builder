@@ -5,13 +5,39 @@ import type {
   UserData,
 } from "@/lib/app-data/types";
 
-/** The fixed spacing ladder, in days. */
+/** Reference spacing steps, in days. Used for display and for starting points. */
 export const REVIEW_INTERVALS = [1, 3, 7, 14, 30, 60, 90] as const;
 
-/** How many steps a failed review drops back down the ladder. */
-const FAILURE_STEP_BACK = 2;
+/**
+ * Adaptive spacing.
+ *
+ * The gap is no longer a fixed ladder. Each item carries an "ease": how fast
+ * its spacing grows for this learner. A pass multiplies the gap by the ease and
+ * nudges the ease up, a pass on an overdue item nudges it up further because
+ * recall lasted longer than predicted, and a miss shortens the gap sharply and
+ * nudges the ease down. Two learners on the same topic therefore end up on
+ * different schedules, drawn from their own results.
+ */
+const DEFAULT_EASE = 2.2;
+const MIN_EASE = 1.3;
+const MAX_EASE = 3.2;
+/** Longest gap we will schedule, so nothing disappears for a year. */
+const MAX_INTERVAL_DAYS = 180;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+function clampEase(value: number): number {
+  return Math.min(MAX_EASE, Math.max(MIN_EASE, Number(value.toFixed(2))));
+}
+
+/** Nearest reference step, kept so existing displays and sorts still work. */
+function nearestIndex(days: number): number {
+  let best = 0;
+  for (let i = 0; i < REVIEW_INTERVALS.length; i += 1) {
+    if (Math.abs(REVIEW_INTERVALS[i]! - days) < Math.abs(REVIEW_INTERVALS[best]! - days)) best = i;
+  }
+  return best;
+}
 
 function addDays(from: Date, days: number): string {
   return new Date(from.getTime() + days * DAY_MS).toISOString();
@@ -51,6 +77,7 @@ export function createReview(input: CreateReviewInput): Review {
     interval,
     intervalIndex: index,
     status: "scheduled",
+    ease: DEFAULT_EASE,
     successStreak: 0,
     lapses: 0,
     totalReviews: 0,
@@ -65,28 +92,43 @@ export interface GradeResult {
 }
 
 /**
- * Grades one review. Passing advances one step up the ladder; a pass at the top
- * marks the item mastered. Failing drops it back down and shortens the interval.
+ * Grades one review and learns the next gap from the outcome.
+ *
+ * Pass: the gap is multiplied by this item's ease, and the ease itself moves up
+ * a little, further if the item was already overdue when it was still recalled.
+ * Miss: the gap collapses to roughly a third and the ease moves down, so the
+ * item comes back sooner and grows more slowly from then on.
  */
 export function gradeReview(review: Review, outcome: ReviewOutcome, nowInput?: Date): GradeResult {
   const now = nowInput ?? new Date();
   const iso = now.toISOString();
-  const lastIndex = REVIEW_INTERVALS.length - 1;
   const passed = outcome === "pass";
-  const atTop = review.intervalIndex >= lastIndex;
+  const currentEase = review.ease ?? DEFAULT_EASE;
+  const daysLate = Math.max(
+    0,
+    Math.floor((startOfDay(now) - startOfDay(new Date(review.dueAt))) / DAY_MS),
+  );
 
-  const nextIndex = passed
-    ? Math.min(review.intervalIndex + 1, lastIndex)
-    : Math.max(review.intervalIndex - FAILURE_STEP_BACK, 0);
-  const nextInterval = intervalForIndex(nextIndex);
+  // Recalled later than predicted means the memory held longer than expected.
+  const recalledLate = passed && daysLate >= Math.max(1, review.interval * 0.5);
+  const nextEase = clampEase(
+    passed ? currentEase + (recalledLate ? 0.15 : 0.05) : currentEase - 0.25,
+  );
+
+  const nextInterval = passed
+    ? Math.min(MAX_INTERVAL_DAYS, Math.max(2, Math.round(review.interval * nextEase)))
+    : Math.max(1, Math.round(review.interval * 0.35));
+  const nextIndex = nearestIndex(nextInterval);
   const dueAt = addDays(now, nextInterval);
 
   const next: Review = {
     ...review,
+    ease: nextEase,
     intervalIndex: nextIndex,
     interval: nextInterval,
     dueAt,
-    status: passed && atTop ? "mastered" : "scheduled",
+    // Held for six months of spacing with no miss: nothing more to schedule.
+    status: passed && nextInterval >= MAX_INTERVAL_DAYS ? "mastered" : "scheduled",
     successStreak: passed ? review.successStreak + 1 : 0,
     lapses: passed ? review.lapses : review.lapses + 1,
     totalReviews: review.totalReviews + 1,
