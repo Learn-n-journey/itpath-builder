@@ -11,7 +11,7 @@ import { Link } from "@tanstack/react-router";
 import { AlertCircle, ChevronDown, ChevronRight, X } from "lucide-react";
 
 import gaylAvatar from "@/assets/gayl-avatar.png";
-import { useAppState } from "@/hooks/use-app-state";
+import { useAppState } from "@/state/app-state";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import { alertInsight } from "@/lib/gayl/insights";
 import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
