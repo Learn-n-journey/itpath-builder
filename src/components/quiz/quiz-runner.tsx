@@ -22,7 +22,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { questions as allQuestions, topics } from "@/data/static-content";
 import type { Question, QuestionType, Quiz, QuizAttempt } from "@/lib/app-data/types";
-import { causeFromQuestionCategory, recommendReview } from "@/lib/mistake-engine";
+import { recommendReview } from "@/lib/mistake-engine";
+import { buildQuizDiagnostic } from "@/lib/quiz-diagnostic";
 import { createQuizAttempt, scoreQuiz } from "@/lib/quiz-engine";
 import { useAppState } from "@/state/app-state";
 
@@ -210,8 +211,7 @@ function QuizWorkspace({
         topicId: item.topicId,
         activity: "quiz",
         category: item.cause,
-        severity:
-          item.difficulty === "challenging" ? "high" : item.difficulty === "foundational" ? "low" : "medium",
+        severity: item.difficulty === "challenging" ? "high" : item.difficulty === "gentle" ? "low" : "medium",
         ...(item.skillId ? { skillId: item.skillId } : {}),
         questionId: item.questionId,
         quizAttemptId: attempt.id,
