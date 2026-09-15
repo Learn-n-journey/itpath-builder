@@ -366,6 +366,99 @@ function QuizReview({
           weakTopicTitles: attempt.recommendedTopicIds.map((id) => topicName(id)),
         })}
       />
+      {diagnostic.items.length > 0 ? (
+        <Panel
+          title="What this attempt showed"
+          description="Read from every answer in this attempt: the skill behind each question, how it was asked, and where it held or slipped."
+        >
+          <p className="text-sm">{diagnostic.explanation}</p>
+
+          {diagnostic.strongest.length > 0 || diagnostic.weakest.length > 0 ? (
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-sm font-medium">Holding up</p>
+                {diagnostic.strongest.length ? (
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {diagnostic.strongest.slice(0, 3).map((skill) => (
+                      <li key={skill.title}>
+                        {skill.title}: {skill.correct} of {skill.total}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-muted-foreground">Nothing clearly proven yet in this attempt.</p>
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-medium">Asking for attention</p>
+                {diagnostic.weakest.length ? (
+                  <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                    {diagnostic.weakest.slice(0, 3).map((skill) => (
+                      <li key={skill.title}>
+                        {skill.title}: {skill.correct} of {skill.total}
+                        {skill.appliedTotal > 0
+                          ? `, applied ${skill.appliedCorrect} of ${skill.appliedTotal}`
+                          : ""}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-muted-foreground">Nothing stood out as weak here.</p>
+                )}
+              </div>
+            </div>
+          ) : null}
+
+          {diagnostic.topCauses.length > 0 ? (
+            <div className="mt-4">
+              <p className="text-sm font-medium">Likely reasons for the misses</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {diagnostic.topCauses.map((entry) => (
+                  <Badge key={entry.cause} variant="secondary">
+                    {entry.label} ({entry.count})
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {diagnostic.recommendation && diagnostic.recommendedTitles.length > 0 ? (
+            <div className="mt-4 rounded-md border border-border p-4">
+              <p className="text-sm font-medium">Review this next</p>
+              <p className="mt-1 text-sm text-muted-foreground">{diagnostic.recommendation.explanation}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {diagnostic.recommendedTitles.map((title) => (
+                  <Badge key={title} variant="outline">
+                    {title}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {diagnostic.missed.length > 0 ? (
+            <div className="mt-4">
+              <p className="text-sm font-medium">Missed question detail</p>
+              <div className="mt-2 space-y-2">
+                {diagnostic.missed.map((item) => (
+                  <div key={item.questionId} className="rounded-md border border-border p-3 text-sm">
+                    <p className="font-medium">
+                      {item.skillTitle}, {questionTypeLabels[item.type]}, {item.difficulty} level
+                    </p>
+                    <p className="mt-1 break-words text-muted-foreground">
+                      You chose: {item.selectedAnswer.join(", ") || "No answer"}
+                    </p>
+                    <p className="break-words text-muted-foreground">
+                      Correct: {item.correctAnswer.join(", ")}
+                    </p>
+                    <p className="text-muted-foreground">Likely reason: {item.causeLabel}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </Panel>
+      ) : null}
       <Panel
         title="Recommended review"
         description="Recommendations come directly from incorrect answers in this attempt."
