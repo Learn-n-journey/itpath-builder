@@ -247,7 +247,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       </div>
       <Tabs defaultValue="recall" className="space-y-4">
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
-        <TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Your Own Words</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
+        <TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Teach Back</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
       </TabsList>
       <TabsContent value="recall"><div className="space-y-4">{recallQuestions.map((question, index) => {
         const feedback = recallFeedback[question.id];
