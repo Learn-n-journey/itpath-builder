@@ -11,6 +11,8 @@
  * zero confidence, and is reported as untouched rather than weak.
  */
 import { topics } from "@/data/static-content";
+import { adaptivePath } from "@/lib/adaptive-path";
+import { certificationTopics } from "@/lib/cert-path";
 import { evidenceStream } from "@/lib/learner-signals";
 import type {
   EntityId,
