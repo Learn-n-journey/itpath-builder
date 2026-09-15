@@ -94,6 +94,7 @@ function severityRank(outcome: SkillOutcome): number {
   return outcome.accuracy * 100 - Math.min(outcome.total, 5);
 }
 
+/** GAYL speaking: what I can see in this attempt. */
 function buildExplanation(input: {
   strongest: SkillOutcome[];
   weakest: SkillOutcome[];
@@ -102,14 +103,14 @@ function buildExplanation(input: {
   correct: number;
 }): string {
   const { strongest, weakest, missed, total, correct } = input;
-  if (total === 0) return "No questions were scored in this attempt.";
+  if (total === 0) return "I don't have any scored answers from this one, so there's nothing I can read yet.";
   if (missed.length === 0) {
     return strongest[0]
-      ? `Everything held up here, including ${strongest[0].title}. The next useful check is whether it still holds after a gap.`
-      : "Everything held up here. The next useful check is whether it still holds after a gap.";
+      ? `That all held together, ${strongest[0].title.toLowerCase()} included. One clean run is a snapshot though, so I'd rather check it again later than call it finished.`
+      : "That all held together. One clean run is a snapshot though, so I'd rather check it again later than call it finished.";
   }
   if (missed.length === total && !strongest[0]) {
-    return "Nothing landed in this attempt, which usually means the material hasn't had enough exposure yet rather than that it is beyond you.";
+    return "None of these landed, and I read that as not enough time with the material yet rather than anything about you. We start from the bottom of it and build up.";
   }
 
   const weak = weakest[0];
@@ -122,21 +123,50 @@ function buildExplanation(input: {
     if (appliedGap && recallOk) {
       return `you're struggling to apply ${weak.title.toLowerCase()} in scenarios`;
     }
-    if (appliedGap) return `applying ${weak.title.toLowerCase()} in scenario questions is where it comes apart`;
+    if (appliedGap) return `using ${weak.title.toLowerCase()} in a scenario is where it comes apart`;
     return `${weak.title.toLowerCase()} is where the misses sat`;
   })();
 
   if (strong && weak) {
     const strongPhrase =
       strong.appliedTotal > 0 && strong.appliedCorrect === strong.appliedTotal
-        ? `You can use ${strong.title.toLowerCase()} in context`
-        : `You understand ${strong.title.toLowerCase()}`;
-    return `${strongPhrase}, but ${weakPhrase}.`;
+        ? `you can use ${strong.title.toLowerCase()} in context`
+        : `you understand ${strong.title.toLowerCase()}`;
+    return `Here's what I can see: ${strongPhrase}, but ${weakPhrase}. Those are two different things, and only the second one needs work.`;
   }
   if (weak) {
-    return `${correct} of ${total} landed, and ${weakPhrase}.`;
+    return `Here's what I can see: ${correct} of ${total} landed, and ${weakPhrase}. That looks like one specific gap rather than the whole subject.`;
   }
-  return `${correct} of ${total} landed, spread across several areas rather than one.`;
+  return `${correct} of ${total} landed, and the misses were spread around rather than sitting in one place. That usually points at recall slipping, not misunderstanding.`;
+}
+
+/** GAYL guiding the next move, from the same evidence. */
+function buildGuidance(input: {
+  weakest: SkillOutcome[];
+  missed: QuestionDiagnostic[];
+  recommendedTitles: string[];
+  topCause?: MistakeCause;
+}): string {
+  const { weakest, missed, recommendedTitles, topCause } = input;
+  if (missed.length === 0) {
+    return "Nothing needs fixing right now, so keep moving forward and I'll bring this back later to check it stuck.";
+  }
+
+  const focus = recommendedTitles[0] ?? weakest[0]?.title;
+  const weak = weakest[0];
+  const appliedGap = weak ? weak.appliedTotal > 0 && weak.appliedCorrect / weak.appliedTotal < 0.6 : false;
+
+  const how = (() => {
+    if (appliedGap) return "work through a scenario or a lab on it rather than more recall questions, since the facts are already there";
+    if (topCause === "didnt_know_fact") return "a short read and a recall pass should be enough, this is information that hasn't settled yet";
+    if (topCause === "rushed" || topCause === "misread_question") return "slow the reading down on the next set, the knowledge looked fine where you took your time";
+    if (topCause === "prerequisite_gap") return "go one step underneath it first, that's usually what makes the rest click";
+    if (topCause === "command_knowledge_gap") return "practise the commands in the simulator, typing them beats reading them";
+    return "reread the explanation before retrying the questions, repeating them cold tends to lock the same idea in";
+  })();
+
+  if (!focus) return `For the next step, ${how}.`;
+  return `So here's what I'd do next: start with ${focus}, and ${how}.`;
 }
 
 export function buildQuizDiagnostic(
