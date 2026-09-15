@@ -3,6 +3,7 @@ import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "l
 import { toast } from "sonner";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
+import { GaylLessonNote } from "@/components/gayl/gayl-insights";
 import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { Panel } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
@@ -183,6 +184,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   if (!lesson || !module || !practice || !scenario) return null;
 
   return <div className="space-y-4">
+    <GaylLessonNote topicId={topic.id} />
     <Panel title="Learning objectives">
       <ul className="space-y-3">{topic.learningObjectives.map((objective) => <li key={objective} className="flex gap-3 text-sm text-muted-foreground"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" /><span>{objective}</span></li>)}</ul>
     </Panel>
