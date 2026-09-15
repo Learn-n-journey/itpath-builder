@@ -139,7 +139,7 @@ export function quizResultInsight(input: {
   } else if (score >= 60) {
     message =
       spread <= 1
-        ? "A mixed result concentrated in one area, that's usually one idea to clear up rather than the whole subject."
+        ? "A mixed result concentrated in one area. That's usually one idea to clear up rather than the whole subject."
         : `Misses spread across ${spread} topics. That often means recall is fading rather than the material being misunderstood.`;
   } else {
     message =
@@ -182,7 +182,7 @@ export function troubleshootingInsight(scores: {
   const message =
     best[1] - worst[1] < 15
       ? `Your work was even across the whole process, no single step is dragging the rest down.`
-      : `The strongest part of this was ${best[0]}. The step costing you most was ${worst[0]}, that's process, not knowledge, and process is quick to change.`;
+      : `The strongest part of this was ${best[0]}. The step costing you most was ${worst[0]}. That's process rather than knowledge, and process is quick to change.`;
 
   return {
     message,
@@ -245,7 +245,7 @@ export function pathInsight(intel: Intelligence): GaylInsight | null {
     : top.evidence;
 
   return {
-    message: `Your order changed because of what you recorded, not a fixed curriculum. ${top.title} moved up: ${reason}`,
+    message: `Your order changed because of what you recorded, not a fixed curriculum. ${top.title} moved up because ${reason}`,
     why: intel.queue.slice(0, 4).map((concept) => `${concept.title}: ${concept.instruction}`),
   };
 }
