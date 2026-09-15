@@ -10,6 +10,7 @@
 import { getSkill, getSkillByTopic, type SkillNode } from "@/data/prerequisite-graph";
 import { topics } from "@/data/static-content";
 import type {
+  AnswerConfidence,
   Difficulty,
   MistakeCause,
   Question,
@@ -41,6 +42,8 @@ export interface QuestionDiagnostic {
   correctAnswer: string[];
   cause: MistakeCause;
   causeLabel: string;
+  /** What the learner said about this answer, when they said anything. */
+  confidence?: AnswerConfidence;
 }
 
 export interface SkillOutcome {
