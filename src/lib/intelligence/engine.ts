@@ -18,15 +18,21 @@ import { evidenceStream } from "@/lib/learner-signals";
 import { topicScopeProgress } from "@/lib/scope-progress";
 import type { EntityId, LearnerSignal, UserData } from "@/lib/app-data/types";
 import { diagnose, measure } from "./diagnose";
+import { evidenceStrength, gradedSignals, transferEvidence, velocityFrom } from "./evidence";
+import { hypothesize } from "./hypothesis";
+import { interventionHistory } from "./interventions";
 import { prescribe } from "./prescribe";
 import { interleave, timingFor } from "./schedule";
+import { assessState, STATE_LABEL, STATE_MEANING, type LearningState } from "./states";
 import {
   DIAGNOSIS_LABEL,
+  METHOD_LABEL,
   type ConceptIntel,
   type Diagnosis,
   type Intelligence,
   type LearningPlan,
   type PlanItem,
+  type TraceStep,
 } from "./types";
 
 /** How urgent each diagnosis is before mastery and forgetting are applied. */
