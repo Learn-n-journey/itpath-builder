@@ -174,7 +174,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     raiseProgress({ recall: Math.max(progress.recall, correct ? 35 : 10), retention: Math.max(progress.retention, correct ? 15 : 5) });
   }
 
-  function submitPractice() {
+  function submitPractice(activityId: string) {
     const activity = practiceActivities.find((item) => item.id === activityId);
     const choice = practiceChoices[activityId];
     if (!activity || choice === undefined) { toast.error("Choose an answer first."); return; }
@@ -183,6 +183,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     setPracticeFeedback((current) => ({ ...current, [activity.id]: `${correct ? "Correct. " : "Not yet. "}${activity.explanation}` }));
     raiseProgress({ application: Math.max(progress.application, correct ? 35 : 10), practicalAbility: Math.max(progress.practicalAbility, correct ? 25 : 10) });
   }
+
 
   async function saveTeachBack() {
     const body = teachBack.trim();
@@ -246,7 +247,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         const feedback = recallFeedback[question.id];
         return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={question.id}>Your answer</Label><Textarea id={question.id} className="mt-2" rows={4} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "Marking…" : "Check answer"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-primary" : "text-destructive"}`}>{feedback.correct ? "Correct. " : "Needs review. "}{feedback.message}</p> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
       })}</div></TabsContent>
-      <TabsContent value="practice"><Panel title={practice.title} description={practice.prompt}><div className="grid gap-2">{practice.choices.map((choice, index) => <Button key={choice} variant={practiceChoice === index ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" onClick={() => setPracticeChoice(index)}>{choice}</Button>)}</div><Button className="mt-4" onClick={submitPractice}>Check decision</Button>{practiceFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{practiceFeedback}</p> : null}</Panel></TabsContent>
+      <TabsContent value="practice"><div className="space-y-4">{practiceActivities.map((activity, index) => {
+        const chosen = practiceChoices[activity.id];
+        const feedback = practiceFeedback[activity.id];
+        return <Panel key={activity.id} title={`Practice ${index + 1}: ${activity.title}`} description={activity.prompt}><div className="grid gap-2">{activity.choices.map((choice, choiceIndex) => <Button key={choice} variant={chosen === choiceIndex ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" onClick={() => setPracticeChoices((current) => ({ ...current, [activity.id]: choiceIndex }))}>{choice}</Button>)}</div><Button className="mt-4" onClick={() => submitPractice(activity.id)}>Check decision</Button>{feedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{feedback}</p> : null}</Panel>;
+      })}</div></TabsContent>
+
       <TabsContent value="teach-back"><Panel title="Teach Back" description="Explain this topic in your own words. GAYL reads it back and tells you what your explanation shows.">{teachBackEditing ? <><Label htmlFor="teach-back">Your explanation</Label><Textarea id="teach-back" className="mt-2" rows={7} value={teachBack} onChange={(event) => setTeachBack(event.target.value)} /><div className="mt-3 flex flex-wrap gap-2"><Button disabled={teachBackMarking.busy} onClick={() => void saveTeachBack()}><Save />{teachBackMarking.busy ? "GAYL is reading…" : "Save"}</Button>{savedTeachBack ? <Button variant="outline" onClick={() => { setTeachBack(savedTeachBack.body); setTeachBackEditing(false); }}><FileText />Review saved response</Button> : null}</div></> : <><div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">{savedTeachBack?.body}</div><Button className="mt-3" variant="outline" onClick={() => setTeachBackEditing(true)}><Edit3 />Edit</Button></>}<AiFeedback state={teachBackMarking} /></Panel></TabsContent>
       <TabsContent value="scenario"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}<AiFeedback state={scenarioMarking} /></Panel></TabsContent>
     </Tabs>
