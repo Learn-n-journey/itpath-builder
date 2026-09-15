@@ -23,7 +23,7 @@ import { evidenceStrength, gradedSignals, transferEvidence, velocityFrom } from 
 import { hypothesize } from "./hypothesis";
 import { interventionHistory } from "./interventions";
 import { prescribe } from "./prescribe";
-import { interleave, timingFor } from "./schedule";
+import { interleave, personalHalfLifeFactor, timingFor } from "./schedule";
 import { assessState, STATE_LABEL, STATE_MEANING, type LearningState } from "./states";
 import {
   DIAGNOSIS_LABEL,
