@@ -92,6 +92,86 @@ function evidenceSentence(intel: Omit<ConceptIntel, "evidence">): string {
   }
 }
 
+
+interface TraceInput {
+  strength: ReturnType<typeof evidenceStrength>;
+  transfer: ReturnType<typeof transferEvidence>;
+  state: LearningState;
+  stateBlockedBy: string | null;
+  diagnosis: Diagnosis;
+  hypotheses: ReturnType<typeof hypothesize>;
+  prescription: ReturnType<typeof prescribe>;
+  history: ReturnType<typeof interventionHistory>;
+  velocity: number;
+  timing: { nextReviewAt: string; daysOverdue: number };
+  priority: number;
+}
+
+/**
+ * The audit trail. Every recommendation carries one line per stage of the
+ * cycle, each naming the recorded fact it rests on, so nothing the engine says
+ * is unexplainable.
+ */
+function buildTrace(input: TraceInput): TraceStep[] {
+  const { strength, transfer, hypotheses, prescription, history } = input;
+  const measured = history.byMethod.filter((effect) => effect.measured > 0);
+  const best = measured[0];
+
+  const steps: TraceStep[] = [
+    {
+      stage: "observe",
+      detail:
+        strength.gradedSignals === 0
+          ? "No graded work recorded on this concept."
+          : `${strength.gradedSignals} graded result(s) across ${strength.independentSources} activity type(s) on ${strength.distinctDays} separate day(s) — ${strength.level} evidence.`,
+    },
+    {
+      stage: "diagnose",
+      detail: `${DIAGNOSIS_LABEL[input.diagnosis]} — ${STATE_LABEL[input.state]}: ${STATE_MEANING[input.state]}${input.stateBlockedBy ? ` ${input.stateBlockedBy}` : ""}`,
+    },
+    {
+      stage: "hypothesize",
+      detail: `${DIAGNOSIS_LABEL[hypotheses.leading.diagnosis]} (${hypotheses.leading.status}, ${Math.round(hypotheses.certainty * 100)}% certainty): ${hypotheses.leading.because.join(" ")}${
+        hypotheses.alternatives[0]
+          ? ` Competing cause considered: ${DIAGNOSIS_LABEL[hypotheses.alternatives[0].diagnosis].toLowerCase()}.`
+          : ""
+      }`,
+    },
+    {
+      stage: "intervene",
+      detail: prescription.isDiagnostic
+        ? `Controlled test first — ${prescription.instruction}`
+        : `${METHOD_LABEL[prescription.method]} at ${prescription.difficulty} level — ${prescription.instruction}${prescription.methodReason ? ` ${prescription.methodReason}` : ""}`,
+    },
+    {
+      stage: "retest",
+      detail: best
+        ? `Past ${METHOD_LABEL[best.method].toLowerCase()} on this moved results by ${best.meanDelta} points across ${best.measured} measured use(s).`
+        : "No before-and-after measurement available yet; the next result becomes the first.",
+    },
+    {
+      stage: "transfer",
+      detail:
+        transfer.attemptedContexts === 0
+          ? "Never tested outside recall questions."
+          : `Passed ${Math.round(transfer.score * 100)}% of applied and hands-on attempts across ${transfer.provenContexts} proven context(s).`,
+    },
+    {
+      stage: "update",
+      detail:
+        input.velocity === 0
+          ? "Not enough recent results to measure a trend."
+          : `Results are moving ${input.velocity > 0 ? "up" : "down"} by ${Math.abs(input.velocity)} points a week.`,
+    },
+    {
+      stage: "adapt",
+      detail: `Next touch ${input.timing.daysOverdue > 0 ? `${input.timing.daysOverdue} day(s) overdue` : `due ${input.timing.nextReviewAt.slice(0, 10)}`}; ranked at ${Math.round(input.priority)}.`,
+    },
+  ];
+
+  return steps;
+}
+
 export function buildIntelligence(user: UserData, now: Date = new Date()): Intelligence {
   const nowMs = now.getTime();
   const model = buildLearnerModel(user, now);
@@ -279,6 +359,23 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
   const diagnosisMix = { ...EMPTY_MIX };
   for (const concept of concepts) diagnosisMix[concept.diagnosis] += 1;
 
+  const stateMix: Record<LearningState, number> = {
+    unknown: 0,
+    emerging: 0,
+    fragile: 0,
+    functional: 0,
+    transferable: 0,
+    reliable: 0,
+    retained: 0,
+  };
+  for (const concept of concepts) stateMix[concept.state] += 1;
+
+  const onPath = concepts.filter((concept) => concept.onTargetPath);
+  const functional = onPath.filter((concept) =>
+    ["functional", "transferable", "reliable", "retained"].includes(concept.state),
+  ).length;
+  const pathFunctional = onPath.length === 0 ? 0 : Number((functional / onPath.length).toFixed(3));
+
   const queue = interleave(
     concepts.filter((concept) => concept.diagnosis !== "solid" && concept.onTargetPath),
   );
@@ -313,6 +410,8 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
     byTopic: Object.fromEntries(concepts.map((concept) => [concept.topicId, concept])),
     queue,
     diagnosisMix,
+    stateMix,
+    pathFunctional,
     hasEvidence: stream.length > 0,
     planFor,
   };
