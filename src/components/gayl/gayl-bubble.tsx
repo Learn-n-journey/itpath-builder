@@ -93,10 +93,9 @@ export function GaylBubble() {
 
   if (!latest) return null;
 
+  // Once dismissed, the mark goes quiet until the evidence changes, but the
+  // thread itself stays reachable from the corner.
   const quiet = dismissed === threadId;
-  if (quiet && !open) {
-    // Nothing new to say, but the thread stays reachable from the corner mark.
-  }
 
   const dismiss = () => {
     setOpen(false);
