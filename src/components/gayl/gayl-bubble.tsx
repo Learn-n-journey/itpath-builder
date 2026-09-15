@@ -2,18 +2,19 @@
  * GAYL's floating presence.
  *
  * A small mark in the bottom right corner. It only carries a message when the
- * engine already has evidence that something is slipping or a mistake is still
- * open, and it stays quiet the rest of the time. Once a message is dismissed,
- * it does not come back until the underlying evidence changes.
+ * engine already has evidence that something is slipping, is still open, or is
+ * worth finishing, and it stays quiet the rest of the time. Once the latest
+ * message is dismissed, it does not come back until the evidence changes, but
+ * the full thread can still be opened at any time.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { AlertCircle, ChevronDown, ChevronRight, X } from "lucide-react";
+import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, MessageSquare, X } from "lucide-react";
 
 import gaylAvatar from "@/assets/gayl-avatar.png";
 import { useAppState } from "@/state/app-state";
 import { useIntelligence } from "@/hooks/use-intelligence";
-import { alertInsight } from "@/lib/gayl/insights";
+import { gaylMessages, type GaylMessage } from "@/lib/gayl/insights";
 import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,43 @@ const DISMISS_KEY = "itpath.gayl.bubble.dismissed";
 function trim(text: string): string {
   const clean = text.replace(/\s+/g, " ").trim();
   return clean.length > 120 ? `${clean.slice(0, 117)}...` : clean;
+}
+
+function MessageCard({ message, showWhy }: { message: GaylMessage; showWhy: boolean }) {
+  return (
+    <div
+      className={cn(
+        "rounded-lg rounded-tl-sm border p-3",
+        message.urgent ? "border-destructive/40 bg-destructive/5" : "border-border bg-secondary/40",
+      )}
+    >
+      <p className="flex items-start gap-1.5 text-xs font-medium text-foreground">
+        {message.urgent ? (
+          <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" aria-hidden />
+        ) : null}
+        <Link
+          to="/topics/$topicId"
+          params={{ topicId: message.topicId }}
+          className="hover:text-primary"
+        >
+          {message.title}
+        </Link>
+      </p>
+      <p className="mt-1 text-sm leading-6 text-foreground">{message.text}</p>
+      {message.detail ? (
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+          Still open on: {message.detail}
+        </p>
+      ) : null}
+      {showWhy && message.why.length > 0 ? (
+        <ul className="mt-2 space-y-1 border-t border-border/60 pt-2 text-xs text-muted-foreground">
+          {message.why.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
 }
 
 export function GaylBubble() {
@@ -35,10 +73,14 @@ export function GaylBubble() {
     },
     [user],
   );
-  const alert = alertInsight(intel, openDetail);
+  const messages = useMemo(() => gaylMessages(intel, openDetail), [intel, openDetail]);
+  const latest = messages[0] ?? null;
+  const threadId = messages.map((message) => message.id).join("|");
+  const unreadCount = messages.filter((message) => message.urgent).length;
 
   const [dismissed, setDismissed] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const [showWhy, setShowWhy] = useState(false);
 
   useEffect(() => {
@@ -49,13 +91,19 @@ export function GaylBubble() {
     }
   }, []);
 
-  if (!alert || dismissed === alert.id) return null;
+  if (!latest) return null;
+
+  const quiet = dismissed === threadId;
+  if (quiet && !open) {
+    // Nothing new to say, but the thread stays reachable from the corner mark.
+  }
 
   const dismiss = () => {
     setOpen(false);
-    setDismissed(alert.id);
+    setShowAll(false);
+    setDismissed(threadId);
     try {
-      window.localStorage.setItem(DISMISS_KEY, alert.id);
+      window.localStorage.setItem(DISMISS_KEY, threadId);
     } catch {
       /* storage is optional here */
     }
@@ -64,89 +112,84 @@ export function GaylBubble() {
   return (
     <div className="fixed bottom-4 right-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end gap-2 sm:bottom-6 sm:right-6">
       {open ? (
-        <div className="w-80 max-w-full rounded-lg border border-border bg-card p-4 shadow-lg">
-          <div className="flex items-start gap-3">
-            <img
-              src={gaylAvatar}
-              alt=""
-              width={816}
-              height={816}
-              loading="lazy"
-              className="size-8 shrink-0 rounded-full"
-            />
+        <div className="flex w-80 max-w-full flex-col rounded-lg border border-border bg-card shadow-lg">
+          <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+            {showAll ? (
+              <button
+                type="button"
+                onClick={() => setShowAll(false)}
+                aria-label="Back to the latest message"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ChevronLeft className="size-4" />
+              </button>
+            ) : (
+              <img
+                src={gaylAvatar}
+                alt=""
+                width={816}
+                height={816}
+                loading="lazy"
+                className="size-7 shrink-0 rounded-full"
+              />
+            )}
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="truncate text-sm font-medium text-foreground">
                 <Link to="/meet-gayl" className="hover:text-primary">
                   GAYL
                 </Link>
               </p>
-              <p className="mt-1 text-sm leading-6 text-foreground">{alert.message}</p>
-
-              <ul className="mt-3 space-y-2">
-                {alert.problems.map((problem) => (
-                  <li
-                    key={problem.topicId}
-                    className="rounded-md border border-destructive/40 bg-destructive/5 p-2"
-                  >
-                    <p className="flex items-start gap-1.5 text-xs font-medium text-foreground">
-                      <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" aria-hidden />
-                      <Link
-                        to="/topics/$topicId"
-                        params={{ topicId: problem.topicId }}
-                        className="hover:text-primary"
-                      >
-                        {problem.title}
-                      </Link>
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                      {problem.issue}
-                      {problem.detail ? `. Still open on: ${problem.detail}` : ""}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-
-
-
-              {alert.why && alert.why.length > 0 ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setShowWhy((value) => !value)}
-                    className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
-                  >
-                    {showWhy ? (
-                      <ChevronDown className="size-3" aria-hidden />
-                    ) : (
-                      <ChevronRight className="size-3" aria-hidden />
-                    )}
-                    {showWhy ? "Hide why" : "Why this?"}
-                  </button>
-                  {showWhy ? (
-                    <ul className="mt-2 space-y-1 border-t border-border/60 pt-2 text-xs text-muted-foreground">
-                      {alert.why.map((line) => (
-                        <li key={line}>{line}</li>
-                      ))}
-                    </ul>
-                  ) : null}
-                </>
-              ) : null}
-
-              <button
-                type="button"
-                onClick={dismiss}
-                className="mt-3 text-xs text-muted-foreground underline-offset-2 hover:text-primary hover:underline"
-              >
-                Got it
-              </button>
+              <p className="truncate text-xs text-muted-foreground">
+                {showAll
+                  ? `${messages.length} message${messages.length === 1 ? "" : "s"}`
+                  : "Latest message"}
+              </p>
             </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              aria-label="Close GAYL message"
+              aria-label="Close GAYL messages"
               className="text-muted-foreground hover:text-foreground"
             >
               <X className="size-4" />
+            </button>
+          </div>
+
+          <div className="max-h-[60vh] space-y-3 overflow-y-auto p-3">
+            {(showAll ? messages : [latest]).map((message) => (
+              <MessageCard key={message.id} message={message} showWhy={showWhy} />
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 border-t border-border px-3 py-2">
+            <button
+              type="button"
+              onClick={() => setShowWhy((value) => !value)}
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+            >
+              {showWhy ? (
+                <ChevronDown className="size-3" aria-hidden />
+              ) : (
+                <ChevronRight className="size-3" aria-hidden />
+              )}
+              {showWhy ? "Hide why" : "Why this?"}
+            </button>
+            {messages.length > 1 && !showAll ? (
+              <button
+                type="button"
+                onClick={() => setShowAll(true)}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+              >
+                <MessageSquare className="size-3" aria-hidden />
+                See all {messages.length}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={dismiss}
+              className="ml-auto text-xs text-muted-foreground underline-offset-2 hover:text-primary hover:underline"
+            >
+              Got it
             </button>
           </div>
         </div>
@@ -155,7 +198,7 @@ export function GaylBubble() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        aria-label={open ? "Hide GAYL message" : "Show GAYL message"}
+        aria-label={open ? "Hide GAYL messages" : "Show GAYL messages"}
         className={cn(
           "relative flex size-12 items-center justify-center rounded-full border border-border bg-card shadow-lg transition-colors hover:border-primary/60",
         )}
@@ -168,8 +211,13 @@ export function GaylBubble() {
           loading="lazy"
           className="size-11 rounded-full"
         />
-        {!open ? (
-          <span className="absolute right-0.5 top-0.5 size-3 rounded-full border-2 border-card bg-destructive" aria-hidden />
+        {!open && !quiet && unreadCount > 0 ? (
+          <span
+            className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full border-2 border-card bg-destructive text-[10px] font-semibold text-destructive-foreground"
+            aria-hidden
+          >
+            {unreadCount}
+          </span>
         ) : null}
       </button>
     </div>
