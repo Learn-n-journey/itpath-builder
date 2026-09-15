@@ -3,7 +3,6 @@ import { z } from "zod";
 import type { MachineSpec, ShellKind } from "./machine";
 import type { TerminalScenario } from "./scenarios";
 import { runAi } from "@/lib/ai/run.server";
-import { allowAiCall } from "@/lib/ai-budget.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const shellKinds = ["cmd", "powershell", "bash", "android", "ios"] as const;
@@ -240,9 +239,6 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI practice is not configured." };
 
-    const budget = await allowAiCall(context.userId, "scenario");
-    if (!budget.ok) return { ok: false, error: budget.error };
-
     const allowed = faultsFor(data.shell);
     const system = [
       "You write short, realistic IT support scenarios for a command-line practice simulator.",
@@ -289,6 +285,8 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
           risk: "low",
           priority: "interactive",
           json: true,
+          // A regeneration is the same piece of work, so it is not charged twice.
+          skipBudget: attempt > 0,
         });
         if (!result.ok) {
           if (attempt === 0 && result.outcome === "error") continue;
