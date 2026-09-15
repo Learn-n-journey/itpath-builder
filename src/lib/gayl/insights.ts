@@ -315,7 +315,7 @@ export function alertInsight(intel: Intelligence): (GaylInsight & { id: string }
     : `A mistake on ${focus.title} is still open.`;
 
   return {
-    id: `${focus.id}:${focus.diagnosis}:${focus.unresolvedMistakes}`,
+    id: `${focus.topicId}:${focus.diagnosis}:${focus.unresolvedMistakes}`,
     message: `${opener} ${focus.instruction}${tail}`,
     why: evidenceLines(focus),
   };
