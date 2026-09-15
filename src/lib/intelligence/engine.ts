@@ -276,6 +276,7 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
       profile.lastExposureAt,
       user.reviews,
       nowMs,
+      halfLifeFactor,
     );
 
     const onTargetPath = targetIds.has(topic.id);
