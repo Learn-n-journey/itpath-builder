@@ -53,7 +53,7 @@ export function createQuizAttempt(
     id: crypto.randomUUID(),
     quizId,
     status: "in_progress",
-    questionOrder: shuffle(questions.map((question) => question.id)),
+    questionOrder: mixQuestions(questions).map((question) => question.id),
     choiceOrder: Object.fromEntries(
       questions
         .filter((question) => question.choices.length > 0)
