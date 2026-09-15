@@ -30,7 +30,14 @@ export function useAiMarking() {
 
   const mark = useCallback(
     async (input: GradeInput, topicId?: string): Promise<WrittenGrade | null> => {
-      if (!isPro) return null;
+      if (!isPro) {
+        setState({
+          busy: false,
+          grade: null,
+          error: "I can only read written answers on Pro. Your answer is saved, so I can come back to it once you upgrade.",
+        });
+        return null;
+      }
       setState({ busy: true, grade: null, error: null });
       try {
         const digest = knowledgeDigest(knowledgeItems, topicId, 4);
