@@ -112,6 +112,43 @@ function AboutPage() {
         </Panel>
 
 
+        <Panel title="Other products">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+            <img
+              src={autopathLogo.url}
+              alt="AUTO PATH logo, a dark navy app icon with an orange wrench and piston"
+              className="size-32 shrink-0 rounded-2xl"
+              loading="lazy"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="font-display text-lg font-semibold tracking-tight">
+                  AUTO PATH
+                </h3>
+                <Badge variant="secondary" className="gap-1">
+                  <Wrench className="size-3" aria-hidden />
+                  Coming soon
+                </Badge>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                AUTO PATH is the next app I am building. It teaches automotive
+                knowledge and skills the same way IT PATH teaches IT: starting
+                from zero, building up to real diagnostic ability, and never
+                pretending you know something you have not proven yet. You will
+                work through engines, brakes, electrical systems and more, with
+                hands-on scenarios and a diagnostic scan-tool simulator that
+                mirrors how real shops find faults.
+              </p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                It runs on the same learning engine as IT PATH, including GAYL,
+                so the way you study stays familiar: read, recall, practice, and
+                get honest feedback based on your own work. Keep an eye out,
+                more news is coming.
+              </p>
+            </div>
+          </div>
+        </Panel>
+
         <Panel title="Data and privacy">
           <p className="text-sm text-muted-foreground">
             An offline copy of your study data is kept in your browser. If you sign in, it is also
