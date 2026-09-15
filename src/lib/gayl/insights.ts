@@ -288,6 +288,21 @@ export interface GaylProblem {
   route: string;
 }
 
+/** One casual note from GAYL, as it would appear in a message thread. */
+export interface GaylMessage {
+  id: string;
+  topicId: string;
+  title: string;
+  /** The note itself, written the way she would say it. */
+  text: string;
+  /** The exact question it keeps showing up on, when one is recorded. */
+  detail: string | null;
+  route: string;
+  /** True when something recorded has slipped or is still open. */
+  urgent: boolean;
+  why: string[];
+}
+
 /** Names the exact problem on one topic, in plain words. */
 function problemIssue(concept: ConceptIntel): string {
   if (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure") {
@@ -307,6 +322,84 @@ function problemIssue(concept: ConceptIntel): string {
   return "an idea here is being remembered differently to how it works";
 }
 
+/** The same thing, said the way GAYL would say it out loud. */
+function casualText(concept: ConceptIntel): string {
+  const count = concept.unresolvedMistakes;
+  const plural = count === 1 ? "" : "s";
+
+  if (count > 0) {
+    return `Hey, just a heads up, you've still got ${count} open mistake${plural} in ${concept.title}. ${concept.instruction}`;
+  }
+  if (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure") {
+    return `Quick one. Your answers on ${concept.title} have slipped a bit since you last had them right. A short pass should bring it back.`;
+  }
+  if (concept.misconceptions[0]) {
+    return `Something keeps catching you out in ${concept.title}: ${concept.misconceptions[0].toLowerCase()}. Worth clearing that one up before you build on it.`;
+  }
+  if (concept.diagnosis === "confident_but_wrong") {
+    return `A few answers in ${concept.title} came back quick and wrong. Nothing to worry about, it usually just means slowing down for a minute.`;
+  }
+  if (concept.diagnosis === "prerequisite_gap") {
+    const base = concept.prerequisiteGaps[0];
+    return base
+      ? `It'll be beneficial to shore up ${base.title} before you push on with ${concept.title}. It sits underneath it.`
+      : `Something underneath ${concept.title} isn't solid yet, so that's the bit I'd do first.`;
+  }
+  if (concept.diagnosis === "application_failure") {
+    return `You can explain ${concept.title} fine, it's using it in a task where it wobbles. Some hands-on work would tell us more than another quiz.`;
+  }
+  if (concept.diagnosis === "troubleshooting_failure") {
+    return `The facts on ${concept.title} are there. It's the fault-finding order that needs work, so a scenario is the better next step.`;
+  }
+  return `It'll be beneficial to finish ${concept.title} before moving on. ${concept.instruction}`;
+}
+
+/**
+ * Everything GAYL currently has to say, newest concern first.
+ *
+ * Read-only. It only rewords what the engine already worked out, so a note
+ * exists here only when there is recorded evidence behind it.
+ */
+export function gaylMessages(
+  intel: Intelligence,
+  openDetail?: (topicId: string) => string | null,
+): GaylMessage[] {
+  if (!intel.hasEvidence) return [];
+
+  const urgent = intel.concepts.filter(
+    (concept) =>
+      concept.unresolvedMistakes > 0 ||
+      concept.diagnosis === "misconception" ||
+      concept.diagnosis === "confident_but_wrong" ||
+      (concept.attempts > 0 &&
+        (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure")),
+  );
+
+  // Work already started that would be worth finishing before moving on.
+  const unfinished = intel.concepts.filter(
+    (concept) =>
+      !urgent.includes(concept) &&
+      concept.attempts > 0 &&
+      (concept.state === "emerging" || concept.state === "fragile"),
+  );
+
+  const ordered = [
+    ...urgent.sort((a, b) => b.priority - a.priority),
+    ...unfinished.sort((a, b) => b.priority - a.priority).slice(0, 4),
+  ];
+
+  return ordered.map((concept) => ({
+    id: `${concept.topicId}:${concept.diagnosis}:${concept.unresolvedMistakes}:${concept.state}`,
+    topicId: concept.topicId,
+    title: concept.title,
+    text: casualText(concept),
+    detail: openDetail?.(concept.topicId) ?? null,
+    route: concept.route,
+    urgent: urgent.includes(concept),
+    why: evidenceLines(concept),
+  }));
+}
+
 /**
  * The only thing worth interrupting for.
  *
@@ -319,25 +412,15 @@ export function alertInsight(
   intel: Intelligence,
   openDetail?: (topicId: string) => string | null,
 ): (GaylInsight & { id: string; problems: GaylProblem[] }) | null {
-  if (!intel.hasEvidence) return null;
+  const messages = gaylMessages(intel, openDetail).filter((message) => message.urgent);
+  const first = messages[0];
+  if (!first) return null;
 
-  const slipping = intel.concepts.filter(
-    (concept) =>
-      concept.attempts > 0 &&
-      (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure"),
-  );
-  const stuck = intel.concepts.filter(
-    (concept) =>
-      concept.unresolvedMistakes > 0 ||
-      concept.diagnosis === "misconception" ||
-      concept.diagnosis === "confident_but_wrong",
-  );
+  const concepts = messages
+    .map((message) => intel.byTopic[message.topicId])
+    .filter((concept): concept is ConceptIntel => Boolean(concept));
 
-  const open = [...new Set([...slipping, ...stuck])].sort((a, b) => b.priority - a.priority);
-  const focus = open[0] ?? null;
-  if (!focus) return null;
-
-  const problems: GaylProblem[] = open.slice(0, 4).map((concept) => ({
+  const problems: GaylProblem[] = concepts.slice(0, 4).map((concept) => ({
     topicId: concept.topicId,
     title: concept.title,
     issue: problemIssue(concept),
@@ -345,18 +428,20 @@ export function alertInsight(
     route: concept.route,
   }));
 
-  const first = problems[0]!;
   const tail =
-    open.length > 1
-      ? ` ${open.length - 1} other topic${open.length - 1 === 1 ? " is" : "s are"} open too, listed below.`
+    messages.length > 1
+      ? ` There ${messages.length - 1 === 1 ? "is" : "are"} ${messages.length - 1} other topic${
+          messages.length - 1 === 1 ? "" : "s"
+        } waiting too, they're all listed below.`
       : "";
 
   return {
-    id: `${focus.topicId}:${focus.diagnosis}:${focus.unresolvedMistakes}:${open.length}`,
-    message: `On ${focus.title}, ${first.issue}. ${focus.instruction}${tail}`,
+    id: `${first.id}:${messages.length}`,
+    message: `${first.text}${tail}`,
     problems,
-    why: [...evidenceLines(focus), ...open.slice(1).map((concept) => `${concept.title}: ${concept.evidence}`)],
+    why: first.why,
   };
 }
+
 
 
