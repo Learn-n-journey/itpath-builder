@@ -16,6 +16,7 @@ import { adaptivePath } from "@/lib/adaptive-path";
 import { buildLearnerModel } from "@/lib/learner-model";
 import { evidenceStream } from "@/lib/learner-signals";
 import { topicScopeProgress } from "@/lib/scope-progress";
+import { openMistakeCount } from "@/lib/missed-questions";
 import type { EntityId, LearnerSignal, UserData } from "@/lib/app-data/types";
 import { diagnose, measure } from "./diagnose";
 import { evidenceStrength, gradedSignals, transferEvidence, velocityFrom } from "./evidence";
@@ -192,9 +193,7 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
     const signals = byTopicSignals.get(topic.id) ?? [];
     const measures = measure(signals, scope, nowMs);
 
-    const unresolvedMistakes = user.mistakes.filter(
-      (mistake) => mistake.topicId === topic.id && !mistake.resolved,
-    ).length;
+    const unresolvedMistakes = openMistakeCount(user, topic.id);
     const repeatedMisconception = profile.errorPatterns.some((pattern) => pattern.count >= 2);
     const prerequisiteGaps = profile.prerequisites
       .filter((prerequisite) => !prerequisite.satisfied)

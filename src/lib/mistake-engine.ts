@@ -13,6 +13,7 @@ import type {
   MistakeSeverity,
   UserData,
 } from "@/lib/app-data/types";
+import { openMistakes } from "@/lib/missed-questions";
 
 export const mistakeCauseLabels: Record<MistakeCause, string> = {
   didnt_know_fact: "Didn't know fact",
@@ -77,11 +78,12 @@ const WEAK_THRESHOLD = 2;
 
 /** Weakness is evidence-based: unresolved mistakes plus untouched or unfinished topic progress. */
 export function scoreSkill(user: UserData, skill: SkillNode): SkillWeakness {
-  const open = user.mistakes.filter(
-    (mistake) =>
-      !mistake.resolved &&
-      (mistake.skillId === skill.id || (skill.topicId && mistake.topicId === skill.topicId)),
-  );
+  const open = openMistakes(user)
+    .map((item) => item.mistake)
+    .filter(
+      (mistake) =>
+        mistake.skillId === skill.id || (skill.topicId && mistake.topicId === skill.topicId),
+    );
   let score = open.reduce((sum, mistake) => sum + severityWeight[mistake.severity], 0);
   if (skill.topicId) {
     const progress = user.topicProgress[skill.topicId];
@@ -210,7 +212,7 @@ export interface MistakeSummary {
 }
 
 export function summarizeMistakes(user: UserData): MistakeSummary {
-  const open = user.mistakes.filter((mistake) => !mistake.resolved);
+  const open = openMistakes(user).map((item) => item.mistake);
   const categoryCounts = new Map<MistakeCause, number>();
   const topicCounts = new Map<string, number>();
   for (const mistake of open) {

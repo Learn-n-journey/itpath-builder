@@ -3,6 +3,7 @@ import { adaptivePath } from "@/lib/adaptive-path";
 import { buildIntelligence } from "@/lib/intelligence/engine";
 import type { Topic, UserData } from "@/lib/app-data/types";
 import { topicScopeProgress } from "@/lib/scope-progress";
+import { openMistakeCount } from "@/lib/missed-questions";
 
 export interface AdaptiveEntry {
   topic: Topic;
@@ -44,9 +45,7 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
 
   const entries: AdaptiveEntry[] = path.topics.map((topic, index) => {
     const score = mastery(user, topic.id);
-    const openMistakes = user.mistakes.filter(
-      (mistake) => mistake.topicId === topic.id && !mistake.resolved,
-    ).length;
+    const openMistakes = openMistakeCount(user, topic.id);
     const dueReviews = user.reviews.filter(
       (review) => review.topicId === topic.id && new Date(review.dueAt).getTime() <= nowMs,
     ).length;
