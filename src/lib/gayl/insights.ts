@@ -266,7 +266,7 @@ export function pathInsight(intel: Intelligence): GaylInsight | null {
   if (!top) return null;
 
   const reason = top.isDiagnostic
-    ? "I am not sure yet what is going wrong there, and a short check tells us before you spend time on the wrong thing"
+    ? "I have not seen enough of your work there yet to know how it is landing, and a short check shows us where to go next"
     : becauseClause(top);
 
   return {
