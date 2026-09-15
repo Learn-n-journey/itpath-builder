@@ -192,3 +192,19 @@ html.light {
   border-radius: var(--radius-xl);
 }
 
+/* GAYL bubble: soft rise for messages entering the panel. */
+@keyframes gayl-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gayl-rise {
+  animation: gayl-rise 200ms ease-out;
+}
+
