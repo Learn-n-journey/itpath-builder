@@ -10,11 +10,22 @@ import type { TopicScopeProgress } from "@/lib/scope-progress";
 import type { Diagnosis } from "./types";
 
 const MS_DAY = 24 * 60 * 60 * 1000;
-/** Answers faster than this are not considered reasoned. */
+/**
+ * Speed is only a fallback signal. It says something about how an answer was
+ * given, but not much about how sure the learner was, so a fast miss counts as
+ * half of a stated one and never decides the diagnosis on its own.
+ */
 const FAST_ANSWER_MS = 12_000;
+const SPEED_WEIGHT = 0.5;
 
 export interface Measures {
+  /**
+   * Wrong answers the learner was sure about. Counted from what they said when
+   * asked, and only estimated from speed where nothing was said.
+   */
   confidentErrors: number;
+  /** How many of those came from a stated answer rather than an estimate. */
+  statedConfidentErrors: number;
   efficiency: number | null;
   recentFailureAfterSuccess: boolean;
 }
