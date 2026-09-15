@@ -55,7 +55,13 @@ describe("evidence strength", () => {
   });
 
   it("reports no evidence when nothing was graded", () => {
-    const strength = evidenceStrength(gradedSignals([{ ...signal("lesson", 0, 1), score: undefined }]), NOW);
+    const exposureOnly: LearnerSignal = {
+      id: "lesson-open",
+      topicId: "topic-1",
+      kind: "lesson",
+      at: new Date(NOW - DAY).toISOString(),
+    };
+    const strength = evidenceStrength(gradedSignals([exposureOnly]), NOW);
     expect(strength.gradedSignals).toBe(0);
     expect(strength.level).toBe("none");
   });
