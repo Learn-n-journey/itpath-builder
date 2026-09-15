@@ -52,7 +52,7 @@ export function dashboardInsight(intel: Intelligence): GaylInsight | null {
       : "";
 
   return {
-    message: `${opener}${top.title} looks like the one worth attention next, ${top.instruction.toLowerCase()}`,
+    message: `${opener}${top.title} looks like the one worth attention next. ${top.instruction}`,
     why: evidenceLines(top),
   };
 }
@@ -65,7 +65,7 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
   if (concept.attempts === 0) {
     return {
       message:
-        "Nothing recorded here yet. Read through, then try the recall questions, that gives me something real to work from instead of guessing.",
+        "Nothing recorded here yet. Read through, then try the recall questions. That gives me something real to work from instead of guessing.",
     };
   }
 
@@ -76,7 +76,7 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
     case "retrieval_failure":
       return {
         message:
-          "You've had this before, so it isn't new learning, it just needs bringing back. A short review pass should be enough.",
+          "You've had this before, so it isn't new learning. It just needs bringing back. A short review pass should be enough.",
         why,
       };
     case "misconception":
@@ -89,7 +89,7 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
     case "prerequisite_gap":
       return {
         message: `Something underneath this is still unproven${
-          concept.prerequisiteGaps[0] ? `, ${concept.prerequisiteGaps[0].title}` : ""
+          concept.prerequisiteGaps[0] ? `: ${concept.prerequisiteGaps[0].title}` : ""
         }. Shoring that up first usually makes this one much easier.`,
         why,
       };
