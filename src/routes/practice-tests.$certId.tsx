@@ -216,9 +216,6 @@ function PracticeTestPage() {
   const relatedTopics = topics
     .filter((topic) => topic.certificationId === spec.certId)
     .slice(0, 3);
-  const certPath = certification
-    ? `/certifications/${certification.id}`
-    : "/certifications";
 
   return (
     <article>
