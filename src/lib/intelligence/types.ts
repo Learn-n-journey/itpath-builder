@@ -174,7 +174,7 @@ export const DIAGNOSIS_LABEL: Record<Diagnosis, string> = {
   retrieval_failure: "Retrieval failure",
   misconception: "Misconception",
   application_failure: "Can explain it, can't apply it",
-  troubleshooting_failure: "Weak fault process",
+  troubleshooting_failure: "Fault-finding needs work",
   confident_but_wrong: "Confident but wrong",
   fading: "Fading",
   solid: "Solid",
