@@ -214,15 +214,11 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
     });
 
     const grade: WrittenGrade = {
-
-        ...reviewed,
-        correct: reviewed.score >= 70,
-        criteria,
-        aiMarked: true,
-      };
-      if (cacheKey) await writeAiCache(cacheKey, "grading", grade);
-      return { ok: true, grade };
-    } catch {
-      return { ok: false, error: "Could not reach the AI marker. Your answer was still saved." };
-    }
+      ...reviewed,
+      correct: reviewed.score >= 70,
+      criteria,
+      aiMarked: true,
+    };
+    if (key) await writeCache({ key, feature: "grading", value: grade, model: result.model });
+    return { ok: true, grade };
   });
