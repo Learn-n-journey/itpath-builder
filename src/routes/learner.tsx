@@ -174,9 +174,24 @@ function LearnerContent() {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Concepts studied" value={`${model.studied}`} icon={Brain} />
-            <StatCard label="Overall mastery" value={`${pct(model.averageMastery)}%`} hint="Across every available concept" icon={Target} />
-            <StatCard label="Evidence recorded" value={`${model.totalSignals}`} icon={Clock} />
+            <StatCard
+              label="Path mastery"
+              value={`${pct(model.pathMastery)}%`}
+              hint={`Across all ${model.pathTopics} concepts in ${model.pathCertificationTitle}`}
+              icon={Target}
+            />
+            <StatCard
+              label="Proven concepts"
+              value={`${model.pathProven}/${model.pathTopics}`}
+              hint={`${model.pathUnproven} still unproven`}
+              icon={Brain}
+            />
+            <StatCard
+              label="Scope covered"
+              value={`${pct(model.pathCoverage)}%`}
+              hint="Share of available activities attempted"
+              icon={Clock}
+            />
             <StatCard label="Fading now" value={`${fading.length}`} icon={TrendingDown} />
           </div>
 
