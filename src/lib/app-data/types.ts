@@ -442,6 +442,12 @@ export interface Review {
   successStreak: number;
   lapses: number;
   totalReviews: number;
+  /**
+   * How quickly this item's spacing grows for this learner. Starts at the
+   * default and moves with each graded review, so intervals are learned from
+   * outcomes rather than fixed.
+   */
+  ease?: number;
   lastReviewedAt?: string;
   createdAt: string;
   updatedAt: string;
