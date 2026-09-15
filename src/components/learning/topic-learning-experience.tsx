@@ -58,8 +58,22 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const scenario = getRealWorldScenario(topic.id);
   const savedTeachBack = user.teachBackResponses[topic.id];
   const savedScenario = user.scenarioResponses[topic.id];
-  const [recallAnswers, setRecallAnswers] = useState<Record<string, string>>({});
-  const [recallFeedback, setRecallFeedback] = useState<Record<string, { correct: boolean; message: string }>>({});
+  // Recall work is kept, so leaving the page and coming back does not wipe it.
+  const savedRecall = useMemo(() => {
+    const answers: Record<string, string> = {};
+    const feedback: Record<string, { correct: boolean; message: string }> = {};
+    for (const response of [...user.recallResponses]
+      .filter((item) => item.topicId === topic.id)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
+      answers[response.questionId] = response.answer;
+      const question = recallQuestions.find((item) => item.id === response.questionId);
+      feedback[response.questionId] = { correct: response.correct, message: question?.explanation ?? "" };
+    }
+    return { answers, feedback };
+  }, [user.recallResponses, topic.id, recallQuestions]);
+  const [recallAnswers, setRecallAnswers] = useState<Record<string, string>>(savedRecall.answers);
+  const [recallFeedback, setRecallFeedback] = useState<Record<string, { correct: boolean; message: string }>>(savedRecall.feedback);
+
   const [practiceChoice, setPracticeChoice] = useState<number | null>(null);
   const [practiceFeedback, setPracticeFeedback] = useState<string | null>(null);
   const [teachBack, setTeachBack] = useState(savedTeachBack?.body ?? "");
@@ -85,7 +99,15 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topic.id]);
 
+  // Bring saved recall work back when the topic changes or a new answer is stored.
+  useEffect(() => {
+    setRecallAnswers((current) => ({ ...savedRecall.answers, ...current }));
+    setRecallFeedback((current) => ({ ...savedRecall.feedback, ...current }));
+  }, [savedRecall]);
+  useEffect(() => { setRecallAnswers(savedRecall.answers); setRecallFeedback(savedRecall.feedback); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [topic.id]);
+
   useEffect(() => { setTeachBack(savedTeachBack?.body ?? ""); setTeachBackEditing(!savedTeachBack); }, [savedTeachBack, topic.id]);
+
   useEffect(() => { setScenarioAnswer(savedScenario?.response ?? ""); setScenarioFeedback(savedScenario ? scenario?.guidance ?? null : null); }, [savedScenario, scenario, topic.id]);
   
 

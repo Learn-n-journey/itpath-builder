@@ -299,24 +299,41 @@ export function alertInsight(intel: Intelligence): (GaylInsight & { id: string }
       concept.diagnosis === "confident_but_wrong",
   );
 
-  const focus =
-    [...slipping, ...stuck].sort((a, b) => b.priority - a.priority)[0] ?? null;
+  const open = [...new Set([...slipping, ...stuck])].sort((a, b) => b.priority - a.priority);
+  const focus = open[0] ?? null;
   if (!focus) return null;
 
-  const others = new Set([...slipping, ...stuck].map((concept) => concept.title));
-  others.delete(focus.title);
+  /** Names the exact problem on one topic, in plain words. */
+  const problem = (concept: ConceptIntel): string => {
+    if (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure") {
+      return "your answers have slipped since you last got them right";
+    }
+    if (concept.misconceptions[0]) {
+      return `the same mix-up keeps coming back: ${concept.misconceptions[0]}`;
+    }
+    if (concept.diagnosis === "confident_but_wrong") {
+      return "some quick answers here turned out wrong";
+    }
+    if (concept.unresolvedMistakes > 0) {
+      return `${concept.unresolvedMistakes} mistake${concept.unresolvedMistakes === 1 ? "" : "s"} here ${
+        concept.unresolvedMistakes === 1 ? "is" : "are"
+      } still open, meaning you have not answered ${concept.unresolvedMistakes === 1 ? "it" : "them"} correctly since`;
+    }
+    return "an idea here is being remembered slightly differently than it works";
+  };
+
+  const rest = open.slice(1, 4);
   const tail =
-    others.size > 0
-      ? ` ${others.size} other topic${others.size === 1 ? "" : "s"} ${others.size === 1 ? "is" : "are"} in the same place, so they can wait their turn.`
+    open.length > 1
+      ? ` Still open after that: ${rest
+          .map((concept) => `${concept.title}, where ${problem(concept)}`)
+          .join("; ")}${open.length > 4 ? `, and ${open.length - 4} more` : ""}.`
       : "";
 
-  const opener = slipping.includes(focus)
-    ? `Your answers on ${focus.title} have slipped since you last got them right.`
-    : `A mistake on ${focus.title} is still open.`;
-
   return {
-    id: `${focus.topicId}:${focus.diagnosis}:${focus.unresolvedMistakes}`,
-    message: `${opener} ${focus.instruction}${tail}`,
-    why: evidenceLines(focus),
+    id: `${focus.topicId}:${focus.diagnosis}:${focus.unresolvedMistakes}:${open.length}`,
+    message: `On ${focus.title}, ${problem(focus)}. ${focus.instruction}${tail}`,
+    why: [...evidenceLines(focus), ...open.slice(1).map((concept) => `${concept.title}: ${concept.evidence}`)],
   };
 }
+
