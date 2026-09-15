@@ -10,7 +10,6 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronDown, ChevronRight, X } from "lucide-react";
 
-import { GaylMark } from "@/components/gayl/gayl-note";
 import gaylAvatar from "@/assets/gayl-avatar.png";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import { alertInsight } from "@/lib/gayl/insights";
