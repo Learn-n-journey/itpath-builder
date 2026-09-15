@@ -18,6 +18,14 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
     <div className="space-y-4">
       <Panel title="Start here" description={`About ${lesson.readingMinutes} minutes of reading, in ${lesson.sections.length} short parts.`}>
         <div className="space-y-4 text-sm leading-7 text-muted-foreground">
+          {lesson.plain ? (
+            <p className="rounded-lg border border-border/70 bg-secondary/25 p-4 text-foreground">
+              <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                In plain words
+              </span>
+              {lesson.plain.plainIntro}
+            </p>
+          ) : null}
           <p className="flex gap-3">
             <BookOpen aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
             <span>{lesson.intro}</span>
@@ -31,6 +39,23 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
           </p>
         </div>
       </Panel>
+
+      {lesson.plain && lesson.plain.wordList.length > 0 ? (
+        <Panel
+          title="Words used in this lesson"
+          description="Every term below is used in the reading. Come back here whenever one stops making sense."
+        >
+          <dl className="space-y-3 text-sm leading-7">
+            {lesson.plain.wordList.map((entry) => (
+              <div key={entry.term} className="border-b border-border/50 pb-3 last:border-0 last:pb-0">
+                <dt className="font-medium text-foreground">{entry.term}</dt>
+                <dd className="text-muted-foreground">{entry.plain}</dd>
+              </div>
+            ))}
+          </dl>
+        </Panel>
+      ) : null}
+
 
       <Panel
         title="The lesson, part by part"
