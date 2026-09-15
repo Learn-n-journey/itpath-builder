@@ -112,3 +112,12 @@
 
 ## Open
 - [ ] Practice stage: more than one question per topic (currently getPracticeActivity returns a single activity)
+
+## SEO content pages: free practice tests (requested 2026-09-15)
+- [x] Research keywords and SERP with Semrush (A+, Network+, Security+ practice tests)
+- [x] Public route /practice-tests/$certId for A+, Network+ and Security+ with 18 questions each
+- [x] Answers and explanations present in the served HTML, Reveal answer toggle client-side
+- [x] Canonical, og:url, per-page title/description, BreadcrumbList JSON-LD
+- [x] Three URLs added to sitemap.xml; footer link to the free practice tests
+- [x] Unknown certification id returns a noindex not-found page
+- [x] Verified: typecheck clean, build OK, pages render signed-out, sitemap includes URLs
