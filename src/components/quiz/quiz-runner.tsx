@@ -390,8 +390,6 @@ function QuizReview({
           title="What I looked at"
           description="Every answer in this attempt: the skill behind the question, how it was asked, and where it held or slipped."
         >
-
-
           {diagnostic.strongest.length > 0 || diagnostic.weakest.length > 0 ? (
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
