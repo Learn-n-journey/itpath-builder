@@ -443,7 +443,7 @@ function QuizReview({
 
           {diagnostic.recommendation && diagnostic.recommendedTitles.length > 0 ? (
             <div className="mt-4 rounded-md border border-border p-4">
-              <p className="text-sm font-medium">Review this next</p>
+              <p className="text-sm font-medium">Where I'd start</p>
               <p className="mt-1 text-sm text-muted-foreground">{diagnostic.recommendation.explanation}</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {diagnostic.recommendedTitles.map((title) => (
