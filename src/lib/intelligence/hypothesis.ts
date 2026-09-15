@@ -167,17 +167,21 @@ function candidates(input: HypothesisInput): Candidate[] {
     });
   }
 
-  if (profile.retention < 0.55) {
+  // Fading is a claim that something known has since decayed, so it needs a
+  // recorded history to decay from: several graded results, at least two of
+  // them right, spread over more than one day, and real time since the last
+  // one. Without that, a low recall number only means it was never proven.
+  if (profile.retention < 0.55 && hasFadingHistory(input)) {
+    const days = profile.daysSinceExposure ?? 0;
     out.push({
       diagnosis: "fading",
       weight: 0.6,
-      support: profile.daysSinceExposure !== null && profile.daysSinceExposure > 14 ? 2 : 1,
+      support: days > 14 ? 2 : 1,
       because: [
         `Estimated recall has dropped to ${pct(profile.retention * 100)}.`,
-        profile.daysSinceExposure !== null
-          ? `Last worked ${profile.daysSinceExposure} day(s) ago.`
-          : "",
-      ].filter(Boolean),
+        `${profile.correct} correct result(s) recorded here across ${evidence.distinctDays} separate day(s).`,
+        `Last worked ${Math.round(days)} day(s) ago.`,
+      ],
     });
   }
 
