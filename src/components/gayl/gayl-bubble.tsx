@@ -201,7 +201,6 @@ export function GaylBubble() {
           </div>
           </div>
         </div>
-      </div>
 
       <button
         type="button"
