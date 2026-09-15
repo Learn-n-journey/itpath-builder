@@ -5,6 +5,40 @@
  * a concept with no evidence is "never_learned", not "weak".
  */
 import type { EntityId } from "@/lib/app-data/types";
+import type { EvidenceStrength, TransferEvidence } from "./evidence";
+import type { DiagnosticTest, Hypothesis } from "./hypothesis";
+import type { InterventionHistory } from "./interventions";
+import type { LearningState } from "./states";
+
+/**
+ * The deterministic cycle each concept is run through. Every recommendation
+ * records one step per stage so it can be traced back to the evidence.
+ */
+export type CycleStage =
+  | "observe"
+  | "diagnose"
+  | "hypothesize"
+  | "intervene"
+  | "retest"
+  | "transfer"
+  | "update"
+  | "adapt";
+
+export interface TraceStep {
+  stage: CycleStage;
+  detail: string;
+}
+
+export const STAGE_LABEL: Record<CycleStage, string> = {
+  observe: "Observed",
+  diagnose: "Diagnosed",
+  hypothesize: "Hypothesis",
+  intervene: "Intervention",
+  retest: "Re-test",
+  transfer: "Transfer",
+  update: "Update",
+  adapt: "Adaptation",
+};
 
 export type Diagnosis =
   | "never_learned"
