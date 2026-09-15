@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bug, Mail } from "lucide-react";
+import { Bug, Mail, Wrench } from "lucide-react";
 
+import autopathLogo from "@/assets/autopath-logo.png.asset.json";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/about")({
   staticData: { sitemap: true },
