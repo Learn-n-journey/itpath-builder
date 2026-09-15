@@ -257,6 +257,18 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
       daysOverdue: timing.daysOverdue,
       priority: Math.round(priority),
       onTargetPath,
+      state: stateAssessment.state,
+      stateBlockedBy: stateAssessment.blockedBy,
+      evidenceStrength: strength,
+      transfer,
+      velocity,
+      hypotheses: [hypotheses.leading, ...hypotheses.alternatives],
+      certainty: hypotheses.certainty,
+      diagnosticTest: hypotheses.test,
+      isDiagnostic: prescription.isDiagnostic,
+      interventions: history,
+      methodReason: prescription.methodReason,
+      trace,
     };
 
     return { ...partial, evidence: evidenceSentence(partial) };
