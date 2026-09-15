@@ -29,9 +29,9 @@ export const Route = createFileRoute("/portfolio")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "IT Portfolio Evidence — IT PATH" },
+      { title: "IT Portfolio Evidence | IT PATH" },
       { name: "description", content: "Record the problem, approach, skills, tools, result and evidence for every piece of IT work you finish." },
-      { property: "og:title", content: "IT Portfolio Evidence — IT PATH" },
+      { property: "og:title", content: "IT Portfolio Evidence | IT PATH" },
       { property: "og:description", content: "Turn completed labs and real projects into exportable IT work evidence." },
     ],
   }),
@@ -117,7 +117,7 @@ function Portfolio() {
     <>
       <PageHeader
         title="Portfolio"
-        description="Evidence beats claims. Record the problem, what you did, and what it produced — only for work you actually finished."
+        description="Evidence beats claims. Record the problem, what you did, and what it produced, only for work you actually finished."
         actions={
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => exportAll("md")}>
@@ -294,7 +294,7 @@ function Field({ label, value, wide }: { label: string; value: string; wide?: bo
   return (
     <div className={wide ? "sm:col-span-2" : undefined}>
       <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
-      <dd className="mt-1 whitespace-pre-wrap break-words text-sm">{value || "—"}</dd>
+      <dd className="mt-1 whitespace-pre-wrap break-words text-sm">{value || "-"}</dd>
     </div>
   );
 }

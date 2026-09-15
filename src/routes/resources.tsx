@@ -21,9 +21,9 @@ export const Route = createFileRoute("/resources")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Resources — IT PATH" },
+      { title: "Resources | IT PATH" },
       { name: "description", content: "Search verified IT learning resources and save bookmarks and notes." },
-      { property: "og:title", content: "Resources — IT PATH" },
+      { property: "og:title", content: "Resources | IT PATH" },
       { property: "og:description", content: "Verified technical learning resources organized by topic and certification." },
     ],
   }),

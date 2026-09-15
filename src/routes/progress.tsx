@@ -18,13 +18,13 @@ export const Route = createFileRoute("/progress")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Progress — IT PATH" },
+      { title: "Progress | IT PATH" },
       {
         name: "description",
         content:
           "Detailed IT PATH progress by certification, stage, topic, skill and activity type.",
       },
-      { property: "og:title", content: "Progress — IT PATH" },
+      { property: "og:title", content: "Progress | IT PATH" },
       { property: "og:description", content: "Every number here comes from your own activity." },
     ],
   }),
@@ -74,7 +74,7 @@ function ProgressPage() {
         <StatCard label="Topics started" value={`${startedTopics.length}/${report.byTopic.length}`} />
         <StatCard label="Mastered" value={report.masteredTopics.length} />
         <StatCard label="Study time" value={`${Math.round((report.study.totalMinutes / 60) * 10) / 10}h`} />
-        <StatCard label="Quiz average" value={report.quiz.attempts ? `${report.quiz.average}%` : "—"} />
+        <StatCard label="Quiz average" value={report.quiz.attempts ? `${report.quiz.average}%` : "-"} />
         <StatCard label="Open mistakes" value={report.mistakes.open} />
       </div>
 
@@ -146,12 +146,12 @@ function ProgressPage() {
             </div>
             <div>
               <dt className="text-muted-foreground">Best quiz</dt>
-              <dd className="mt-1 tabular-nums">{report.quiz.attempts ? `${report.quiz.best}%` : "—"}</dd>
+              <dd className="mt-1 tabular-nums">{report.quiz.attempts ? `${report.quiz.best}%` : "-"}</dd>
             </div>
             <div>
               <dt className="text-muted-foreground">Last quiz</dt>
               <dd className="mt-1 tabular-nums">
-                {report.quiz.lastScore === null ? "—" : `${report.quiz.lastScore}%`}
+                {report.quiz.lastScore === null ? "-" : `${report.quiz.lastScore}%`}
               </dd>
             </div>
             <div>
@@ -163,7 +163,7 @@ function ProgressPage() {
             <div>
               <dt className="text-muted-foreground">Practice average</dt>
               <dd className="mt-1 tabular-nums">
-                {report.assignment.attempts ? `${report.assignment.average}%` : "—"}
+                {report.assignment.attempts ? `${report.assignment.average}%` : "-"}
               </dd>
             </div>
             <div>
@@ -179,7 +179,7 @@ function ProgressPage() {
             <div>
               <dt className="text-muted-foreground">Lab average</dt>
               <dd className="mt-1 tabular-nums">
-                {report.lab.attempts ? `${report.lab.average}%` : "—"}
+                {report.lab.attempts ? `${report.lab.average}%` : "-"}
               </dd>
             </div>
             <div>
@@ -189,7 +189,7 @@ function ProgressPage() {
             <div>
               <dt className="text-muted-foreground">Average session</dt>
               <dd className="mt-1 tabular-nums">
-                {report.study.sessions ? `${report.study.averageMinutes} min` : "—"}
+                {report.study.sessions ? `${report.study.averageMinutes} min` : "-"}
               </dd>
             </div>
             <div>
@@ -203,7 +203,7 @@ function ProgressPage() {
             <div>
               <dt className="text-muted-foreground">Review pass rate</dt>
               <dd className="mt-1 tabular-nums">
-                {report.review.graded ? `${report.review.passRate}%` : "—"}
+                {report.review.graded ? `${report.review.passRate}%` : "-"}
               </dd>
             </div>
             <div>

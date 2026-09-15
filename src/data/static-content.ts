@@ -459,7 +459,7 @@ export const lessons: Lesson[] = [
     definition:
       "An IPv4 configuration normally includes an address, subnet mask, and default gateway. The address identifies an interface; the mask determines which destinations are local; the gateway routes traffic elsewhere. Ethernet or Wi-Fi carries local frames, IP moves packets across networks, and TCP or UDP transports application data. DHCP can supply configuration automatically.",
     whyItMatters:
-      "Most IT services depend on correct addressing and a working path. A valid local link does not prove the gateway or internet works. By testing from the nearest layer outward—interface, address, local peer, gateway, remote address, then application—a technician can narrow the fault instead of changing unrelated settings.",
+      "Most IT services depend on correct addressing and a working path. A valid local link does not prove the gateway or internet works. By testing from the nearest layer outward, from interface, address, local peer, gateway, remote address, then application, a technician can narrow the fault instead of changing unrelated settings.",
     keyTerms: [
       {
         term: "IPv4 address",
@@ -680,7 +680,7 @@ export const resources: Resource[] = [
   },
   {
     id: "resource-linux-foundation-intro-linux",
-    title: "Introduction to Linux (LFS101) — free course",
+    title: "Introduction to Linux (LFS101), free course",
     provider: "The Linux Foundation",
     url: "https://training.linuxfoundation.org/training/introduction-to-linux/",
     topicIds: ["topic-command-line-fundamentals", "topic-linux-filesystem-and-permissions"],

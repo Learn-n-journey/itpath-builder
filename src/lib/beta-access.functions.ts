@@ -8,7 +8,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  * with either email+password (Outlook) or Google (Gmail), so both are owner.
  */
 export const OWNER_EMAILS = ["boleydavid7@outlook.com", "boleydavid7@gmail.com"];
-/** Primary owner email — cannot be removed from the list. */
+/** Primary owner email, cannot be removed from the list. */
 export const OWNER_EMAIL = OWNER_EMAILS[0]!;
 
 export interface BetaTester {

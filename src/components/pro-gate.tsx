@@ -90,7 +90,7 @@ export function ProGate({
   feature,
   children,
 }: {
-  /** Name of the gated feature — must match an entry in PRO_FEATURES. */
+  /** Name of the gated feature, must match an entry in PRO_FEATURES. */
   feature: string;
   children: ReactNode;
 }) {
@@ -120,8 +120,8 @@ export function ProGate({
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
           {userId
-            ? `Upgrade to IT PATH ${planName} to use ${current.shortName} — and the other paid features below.`
-            : `Create a free account and upgrade to ${planName} to use ${current.shortName} — and the other paid features below.`}
+            ? `Upgrade to IT PATH ${planName} to use ${current.shortName}, and the other paid features below.`
+            : `Create a free account and upgrade to ${planName} to use ${current.shortName}, and the other paid features below.`}
         </p>
       </div>
       {others.length > 0 ? (
@@ -143,7 +143,7 @@ export function ProGate({
                       </span>
                     ) : null}
                   </span>
-                  <span className="text-muted-foreground"> — {entry.description}</span>
+                  <span className="text-muted-foreground">, {entry.description}</span>
                 </span>
               </li>
             ))}

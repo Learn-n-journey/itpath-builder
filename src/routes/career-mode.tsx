@@ -30,13 +30,13 @@ export const Route = createFileRoute("/career-mode")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Career Mode — Work Real IT Tickets — IT PATH" },
+      { title: "Career Mode, Work Real IT Tickets | IT PATH" },
       {
         name: "description",
         content:
           "Work realistic help desk, technician, network, sysadmin and security analyst tickets: investigate, diagnose, resolve, verify and document, with scored feedback.",
       },
-      { property: "og:title", content: "Career Mode — Work Real IT Tickets — IT PATH" },
+      { property: "og:title", content: "Career Mode, Work Real IT Tickets | IT PATH" },
       {
         property: "og:description",
         content: "Simulated support queue scored on accuracy, troubleshooting, reasoning, communication, documentation and efficiency.",
@@ -90,7 +90,7 @@ function CareerMode() {
           value={attempts.filter((attempt) => attempt.status === "in_progress").length}
         />
         <StatCard label="Closed" value={closed.length} />
-        <StatCard label="Average score" value={submitted.length ? `${average}%` : "—"} />
+        <StatCard label="Average score" value={submitted.length ? `${average}%` : "-"} />
       </div>
 
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[21rem_minmax(0,1fr)]">
@@ -284,10 +284,10 @@ function TicketWorkspace({
           },
         };
       });
-      toast.success(`Ticket closed — ${total}%`);
+      toast.success(`Ticket closed, ${total}%`);
     } else {
       actions.ensureReview({ topicId: ticket.topicId });
-      toast.error(`Ticket needs rework — ${total}%`);
+      toast.error(`Ticket needs rework, ${total}%`);
     }
   }
 
@@ -485,7 +485,7 @@ function TicketWorkspace({
 
       {submitted && scores ? (
         <Panel
-          title={`Review — ${attempt.totalScore ?? 0}%`}
+          title={`Review, ${attempt.totalScore ?? 0}%`}
           description={
             attempt.passed
               ? "Ticket closed. The diagnosis, full resolution, verification and written work all held up."

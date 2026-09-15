@@ -234,7 +234,7 @@ export function computeInsights(user: UserData, now: Date = new Date()): StudyIn
       observations.push(
         delta >= 0
           ? `Your recent quiz average is ${delta} points above your earlier attempts.`
-          : `Your recent quiz average is ${Math.abs(delta)} points below your earlier attempts — worth slowing down.`,
+          : `Your recent quiz average is ${Math.abs(delta)} points below your earlier attempts, worth slowing down.`,
       );
     }
     const weakest = topicAccuracy[0];
@@ -246,7 +246,7 @@ export function computeInsights(user: UserData, now: Date = new Date()): StudyIn
     const topCause = causes[0];
     if (topCause) {
       observations.push(
-        `Most of your mistakes are "${topCause.label}" — ${topCause.total} recorded, ${topCause.open} still open.`,
+        `Most of your mistakes are "${topCause.label}", ${topCause.total} recorded, ${topCause.open} still open.`,
       );
     }
     if (user.mistakes.length > 0) {

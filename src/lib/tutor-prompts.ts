@@ -98,7 +98,7 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
                 `Troubleshooting ${progress.troubleshooting}`,
                 `Retention ${progress.retention}`,
               ]
-            : ["Not started — no recorded activity on this topic yet."],
+            : ["Not started, no recorded activity on this topic yet."],
         ),
       ].join("\n"),
     );
@@ -113,7 +113,7 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
           .slice(0, 5)
           .map(
             (concept) =>
-              `${concept.title}: ${STATE_LABEL[concept.state]} — ${DIAGNOSIS_LABEL[concept.diagnosis]} (${Math.round(concept.certainty * 100)}% certainty) — ${concept.evidence} Best taught by: ${METHOD_LABEL[concept.method].toLowerCase()} at ${concept.difficulty} level.${concept.isDiagnostic ? " The cause is unconfirmed: check it before teaching around it." : ""}`,
+              `${concept.title}: ${STATE_LABEL[concept.state]}, ${DIAGNOSIS_LABEL[concept.diagnosis]} (${Math.round(concept.certainty * 100)}% certainty), ${concept.evidence} Best taught by: ${METHOD_LABEL[concept.method].toLowerCase()} at ${concept.difficulty} level.${concept.isDiagnostic ? " The cause is unconfirmed: check it before teaching around it." : ""}`,
           ),
       ),
     ].join("\n"),
@@ -132,7 +132,7 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
     .slice(0, 6)
     .map((m) => {
       const t = getTopic(m.topicId)?.title ?? m.topicId;
-      return `${new Date(m.createdAt).toISOString().slice(0, 10)} — ${t}: ${mistakeCauseLabels[m.category]} during ${mistakeActivityLabels[m.activity]} (severity ${m.severity})`;
+      return `${new Date(m.createdAt).toISOString().slice(0, 10)}, ${t}: ${mistakeCauseLabels[m.category]} during ${mistakeActivityLabels[m.activity]} (severity ${m.severity})`;
     });
   sections.push(["RECENT UNRESOLVED MISTAKES", list(mistakes)].join("\n"));
 

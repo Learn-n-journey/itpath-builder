@@ -56,13 +56,13 @@ export const Route = createFileRoute("/practice")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Practice — IT PATH" },
+      { title: "Practice | IT PATH" },
       {
         name: "description",
         content:
           "Practice tasks for every certification, evaluated against visible criteria and saved as attempts.",
       },
-      { property: "og:title", content: "Practice — IT PATH" },
+      { property: "og:title", content: "Practice | IT PATH" },
       {
         property: "og:description",
         content: "Applied IT practice grouped by certification, with honest evaluation and review.",
@@ -337,8 +337,8 @@ function AssignmentWorkspace({
         feedback:
           marked?.feedback ||
           (passed
-            ? "Correct — your answer carries this idea."
-            : `Incorrect — this idea is missing. Expected: ${criterion.expectedAnswer ?? criterion.description}`),
+            ? "Correct, your answer carries this idea."
+            : `Incorrect, this idea is missing. Expected: ${criterion.expectedAnswer ?? criterion.description}`),
       };
     });
     const score =
@@ -352,8 +352,8 @@ function AssignmentWorkspace({
       feedback:
         graded?.verdict ||
         (score >= 70
-          ? `Correct — you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer.`
-          : `Incorrect — you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer. Compare your work with the answer below and retake.`),
+          ? `Correct, you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer.`
+          : `Incorrect, you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer. Compare your work with the answer below and retake.`),
       evaluationMode: assignment.evaluationMode,
       evaluatedAt: now,
     });
@@ -380,8 +380,8 @@ function AssignmentWorkspace({
         attemptId: attempt.id,
         createdAt: now,
       });
-    if (score >= 70) toast.success(`Correct — scored ${score}/100.`);
-    else toast.error(`Incorrect — scored ${score}/100. The answer is shown below.`);
+    if (score >= 70) toast.success(`Correct, scored ${score}/100.`);
+    else toast.error(`Incorrect, scored ${score}/100. The answer is shown below.`);
   }
 
   function complete() {
@@ -517,7 +517,7 @@ function AssignmentWorkspace({
                         </p>
                         {result ? (
                           <p className="mt-2 text-xs text-muted-foreground">
-                            {Math.round(result.earnedPoints)} points — {result.feedback}
+                            {Math.round(result.earnedPoints)} points, {result.feedback}
                           </p>
                         ) : null}
                       </div>

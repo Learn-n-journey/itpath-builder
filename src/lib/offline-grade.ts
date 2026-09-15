@@ -59,7 +59,7 @@ export function offlineGrade(input: OfflineGradeInput): OfflineGrade | null {
   if (allCovered && strongReference) {
     return {
       score: 100,
-      verdict: "Correct — your answer covers every point expected here.",
+      verdict: "Correct, your answer covers every point expected here.",
       strengths: covers.map((c) => c.point).slice(0, 6),
       missed: [],
       correctedAnswer: reference,
@@ -81,6 +81,6 @@ export function offlineGrade(input: OfflineGradeInput): OfflineGrade | null {
     };
   }
 
-  // Everything else — partly right, differently worded, arguable — goes to AI.
+  // Everything else, partly right, differently worded, arguable, goes to AI.
   return null;
 }

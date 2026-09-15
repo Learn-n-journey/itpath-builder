@@ -36,12 +36,12 @@ export const Route = createFileRoute("/study-plan")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Study Plan — IT PATH" },
+      { title: "Study Plan | IT PATH" },
       {
         name: "description",
         content: "Build a timed daily study session drawn from due reviews, weak topics, new material and open work.",
       },
-      { property: "og:title", content: "Study Plan — IT PATH" },
+      { property: "og:title", content: "Study Plan | IT PATH" },
       {
         property: "og:description",
         content: "Generate a 30, 60, 90 or 120 minute study session from your own IT PATH progress and log the time you spend.",

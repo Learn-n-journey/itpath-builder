@@ -6,13 +6,13 @@ export const Route = createFileRoute("/privacy")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Privacy Notice — IT PATH" },
+      { title: "Privacy Notice | IT PATH" },
       {
         name: "description",
         content:
           "How IT PATH collects, uses, shares and protects your personal data, and the rights you have over it.",
       },
-      { property: "og:title", content: "Privacy Notice — IT PATH" },
+      { property: "og:title", content: "Privacy Notice | IT PATH" },
       {
         property: "og:description",
         content: "What data IT PATH collects, why, who it is shared with and how long it is kept.",
@@ -52,28 +52,28 @@ function PrivacyPage() {
           <Section title="What we collect and why">
             <ul className="list-disc space-y-2 pl-5">
               <li>
-                <strong className="text-foreground">Account data</strong> — your email address and
+                <strong className="text-foreground">Account data</strong>, your email address and
                 login credentials (or your Google sign-in identity). Used to create and secure your
                 account. Legal basis: performance of our contract with you.
               </li>
               <li>
-                <strong className="text-foreground">Study data</strong> — your progress, answers,
+                <strong className="text-foreground">Study data</strong>, your progress, answers,
                 notes, bookmarks, quiz attempts, labs, portfolio entries and study sessions. Used to
                 run the service, back up your progress across devices and show your results. Legal
                 basis: contract.
               </li>
               <li>
-                <strong className="text-foreground">AI prompts and answers</strong> — the text you
+                <strong className="text-foreground">AI prompts and answers</strong>, the text you
                 submit to the AI Tutor or for AI marking, plus a summary of your progress, is sent to
                 our AI provider to generate a response. Legal basis: contract.
               </li>
               <li>
-                <strong className="text-foreground">Technical data</strong> — IP address, device and
+                <strong className="text-foreground">Technical data</strong>, IP address, device and
                 browser information, and error logs. Used for security, fraud prevention and fixing
                 faults. Legal basis: legitimate interests in keeping the service working and safe.
               </li>
               <li>
-                <strong className="text-foreground">Support messages</strong> — anything you email us.
+                <strong className="text-foreground">Support messages</strong>, anything you email us.
                 Used to answer you. Legal basis: legitimate interests.
               </li>
             </ul>

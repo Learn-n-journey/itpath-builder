@@ -562,7 +562,7 @@ export function SystemDiagnostics() {
               )}
               <div>
                 <p className="text-sm font-medium">
-                  {check.name} —{" "}
+                  {check.name},{" "}
                   <span className={check.pass ? "text-success" : "text-destructive"}>
                     {check.pass ? "PASS" : "FAIL"}
                   </span>

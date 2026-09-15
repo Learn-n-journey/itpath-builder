@@ -2,7 +2,7 @@
  * Prompt and context compression.
  *
  * Tokens are the bill, so nothing is sent that the model does not need. All of
- * this is deterministic text work — no AI call is spent on shrinking a prompt.
+ * this is deterministic text work, no AI call is spent on shrinking a prompt.
  */
 
 const STOP = new Set([

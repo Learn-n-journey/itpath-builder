@@ -1,5 +1,5 @@
 /**
- * Learning Intelligence Engine — shared types.
+ * Learning Intelligence Engine, shared types.
  *
  * One model per concept, derived from recorded work only. Nothing is assumed:
  * a concept with no evidence is "never_learned", not "weak".

@@ -19,10 +19,10 @@ export const DAILY_LIMIT: Record<AiKind, number> = {
 };
 
 const LIMIT_MESSAGE: Record<AiKind, string> = {
-  tutor: "You have reached today's AI tutor limit. It resets tomorrow — lessons, quizzes and labs still work.",
-  grading: "You have reached today's AI marking limit. It resets tomorrow — built-in marking still works.",
+  tutor: "You have reached today's AI tutor limit. It resets tomorrow, lessons, quizzes and labs still work.",
+  grading: "You have reached today's AI marking limit. It resets tomorrow, built-in marking still works.",
   scenario: "You have reached today's limit for AI-written scenarios. The curated and random ones still work.",
-  knowledge: "You have reached today's Second Brain AI limit. It resets tomorrow — your saved material is unaffected.",
+  knowledge: "You have reached today's Second Brain AI limit. It resets tomorrow, your saved material is unaffected.",
 };
 
 async function admin() {

@@ -21,12 +21,12 @@ export const Route = createFileRoute("/my-path")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "My Path — IT PATH" },
+      { title: "My Path | IT PATH" },
       {
         name: "description",
         content: "Your roadmap organised by certification: entry-level first, then infrastructure, security and advanced work.",
       },
-      { property: "og:title", content: "My Path — IT PATH" },
+      { property: "og:title", content: "My Path | IT PATH" },
       {
         property: "og:description",
         content: "Every certification broken into start-here, core-skills and advanced stages.",

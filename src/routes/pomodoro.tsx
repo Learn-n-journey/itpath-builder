@@ -15,13 +15,13 @@ export const Route = createFileRoute("/pomodoro")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Pomodoro Timer — IT PATH" },
+      { title: "Pomodoro Timer | IT PATH" },
       {
         name: "description",
         content:
           "Run focus and break cycles and log every completed focus block to your study time.",
       },
-      { property: "og:title", content: "Pomodoro Timer — IT PATH" },
+      { property: "og:title", content: "Pomodoro Timer | IT PATH" },
       {
         property: "og:description",
         content:

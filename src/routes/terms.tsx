@@ -6,13 +6,13 @@ export const Route = createFileRoute("/terms")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Terms of Use — IT PATH" },
+      { title: "Terms of Use | IT PATH" },
       {
         name: "description",
         content:
           "The terms that apply when you use IT PATH, the two-year IT and cybersecurity study platform by David Boley.",
       },
-      { property: "og:title", content: "Terms of Use — IT PATH" },
+      { property: "og:title", content: "Terms of Use | IT PATH" },
       {
         property: "og:description",
         content: "Terms of use for IT PATH, including payment, acceptable use and termination.",
@@ -61,7 +61,7 @@ function TermsPage() {
             <p>
               IT PATH is a self-study platform for IT and cybersecurity: written lessons,
               practice tasks, labs, quizzes, troubleshooting incidents, spaced review, progress
-              tracking and AI-assisted tutoring and marking. It is study material — it is not a
+              tracking and AI-assisted tutoring and marking. It is study material, it is not a
               certification body, and it does not issue CompTIA, Microsoft, Cisco or any other
               vendor certification. Passing anything inside IT PATH does not guarantee passing a
               real exam or obtaining employment.

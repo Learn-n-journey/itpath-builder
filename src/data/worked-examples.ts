@@ -159,7 +159,7 @@ export const workedExamples: WorkedExample[] = [
     ],
     answer: "Name resolution is a chain: cache → hosts file → recursive resolver → root → TLD → authoritative. Test the chain with nslookup or dig; if the IP is correct but the page fails, the fault is below DNS.",
     tryIt: [
-      { prompt: "A site works by IP but not by name. Where is the fault?", answer: "Name resolution — resolver, cache, hosts file or record, not the web server" },
+      { prompt: "A site works by IP but not by name. Where is the fault?", answer: "Name resolution, resolver, cache, hosts file or record, not the web server" },
       { prompt: "Which record type maps a name to an IPv6 address?", answer: "AAAA" },
       { prompt: "Why does a record change take hours to appear everywhere?", answer: "Caches hold the old answer until its TTL expires" },
     ],
@@ -179,7 +179,7 @@ export const workedExamples: WorkedExample[] = [
     answer: "-rwxr-xr-- is 754; chmod 750 script.sh produces rwxr-x---. A 'Permission denied' on your own script is usually a missing execute bit (chmod +x).",
     tryIt: [
       { prompt: "What is rw-r--r-- numerically?", answer: "644" },
-      { prompt: "What does chmod 600 key.pem allow?", answer: "Owner read and write only — required for SSH private keys" },
+      { prompt: "What does chmod 600 key.pem allow?", answer: "Owner read and write only, required for SSH private keys" },
       { prompt: "Which command changes the owning user?", answer: "chown" },
     ],
   },
@@ -209,9 +209,9 @@ export const workedExamples: WorkedExample[] = [
     certificationId: "cert-comptia-a-plus",
     question: "A host has 16 GB RAM and 8 CPU cores. How many 4 GB lab VMs can safely run at once?",
     steps: [
-      { label: "1. Reserve for the host", detail: "The host operating system and hypervisor need their own memory — reserve about 4 GB." },
+      { label: "1. Reserve for the host", detail: "The host operating system and hypervisor need their own memory, reserve about 4 GB." },
       { label: "2. Divide what remains", detail: "16 − 4 = 12 GB available. 12 ÷ 4 = 3 VMs." },
-      { label: "3. Check CPU", detail: "Cores can be oversubscribed; memory generally cannot. Two virtual CPUs each across 3 VMs is 6 of 8 cores — comfortable." },
+      { label: "3. Check CPU", detail: "Cores can be oversubscribed; memory generally cannot. Two virtual CPUs each across 3 VMs is 6 of 8 cores, comfortable." },
       { label: "4. Check disk", detail: "Dynamically expanding disks grow over time; confirm free space on the host volume before you build." },
     ],
     answer: "Three 4 GB VMs. Memory is the hard limit: overcommit it and the host swaps to disk and everything crawls.",
@@ -233,7 +233,7 @@ export const workedExamples: WorkedExample[] = [
       { label: "3. Group them", detail: "sort groups identical addresses together; uniq -c then counts each group." },
       { label: "4. Rank them", detail: "sort -nr puts the noisiest address at the top." },
     ],
-    answer: "grep 'Failed password' /var/log/auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -nr — each command does one job and the pipe passes text along.",
+    answer: "grep 'Failed password' /var/log/auth.log | awk '{print $(NF-3)}' | sort | uniq -c | sort -nr, each command does one job and the pipe passes text along.",
     tryIt: [
       { prompt: "How would you keep the output for a ticket?", answer: "Redirect it: ... > failed-logins.txt" },
       { prompt: "Which command shows a log as it is being written?", answer: "tail -f" },
@@ -252,10 +252,10 @@ export const workedExamples: WorkedExample[] = [
       { label: "3. Score urgency", detail: "Urgency is how time-bound it is: B has a same-day deadline; C has none beyond annoyance." },
       { label: "4. Combine, do not let seniority decide", detail: "Priority = impact × urgency. Rank: D, B, then A (blocking one person's work) then C (degraded, still working)." },
     ],
-    answer: "D, B, A, C — and set expectations with everyone in the queue. A job title is not a priority level; a documented matrix is what you defend the order with.",
+    answer: "D, B, A, C, and set expectations with everyone in the queue. A job title is not a priority level; a documented matrix is what you defend the order with.",
     tryIt: [
       { prompt: "One user cannot log in at all versus ten users with slow email. Which first?", answer: "Judge by impact × urgency; a total block on one user often outranks mild degradation for ten, unless the ten are deadline-bound" },
-      { prompt: "What do you do with the ticket you cannot start yet?", answer: "Update it with an honest expected time — silence generates escalations" },
+      { prompt: "What do you do with the ticket you cannot start yet?", answer: "Update it with an honest expected time, silence generates escalations" },
       { prompt: "What goes in the ticket when you close it?", answer: "Symptom, cause, fix, and the verification you performed" },
     ],
   },

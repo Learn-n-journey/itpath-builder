@@ -4,8 +4,8 @@
  * Most evidence is derived from records the app already keeps (quiz results,
  * recall and practice answers, teach-backs, scenarios, labs, review grades), so
  * a learner's full history counts from the first run. Interactions that leave
- * no graded record of their own — opening a lesson, an AI tutor exchange, an AI
- * marked answer, a troubleshooting incident, a career ticket — are appended to
+ * no graded record of their own, opening a lesson, an AI tutor exchange, an AI
+ * marked answer, a troubleshooting incident, a career ticket, are appended to
  * `user.learnerSignals` as they happen.
  *
  * Nothing here invents a result: every field comes from something the learner did.

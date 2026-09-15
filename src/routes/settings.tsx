@@ -30,9 +30,9 @@ export const Route = createFileRoute("/settings")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Settings — IT PATH" },
+      { title: "Settings | IT PATH" },
       { name: "description", content: "Set your study schedule, target role and run system checks." },
-      { property: "og:title", content: "Settings — IT PATH" },
+      { property: "og:title", content: "Settings | IT PATH" },
       { property: "og:description", content: "Configure your study plan and verify the app health." },
     ],
   }),
@@ -195,10 +195,10 @@ function SettingsPage() {
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
                 {weeklyHours < 8
-                  ? `Most IT certification guidance recommends 8–10 hours a week — you are ${formatStudyTime(Math.round((8 - weeklyHours) * 60))} below that. Add a day or extend your daily time to reach it.`
+                  ? `Most IT certification guidance recommends 8–10 hours a week, you are ${formatStudyTime(Math.round((8 - weeklyHours) * 60))} below that. Add a day or extend your daily time to reach it.`
                   : weeklyHours <= 10
                     ? "This sits inside the recommended 8–10 hours a week for steady certification progress."
-                    : "This is above the recommended 8–10 hours a week — ambitious, but watch out for burnout and keep your review sessions."}
+                    : "This is above the recommended 8–10 hours a week, ambitious, but watch out for burnout and keep your review sessions."}
               </p>
             </div>
           </div>

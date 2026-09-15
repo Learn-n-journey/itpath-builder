@@ -2,7 +2,7 @@
  * Cost tracking for every AI call in the app.
  *
  * One row per call, including the ones that cost nothing because a cached
- * answer was reused — those rows carry the saving instead of the cost, which is
+ * answer was reused, those rows carry the saving instead of the cost, which is
  * what makes the internal dashboard able to show what the cache is worth.
  *
  * Recording never blocks or fails a real request.

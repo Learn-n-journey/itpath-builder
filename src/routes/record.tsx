@@ -23,13 +23,13 @@ export const Route = createFileRoute("/record")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Study record and backup — IT PATH" },
+      { title: "Study record and backup | IT PATH" },
       {
         name: "description",
         content:
           "Download a transcript of everything you have studied in IT PATH, export your portfolio, and back up or restore your progress.",
       },
-      { property: "og:title", content: "Study record and backup — IT PATH" },
+      { property: "og:title", content: "Study record and backup | IT PATH" },
       {
         property: "og:description",
         content:

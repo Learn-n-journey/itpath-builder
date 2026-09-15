@@ -312,7 +312,7 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
         }
         if (!isSolvable(scenario, data.shell)) {
           if (attempt === 0) continue;
-          return { ok: false, error: "Could not create a scenario you can finish here — try again." };
+          return { ok: false, error: "Could not create a scenario you can finish here, try again." };
         }
         return { ok: true, scenario };
       } catch {
@@ -320,5 +320,5 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
       }
     }
 
-    return { ok: false, error: "Could not create a scenario — try again." };
+    return { ok: false, error: "Could not create a scenario, try again." };
   });

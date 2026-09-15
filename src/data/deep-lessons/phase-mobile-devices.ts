@@ -54,7 +54,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
       {
         heading: "Worked Example",
         paragraphs: [
-          "A user reports their phone 'has a mind of its own' — apps open by themselves and text appears in fields they did not tap. The image looks completely normal.",
+          "A user reports their phone 'has a mind of its own', apps open by themselves and text appears in fields they did not tap. The image looks completely normal.",
         ],
         bullets: [
           "Confirm the symptom by watching the device idle on a blank home screen for a minute without touching it.",
@@ -71,7 +71,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
         paragraphs: [
           "Repair benches and help desks use this daily to decide whether a device is repairable in-house, needs an authorised centre, or should be exchanged under warranty. The decision usually rests on whether the failing part is available as a serviceable unit and whether the labour cost is sensible against the device's remaining life.",
           "Fleet administrators use battery health data to plan replacements before failures produce a wave of downtime, especially on shared devices in retail, warehousing, and healthcare where handsets charge and discharge several times a day and wear far faster than a personal phone.",
-          "Safety procedure matters here in a way it does not for most IT work. Organisations handling swollen batteries follow a defined process — stop charging, isolate the device, do not compress or puncture it, and dispose of it through a proper recycling route — because a damaged lithium cell can ignite.",
+          "Safety procedure matters here in a way it does not for most IT work. Organisations handling swollen batteries follow a defined process, stop charging, isolate the device, do not compress or puncture it, and dispose of it through a proper recycling route, because a damaged lithium cell can ignite.",
         ],
       },
       {
@@ -107,7 +107,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
       {
         heading: "Interview Relevance",
         paragraphs: [
-          "A frequent interview question is 'what would you do if you found a swollen battery in a user's phone?'. The strong answer leads with safety — stop charging, isolate the device, do not puncture or compress it, arrange proper replacement and disposal — before mentioning any diagnostic step, because the interviewer is testing judgement, not knowledge of the cell chemistry.",
+          "A frequent interview question is 'what would you do if you found a swollen battery in a user's phone?'. The strong answer leads with safety, stop charging, isolate the device, do not puncture or compress it, arrange proper replacement and disposal, before mentioning any diagnostic step, because the interviewer is testing judgement, not knowledge of the cell chemistry.",
         ],
       },
     ],
@@ -222,7 +222,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
     topicId: "topic-mobile-configuration-and-apps",
     readingMinutes: 9,
     intro:
-      "Almost everything a user cares about on a phone — contacts, photos, mail, purchased apps — lives behind a platform account and a synchronisation setting. This lesson covers provisioning, mail configuration, app sources, backups, and SIM versus eSIM activation, which together make up most mobile setup work.",
+      "Almost everything a user cares about on a phone, contacts, photos, mail, purchased apps, lives behind a platform account and a synchronisation setting. This lesson covers provisioning, mail configuration, app sources, backups, and SIM versus eSIM activation, which together make up most mobile setup work.",
     whereYouMeetIt:
       "You use this when provisioning a new hire's handset, migrating a user to a replacement device, setting up corporate mail, activating a travel data plan, or explaining why data 'disappeared' after a device swap.",
     sections: [
@@ -260,7 +260,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "Provisioning starts with the platform account. Signing in registers the device against that account, restores any eligible backup, re-downloads purchased apps, and enables the locate-and-erase service. Everything else layered on afterwards — corporate mail, managed apps, policy — depends on that first association being correct, which is why signing in with the wrong account causes so much rework.",
+          "Provisioning starts with the platform account. Signing in registers the device against that account, restores any eligible backup, re-downloads purchased apps, and enables the locate-and-erase service. Everything else layered on afterwards, corporate mail, managed apps, policy, depends on that first association being correct, which is why signing in with the wrong account causes so much rework.",
           "Corporate mail setup is a negotiation, not a form. The device contacts the mail service, authenticates through a modern sign-in flow, and then receives the policy attached to that mailbox. If the policy requires a device passcode or encryption that the handset does not currently satisfy, the account simply refuses to finish configuring until the user meets it.",
           "eSIM activation replaces a physical card with a downloaded profile. The user scans a carrier QR code or uses a carrier app, the device downloads and installs the subscriber profile, and the line becomes active. Because the profile is tied to the device, a carrier-locked or already-provisioned handset will fail activation even though the QR code itself is valid.",
         ],
@@ -345,7 +345,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
         heading: "What It Is",
         paragraphs: [
           "Mobile security combines access control (PIN, password, pattern, or biometric), full-device encryption, remote locate, lock, and wipe services, and a mobile device management platform that enforces and reports on policy centrally across a fleet.",
-          "BYOD — bring your own device — uses containerisation to place corporate apps and data into a managed work profile that is cryptographically and administratively separate from the personal side of the phone. The organisation governs and can wipe the container; it does not govern or see the user's personal content.",
+          "BYOD, bring your own device, uses containerisation to place corporate apps and data into a managed work profile that is cryptographically and administratively separate from the personal side of the phone. The organisation governs and can wipe the container; it does not govern or see the user's personal content.",
         ],
       },
       {
@@ -399,7 +399,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
       {
         heading: "Common Problems and How It Fails",
         paragraphs: [
-          "Mobile security controls usually fail at the edges — in what they do not cover, or in the assumption that a command has taken effect.",
+          "Mobile security controls usually fail at the edges, in what they do not cover, or in the assumption that a command has taken effect.",
         ],
         bullets: [
           "Wipe command queued indefinitely because the device is powered off or has no network access.",
@@ -414,7 +414,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
       {
         heading: "How to Troubleshoot It",
         paragraphs: [
-          "For a compliance failure, read the specific failing rule in the management console rather than re-enrolling. The console normally names the exact requirement — encryption off, OS too old, passcode too short — and re-enrolment without fixing that requirement simply reproduces the same state.",
+          "For a compliance failure, read the specific failing rule in the management console rather than re-enrolling. The console normally names the exact requirement, encryption off, OS too old, passcode too short, and re-enrolment without fixing that requirement simply reproduces the same state.",
           "For an enrolment failure, check network access to the management service first, then the device's OS version, then whether an existing profile or personal configuration conflicts with the one being pushed.",
           "For a lost-device response, treat the console's acknowledgement as the only proof a command took effect, and always pair the device action with a server-side session revocation so recovery does not depend on the handset reconnecting.",
           "For BYOD privacy complaints, show the user what the work profile does and does not cover. Most objections are about surveillance fears the containerisation model already answers.",
@@ -429,7 +429,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
       {
         heading: "Interview Relevance",
         paragraphs: [
-          "A common interview question is 'a director loses a phone with company email — what are your first three actions?'. A strong answer verifies identity, locks and locates rather than wiping immediately, revokes server-side sessions, and documents the timeline, escalating to security in parallel rather than afterwards.",
+          "A common interview question is 'a director loses a phone with company email, what are your first three actions?'. A strong answer verifies identity, locks and locates rather than wiping immediately, revokes server-side sessions, and documents the timeline, escalating to security in parallel rather than afterwards.",
         ],
       },
     ],
@@ -446,7 +446,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
         heading: "In Plain Words",
         paragraphs: [
           "On a desktop you can open the case and swap a part to test a theory. On a phone you usually cannot, so the work shifts to evidence the device already collects about itself: which app used the battery, when each account last synced, what happens with third-party apps disabled, and whether a known-good cable behaves differently.",
-          "That changes the order of the job rather than the method. You still establish the symptom, form a theory, test the cheapest thing first, and document what you found — you simply do it with settings screens and swaps instead of a screwdriver.",
+          "That changes the order of the job rather than the method. You still establish the symptom, form a theory, test the cheapest thing first, and document what you found, you simply do it with settings screens and swaps instead of a screwdriver.",
         ],
       },
       {
@@ -477,7 +477,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
         paragraphs: [
           "Start by pinning the symptom to a boundary. Does it affect one app, one account, one network, or the whole device? That single question routes the ticket: one app points at the app or its cache, one account points at credentials or policy, one network points at the environment, and device-wide points at the OS, storage, or battery.",
           "Then apply non-destructive isolation in order of cost. Restart, then an airplane-mode reset for radio symptoms, then safe mode for behaviour symptoms, then a known-good accessory swap for power symptoms. Each step either eliminates a whole class of cause or confirms one, and none of them lose user data.",
-          "Reserve destructive actions for last and prepare for them properly. A cache clear is mild, an app reinstall costs local app state, and a factory reset costs everything not backed up — so a verified recent backup is a precondition rather than an afterthought.",
+          "Reserve destructive actions for last and prepare for them properly. A cache clear is mild, an app reinstall costs local app state, and a factory reset costs everything not backed up, so a verified recent backup is a precondition rather than an afterthought.",
         ],
       },
       {
@@ -522,7 +522,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
         heading: "How to Troubleshoot It",
         paragraphs: [
           "Scope the symptom before touching anything: one app, one account, one network, or the whole device. Everything else follows from that answer, and skipping it is why so many mobile tickets get reset to factory settings for no reason.",
-          "Work non-destructively in cost order — restart, airplane-mode reset, safe mode, known-good swap, cache clear — and change one variable at a time so the result of each step actually means something.",
+          "Work non-destructively in cost order, restart, airplane-mode reset, safe mode, known-good swap, cache clear, and change one variable at a time so the result of each step actually means something.",
           "Check storage and update state early. A device close to full or several versions behind produces a scatter of unrelated-looking symptoms that all clear at once when the underlying condition is fixed.",
           "Verify a recent backup before any destructive step, and confirm the fix with the user over a realistic period rather than at the counter, since drain and sync problems only reappear over hours.",
         ],
@@ -530,13 +530,13 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
       {
         heading: "Exam Relevance",
         paragraphs: [
-          "CompTIA A+ Core 1 tests mobile device troubleshooting scenarios including battery drain, charging faults, connectivity failures, app crashes, overheating, and sync problems, and expects the methodical approach — identify, theorise, test, resolve, verify, document — rather than a jump to the fix.",
+          "CompTIA A+ Core 1 tests mobile device troubleshooting scenarios including battery drain, charging faults, connectivity failures, app crashes, overheating, and sync problems, and expects the methodical approach, identify, theorise, test, resolve, verify, document, rather than a jump to the fix.",
         ],
       },
       {
         heading: "Interview Relevance",
         paragraphs: [
-          "A common interview question is 'a user says their phone battery suddenly drains by lunchtime — what do you do?'. A strong answer starts with when it changed and what the battery statistics show, mentions safe mode and battery health as isolation tools, and explicitly avoids a factory reset until the evidence justifies it.",
+          "A common interview question is 'a user says their phone battery suddenly drains by lunchtime, what do you do?'. A strong answer starts with when it changed and what the battery statistics show, mentions safe mode and battery health as isolation tools, and explicitly avoids a factory reset until the evidence justifies it.",
         ],
       },
     ],

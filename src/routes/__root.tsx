@@ -81,7 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "google-site-verification", content: "nVurTzDXdhAsqoE2OM9jB_9wE-KzORrW_IewPklwUus" },
 
-      { title: "IT PATH — Certification-Based IT & Cybersecurity Training" },
+      { title: "IT PATH, Certification-Based IT & Cybersecurity Training" },
       {
         name: "description",
         content:

@@ -28,7 +28,7 @@ function build(): Quiz[] {
         if (set.length < 4) return;
         out.push({
           id: `quiz-topic-${topic.id.replace(/^topic-/, "")}-${index + 1}`,
-          title: `${topic.title} — set ${index + 1}`,
+          title: `${topic.title}, set ${index + 1}`,
           description: `${set.length} questions on ${topic.title.toLowerCase()}, drawn from the lesson, its key terms and its troubleshooting steps.`,
           topicIds: [topic.id],
           questionIds: set.map((question) => question.id),

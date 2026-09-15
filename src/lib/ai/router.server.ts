@@ -3,7 +3,7 @@
  *
  * The rule is simple: the cheapest model that can do the job, and a stronger
  * one only when the work is genuinely hard or getting it wrong would hurt.
- * Nothing here is guesswork by the model itself — the decision is made from
+ * Nothing here is guesswork by the model itself, the decision is made from
  * measurable properties of the request before a single token is spent.
  */
 import { CAPABLE, CHEAP, type ModelSpec } from "./pricing";

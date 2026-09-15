@@ -36,7 +36,7 @@ export function projectFromLabAttempt(
     skills: labSkills[lab.category] ?? [],
     tools: [lab.environment],
     result: `${lab.expectedResult} Scored ${attempt.score} of ${attempt.maxScore} on the lab checklist.`,
-    evidence: `IT PATH lab attempt ${attempt.id} — checklist confirmed by the learner and reflection recorded. IT PATH did not inspect an external environment.`,
+    evidence: `IT PATH lab attempt ${attempt.id}, checklist confirmed by the learner and reflection recorded. IT PATH did not inspect an external environment.`,
     date: done.slice(0, 10),
     difficulty: lab.difficulty,
     topicIds: [lab.topicId],
@@ -82,7 +82,7 @@ export function emptyProject(id: string = crypto.randomUUID()): PortfolioProject
 }
 
 export function projectToMarkdown(project: PortfolioProject): string {
-  const list = (values: string[]) => (values.length ? values.join(", ") : "—");
+  const list = (values: string[]) => (values.length ? values.join(", ") : "-");
   return [
     `## ${project.title || "Untitled project"}`,
     ``,
@@ -92,16 +92,16 @@ export function projectToMarkdown(project: PortfolioProject): string {
     `- **Tools:** ${list(project.tools)}`,
     ``,
     `**Problem**`,
-    project.problem || "—",
+    project.problem || "-",
     ``,
     `**Approach**`,
-    project.approach || "—",
+    project.approach || "-",
     ``,
     `**Result**`,
-    project.result || "—",
+    project.result || "-",
     ``,
     `**Evidence**`,
-    project.evidence || "—",
+    project.evidence || "-",
     ``,
   ].join("\n");
 }

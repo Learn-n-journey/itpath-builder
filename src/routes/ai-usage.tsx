@@ -13,12 +13,12 @@ export const Route = createFileRoute("/ai-usage")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "AI usage and cost — IT PATH" },
+      { title: "AI usage and cost | IT PATH" },
       {
         name: "description",
         content: "Internal view of AI calls, tokens, cache hits, estimated cost and savings by feature.",
       },
-      { property: "og:title", content: "AI usage and cost — IT PATH" },
+      { property: "og:title", content: "AI usage and cost | IT PATH" },
       {
         property: "og:description",
         content: "Internal view of AI calls, tokens, cache hits, estimated cost and savings by feature.",

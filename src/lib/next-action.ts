@@ -37,7 +37,7 @@ export interface NextAction {
   id: string;
   /** What to do, as an instruction. */
   label: string;
-  /** Why this and not something else — always traceable to recorded data. */
+  /** Why this and not something else, always traceable to recorded data. */
   reason: string;
   /** Roughly how long it takes, in minutes. */
   minutes: number;
@@ -101,7 +101,7 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
     if (concept.attempts === 0 && concept.diagnosis === "never_learned") continue;
     out.push({
       id: `next-intel-${concept.topicId}`,
-      label: `${concept.instruction} — ${METHOD_LABEL[concept.method].toLowerCase()}`,
+      label: `${concept.instruction}, ${METHOD_LABEL[concept.method].toLowerCase()}`,
       reason: concept.evidence,
       minutes: concept.estimatedMinutes,
       topicId: concept.topicId,
@@ -191,7 +191,7 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
     out.push({
       id: "next-topic",
       label: `Study ${path.recommendedTopic.title}`,
-      reason: `${path.startLabel} — ${path.reason}.`,
+      reason: `${path.startLabel}, ${path.reason}.`,
       minutes: 40,
       topicId: path.recommendedTopic.id,
       to: "/topics/$topicId",

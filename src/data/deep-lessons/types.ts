@@ -36,7 +36,7 @@ export interface LessonCheck {
 
 /**
  * The depth layer: the parts of a lesson that turn reading into teaching.
- * Every field is authored per topic — nothing here is templated.
+ * Every field is authored per topic, nothing here is templated.
  */
 export interface LessonDepth {
   /** The handful of sentences worth remembering forever. */

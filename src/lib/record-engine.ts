@@ -116,7 +116,7 @@ function hours(minutes: number): string {
 export function recordAsText(record: StudyRecord, name?: string): string {
   const t = record.totals;
   const lines: string[] = [
-    "IT PATH — STUDY RECORD",
+    "IT PATH, STUDY RECORD",
     name ? `Learner: ${name}` : "",
     `Generated: ${record.generatedAt.toLocaleString()}`,
     "",
@@ -134,12 +134,12 @@ export function recordAsText(record: StudyRecord, name?: string): string {
     "CERTIFICATION READINESS",
     ...record.certifications.map(
       (row) =>
-        `- ${row.title}: ${row.score}% (${row.band}) — ${row.topicsDone}/${row.topicsTotal} topics`,
+        `- ${row.title}: ${row.score}% (${row.band}), ${row.topicsDone}/${row.topicsTotal} topics`,
     ),
     "",
     "SKILLS EVIDENCED",
     ...(record.skills.length
-      ? record.skills.map((row) => `- ${row.label}: ${row.score}% — ${row.coveredCount}/${row.availableCount} available activities covered (${row.evidenceCount} evidence records)`)
+      ? record.skills.map((row) => `- ${row.label}: ${row.score}%, ${row.coveredCount}/${row.availableCount} available activities covered (${row.evidenceCount} evidence records)`)
       : ["- Nothing recorded yet"]),
     "",
     "TOPICS STUDIED",

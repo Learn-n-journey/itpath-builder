@@ -83,7 +83,7 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
     } else if (score === 0) {
       reason = "Not started yet.";
     } else if (score < 60) {
-      reason = `Started at ${score}% — finish the proof steps.`;
+      reason = `Started at ${score}%, finish the proof steps.`;
     } else {
       reason = `Solid at ${score}%.`;
     }

@@ -8,7 +8,7 @@ import { streakSummary } from "@/lib/streak-engine";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 
-/** Daily goal, current run and the last seven days — all from logged sessions. */
+/** Daily goal, current run and the last seven days, all from logged sessions. */
 export function StreakPanel() {
   const { user } = useAppState();
   const summary = useMemo(() => streakSummary(user), [user]);
@@ -57,7 +57,7 @@ export function StreakPanel() {
               ? "Goal met for today."
               : summary.plannedToday
                 ? "Today is one of your planned study days."
-                : "Not a planned study day — anything you log still counts."}
+                : "Not a planned study day, anything you log still counts."}
           </p>
         </div>
       </div>
@@ -76,7 +76,7 @@ export function StreakPanel() {
               )}
               title={`${day.date}: ${day.minutes} min`}
             >
-              {day.minutes > 0 ? day.minutes : "—"}
+              {day.minutes > 0 ? day.minutes : "-"}
             </div>
             <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">{day.label}</p>
           </div>

@@ -2,8 +2,8 @@
  * Exam readiness report.
  *
  * Wraps the certification scoring engine with a plain-language verdict: what is
- * holding the score back, how much study time is left, and — from the learner's
- * own recorded pace — roughly when the certification could be exam ready.
+ * holding the score back, how much study time is left, and, from the learner's
+ * own recorded pace, roughly when the certification could be exam ready.
  *
  * Every number here comes from recorded evidence or from settings the learner
  * chose. Nothing is estimated optimistically and nothing is invented.

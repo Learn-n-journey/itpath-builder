@@ -25,12 +25,12 @@ export const Route = createFileRoute("/bookmarks")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Bookmarks — IT PATH" },
+      { title: "Bookmarks | IT PATH" },
       {
         name: "description",
         content: "Every lesson, resource, lab, assignment, quiz and project you have bookmarked.",
       },
-      { property: "og:title", content: "Bookmarks — IT PATH" },
+      { property: "og:title", content: "Bookmarks | IT PATH" },
       {
         property: "og:description",
         content: "One place to find everything you marked to come back to, with your notes.",

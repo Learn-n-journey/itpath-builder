@@ -38,13 +38,13 @@ export const Route = createFileRoute("/")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Dashboard — IT PATH" },
+      { title: "Dashboard | IT PATH" },
       {
         name: "description",
         content:
           "Your IT PATH dashboard: overall progress, today's tasks, study time, streak and readiness.",
       },
-      { property: "og:title", content: "Dashboard — IT PATH" },
+      { property: "og:title", content: "Dashboard | IT PATH" },
       {
         property: "og:description",
         content: "Every number is calculated from your own recorded study activity.",
@@ -100,7 +100,7 @@ function Dashboard() {
       <div className="flex items-start gap-4">
         <img
           src="/icons/icon-256.png"
-          alt="IT PATH logo — a mountain path with circuit traces"
+          alt="IT PATH logo, a mountain path with circuit traces"
           className="h-14 w-14 shrink-0 rounded-2xl sm:h-16 sm:w-16"
         />
         <div className="min-w-0 flex-1">
@@ -134,7 +134,7 @@ function Dashboard() {
               <span className="font-medium">2. Study your first topic.</span>{" "}
               <span className="text-muted-foreground">
                 {path.recommendedTopic
-                  ? `${path.recommendedTopic.title} — ${path.reason}.`
+                  ? `${path.recommendedTopic.title}, ${path.reason}.`
                   : "Pick any topic in Learn."}
               </span>
             </li>

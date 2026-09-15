@@ -46,9 +46,9 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "When a process tries to open a file, the kernel does not simply check 'is this allowed anywhere' — it checks a specific identity against a specific file, in a fixed order. First it asks whether the requesting process's user ID matches the file's owner; if so, the owner's rwx bits decide the outcome and no further check happens. If the user is not the owner, the kernel checks whether the process's group memberships include the file's group, and if so the group bits decide. Only if neither matches does it fall through to the 'other' bits.",
+          "When a process tries to open a file, the kernel does not simply check 'is this allowed anywhere', it checks a specific identity against a specific file, in a fixed order. First it asks whether the requesting process's user ID matches the file's owner; if so, the owner's rwx bits decide the outcome and no further check happens. If the user is not the owner, the kernel checks whether the process's group memberships include the file's group, and if so the group bits decide. Only if neither matches does it fall through to the 'other' bits.",
           "Directories add a subtlety: execute permission on a directory does not mean 'run' but 'traverse', meaning you can cd into it or access files inside it by exact path, while read permission on a directory only lets you list its contents. This is why a directory can be mode 711, letting a service reach a specific file inside it by name without letting anyone browse what else is there.",
-          "Creation of new files brings umask into play. If a process creates a file with a default request of 666 and the system umask is 022, the resulting permission is 644 — write access removed for group and other. Administrators tune umask on shared systems so that new files are not accidentally left wide open.",
+          "Creation of new files brings umask into play. If a process creates a file with a default request of 666 and the system umask is 022, the resulting permission is 644, write access removed for group and other. Administrators tune umask on shared systems so that new files are not accidentally left wide open.",
         ],
       },
       {
@@ -58,7 +58,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         ],
         bullets: [
           "Run ls -ld /var/www/app/uploads and see: drwxr-xr-x 2 root root 4096 ... uploads.",
-          "Owner is root, group is root, mode is 755 — group and other only have read and execute, no write.",
+          "Owner is root, group is root, mode is 755, group and other only have read and execute, no write.",
           "Confirm the service account: ps aux | grep app shows the process runs as webapp, which is neither owner nor in group root.",
           "Fix by creating a dedicated group, e.g. groupadd appdata, adding webapp to it, then chgrp appdata uploads and chmod 775 uploads.",
           "Verify as the service account directly: sudo -u webapp touch uploads/test.txt should now succeed.",
@@ -223,7 +223,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "In Plain Words",
         paragraphs: [
-          "Writing a script is like writing a recipe for someone who will follow it exactly, with no common sense of their own, at three in the morning, with nobody watching. If a step in the recipe is ambiguous — 'add the usual amount of salt' — a human cook improvises, but a script does whatever the ambiguous instruction technically means, which is often not what you wanted. Good scripts spell out every assumption: check the salt is actually in the cupboard before starting, and stop and shout if it is not.",
+          "Writing a script is like writing a recipe for someone who will follow it exactly, with no common sense of their own, at three in the morning, with nobody watching. If a step in the recipe is ambiguous, 'add the usual amount of salt', a human cook improvises, but a script does whatever the ambiguous instruction technically means, which is often not what you wanted. Good scripts spell out every assumption: check the salt is actually in the cupboard before starting, and stop and shout if it is not.",
           "This is also why scripts need to report back. A cook who silently burns dinner and says nothing is worse than one who burns it and tells you immediately. A script that fails without printing an error message or without a way for anyone to notice the failure is functionally the same as no automation at all, because it gives you false confidence that a task happened when it did not.",
         ],
       },
@@ -231,7 +231,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         heading: "What It Is",
         paragraphs: [
           "Bash scripts execute a sequence of shell commands using variables, quoting, conditional tests, if/case branching, for and while loops, and functions, with every command returning a numeric exit code where zero conventionally means success. Redirection controls where output and errors go, and pipelines chain commands together, passing the output of one as the input to the next.",
-          "Robust scripts add defensive behaviour on top of these basics: set -euo pipefail makes the script abort on an unhandled error, treat use of an unset variable as an error, and fail the whole pipeline if any stage of it fails rather than only the last one. Idempotency — designing a script so running it twice produces the same end state as running it once — matters because scheduled jobs sometimes run twice by accident, or need to be rerun manually after a partial failure.",
+          "Robust scripts add defensive behaviour on top of these basics: set -euo pipefail makes the script abort on an unhandled error, treat use of an unset variable as an error, and fail the whole pipeline if any stage of it fails rather than only the last one. Idempotency, designing a script so running it twice produces the same end state as running it once, matters because scheduled jobs sometimes run twice by accident, or need to be rerun manually after a partial failure.",
         ],
       },
       {
@@ -252,7 +252,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "The shell reads a script line by line, expanding variables and any glob patterns before running each command, and it records the exit status of the most recently run command in the special variable $?. Conditional constructs like if and while use exit codes directly as their true/false test, which is why 'if command; then' works without any explicit comparison — it is really asking 'did that command succeed'.",
+          "The shell reads a script line by line, expanding variables and any glob patterns before running each command, and it records the exit status of the most recently run command in the special variable $?. Conditional constructs like if and while use exit codes directly as their true/false test, which is why 'if command; then' works without any explicit comparison, it is really asking 'did that command succeed'.",
           "When a script is scheduled through cron or a systemd timer, it runs with a much smaller environment than an interactive login shell: no terminal, often a minimal PATH, and none of the aliases or shell functions a user's own session has. This is the single most common reason a script that works perfectly when run by hand fails mysteriously when scheduled, because it silently relies on something only present in an interactive environment.",
           "A well-built maintenance script therefore starts by validating its assumptions explicitly: checking required commands exist, required directories are present, and required variables are set, before doing anything destructive. It then performs its work, checking the exit code of each meaningful step, and finishes by logging a clear success or failure message somewhere durable, ideally somewhere that also triggers an alert on failure.",
         ],
@@ -263,7 +263,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
           "A backup script needs converting from a fragile one-liner into something safe to trust unattended.",
         ],
         bullets: [
-          "Original risky line: rm -rf $TARGET/old — if TARGET is unset, this expands to rm -rf /old, which is catastrophic on some systems.",
+          "Original risky line: rm -rf $TARGET/old, if TARGET is unset, this expands to rm -rf /old, which is catastrophic on some systems.",
           "Safer version: rm -rf \"${TARGET:?TARGET is not set}\"/old, which aborts with a clear message if TARGET is empty.",
           "Add set -euo pipefail at the top so any unexpected failure stops the script rather than continuing on a broken assumption.",
           "Check free space before writing: df --output=avail /backups | tail -1 compared against a minimum threshold, exiting with an error if too low.",
@@ -429,7 +429,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "In Plain Words",
         paragraphs: [
-          "A desktop computer is built to be affordable, and if something breaks, you fix it or replace the whole machine over a weekend. A server is built on the opposite assumption: something will break while it is running, and it must keep working anyway, because a database or website going down at 2 a.m. is not acceptable. This means servers duplicate the parts most likely to fail — power supplies, fans, and disks — so that losing one does not stop the whole machine.",
+          "A desktop computer is built to be affordable, and if something breaks, you fix it or replace the whole machine over a weekend. A server is built on the opposite assumption: something will break while it is running, and it must keep working anyway, because a database or website going down at 2 a.m. is not acceptable. This means servers duplicate the parts most likely to fail, power supplies, fans, and disks, so that losing one does not stop the whole machine.",
           "Storage arrays extend this idea to disks specifically. Instead of storing your data on a single disk that could fail and take everything with it, RAID spreads or duplicates data across several disks using different strategies, trading off cost, speed, and how many disks can fail before data is actually lost. Out-of-band management is like having a second, independent phone line into the building that still works even if the main phone system is down, letting an administrator reach and control the server even when its main operating system has crashed.",
         ],
       },
@@ -505,7 +505,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         paragraphs: [
           "Start with the RAID controller's own management tool or command-line utility, since it reports array status (optimal, degraded, or failed) directly, along with which specific physical disk is implicated; guessing based on operating system symptoms alone wastes time when the controller already knows the answer.",
           "Check whether redundancy is actually independent, not just present: confirm dual power supplies are connected to genuinely separate circuits or UPS units, and confirm a RAID array's disks are not all connected through a single point of failure such as one backplane or one controller with no fallback.",
-          "Use out-of-band management to check hardware health sensors — temperature, fan speed, voltage — directly, especially when the operating system itself is unresponsive, since this channel often continues working when nothing else does and can immediately show whether the issue is hardware or software.",
+          "Use out-of-band management to check hardware health sensors, temperature, fan speed, voltage, directly, especially when the operating system itself is unresponsive, since this channel often continues working when nothing else does and can immediately show whether the issue is hardware or software.",
         ],
       },
       {
@@ -667,7 +667,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         paragraphs: [
           "Designing a backup strategy starts with stating RPO and RTO for each system, agreed with the business rather than assumed by IT, because different systems genuinely need different levels of protection; an accounting database might need a fifteen-minute RPO while an archive of old marketing files might tolerate a week. Backup frequency, method, and retention are then derived directly from those numbers rather than chosen arbitrarily.",
           "The backup job itself runs on schedule, and its completion status must be actively checked, not assumed; a mature process verifies both that the job reported success and that the resulting archive is actually readable, since a backup that silently writes corrupted data is worse than an obvious failure because nobody investigates it. At least one copy is kept isolated from the production network so that an incident affecting live systems, including a ransomware infection that specifically searches for and encrypts connected backup shares, cannot also destroy the recovery path.",
-          "Recovery itself follows a documented runbook that states the order systems must be restored in, respecting real dependencies, for example bringing a directory service back before the applications that authenticate against it. Periodic recovery drills — actually restoring a system to a test environment and confirming it works — are what convert a theoretical plan into one the organisation can trust during a genuine incident, when there is no time to discover a step was missing.",
+          "Recovery itself follows a documented runbook that states the order systems must be restored in, respecting real dependencies, for example bringing a directory service back before the applications that authenticate against it. Periodic recovery drills, actually restoring a system to a test environment and confirming it works, are what convert a theoretical plan into one the organisation can trust during a genuine incident, when there is no time to discover a step was missing.",
         ],
       },
       {
@@ -768,7 +768,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "How It Works, Step by Step",
         paragraphs: [
-          "A monitoring system continuously collects metrics from agents or exporters running on each monitored system, storing them in a time-series database so trends and thresholds can be evaluated over time rather than only at a single instant. When a defined threshold is crossed for a sustained period, an alerting rule fires and routes a notification to the appropriate owner, ideally with enough context — which system, which metric, how severe — that the recipient can start diagnosing immediately rather than first having to figure out what the alert even means.",
+          "A monitoring system continuously collects metrics from agents or exporters running on each monitored system, storing them in a time-series database so trends and thresholds can be evaluated over time rather than only at a single instant. When a defined threshold is crossed for a sustained period, an alerting rule fires and routes a notification to the appropriate owner, ideally with enough context, which system, which metric, how severe, that the recipient can start diagnosing immediately rather than first having to figure out what the alert even means.",
           "For patching, a typical cycle begins with a vendor releasing an update, which is first applied to a small canary ring of low-risk, closely watched systems. The team monitors those systems for a defined soak period, watching both automated metrics and any user reports, and only if no problems appear does the update progress to a wider ring and eventually the full fleet. If a problem does appear at any stage, the rollback plan is executed on the affected ring immediately, and the wider rollout is paused until the cause is understood.",
           "Centralised logging supports both processes: during an incident triggered by an alert, correlating log entries from several systems around the same timestamp often reveals the true root cause faster than examining any single system's logs in isolation, especially in distributed environments where a single user request touches multiple services.",
         ],
@@ -843,7 +843,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         heading: "In Plain Words",
         paragraphs: [
           "Think about renting a car compared to owning one, compared to hiring a taxi. If you own the car, you handle everything: fuel, servicing, insurance, repairs. If you rent a car, the rental company still handles major maintenance and the vehicle itself, but you are responsible for driving it safely and putting fuel in it. If you take a taxi, you are responsible for almost nothing except telling the driver where to go and paying the fare. Cloud service models work the same way: the more of the underlying 'vehicle' the provider manages, the less you have to worry about, but also the less control and customisation you have.",
-          "Deployment models are a separate question about where the whole arrangement physically or logically lives: entirely with a public provider shared by many customers, entirely on infrastructure your own organisation controls, or some deliberate mixture of the two connected together. Neither question — service model or deployment model — has one universally correct answer; the right choice depends on cost, control, compliance, and how much operational effort your team can realistically take on.",
+          "Deployment models are a separate question about where the whole arrangement physically or logically lives: entirely with a public provider shared by many customers, entirely on infrastructure your own organisation controls, or some deliberate mixture of the two connected together. Neither question, service model or deployment model, has one universally correct answer; the right choice depends on cost, control, compliance, and how much operational effort your team can realistically take on.",
         ],
       },
       {
@@ -938,14 +938,14 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
     topicId: "topic-cloud-compute-and-networking",
     readingMinutes: 8,
     intro:
-      "In the cloud, an entire network — addresses, subnets, firewalls, load balancers — is built with configuration instead of physical cables and switches. Designing it well means thinking about address space and access control deliberately, because a mistake here is invisible until traffic actually tries to flow through it.",
+      "In the cloud, an entire network, addresses, subnets, firewalls, load balancers, is built with configuration instead of physical cables and switches. Designing it well means thinking about address space and access control deliberately, because a mistake here is invisible until traffic actually tries to flow through it.",
     whereYouMeetIt:
       "A newly deployed web application cannot be reached from the internet even though the server itself is running perfectly.",
     sections: [
       {
         heading: "In Plain Words",
         paragraphs: [
-          "Building a network in the cloud is like designing the layout of a new office building entirely on paper before any walls exist. You decide how many floors there are and roughly how many rooms fit on each floor before deciding who goes where; that is your address space and subnets. Then you decide which doors are locked to whom — which rooms the public can walk into, which are staff-only, which require special clearance; that is your security groups and firewall rules.",
+          "Building a network in the cloud is like designing the layout of a new office building entirely on paper before any walls exist. You decide how many floors there are and roughly how many rooms fit on each floor before deciding who goes where; that is your address space and subnets. Then you decide which doors are locked to whom, which rooms the public can walk into, which are staff-only, which require special clearance; that is your security groups and firewall rules.",
           "Load balancing is like having a receptionist at the main entrance who directs each visitor to whichever available staff member can help them, rather than everyone trying to squeeze through one specific person's office door. And scaling is deciding that on a very busy day, more receptionists and more staff automatically come on shift, and on a quiet day, they go back to a smaller normal number, so you are not paying for a full building's staff around the clock when most of the time you do not need them.",
         ],
       },
@@ -1048,14 +1048,14 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "In Plain Words",
         paragraphs: [
-          "In a traditional office, security largely means locked doors and badges controlling who can physically walk in. In the cloud there is no building to lock; instead, every single action — creating a server, reading a file, deleting a database — is only possible if the identity performing it has been explicitly granted permission to do that specific thing. This is why identity, not network location, is really the front line of cloud security.",
+          "In a traditional office, security largely means locked doors and badges controlling who can physically walk in. In the cloud there is no building to lock; instead, every single action, creating a server, reading a file, deleting a database, is only possible if the identity performing it has been explicitly granted permission to do that specific thing. This is why identity, not network location, is really the front line of cloud security.",
           "Handing out a long-lived password or key that never expires is like giving someone a spare house key that works forever, even after they move away or the key gets copied by someone else. Modern cloud security instead prefers temporary, narrowly scoped permissions: like a hotel key card that only opens your specific room, only for your specific stay, and stops working automatically the day you check out.",
         ],
       },
       {
         heading: "What It Is",
         paragraphs: [
-          "Cloud identity and access management (IAM) controls which identities — users, groups, or automated service roles — can perform which actions on which resources, expressed through policies that follow the principle of least privilege, granting only the specific permissions a task genuinely requires rather than broad administrative access by default. Roles allow temporary, revocable permission assumption, commonly used by applications and automation instead of long-lived embedded credentials.",
+          "Cloud identity and access management (IAM) controls which identities, users, groups, or automated service roles, can perform which actions on which resources, expressed through policies that follow the principle of least privilege, granting only the specific permissions a task genuinely requires rather than broad administrative access by default. Roles allow temporary, revocable permission assumption, commonly used by applications and automation instead of long-lived embedded credentials.",
           "Key management involves generating, storing, rotating, and revoking the cryptographic keys and access credentials used to authenticate to cloud services and to encrypt data, ideally handled through a managed secrets service rather than credentials embedded directly in code or configuration files. Audit logging records every action taken against a cloud account, and configuration guardrails, sometimes called policy-as-code or posture management tools, continuously check the environment against defined security rules and flag or automatically remediate violations.",
         ],
       },
@@ -1090,7 +1090,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         bullets: [
           "Immediately treat the key as compromised: revoke or deactivate it in the cloud provider's IAM console, since it is now publicly visible and could already be in use by someone else.",
           "Review the account's audit log for any activity using that specific key since it was committed, looking for anything unexpected such as new resources created or data accessed.",
-          "Identify what the script actually needed to do — in this case, only reading from a single storage bucket — and compare that to the administrator-level access the key actually had.",
+          "Identify what the script actually needed to do, in this case, only reading from a single storage bucket, and compare that to the administrator-level access the key actually had.",
           "Replace the embedded key with a role attached to the compute environment running the script, scoped only to read access on that specific bucket.",
           "Store any credentials the script genuinely still needs, such as a third-party API token, in a managed secrets service rather than in the code itself.",
           "Add a pre-commit or pipeline scanning check that blocks commits containing anything resembling a credential, to prevent a repeat of the same mistake.",
@@ -1151,7 +1151,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
       {
         heading: "In Plain Words",
         paragraphs: [
-          "A container is like a fully packed shipping crate for an application: everything the application needs — its code, its exact library versions, its configuration — travels together in one sealed box, so it behaves the same whether it is opened on a developer's laptop, a testing server, or a production cloud environment. Without that crate, applications tend to depend quietly on whatever happens to already be installed on a particular machine, which is exactly why something can work perfectly on one computer and fail mysteriously on another.",
+          "A container is like a fully packed shipping crate for an application: everything the application needs, its code, its exact library versions, its configuration, travels together in one sealed box, so it behaves the same whether it is opened on a developer's laptop, a testing server, or a production cloud environment. Without that crate, applications tend to depend quietly on whatever happens to already be installed on a particular machine, which is exactly why something can work perfectly on one computer and fail mysteriously on another.",
           "Infrastructure as code applies the same idea to the environment itself, not just the application. Instead of an administrator manually clicking through settings to build a server or network, the entire desired setup is written down as a file, the same way a recipe is written down rather than kept only in a chef's memory. Anyone can read that file to understand exactly what exists, recreate it identically elsewhere, and see precisely what changed by comparing an old version of the recipe to a new one.",
         ],
       },
@@ -1159,7 +1159,7 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
         heading: "What It Is",
         paragraphs: [
           "A container packages an application together with its dependencies and a minimal filesystem into a single image, run by a container engine that isolates it from the host system using kernel features such as namespaces and cgroups, sharing the host's kernel while keeping the application's view of the filesystem, processes, and network largely separate from other containers on the same machine. This is lighter weight than a full virtual machine, which virtualizes an entire separate kernel and operating system, making containers start faster and use fewer resources for the same workload.",
-          "Infrastructure as code defines servers, networks, and other cloud resources declaratively in version-controlled configuration files, using tools such as Terraform or cloud-native equivalents, so that the actual running environment can be created, changed, or destroyed by applying that file rather than through manual, undocumented actions. Changes are proposed, reviewed, and applied through a pipeline, producing an auditable history of exactly what changed, when, and by whom, and allowing configuration drift — where the real environment no longer matches its definition — to be detected and corrected.",
+          "Infrastructure as code defines servers, networks, and other cloud resources declaratively in version-controlled configuration files, using tools such as Terraform or cloud-native equivalents, so that the actual running environment can be created, changed, or destroyed by applying that file rather than through manual, undocumented actions. Changes are proposed, reviewed, and applied through a pipeline, producing an auditable history of exactly what changed, when, and by whom, and allowing configuration drift, where the real environment no longer matches its definition, to be detected and corrected.",
         ],
       },
       {

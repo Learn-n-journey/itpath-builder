@@ -10,9 +10,9 @@ export const Route = createFileRoute("/checkout/success")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Purchase complete — IT PATH" },
+      { title: "Purchase complete | IT PATH" },
       { name: "description", content: "Your IT PATH Pro purchase is confirmed." },
-      { property: "og:title", content: "Purchase complete — IT PATH" },
+      { property: "og:title", content: "Purchase complete | IT PATH" },
       { property: "og:description", content: "Your IT PATH Pro purchase is confirmed." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -50,7 +50,7 @@ function CheckoutSuccessPage() {
               ? "Your Plus access is active. The labs, simulators and adaptive learning engine are all unlocked."
               : loading
                 ? "Checking your account…"
-                : "Your payment went through. Paid features unlock automatically the moment the payment provider confirms it — this usually takes a few seconds."}
+                : "Your payment went through. Paid features unlock automatically the moment the payment provider confirms it, this usually takes a few seconds."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Button asChild>
