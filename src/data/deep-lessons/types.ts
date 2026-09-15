@@ -53,6 +53,14 @@ export interface LessonDepth {
   checkYourself: LessonCheck[];
 }
 
+/** Everyday-language opening and word list, written for a complete beginner. */
+export interface LessonPlainLanguage {
+  /** The whole topic in ordinary words, before any technical terms appear. */
+  plainIntro: string;
+  /** Each technical term used in the lesson, said in plain words. */
+  wordList: Array<{ term: string; plain: string }>;
+}
+
 export interface DeepLesson {
   topicId: string;
   /** Honest reading estimate for this specific lesson. */
@@ -64,4 +72,6 @@ export interface DeepLesson {
   sections: DeepLessonSection[];
   /** Optional deeper teaching layer, merged in from the depth files. */
   depth?: LessonDepth;
+  /** Optional beginner layer, merged in from the plain-language files. */
+  plain?: LessonPlainLanguage;
 }

@@ -15,9 +15,30 @@ import { fundamentalsAPlusLessonDepth } from "./deep-lessons/depth-fundamentals-
 import { linuxServersCloudLessonDepth } from "./deep-lessons/depth-linux-servers-cloud";
 import { mobileDevicesLessonDepth } from "./deep-lessons/depth-mobile-devices";
 import { networkSecurityLessonDepth } from "./deep-lessons/depth-network-security";
-import type { DeepLesson, DeepLessonSection, LessonDepth } from "./deep-lessons/types";
+import { foundationPlainLanguage } from "./deep-lessons/plain-foundation";
+import { fundamentalsAplusPlainLanguage } from "./deep-lessons/plain-fundamentals-aplus";
+import { mobileDevicesPlainLanguage } from "./deep-lessons/plain-mobile-devices";
+import { networkSecurityPlainLanguage } from "./deep-lessons/plain-network-security";
+import { linuxServersCloudPlainLanguage } from "./deep-lessons/plain-linux-servers-cloud";
+import { advancedSecurityPlainLanguage } from "./deep-lessons/plain-advanced-security";
+import type {
+  DeepLesson,
+  DeepLessonSection,
+  LessonDepth,
+  LessonPlainLanguage,
+} from "./deep-lessons/types";
 
-export type { DeepLesson, DeepLessonSection, LessonDepth };
+export type { DeepLesson, DeepLessonSection, LessonDepth, LessonPlainLanguage };
+
+/** Everyday-language opener and word list for every topic that has one. */
+const plainLanguageByTopic: Record<string, LessonPlainLanguage> = {
+  ...foundationPlainLanguage,
+  ...fundamentalsAplusPlainLanguage,
+  ...mobileDevicesPlainLanguage,
+  ...networkSecurityPlainLanguage,
+  ...linuxServersCloudPlainLanguage,
+  ...advancedSecurityPlainLanguage,
+};
 
 const foundationDeepLessons: DeepLesson[] = [
   {
@@ -713,7 +734,12 @@ export const deepLessons: DeepLesson[] = [
   ...advancedSecurityDeepLessons,
 ].map((lesson) => {
   const depth = lessonDepthByTopic[lesson.topicId];
-  return depth ? { ...lesson, depth } : lesson;
+  const plain = plainLanguageByTopic[lesson.topicId];
+  return {
+    ...lesson,
+    ...(depth ? { depth } : {}),
+    ...(plain ? { plain } : {}),
+  };
 });
 
 export function getDeepLesson(topicId: string): DeepLesson | undefined {
