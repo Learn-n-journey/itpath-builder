@@ -323,11 +323,16 @@ export interface QuizAttempt {
   submittedAt?: string;
 }
 
+/** How sure the learner said they were, asked before the answer is marked. */
+export type AnswerConfidence = "guess" | "unsure" | "sure";
+
 export interface QuizQuestionResult {
   questionId: EntityId;
   topicId: EntityId;
   correct: boolean;
   response: string[];
+  /** Stated confidence, when the learner chose one. */
+  confidence?: AnswerConfidence;
 }
 
 export interface RecallResponse {
