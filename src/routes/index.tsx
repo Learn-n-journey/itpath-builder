@@ -14,6 +14,7 @@ import {
   Wrench,
 } from "lucide-react";
 
+import { GaylDashboardNote } from "@/components/gayl/gayl-insights";
 import { NextActionCard } from "@/components/next-action-card";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { ReadinessPanel } from "@/components/readiness-panel";
@@ -162,6 +163,7 @@ function Dashboard() {
         </Panel>
       ) : (
         <div className="mb-4 grid gap-4 lg:grid-cols-2">
+          <GaylDashboardNote className="lg:col-span-2" />
           <NextActionCard actions={actions} />
           <ReadinessPanel report={readiness} />
           <StreakPanel />

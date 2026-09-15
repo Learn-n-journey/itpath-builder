@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
+import { GaylProgressNote } from "@/components/gayl/gayl-insights";
 import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -86,6 +87,8 @@ function ProgressPage() {
           />
         </Panel>
       ) : null}
+
+      <GaylProgressNote className="mt-6" />
 
       <Panel
         className="mt-6"
