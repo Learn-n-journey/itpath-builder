@@ -113,6 +113,31 @@ export interface ConceptIntel {
   /** Higher means study sooner. */
   priority: number;
   onTargetPath: boolean;
+
+  /** Where the concept sits on the Unknown → Retained ladder. */
+  state: LearningState;
+  /** The condition keeping it off the next rung, if any. */
+  stateBlockedBy: string | null;
+  /** How much independent, spaced evidence stands behind all of this. */
+  evidenceStrength: EvidenceStrength;
+  /** Whether the concept has held up outside recall questions. */
+  transfer: TransferEvidence;
+  /** Mastery points gained per week over the last four weeks. */
+  velocity: number;
+  /** Competing causes, each with its own support. */
+  hypotheses: Hypothesis[];
+  /** 0-1 trust in the leading diagnosis. */
+  certainty: number;
+  /** A controlled test to run when the cause is not yet confirmed. */
+  diagnosticTest: DiagnosticTest | null;
+  /** True when the recommendation is a test rather than a treatment. */
+  isDiagnostic: boolean;
+  /** Measured effect of past teaching on this concept. */
+  interventions: InterventionHistory;
+  /** Why this method, when it differs from the default for the diagnosis. */
+  methodReason: string | null;
+  /** Full Observe → Adapt trace behind the recommendation. */
+  trace: TraceStep[];
 }
 
 export interface PlanItem extends ConceptIntel {
