@@ -761,6 +761,8 @@ export interface LearnerSignal {
   score?: number;
   /** Time the learner took to answer, in milliseconds, when it was measured. */
   elapsedMs?: number;
+  /** What the learner said about how sure they were, when they were asked. */
+  confidence?: AnswerConfidence;
   /** Recorded misconception or error label, when the activity identified one. */
   errorTag?: string;
   at: string;
