@@ -59,6 +59,8 @@ function Brand() {
 }
 
 import { GaylBubble } from "@/components/gayl/gayl-bubble";
+import { BackButton } from "@/components/layout/back-button";
+import { QuickNav } from "@/components/layout/quick-nav";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -115,9 +117,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <main className={cn("lg:pl-64")}>
         <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+          <BackButton className="mb-4" />
           {children}
+          <div className="mt-10 border-t border-border pt-4">
+            <BackButton />
+          </div>
         </div>
         <GaylBubble />
+        <QuickNav />
         <footer className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
             <span>IT PATH · David Boley</span>
