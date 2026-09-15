@@ -167,6 +167,40 @@ function masteryFrom(signals: LearnerSignal[], nowMs: number): { mastery: number
   return { mastery: clamp01(mastery), weight };
 }
 
+/** Mastery at or above this counts as demonstrated rather than assumed. */
+export const PROVEN_MASTERY = 0.7;
+
+/**
+ * Evidence raises mastery; forgetting, repeated errors and unproven
+ * prerequisites lower it. Nothing here can raise an unattempted concept above
+ * zero — unknown stays unknown.
+ */
+function adjustMastery(
+  profile: ConceptProfile,
+  prerequisites: PrerequisiteState[],
+): number {
+  if (profile.evidenceMastery <= 0) return 0;
+
+  // Forgetting: recall that has decayed since the last exposure discounts the
+  // evidence, but never wipes it out.
+  const decay = profile.daysSinceExposure === null
+    ? 1
+    : 0.85 + 0.15 * retentionFrom(profile.evidenceMastery, profile.attempts, profile.daysSinceExposure);
+
+  // Repeated unresolved errors on the concept.
+  const errorCount = profile.errorPatterns.reduce((sum, pattern) => sum + pattern.count, 0);
+  const errors = 1 - Math.min(errorCount, 6) * 0.03;
+
+  // Unproven prerequisites: knowledge resting on unproven ground is less certain.
+  const gaps = prerequisites.filter((prerequisite) => !prerequisite.satisfied).length;
+  const foundation = 1 - Math.min(gaps, 3) * 0.08;
+
+  // Thin coverage keeps a perfect run on one activity from reading as mastery.
+  const proof = 0.6 + 0.4 * profile.coverage;
+
+  return clamp01(profile.evidenceMastery * decay * errors * foundation * proof);
+}
+
 /** Half-life grows with mastery and with how often the concept has been revisited. */
 function retentionFrom(mastery: number, exposures: number, daysSince: number | null): number {
   if (daysSince === null) return 0;
