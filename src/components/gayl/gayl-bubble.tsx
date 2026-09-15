@@ -199,7 +199,7 @@ export function GaylBubble() {
         onClick={() => setOpen((value) => !value)}
         aria-label={open ? "Hide GAYL messages" : "Show GAYL messages"}
         className={cn(
-          "relative flex size-12 items-center justify-center rounded-full border border-border bg-card shadow-lg transition-colors hover:border-primary/60",
+          "relative flex size-16 items-center justify-center rounded-full border border-border bg-card shadow-lg transition-colors hover:border-primary/60 sm:size-14",
         )}
       >
         <img
@@ -208,11 +208,11 @@ export function GaylBubble() {
           width={816}
           height={816}
           loading="lazy"
-          className="size-11 rounded-full"
+          className="size-14 rounded-full sm:size-12"
         />
         {!open && !quiet && unreadCount > 0 ? (
           <span
-            className="absolute -right-0.5 -top-0.5 flex size-5 items-center justify-center rounded-full border-2 border-card bg-destructive text-[10px] font-semibold text-destructive-foreground"
+            className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full border-2 border-card bg-destructive text-xs font-semibold text-destructive-foreground sm:size-5 sm:text-[10px]"
             aria-hidden
           >
             {unreadCount}
