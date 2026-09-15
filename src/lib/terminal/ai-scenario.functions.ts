@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { MachineSpec, ShellKind } from "./machine";
 import type { TerminalScenario } from "./scenarios";
-import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
+import { runAi } from "@/lib/ai/run.server";
 import { allowAiCall } from "@/lib/ai-budget.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -279,25 +279,22 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
     // regenerated once before the learner ever sees it.
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
-        const res = await fetch(GATEWAY_CHAT_URL, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            model: UTILITY_MODEL,
-            response_format: { type: "json_object" },
-            messages: [
-              { role: "system", content: system },
-              { role: "user", content: prompt },
-            ],
-          }),
+        // Low risk and easy to verify, so this stays on the cheap model. Each
+        // attempt is deliberately uncached: a fresh scenario every time.
+        const result = await runAi({
+          feature: "scenario",
+          userId: context.userId,
+          system,
+          prompt: `${prompt}\nAttempt: ${attempt + 1}`,
+          risk: "low",
+          priority: "interactive",
+          json: true,
         });
-
-        if (res.status === 429) return { ok: false, error: "The scenario writer is busy — try again in a moment." };
-        if (res.status === 402) return { ok: false, error: "AI usage limit reached for this app." };
-        if (!res.ok) return { ok: false, error: `Could not create a scenario (${res.status}).` };
-
-        const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-        const raw = json.choices?.[0]?.message?.content?.trim() ?? "";
+        if (!result.ok) {
+          if (attempt === 0 && result.outcome === "error") continue;
+          return { ok: false, error: result.error };
+        }
+        const raw = result.text;
         const start = raw.indexOf("{");
         const end = raw.lastIndexOf("}");
         if (start === -1 || end === -1) {
