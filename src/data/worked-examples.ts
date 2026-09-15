@@ -58,7 +58,7 @@ export const workedExamples: WorkedExample[] = [
   {
     id: "example-decimal-to-binary",
     title: "Convert decimal to binary",
-    topicIds: ["topic-basic-networking-concepts", "topic-networking-basics"],
+    topicIds: ["topic-basic-networking-concepts", "topic-networking-basics", "topic-binary-and-number-systems"],
     certificationId: "cert-comptia-a-plus",
     question: "Convert the decimal number 172 to 8-bit binary.",
     steps: [
