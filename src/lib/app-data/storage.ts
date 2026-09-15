@@ -313,3 +313,44 @@ export function clearState(): boolean {
     return false;
   }
 }
+
+/**
+ * Per-account safety copy. Kept on this device whenever work may not have
+ * reached the account yet, so signing out can never be the thing that loses it.
+ */
+export const STORAGE_BACKUP_PREFIX = "itpath:backup:v1:";
+
+function backupKey(userId: string): string {
+  return `${STORAGE_BACKUP_PREFIX}${userId}`;
+}
+
+export function writeStateBackup(userId: string, user: UserData): boolean {
+  try {
+    window.localStorage.setItem(
+      backupKey(userId),
+      JSON.stringify({ version: APP_DATA_VERSION, user }),
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function readStateBackup(userId: string): UserData | null {
+  try {
+    const raw = window.localStorage.getItem(backupKey(userId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PersistedState>;
+    return sanitizeUser(parsed?.user);
+  } catch {
+    return null;
+  }
+}
+
+export function clearStateBackup(userId: string): void {
+  try {
+    window.localStorage.removeItem(backupKey(userId));
+  } catch {
+    /* ignore */
+  }
+}

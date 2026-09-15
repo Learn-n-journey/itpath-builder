@@ -29,6 +29,9 @@ import {
   isStorageAvailable,
   readStateOwner,
   writeStateOwner,
+  readStateBackup,
+  writeStateBackup,
+  clearStateBackup,
   type LoadOutcome,
 } from "@/lib/app-data/storage";
 import {
@@ -166,8 +169,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!hydrated || !authReady) return;
     if (!userId) {
-      // Signing out wipes the device cache so the next person starts clean.
-      if (readStateOwner()) {
+      // Signing out clears the device cache so the next person starts clean,
+      // but anything not yet confirmed saved to the account is kept as a
+      // per-account safety copy and restored at the next sign-in.
+      const owner = readStateOwner();
+      if (owner) {
+        if (pushedSnapshot.current !== JSON.stringify(user)) {
+          writeStateBackup(owner, user);
+        }
         clearState();
         writeStateOwner(null);
         skipNextSave.current = true;
@@ -188,22 +197,31 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       clearState();
       setUser(createDefaultUserData());
     }
+    const backup = readStateBackup(userId);
 
     let cancelled = false;
     setCloudStatus("syncing");
     void fetchCloudState(userId).then((result) => {
       if (cancelled) return;
       if (!result.ok) {
+        // The account copy is unreachable: keep the unsaved safety copy where
+        // it is so a later sign-in can still recover it.
+        if (backup) setUser((local) => (activityCount(backup) > activityCount(local) ? backup : local));
         setCloudError(result.error ?? "Could not reach your account");
         setCloudStatus("error");
         return;
       }
-      if (result.found && result.user) {
-        const remote = result.user;
-        setUser((local) =>
-          !foreignCache && activityCount(local) > activityCount(remote) ? local : remote,
+      setUser((local) => {
+        const candidates: UserData[] = [];
+        if (result.found && result.user) candidates.push(result.user);
+        if (backup) candidates.push(backup);
+        if (!foreignCache) candidates.push(local);
+        if (candidates.length === 0) return local;
+        // Whichever copy holds the most recorded work wins.
+        return candidates.reduce((best, item) =>
+          activityCount(item) > activityCount(best) ? item : best,
         );
-      }
+      });
       writeStateOwner(userId);
       pushedSnapshot.current = "";
       setCloudError(null);
@@ -227,6 +245,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       void pushCloudState(userId, user).then((result) => {
         if (result.ok) {
           pushedSnapshot.current = snapshot;
+          // Safely in the account now, so the local safety copy is no longer needed.
+          clearStateBackup(userId);
           setCloudError(null);
           setCloudSyncedAt(new Date().toISOString());
           setCloudStatus("synced");
