@@ -10,6 +10,7 @@ import { certifications, topics as allTopics } from "@/data/static-content";
 import { certificationTopics } from "@/lib/cert-path";
 import type { Topic, UserData } from "@/lib/app-data/types";
 import { topicScopeProgress } from "@/lib/scope-progress";
+import { masteryGate } from "@/lib/mastery-gate";
 
 /** Recorded score that counts as "mastered" for unlocking the next topic. */
 export const MASTERY_THRESHOLD = 80;
