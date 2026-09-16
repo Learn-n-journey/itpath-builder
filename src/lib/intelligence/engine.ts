@@ -18,7 +18,7 @@ import { evidenceStream } from "@/lib/learner-signals";
 import { topicScopeProgress } from "@/lib/scope-progress";
 import { openMistakeCount } from "@/lib/missed-questions";
 import type { EntityId, LearnerSignal, UserData } from "@/lib/app-data/types";
-import { diagnose, measure } from "./diagnose";
+import { diagnose, itemRegressionByTopic, measure } from "./diagnose";
 import { evidenceStrength, gradedSignals, transferEvidence, velocityFrom } from "./evidence";
 import { hypothesize } from "./hypothesis";
 import { interventionHistory } from "./interventions";
@@ -189,6 +189,9 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
     else byTopicSignals.set(signal.topicId, [signal]);
   }
 
+  // Topics where the same item was right once and missed later on.
+  const regressedTopics = itemRegressionByTopic(user);
+
   const concepts: ConceptIntel[] = topics.map((topic) => {
     const profile = model.byTopic[topic.id]!;
     const scope = topicScopeProgress(user, topic.id);
@@ -220,6 +223,7 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
       repeatedMisconception,
       prerequisiteGap: prerequisiteGaps.length > 0,
       retention: profile.retention,
+      itemRegression: regressedTopics.has(topic.id),
     });
 
     // 3. Hypothesize, competing causes, each needing independent support.
