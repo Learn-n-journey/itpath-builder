@@ -64,7 +64,7 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
         new Date(review.dueAt).getTime() <= nowMs,
     ).length;
 
-    const unlocked = index <= currentIndex;
+    const unlocked = isTopicOpen(user, topic.id);
     const owed = openMistakes > 0 || dueReviews > 0;
 
     let reason: string;
