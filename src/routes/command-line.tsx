@@ -4,13 +4,16 @@ import {
   CheckCircle2,
   CircleAlert,
   Lightbulb,
+  Minus,
   Play,
   RefreshCw,
   ShieldCheck,
   Shuffle,
   Sparkles,
+  Square,
   SquareTerminal,
   Trash2,
+  X,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
