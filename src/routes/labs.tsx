@@ -23,6 +23,8 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { labs, topics } from "@/data/static-content";
+import { isIdentificationLab } from "@/data/identification-labs";
+import { IdentificationLab } from "@/components/labs/identification-lab";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
 import { projectFromLabAttempt } from "@/lib/portfolio-engine";
 import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
@@ -278,7 +280,9 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
         <ol className="list-decimal space-y-3 pl-5 text-sm text-muted-foreground">{lab.instructions.map((item) => <li key={item}>{item}</li>)}</ol>
       </Panel>
 
-      {!attempt ? (
+      {isIdentificationLab(lab.id) ? (
+        <IdentificationLab lab={lab} />
+      ) : !attempt ? (
         <Panel title="Ready to begin" description="Viewing this lab has not changed your progress.">
           <Button onClick={start}><FlaskConical /> Start lab</Button>
         </Panel>

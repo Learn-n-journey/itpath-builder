@@ -783,6 +783,20 @@ export interface QuizPass {
   timesPassed: number;
 }
 
+/** One run of a mastery check, kept apart from lesson practice. */
+export interface MasteryCheckAttempt {
+  id: EntityId;
+  topicId: EntityId;
+  kind: "recall" | "understanding" | "application" | "troubleshooting";
+  /** Score out of 100 for this run. */
+  score: number;
+  correct: number;
+  total: number;
+  /** The items asked, so a later run never repeats them. */
+  itemIds: EntityId[];
+  createdAt: string;
+}
+
 export interface UserData {
   createdAt: string;
   topicProgress: Record<EntityId, TopicProgress>;
@@ -799,6 +813,7 @@ export interface UserData {
   notes: Note[];
   bookmarks: Bookmark[];
   labAttempts: LabAttempt[];
+  masteryCheckAttempts: MasteryCheckAttempt[];
   assignmentAttempts: AssignmentAttempt[];
   careerTickets: CareerTicket[];
   portfolio: PortfolioProject[];

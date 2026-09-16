@@ -1,7 +1,10 @@
 import { useMemo } from "react";
+import { Link } from "@tanstack/react-router";
 import { CalendarClock, Check, Circle } from "lucide-react";
 
 import { Panel } from "@/components/page-kit";
+import { Button } from "@/components/ui/button";
+import { identificationLabId } from "@/data/identification-labs";
 import { masteryGate } from "@/lib/mastery-gate";
 import { useAppState } from "@/state/app-state";
 
@@ -62,6 +65,18 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
         </li>
       </ul>
       <p className="mt-4 text-xs text-muted-foreground">{gate.summary}</p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button asChild size="sm" variant="secondary">
+          <Link to="/mastery-check/$topicId" params={{ topicId }}>
+            Open the mastery checks
+          </Link>
+        </Button>
+        <Button asChild size="sm" variant="ghost">
+          <Link to="/labs" search={{ lab: identificationLabId(topicId) }}>
+            Identification lab
+          </Link>
+        </Button>
+      </div>
     </Panel>
   );
 }

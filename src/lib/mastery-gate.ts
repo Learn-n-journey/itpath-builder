@@ -18,6 +18,7 @@
  * section closes again until it is, and it is asked for again each day until
  * it is passed first time that day.
  */
+import { hasMasteryCheck, type MasteryCheckKind } from "@/data/mastery-checks";
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { topicEvidence, type EvidenceItem, type ScopeDimensionKey } from "@/lib/scope-progress";
 
@@ -185,32 +186,61 @@ function knowledgeCompetency(user: UserData, topicId: EntityId): Competency {
   };
 }
 
-/** The day the last outstanding piece of proof came in. */
-function provenDay(user: UserData, topicId: EntityId, items: EvidenceItem[], quiz: Competency): number | undefined {
-  if (!quiz.met) return undefined;
-  const passedAt = user.quizPasses?.[`section-quiz-${topicId}`]?.passedAt;
-  const quizDay = passedAt ? dayOf(new Date(passedAt).getTime()) : undefined;
-  const days = items.map(firstPassDay).filter((value): value is number => value !== undefined);
-  const all = quizDay === undefined ? days : [...days, quizDay];
-  return all.length ? Math.max(...all) : undefined;
+/**
+ * Recall, teach back, application and troubleshooting are proven by their own
+ * mastery checks, not by the practice inside the lesson. Practice is where you
+ * learn with help; these runs are the proof, and they are new every time.
+ */
+function checkCompetency(user: UserData, topicId: EntityId, kind: MasteryCheckKind): Competency {
+  const { label, requirement } = LABELS[kind];
+  const exists = hasMasteryCheck(topicId, kind);
+  const attempts = (user.masteryCheckAttempts ?? []).filter(
+    (row) => row.topicId === topicId && row.kind === kind,
+  );
+  const best = attempts.length ? Math.max(...attempts.map((row) => row.score)) : 0;
+  const met = exists && best >= PASS;
+
+  let detail: string;
+  if (!exists) detail = "Not in this section.";
+  else if (met) detail = `Passed at ${Math.round(best)}%.`;
+  else if (attempts.length) detail = `Best so far ${Math.round(best)}%, 80% to pass.`;
+  else detail = "Not taken yet.";
+
+  return {
+    key: kind,
+    label,
+    requirement,
+    required: exists,
+    met,
+    available: exists ? 1 : 0,
+    passed: met ? 1 : 0,
+    outstanding: met ? 0 : exists ? 1 : 0,
+    score: Math.round(best),
+    detail,
+  };
 }
+
+/** The day this mastery check was first passed. */
+function checkPassDay(user: UserData, topicId: EntityId, kind: MasteryCheckKind): number | undefined {
+  const passes = (user.masteryCheckAttempts ?? [])
+    .filter((row) => row.topicId === topicId && row.kind === kind && row.score >= PASS)
+    .map((row) => new Date(row.createdAt).getTime())
+    .filter((time) => !Number.isNaN(time))
+    .sort((a, b) => a - b);
+  return passes[0] === undefined ? undefined : dayOf(passes[0]);
+}
+
+const CHECK_KINDS: MasteryCheckKind[] = ["recall", "understanding", "application", "troubleshooting"];
 
 export function masteryGate(user: UserData, topicId: EntityId, now: Date = new Date()): MasteryGate {
   const evidence = topicEvidence(user, topicId);
-  const byDimension = (dimension: ScopeDimensionKey) =>
-    evidence.filter((item) => item.dimension === dimension);
+  const practical = evidence.filter((item) => item.dimension === "practicalAbility");
 
   const quiz = knowledgeCompetency(user, topicId);
-  // Recall is the no-help recall round. Quiz questions are graded under the
-  // knowledge check, so they are not asked for twice here.
-  const recallItems = byDimension("recall").filter((item) => item.id.startsWith("recall-"));
   const competencies: Competency[] = [
     quiz,
-    buildCompetency("recall", recallItems),
-    buildCompetency("understanding", byDimension("understanding")),
-    buildCompetency("application", byDimension("application")),
-    buildCompetency("practicalAbility", byDimension("practicalAbility")),
-    buildCompetency("troubleshooting", byDimension("troubleshooting")),
+    ...CHECK_KINDS.map((kind) => checkCompetency(user, topicId, kind)),
+    buildCompetency("practicalAbility", practical),
   ];
 
   const required = competencies.filter((item) => item.required);
@@ -220,12 +250,24 @@ export function masteryGate(user: UserData, topicId: EntityId, now: Date = new D
   const coreProven = outstanding.length === 0;
 
   // The delayed check: has any of this work held up on a later day.
-  const proven = coreProven ? provenDay(user, topicId, evidence, quiz) : undefined;
+  const quizPassedAt = user.quizPasses?.[`section-quiz-${topicId}`]?.passedAt;
+  const provenDays = [
+    quizPassedAt ? dayOf(new Date(quizPassedAt).getTime()) : undefined,
+    ...CHECK_KINDS.map((kind) => checkPassDay(user, topicId, kind)),
+    ...practical.map(firstPassDay),
+  ].filter((value): value is number => value !== undefined);
+  const proven = coreProven && provenDays.length ? Math.max(...provenDays) : undefined;
   const todayDay = dayOf(now.getTime());
   const dueDay = proven === undefined ? undefined : proven + 1;
-  const laterPass = evidence.some((item) =>
-    item.attempts.some((row) => row.score >= PASS && proven !== undefined && dayOf(row.at) >= proven + 1),
-  );
+  const laterPass =
+    proven !== undefined &&
+    ((user.masteryCheckAttempts ?? []).some(
+      (row) =>
+        row.topicId === topicId &&
+        row.score >= PASS &&
+        dayOf(new Date(row.createdAt).getTime()) >= proven + 1,
+    ) ||
+      evidence.some((item) => item.attempts.some((row) => row.score >= PASS && dayOf(row.at) >= proven + 1)));
   const due = dueDay !== undefined && todayDay >= dueDay && !laterPass;
 
   const delayed: DelayedCheck = {
@@ -238,7 +280,7 @@ export function masteryGate(user: UserData, topicId: EntityId, now: Date = new D
       : laterPass
         ? "Held up after a break. Nothing owed here."
         : due
-          ? "Due now. Answer a recall round or retake the quiz to show it stuck."
+          ? "Due now. Run a mastery check again to show it stuck."
           : "Scheduled for tomorrow, to check it stuck.",
   };
 
