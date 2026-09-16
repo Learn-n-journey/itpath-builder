@@ -137,12 +137,31 @@ function TopicPage() {
           {topicLessons.map((lesson) => (
             <Panel key={`${lesson.id}-next`} title="Next steps">
               <ol className="space-y-3 text-sm text-muted-foreground">
-                {lesson.nextSteps.map((step, index) => (
-                  <li key={step} className="flex gap-3">
-                    <span className="font-mono text-primary">{String(index + 1).padStart(2, "0")}</span>
-                    <span>{step}</span>
-                  </li>
-                ))}
+                {lesson.nextSteps.map((step, index) => {
+                  const marker = "Hardware Explorer";
+                  const at = step.indexOf(marker);
+                  return (
+                    <li key={step} className="flex gap-3">
+                      <span className="font-mono text-primary">{String(index + 1).padStart(2, "0")}</span>
+                      <span>
+                        {at === -1 ? (
+                          step
+                        ) : (
+                          <>
+                            {step.slice(0, at)}
+                            <Link
+                              to="/explore-hardware"
+                              className="font-medium text-primary hover:underline"
+                            >
+                              {marker}
+                            </Link>
+                            {step.slice(at + marker.length)}
+                          </>
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
               </ol>
             </Panel>
           ))}
