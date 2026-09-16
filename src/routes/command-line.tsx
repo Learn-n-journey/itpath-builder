@@ -391,23 +391,31 @@ function CommandLinePage() {
               <p className="text-sm leading-relaxed text-muted-foreground">{scenario.brief}</p>
             </Panel>
 
-            <section ref={terminalPanel} aria-label="Virtual terminal" className="scroll-mt-20 overflow-hidden rounded-md border border-border bg-[color:var(--terminal-background,#07100d)] shadow-sm">
-              <div className="flex items-center justify-between border-b border-border bg-card px-3 py-2">
-                <span className="flex items-center gap-2 font-mono text-xs text-muted-foreground"><SquareTerminal className="size-4" aria-hidden />{shellLabels[attempt.shell]} · {attempt.machine.hostname}</span>
-                <Button type="button" size="sm" variant="ghost" onClick={() => start(true)} disabled={attempt.status === "submitted"} title="Reset virtual computer"><RefreshCw aria-hidden /> Reset</Button>
+            <section ref={terminalPanel} aria-label="Virtual terminal" data-shell={attempt.shell} className="terminal-window scroll-mt-20">
+              <div className="terminal-titlebar">
+                <span className="flex gap-1.5" aria-hidden>
+                  <span className="terminal-dot terminal-dot-close" />
+                  <span className="terminal-dot terminal-dot-min" />
+                  <span className="terminal-dot terminal-dot-max" />
+                </span>
+                <span className="flex min-w-0 items-center gap-2 font-mono text-xs term-muted"><SquareTerminal className="size-4 shrink-0" aria-hidden /><span className="truncate">{shellLabels[attempt.shell]} · {attempt.machine.hostname}</span></span>
+                <Button type="button" size="sm" variant="ghost" onClick={() => start(true)} disabled={attempt.status === "submitted"} title="Reset virtual computer" className="ml-auto"><RefreshCw aria-hidden /> Reset</Button>
               </div>
-              <div className="h-[430px] overflow-y-auto p-4 font-mono text-sm leading-6 text-[color:var(--terminal-foreground,#d7f7e5)]" role="log" aria-live="polite">
-                <p className="mb-4 text-muted-foreground">IT PATH virtual machine. Type help for supported commands.</p>
+              <div className="terminal-screen" role="log" aria-live="polite">
+                <p className="mb-4 term-muted">IT PATH virtual machine. Type help for supported commands.</p>
                 {attempt.transcript.map((entry) => (
                   <div key={entry.id} className="mb-3">
-                    <div><span className="text-primary">{entry.prompt}</span> {entry.command}</div>
-                    {entry.output ? <pre className={entry.error ? "whitespace-pre-wrap text-destructive" : "whitespace-pre-wrap"}>{entry.output}</pre> : null}
+                    <div><span className="term-prompt">{entry.prompt}</span> {entry.command}</div>
+                    {entry.output ? <pre className={entry.error ? "whitespace-pre-wrap term-error" : "whitespace-pre-wrap"}>{entry.output}</pre> : null}
                   </div>
                 ))}
+                {attempt.status !== "submitted" ? (
+                  <div aria-hidden><span className="term-prompt">{prompt(attempt.machine)}</span> <span className="terminal-cursor" /></div>
+                ) : null}
                 <div ref={terminalEnd} />
               </div>
-              <form className="flex border-t border-border bg-card p-2" onSubmit={(event) => { event.preventDefault(); run(); }}>
-                <span className="hidden shrink-0 px-2 py-2 font-mono text-sm text-primary sm:block">{prompt(attempt.machine)}</span>
+              <form className="terminal-inputbar" onSubmit={(event) => { event.preventDefault(); run(); }}>
+                <span className="term-prompt hidden shrink-0 px-2 py-2 font-mono text-sm sm:block">{prompt(attempt.machine)}</span>
                 <Input
                   aria-label="Terminal command"
                   autoCapitalize="off"
@@ -426,7 +434,7 @@ function CommandLinePage() {
                     setHistoryIndex(next);
                     setCommand(next < 0 ? "" : commands[commands.length - 1 - next] ?? "");
                   }}
-                  className="border-0 font-mono shadow-none focus-visible:ring-0"
+                  className="border-0 bg-transparent font-mono shadow-none focus-visible:ring-0 dark:bg-transparent"
                   placeholder="Enter a command"
                 />
                 <Button type="submit" size="icon" disabled={!command.trim() || attempt.status === "submitted"} title="Run command"><ArrowDown aria-hidden /></Button>
