@@ -68,11 +68,13 @@ function ProgressOverview({
   topicsComplete,
   topicsTotal,
   recommendation,
+  hasActivity,
 }: {
   progress: number;
   topicsComplete: number;
   topicsTotal: number;
   recommendation: string;
+  hasActivity: boolean;
 }) {
   const segments = 10;
   const activeSegments = Math.round((progress / 100) * segments);
@@ -191,6 +193,7 @@ function Dashboard() {
 
       <ProgressOverview
         progress={d.overallProgress}
+        hasActivity={d.hasAnyActivity}
         topicsComplete={d.masteredTopics}
         topicsTotal={d.topicsTotal}
         recommendation={path.recommendedTopic?.title ?? "Choose a topic in Learn"}
