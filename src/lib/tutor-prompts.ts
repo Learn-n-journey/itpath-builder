@@ -68,7 +68,6 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
       "LEARNER PROFILE",
       list([
         `Experience level: ${experienceLabels[settings.experienceLevel] ?? settings.experienceLevel}`,
-        `Target job: ${settings.targetJob || "not set"}`,
         `Certification target: ${settings.certificationTarget || "not set"}`,
         `Study time: ${settings.studyHoursPerWeek} hours across ${settings.studyDays.length} study days, in ${settings.sessionLengthMinutes}-minute sessions`,
       ]),

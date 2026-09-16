@@ -69,14 +69,6 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
   { id: "intermediate", label: "Working in IT already" },
 ];
 
-const JOBS = [
-  "IT Support Specialist",
-  "Helpdesk Technician",
-  "Network Administrator",
-  "Systems Administrator",
-  "SOC Analyst",
-  "Cybersecurity Analyst",
-];
 
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
