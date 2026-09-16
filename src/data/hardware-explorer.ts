@@ -357,4 +357,315 @@ export const hardwareComponents: HardwareComponent[] = [
       },
     ],
   },
+  {
+    id: "psu",
+    name: "Power supply (PSU)",
+    tagline: "Converts wall power into the voltages every part needs.",
+    parts: [
+      {
+        id: "psu-fan",
+        x: 38,
+        y: 32,
+        name: "Intake fan",
+        whatItIs:
+          "The large fan behind the circular grille on the face of the unit.",
+        whatItDoes:
+          "It pulls air through the power supply to cool the components inside, which get hot while converting power.",
+        gaylNote:
+          "The fan usually faces down toward a vent in the case, or up into the case if there is no vent. Face-down with a dust filter is the cleaner setup.",
+      },
+      {
+        id: "psu-label",
+        x: 55,
+        y: 62,
+        name: "Rating label",
+        whatItIs:
+          "The specification sticker on the side of the unit. It lists the wattage and how much current each voltage rail can supply.",
+        whatItDoes:
+          "It tells you the unit's capacity, like 750W, and its efficiency rating. You match this against what your parts draw.",
+        gaylNote:
+          "The 80 Plus badge (Bronze, Gold, Platinum) is about efficiency, not quality by itself. Higher ratings waste less power as heat.",
+      },
+      {
+        id: "psu-socket",
+        x: 24,
+        y: 75,
+        name: "Power socket and switch",
+        whatItIs:
+          "The kettle-style socket and small rocker switch on the rear face of the unit.",
+        whatItDoes:
+          "This is where mains electricity enters. The switch is a hard on/off that cuts power without unplugging the cable.",
+        gaylNote:
+          "When working inside a PC, switch this off and press the case power button once to drain leftover charge. The 0 and 1 symbols trip people up: 1 is on.",
+      },
+      {
+        id: "psu-vent",
+        x: 10,
+        y: 50,
+        name: "Ventilation grille",
+        whatItIs:
+          "The honeycomb mesh across the rear face of the unit.",
+        whatItDoes:
+          "It lets the hot air the fan pushes out escape through the back of the case.",
+        gaylNote:
+          "A PSU choked with dust runs hotter and dies sooner. This grille is worth a blast of compressed air during cleaning.",
+      },
+      {
+        id: "psu-cables",
+        x: 85,
+        y: 45,
+        name: "Cable bundle",
+        whatItIs:
+          "The thick sleeved cables coming out of the unit, ending in connectors like the big 24-pin plug and the smaller 8-pin plugs.",
+        whatItDoes:
+          "They carry power to every component: the 24-pin to the motherboard, 8-pin EPS to the CPU, PCIe plugs to the graphics card, and SATA plugs to drives.",
+        gaylNote:
+          "Modular units let you attach only the cables you need, which keeps the case tidy and airflow clear. On this unit they are permanently attached.",
+      },
+    ],
+  },
+  {
+    id: "cooler",
+    name: "CPU cooler",
+    tagline: "Pulls heat off the processor so it can run at full speed.",
+    parts: [
+      {
+        id: "cooler-fins",
+        x: 25,
+        y: 45,
+        name: "Fin stack",
+        whatItIs:
+          "The tall tower of thin aluminum plates making up most of the cooler's body.",
+        whatItDoes:
+          "The fins create a huge surface area so heat can pass from the metal into the air moving through them.",
+        gaylNote:
+          "More surface area means more cooling, which is why performance coolers are big. Case clearance is a real spec to check before buying.",
+      },
+      {
+        id: "cooler-pipes",
+        x: 35,
+        y: 14,
+        name: "Heat pipes",
+        whatItIs:
+          "The copper tubes poking out of the top and curving down into the base.",
+        whatItDoes:
+          "Each pipe contains a fluid that evaporates at the hot end and condenses at the cool end, moving heat from the CPU up into the fins extremely fast.",
+        gaylNote:
+          "Copper shows up here because it conducts heat about twice as well as aluminum. The fins are aluminum because it is lighter and cheaper.",
+      },
+      {
+        id: "cooler-fan",
+        x: 68,
+        y: 48,
+        name: "Cooling fan",
+        whatItIs:
+          "The 120mm fan clipped to the face of the fin stack.",
+        whatItDoes:
+          "It pushes air through the fins constantly, carrying the heat away and out of the case. Without it the fins would just soak up heat and saturate.",
+        gaylNote:
+          "Fan speed follows CPU temperature through a BIOS fan curve. A fan that suddenly ramps up is often the first sign of dust or a dried-out thermal paste job.",
+      },
+      {
+        id: "cooler-base",
+        x: 62,
+        y: 87,
+        name: "Base plate",
+        whatItIs:
+          "The flat metal block at the bottom where the heat pipes meet.",
+        whatItDoes:
+          "It sits directly on the CPU's metal lid with a thin layer of thermal paste between them, collecting the heat the pipes then carry away.",
+        gaylNote:
+          "Thermal paste fills microscopic gaps between the two metal surfaces. Too much is messy, too little leaves air pockets, and air is a terrible conductor.",
+      },
+    ],
+  },
+  {
+    id: "hdd",
+    name: "Hard drive (HDD)",
+    tagline: "Cheap, roomy storage built on spinning magnetic platters.",
+    parts: [
+      {
+        id: "hdd-platter",
+        x: 66,
+        y: 47,
+        name: "Platter hub",
+        whatItIs:
+          "The round bump in the middle of the cover. Underneath it sit the spinning magnetic disks, called platters, that store your data.",
+        whatItDoes:
+          "Data is written as magnetic patterns on the platter surfaces. A moving arm with a read/write head skims just above them while they spin, typically at 5400 or 7200 RPM.",
+        gaylNote:
+          "Moving parts are why hard drives click, hum and eventually fail. The classic sign of a dying drive is repetitive clicking, the so-called click of death.",
+      },
+      {
+        id: "hdd-label",
+        x: 45,
+        y: 40,
+        name: "Capacity label",
+        whatItIs:
+          "The white sticker listing the model, capacity, speed and serial number.",
+        whatItDoes:
+          "It tells you what the drive is: this one is a 1TB desktop drive at 7200 RPM with a 64MB cache.",
+        gaylNote:
+          "Cache on a hard drive is a small pool of fast memory holding frequently used data, a preview of the same idea you saw in the SSD's DRAM chip.",
+      },
+      {
+        id: "hdd-sata",
+        x: 72,
+        y: 94,
+        name: "SATA data and power connectors",
+        whatItIs:
+          "The two L-shaped plugs on the bottom edge: a small one for data, a longer one for power.",
+        whatItDoes:
+          "The data plug connects to a SATA port on the motherboard, and the power plug takes a SATA power cable straight from the power supply.",
+        gaylNote:
+          "Unlike an M.2 drive, every SATA drive needs two cables. A drive that shows no sign of life usually has one of them loose.",
+      },
+      {
+        id: "hdd-pcb",
+        x: 86,
+        y: 93,
+        name: "Controller board",
+        whatItIs:
+          "The green circuit board peeking out at the connector end.",
+        whatItDoes:
+          "It runs the drive's motor, positions the read head and translates SATA commands into magnetic writes.",
+        gaylNote:
+          "This board is matched to the exact drive at the factory. Swapping boards between drives to rescue data rarely works, which surprises people.",
+      },
+    ],
+  },
+  {
+    id: "sata-ssd",
+    name: "SATA SSD (2.5-inch)",
+    tagline: "Solid-state speed in the classic laptop drive shape.",
+    parts: [
+      {
+        id: "ssd-sata",
+        x: 21,
+        y: 51,
+        name: "SATA data and power connectors",
+        whatItIs:
+          "The gold-fingered plugs on the left edge: data and power side by side, the same layout as a hard drive.",
+        whatItDoes:
+          "They connect the drive to a motherboard SATA port and a power cable from the PSU, so it drops straight into any system built for 2.5-inch drives.",
+        gaylNote:
+          "This is the upgrade path for older machines: same cables, same bays, but several times faster than the hard drive it replaces.",
+      },
+      {
+        id: "ssd-nand",
+        x: 90,
+        y: 68,
+        name: "NAND flash chips",
+        whatItIs:
+          "The black chips visible where the case is cut away. The same kind of flash memory as the M.2 drive uses.",
+        whatItDoes:
+          "They store all your data with no moving parts, which makes the drive silent, shock-resistant and far quicker than a spinning disk.",
+        gaylNote:
+          "Same memory, different road: these chips are limited by the SATA cable to around 550 MB/s, while an M.2 NVMe drive talks straight over PCIe.",
+      },
+      {
+        id: "ssd-label",
+        x: 52,
+        y: 45,
+        name: "Model label",
+        whatItIs:
+          "The sticker on the case naming the model, capacity and interface.",
+        whatItDoes:
+          "It tells you this is a 1TB drive on SATA III at 6Gb/s, the fastest version of SATA.",
+        gaylNote:
+          "SATA I, II and III are 1.5, 3 and 6 gigabits per second. Drives are backward compatible, so a SATA III drive works in an old port, just slower.",
+      },
+      {
+        id: "ssd-case",
+        x: 29,
+        y: 84,
+        name: "Metal case",
+        whatItIs:
+          "The slim aluminum shell, exactly the size of a laptop hard drive.",
+        whatItDoes:
+          "It protects the small circuit board inside and lets the drive mount in any standard 2.5-inch bay or bracket.",
+        gaylNote:
+          "Inside, the actual board often fills less than half the case. The shell exists to fit the old drive standard, not because the electronics need the room.",
+      },
+    ],
+  },
+  {
+    id: "case",
+    name: "PC case",
+    tagline: "The chassis that holds, cools and protects everything.",
+    parts: [
+      {
+        id: "case-tray",
+        x: 45,
+        y: 38,
+        name: "Motherboard tray",
+        whatItIs:
+          "The big flat panel filling most of the interior. The motherboard screws onto it using pre-fitted standoffs.",
+        whatItDoes:
+          "It holds the motherboard slightly off the case wall so nothing shorts against the metal, and its cutouts let cables and the CPU cooler's backplate pass behind.",
+        gaylNote:
+          "The big rectangular window behind the CPU area is there so you can swap cooler backplates without removing the motherboard.",
+      },
+      {
+        id: "case-exhaust",
+        x: 24,
+        y: 27,
+        name: "Rear exhaust fan",
+        whatItIs:
+          "The fan mounted at the upper-left rear corner.",
+        whatItDoes:
+          "It pushes hot air out the back of the case. Paired with front intake fans, it sets up a steady front-to-back airflow over the components.",
+        gaylNote:
+          "Hot air rises, so exhaust up high and intake down low works with physics instead of against it.",
+      },
+      {
+        id: "case-bays",
+        x: 81,
+        y: 82,
+        name: "Drive bays",
+        whatItIs:
+          "The metal cages at the bottom front of the case.",
+        whatItDoes:
+          "They hold 2.5-inch and 3.5-inch drives. Each drive then gets a SATA data cable to the motherboard and a power cable from the PSU.",
+        gaylNote:
+          "Keep spinning hard drives screwed in firmly here. Their vibration travels through loose mounts and makes the whole case hum.",
+      },
+      {
+        id: "case-shroud",
+        x: 45,
+        y: 82,
+        name: "PSU shroud",
+        whatItIs:
+          "The covered compartment running along the bottom of the case.",
+        whatItDoes:
+          "The power supply mounts underneath it, hidden away with its cables, so the main chamber stays tidy and airflow stays smooth.",
+        gaylNote:
+          "The PSU fan faces down through a filtered vent in the case floor, pulling cool air from outside rather than hot air from the graphics card.",
+      },
+      {
+        id: "case-cutouts",
+        x: 72,
+        y: 33,
+        name: "Cable routing cutouts",
+        whatItIs:
+          "The tall openings along the right side of the motherboard tray, usually edged with rubber grommets.",
+        whatItDoes:
+          "They let you run cables behind the tray and bring them out exactly where each plug is needed, keeping the main chamber clear.",
+        gaylNote:
+          "Good cable routing is not just for looks. A clear chamber means air moves freely and temperatures drop.",
+      },
+      {
+        id: "case-intake",
+        x: 97,
+        y: 45,
+        name: "Front intake mounts",
+        whatItIs:
+          "The fan mounts behind the front panel on the right edge of the case.",
+        whatItDoes:
+          "Intake fans here pull cool outside air in across the drives and toward the CPU and graphics card.",
+        gaylNote:
+          "A common beginner setup is two fans in front pulling in, one at the rear pushing out. That slight positive pressure also keeps dust out.",
+      },
+    ],
+  },
 ];
