@@ -368,15 +368,20 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
           {progressLabels.map(([key, label]) => {
             const measure = scopeProgress[key];
             return (
-              <div key={key}>
+              <Link
+                key={key}
+                to="/measures/$measure"
+                params={{ measure: measureSlug(key) }}
+                className="block rounded-md p-1 transition-colors hover:bg-muted/40"
+              >
                 <div className="mb-1.5 flex justify-between text-sm">
-                  <span>{label}</span>
+                  <span className="underline-offset-4 hover:underline">{label}</span>
                   <span className="tabular-nums text-muted-foreground">
                     {measure.measured ? `${measure.score}%` : "Not in this section"}
                   </span>
                 </div>
                 {measure.measured ? <Progress value={measure.score} /> : null}
-              </div>
+              </Link>
             );
           })}
         </div>
