@@ -66,7 +66,9 @@ function MasteryCheckPage() {
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="space-y-5">
           {available.map((kind) => (
-            <CheckCard key={kind} topicId={topicId} kind={kind} />
+            <div key={kind} id={`check-${kind}`} className="scroll-mt-24">
+              <CheckCard topicId={topicId} kind={kind} />
+            </div>
           ))}
         </div>
         <div className="space-y-5">
