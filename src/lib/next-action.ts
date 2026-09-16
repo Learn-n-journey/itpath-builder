@@ -240,7 +240,9 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
   const filtered = out.filter((action) => {
     if (!action.topicId) return true;
     if (started.has(action.topicId)) return true;
-    return action.topicId === currentId && action.to === "/topics/$topicId";
+    const isNextInLine =
+      action.topicId === currentId || action.topicId === path.recommendedTopic?.id;
+    return isNextInLine && action.to === "/topics/$topicId";
   });
   out.length = 0;
   out.push(...filtered);
