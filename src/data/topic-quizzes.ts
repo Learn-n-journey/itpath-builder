@@ -12,14 +12,12 @@ import { lessons, topics } from "@/data/static-content";
 import { getLearningModule } from "@/data/learning-content";
 import { questions as authoredQuestions } from "@/data/quiz-content";
 import { generatedQuestions } from "@/data/question-bank";
+import { usableQuestions } from "@/lib/question-quality";
 import type { Question } from "@/lib/app-data/types";
 
 export const SECTION_QUIZ_SIZE = 20;
 export const SECTION_PASS_SCORE = 80;
-const WRITTEN_TARGET = 6;
 
-/** A question is written if it has no options to choose from. */
-const isWritten = (item: Question) => item.choices.length === 0;
 
 /** First sentence of a definition, trimmed so every option reads at a similar length. */
 function shortMeaning(text: string): string {
