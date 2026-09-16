@@ -937,6 +937,24 @@ function expandEnv(state: MachineState, text: string): string {
   return text.replace(/\$(\w+)|%(\w+)%/g, (match, a, b) => state.env[a ?? b] ?? match);
 }
 
+const CMD_COMMANDS = [
+  "arp", "assoc", "cd", "chdir", "chkdsk", "cls", "color", "copy", "date", "del", "dir", "echo",
+  "erase", "findstr", "getmac", "gpupdate", "help", "hostname", "ipconfig", "md", "mkdir", "move",
+  "net", "netstat", "nslookup", "pause", "ping", "rd", "rmdir", "route", "runas", "sc", "set",
+  "sfc", "shutdown", "systeminfo", "taskkill", "tasklist", "time", "title", "tracert", "tree",
+  "type", "ver", "vol", "where", "whoami",
+];
+
+const POWERSHELL_COMMANDS = [
+  "Add-Content", "Clear-DnsClientCache", "Clear-Host", "Copy-Item", "Get-ChildItem", "Get-Command",
+  "Get-ComputerInfo", "Get-Content", "Get-Date", "Get-EventLog", "Get-History", "Get-HotFix",
+  "Get-Item", "Get-LocalUser", "Get-Location", "Get-NetIPConfiguration", "Get-Process",
+  "Get-Service", "Get-Volume", "Get-WinEvent", "Move-Item", "New-Item", "Remove-Item",
+  "Resolve-DnsName", "Restart-Service", "Select-String", "Set-Content", "Set-Location",
+  "Set-Service", "Start-Process", "Start-Service", "Stop-Process", "Stop-Service",
+  "Test-Connection", "Test-NetConnection", "Test-Path", "Write-Output",
+];
+
 const BASH_COMMANDS = [
   "alias", "apt", "apt-get", "arp", "cal", "cat", "cd", "chgrp", "chmod", "chown", "clear",
   "command", "cp", "crontab", "curl", "date", "df", "dig", "dmesg", "dnf", "du", "echo", "env",
