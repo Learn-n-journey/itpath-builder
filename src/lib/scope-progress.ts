@@ -127,14 +127,41 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
   const recall = merge(
     dimension(latestById(recallQuestions.map((item) => item.id), user.recallResponses, (row) => row.questionId, (row) => row.createdAt, (row) => row.correct ? 100 : 0)),
     dimension(latestById(quizQuestionIds, quizResults, (row) => row.questionId, (row) => row.at, (row) => row.correct ? 100 : 0)),
+    dimension(latestById(
+      assignments.filter((item) => item.type === "recall" || item.type === "teach_back").map((item) => item.id),
+      user.assignmentAttempts,
+      (row) => row.assignmentId,
+      (row) => row.submittedAt ?? row.updatedAt,
+      (row) => row.score === undefined || !row.maxScore ? undefined : (row.score / row.maxScore) * 100,
+    )),
   );
 
 
-  const assignmentScores = bestById(
-    assignments.map((item) => item.id),
+
+  // Assignments are split by what they actually ask for: choosing the right
+  // answer for a situation counts as application, doing the work counts as
+  // practical ability, and diagnosing a fault counts as troubleshooting.
+  const assignmentScoreOf = (row: (typeof user.assignmentAttempts)[number]) =>
+    row.score === undefined || !row.maxScore ? undefined : (row.score / row.maxScore) * 100;
+  const assignmentIdsOfType = (types: string[]) =>
+    assignments.filter((item) => types.includes(item.type)).map((item) => item.id);
+  const applicationAssignments = bestById(
+    assignmentIdsOfType(["scenario", "compare", "design", "exam_simulation", "explain"]),
     user.assignmentAttempts,
     (row) => row.assignmentId,
-    (row) => row.score === undefined || !row.maxScore ? undefined : (row.score / row.maxScore) * 100,
+    assignmentScoreOf,
+  );
+  const practicalAssignments = bestById(
+    assignmentIdsOfType(["build", "configure", "command_challenge", "capstone"]),
+    user.assignmentAttempts,
+    (row) => row.assignmentId,
+    assignmentScoreOf,
+  );
+  const troubleshootingAssignments = bestById(
+    assignmentIdsOfType(["incident", "troubleshoot"]),
+    user.assignmentAttempts,
+    (row) => row.assignmentId,
+    assignmentScoreOf,
   );
   const scenarioScore = scenario
     ? user.scenarioResponses[topicId]?.meetsCriteria === undefined
@@ -144,7 +171,12 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
   const practiceScore = practiceActivity
     ? bestById([practiceActivity.id], user.practiceResponses, (row) => row.activityId, (row) => row.correct ? 100 : 0)
     : [];
-  const application = merge(dimension(practiceScore), dimension(scenario ? [scenarioScore] : []), dimension(assignmentScores));
+  // Application: using what you know to decide what is right in a situation.
+  const application = merge(
+    dimension(practiceScore),
+    dimension(scenario ? [scenarioScore] : []),
+    dimension(applicationAssignments),
+  );
 
   const labScores = bestById(
     labs.map((item) => item.id),
@@ -158,7 +190,8 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
     (row) => row.scenarioId,
     (row) => row.score,
   );
-  const practicalAbility = merge(dimension(labScores), dimension(terminalScores));
+  // Practical ability: doing the work yourself, at the machine and the terminal.
+  const practicalAbility = merge(dimension(labScores), dimension(terminalScores), dimension(practicalAssignments));
 
   const incidentScores = bestById(
     incidents.map((item) => item.id),
@@ -172,7 +205,13 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
     (row) => row.ticketId,
     (row) => row.totalScore,
   );
-  const troubleshooting = merge(dimension(incidentScores), dimension(ticketScores), dimension(terminalScores));
+  // Troubleshooting: working out the cause of a fault and what to do about it.
+  const troubleshooting = merge(
+    dimension(incidentScores),
+    dimension(ticketScores),
+    dimension(troubleshootingAssignments),
+  );
+
 
   // Retention covers every item this section contains, not just scheduled
   // reviews. An item only counts as retained once it has been answered well
