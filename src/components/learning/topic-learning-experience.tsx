@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
+
+import { measureSlug } from "@/lib/measure-guides";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
