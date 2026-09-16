@@ -196,7 +196,8 @@ export function scoreCertification(user: UserData, certification: Certification)
 
   // Readiness is honest arithmetic: how well you are doing, over how much of
   // the exam you have evidence for. Strong work on a sliver stays a sliver.
-  const overall = pct((performance * coverage) / 100);
+  // Solid single number: the straight average of how well you did and how much you have covered.
+  const overall = pct((performance + coverage) / 2);
 
 
   const curriculumComplete =
