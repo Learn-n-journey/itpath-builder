@@ -6,6 +6,7 @@
  * intelligence layer, so an untouched topic stays honestly "not started".
  */
 import { expansionSeeds } from "@/data/curriculum";
+import { topics as coreTopics } from "@/data/static-content";
 
 export interface JourneyTopic {
   id: string;
@@ -56,12 +57,23 @@ export const journeyPhases: JourneyPhase[] = PHASE_DEFS.map((phase) => ({
   title: phase.title,
   months: phase.months,
   blurb: phase.blurb,
-  topics: expansionSeeds
-    .filter((seed) => seed.month >= phase.minMonth && seed.month <= phase.maxMonth)
-    .map((seed) => ({
-      id: `topic-${seed.slug}`,
-      title: seed.title,
-      summary: seed.summary,
-      minutes: seed.minutes,
-    })),
+  topics: [
+    // Core month-1 foundations sit at the very start of the journey.
+    ...coreTopics
+      .filter((topic) => topic.month >= phase.minMonth && topic.month <= phase.maxMonth)
+      .map((topic) => ({
+        id: topic.id,
+        title: topic.title,
+        summary: topic.summary,
+        minutes: topic.minutes,
+      })),
+    ...expansionSeeds
+      .filter((seed) => seed.month >= phase.minMonth && seed.month <= phase.maxMonth)
+      .map((seed) => ({
+        id: `topic-${seed.slug}`,
+        title: seed.title,
+        summary: seed.summary,
+        minutes: seed.minutes,
+      })),
+  ].sort((a, b) => a.id.localeCompare(b.id) === 0 ? 0 : 0),
 }));
