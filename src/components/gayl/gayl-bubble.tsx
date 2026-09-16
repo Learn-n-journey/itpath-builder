@@ -109,12 +109,16 @@ export function GaylBubble() {
     [user],
   );
   const checkIn = useMemo(() => checkInMessage(user), [user]);
+  const [clearedIds, setClearedIds] = useState<string[]>([]);
   // Problems come first. A welcome back only speaks up when nothing else is
-  // asking for attention, so the corner stays a vital-only space.
+  // asking for attention, so the corner stays a vital-only space. Cleared
+  // messages stay out of the thread until the evidence behind them changes
+  // and the message id changes with it.
   const messages = useMemo(() => {
     const base = gaylMessages(intel, openDetail);
-    return base.length === 0 && checkIn ? [checkIn] : base;
-  }, [intel, openDetail, checkIn]);
+    const all = base.length === 0 && checkIn ? [checkIn] : base;
+    return all.filter((message) => !clearedIds.includes(message.id));
+  }, [intel, openDetail, checkIn, clearedIds]);
   const latest = messages[0] ?? null;
   const threadId = messages.map((message) => message.id).join("|");
   const unreadCount = messages.filter((message) => message.urgent).length;
@@ -130,7 +134,20 @@ export function GaylBubble() {
     } catch {
       setDismissed(null);
     }
+    setClearedIds(readCleared());
   }, []);
+
+  const clearMessages = (ids: string[]) => {
+    setClearedIds((current) => {
+      const next = Array.from(new Set([...current, ...ids]));
+      try {
+        window.localStorage.setItem(CLEARED_KEY, JSON.stringify(next));
+      } catch {
+        /* storage is optional here */
+      }
+      return next;
+    });
+  };
 
   if (!latest) return null;
 
