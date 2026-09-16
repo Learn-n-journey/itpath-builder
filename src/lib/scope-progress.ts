@@ -257,6 +257,12 @@ export function topicEvidence(user: UserData, topicId: EntityId): EvidenceItem[]
     record(row.assignmentId, row.submittedAt ?? row.updatedAt, ratio(row.score, row.maxScore)),
   );
 
+  return items;
+}
+
+export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScopeProgress {
+  const items = topicEvidence(user, topicId);
+
   /* ---------------- the measures ---------------- */
 
   const of = (dimension: ScopeDimensionKey) =>
