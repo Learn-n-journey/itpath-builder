@@ -2,13 +2,14 @@
 import type { TopicSeed } from "./builder";
 
 const A = "cert-comptia-a-plus";
+const TECH = "cert-comptia-tech-plus";
 
 export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
   {
     slug: "binary-and-number-systems",
     title: "Binary and Number Systems",
     summary: "Work confidently with bits, bytes, hexadecimal, and powers of two so addressing and storage maths stop being guesswork.",
-    cert: A, month: 2, week: 1, difficulty: "gentle", minutes: 45,
+    cert: TECH, month: 2, week: 1, difficulty: "gentle", minutes: 45,
     prereqs: ["computer-hardware-basics"],
     objectives: [
       "Convert between binary, decimal, and hexadecimal for values up to 255.",
@@ -89,7 +90,7 @@ export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
     slug: "troubleshooting-methodology",
     title: "Structured Troubleshooting Methodology",
     summary: "Apply a repeatable diagnostic process instead of guessing, so faults are isolated with evidence and documented for the next technician.",
-    cert: A, month: 2, week: 3, difficulty: "gentle", minutes: 45,
+    cert: TECH, month: 2, week: 3, difficulty: "gentle", minutes: 45,
     prereqs: ["it-career-overview", "operating-systems-overview"],
     objectives: [
       "Apply the six-step troubleshooting process from symptom to documentation.",

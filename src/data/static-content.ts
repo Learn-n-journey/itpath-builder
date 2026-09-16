@@ -67,7 +67,7 @@ export const topics: Topic[] = [
     title: "Computer Hardware Basics",
     summary:
       "Identify the components inside a computer and explain how they cooperate to process, store, and move data.",
-    certificationId: "cert-comptia-a-plus",
+    certificationId: "cert-comptia-tech-plus",
     year: 1,
     month: 1,
     week: 1,
@@ -86,7 +86,7 @@ export const topics: Topic[] = [
     title: "Operating Systems Overview",
     summary:
       "Understand how an operating system manages hardware, applications, files, users, and security boundaries.",
-    certificationId: "cert-comptia-a-plus",
+    certificationId: "cert-comptia-tech-plus",
     year: 1,
     month: 1,
     week: 1,
@@ -105,7 +105,7 @@ export const topics: Topic[] = [
     title: "Basic Networking Concepts",
     summary:
       "Build a mental model of how devices exchange data through local networks, the internet, and shared protocols.",
-    certificationId: "cert-comptia-network-plus",
+    certificationId: "cert-comptia-tech-plus",
     year: 1,
     month: 1,
     week: 2,
@@ -124,7 +124,7 @@ export const topics: Topic[] = [
     title: "Command Line Fundamentals",
     summary:
       "Use a shell safely to navigate files, inspect a system, and understand command structure.",
-    certificationId: "cert-comptia-a-plus",
+    certificationId: "cert-comptia-tech-plus",
     year: 1,
     month: 1,
     week: 2,
@@ -143,7 +143,7 @@ export const topics: Topic[] = [
     title: "Virtualization Basics",
     summary:
       "Learn how virtual machines share physical hardware while remaining isolated as separate computer systems.",
-    certificationId: "cert-comptia-a-plus",
+    certificationId: "cert-comptia-tech-plus",
     year: 1,
     month: 1,
     week: 3,
@@ -162,7 +162,7 @@ export const topics: Topic[] = [
     title: "IT Career Overview",
     summary:
       "Understand common entry-level IT roles, how teams work together, and the habits employers expect.",
-    certificationId: "cert-comptia-a-plus",
+    certificationId: "cert-comptia-tech-plus",
     year: 1,
     month: 1,
     week: 3,
@@ -181,7 +181,7 @@ export const topics: Topic[] = [
     title: "Networking Basics",
     summary:
       "Move from a network overview into addressing, local traffic, routing, transport protocols, and basic troubleshooting.",
-    certificationId: "cert-comptia-network-plus",
+    certificationId: "cert-comptia-tech-plus",
     year: 1,
     month: 1,
     week: 4,
@@ -200,7 +200,7 @@ export const topics: Topic[] = [
     title: "DNS Fundamentals",
     summary:
       "Understand how readable domain names are resolved into records that computers can use to locate services.",
-    certificationId: "cert-comptia-network-plus",
+    certificationId: "cert-comptia-tech-plus",
     year: 1,
     month: 1,
     week: 4,
