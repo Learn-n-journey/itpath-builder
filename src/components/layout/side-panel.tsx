@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 export function SidePanel({ className }: { className?: string }) {
   const ask = useServerFn(searchKnowledge);
+  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
   const [sources, setSources] = useState<{ id: string; title: string }[]>([]);
