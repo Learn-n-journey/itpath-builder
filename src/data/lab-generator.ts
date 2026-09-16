@@ -21,7 +21,7 @@ const CATEGORY_RULES: Array<[LabCategory, RegExp]> = [
   ["hardware", /hardware|storage|printer|mobile device|power|server hardware/i],
 ];
 
-function categoryFor(topic: Topic): LabCategory {
+export function categoryFor(topic: Topic): LabCategory {
   for (const source of [topic.title, topic.summary]) {
     for (const [category, pattern] of CATEGORY_RULES) {
       if (pattern.test(source)) return category;
