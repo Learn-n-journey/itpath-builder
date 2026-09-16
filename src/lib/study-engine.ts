@@ -13,7 +13,8 @@ import type {
   StudySession,
   UserData,
 } from "@/lib/app-data/types";
-import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
+import { adaptivePath } from "@/lib/adaptive-path";
+import { currentJourneyTopic, isTopicOpen, journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
 import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const STUDY_DURATIONS = [30, 60, 90, 120] as const;
@@ -82,7 +83,8 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const out: Candidate[] = [];
   const usedTopics = new Set<string>();
   const focus = adaptivePath(user);
-  const orderedTopics = focusedTopicsFirst(user);
+  // Everything that is not owed work follows the Journey Map order.
+  const orderedTopics = journeyOrderedTopics;
   const focusTopicIds = new Set(focus.topics.map((topic) => topic.id));
 
   // 1. Review, reviews the learner actually has scheduled and due.
@@ -185,7 +187,9 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
       .filter((a) => a.status === "completed" || a.status === "mastered")
       .map((a) => a.labId),
   );
-  const journeyLabs = inJourneyOrder(labs.filter((lab) => isTopicOpen(user, lab.topicId)));
+  const journeyLabs = [...labs.filter((lab) => isTopicOpen(user, lab.topicId))].sort(
+    (a, b) => journeyIndex(a.topicId) - journeyIndex(b.topicId),
+  );
   const nextLab =
     openLabDef ??
     journeyLabs.find((lab) => !doneLabIds.has(lab.id) && (topicScore(user, lab.topicId) ?? 0) > 0) ??
@@ -216,13 +220,15 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const doneAssignmentIds = new Set(
     user.assignmentAttempts.filter((a) => a.status === "completed").map((a) => a.assignmentId),
   );
+  const journeyAssignments = [...assignments.filter((a) => isTopicOpen(user, a.topicId))].sort(
+    (a, b) => journeyIndex(a.topicId) - journeyIndex(b.topicId),
+  );
   const nextAssignment =
     openAssignmentDef ??
-    assignments.find(
-      (a) => focusTopicIds.has(a.topicId) && !doneAssignmentIds.has(a.id) && (topicScore(user, a.topicId) ?? 0) > 0,
+    journeyAssignments.find(
+      (a) => !doneAssignmentIds.has(a.id) && (topicScore(user, a.topicId) ?? 0) > 0,
     ) ??
-    assignments.find((a) => focusTopicIds.has(a.topicId) && !doneAssignmentIds.has(a.id)) ??
-    assignments.find((a) => !doneAssignmentIds.has(a.id));
+    journeyAssignments.find((a) => !doneAssignmentIds.has(a.id));
   if (nextAssignment) {
     out.push({
       kind: "assignment",
