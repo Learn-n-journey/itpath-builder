@@ -57,7 +57,7 @@ export function ReadinessPanel({
           <p className="text-muted-foreground">
             {readiness.coverage === 0
               ? "Nothing recorded for this exam yet, so there is nothing to judge."
-              : `Scoring ${readiness.performance}% on the ${readiness.coverage}% of this exam you have covered`}
+              : `Average of ${readiness.performance}% on the work you have done and ${readiness.coverage}% of the exam covered`}
           </p>
           <p className="text-muted-foreground">
             {report.topicsDone} of {report.topicsTotal} topics finished ·{" "}
