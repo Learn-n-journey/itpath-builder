@@ -39,45 +39,83 @@ export const Route = createFileRoute("/journey")({
   component: JourneyPage,
 });
 
-/** Dot for a topic's state: filled once it holds up, bordered while it is early work. */
-function StateDot({ state }: { state: string }) {
-  if (state === "retained" || state === "reliable" || state === "transferable") {
-    return <span className="mt-1.5 size-2.5 shrink-0 rounded-full bg-primary" aria-hidden />;
+/** Marker for a section: a closed circle once it is passed, open while it is ahead. */
+function StatusDot({ status }: { status: TopicStatus }) {
+  if (status === "closed") {
+    return (
+      <span
+        className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
+        aria-hidden
+      >
+        <Check className="size-2.5" strokeWidth={3} />
+      </span>
+    );
   }
-  if (state === "functional") {
-    return <span className="mt-1.5 size-2.5 shrink-0 rounded-full bg-primary/50" aria-hidden />;
+  if (status === "current") {
+    return (
+      <span
+        className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-background"
+        aria-hidden
+      >
+        <span className="size-1.5 rounded-full bg-primary" />
+      </span>
+    );
   }
-  if (state === "emerging" || state === "fragile") {
-    return <span className="mt-1.5 size-2.5 shrink-0 rounded-full border border-primary/60" aria-hidden />;
+  if (status === "started") {
+    return <span className="mt-0.5 size-4 shrink-0 rounded-full border-2 border-primary/50" aria-hidden />;
   }
-  return <span className="mt-1.5 size-2.5 shrink-0 rounded-full border border-border" aria-hidden />;
+  if (status === "locked") {
+    return (
+      <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center text-muted-foreground/70" aria-hidden>
+        <Lock className="size-3" />
+      </span>
+    );
+  }
+  return <span className="mt-0.5 size-4 shrink-0 rounded-full border-2 border-border" aria-hidden />;
 }
 
+const STATUS_WORD: Record<TopicStatus, string> = {
+  closed: "Passed",
+  current: "Currently on this one",
+  started: "Started",
+  "not-started": "Not started",
+  locked: "Not started",
+};
+
 function JourneyPage() {
-  const intel = useIntelligence();
-  const holdingUp = intel.concepts.filter(
-    (concept) => concept.state === "functional" || concept.state === "transferable" || concept.state === "reliable" || concept.state === "retained",
-  ).length;
+  const { user } = useAppState();
+  const current = currentJourneyTopic(user);
+
+  function statusOf(topicId: string): TopicStatus {
+    if (isMastered(user, topicId)) return "closed";
+    if (current?.id === topicId) return "current";
+    if (hasTopicActivity(user, topicId)) return "started";
+    if (!isTopicOpen(user, topicId)) return "locked";
+    return "not-started";
+  }
+
+  const allTopics = journeyPhases.flatMap((phase) => phase.topics);
+  const passed = allTopics.filter((topic) => isMastered(user, topic.id)).length;
 
   return (
     <div className="mx-auto w-full max-w-3xl">
       <PageHeader
         title="Journey map"
-        description="The whole route, stage by stage, and where you actually stand on it. Every marker comes from your recorded answers; nothing is lit up until there is evidence."
+        description="The whole route, stage by stage. A section closes once you pass its quiz, and the next one down becomes the one you are on."
       />
 
       <div className="mb-8">
         <div className="dashboard-summary rounded-xl p-5">
           <p className="text-sm text-foreground">
-            {holdingUp === 0
-              ? `${intel.certificationTitle} has ${intel.concepts.length} topics to work through. Nothing holds up yet, which is exactly where everyone starts.`
-              : `${holdingUp} of ${intel.concepts.length} topics in ${intel.certificationTitle} now hold up in questions. The rest are waiting for their turn.`}
+            {passed === 0
+              ? `${allTopics.length} sections to work through.${current ? ` You are on ${current.title}.` : ""}`
+              : `${passed} of ${allTopics.length} sections closed.${current ? ` You are on ${current.title} now.` : ""}`}
           </p>
           <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-border/60">
             <div
               className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out"
               style={{
-                width: `${intel.concepts.length > 0 ? Math.round((holdingUp / intel.concepts.length) * 100) : 0}%`,
+                width: `${allTopics.length > 0 ? Math.round((passed / allTopics.length) * 100) : 0}%`,
               }}
             />
           </div>
@@ -88,15 +126,12 @@ function JourneyPage() {
         {journeyPhases.map((phase, phaseIndex) => {
           const phaseTopics = phase.topics.map((topic) => ({
             topic,
-            concept: intel.byTopic[topic.id],
+            status: statusOf(topic.id),
           }));
-          const litUp = phaseTopics.filter(
-            (entry) =>
-              entry.concept &&
-              ["functional", "transferable", "reliable", "retained"].includes(entry.concept.state),
-          ).length;
+          const litUp = phaseTopics.filter((entry) => entry.status === "closed").length;
           const allLit = phaseTopics.length > 0 && litUp === phaseTopics.length;
           const pct = phaseTopics.length > 0 ? Math.round((litUp / phaseTopics.length) * 100) : 0;
+
 
           return (
             <li key={phase.title} className="relative pl-9">
