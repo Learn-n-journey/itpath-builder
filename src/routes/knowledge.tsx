@@ -134,6 +134,7 @@ function KnowledgeWorkspace() {
   const [searching, setSearching] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
   const [matches, setMatches] = useState<{ id: string; title: string; why: string }[]>([]);
+  const [asked, setAsked] = useState<string | null>(null);
 
   const stats = useMemo(() => {
     const concepts = new Set<string>();
@@ -222,15 +223,29 @@ function KnowledgeWorkspace() {
   async function onSearch() {
     const q = query.trim();
     if (q.length < 2) return;
+    // Clear the last answer straight away so a new question never sits under an
+    // old one.
+    setAnswer(null);
+    setMatches([]);
+    setAsked(q);
     setSearching(true);
     const reply = await ask({ data: { query: q } });
     setSearching(false);
     if (!reply.ok) {
+      setAsked(null);
       toast.error(reply.error);
       return;
     }
     setAnswer(reply.answer);
     setMatches(reply.matches);
+    setQuery("");
+  }
+
+  function clearAnswer() {
+    setAnswer(null);
+    setMatches([]);
+    setAsked(null);
+    setQuery("");
   }
 
   async function openFile(path: string) {
@@ -264,14 +279,18 @@ function KnowledgeWorkspace() {
             }}
             placeholder="What did my notes say about subnetting a /26?"
           />
-          <Button onClick={() => void onSearch()} disabled={searching || items.length === 0}>
+          <Button
+            onClick={() => void onSearch()}
+            disabled={searching || items.length === 0 || query.trim().length < 2}
+          >
             {searching ? <Loader2 className="animate-spin" aria-hidden /> : <Search aria-hidden />}
-            Search
+            Ask
           </Button>
         </div>
         {answer ? (
           <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-primary">
+            {asked ? <p className="text-sm font-medium">You asked: {asked}</p> : null}
+            <p className="mt-2 text-xs font-medium uppercase tracking-wide text-primary">
               From your saved material
             </p>
             <p className="mt-2 whitespace-pre-wrap text-sm">{answer}</p>
@@ -284,6 +303,9 @@ function KnowledgeWorkspace() {
                 ))}
               </ul>
             ) : null}
+            <Button variant="outline" size="sm" className="mt-4" onClick={clearAnswer}>
+              Ask another question
+            </Button>
           </div>
         ) : null}
       </Panel>
