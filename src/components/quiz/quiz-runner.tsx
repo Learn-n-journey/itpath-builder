@@ -100,7 +100,6 @@ export function QuizRunner({
 
   function start(previousAttemptId?: string) {
     const next = createQuizAttempt(quiz.id, pool, previousAttemptId);
-    console.log('DBG start', next.questionOrder, pool.map(q=>q.id));
     actions.addQuizAttempt(next);
     setAttemptId(next.id);
     setQuestionIndex(0);
