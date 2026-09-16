@@ -52,6 +52,24 @@ function mean(values: number[]): number {
 }
 
 /**
+ * Topics the learner has actually opened up.
+ *
+ * Finishing a practice task on a topic is the marker: until that happens the
+ * topic counts as untouched and nothing here will point at it, so the list
+ * never asks for work on material that has not been started.
+ */
+function startedTopicIds(user: UserData): Set<EntityId> {
+  const started = new Set<EntityId>();
+  for (const attempt of user.assignmentAttempts) {
+    if (!attempt.topicId) continue;
+    if (attempt.status === "completed" || attempt.status === "evaluated") {
+      started.add(attempt.topicId);
+    }
+  }
+  return started;
+}
+
+/**
  * The full ranked list. The first entry is the recommendation; the rest are
  * shown as alternatives so the learner is never boxed in.
  */
