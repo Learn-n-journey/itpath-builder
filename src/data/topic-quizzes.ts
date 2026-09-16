@@ -126,48 +126,33 @@ function generatedFor(topicId: string): { choice: Question[] } {
       );
     }
 
-    written.push(
-      question({
-        id: `section-${topicId}-term-written-${index}`,
-        topicId,
-        type: "short_answer",
-        prompt: `In your own words, what is ${term.term} and what does it do here?`,
-        acceptableAnswers: [term.meaning, term.term],
-        explanation: `${term.term}: ${term.meaning}`,
-        requiresReasoning: true,
-      }),
-    );
   });
 
-  module?.commonProblems.forEach((item, index) => {
-    written.push(
-      question({
-        id: `section-${topicId}-problem-${index}`,
-        topicId,
-        type: "short_answer",
-        prompt: `How would you recognise this in practice: ${item.toLowerCase()}? Describe what you would see and what you would check.`,
-        acceptableAnswers: [item],
-        explanation: item,
-        requiresReasoning: true,
-      }),
-    );
-  });
+  // Common problems become a "what do you check first" question with real steps as options.
+  const firstStep = module?.troubleshooting[0];
+  if (module && firstStep) {
+    module.commonProblems.slice(0, 3).forEach((item, index) => {
+      const otherSteps = module.troubleshooting.slice(1, 4);
+      if (otherSteps.length < 3) return;
+      const options = [firstStep, ...otherSteps];
+      choice.push(
+        question({
+          id: `section-${topicId}-problem-${index}`,
+          topicId,
+          type: "multiple_choice",
+          prompt: `A user reports this problem: ${item.replace(/\.$/, "")}. Which step comes first?`,
+          choices: options,
+          correctAnswer: [firstStep],
+          acceptableAnswers: [firstStep],
+          explanation: `Start here: ${firstStep}`,
+          mistakeCategory: "diagnosis",
+          requiresReasoning: true,
+        }),
+      );
+    });
+  }
 
-  module?.troubleshooting.forEach((item, index) => {
-    written.push(
-      question({
-        id: `section-${topicId}-fix-${index}`,
-        topicId,
-        type: "short_answer",
-        prompt: `Working through a fault in this section, what would you do at step ${index + 1}, and what does the result tell you?`,
-        acceptableAnswers: [item],
-        explanation: item,
-        requiresReasoning: true,
-      }),
-    );
-  });
-
-  return { choice, written };
+  return { choice: usableQuestions(choice) };
 }
 
 const authoredByTopic = new Map<string, Question[]>();
