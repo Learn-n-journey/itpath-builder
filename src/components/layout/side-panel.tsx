@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 
 export function SidePanel({ className }: { className?: string }) {
   const ask = useServerFn(searchKnowledge);
+  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
   const [sources, setSources] = useState<{ id: string; title: string }[]>([]);
@@ -47,7 +48,7 @@ export function SidePanel({ className }: { className?: string }) {
   }
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <button
           type="button"
@@ -94,7 +95,11 @@ export function SidePanel({ className }: { className?: string }) {
             ) : null}
           </div>
         ) : null}
-        <Link to="/knowledge" className="text-sm text-primary underline-offset-4 hover:underline">
+        <Link
+          to="/knowledge"
+          onClick={() => setOpen(false)}
+          className="text-sm text-primary underline-offset-4 hover:underline"
+        >
           Open the full Second Brain
         </Link>
       </SheetContent>
