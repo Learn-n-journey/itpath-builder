@@ -194,8 +194,8 @@ export function scoreCertification(user: UserData, certification: Certification)
   if (assignments.length > 0) coverageParts.push((assignmentsDone / assignments.length) * 100);
   const coverage = pct(mean(coverageParts));
 
-  // Solid single number: the straight average of how well you did and how much you have covered.
-  const overall = pct((performance + coverage) / 2);
+  // Readiness is accuracy applied to coverage: 90% on 12% covered reads as 10.8%.
+  const overall = pct((performance * coverage) / 100);
 
 
   const curriculumComplete =
