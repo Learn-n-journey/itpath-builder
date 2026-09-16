@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { topics } from "@/data/static-content";
 import { SECTION_PASS_SCORE, SECTION_QUIZ_SIZE, getSectionQuizQuestions } from "@/data/topic-quizzes";
 import type { Quiz } from "@/lib/app-data/types";
+import { nextJourneyTopic, sectionQuizBest } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
 
 const findTopic = (topicId: string) => topics.find((topic) => topic.id === topicId);
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/section-quiz/$topicId")({
     const topic = findTopic(params.topicId);
     const title = topic ? `${topic.title} section quiz | IT PATH` : "Section quiz | IT PATH";
     const description = topic
-      ? `A ${SECTION_QUIZ_SIZE} question quiz on ${topic.title}, mixing multiple choice and written answers.`
+      ? `A ${SECTION_QUIZ_SIZE} question quiz on ${topic.title}, all multiple choice.`
       : "A section quiz on IT PATH.";
     return {
       meta: [
@@ -45,15 +46,14 @@ function SectionQuizPage() {
 
   const questions = getSectionQuizQuestions(topicId);
   const quizId = `section-quiz-${topicId}`;
-  const best = user.quizAttempts
-    .filter((attempt) => attempt.quizId === quizId && attempt.status === "submitted")
-    .reduce((top, attempt) => Math.max(top, attempt.score ?? 0), 0);
+  const best = sectionQuizBest(user, topicId);
   const passed = best >= SECTION_PASS_SCORE;
+  const next = passed ? nextJourneyTopic(topicId) : undefined;
 
   const quiz: Quiz = {
     id: quizId,
     title: `${topic.title} section quiz`,
-    description: `${SECTION_QUIZ_SIZE} questions on this section, mixing multiple choice and written answers. ${SECTION_PASS_SCORE}% to pass.`,
+    description: `${SECTION_QUIZ_SIZE} questions on this section, all multiple choice. ${SECTION_PASS_SCORE}% to pass.`,
     topicIds: [topicId],
     questionIds: questions.map((question) => question.id),
     kind: "assessment",
@@ -63,7 +63,7 @@ function SectionQuizPage() {
     <>
       <PageHeader
         title={`${topic.title}: section quiz`}
-        description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Some are multiple choice, some you write in your own words, and ${SECTION_PASS_SCORE}% is a pass.`}
+        description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Every question is multiple choice, and ${SECTION_PASS_SCORE}% is a pass. Pass it and the next section opens.`}
       />
 
       {passed ? (
@@ -72,6 +72,18 @@ function SectionQuizPage() {
             <CheckCircle2 className="size-4 text-primary" aria-hidden />
             Your best score here is {best}%. You can take it again any time to keep it fresh.
           </p>
+          {next ? (
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <p className="text-sm text-muted-foreground">
+                That opened the next section: {next.title}.
+              </p>
+              <Button asChild size="sm">
+                <Link to="/topics/$topicId" params={{ topicId: next.id }}>
+                  Start {next.title}
+                </Link>
+              </Button>
+            </div>
+          ) : null}
         </Panel>
       ) : null}
 

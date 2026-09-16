@@ -30,11 +30,32 @@ export function topicMastery(user: UserData, topicId: string): number {
   return topicScopeProgress(user, topicId).overall;
 }
 
+/** Best recorded score on a section quiz, or 0 when it has never been taken. */
+export function sectionQuizBest(user: UserData, topicId: string): number {
+  const quizId = `section-quiz-${topicId}`;
+  return user.quizAttempts
+    .filter((attempt) => attempt.quizId === quizId && attempt.status === "submitted")
+    .reduce((top, attempt) => Math.max(top, attempt.score ?? 0), 0);
+}
+
+/** Passing the section quiz at 80% or better counts as proof on its own. */
+export function sectionQuizPassed(user: UserData, topicId: string): boolean {
+  return sectionQuizBest(user, topicId) >= MASTERY_THRESHOLD;
+}
+
 /** True when the topic is proven well enough to move past it. */
 export function isMastered(user: UserData, topicId: string): boolean {
   const status = user.topicProgress[topicId]?.status;
   if (status === "mastered") return true;
+  if (sectionQuizPassed(user, topicId)) return true;
   return topicMastery(user, topicId) >= MASTERY_THRESHOLD;
+}
+
+/** The topic straight after this one on the journey. */
+export function nextJourneyTopic(topicId: string): Topic | undefined {
+  const index = journeyIndex(topicId);
+  if (index === Number.MAX_SAFE_INTEGER) return undefined;
+  return journeyOrderedTopics[index + 1];
 }
 
 /** Last month band counted as "the basics" (Stage 1 of the Journey Map). */

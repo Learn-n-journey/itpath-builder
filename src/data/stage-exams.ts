@@ -11,6 +11,7 @@
 import type { Question } from "@/lib/app-data/types";
 import { topics } from "@/data/static-content";
 import { getTopicQuestionPool } from "@/data/topic-quizzes";
+import { usableQuestions } from "@/lib/question-quality";
 
 export const STAGE_PASS_SCORE = 80;
 export const STAGE_EXAM_SIZE = 50;
@@ -1010,25 +1011,21 @@ export function getStageExamQuestions(examId: string): Question[] {
   const cached = stageQuestionCache.get(examId);
   if (cached) return cached;
 
-  const out: Question[] = [...exam.questions];
+  const out: Question[] = usableQuestions(exam.questions);
   const used = new Set(out.map((item) => item.id));
   const stageTopics = topics.filter((topic) => topic.month >= exam.from && topic.month <= exam.to);
   const pools = stageTopics.map((topic) => getTopicQuestionPool(topic.id));
 
-  const writtenCap = 15;
-  let written = out.filter((item) => item.choices.length === 0).length;
   for (let round = 0; out.length < STAGE_EXAM_SIZE; round += 1) {
     let addedThisRound = false;
     for (const pool of pools) {
       if (out.length >= STAGE_EXAM_SIZE) break;
       const next = pool.find((item) => {
         if (used.has(item.id)) return false;
-        if (item.choices.length === 0 && written >= writtenCap) return false;
         return true;
       });
       if (!next) continue;
       used.add(next.id);
-      if (next.choices.length === 0) written += 1;
       out.push({ ...next, quizId: examId });
       addedThisRound = true;
     }

@@ -53,7 +53,7 @@ function distractorTerms(topicId: string, exclude: string, count: number, offset
       topic: topics.find((item) => item.id === lesson.topicId),
     }))
     .sort((a, b) => {
-      const score = (entry: { topic?: { id: string; certificationId: string } }) =>
+      const score = (entry: { topic?: { id: string; certificationId: string } | undefined }) =>
         entry.topic?.id === topicId ? 0 : entry.topic?.certificationId === topic?.certificationId ? 1 : 2;
       return score(a) - score(b);
     })

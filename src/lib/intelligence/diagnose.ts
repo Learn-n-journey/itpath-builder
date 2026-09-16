@@ -99,6 +99,54 @@ export interface DiagnoseInput {
   repeatedMisconception: boolean;
   prerequisiteGap: boolean;
   retention: number;
+  /**
+   * True only when the same item was answered correctly once and then missed on
+   * a later attempt at that same item. Without this, saying "you had this right
+   * before" would be comparing two different questions.
+   */
+  itemRegression?: boolean;
+}
+
+/**
+ * Looks for a real step backwards on one item: an earlier correct answer to a
+ * question, then a later wrong answer to that same question.
+ */
+export function itemRegressionByTopic(user: UserData): Set<string> {
+  const firstCorrectAt = new Map<string, number>();
+  const regressed = new Set<string>();
+
+  const events: { questionId: string; topicId: string; correct: boolean; at: number }[] = [];
+  for (const attempt of user.quizAttempts) {
+    if (attempt.status !== "submitted") continue;
+    const at = new Date(attempt.submittedAt ?? attempt.updatedAt ?? attempt.createdAt).getTime();
+    for (const result of attempt.results) {
+      events.push({
+        questionId: result.questionId,
+        topicId: result.topicId,
+        correct: result.correct,
+        at,
+      });
+    }
+  }
+  for (const response of user.recallResponses ?? []) {
+    events.push({
+      questionId: response.questionId,
+      topicId: response.topicId,
+      correct: response.correct,
+      at: new Date(response.createdAt ?? new Date().toISOString()).getTime(),
+    });
+  }
+
+  events.sort((a, b) => a.at - b.at);
+  for (const event of events) {
+    const seen = firstCorrectAt.get(event.questionId);
+    if (event.correct) {
+      if (seen === undefined) firstCorrectAt.set(event.questionId, event.at);
+      continue;
+    }
+    if (seen !== undefined && event.at > seen) regressed.add(event.topicId);
+  }
+  return regressed;
 }
 
 export function diagnose(input: DiagnoseInput): Diagnosis {
@@ -108,7 +156,9 @@ export function diagnose(input: DiagnoseInput): Diagnosis {
   if (prerequisiteGap && profile.mastery < 0.6) return "prerequisite_gap";
   if (measures.confidentErrors >= 2) return "confident_but_wrong";
   if (repeatedMisconception) return "misconception";
-  if (measures.recentFailureAfterSuccess && profile.mastery < 0.75) return "retrieval_failure";
+  if (input.itemRegression && measures.recentFailureAfterSuccess && profile.mastery < 0.75) {
+    return "retrieval_failure";
+  }
 
   const knows = (scope.understanding.score + scope.recall.score) / 2;
   if (knows >= 55 && scope.practicalAbility.score < 40) return "application_failure";

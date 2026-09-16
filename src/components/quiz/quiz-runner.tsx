@@ -429,9 +429,13 @@ function QuizReview({
           value={passScore ? (attempt.score >= passScore ? "Passed" : "Not there yet") : attempt.total}
         />
       </div>
-      {diagnostic.items.length > 0 ? (
+      {attempt.score > 80 ? null : diagnostic.items.length > 0 ? (
         <GaylNote
-          message={[diagnostic.explanation, diagnostic.calibration.note, diagnostic.guidance]
+          message={[
+            diagnostic.explanation,
+            diagnostic.calibration.note,
+            "Rather than pick over each missed question, go back over the section and run the whole quiz again. A second full run tells us far more than one answer does.",
+          ]
             .filter(Boolean)
             .join(" ")}
           why={[
