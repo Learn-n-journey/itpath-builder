@@ -22,6 +22,7 @@ import { Route as DailyChallengeRouteImport } from './routes/daily-challenge'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as InsightsRouteImport } from './routes/insights'
+import { Route as JourneyRouteImport } from './routes/journey'
 import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LearnRouteImport } from './routes/learn'
@@ -117,6 +118,11 @@ const GuideRoute = GuideRouteImport.update({
 const InsightsRoute = InsightsRouteImport.update({
   id: '/insights',
   path: '/insights',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JourneyRoute = JourneyRouteImport.update({
+  id: '/journey',
+  path: '/journey',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KnowledgeRoute = KnowledgeRouteImport.update({
@@ -290,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/exam': typeof ExamRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
+  '/journey': typeof JourneyRoute
   '/knowledge': typeof KnowledgeRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
@@ -336,6 +343,7 @@ export interface FileRoutesByTo {
   '/exam': typeof ExamRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
+  '/journey': typeof JourneyRoute
   '/knowledge': typeof KnowledgeRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
@@ -383,6 +391,7 @@ export interface FileRoutesById {
   '/exam': typeof ExamRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
+  '/journey': typeof JourneyRoute
   '/knowledge': typeof KnowledgeRoute
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
@@ -431,6 +440,7 @@ export interface FileRouteTypes {
     | '/exam'
     | '/guide'
     | '/insights'
+    | '/journey'
     | '/knowledge'
     | '/labs'
     | '/learn'
@@ -477,6 +487,7 @@ export interface FileRouteTypes {
     | '/exam'
     | '/guide'
     | '/insights'
+    | '/journey'
     | '/knowledge'
     | '/labs'
     | '/learn'
@@ -523,6 +534,7 @@ export interface FileRouteTypes {
     | '/exam'
     | '/guide'
     | '/insights'
+    | '/journey'
     | '/knowledge'
     | '/labs'
     | '/learn'
@@ -570,6 +582,7 @@ export interface RootRouteChildren {
   ExamRoute: typeof ExamRoute
   GuideRoute: typeof GuideRoute
   InsightsRoute: typeof InsightsRoute
+  JourneyRoute: typeof JourneyRoute
   KnowledgeRoute: typeof KnowledgeRoute
   LabsRoute: typeof LabsRoute
   LearnRoute: typeof LearnRoute
@@ -694,6 +707,13 @@ declare module '@tanstack/react-router' {
       path: '/insights'
       fullPath: '/insights'
       preLoaderRoute: typeof InsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journey': {
+      id: '/journey'
+      path: '/journey'
+      fullPath: '/journey'
+      preLoaderRoute: typeof JourneyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/knowledge': {
@@ -930,6 +950,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExamRoute: ExamRoute,
   GuideRoute: GuideRoute,
   InsightsRoute: InsightsRoute,
+  JourneyRoute: JourneyRoute,
   KnowledgeRoute: KnowledgeRoute,
   LabsRoute: LabsRoute,
   LearnRoute: LearnRoute,

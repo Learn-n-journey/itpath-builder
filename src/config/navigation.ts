@@ -1,6 +1,7 @@
 import {
   Brain,
   LayoutDashboard,
+  Map,
   Route as RouteIcon,
   CalendarCheck2,
   BookOpen,
