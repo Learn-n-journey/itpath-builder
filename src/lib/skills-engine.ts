@@ -469,7 +469,7 @@ export function scoreSkills(user: UserData): SkillScore[] {
     // A skill is only as strong as the share of available material actually
     // attempted: one perfect practice task cannot read as mastery.
     const coverageRatio = availableCount === 0 ? 0 : coveredCount / availableCount;
-    const score = pct((accuracy + coverageRatio * 100) / 2);
+    const score = pct((accuracy * (coverageRatio * 100)) / 100);
     return {
       skillId,
       label: skillLabels[skillId],
@@ -518,7 +518,7 @@ export function scoreTracks(skills: SkillScore[]): TrackReadiness[] {
           scored.reduce((sum, [skillId, weight]) => sum + (byId.get(skillId)?.accuracy ?? 0) * weight, 0) /
             scoredWeight,
         );
-    const score = pct((performance + coverage) / 2);
+    const score = pct((performance * coverage) / 100);
     return {
       track,
       label: trackLabels[track],
