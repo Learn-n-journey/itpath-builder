@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 
@@ -75,22 +75,36 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     [topic.id],
   );
   // Show two at a time, skipping the ones already answered well, so a return visit brings new ones.
+  // The chosen pair is fixed for the visit, so answering one does not make it vanish before the
+  // feedback is read. A page reload (or moving topic) picks the next pair.
+  const pickedRecall = useRef<{ topicId: string; ids: string[] } | null>(null);
   const visibleRecall = useMemo(() => {
+    if (pickedRecall.current && pickedRecall.current.topicId === topic.id) {
+      const kept = pickedRecall.current.ids
+        .map((id) => recallQuestions.find((item) => item.id === id))
+        .filter((item): item is (typeof recallQuestions)[number] => Boolean(item));
+      if (kept.length > 0) return kept;
+    }
     const answeredWell = new Set(
       user.recallResponses.filter((item) => item.topicId === topic.id && item.correct).map((item) => item.questionId),
     );
     const fresh = recallQuestions.filter((item) => !answeredWell.has(item.id));
-    if (fresh.length > 0) return fresh.slice(0, 2);
-    // Pool exhausted, so come back round to the ones answered longest ago.
-    const lastSeen = new Map<string, string>();
-    for (const response of user.recallResponses.filter((item) => item.topicId === topic.id)) {
-      const current = lastSeen.get(response.questionId);
-      if (!current || response.createdAt > current) lastSeen.set(response.questionId, response.createdAt);
+    let chosen = fresh.slice(0, 2);
+    if (chosen.length === 0) {
+      // Pool exhausted, so come back round to the ones answered longest ago.
+      const lastSeen = new Map<string, string>();
+      for (const response of user.recallResponses.filter((item) => item.topicId === topic.id)) {
+        const current = lastSeen.get(response.questionId);
+        if (!current || response.createdAt > current) lastSeen.set(response.questionId, response.createdAt);
+      }
+      chosen = [...recallQuestions]
+        .sort((a, b) => (lastSeen.get(a.id) ?? "").localeCompare(lastSeen.get(b.id) ?? ""))
+        .slice(0, 2);
     }
-    return [...recallQuestions]
-      .sort((a, b) => (lastSeen.get(a.id) ?? "").localeCompare(lastSeen.get(b.id) ?? ""))
-      .slice(0, 2);
+    pickedRecall.current = { topicId: topic.id, ids: chosen.map((item) => item.id) };
+    return chosen;
   }, [recallQuestions, user.recallResponses, topic.id]);
+
   const practiceActivities = getPracticeActivities(topic.id);
   const practice = practiceActivities[0];
   const scenario = getRealWorldScenario(topic.id);
