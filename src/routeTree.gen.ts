@@ -52,6 +52,7 @@ import { Route as CertificationsIndexRouteImport } from './routes/certifications
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
 import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
 import { Route as PracticeTestsCertIdRouteImport } from './routes/practice-tests.$certId'
+import { Route as StageExamStageIdRouteImport } from './routes/stage-exam.$stageId'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
@@ -271,6 +272,11 @@ const PracticeTestsCertIdRoute = PracticeTestsCertIdRouteImport.update({
   path: '/practice-tests/$certId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StageExamStageIdRoute = StageExamStageIdRouteImport.update({
+  id: '/stage-exam/$stageId',
+  path: '/stage-exam/$stageId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TopicsIndexRoute = TopicsIndexRouteImport.update({
   id: '/topics/',
   path: '/topics/',
@@ -331,6 +337,7 @@ export interface FileRoutesByFullPath {
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
+  '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
   '/topics/': typeof TopicsIndexRoute
@@ -379,6 +386,7 @@ export interface FileRoutesByTo {
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
+  '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications': typeof CertificationsIndexRoute
   '/topics': typeof TopicsIndexRoute
@@ -428,6 +436,7 @@ export interface FileRoutesById {
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
+  '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
   '/topics/': typeof TopicsIndexRoute
@@ -478,6 +487,7 @@ export interface FileRouteTypes {
     | '/certifications/$certId'
     | '/checkout/success'
     | '/practice-tests/$certId'
+    | '/stage-exam/$stageId'
     | '/topics/$topicId'
     | '/certifications/'
     | '/topics/'
@@ -526,6 +536,7 @@ export interface FileRouteTypes {
     | '/certifications/$certId'
     | '/checkout/success'
     | '/practice-tests/$certId'
+    | '/stage-exam/$stageId'
     | '/topics/$topicId'
     | '/certifications'
     | '/topics'
@@ -574,6 +585,7 @@ export interface FileRouteTypes {
     | '/certifications/$certId'
     | '/checkout/success'
     | '/practice-tests/$certId'
+    | '/stage-exam/$stageId'
     | '/topics/$topicId'
     | '/certifications/'
     | '/topics/'
@@ -623,6 +635,7 @@ export interface RootRouteChildren {
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
   PracticeTestsCertIdRoute: typeof PracticeTestsCertIdRoute
+  StageExamStageIdRoute: typeof StageExamStageIdRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
   CertificationsIndexRoute: typeof CertificationsIndexRoute
   TopicsIndexRoute: typeof TopicsIndexRoute
@@ -932,6 +945,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PracticeTestsCertIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stage-exam/$stageId': {
+      id: '/stage-exam/$stageId'
+      path: '/stage-exam/$stageId'
+      fullPath: '/stage-exam/$stageId'
+      preLoaderRoute: typeof StageExamStageIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/topics/': {
       id: '/topics/'
       path: '/topics'
@@ -999,6 +1019,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertificationsCertIdRoute: CertificationsCertIdRoute,
   CheckoutSuccessRoute: CheckoutSuccessRoute,
   PracticeTestsCertIdRoute: PracticeTestsCertIdRoute,
+  StageExamStageIdRoute: StageExamStageIdRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,
   CertificationsIndexRoute: CertificationsIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
