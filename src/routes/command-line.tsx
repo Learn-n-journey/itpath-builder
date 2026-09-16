@@ -392,15 +392,29 @@ function CommandLinePage() {
             </Panel>
 
             <section ref={terminalPanel} aria-label="Virtual terminal" data-shell={attempt.shell} className="terminal-window scroll-mt-20">
+              {(() => {
+                const windowsShell = attempt.shell === "cmd" || attempt.shell === "powershell";
+                return (
               <div className="terminal-titlebar">
-                <span className="flex gap-1.5" aria-hidden>
-                  <span className="terminal-dot terminal-dot-close" />
-                  <span className="terminal-dot terminal-dot-min" />
-                  <span className="terminal-dot terminal-dot-max" />
-                </span>
+                {windowsShell ? null : (
+                  <span className="flex gap-1.5" aria-hidden>
+                    <span className="terminal-dot terminal-dot-close" />
+                    <span className="terminal-dot terminal-dot-min" />
+                    <span className="terminal-dot terminal-dot-max" />
+                  </span>
+                )}
                 <span className="flex min-w-0 items-center gap-2 font-mono text-xs term-muted"><SquareTerminal className="size-4 shrink-0" aria-hidden /><span className="truncate">{shellLabels[attempt.shell]} · {attempt.machine.hostname}</span></span>
                 <Button type="button" size="sm" variant="ghost" onClick={() => start(true)} disabled={attempt.status === "submitted"} title="Reset virtual computer" className="ml-auto"><RefreshCw aria-hidden /> Reset</Button>
+                {windowsShell ? (
+                  <span className="flex items-center gap-1" aria-hidden>
+                    <span className="terminal-winctrl"><Minus className="size-3" /></span>
+                    <span className="terminal-winctrl"><Square className="size-2.5" /></span>
+                    <span className="terminal-winctrl terminal-winctrl-close"><X className="size-3" /></span>
+                  </span>
+                ) : null}
               </div>
+                );
+              })()}
               <div className="terminal-screen" role="log" aria-live="polite">
                 <p className="mb-4 term-muted">IT PATH virtual machine. Type help for supported commands.</p>
                 {attempt.transcript.map((entry) => (
