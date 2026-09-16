@@ -169,3 +169,6 @@
 - [x] Beginner daily set: start button does nothing / "no longer in the bank" for stale attempts
 - [x] My Path starting point must match the listed order
 - [x] Order adapts to experience setting: complete beginner/some basics start at the beginning; home lab unlocks all basics and starts after them; working in IT unlocks everything
+
+- [ ] GAYL: stay quiet on quiz scores over 80%; when she does speak, suggest retaking the quiz rather than picking at single missed questions
+- [ ] Quizzes: multiple choice only, drop nonsense questions, expand bank with AI

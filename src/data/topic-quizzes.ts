@@ -62,12 +62,12 @@ function distractorPool(topicId: string): { term: string; meaning: string }[] {
   return pool;
 }
 
-function generatedFor(topicId: string): { choice: Question[]; written: Question[] } {
+function generatedFor(topicId: string): { choice: Question[] } {
   const lesson = lessons.find((item) => item.topicId === topicId);
   const module = getLearningModule(topicId);
   const pool = distractorPool(topicId);
   const choice: Question[] = [];
-  const written: Question[] = [];
+
 
   lesson?.keyTerms.forEach((term, index) => {
     const correct = shortMeaning(term.meaning);
@@ -126,52 +126,37 @@ function generatedFor(topicId: string): { choice: Question[]; written: Question[
       );
     }
 
-    written.push(
-      question({
-        id: `section-${topicId}-term-written-${index}`,
-        topicId,
-        type: "short_answer",
-        prompt: `In your own words, what is ${term.term} and what does it do here?`,
-        acceptableAnswers: [term.meaning, term.term],
-        explanation: `${term.term}: ${term.meaning}`,
-        requiresReasoning: true,
-      }),
-    );
   });
 
-  module?.commonProblems.forEach((item, index) => {
-    written.push(
-      question({
-        id: `section-${topicId}-problem-${index}`,
-        topicId,
-        type: "short_answer",
-        prompt: `How would you recognise this in practice: ${item.toLowerCase()}? Describe what you would see and what you would check.`,
-        acceptableAnswers: [item],
-        explanation: item,
-        requiresReasoning: true,
-      }),
-    );
-  });
+  // Common problems become a "what do you check first" question with real steps as options.
+  const firstStep = module?.troubleshooting[0];
+  if (module && firstStep) {
+    module.commonProblems.slice(0, 3).forEach((item, index) => {
+      const otherSteps = module.troubleshooting.slice(1, 4);
+      if (otherSteps.length < 3) return;
+      const options = [firstStep, ...otherSteps];
+      choice.push(
+        question({
+          id: `section-${topicId}-problem-${index}`,
+          topicId,
+          type: "multiple_choice",
+          prompt: `A user reports this problem: ${item.replace(/\.$/, "")}. Which step comes first?`,
+          choices: options,
+          correctAnswer: [firstStep],
+          acceptableAnswers: [firstStep],
+          explanation: `Start here: ${firstStep}`,
+          mistakeCategory: "diagnosis",
+          requiresReasoning: true,
+        }),
+      );
+    });
+  }
 
-  module?.troubleshooting.forEach((item, index) => {
-    written.push(
-      question({
-        id: `section-${topicId}-fix-${index}`,
-        topicId,
-        type: "short_answer",
-        prompt: `Working through a fault in this section, what would you do at step ${index + 1}, and what does the result tell you?`,
-        acceptableAnswers: [item],
-        explanation: item,
-        requiresReasoning: true,
-      }),
-    );
-  });
-
-  return { choice, written };
+  return { choice: usableQuestions(choice) };
 }
 
 const authoredByTopic = new Map<string, Question[]>();
-for (const item of [...authoredQuestions, ...generatedQuestions]) {
+for (const item of usableQuestions([...authoredQuestions, ...generatedQuestions])) {
   const list = authoredByTopic.get(item.topicId) ?? [];
   list.push(item);
   authoredByTopic.set(item.topicId, list);
@@ -179,63 +164,34 @@ for (const item of [...authoredQuestions, ...generatedQuestions]) {
 
 const cache = new Map<string, Question[]>();
 
-/** The 20 question quiz for one section of the program. */
+/** The 20 question quiz for one section of the program. Multiple choice throughout. */
 export function getSectionQuizQuestions(topicId: string): Question[] {
   const cached = cache.get(topicId);
   if (cached) return cached;
 
   const authored = authoredByTopic.get(topicId) ?? [];
   const gen = generatedFor(topicId);
-  const authoredWritten = authored.filter(isWritten);
-  const authoredChoice = authored.filter((item) => !isWritten(item));
 
   // Do not ask a generated question about something the authored bank already tests.
   const alreadyAsked = new Set(
     authored.flatMap((item) => item.correctAnswer.map((answer) => answer.trim().toLowerCase())),
   );
-  const writtenPool = [...authoredWritten, ...gen.written];
-  const choicePool = [
-    ...authoredChoice,
+  const pool = usableQuestions([
+    ...authored,
     ...gen.choice.filter((item) => !alreadyAsked.has((item.correctAnswer[0] ?? "").trim().toLowerCase())),
-  ];
+  ]);
 
-  const written = writtenPool.slice(0, WRITTEN_TARGET);
-  const choice = choicePool.slice(0, SECTION_QUIZ_SIZE - written.length);
-  const picked = [...choice, ...written];
-
-  // If a section is short on one kind, top it up from whatever is left rather than run short.
-  if (picked.length < SECTION_QUIZ_SIZE) {
-    for (const extra of [...choicePool, ...writtenPool]) {
-      if (picked.length >= SECTION_QUIZ_SIZE) break;
-      if (!picked.some((item) => item.id === extra.id)) picked.push(extra);
-    }
-  }
-
-  // Interleave so written answers are spread through the quiz instead of bunched at the end.
-  const choices = picked.filter((item) => !isWritten(item));
-  const writtens = picked.filter(isWritten);
-  const out: Question[] = [];
-  const gap = writtens.length > 0 ? Math.max(1, Math.round(choices.length / writtens.length)) : 0;
-  let w = 0;
-  choices.forEach((item, index) => {
-    out.push(item);
-    if (gap > 0 && (index + 1) % gap === 0 && w < writtens.length) out.push(writtens[w++]!);
-  });
-  while (w < writtens.length) out.push(writtens[w++]!);
-
-  const result = out.slice(0, SECTION_QUIZ_SIZE).map((item, index) => ({
+  const result = pool.slice(0, SECTION_QUIZ_SIZE).map((item, index) => ({
     ...item,
-    id: item.id,
     quizId: `section-quiz-${topicId}`,
-    prompt: item.prompt,
     order: index,
   })) as Question[];
   cache.set(topicId, result);
   return result;
 }
 
-/** Every generated question available for a topic, used to top up the larger stage exams. */
+/** Every question available for a topic, used to top up the larger stage exams. */
 export function getTopicQuestionPool(topicId: string): Question[] {
   const gen = generatedFor(topicId);
-  return [...(authoredByTopic.get(topicId) ?? []), ...gen.choice, ...gen.written];
+  return usableQuestions([...(authoredByTopic.get(topicId) ?? []), ...gen.choice]);
 }

@@ -1,17 +1,16 @@
 /**
  * Generated question bank.
  *
- * Every question here is derived from real curriculum content (recall prompts,
- * practice activities, scenarios, key terms and troubleshooting steps) so the
- * exam generator can draw from hundreds of questions without inventing facts.
+ * Every question here is multiple choice and is derived from real curriculum
+ * content (practice activities, key terms and troubleshooting steps), so the
+ * quiz engine can draw from hundreds of questions without inventing facts.
+ * Anything that does not read as a sensible question is dropped by the shared
+ * quality gate before it ever reaches a learner.
  */
 import { lessons, topics } from "@/data/static-content";
-import {
-  learningModules,
-  practiceActivities,
-  realWorldScenarios,
-  recallQuestions,
-} from "@/data/learning-content";
+import { learningModules, practiceActivities } from "@/data/learning-content";
+import { aiQuestions } from "@/data/ai-question-bank";
+import { usableQuestions } from "@/lib/question-quality";
 import type { Difficulty, MistakeCategory, Question } from "@/lib/app-data/types";
 
 const GENERATED_QUIZ_ID = "quiz-generated-bank";
@@ -20,11 +19,9 @@ function make(
   id: string,
   topicId: string,
   certificationId: string,
-  type: Question["type"],
   prompt: string,
   choices: string[],
   correctAnswer: string[],
-  acceptableAnswers: string[],
   explanation: string,
   difficulty: Difficulty,
   mistakeCategory: MistakeCategory,
@@ -35,11 +32,11 @@ function make(
     topicId,
     quizId: GENERATED_QUIZ_ID,
     certificationId,
-    type,
+    type: "multiple_choice",
     prompt,
     choices,
     correctAnswer,
-    acceptableAnswers,
+    acceptableAnswers: [],
     explanation,
     difficulty,
     mistakeCategory,
@@ -47,17 +44,55 @@ function make(
   };
 }
 
-function distractorTerms(exclude: string, count: number): string[] {
-  const pool = lessons
-    .flatMap((lesson) => lesson.keyTerms.map((term) => term.term))
+/** Other real terms, preferring the same topic, then the same certification. */
+function distractorTerms(topicId: string, exclude: string, count: number, offset: number): string[] {
+  const topic = topics.find((item) => item.id === topicId);
+  const ranked = lessons
+    .map((lesson) => ({
+      lesson,
+      topic: topics.find((item) => item.id === lesson.topicId),
+    }))
+    .sort((a, b) => {
+      const score = (entry: { topic?: { id: string; certificationId: string } }) =>
+        entry.topic?.id === topicId ? 0 : entry.topic?.certificationId === topic?.certificationId ? 1 : 2;
+      return score(a) - score(b);
+    })
+    .flatMap((entry) => entry.lesson.keyTerms.map((term) => term.term))
     .filter((term) => term.toLowerCase() !== exclude.toLowerCase());
-  const unique = [...new Set(pool)];
+
+  const unique = [...new Set(ranked)];
   const picked: string[] = [];
-  let index = exclude.length * 7;
-  while (picked.length < count && unique.length > 0) {
+  let index = offset;
+  let guard = 0;
+  while (picked.length < count && unique.length > 0 && guard < unique.length * 2) {
     const candidate = unique[index % unique.length] as string;
     if (!picked.includes(candidate)) picked.push(candidate);
-    index += 13;
+    index += 1;
+    guard += 1;
+  }
+  return picked;
+}
+
+/** Troubleshooting steps taken from other sections, used as plausible wrong first steps. */
+function otherFirstSteps(topicId: string, exclude: string, count: number, offset: number): string[] {
+  const topic = topics.find((item) => item.id === topicId);
+  const pool = learningModules
+    .filter((item) => item.topicId !== topicId)
+    .filter((item) => {
+      const other = topics.find((entry) => entry.id === item.topicId);
+      return other?.certificationId === topic?.certificationId;
+    })
+    .map((item) => item.troubleshooting[0])
+    .filter((step): step is string => Boolean(step) && step !== exclude);
+  const unique = [...new Set(pool)];
+  const picked: string[] = [];
+  let index = offset;
+  let guard = 0;
+  while (picked.length < count && unique.length > 0 && guard < unique.length * 2) {
+    const candidate = unique[index % unique.length] as string;
+    if (!picked.includes(candidate)) picked.push(candidate);
+    index += 1;
+    guard += 1;
   }
   return picked;
 }
@@ -69,86 +104,41 @@ function build(): Question[] {
     const cert = topic.certificationId;
     const difficulty = topic.difficulty;
 
-    // Recall prompts become written answers graded on the idea.
-    for (const recall of recallQuestions.filter((item) => item.topicId === topic.id)) {
-      out.push(
-        make(
-          `question-gen-${recall.id}`,
-          topic.id,
-          cert,
-          "short_answer",
-          recall.prompt,
-          [],
-          [],
-          recall.acceptedConcepts.length ? recall.acceptedConcepts : [recall.explanation],
-          recall.explanation,
-          difficulty,
-          "concept",
-          true,
-        ),
-      );
-    }
-
     // Practice activities are already multiple choice with a single answer.
-    const practice = practiceActivities.find((item) => item.topicId === topic.id);
-    if (practice) {
-      const answer = practice.choices[practice.answerIndex];
-      if (answer) {
+    practiceActivities
+      .filter((item) => item.topicId === topic.id)
+      .forEach((practice) => {
+        const answer = practice.choices[practice.answerIndex];
+        if (!answer) return;
         out.push(
           make(
             `question-gen-${practice.id}`,
             topic.id,
             cert,
-            "multiple_choice",
             practice.prompt,
             practice.choices,
             [answer],
-            [],
             practice.explanation,
             difficulty,
             "concept",
             true,
           ),
         );
-      }
-    }
-
-    // Scenarios become reasoning questions answered in the learner's own words.
-    const scenario = realWorldScenarios.find((item) => item.topicId === topic.id);
-    if (scenario) {
-      out.push(
-        make(
-          `question-gen-${scenario.id}`,
-          topic.id,
-          cert,
-          "short_answer",
-          `${scenario.situation} ${scenario.decisionPrompt}`,
-          [],
-          [],
-          scenario.expectedConcepts,
-          scenario.guidance,
-          difficulty,
-          "diagnosis",
-          true,
-        ),
-      );
-    }
+      });
 
     // Key terms become terminology multiple choice.
     const lesson = lessons.find((item) => item.topicId === topic.id);
-    lesson?.keyTerms.slice(0, 4).forEach((term, index) => {
-      const wrong = distractorTerms(term.term, 3);
+    lesson?.keyTerms.slice(0, 6).forEach((term, index) => {
+      const wrong = distractorTerms(topic.id, term.term, 3, index * 3 + 1);
       if (wrong.length < 3) return;
       out.push(
         make(
           `question-gen-term-${topic.id}-${index + 1}`,
           topic.id,
           cert,
-          "multiple_choice",
           `Which term matches this description? "${term.meaning}"`,
           [term.term, ...wrong],
           [term.term],
-          [],
           `${term.term}: ${term.meaning}`,
           difficulty,
           "terminology",
@@ -157,62 +147,24 @@ function build(): Question[] {
       );
     });
 
+    // Common problems become "what do you check first" multiple choice.
     const currentModule = learningModules.find((item) => item.topicId === topic.id);
-    if (currentModule) {
+    const firstStep = currentModule?.troubleshooting[0];
+    if (currentModule && firstStep) {
       currentModule.commonProblems.slice(0, 2).forEach((problem, index) => {
-        const step = currentModule.troubleshooting[0] ?? "Confirm the symptom and scope first.";
+        const wrong = otherFirstSteps(topic.id, firstStep, 3, index * 5 + 2);
+        if (wrong.length < 3) return;
         out.push(
           make(
             `question-gen-trouble-${topic.id}-${index + 1}`,
             topic.id,
             cert,
-            "troubleshooting",
-            `Working on ${topic.title.toLowerCase()}, you suspect: ${problem}. What do you do first, and why?`,
-            [],
-            [],
-            [step, problem],
-            step,
+            `A user reports this problem: ${problem.replace(/\.$/, "")}. Which is the best first step?`,
+            [firstStep, ...wrong],
+            [firstStep],
+            `Start here: ${firstStep}`,
             difficulty,
             "diagnosis",
-            true,
-          ),
-        );
-      });
-
-      currentModule.practicalKnowledge.slice(0, 1).forEach((item, index) => {
-        out.push(
-          make(
-            `question-gen-practical-${topic.id}-${index + 1}`,
-            topic.id,
-            cert,
-            "short_answer",
-            `In practical work on ${topic.title.toLowerCase()}, what does good practice require here: ${item.replace(/\.$/, "")}?`,
-            [],
-            [],
-            [item],
-            item,
-            difficulty,
-            "procedure",
-            true,
-          ),
-        );
-      });
-
-      currentModule.interviewQuestions.slice(0, 1).forEach((prompt, index) => {
-        const expected = currentModule.howItWorks[0] ?? topic.summary;
-        out.push(
-          make(
-            `question-gen-interview-${topic.id}-${index + 1}`,
-            topic.id,
-            cert,
-            "scenario",
-            prompt,
-            [],
-            [],
-            [expected, topic.summary],
-            expected,
-            difficulty,
-            "concept",
             true,
           ),
         );
@@ -220,7 +172,7 @@ function build(): Question[] {
     }
   }
 
-  return out;
+  return usableQuestions([...out, ...aiQuestions]);
 }
 
 export const generatedQuestions: Question[] = build();
