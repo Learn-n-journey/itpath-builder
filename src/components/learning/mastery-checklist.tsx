@@ -1,7 +1,10 @@
 import { useMemo } from "react";
+import { Link } from "@tanstack/react-router";
 import { CalendarClock, Check, Circle } from "lucide-react";
 
 import { Panel } from "@/components/page-kit";
+import { Button } from "@/components/ui/button";
+import { identificationLabId } from "@/data/identification-labs";
 import { masteryGate } from "@/lib/mastery-gate";
 import { useAppState } from "@/state/app-state";
 
