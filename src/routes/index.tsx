@@ -86,7 +86,7 @@ function ProgressOverview({
             Learning path
           </div>
           <p className="mt-2 font-display text-2xl font-semibold tabular-nums sm:text-3xl">
-            {progress}% complete
+            {progress === 0 && topicsComplete === 0 ? "Under 1% complete" : `${progress}% complete`}
           </p>
           <p className="mt-1 truncate text-sm text-muted-foreground">Next: {recommendation}</p>
         </div>
