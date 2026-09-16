@@ -129,7 +129,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     out.push({
       kind: "weak_topic",
       title: `Rework ${topicTitle(topicId)}`,
-      detail: "Reread the lesson and redo recall until the score moves.",
+      detail: "Read the lesson again, then answer it back in your own words.",
       reason,
       plannedMinutes: 15,
       to: "/topics/$topicId",

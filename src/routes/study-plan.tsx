@@ -51,6 +51,14 @@ export const Route = createFileRoute("/study-plan")({
   component: StudyPlanPage,
 });
 
+/** Deep-links a task to the exact lab, practice task or quiz it refers to. */
+function taskSearch(task: StudyPlan["tasks"][number]): Record<string, string> | undefined {
+  if (task.labId) return { lab: task.labId };
+  if (task.assignmentId) return { assignment: task.assignmentId };
+  if (task.quizId) return { quiz: task.quizId };
+  return undefined;
+}
+
 function durationLabel(minutes: number): string {
   return minutes >= 120 ? "2 hours" : `${minutes} min`;
 }
@@ -98,8 +106,9 @@ function StudyPlanPage() {
       toast.error("There is nothing to schedule yet. Open a topic first.");
       return;
     }
-    actions.addStudyPlan(plan);
-    toast.success(`Session built with ${plan.tasks.length} task(s).`);
+    // Start tracking straight away so time is counted without an extra tap.
+    actions.addStudyPlan(startPlan(plan));
+    toast.success(`Session started with ${plan.tasks.length} task(s). Time is tracking now.`);
   }
 
   function finish(plan: StudyPlan) {
@@ -288,7 +297,11 @@ function ActivePlan({
               <p className="mt-1 text-xs text-muted-foreground">Why: {task.reason}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="secondary">
-                  <Link to={task.to as never} {...(task.params ? { params: task.params as never } : {})}>
+                  <Link
+                    to={task.to as never}
+                    {...(task.params ? { params: task.params as never } : {})}
+                    {...(taskSearch(task) ? { search: taskSearch(task) as never } : {})}
+                  >
                     Open
                   </Link>
                 </Button>
