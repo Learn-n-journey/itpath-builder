@@ -172,9 +172,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       expectedPoints: question.acceptedConcepts,
     });
     const correct = graded ? graded.correct : passesOffline(answer, question.acceptedConcepts, question.explanation);
+    const hints = graded ? graded.hints : correct ? [] : offlineHints(answer, question.acceptedConcepts);
+    // Nearly there means the thinking holds up with a step missing, so it is a nudge, not a mistake.
+    const almost = !correct && (graded ? graded.status === "almost" : hints.length > 0);
     const now = new Date().toISOString();
     actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
-    if (!correct) {
+    if (!correct && !almost) {
       actions.recordMistake({
         topicId: topic.id,
         activity: "recall",
@@ -185,8 +188,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       });
       actions.ensureReview({ topicId: topic.id });
     }
-    setRecallFeedback((current) => ({ ...current, [questionId]: { correct, message: question.explanation } }));
-    raiseProgress({ recall: Math.max(progress.recall, correct ? 35 : 10), retention: Math.max(progress.retention, correct ? 15 : 5) });
+    const message = almost
+      ? `Nearly there. ${hints.length ? hints.join(". ") + "." : question.explanation}`
+      : question.explanation;
+    setRecallFeedback((current) => ({ ...current, [questionId]: { correct, message } }));
+    raiseProgress({ recall: Math.max(progress.recall, correct ? 35 : almost ? 25 : 10), retention: Math.max(progress.retention, correct ? 15 : 5) });
+
   }
 
   function submitPractice(activityId: string) {
