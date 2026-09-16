@@ -100,6 +100,32 @@ function generatedFor(topicId: string): { choice: Question[]; written: Question[
         }),
       );
     }
+    const namePool = pool
+      .filter((entry) => entry.term.toLowerCase() !== term.term.toLowerCase())
+      .filter((entry, position, all) => all.findIndex((x) => x.term === entry.term) === position);
+    const nameOptions = [
+      namePool[(index * 2) % Math.max(namePool.length, 1)],
+      namePool[(index * 2 + 5) % Math.max(namePool.length, 1)],
+      namePool[(index * 2 + 9) % Math.max(namePool.length, 1)],
+    ]
+      .filter((entry): entry is { term: string; meaning: string } => Boolean(entry))
+      .filter((entry, position, all) => all.findIndex((x) => x.term === entry.term) === position);
+    if (nameOptions.length === 3) {
+      const names = nameOptions.map((entry) => entry.term);
+      names.splice((index + 2) % 4, 0, term.term);
+      choice.push(
+        question({
+          id: `section-${topicId}-name-${index}`,
+          topicId,
+          prompt: `Which term is being described? ${shortMeaning(term.meaning)}`,
+          choices: names,
+          correctAnswer: [term.term],
+          acceptableAnswers: [term.term],
+          explanation: `${term.term}: ${term.meaning}`,
+        }),
+      );
+    }
+
     written.push(
       question({
         id: `section-${topicId}-term-written-${index}`,
