@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  Activity,
   Award,
   Brain,
   CheckCircle2,
@@ -61,6 +62,69 @@ function Meter({ value }: { value: number }) {
   );
 }
 
+function ProgressOverview({
+  progress,
+  topicsComplete,
+  topicsTotal,
+  recommendation,
+}: {
+  progress: number;
+  topicsComplete: number;
+  topicsTotal: number;
+  recommendation: string;
+}) {
+  const segments = 10;
+  const activeSegments = Math.round((progress / 100) * segments);
+
+  return (
+    <section className="panel dashboard-summary motion-surface mb-4 p-5 sm:p-6">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-5">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
+            <Activity className="size-3.5" aria-hidden />
+            Learning path
+          </div>
+          <p className="mt-2 font-display text-2xl font-semibold tabular-nums sm:text-3xl">
+            {progress}% complete
+          </p>
+          <p className="mt-1 truncate text-sm text-muted-foreground">Next: {recommendation}</p>
+        </div>
+        <div className="relative flex size-16 shrink-0 items-center justify-center" aria-label={`${progress}% overall progress`}>
+          <svg className="size-16 -rotate-90" viewBox="0 0 64 64" aria-hidden>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--color-secondary)" strokeWidth="5" />
+            <circle
+              cx="32"
+              cy="32"
+              r="26"
+              fill="none"
+              stroke="var(--color-primary)"
+              strokeWidth="5"
+              strokeLinecap="round"
+              pathLength="100"
+              strokeDasharray={`${progress} 100`}
+            />
+          </svg>
+          <span className="absolute text-xs font-semibold tabular-nums">{progress}%</span>
+        </div>
+      </div>
+      <div className="mt-5 grid grid-cols-10 gap-1" aria-hidden>
+        {Array.from({ length: segments }, (_, index) => (
+          <span
+            key={index}
+            className={index < activeSegments ? "h-1.5 bg-primary" : "h-1.5 bg-secondary"}
+          />
+        ))}
+      </div>
+      <div className="mt-3 flex items-center justify-between gap-4 text-[11px] uppercase tracking-wide text-muted-foreground">
+        <span>{topicsComplete} of {topicsTotal} topics mastered</span>
+        <span className="flex shrink-0 items-center gap-1.5">
+          <span className="size-1.5 bg-primary" aria-hidden /> Evidence based
+        </span>
+      </div>
+    </section>
+  );
+}
+
 function MeterRow({ label, value, suffix = "%" }: { label: string; value: number; suffix?: string }) {
   return (
     <div>
@@ -115,6 +179,13 @@ function Dashboard() {
         </div>
 
       </div>
+
+      <ProgressOverview
+        progress={d.overallProgress}
+        topicsComplete={d.masteredTopics}
+        topicsTotal={d.topicsTotal}
+        recommendation={path.recommendedTopic?.title ?? "Choose a topic in Learn"}
+      />
 
       {!d.hasAnyActivity ? (
         <Panel
