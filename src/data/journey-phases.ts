@@ -65,7 +65,7 @@ export const journeyPhases: JourneyPhase[] = PHASE_DEFS.map((phase) => ({
         id: topic.id,
         title: topic.title,
         summary: topic.summary,
-        minutes: topic.minutes,
+        minutes: topic.estimatedMinutes,
       })),
     ...expansionSeeds
       .filter((seed) => seed.month >= phase.minMonth && seed.month <= phase.maxMonth)
