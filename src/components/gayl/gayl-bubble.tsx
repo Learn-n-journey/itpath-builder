@@ -254,6 +254,15 @@ export function GaylBubble() {
                 {messages.length > 1 ? `See all ${messages.length} messages` : "See all messages"}
               </button>
             ) : null}
+            {messages.length > 1 ? (
+              <button
+                type="button"
+                onClick={() => clearMessages(messages.map((message) => message.id))}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+              >
+                Clear all
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={dismiss}
