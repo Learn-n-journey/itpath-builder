@@ -7,7 +7,8 @@
  * then the gap between what has been read and what has been proven, then new
  * material. Every action points at a route that exists.
  */
-import { assignments, labs, topics } from "@/data/static-content";
+import { assignments, labs } from "@/data/static-content";
+import { journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationTopics } from "@/lib/cert-path";
 import { buildIntelligence } from "@/lib/intelligence/engine";
