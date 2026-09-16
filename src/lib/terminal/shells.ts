@@ -658,11 +658,231 @@ function runBashCommand(
         return ok(state, "logout");
       }
       return ok(state, "logout");
+    case "lscpu":
+      return ok(state, [
+        "Architecture:            x86_64",
+        "  CPU op-mode(s):        32-bit, 64-bit",
+        "  Byte Order:            Little Endian",
+        "CPU(s):                  4",
+        "  On-line CPU(s) list:   0-3",
+        "Vendor ID:               GenuineIntel",
+        "  Model name:            Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz",
+        "    Thread(s) per core:  2",
+        "    Core(s) per socket:  2",
+        "    Socket(s):           1",
+        "    CPU max MHz:         4300.0000",
+        "    CPU min MHz:         800.0000",
+        "Virtualisation:          VT-x",
+        "Caches (sum of all):",
+        "  L1d:                   64 KiB",
+        "  L1i:                   64 KiB",
+        "  L2:                    512 KiB",
+        "  L3:                    12 MiB",
+      ]);
+    case "lsblk":
+      return ok(state, [
+        "NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS",
+        "sda      8:0    0    50G  0 disk",
+        "|-sda1   8:1    0   512M  0 part /boot/efi",
+        "`-sda2   8:2    0  49.5G  0 part /",
+        "sr0     11:0    1  1024M  0 rom",
+      ]);
+    case "lspci":
+      return ok(state, [
+        "00:00.0 Host bridge: Intel Corporation 8th Gen Core Processor Host Bridge",
+        "00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630",
+        "00:1f.2 SATA controller: Intel Corporation SATA AHCI Controller",
+        "02:00.0 Ethernet controller: Realtek RTL8111/8168 Gigabit Ethernet",
+      ]);
+    case "lsusb":
+      return ok(state, [
+        "Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub",
+        "Bus 001 Device 003: ID 046d:c52b Logitech, Inc. Unifying Receiver",
+        "Bus 002 Device 002: ID 0781:5581 SanDisk Corp. Ultra USB 3.0",
+      ]);
+    case "lsmod":
+      return ok(state, [
+        "Module                  Size  Used by",
+        "e1000e                303104  0",
+        "ext4                  974848  1",
+        "usbcore               348160  4",
+      ]);
+    case "hostnamectl":
+      return ok(state, [
+        `   Static hostname: ${state.hostname}`,
+        "         Icon name: computer-vm",
+        `Operating System: ${state.osName}`,
+        "            Kernel: Linux 5.15.0-105-generic",
+        "      Architecture: x86-64",
+      ]);
+    case "uptime":
+      return ok(
+        state,
+        `${clockTime()} up 3 days,  4:12,  1 user,  load average: 0.24, 0.31, 0.29`,
+      );
+    case "date":
+      return ok(state, new Date().toString());
+    case "cal":
+      return ok(state, "Use `date` in this simulator. A full calendar is not modelled.");
+    case "dmesg":
+      return ok(
+        state,
+        state.eventLog.length > 0
+          ? state.eventLog.slice(-20)
+          : [
+              "[    0.000000] Linux version 5.15.0-105-generic",
+              "[    1.204331] usb 1-1: new high-speed USB device number 2",
+              "[    2.551902] EXT4-fs (sda2): mounted filesystem with ordered data mode",
+            ],
+      );
+    case "mount":
+      return ok(state, [
+        "/dev/sda2 on / type ext4 (rw,relatime)",
+        "/dev/sda1 on /boot/efi type vfat (rw,relatime)",
+        "tmpfs on /run type tmpfs (rw,nosuid,nodev)",
+      ]);
+    case "umount":
+      return ok(state, "");
+    case "du": {
+      const target = operands[0] ?? ".";
+      const node = getNode(state, resolvePath(state, target));
+      if (!node) return fail(state, `du: cannot access '${target}': No such file or directory`);
+      const rows: string[] = [];
+      walk(state, resolvePath(state, target), (child, segments) => {
+        if (child.type === "dir") rows.push(`${padStart(4 + Object.keys(child.children ?? {}).length * 4, 7)}\t/${segments.join("/")}`);
+      });
+      return ok(state, rows.length > 0 ? rows : [`      4\t${target}`]);
+    }
+    case "stat": {
+      const target = operands[0];
+      if (!target) return fail(state, "stat: missing operand");
+      const node = getNode(state, resolvePath(state, target));
+      if (!node) return fail(state, `stat: cannot statx '${target}': No such file or directory`);
+      return ok(state, [
+        `  File: ${node.name}`,
+        `  Size: ${node.type === "dir" ? 4096 : (node.content ?? "").length}\tType: ${node.type === "dir" ? "directory" : "regular file"}`,
+        `Access: (${node.mode}/${permissionString(node)})  Uid: (${node.owner})   Gid: (${node.group})`,
+      ]);
+    }
+    case "file": {
+      const target = operands[0];
+      if (!target) return fail(state, "file: missing operand");
+      const node = getNode(state, resolvePath(state, target));
+      if (!node) return fail(state, `file: cannot open '${target}' (No such file or directory)`);
+      return ok(state, `${target}: ${node.type === "dir" ? "directory" : "ASCII text"}`);
+    }
+    case "wc": {
+      const target = operands[0];
+      if (!target) return fail(state, "wc: missing operand");
+      const read = readFile(state, target);
+      if (read.error) return fail(state, `wc: ${target}: ${bashFsError(read.error)}`);
+      const text = read.text ?? "";
+      const lines = text.split("\n").filter((line, index, all) => index < all.length - 1 || line !== "");
+      const words = text.split(/\s+/).filter(Boolean);
+      return ok(state, `${padStart(lines.length, 6)} ${padStart(words.length, 6)} ${padStart(text.length, 6)} ${target}`);
+    }
+    case "sort":
+    case "uniq": {
+      const target = operands[0];
+      if (!target) return fail(state, `${name}: missing operand`);
+      const read = readFile(state, target);
+      if (read.error) return fail(state, `${name}: ${target}: ${bashFsError(read.error)}`);
+      const lines = (read.text ?? "").split("\n");
+      return ok(state, name === "sort" ? [...lines].sort() : lines.filter((line, index) => line !== lines[index - 1]));
+    }
+    case "less":
+    case "more":
+      return runBashCommand(state, "cat", args, `cat ${args.join(" ")}`);
+    case "which":
+    case "whereis":
+    case "command":
+    case "type": {
+      const target = (operands[0] ?? "").toLowerCase();
+      if (!target) return fail(state, `${name}: missing operand`);
+      return BASH_COMMANDS.includes(target)
+        ? ok(state, name === "type" ? `${target} is /usr/bin/${target}` : `/usr/bin/${target}`)
+        : fail(state, `${target}: not found`);
+    }
+    case "ln": {
+      const [from, to] = operands.slice(-2);
+      if (!from || !to) return fail(state, "ln: missing file operand");
+      const error = copyPath(state, from, to);
+      return error ? fail(state, `ln: failed to create link '${to}': ${bashFsError(error)}`) : ok(state, "");
+    }
+    case "chgrp": {
+      const [group, path] = operands;
+      if (!group || !path) return fail(state, "chgrp: missing operand");
+      if (!state.elevated && state.currentUser !== "root") {
+        return fail(state, `chgrp: changing group of '${path}': Operation not permitted`);
+      }
+      const node = getNode(state, resolvePath(state, path));
+      if (!node) return fail(state, `chgrp: cannot access '${path}': No such file or directory`);
+      node.group = group;
+      return ok(state, "");
+    }
+    case "tee": {
+      const path = operands[0];
+      if (!path) return fail(state, "usage: tee FILE");
+      return ok(state, "");
+    }
+    case "export":
+    case "alias": {
+      const pair = operands[0];
+      if (pair && pair.includes("=")) {
+        const [key, value] = pair.split("=");
+        if (name === "export" && key) state.env[key] = (value ?? "").replace(/^"(.*)"$/, "$1");
+        return ok(state, "");
+      }
+      return ok(state, Object.entries(state.env).map(([key, value]) => `${key}=${value}`));
+    }
+    case "sleep":
+      return ok(state, "");
+    case "apt":
+    case "apt-get":
+    case "dnf":
+    case "yum": {
+      const action = (operands[0] ?? "").toLowerCase();
+      if (!state.elevated && state.currentUser !== "root" && action !== "list" && action !== "search") {
+        return fail(state, `E: Could not open lock file - are you root? Try sudo ${name} ${args.join(" ")}`);
+      }
+      if (action === "update") return ok(state, ["Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease", "Reading package lists... Done"]);
+      if (action === "install") return ok(state, [`Setting up ${operands[1] ?? "package"} ...`, "Processing triggers ... done"]);
+      if (action === "upgrade") return ok(state, ["Calculating upgrade... Done", "0 upgraded, 0 newly installed, 0 to remove"]);
+      return ok(state, `${name}: nothing to do for '${action || "no action"}'`);
+    }
+    case "tar":
+      return ok(state, operands.filter((op) => !op.startsWith("-")).join("\n"));
+    case "nano":
+    case "vi":
+    case "vim":
+      return ok(state, [
+        "A full screen editor is not modelled here.",
+        `Use: echo "text" > ${operands[0] ?? "file"}   or   cat ${operands[0] ?? "file"} to read it.`,
+      ]);
+    case "crontab":
+      return ok(state, hasFlag("l") ? ["0 2 * * * /usr/local/bin/backup.sh"] : "crontab: use -l to list jobs here.");
+    case "arp":
+      return ok(state, [
+        "Address                  HWtype  HWaddress           Iface",
+        ...state.interfaces
+          .filter((iface) => iface.up && iface.gateway)
+          .map((iface) => `${pad(iface.gateway, 25)}ether   ${pad("00:1a:2b:3c:4d:5e", 20)}${iface.name}`),
+      ]);
+    case "ssh":
+    case "scp":
+      return fail(state, `${name}: remote connections are not available in this simulator.`);
+    case "reboot":
+    case "shutdown":
+      if (!state.elevated && state.currentUser !== "root") {
+        return fail(state, `${name}: Operation not permitted (try sudo)`);
+      }
+      return ok(state, "Simulated only: the machine stays up so you can keep working.");
     case "man":
     case "help":
+    case "whatis":
       return ok(state, bashHelp(operands[0]));
     default:
-      return fail(state, `${name}: command not found`);
+      return fail(state, `${name}: command not found. Type help to see what this shell supports.`);
   }
 }
 
