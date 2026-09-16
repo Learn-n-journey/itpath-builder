@@ -118,6 +118,8 @@ function CommandLinePage() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [reasoning, setReasoning] = useState("");
   const terminalEnd = useRef<HTMLDivElement>(null);
+  const terminalPanel = useRef<HTMLElement>(null);
+  const [scrollToTerminal, setScrollToTerminal] = useState(false);
   const [generated, setGenerated] = useState<TerminalScenario | null>(null);
   const [creating, setCreating] = useState(false);
   const [revealedSteps, setRevealedSteps] = useState<number[]>([]);
