@@ -119,6 +119,8 @@ export function AiFeedback({
   const grade = state.grade;
   if (!grade) return null;
 
+  const almost = grade.status === "almost";
+
   return (
     <div role="status" className="mt-4 space-y-5 rounded-lg border border-border bg-secondary/20 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -126,10 +128,10 @@ export function AiFeedback({
           {grade.correct ? (
             <CheckCircle2 aria-hidden className="size-4 text-primary" />
           ) : (
-            <CircleAlert aria-hidden className="size-4 text-destructive" />
+            <CircleAlert aria-hidden className={almost ? "size-4 text-amber-400" : "size-4 text-destructive"} />
           )}
-          <Badge variant={grade.correct ? "default" : "destructive"}>
-            {grade.correct ? "Correct" : "Not yet"}
+          <Badge variant={grade.correct ? "default" : almost ? "secondary" : "destructive"}>
+            {grade.correct ? "Correct" : almost ? "Nearly there" : "Not yet"}
           </Badge>
           <Badge variant="outline" className="gap-1.5">
             <GaylMark />
@@ -143,8 +145,26 @@ export function AiFeedback({
 
       {grade.verdict ? <p className="text-sm text-muted-foreground">{grade.verdict}</p> : null}
 
+      {grade.hints.length ? (
+        <div className="rounded-md border border-primary/40 bg-primary/5 p-3">
+          <p className="text-sm font-medium text-foreground">
+            {almost ? "Your thinking works, add these and it is there" : "Where I would start"}
+          </p>
+          <ul className="mt-2 space-y-1.5">
+            {grade.hints.map((hint) => (
+              <li key={hint} className="flex gap-2 text-sm text-muted-foreground">
+                <span aria-hidden className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+                <span>{hint}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       <Section title="What you got right" items={grade.strengths} />
       <Section title="What I could not see in your answer" items={grade.missed} />
+
+
 
       {grade.correctedAnswer ? (
         <div>

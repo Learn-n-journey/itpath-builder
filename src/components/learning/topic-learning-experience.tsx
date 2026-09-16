@@ -47,6 +47,21 @@ function passesOffline(answer: string, concepts: string[], modelAnswer?: string)
   return modelAnswer ? answerMatches(answer, modelAnswer) : false;
 }
 
+/**
+ * Nearly there: some of the expected thinking is present, so the answer gets a
+ * nudge towards the missing step rather than a plain fail.
+ */
+function offlineHints(answer: string, concepts: string[]): string[] {
+  const matched = new Set(matchConcepts(answer, concepts));
+  if (matched.size === 0) return [];
+  return concepts
+    .filter((concept) => !matched.has(concept))
+    .slice(0, 4)
+    .map((concept) => `Add the step about ${concept.charAt(0).toLowerCase()}${concept.slice(1)}`);
+}
+
+
+
 
 export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const { user, actions } = useAppState();
@@ -157,9 +172,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       expectedPoints: question.acceptedConcepts,
     });
     const correct = graded ? graded.correct : passesOffline(answer, question.acceptedConcepts, question.explanation);
+    const hints = graded ? graded.hints : correct ? [] : offlineHints(answer, question.acceptedConcepts);
+    // Nearly there means the thinking holds up with a step missing, so it is a nudge, not a mistake.
+    const almost = !correct && (graded ? graded.status === "almost" : hints.length > 0);
     const now = new Date().toISOString();
     actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
-    if (!correct) {
+    if (!correct && !almost) {
       actions.recordMistake({
         topicId: topic.id,
         activity: "recall",
@@ -170,8 +188,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       });
       actions.ensureReview({ topicId: topic.id });
     }
-    setRecallFeedback((current) => ({ ...current, [questionId]: { correct, message: question.explanation } }));
-    raiseProgress({ recall: Math.max(progress.recall, correct ? 35 : 10), retention: Math.max(progress.retention, correct ? 15 : 5) });
+    const message = almost
+      ? `Nearly there. ${hints.length ? hints.join(". ") + "." : question.explanation}`
+      : question.explanation;
+    setRecallFeedback((current) => ({ ...current, [questionId]: { correct, message } }));
+    raiseProgress({ recall: Math.max(progress.recall, correct ? 35 : almost ? 25 : 10), retention: Math.max(progress.retention, correct ? 15 : 5) });
+
   }
 
   function submitPractice(activityId: string) {
@@ -251,7 +273,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       </TabsList>
       <TabsContent value="recall"><div className="space-y-4">{recallQuestions.map((question, index) => {
         const feedback = recallFeedback[question.id];
-        return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={question.id}>Your answer</Label><Textarea id={question.id} className="mt-2" rows={4} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "Marking…" : "Check answer"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-primary" : "text-destructive"}`}>{feedback.correct ? "Correct. " : "Needs review. "}{feedback.message}</p> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
+        return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={question.id}>Your answer</Label><Textarea id={question.id} className="mt-2" rows={4} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "Marking…" : "Check answer"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-primary" : feedback.message.startsWith("Nearly there") ? "text-amber-400" : "text-destructive"}`}>{feedback.correct ? "Correct. " : feedback.message.startsWith("Nearly there") ? "" : "Needs review. "}{feedback.message}</p> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
       })}</div></TabsContent>
       <TabsContent value="practice"><div className="space-y-4">{practiceActivities.map((activity, index) => {
         const chosen = practiceChoices[activity.id];
