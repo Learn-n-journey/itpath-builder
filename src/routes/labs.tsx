@@ -31,6 +31,8 @@ import { adaptivePath } from "@/lib/adaptive-path";
 
 export const Route = createFileRoute("/labs")({
   staticData: { sitemap: false },
+  validateSearch: (search: Record<string, unknown>): { lab?: string } =>
+    typeof search['lab'] === "string" && search['lab'] ? { lab: search['lab'] } : {},
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
