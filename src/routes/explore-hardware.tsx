@@ -178,7 +178,7 @@ function ExploreHardwarePage() {
 
           <p className="text-xs text-muted-foreground">
             Learning the theory? Pair this with the{" "}
-            <Link to="/topics/$topicId" params={{ topicId: "computer-hardware-basics" }} className="text-primary underline-offset-2 hover:underline">
+            <Link to="/topics/$topicId" params={{ topicId: "topic-computer-hardware-basics" }} className="text-primary underline-offset-2 hover:underline">
               Computer Hardware Basics
             </Link>{" "}
             lesson.
