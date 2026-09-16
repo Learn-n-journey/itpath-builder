@@ -36,8 +36,9 @@ export const dimensionLabels: Array<{ key: keyof Dimensions; label: string; help
   { key: "knowledge", label: "Knowledge", help: "Understanding and recall combined" },
   { key: "understanding", label: "Understanding", help: "Explained the idea in your own words" },
   { key: "recall", label: "Recall", help: "Your latest answer on each item was right" },
-  { key: "application", label: "Application", help: "Applied the idea in practice tasks" },
-  { key: "practicalAbility", label: "Practical ability", help: "Completed labs and hands-on work" },
+  { key: "application", label: "Application", help: "Chose the right thing to do in a situation" },
+  { key: "practicalAbility", label: "Practical ability", help: "Did the work yourself at the machine or terminal" },
+
   { key: "troubleshooting", label: "Troubleshooting", help: "Diagnosed incidents and tickets" },
   { key: "retention", label: "Retention", help: "Still right after days and weeks have passed" },
 
