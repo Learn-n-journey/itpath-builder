@@ -161,7 +161,8 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
       .filter((attempt) => attempt.status === "submitted")
       .flatMap((attempt) => attempt.results.map((result) => result.topicId)),
   );
-  const untested = topics.find((topic) => {
+  const untested = journeyOrderedTopics.find((topic) => {
+    if (!started.has(topic.id)) return false;
     const progress = topicScopeProgress(user, topic.id);
     return (
       certTopicIds.has(topic.id) &&
@@ -180,7 +181,8 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
   }
 
   // 5. Known in theory, unproven in practice.
-  const unproven = topics.find((topic) => {
+  const unproven = journeyOrderedTopics.find((topic) => {
+    if (!started.has(topic.id)) return false;
     const progress = topicScopeProgress(user, topic.id);
     if (!certTopicIds.has(topic.id)) return false;
     return mean([progress.understanding.score, progress.recall.score]) >= 60 && progress.practicalAbility.score < 40;
