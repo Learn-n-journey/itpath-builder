@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Clock, Sparkles, X } from "lucide-react";
 
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -33,9 +33,11 @@ export function ActionLink({
 export function NextActionCard({
   actions,
   className,
+  onDismiss,
 }: {
   actions: NextAction[];
   className?: string;
+  onDismiss?: ((action: NextAction) => void) | undefined;
 }) {
   const [primary, ...rest] = actions;
   if (!primary) return null;
