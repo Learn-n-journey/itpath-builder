@@ -244,6 +244,14 @@ function QuizWorkspace({
       submittedAt: now,
     };
     actions.updateQuizAttempt(submittedAttempt);
+    // A pass is remembered for good, whatever happens on later runs.
+    if (passScore !== undefined && submittedAttempt.score >= passScore) {
+      actions.recordQuizPass({
+        quizId: quiz.id,
+        ...(quiz.topicIds[0] ? { topicId: quiz.topicIds[0] } : {}),
+        score: submittedAttempt.score,
+      });
+    }
     // Every missed question becomes evidence: skill, type, answers, difficulty and likely cause.
     const diagnostic = buildQuizDiagnostic(user, orderedQuestions, result.results);
     diagnostic.missed.forEach((item) => {
