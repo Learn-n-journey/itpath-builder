@@ -82,10 +82,9 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const nowMs = now.getTime();
   const out: Candidate[] = [];
   const usedTopics = new Set<string>();
-  const focus = adaptivePath(user);
   // Everything that is not owed work follows the Journey Map order.
   const orderedTopics = journeyOrderedTopics;
-  const focusTopicIds = new Set(focus.topics.map((topic) => topic.id));
+
 
   // 1. Review, reviews the learner actually has scheduled and due.
   const dueReviews = user.reviews
