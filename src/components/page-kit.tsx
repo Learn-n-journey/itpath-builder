@@ -13,7 +13,7 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
+    <header className="motion-content-enter mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4">
       <div className="min-w-0">
         <h1 className="font-display text-2xl font-semibold sm:text-3xl">{title}</h1>
         {description ? (
@@ -37,7 +37,7 @@ export function Panel({
   className?: string | undefined;
 }) {
   return (
-    <section className={cn("panel p-5 sm:p-6", className)}>
+    <section className={cn("panel motion-surface p-5 sm:p-6", className)}>
       {title ? <h2 className="font-display text-base font-semibold">{title}</h2> : null}
       {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       {children ? <div className={title ? "mt-4" : undefined}>{children}</div> : null}
@@ -57,7 +57,7 @@ export function StatCard({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="panel p-4">
+    <div className="panel motion-surface p-4">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
         {Icon ? <Icon className="size-4 text-muted-foreground" aria-hidden /> : null}
@@ -80,7 +80,7 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="panel flex flex-col items-center px-6 py-12 text-center">
+    <div className="panel motion-surface flex flex-col items-center px-6 py-12 text-center">
       {Icon ? (
         <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-secondary text-primary">
           <Icon className="size-5" aria-hidden />
