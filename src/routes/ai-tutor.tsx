@@ -171,9 +171,14 @@ function AiTutor() {
       toast.error("Paste the answer you want reviewed first.");
       return;
     }
+    if (mode === "ask_anything" && !question.trim()) {
+      toast.error("Type your question first.");
+      return;
+    }
     const prompt = generateTutorPrompt(user, mode, {
       ...(topicId === NO_TOPIC ? {} : { topicId }),
       learnerAnswer: answer,
+      question,
     });
     await send([{ role: "user", content: prompt }]);
   }
