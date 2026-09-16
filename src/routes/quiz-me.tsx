@@ -42,7 +42,13 @@ function QuizMe() {
     const focused = general.filter((quiz) => quiz.topicIds.some((id) => focusTopicIds.has(id)));
     return focused.length > 0 ? focused : general;
   }, [focusTopicIds]);
-  const quiz = useMemo(() => shuffleWithSeed(available, seed)[0], [available, seed]);
+  const { quiz: requestedQuizId } = Route.useSearch();
+  const quiz = useMemo(() => {
+    const requested = requestedQuizId
+      ? [...quizzes, ...certQuizzes].find((item) => item.id === requestedQuizId)
+      : undefined;
+    return requested ?? shuffleWithSeed(available, seed)[0];
+  }, [available, seed, requestedQuizId]);
   const pool = useMemo(() => (quiz ? quizQuestions(quiz, certQuizQuestions) : []), [quiz]);
 
   if (!quiz) return null;
