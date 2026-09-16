@@ -1,6 +1,7 @@
 import { certifications, topics } from "@/data/static-content";
 import { certificationTopics, type StageId } from "@/lib/cert-path";
 import type { Certification, Difficulty, ExperienceLevel, Topic, UserData, UserSettings } from "@/lib/app-data/types";
+import { currentJourneyTopic } from "@/lib/journey-order";
 import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const stageForDifficulty: Record<Difficulty, StageId> = {
@@ -76,7 +77,13 @@ export function adaptivePath(user: UserData): AdaptivePath {
   const atLevel = ranked.filter((entry) => entry.rank >= startIndex).map((entry) => entry.topic);
   const fallback = [...ranked].reverse().find((entry) => entry.rank < startIndex)?.topic;
   const candidates = atLevel.length > 0 ? atLevel : fallback ? [fallback] : courseTopics;
-  const recommendedTopic =
+  // The Journey Map is the single source of truth for what comes next, so the
+  // recommendation follows it whenever that topic is part of this course.
+  const journeyNext = currentJourneyTopic(user);
+  const journeyMatch = journeyNext
+    ? courseTopics.find((topic) => topic.id === journeyNext.id)
+    : undefined;
+  const recommendedTopic = journeyMatch ??
     candidates.find((topic) => unfinished(user, topic) && topic.prerequisiteTopicIds.every((id) => {
       const prerequisite = topics.find((item) => item.id === id);
       return !prerequisite || prerequisite.certificationId !== certification.id || topicScore(user, prerequisite) >= 60;
