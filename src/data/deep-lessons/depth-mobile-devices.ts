@@ -92,7 +92,7 @@ export const mobileDevicesLessonDepth: Record<string, LessonDepth> = {
       rows: [
         { term: "Wi-Fi", detail: "Tens of feet, highest throughput, no carrier data cost" },
         { term: "Bluetooth", detail: "About 30 feet, low power, for peripherals and audio profiles" },
-        { term: "NFC", detail: "A few centimetres, for payments, transit cards, and tap-to-pair" },
+        { term: "NFC", detail: "An inch or two, for payments, transit cards, and tap-to-pair" },
         { term: "4G LTE", detail: "Wide-area carrier data and voice, broad coverage" },
         { term: "5G", detail: "Higher speed and lower latency where deployed; low-band 5G can perform like LTE" },
         { term: "GPS", detail: "Receive-only satellite positioning; needs sky visibility" },
