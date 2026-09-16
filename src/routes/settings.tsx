@@ -281,22 +281,6 @@ function SettingsPage() {
             </div>
 
             <div>
-              <Label>Target job</Label>
-              <Select value={s.targetJob} onValueChange={(v) => updateSettings({ targetJob: v })}>
-                <SelectTrigger className="mt-1.5 w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {JOBS.map((j) => (
-                    <SelectItem key={j} value={j}>
-                      {j}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
               <Label>Certification target</Label>
               <Select
                 value={s.certificationTarget}
