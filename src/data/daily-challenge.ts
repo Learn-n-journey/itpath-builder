@@ -11,6 +11,47 @@ import type { Question } from "@/lib/app-data/types";
 
 export const DAILY_QUESTION_COUNT = 5;
 
+/** The three tiers of the daily challenge, easiest first. */
+export type ChallengeTier = "beginner" | "intermediate" | "expert";
+
+export interface ChallengeTierInfo {
+  id: ChallengeTier;
+  label: string;
+  count: number;
+  /** Difficulties preferred for this tier, best fit first. */
+  prefers: Difficulty[];
+  description: string;
+}
+
+export const DAILY_TIERS: ChallengeTierInfo[] = [
+  {
+    id: "beginner",
+    label: "Beginner",
+    count: 5,
+    prefers: ["gentle", "standard", "challenging"],
+    description: "Five questions on the plainer end of the material. A three minute warm up.",
+  },
+  {
+    id: "intermediate",
+    label: "Intermediate",
+    count: 8,
+    prefers: ["standard", "challenging", "gentle"],
+    description: "Eight questions that ask you to apply the idea, not just name it.",
+  },
+  {
+    id: "expert",
+    label: "Expert",
+    count: 12,
+    prefers: ["challenging", "standard", "gentle"],
+    description: "Twelve of the harder questions, spread right across the material.",
+  },
+];
+
+export function tierInfo(tier: ChallengeTier): ChallengeTierInfo {
+  return DAILY_TIERS.find((item) => item.id === tier) ?? DAILY_TIERS[0]!;
+}
+
+
 /** Local calendar date key, YYYY-MM-DD. */
 export function dailyDateKey(now: Date = new Date()): string {
   const year = now.getFullYear();
