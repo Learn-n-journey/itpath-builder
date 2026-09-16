@@ -1313,10 +1313,44 @@ function runCmd(state: MachineState, input: string): ExecResult {
       return ok(state, ["Updating policy...", "", "Computer Policy update has completed successfully.", "User Policy update has completed successfully."]);
     case "shutdown":
       return ok(state, "This simulator does not restart machines, but the command syntax is accepted.");
+    case "date":
+      return ok(state, `The current date is: ${new Date().toLocaleDateString()}`);
+    case "time":
+      return ok(state, `The current time is: ${clockTime()}`);
+    case "vol":
+      return ok(state, [` Volume in drive ${state.drive.replace(":", "")} is Windows`, " Volume Serial Number is 9C4A-11B7"]);
+    case "getmac":
+      return ok(state, [
+        "Physical Address    Transport Name",
+        "=================== ==========================",
+        ...state.interfaces.map((iface) => `${pad(iface.mac.toUpperCase(), 20)}\\Device\\Tcpip_${iface.name}`),
+      ]);
+    case "tree": {
+      const lines: string[] = [displayPath(state, state.cwd)];
+      walk(state, state.cwd, (node, segments) => {
+        if (segments.length > state.cwd.length) {
+          lines.push(`${"    ".repeat(segments.length - state.cwd.length)}${node.type === "dir" ? "+---" : "    "}${node.name}`);
+        }
+      });
+      return ok(state, lines);
+    }
+    case "where": {
+      const target = (operands[0] ?? "").toLowerCase();
+      if (!target) return fail(state, "ERROR: The syntax of this command is: WHERE pattern");
+      return CMD_COMMANDS.includes(target)
+        ? ok(state, `C:\\Windows\\System32\\${target}.exe`)
+        : fail(state, `INFO: Could not find files for the given pattern(s).`);
+    }
+    case "title":
+    case "pause":
+    case "color":
+      return ok(state, "");
+    case "assoc":
+      return ok(state, [".txt=txtfile", ".log=txtfile", ".exe=exefile"]);
     case "help":
       return ok(state, [
-        "Supported here: dir cd type copy move del md rd findstr echo set ver cls",
-        "                ipconfig ping tracert nslookup netstat arp route",
+        "Supported here: dir cd type copy move del md rd tree findstr echo set ver cls vol assoc",
+        "                ipconfig ping tracert nslookup netstat arp route getmac where date time",
         "                tasklist taskkill sc net systeminfo chkdsk sfc gpupdate whoami hostname runas",
       ]);
     default:
