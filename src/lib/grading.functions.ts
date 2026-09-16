@@ -6,7 +6,7 @@ import { reviewGrade } from "@/lib/ai-self-check.server";
 import { cacheKey as buildCacheKey, readExact, writeCache } from "@/lib/ai/cache.server";
 import { compressContext } from "@/lib/ai/compress.server";
 import { runAi } from "@/lib/ai/run.server";
-import { offlineGrade } from "@/lib/offline-grade";
+import { offlineGrade, type GradeStatus } from "@/lib/offline-grade";
 
 const criterionSchema = z.object({
   id: z.string().min(1).max(200),
