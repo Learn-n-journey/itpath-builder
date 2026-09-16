@@ -134,7 +134,7 @@ function JourneyPage() {
                           <span className="min-w-0 flex-1">
                             <span className="block text-sm font-medium">{topic.title}</span>
                             <span className="block truncate text-xs text-muted-foreground">
-                              {topic.minutes} min · {STATE_LABEL[state]}
+                              {topic.minutes} min · {state === "unknown" ? "Not started" : STATE_LABEL[state]}
                             </span>
                           </span>
                         </Link>

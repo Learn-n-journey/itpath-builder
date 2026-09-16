@@ -60,6 +60,13 @@ export const navItems: NavItem[] = [
     description: "The ordered route through your chosen certification.",
   },
   {
+    label: "Journey Map",
+    to: "/journey",
+    icon: Map,
+    group: "Study",
+    description: "The full two-year route with every topic's real state marked.",
+  },
+  {
     label: "Study Plan",
     to: "/study-plan",
     icon: CalendarDays,
