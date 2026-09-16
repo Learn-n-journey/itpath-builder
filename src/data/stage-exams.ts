@@ -258,7 +258,7 @@ const stage1: Draft[] = [
     explanation: "Layer 2 delivery uses MAC addressing; IP addressing takes over between networks.",
   },
   {
-    topicId: "topic-dns-fundamentals",
+    topicId: "topic-basic-networking-concepts",
     certificationId: N,
     prompt:
       "A remote support tool connects over RDP. Which port must be reachable through the firewall?",
