@@ -65,7 +65,7 @@ function MyPath() {
       <Panel
         className="mb-4"
         title="Your order"
-        description="The Journey Map order, with anything you owe (due reviews and open mistakes) lifted to the top."
+        description="Work through the topics in the order shown. Anything you owe (due reviews and open mistakes) is lifted to the top."
       >
         <ul className="space-y-2">
           {queue.entries.slice(0, 6).map((entry) => (
@@ -97,7 +97,7 @@ function MyPath() {
         <p className="mt-3 text-xs text-muted-foreground">
           {queue.hasData
             ? "A topic opens once the one before it is mastered."
-            : "This is the Journey Map order. Reviews and open mistakes move to the top once you have recorded some work."}
+            : "Reviews and open mistakes move to the top once you have recorded some work."}
         </p>
       </Panel>
 
