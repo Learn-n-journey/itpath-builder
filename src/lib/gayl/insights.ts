@@ -306,8 +306,14 @@ export interface GaylMessage {
 
 /** Names the exact problem on one topic, in plain words. */
 function problemIssue(concept: ConceptIntel): string {
-  if (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure") {
-    return "your answers have slipped since you last got them right";
+  if (concept.diagnosis === "retrieval_failure") {
+    return "you had it right earlier, then it came back wrong on a later answer";
+  }
+  if (concept.diagnosis === "fading") {
+    const days = concept.daysSinceExposure;
+    return days && days >= 7
+      ? `it has been about ${Math.round(days)} days since you worked on it and recall has faded`
+      : "recall here has faded since you last had it right";
   }
   if (concept.misconceptions[0]) {
     return `the same mix-up keeps coming back: ${concept.misconceptions[0].toLowerCase()}`;
@@ -331,8 +337,14 @@ function casualText(concept: ConceptIntel): string {
   if (count > 0) {
     return `Hey, just a heads up, you've still got ${count} open mistake${plural} in ${concept.title}. ${concept.instruction}`;
   }
-  if (concept.diagnosis === "fading" || concept.diagnosis === "retrieval_failure") {
-    return `Quick one. Your answers on ${concept.title} have slipped a bit since you last had them right. A short pass should bring it back.`;
+  if (concept.diagnosis === "retrieval_failure") {
+    return `Quick one. You had ${concept.title} right earlier, then a later answer came back wrong. A short pass should settle it.`;
+  }
+  if (concept.diagnosis === "fading") {
+    const days = concept.daysSinceExposure;
+    return days && days >= 7
+      ? `Quick one. It has been about ${Math.round(days)} days since you worked on ${concept.title}, so recall will have faded. A short pass should bring it back.`
+      : `Quick one. Recall on ${concept.title} has faded since you last had it right. A short pass should bring it back.`;
   }
   if (concept.misconceptions[0]) {
     return `Something keeps catching you out in ${concept.title}: ${concept.misconceptions[0].toLowerCase()}. Worth clearing that one up before you build on it.`;
