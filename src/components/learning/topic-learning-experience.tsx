@@ -301,7 +301,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
 
   const scopeProgress = useMemo(() => topicScopeProgress(user, topic.id), [user, topic.id]);
-  const averageProgress = scopeProgress.overall;
   if (!lesson || !module || !practice || !scenario) return null;
 
   return <div className="space-y-4">
