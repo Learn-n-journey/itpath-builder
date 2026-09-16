@@ -197,6 +197,10 @@ export function sanitizeUser(raw: unknown): UserData {
             ]),
           )
         : base.certificationProgress,
+    quizPasses:
+      r.quizPasses && typeof r.quizPasses === "object" && !Array.isArray(r.quizPasses)
+        ? r.quizPasses
+        : base.quizPasses,
     certificationObjectives:
       r.certificationObjectives &&
       typeof r.certificationObjectives === "object" &&

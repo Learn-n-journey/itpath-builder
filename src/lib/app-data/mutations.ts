@@ -11,6 +11,7 @@ import type {
   Note,
   PortfolioProject,
   QuizAttempt,
+  QuizPass,
   RecallResponse,
   Review,
   ReviewAttempt,
@@ -87,6 +88,31 @@ export const userMutations = {
     ),
   }),
   removeQuizAttempt: (user: UserData, id: string) => removeById(user, "quizAttempts", id),
+  /** Remembers a pass for good. Later runs only ever raise the best score. */
+  recordQuizPass: (
+    user: UserData,
+    item: { quizId: string; topicId?: string; score: number; at?: string },
+  ): UserData => {
+    const now = item.at ?? new Date().toISOString();
+    const existing = user.quizPasses[item.quizId];
+    const pass: QuizPass = existing
+      ? {
+          ...existing,
+          score: Math.max(existing.score, item.score),
+          updatedAt: now,
+          timesPassed: existing.timesPassed + 1,
+        }
+      : {
+          quizId: item.quizId,
+          ...(item.topicId ? { topicId: item.topicId } : {}),
+          score: item.score,
+          firstScore: item.score,
+          passedAt: now,
+          updatedAt: now,
+          timesPassed: 1,
+        };
+    return { ...user, quizPasses: { ...user.quizPasses, [item.quizId]: pass } };
+  },
   addRecallResponse: (user: UserData, item: RecallResponse) =>
     prepend(user, "recallResponses", item),
   addPracticeResponse: (user: UserData, item: PracticeResponse) =>

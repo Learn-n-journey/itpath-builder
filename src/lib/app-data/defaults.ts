@@ -22,6 +22,7 @@ export function createDefaultUserData(): UserData {
     createdAt: new Date().toISOString(),
     topicProgress: {},
     quizAttempts: [],
+    quizPasses: {},
     recallResponses: [],
     practiceResponses: [],
     teachBackResponses: {},
