@@ -12,7 +12,7 @@ import {
   certificationsByLevel,
 } from "@/lib/cert-path";
 import { useAppState, useStats } from "@/state/app-state";
-import { adaptivePath } from "@/lib/adaptive-path";
+import { adaptivePath, experienceStartBlurb } from "@/lib/adaptive-path";
 import { adaptiveQueue } from "@/lib/adaptive-engine";
 
 export const Route = createFileRoute("/my-path")({
