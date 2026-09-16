@@ -90,22 +90,45 @@ function TopicPage() {
       <Panel
         className="mb-4"
         title="Recommended study time"
-        description={`About ${formatStudyTime(studyTime.totalMinutes)} in total, measured from the material on this page. At your session length of ${user.settings.sessionLengthMinutes} minutes that is ${studyTime.sessions} ${studyTime.sessions === 1 ? "sitting" : "sittings"}.`}
+        description={`About ${formatStudyTime(studyTime.totalMinutes)} in total, measured from the material on this page. At your session length of ${user.settings.sessionLengthMinutes} minutes that is ${studyTime.sessions} ${studyTime.sessions === 1 ? "sitting" : "sittings"}. Tap any stage to jump straight to it.`}
       >
         <ul className="grid gap-3 sm:grid-cols-2">
-          {studyTime.parts.map((part) => (
-            <li key={part.label} className="rounded-lg border border-border bg-secondary/20 p-4">
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="text-sm font-medium text-foreground">{part.label}</span>
-                <span className="shrink-0 text-sm tabular-nums text-primary">
-                  {formatStudyTime(part.minutes)}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">{part.detail}</p>
-            </li>
-          ))}
+          {studyTime.parts.map((part) => {
+            const target = STUDY_PART_TARGETS[part.label];
+            const inner = (
+              <>
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-sm font-medium text-foreground">{part.label}</span>
+                  <span className="shrink-0 text-sm tabular-nums text-primary">
+                    {formatStudyTime(part.minutes)}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{part.detail}</p>
+                {target ? (
+                  <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                    Jump to this <ArrowRight className="size-3" aria-hidden />
+                  </span>
+                ) : null}
+              </>
+            );
+            return (
+              <li key={part.label}>
+                {target ? (
+                  <a
+                    href={target}
+                    className="block h-full rounded-lg border border-border bg-secondary/20 p-4 transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {inner}
+                  </a>
+                ) : (
+                  <div className="h-full rounded-lg border border-border bg-secondary/20 p-4">{inner}</div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </Panel>
+
 
       <TopicLearningExperience topic={topic} />
 
