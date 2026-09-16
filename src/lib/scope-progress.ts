@@ -150,28 +150,75 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
   );
   const troubleshooting = merge(dimension(incidentScores), dimension(ticketScores), dimension(terminalScores));
 
-  // Retention covers every review this section has scheduled, not one lump
-  // result. Each item scores on its most recent graded outcome.
+  // Retention covers every item this section contains, not just scheduled
+  // reviews. An item only counts as retained once it has been answered well
+  // again on a later day, so a single first-time pass is partial credit.
+  type Graded = { at: number; pass: boolean };
+  const attemptsByItem = new Map<string, Graded[]>();
+  const addAttempt = (itemId: string, at: string | undefined, pass: boolean) => {
+    if (!at) return;
+    const list = attemptsByItem.get(itemId) ?? [];
+    list.push({ at: new Date(at).getTime(), pass });
+    attemptsByItem.set(itemId, list);
+  };
+
+  user.recallResponses
+    .filter((row) => row.topicId === topicId)
+    .forEach((row) => addAttempt(row.questionId, row.createdAt, row.correct));
+  user.practiceResponses
+    .filter((row) => row.topicId === topicId)
+    .forEach((row) => addAttempt(row.activityId, row.createdAt, row.correct));
+  user.quizAttempts
+    .filter((attempt) => attempt.status === "submitted")
+    .forEach((attempt) => attempt.results.forEach((result) => addAttempt(result.questionId, attempt.createdAt, result.correct)));
+  user.labAttempts
+    .filter((row) => row.topicId === topicId && row.status !== "in_progress")
+    .forEach((row) => addAttempt(row.labId, row.submittedAt ?? row.updatedAt, row.maxScore > 0 && row.score / row.maxScore >= 0.8));
+  user.terminalAttempts
+    .filter((row) => row.topicId === topicId && row.status === "submitted")
+    .forEach((row) => addAttempt(row.scenarioId, row.createdAt, (row.score ?? 0) >= 80));
+  user.incidentAttempts
+    .filter((row) => row.topicId === topicId && row.status === "submitted")
+    .forEach((row) => addAttempt(row.incidentId, row.createdAt, (row.totalScore ?? 0) >= 80));
+  user.ticketAttempts
+    .filter((row) => row.topicId === topicId && row.status === "submitted")
+    .forEach((row) => addAttempt(row.ticketId, row.createdAt, (row.totalScore ?? 0) >= 80));
+  user.assignmentAttempts
+    .filter((row) => assignments.some((item) => item.id === row.assignmentId))
+    .forEach((row) => addAttempt(row.assignmentId, row.submittedAt ?? row.updatedAt, !!row.score && !!row.maxScore && row.score / row.maxScore >= 0.8));
+  const scenarioResponse = user.scenarioResponses[topicId];
+  if (scenario && scenarioResponse) addAttempt(scenario.id, scenarioResponse.updatedAt ?? scenarioResponse.createdAt, !!scenarioResponse.meetsCriteria);
+  if (teachBack) addAttempt(`teach-back-${topicId}`, teachBack.updatedAt ?? teachBack.createdAt, (teachBackScore ?? 0) >= 80);
   const reviewAttempts = user.reviewAttempts.filter((row) => row.topicId === topicId);
-  const reviewItems = user.reviews.filter((row) => row.topicId === topicId);
-  const reviewScores: Array<number | undefined> = reviewItems.map((item) => {
-    const graded = reviewAttempts
-      .filter((row) => row.reviewId === item.id)
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  reviewAttempts.forEach((row) => addAttempt(`review-${row.reviewId}`, row.createdAt, row.outcome === "pass"));
+
+  const dayOf = (time: number) => Math.floor(time / (24 * 60 * 60 * 1000));
+  const retentionItemIds = [
+    ...new Set([
+      ...recallQuestions.map((item) => item.id),
+      ...quizQuestionIds,
+      ...(practiceActivity ? [practiceActivity.id] : []),
+      ...labs.map((item) => item.id),
+      ...terminal.map((item) => item.id),
+      ...incidents.map((item) => item.id),
+      ...tickets.map((item) => item.id),
+      ...assignments.map((item) => item.id),
+      ...(scenario ? [scenario.id] : []),
+      `teach-back-${topicId}`,
+      ...user.reviews.filter((row) => row.topicId === topicId).map((row) => `review-${row.id}`),
+      ...reviewAttempts.map((row) => `review-${row.reviewId}`),
+    ]),
+  ];
+  const retentionScores: Array<number | undefined> = retentionItemIds.map((itemId) => {
+    const graded = (attemptsByItem.get(itemId) ?? []).sort((a, b) => a.at - b.at);
+    if (!graded.length) return undefined;
     const last = graded[graded.length - 1];
-    return last ? (last.outcome === "pass" ? 100 : 0) : undefined;
+    if (!last || !last.pass) return 0;
+    const passDays = new Set(graded.filter((row) => row.pass).map((row) => dayOf(row.at)));
+    return passDays.size >= 2 ? 100 : 50;
   });
-  // Graded reviews whose scheduled item has since been cleared still count.
-  const orphanAttempts = reviewAttempts.filter((row) => !reviewItems.some((item) => item.id === row.reviewId));
-  const orphanByReview = [...new Set(orphanAttempts.map((row) => row.reviewId))].map((reviewId) => {
-    const graded = orphanAttempts
-      .filter((row) => row.reviewId === reviewId)
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-    const last = graded[graded.length - 1];
-    return last ? (last.outcome === "pass" ? 100 : 0) : undefined;
-  });
-  const allReviewScores = [...reviewScores, ...orphanByReview];
-  const retention = dimension(allReviewScores.length ? allReviewScores : [undefined]);
+  const retention = dimension(retentionScores.length ? retentionScores : [undefined]);
+
 
   const dimensions = [understanding, recall, application, practicalAbility, troubleshooting, retention];
   const earned = dimensions.reduce((sum, item) => sum + item.earned, 0);
