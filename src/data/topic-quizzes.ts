@@ -18,6 +18,9 @@ export const SECTION_QUIZ_SIZE = 20;
 export const SECTION_PASS_SCORE = 80;
 const WRITTEN_TARGET = 6;
 
+/** A question is written if it has no options to choose from. */
+const isWritten = (item: Question) => item.choices.length === 0;
+
 /** First sentence of a definition, trimmed so every option reads at a similar length. */
 function shortMeaning(text: string): string {
   const first = text.split(/(?<=[.!?])\s/)[0] ?? text;
@@ -157,8 +160,8 @@ export function getSectionQuizQuestions(topicId: string): Question[] {
 
   const authored = authoredByTopic.get(topicId) ?? [];
   const gen = generatedFor(topicId);
-  const authoredWritten = authored.filter((item) => item.type === "short_answer");
-  const authoredChoice = authored.filter((item) => item.type !== "short_answer");
+  const authoredWritten = authored.filter(isWritten);
+  const authoredChoice = authored.filter((item) => !isWritten(item));
 
   const writtenPool = [...authoredWritten, ...gen.written];
   const choicePool = [...authoredChoice, ...gen.choice];
@@ -176,8 +179,8 @@ export function getSectionQuizQuestions(topicId: string): Question[] {
   }
 
   // Interleave so written answers are spread through the quiz instead of bunched at the end.
-  const choices = picked.filter((item) => item.type !== "short_answer");
-  const writtens = picked.filter((item) => item.type === "short_answer");
+  const choices = picked.filter((item) => !isWritten(item));
+  const writtens = picked.filter(isWritten);
   const out: Question[] = [];
   const gap = writtens.length > 0 ? Math.max(1, Math.round(choices.length / writtens.length)) : 0;
   let w = 0;
