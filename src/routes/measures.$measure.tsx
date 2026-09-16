@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { measureGuideBySlug, measureGuides } from "@/lib/measure-guides";
 
 export const Route = createFileRoute("/measures/$measure")({
+  staticData: { sitemap: true },
   loader: ({ params }) => {
     const guide = measureGuideBySlug(params.measure);
     if (!guide) throw notFound();
