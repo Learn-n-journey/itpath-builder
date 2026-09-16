@@ -18,9 +18,17 @@ export const REVIEW_INTERVALS = [1, 3, 7, 14, 30, 60, 90] as const;
  * nudges the ease down. Two learners on the same topic therefore end up on
  * different schedules, drawn from their own results.
  */
-const DEFAULT_EASE = 2.2;
-const MIN_EASE = 1.3;
+const DEFAULT_EASE = 2.5;
+const MIN_EASE = 1.5;
 const MAX_EASE = 3.2;
+/**
+ * A missed item comes back the next day, not the same minute. Cramming an item
+ * again straight after getting it wrong does very little for long term memory,
+ * so relearning always sits at least a night of sleep away.
+ */
+const MIN_RELEARN_DAYS = 1;
+/** The shortest gap after a pass. Spacing should always feel like it grew. */
+const MIN_PASS_DAYS = 2;
 /** Longest gap we will schedule, so nothing disappears for a year. */
 const MAX_INTERVAL_DAYS = 180;
 
@@ -112,12 +120,14 @@ export function gradeReview(review: Review, outcome: ReviewOutcome, nowInput?: D
   // Recalled later than predicted means the memory held longer than expected.
   const recalledLate = passed && daysLate >= Math.max(1, review.interval * 0.5);
   const nextEase = clampEase(
-    passed ? currentEase + (recalledLate ? 0.15 : 0.05) : currentEase - 0.25,
+    passed ? currentEase + (recalledLate ? 0.15 : 0.05) : currentEase - 0.15,
   );
 
+  // A miss halves the gap rather than collapsing it, which keeps the schedule
+  // forgiving. One slip should not send a well known item back to day one.
   const nextInterval = passed
-    ? Math.min(MAX_INTERVAL_DAYS, Math.max(2, Math.round(review.interval * nextEase)))
-    : Math.max(1, Math.round(review.interval * 0.35));
+    ? Math.min(MAX_INTERVAL_DAYS, Math.max(MIN_PASS_DAYS, Math.round(review.interval * nextEase)))
+    : Math.max(MIN_RELEARN_DAYS, Math.round(review.interval * 0.5));
   const nextIndex = nearestIndex(nextInterval);
   const dueAt = addDays(now, nextInterval);
 
