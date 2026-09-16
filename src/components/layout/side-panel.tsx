@@ -48,7 +48,7 @@ export function SidePanel({ className }: { className?: string }) {
   }
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <button
           type="button"
