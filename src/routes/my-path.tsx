@@ -59,7 +59,7 @@ function MyPath() {
         description="The roadmap organised by certification, not by calendar. Start with entry-level certifications, then move into infrastructure, security and advanced work."
       />
 
-      {startHere ? (
+      {startHere && !startHereCleared ? (
         <Panel
           className="mb-4"
           title={`${path.certification.title}: your starting point`}
@@ -67,9 +67,20 @@ function MyPath() {
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm font-medium">{startHere.topic.title}</p>
-            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: startHere.topic.id }}>Start here <ArrowRight /></Link></Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={clearStartHere}>
+                Not now
+              </Button>
+              <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: startHere.topic.id }}>Start here <ArrowRight /></Link></Button>
+            </div>
           </div>
         </Panel>
+      ) : startHere ? (
+        <div className="mb-4 flex justify-end">
+          <Button variant="ghost" size="sm" onClick={restoreStartHere}>
+            Show my starting point
+          </Button>
+        </div>
       ) : null}
 
 

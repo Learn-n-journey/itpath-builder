@@ -6,6 +6,7 @@
  * useful. No engine logic lives here.
  */
 import { GaylNote } from "@/components/gayl/gayl-note";
+import { useDismissable } from "@/hooks/use-dismissable";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import {
   dashboardInsight,
