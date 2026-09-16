@@ -1,11 +1,21 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { Check, Lock } from "lucide-react";
 
 import { PageHeader } from "@/components/page-kit";
 import { journeyPhases } from "@/data/journey-phases";
 import { STAGE_EXAM_SIZE, STAGE_PASS_SCORE, stageExams } from "@/data/stage-exams";
-import { STATE_LABEL } from "@/lib/intelligence/states";
-import { useIntelligence } from "@/hooks/use-intelligence";
+import {
+  currentJourneyTopic,
+  hasTopicActivity,
+  isMastered,
+  isTopicOpen,
+  sectionQuizBest,
+} from "@/lib/journey-order";
+import { useAppState } from "@/state/app-state";
 import { cn } from "@/lib/utils";
+
+type TopicStatus = "closed" | "current" | "started" | "not-started" | "locked";
+
 
 export const Route = createFileRoute("/journey")({
   staticData: { sitemap: false },
