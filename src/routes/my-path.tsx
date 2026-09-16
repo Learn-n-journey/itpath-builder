@@ -15,6 +15,7 @@ import { useAppState, useStats } from "@/state/app-state";
 import { adaptivePath, experienceStartBlurb } from "@/lib/adaptive-path";
 import { adaptiveQueue } from "@/lib/adaptive-engine";
 import { currentJourneyTopic } from "@/lib/journey-order";
+import { useDismissable } from "@/hooks/use-dismissable";
 
 export const Route = createFileRoute("/my-path")({
   staticData: { sitemap: false },
@@ -48,6 +49,12 @@ function MyPath() {
   const startHere = current
     ? queue.entries.find((entry) => entry.topic.id === current.id)
     : undefined;
+  // Cleared starting points come back on their own once the next section opens.
+  const {
+    hidden: startHereCleared,
+    dismiss: clearStartHere,
+    restore: restoreStartHere,
+  } = useDismissable("itpath.path.starting-point.cleared", startHere?.topic.id ?? null);
   const levels = certificationsByLevel();
   const certCount = levels.reduce((sum, group) => sum + group.items.length, 0);
 
