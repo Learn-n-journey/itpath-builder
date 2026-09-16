@@ -1,5 +1,7 @@
 ## Stage quizzes (requested 2026-09-16)
 - [ ] 20 question quiz at the end of each journey stage, covering Professor Messer program content
+- [ ] Mix of multiple choice and written (short answer) questions
+- [ ] Distractors must be plausible, not obviously wrong
 - [ ] 80 percent to pass
 - [ ] Shareable celebration screen on passing
 
