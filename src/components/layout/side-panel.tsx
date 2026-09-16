@@ -95,7 +95,11 @@ export function SidePanel({ className }: { className?: string }) {
             ) : null}
           </div>
         ) : null}
-        <Link to="/knowledge" className="text-sm text-primary underline-offset-4 hover:underline">
+        <Link
+          to="/knowledge"
+          onClick={() => setOpen(false)}
+          className="text-sm text-primary underline-offset-4 hover:underline"
+        >
           Open the full Second Brain
         </Link>
       </SheetContent>
