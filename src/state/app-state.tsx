@@ -337,10 +337,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           const target = current.reviews.find((review) => review.id === reviewId);
           if (!target) return current;
           const { review, attempt } = gradeReview(target, outcome);
-          return userMutations.addReviewAttempt(
-            userMutations.updateReview(current, review),
-            attempt,
-          );
+          let next = userMutations.updateReview(current, review);
+          // A passed review that came from a mistake counts as evidence the
+          // mistake is cleared, so it no longer shows as unresolved.
+          if (outcome === "pass" && target.sourceMistakeId) {
+            next = userMutations.setMistakeResolved(next, target.sourceMistakeId, true);
+          }
+          return userMutations.addReviewAttempt(next, attempt);
         }),
       rescheduleReview: (reviewId, days) =>
         setUser((current) => {
