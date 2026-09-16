@@ -338,6 +338,69 @@ function buildPool(topicId: string): PoolItem[] {
       );
       if (item) items.push(item);
     });
+    module.commonProblems.forEach((line, index) => {
+      const item = statementItem(
+        topicId,
+        title,
+        "common-problem",
+        `Which of these is a problem you would expect to meet with {topic}?`,
+        line,
+        otherStatements(topicId, "commonProblems"),
+        index,
+        `From this section: ${tidy(line)}`,
+        "diagnosis",
+      );
+      if (item) items.push(item);
+    });
+  }
+
+  if (lesson) {
+    lesson.realWorldExamples.forEach((line, index) => {
+      const item = statementItem(
+        topicId,
+        title,
+        "real-example",
+        `Which of these is a real example of {topic} in use?`,
+        line,
+        lessons
+          .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
+          .flatMap((other) => other.realWorldExamples.map(tidy)),
+        index,
+        `From this section: ${tidy(line)}`,
+        "procedure",
+      );
+      if (item) items.push(item);
+    });
+
+    const definition = shortMeaning(lesson.definition);
+    const definitionItem = statementItem(
+      topicId,
+      title,
+      "definition",
+      `Which of these best describes {topic}?`,
+      definition,
+      lessons
+        .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
+        .map((other) => shortMeaning(other.definition)),
+      0,
+      `${title}: ${definition}`,
+    );
+    if (definitionItem) items.push(definitionItem);
+
+    const matters = shortMeaning(lesson.whyItMatters);
+    const mattersItem = statementItem(
+      topicId,
+      title,
+      "why-it-matters",
+      `Why does {topic} matter in day to day work?`,
+      matters,
+      lessons
+        .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
+        .map((other) => shortMeaning(other.whyItMatters)),
+      0,
+      matters,
+    );
+    if (mattersItem) items.push(mattersItem);
   }
 
   return items.filter((item) => usableQuestions([item.question]).length === 1);
