@@ -27,8 +27,11 @@ interface Draft {
   topicId: string;
   certificationId: string;
   prompt: string;
-  choices: [string, string, string, string];
+  /** Omitted for written questions, which are typed in and marked on meaning. */
+  choices?: [string, string, string, string];
   answer: string;
+  /** Extra wordings accepted for a written answer. */
+  accept?: string[];
   explanation: string;
 }
 
@@ -38,15 +41,15 @@ function build(examId: string, drafts: Draft[]): Question[] {
     topicId: draft.topicId,
     quizId: examId,
     certificationId: draft.certificationId,
-    type: "multiple_choice" as const,
+    type: draft.choices ? ("multiple_choice" as const) : ("short_answer" as const),
     prompt: draft.prompt,
-    choices: [...draft.choices],
+    choices: draft.choices ? [...draft.choices] : [],
     correctAnswer: [draft.answer],
-    acceptableAnswers: [draft.answer],
+    acceptableAnswers: [draft.answer, ...(draft.accept ?? [])],
     explanation: draft.explanation,
     difficulty: "standard" as const,
     mistakeCategory: "concept" as const,
-    requiresReasoning: false,
+    requiresReasoning: !draft.choices,
   }));
 }
 
