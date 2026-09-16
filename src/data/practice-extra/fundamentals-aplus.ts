@@ -626,7 +626,7 @@ export const fundamentals_aplusPractice: PracticeSeed[] = [
     prompt: "A warehouse access system needs to read a badge held directly against the scanner. Which wireless technology best fits this need?",
     choices: ["Bluetooth", "NFC", "GPS", "5G"],
     answerIndex: 1,
-    explanation: "NFC's centimeter-scale range suits tap-to-authenticate badges, while the other technologies are designed for much longer ranges.",
+    explanation: "NFC's inch-scale range suits tap-to-authenticate badges, while the other technologies are designed for much longer ranges.",
   },
   {
     slug: "mobile-connectivity",

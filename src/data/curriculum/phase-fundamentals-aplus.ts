@@ -989,7 +989,7 @@ export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
     ],
     lesson: {
       title: "What is inside the glass slab",
-      body: "A phone is a complete computer compressed into a few square centimetres. Understanding which part does what turns vague complaints like 'the screen is acting weird' into a testable diagnosis.",
+      body: "A phone is a complete computer compressed into a few square inches. Understanding which part does what turns vague complaints like 'the screen is acting weird' into a testable diagnosis.",
       definition: "Mobile hardware refers to the physical components of handheld devices: the display panel and touch digitizer, the lithium-ion battery, camera modules, the USB-C charging and data port, and sensors such as the accelerometer, gyroscope, ambient light sensor, proximity sensor, and biometric readers.",
       whyItMatters: "Mobile hardware faults are the most common in-warranty repairs in IT. A swollen battery is a genuine safety hazard, a cracked digitizer can make an otherwise perfect phone unusable, and knowing that USB-C is a connector shape rather than a speed standard prevents hours of fruitless cable swapping.",
       keyTerms: [
@@ -1078,12 +1078,12 @@ export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
     lesson: {
       title: "Five radios, five jobs",
       body: "A modern phone carries at least five separate radios. Each one trades range, speed, and battery differently, and most connectivity complaints are really about using or trusting the wrong one.",
-      definition: "Mobile connectivity covers the wireless technologies a handheld device uses: Wi-Fi for local high-speed networks, Bluetooth for short-range peripherals, NFC for centimetre-scale exchanges like payments, cellular networks including 4G and 5G for wide-area data and calls, and GPS for satellite-based location.",
+      definition: "Mobile connectivity covers the wireless technologies a handheld device uses: Wi-Fi for local high-speed networks, Bluetooth for short-range peripherals, NFC for inch-scale exchanges like payments, cellular networks including 4G and 5G for wide-area data and calls, and GPS for satellite-based location.",
       whyItMatters: "Support staff decide daily whether a problem is Wi-Fi or cellular, whether a hotspot is an acceptable workaround, and whether an NFC payment failure is hardware or a settings issue. Knowing each technology's range and purpose turns those decisions into quick, confident ones.",
       keyTerms: [
-        ["Wi-Fi", "Local wireless networking, typically tens of metres of range, offering the fastest and cheapest data on a mobile device."],
-        ["Bluetooth", "Short-range link, about ten metres, for peripherals such as headsets, watches, keyboards, and car systems."],
-        ["NFC", "Near-field communication working within a few centimetres; used for contactless payments, pairing, and access cards."],
+        ["Wi-Fi", "Local wireless networking, typically tens of feet of range, offering the fastest and cheapest data on a mobile device."],
+        ["Bluetooth", "Short-range link, about thirty feet, for peripherals such as headsets, watches, keyboards, and car systems."],
+        ["NFC", "Near-field communication working within an inch or two; used for contactless payments, pairing, and access cards."],
         ["Cellular / 5G", "Carrier-provided wide-area data and voice; 5G adds higher speeds and lower latency where coverage exists."],
         ["Hotspot / tethering", "Sharing the phone's cellular connection over Wi-Fi, Bluetooth, or USB so other devices can get online."],
         ["GPS", "Satellite positioning receiver; it locates the device but does not by itself send data anywhere."],
@@ -1098,7 +1098,7 @@ export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
         "Full cellular bars do not guarantee fast data; congestion and the band in use matter as much as signal strength.",
         "A hotspot is not free internet; every byte a tethered device uses counts against the phone's data plan.",
       ],
-      summary: "Wi-Fi is for fast local data, Bluetooth for nearby peripherals, NFC for centimetre-range exchanges, cellular and 5G for wide-area service, and GPS for location. Hotspots bridge cellular to other devices at the cost of the phone's battery and data plan.",
+      summary: "Wi-Fi is for fast local data, Bluetooth for nearby peripherals, NFC for inch-range exchanges, cellular and 5G for wide-area service, and GPS for location. Hotspots bridge cellular to other devices at the cost of the phone's battery and data plan.",
       nextSteps: [
         "Enable the hotspot on your own phone, connect another device, and note the security options the phone offers.",
         "Toggle airplane mode, then re-enable radios one at a time, observing which features return with each.",
@@ -1108,7 +1108,7 @@ export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
       howItWorks: [
         "Wi-Fi joins a local access point and uses the site's internet connection; cellular connects to the carrier's towers directly.",
         "Bluetooth pairs devices with a one-time handshake and then maintains a low-power link for audio, input, or wearables.",
-        "NFC powers a passive tag from the reader's field over a few centimetres, which is why it suits payments and badges.",
+        "NFC powers a passive tag from the reader's field over an inch or two, which is why it suits payments and badges.",
         "A hotspot makes the phone a small NAT router: tethered clients get private addresses and share the cellular uplink.",
         "GPS listens to satellite timing signals to compute position, while assisted GPS uses cellular data to lock on faster.",
       ],
@@ -1136,7 +1136,7 @@ export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
       interviewQuestions: ["When would you recommend a hotspot over public Wi-Fi?", "How would you test whether a connectivity complaint is Wi-Fi or cellular?"],
     },
     recall: [
-      ["Which wireless technology operates within a few centimetres and powers contactless payments?", ["nfc"], "NFC works over centimetre-scale distances, making it suitable for payments, badges, and quick pairing."],
+      ["Which wireless technology operates within an inch or two and powers contactless payments?", ["nfc"], "NFC works over inch-scale distances, making it suitable for payments, badges, and quick pairing."],
       ["What does a mobile hotspot actually do with the phone's connection?", ["share", "cellular", "wi-fi", "tether"], "A hotspot shares the phone's cellular data connection to other devices over Wi-Fi, Bluetooth, or USB, consuming the phone's data plan and battery."],
     ],
     practice: {
@@ -1144,7 +1144,7 @@ export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
       prompt: "A warehouse scanner needs to read a badge held directly against it for access control. Which technology fits this requirement?",
       choices: ["Bluetooth", "NFC", "GPS", "5G"],
       answerIndex: 1,
-      explanation: "NFC's centimetre-scale range suits tap-to-authenticate badges; Bluetooth, GPS, and 5G are designed for much larger ranges.",
+      explanation: "NFC's inch-scale range suits tap-to-authenticate badges; Bluetooth, GPS, and 5G are designed for much larger ranges.",
     },
     scenario: {
       title: "Working from the road",

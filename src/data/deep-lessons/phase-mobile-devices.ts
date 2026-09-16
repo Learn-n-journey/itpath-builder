@@ -9,7 +9,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
     topicId: "topic-mobile-hardware-and-components",
     readingMinutes: 9,
     intro:
-      "A phone is a full computer compressed into a few square centimetres, with almost every part bonded, glued, or shared with another part. This lesson teaches you to turn a vague complaint like 'the screen is acting weird' into a named component and a testable theory.",
+      "A phone is a full computer compressed into a few square inches, with almost every part bonded, glued, or shared with another part. This lesson teaches you to turn a vague complaint like 'the screen is acting weird' into a named component and a testable theory.",
     whereYouMeetIt:
       "You meet this on every handset repair, every in-warranty exchange decision, every swollen-battery safety call, and every argument about why one USB-C cable charges a device and an identical-looking one does not.",
     sections: [
@@ -77,7 +77,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
       {
         heading: "Common Problems and How It Fails",
         paragraphs: [
-          "Most handset faults present as one component while originating in another, because everything sits within millimetres of everything else.",
+          "Most handset faults present as one component while originating in another, because everything sits within a fraction of an inch of everything else.",
         ],
         bullets: [
           "Ghost touches or dead zones with a perfect image: a failing digitizer, not the display.",
@@ -130,7 +130,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
       {
         heading: "What It Is",
         paragraphs: [
-          "Mobile connectivity covers the wireless technologies in a handheld device: Wi-Fi for local high-speed networking, Bluetooth for short-range peripherals, NFC for centimetre-range exchanges such as payments and pairing, cellular including 4G LTE and 5G for wide-area voice and data, and GPS for satellite positioning.",
+          "Mobile connectivity covers the wireless technologies in a handheld device: Wi-Fi for local high-speed networking, Bluetooth for short-range peripherals, NFC for inch-range exchanges such as payments and pairing, cellular including 4G LTE and 5G for wide-area voice and data, and GPS for satellite positioning.",
           "Tethering and hotspot features sit on top of the cellular radio. A hotspot shares the phone's carrier data connection with other devices over Wi-Fi, Bluetooth, or a USB cable, which means everything it carries consumes the phone's data allowance and drains its battery considerably faster than normal use.",
         ],
       },
@@ -140,9 +140,9 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
           "Range and purpose are what separate these technologies; speed alone will mislead you.",
         ],
         bullets: [
-          "Wi-Fi: tens of metres, highest throughput, no carrier data cost, and the usual default when available.",
-          "Bluetooth: roughly ten metres, low power, designed for peripherals such as headsets, watches, keyboards, and car systems.",
-          "NFC: a few centimetres, used for contactless payment, transit and access cards, and tap-to-pair.",
+          "Wi-Fi: tens of feet, highest throughput, no carrier data cost, and the usual default when available.",
+          "Bluetooth: roughly thirty feet, low power, designed for peripherals such as headsets, watches, keyboards, and car systems.",
+          "NFC: an inch or two, used for contactless payment, transit and access cards, and tap-to-pair.",
           "Cellular (4G LTE / 5G): carrier-provided wide-area coverage; 5G adds higher speed and lower latency where it is actually deployed.",
           "GPS: a receive-only satellite positioning system; it needs sky visibility and does not transmit your position on its own.",
           "Hotspot / tethering: sharing cellular data to other devices over Wi-Fi, Bluetooth, or USB.",
@@ -177,7 +177,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
         paragraphs: [
           "Support teams triage connectivity complaints constantly, and the single most valuable habit is establishing whether the complaint is Wi-Fi, cellular, or an application problem before touching any setting. Toggling things at random resolves some tickets and destroys the evidence for the rest.",
           "Field engineering and sales rely on tethering as a routine working tool, which makes data allowance, battery drain, and hotspot security real operational concerns rather than trivia. A hotspot left on an open or weak password becomes an unmanaged access point on whatever site the user is visiting.",
-          "Retail and transit environments depend on NFC working reliably, and because the range is centimetres, most failures come down to positioning, a thick case, or the feature being disabled rather than hardware failure.",
+          "Retail and transit environments depend on NFC working reliably, and because the range is an inch or two, most failures come down to positioning, a thick case, or the feature being disabled rather than hardware failure.",
         ],
       },
       {
@@ -188,7 +188,7 @@ export const mobileDevicesDeepLessons: DeepLesson[] = [
         bullets: [
           "Associated with Wi-Fi but no pages load: addressing, gateway, DNS, or a captive portal that was never completed.",
           "Bluetooth paired but no sound: the audio profile is not connected, or output is still routed to the phone speaker.",
-          "NFC payment refused: the phone is out of the few-centimetre range, a thick case is in the way, or the wallet app is not the default.",
+          "NFC payment refused: the phone is out of the one to two inch range, a thick case is in the way, or the wallet app is not the default.",
           "Hotspot clients connect but have no data: the carrier plan does not permit tethering, or the phone's own cellular data is off.",
           "Slow or inaccurate GPS: indoors or in an urban canyon with poor sky visibility, or location permissions restricted to the app.",
           "5G icon shown but slow speeds: weak signal, tower congestion, or a low-band 5G deployment that behaves much like LTE.",
