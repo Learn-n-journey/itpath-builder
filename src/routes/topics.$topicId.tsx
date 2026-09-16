@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Lock } from "lucide-react";
+import { blockingTopic } from "@/lib/journey-order";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
 import { TopicKnowledgePanel } from "@/components/knowledge/topic-knowledge-panel";
@@ -63,7 +64,34 @@ function TopicPage() {
     );
   }
 
+  const blocker = blockingTopic(user, topic.id);
+  if (blocker) {
+    return (
+      <>
+        <PageHeader
+          title={topic.title}
+          description="This topic opens a little later on your journey."
+        />
+        <EmptyState
+          icon={Lock}
+          title={`Master ${blocker.title} first`}
+          body={`Your journey runs in order, so this one waits until ${blocker.title} is proven. Finish the recall, practice and teach back there and this opens on its own.`}
+        >
+          <Button asChild>
+            <Link to="/topics/$topicId" params={{ topicId: blocker.id }}>
+              Open {blocker.title}
+            </Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link to="/journey">See the journey</Link>
+          </Button>
+        </EmptyState>
+      </>
+    );
+  }
+
   const topicLessons = lessons.filter((lesson) => lesson.topicId === topic.id);
+
   const certification = getCertification(topic.certificationId);
   const progress = user.topicProgress[topic.id];
   const prerequisites = topic.prerequisiteTopicIds
