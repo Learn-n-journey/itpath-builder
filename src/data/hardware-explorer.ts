@@ -24,8 +24,8 @@ export const hardwareComponents: HardwareComponent[] = [
     parts: [
       {
         id: "cpu-socket",
-        x: 30,
-        y: 34,
+        x: 46,
+        y: 30,
         name: "CPU socket",
         whatItIs:
           "The square seat in the middle-left of the board where the processor (CPU) is installed. A lever or bracket locks the chip in place.",
@@ -36,8 +36,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "ram-slots",
-        x: 52,
-        y: 22,
+        x: 68,
+        y: 29,
         name: "RAM slots (DIMM)",
         whatItIs:
           "The long thin slots beside the CPU socket. Memory sticks (RAM) click into these with small latches at each end.",
@@ -48,8 +48,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "pcie-slots",
-        x: 38,
-        y: 66,
+        x: 37,
+        y: 63,
         name: "PCIe expansion slots",
         whatItIs:
           "The horizontal slots lower on the board. The longest one (x16) is for the graphics card, the shorter ones for extras like network or sound cards.",
@@ -60,8 +60,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "chipset",
-        x: 62,
-        y: 55,
+        x: 66,
+        y: 73,
         name: "Chipset (under heatsink)",
         whatItIs:
           "A flat metal-covered square below the CPU socket. Under that cover sits the chipset, the board's traffic controller.",
@@ -72,8 +72,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "cmos-battery",
-        x: 55,
-        y: 78,
+        x: 65,
+        y: 89,
         name: "CMOS battery",
         whatItIs:
           "A small silver coin-cell battery, the same kind used in watches, clipped into a round holder on the board.",
@@ -85,7 +85,7 @@ export const hardwareComponents: HardwareComponent[] = [
       {
         id: "sata-ports",
         x: 82,
-        y: 62,
+        y: 61,
         name: "SATA ports",
         whatItIs:
           "The small L-shaped connectors along the right edge, usually grouped in pairs or fours.",
@@ -96,8 +96,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "m2-slot",
-        x: 47,
-        y: 55,
+        x: 44,
+        y: 54,
         name: "M.2 slot",
         whatItIs:
           "A small horizontal slot, often hidden under a flat metal heatspreader, between the CPU and the PCIe slots.",
@@ -108,8 +108,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "atx-power",
-        x: 92,
-        y: 30,
+        x: 82,
+        y: 32,
         name: "24-pin ATX power",
         whatItIs:
           "The tall white block on the right edge of the board, the largest power connector in the case.",
@@ -120,8 +120,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "cpu-power",
-        x: 16,
-        y: 8,
+        x: 25,
+        y: 6,
         name: "CPU power (EPS)",
         whatItIs:
           "A 4-pin or 8-pin connector at the top-left corner of the board, close to the CPU socket.",
@@ -132,8 +132,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "rear-io",
-        x: 4,
-        y: 34,
+        x: 14,
+        y: 29,
         name: "Rear I/O panel",
         whatItIs:
           "The row of ports on the left edge that poke out the back of the case: USB, Ethernet, audio jacks, and often video outputs.",
@@ -151,8 +151,8 @@ export const hardwareComponents: HardwareComponent[] = [
     parts: [
       {
         id: "dram-chips",
-        x: 50,
-        y: 42,
+        x: 40,
+        y: 61,
         name: "Memory chips",
         whatItIs:
           "The black squares lined up on the stick. Each one is a DRAM chip that stores data while the power is on.",
@@ -163,8 +163,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "heat-spreader",
-        x: 50,
-        y: 32,
+        x: 45,
+        y: 30,
         name: "Heat spreader",
         whatItIs:
           "The metal shell covering the stick, usually aluminum. Plain sticks skip it, but gaming and high-speed RAM almost always has one.",
@@ -175,7 +175,7 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "gold-contacts",
-        x: 60,
+        x: 20,
         y: 74,
         name: "Gold contact edge",
         whatItIs:
@@ -187,8 +187,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "notch",
-        x: 34,
-        y: 76,
+        x: 49,
+        y: 74,
         name: "Alignment notch",
         whatItIs:
           "A gap cut into the contact edge, off-center on purpose.",
@@ -199,8 +199,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "spd-chip",
-        x: 88,
-        y: 42,
+        x: 89,
+        y: 61,
         name: "SPD chip",
         whatItIs:
           "A tiny separate chip, usually near one end of the stick.",
@@ -218,8 +218,8 @@ export const hardwareComponents: HardwareComponent[] = [
     parts: [
       {
         id: "gpu-fans",
-        x: 42,
-        y: 40,
+        x: 33,
+        y: 44,
         name: "Cooling fans",
         whatItIs:
           "The two or three large fans on the face of the card, sitting on top of a metal heatsink.",
@@ -230,8 +230,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "gpu-die",
-        x: 38,
-        y: 55,
+        x: 50,
+        y: 60,
         name: "Graphics chip (under cooler)",
         whatItIs:
           "The actual processor of the card, hidden under the heatsink between the fans. It contains thousands of small processing cores.",
@@ -242,8 +242,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "vram",
-        x: 62,
-        y: 55,
+        x: 66,
+        y: 60,
         name: "Video memory (VRAM)",
         whatItIs:
           "The memory chips soldered around the graphics chip, under the same cooler.",
@@ -254,8 +254,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "pcie-connector",
-        x: 45,
-        y: 71,
+        x: 41,
+        y: 79,
         name: "PCIe connector",
         whatItIs:
           "The long gold edge at the bottom of the card that slots into the motherboard's x16 PCIe slot.",
@@ -266,8 +266,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "gpu-power",
-        x: 79,
-        y: 20,
+        x: 84,
+        y: 14,
         name: "Power connectors",
         whatItIs:
           "One or two 6-pin or 8-pin sockets along the top edge of the card.",
@@ -278,8 +278,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "display-outputs",
-        x: 8,
-        y: 55,
+        x: 10,
+        y: 49,
         name: "Display outputs",
         whatItIs:
           "The HDMI and DisplayPort sockets on the metal bracket at the end of the card.",
@@ -298,7 +298,7 @@ export const hardwareComponents: HardwareComponent[] = [
       {
         id: "nand",
         x: 62,
-        y: 45,
+        y: 48,
         name: "NAND flash chips",
         whatItIs:
           "The larger black chips on the stick. This is where your data actually lives.",
@@ -309,8 +309,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "controller",
-        x: 28,
-        y: 45,
+        x: 22,
+        y: 48,
         name: "Controller chip",
         whatItIs:
           "The smaller chip near the connector end of the stick. It is the drive's own little processor.",
@@ -321,8 +321,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "dram-cache",
-        x: 45,
-        y: 45,
+        x: 42,
+        y: 48,
         name: "DRAM cache",
         whatItIs:
           "A small memory chip found on faster drives, sitting between the controller and the NAND chips.",
@@ -333,8 +333,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "m2-connector",
-        x: 8,
-        y: 55,
+        x: 6,
+        y: 48,
         name: "M.2 connector",
         whatItIs:
           "The gold-fingered edge that plugs straight into the M.2 slot on the motherboard.",
@@ -345,8 +345,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "screw-notch",
-        x: 94,
-        y: 45,
+        x: 95,
+        y: 52,
         name: "Mounting notch",
         whatItIs:
           "The half-circle cutout at the far end of the stick.",
