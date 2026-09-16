@@ -148,17 +148,27 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   }, [topic.id]);
 
   // Bring saved recall work back when the topic changes or a new answer is stored.
+  // Only write when something actually differs, otherwise the saved objects are
+  // rebuilt every render and the state updates loop.
+  function mergeSaved<T>(current: Record<string, T>, saved: Record<string, T>): Record<string, T> {
+    const merged = { ...saved, ...current };
+    const sameSize = Object.keys(merged).length === Object.keys(current).length;
+    if (sameSize && Object.keys(merged).every((key) => merged[key] === current[key])) return current;
+    return merged;
+  }
+
   useEffect(() => {
-    setRecallAnswers((current) => ({ ...savedRecall.answers, ...current }));
-    setRecallFeedback((current) => ({ ...savedRecall.feedback, ...current }));
+    setRecallAnswers((current) => mergeSaved(current, savedRecall.answers));
+    setRecallFeedback((current) => mergeSaved(current, savedRecall.feedback));
   }, [savedRecall]);
   useEffect(() => { setRecallAnswers(savedRecall.answers); setRecallFeedback(savedRecall.feedback); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [topic.id]);
 
   useEffect(() => {
-    setPracticeChoices((current) => ({ ...savedPractice.choices, ...current }));
-    setPracticeFeedback((current) => ({ ...savedPractice.feedback, ...current }));
+    setPracticeChoices((current) => mergeSaved(current, savedPractice.choices));
+    setPracticeFeedback((current) => mergeSaved(current, savedPractice.feedback));
   }, [savedPractice]);
   useEffect(() => { setPracticeChoices(savedPractice.choices); setPracticeFeedback(savedPractice.feedback); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [topic.id]);
+
 
   useEffect(() => { setTeachBack(savedTeachBack?.body ?? ""); setTeachBackEditing(!savedTeachBack); }, [savedTeachBack, topic.id]);
 
