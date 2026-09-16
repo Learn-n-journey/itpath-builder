@@ -21,6 +21,7 @@ import { incidents as coreIncidents } from "@/data/incident-content";
 import { buildTopicIncidents } from "@/data/incident-generator";
 import { labs as coreLabs } from "@/data/lab-content";
 import { buildTopicLabs } from "@/data/lab-generator";
+import { buildIdentificationLabs } from "@/data/identification-labs";
 import { buildTopicTickets } from "@/data/ticket-generator";
 import { questions, quizzes } from "@/data/quiz-content";
 import { tickets as coreTickets } from "@/data/ticket-content";
@@ -698,7 +699,11 @@ export const assignments: Assignment[] = [
   ...coreAssignments,
   ...buildTopicAssignments(topics, lessons),
 ];
-export const labs: Lab[] = [...coreLabs, ...buildTopicLabs(topics, lessons)];
+export const labs: Lab[] = [
+  ...coreLabs,
+  ...buildIdentificationLabs(topics, lessons),
+  ...buildTopicLabs(topics, lessons),
+];
 export const incidents: Incident[] = [...coreIncidents, ...buildTopicIncidents(topics, lessons)];
 export const tickets: Ticket[] = [...coreTickets, ...buildTopicTickets(topics, lessons)];
 export { questions, quizzes };

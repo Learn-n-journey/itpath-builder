@@ -4,6 +4,7 @@ import { CheckCircle2 } from "lucide-react";
 
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { PageHeader, Panel } from "@/components/page-kit";
+import { MasteryChecklist } from "@/components/learning/mastery-checklist";
 import { Button } from "@/components/ui/button";
 import { topics } from "@/data/static-content";
 import {
@@ -116,10 +117,19 @@ function SectionQuizPage() {
         passScore={SECTION_PASS_SCORE}
       />
 
+      <div className="mt-5">
+        <MasteryChecklist topicId={topicId} />
+      </div>
+
       <div className="mt-5 flex flex-wrap gap-2">
         <Button asChild variant="secondary">
           <Link to="/topics/$topicId" params={{ topicId }}>
             Back to the lesson
+          </Link>
+        </Button>
+        <Button asChild variant="secondary">
+          <Link to="/mastery-check/$topicId" params={{ topicId }}>
+            Mastery checks
           </Link>
         </Button>
         <Button asChild variant="ghost">
