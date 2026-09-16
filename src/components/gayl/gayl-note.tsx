@@ -9,7 +9,7 @@
  */
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight, Compass } from "lucide-react";
+import { ChevronDown, ChevronRight, Compass, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
