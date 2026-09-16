@@ -173,6 +173,8 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
 
 function instructions(mode: TutorMode, topicTitle: string, ctx: TutorContext): string {
   switch (mode) {
+    case "ask_anything":
+      return `Answer my question below directly and in plain language, at my level. Draw on the IT PATH course material in my context, my own saved notes and second brain material where they apply, and your general knowledge where they do not. Say which of those an answer came from. If my question touches something my records show I am shaky on, say so briefly and point me at the next useful step. Do not turn this into a lesson unless I ask for one.\n\nMY QUESTION:\n${ctx.question?.trim() || "(type your question before sending)"}`;
     case "teach_me":
       return `Teach me ${topicTitle} from the ground up at my level. Cover what it is, why it matters, how it works, where I see it in a real IT job, key terms, worked examples, common problems, how it fails and how to troubleshoot it. Use my weak areas above to decide what to slow down on. End with three questions that check whether I understood.`;
     case "socratic":
