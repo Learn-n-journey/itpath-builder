@@ -11,7 +11,6 @@ import { X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { SidePanel } from "@/components/layout/side-panel";
 import { topics } from "@/data/static-content";
 import { cn } from "@/lib/utils";
 
@@ -108,7 +107,7 @@ export function StudyTabs() {
 
   const showTabs = tabs.length > 1;
 
-  if (!showTabs) return <SidePanel className="mb-4" />;
+  if (!showTabs) return null;
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -141,7 +140,6 @@ export function StudyTabs() {
           );
         })}
       </div>
-      <SidePanel />
     </div>
   );
 }
