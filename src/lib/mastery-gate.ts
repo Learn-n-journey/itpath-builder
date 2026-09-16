@@ -51,7 +51,7 @@ export interface DelayedCheck {
   /** True once every other form of proof is in. */
   scheduled: boolean;
   /** When the check can first be taken. */
-  dueAt?: string;
+  dueAt?: string | undefined;
   due: boolean;
   passed: boolean;
   detail: string;
@@ -64,7 +64,7 @@ export interface MasteryGate {
   competencies: Competency[];
   /** The forms of proof still outstanding, weakest first. */
   outstanding: Competency[];
-  weakest?: Competency;
+  weakest?: Competency | undefined;
   delayed: DelayedCheck;
   /** One plain sentence for the learner. */
   summary: string;
