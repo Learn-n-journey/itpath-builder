@@ -355,16 +355,18 @@ function Dashboard() {
         </Panel>
 
         <Panel title="Topics to come back to" description="Each line says why it is here: a review that is due, an open mistake, or a low score.">
-          {d.topicsNeedingReview.length === 0 ? (
+          {reviewTopics.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Nothing flagged for review yet.
+              {d.topicsNeedingReview.length === 0
+                ? "Nothing flagged for review yet."
+                : "All cleared for now. Anything new will show up here."}
             </p>
           ) : (
             <ul className="space-y-2 text-sm">
-              {d.topicsNeedingReview.map((item) => (
+              {reviewTopics.map((item) => (
                 <li
                   key={item.topicId}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"
+                  className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3"
                 >
                   <Link
                     to="/review"
@@ -376,6 +378,16 @@ function Dashboard() {
                     {item.title}
                   </Link>
                   <span className="shrink-0 text-xs text-muted-foreground">{item.reason}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 shrink-0 px-2 text-xs"
+                    onClick={() => markReviewDone(item)}
+                    aria-label={`Mark ${item.title} as done`}
+                  >
+                    <Check className="size-3.5" aria-hidden /> Done
+                  </Button>
                 </li>
               ))}
             </ul>
