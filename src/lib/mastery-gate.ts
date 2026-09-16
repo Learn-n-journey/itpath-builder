@@ -201,9 +201,12 @@ export function masteryGate(user: UserData, topicId: EntityId, now: Date = new D
     evidence.filter((item) => item.dimension === dimension);
 
   const quiz = knowledgeCompetency(user, topicId);
+  // Recall is the no-help recall round. Quiz questions are graded under the
+  // knowledge check, so they are not asked for twice here.
+  const recallItems = byDimension("recall").filter((item) => item.id.startsWith("recall-"));
   const competencies: Competency[] = [
     quiz,
-    buildCompetency("recall", byDimension("recall")),
+    buildCompetency("recall", recallItems),
     buildCompetency("understanding", byDimension("understanding")),
     buildCompetency("application", byDimension("application")),
     buildCompetency("practicalAbility", byDimension("practicalAbility")),
