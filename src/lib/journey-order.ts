@@ -43,6 +43,23 @@ export function sectionQuizPassed(user: UserData, topicId: string): boolean {
   return sectionQuizBest(user, topicId) >= MASTERY_THRESHOLD;
 }
 
+/** True when there is any recorded work on this topic, of any kind. */
+export function hasTopicActivity(user: UserData, topicId: string): boolean {
+  const status = user.topicProgress[topicId]?.status;
+  if (status && status !== "not_started") return true;
+  if (user.recallResponses.some((item) => item.topicId === topicId)) return true;
+  if (user.practiceResponses.some((item) => item.topicId === topicId)) return true;
+  if (user.labAttempts.some((item) => item.topicId === topicId)) return true;
+  if (user.terminalAttempts.some((item) => item.topicId === topicId)) return true;
+  if (user.assignmentAttempts.some((item) => item.topicId === topicId)) return true;
+  if (Object.values(user.teachBackResponses).some((item) => item.topicId === topicId)) return true;
+  if (Object.values(user.scenarioResponses).some((item) => item.topicId === topicId)) return true;
+  if (user.quizAttempts.some((item) => item.quizId === `section-quiz-${topicId}`)) return true;
+  return false;
+}
+
+
+
 /** True when the topic is proven well enough to move past it. */
 export function isMastered(user: UserData, topicId: string): boolean {
   const status = user.topicProgress[topicId]?.status;
