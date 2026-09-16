@@ -486,7 +486,7 @@ export const hardwareComponents: HardwareComponent[] = [
     parts: [
       {
         id: "hdd-platter",
-        x: 66,
+        x: 52,
         y: 47,
         name: "Platter hub",
         whatItIs:
@@ -510,8 +510,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "hdd-sata",
-        x: 72,
-        y: 94,
+        x: 56,
+        y: 93,
         name: "SATA data and power connectors",
         whatItIs:
           "The two L-shaped plugs on the bottom edge: a small one for data, a longer one for power.",
@@ -522,7 +522,7 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "hdd-pcb",
-        x: 86,
+        x: 65,
         y: 93,
         name: "Controller board",
         whatItIs:
@@ -553,8 +553,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "ssd-nand",
-        x: 90,
-        y: 68,
+        x: 74,
+        y: 70,
         name: "NAND flash chips",
         whatItIs:
           "The black chips visible where the case is cut away. The same kind of flash memory as the M.2 drive uses.",
@@ -565,8 +565,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "ssd-label",
-        x: 52,
-        y: 45,
+        x: 50,
+        y: 50,
         name: "Model label",
         whatItIs:
           "The sticker on the case naming the model, capacity and interface.",
@@ -577,8 +577,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "ssd-case",
-        x: 29,
-        y: 84,
+        x: 26,
+        y: 78,
         name: "Metal case",
         whatItIs:
           "The slim aluminum shell, exactly the size of a laptop hard drive.",
@@ -620,7 +620,7 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "case-bays",
-        x: 81,
+        x: 66,
         y: 82,
         name: "Drive bays",
         whatItIs:
@@ -644,8 +644,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "case-cutouts",
-        x: 72,
-        y: 33,
+        x: 57,
+        y: 35,
         name: "Cable routing cutouts",
         whatItIs:
           "The tall openings along the right side of the motherboard tray, usually edged with rubber grommets.",
@@ -656,8 +656,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "case-intake",
-        x: 97,
-        y: 45,
+        x: 76,
+        y: 47,
         name: "Front intake mounts",
         whatItIs:
           "The fan mounts behind the front panel on the right edge of the case.",
