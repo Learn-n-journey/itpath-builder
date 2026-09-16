@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { STAGE_PASS_SCORE, getStageExam, stageExams } from "@/data/stage-exams";
+import { STAGE_EXAM_SIZE, STAGE_PASS_SCORE, getStageExam, getStageExamQuestions, stageExams } from "@/data/stage-exams";
 import type { Quiz } from "@/lib/app-data/types";
 import { journeyOrderedTopics, isMastered } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
@@ -58,12 +58,14 @@ function StageExamPage() {
   const best = attempts.reduce((top, attempt) => Math.max(top, attempt.score ?? 0), 0);
   const passed = best >= STAGE_PASS_SCORE;
 
+  const examQuestions = getStageExamQuestions(exam.id);
+
   const quiz: Quiz = {
     id: exam.id,
     title: exam.title,
     description: exam.description,
     topicIds: stageTopics.map((topic) => topic.id),
-    questionIds: exam.questions.map((question) => question.id),
+    questionIds: examQuestions.map((question) => question.id),
     kind: "assessment",
   };
 
@@ -121,7 +123,7 @@ function StageExamPage() {
             <div>
               <h2 className="font-display text-2xl font-semibold">{exam.stage} passed</h2>
               <p className="mt-2 max-w-md text-sm text-muted-foreground">
-                Twenty questions, written answers included, and {best}% of them held up. That is the whole
+                Fifty questions, written answers included, and {best}% of them held up. That is the whole
                 stage proven, not a single lesson. Well worth telling someone about.
               </p>
             </div>
@@ -139,7 +141,7 @@ function StageExamPage() {
 
       <QuizRunner
         quiz={quiz}
-        questions={exam.questions}
+        questions={examQuestions}
         startLabel={passed ? "Retake the exam" : "Start the stage exam"}
         passScore={STAGE_PASS_SCORE}
       />
@@ -154,7 +156,7 @@ function StageExamPage() {
                 className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-3 text-sm transition-colors hover:border-primary/60"
               >
                 <span className="min-w-0 truncate">{other.title}</span>
-                <span className="shrink-0 text-xs text-muted-foreground">20 questions</span>
+                <span className="shrink-0 text-xs text-muted-foreground">{STAGE_EXAM_SIZE} questions</span>
               </Link>
             </li>
           ))}
