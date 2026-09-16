@@ -12,7 +12,7 @@ import {
   certificationsByLevel,
 } from "@/lib/cert-path";
 import { useAppState, useStats } from "@/state/app-state";
-import { adaptivePath } from "@/lib/adaptive-path";
+import { adaptivePath, experienceStartBlurb } from "@/lib/adaptive-path";
 import { adaptiveQueue } from "@/lib/adaptive-engine";
 
 export const Route = createFileRoute("/my-path")({
@@ -41,8 +41,10 @@ function MyPath() {
   const { user } = useAppState();
   const path = adaptivePath(user);
   const queue = adaptiveQueue(user);
+  const startHere = queue.entries.find((entry) => entry.unlocked);
   const levels = certificationsByLevel();
   const certCount = levels.reduce((sum, group) => sum + group.items.length, 0);
+
 
   return (
     <>
@@ -51,14 +53,19 @@ function MyPath() {
         description="The roadmap organised by certification, not by calendar. Start with entry-level certifications, then move into infrastructure, security and advanced work."
       />
 
-      {path.recommendedTopic ? (
-        <Panel className="mb-4" title={`${path.certification.title}: your starting point`} description={`${path.startLabel} based on your experience setting.`}>
+      {startHere ? (
+        <Panel
+          className="mb-4"
+          title={`${path.certification.title}: your starting point`}
+          description={`${experienceStartBlurb(user.settings.experienceLevel)} This is the first thing in the order below.`}
+        >
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm font-medium">{path.recommendedTopic.title}</p>
-            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>Start here <ArrowRight /></Link></Button>
+            <p className="text-sm font-medium">{startHere.topic.title}</p>
+            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: startHere.topic.id }}>Start here <ArrowRight /></Link></Button>
           </div>
         </Panel>
       ) : null}
+
 
       <GaylPathNote className="mb-4" />
 

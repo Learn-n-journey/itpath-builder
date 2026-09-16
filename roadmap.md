@@ -164,3 +164,8 @@
 
 ## In-app tabs
 - [ ] Explore opening multiple pages as tabs (e.g. Second Brain alongside a lesson) so a lesson is not lost when jumping elsewhere.
+
+## Daily Challenge + My Path (2026-09-16)
+- [x] Beginner daily set: start button does nothing / "no longer in the bank" for stale attempts
+- [x] My Path starting point must match the listed order
+- [x] Order adapts to experience setting: complete beginner/some basics start at the beginning; home lab unlocks all basics and starts after them; working in IT unlocks everything

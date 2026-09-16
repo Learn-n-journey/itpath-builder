@@ -37,22 +37,52 @@ export function isMastered(user: UserData, topicId: string): boolean {
   return topicMastery(user, topicId) >= MASTERY_THRESHOLD;
 }
 
-/** The first topic on the journey that is not yet mastered. */
+/** Last month band counted as "the basics" (Stage 1 of the Journey Map). */
+const BASICS_LAST_MONTH = 7;
+
+const BASICS_COUNT = journeyOrderedTopics.filter((topic) => topic.month <= BASICS_LAST_MONTH).length;
+
+/**
+ * How much of the path the experience setting opens straight away.
+ *
+ * Complete beginner and some basics start at the very beginning. Home lab
+ * experience opens all of the basics. Already working in IT opens everything.
+ */
+export function unlockedByExperience(user: UserData): number {
+  const level = user.settings.experienceLevel;
+  if (level === "intermediate") return journeyOrderedTopics.length;
+  if (level === "some") return BASICS_COUNT;
+  return 0;
+}
+
+/** Where the suggested starting point sits for this experience setting. */
+export function experienceStartIndex(user: UserData): number {
+  return user.settings.experienceLevel === "some" ? BASICS_COUNT : 0;
+}
+
+/** The first topic on the journey that is not yet mastered, from their start point. */
 export function currentJourneyTopic(user: UserData): Topic | undefined {
-  return journeyOrderedTopics.find((topic) => !isMastered(user, topic.id));
+  const from = experienceStartIndex(user);
+  const notMastered = (topic: Topic) => !isMastered(user, topic.id);
+  return (
+    journeyOrderedTopics.slice(from).find(notMastered) ?? journeyOrderedTopics.find(notMastered)
+  );
 }
 
 /**
- * A topic is open when every earlier journey topic is mastered. The current
- * topic itself is always open; everything after it waits.
+ * A topic is open when every earlier journey topic is mastered, or when the
+ * experience setting already opened it. The current topic itself is always
+ * open; everything after it waits.
  */
 export function isTopicOpen(user: UserData, topicId: string): boolean {
   const index = journeyIndex(topicId);
   if (index === Number.MAX_SAFE_INTEGER) return true;
+  if (index < unlockedByExperience(user)) return true;
   const current = currentJourneyTopic(user);
   if (!current) return true;
   return index <= journeyIndex(current.id);
 }
+
 
 /** The topic that has to be mastered before the given one opens. */
 export function blockingTopic(user: UserData, topicId: string): Topic | undefined {

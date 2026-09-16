@@ -6,10 +6,13 @@ import { openMistakeCount } from "@/lib/missed-questions";
 import {
   MASTERY_THRESHOLD,
   currentJourneyTopic,
+  experienceStartIndex,
   isMastered,
+  isTopicOpen,
   journeyIndex,
   journeyOrderedTopics,
 } from "@/lib/journey-order";
+
 
 
 export interface AdaptiveEntry {
@@ -52,6 +55,8 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
   const intelligence = buildIntelligence(user, now);
   const current = currentJourneyTopic(user);
   const currentIndex = current ? journeyIndex(current.id) : Number.MAX_SAFE_INTEGER;
+  const startIndex = experienceStartIndex(user);
+
 
   const entries: AdaptiveEntry[] = journeyOrderedTopics.map((topic) => {
     const index = journeyIndex(topic.id);
@@ -64,7 +69,7 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
         new Date(review.dueAt).getTime() <= nowMs,
     ).length;
 
-    const unlocked = index <= currentIndex;
+    const unlocked = isTopicOpen(user, topic.id);
     const owed = openMistakes > 0 || dueReviews > 0;
 
     let reason: string;
@@ -88,7 +93,11 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
     }
 
     // Owed work sits above everything; the rest holds journey order exactly.
-    const priority = (owed ? 1_000_000 : 0) - index;
+    // Material their experience setting lets them skip past sits below the
+    // main line, still open to revisit whenever they want it.
+    const behindStart = index < startIndex ? -100_000 : 0;
+    const priority = (owed ? 1_000_000 : 0) + behindStart - index;
+
 
     return { topic, mastery: score, priority, unlocked, reason, openMistakes, dueReviews };
   });
