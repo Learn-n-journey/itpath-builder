@@ -369,8 +369,8 @@ html.light {
     inset 0 1px 0 color-mix(in oklab, white 6%, transparent),
     0 12px 32px -12px rgb(0 0 0 / 0.55);
 }
-.terminal-window[data-shell="powershell"] { --tw-bg: #0a1a33; --tw-fg: #dbeafe; --tw-accent: #5aa2f0; }
-.terminal-window[data-shell="cmd"] { --tw-bg: #101216; --tw-fg: #e4e6ea; --tw-accent: #9aa3ad; }
+.terminal-window[data-shell="powershell"] { --tw-bg: #012456; --tw-fg: #e8e8e8; --tw-accent: #7db3f5; }
+.terminal-window[data-shell="cmd"] { --tw-bg: #0c0c0c; --tw-fg: #cccccc; --tw-accent: #9aa3ad; }
 .terminal-window[data-shell="android"] { --tw-bg: #0b1407; --tw-fg: #d9f7c4; --tw-accent: #8fd35a; }
 .terminal-window[data-shell="ios"] { --tw-bg: #14161c; --tw-fg: #e8eaf2; --tw-accent: #b9c0d4; }
 
@@ -386,6 +386,12 @@ html.light {
 .terminal-dot-close { background: #e0655f; }
 .terminal-dot-min { background: #e0b45f; }
 .terminal-dot-max { background: #63c568; }
+.terminal-winctrl {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.4rem; height: 1.1rem; border-radius: 2px;
+  color: var(--term-title-fg, rgb(226 232 240 / 0.85));
+}
+.terminal-winctrl-close { background: #c42b1c; color: #fff; }
 
 .terminal-screen {
   height: 430px;
@@ -395,10 +401,7 @@ html.light {
   font-size: 0.85rem;
   line-height: 1.6;
   color: var(--tw-fg);
-  background:
-    radial-gradient(120% 90% at 50% 0%, color-mix(in oklab, var(--tw-accent) 7%, transparent), transparent 60%),
-    var(--tw-bg);
-  text-shadow: 0 0 6px color-mix(in oklab, var(--tw-fg) 22%, transparent);
+  background: var(--tw-bg);
 }
 .terminal-window .term-prompt { color: var(--tw-accent); font-weight: 600; }
 .terminal-window .term-muted { color: color-mix(in oklab, var(--tw-fg) 55%, transparent); }
