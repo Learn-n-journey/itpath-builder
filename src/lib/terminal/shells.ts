@@ -409,6 +409,11 @@ function runBashCommand(
       if (error === "denied") return fail(state, `${name}: (${target}) - Operation not permitted`);
       return ok(state, "");
     }
+    case "service": {
+      const [svc, action] = operands;
+      if (!svc || !action) return fail(state, "usage: service NAME start|stop|restart|status");
+      return runBashCommand(state, "systemctl", [action, svc], `systemctl ${action} ${svc}`);
+    }
     case "systemctl": {
       const action = (operands[0] ?? "").toLowerCase();
       const service = operands[1];
