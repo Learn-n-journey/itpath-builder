@@ -189,8 +189,15 @@ export function getSectionQuizQuestions(topicId: string): Question[] {
   const authoredWritten = authored.filter(isWritten);
   const authoredChoice = authored.filter((item) => !isWritten(item));
 
+  // Do not ask a generated question about something the authored bank already tests.
+  const alreadyAsked = new Set(
+    authored.flatMap((item) => item.correctAnswer.map((answer) => answer.trim().toLowerCase())),
+  );
   const writtenPool = [...authoredWritten, ...gen.written];
-  const choicePool = [...authoredChoice, ...gen.choice];
+  const choicePool = [
+    ...authoredChoice,
+    ...gen.choice.filter((item) => !alreadyAsked.has((item.correctAnswer[0] ?? "").trim().toLowerCase())),
+  ];
 
   const written = writtenPool.slice(0, WRITTEN_TARGET);
   const choice = choicePool.slice(0, SECTION_QUIZ_SIZE - written.length);
