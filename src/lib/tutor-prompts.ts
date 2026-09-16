@@ -8,6 +8,7 @@ import { DIAGNOSIS_LABEL, METHOD_LABEL } from "@/lib/intelligence/types";
 import { mistakeActivityLabels, mistakeCauseLabels, scoreAllSkills } from "@/lib/mistake-engine";
 
 export type TutorMode =
+  | "ask_anything"
   | "teach_me"
   | "socratic"
   | "quiz_me"
