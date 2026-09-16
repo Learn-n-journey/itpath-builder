@@ -443,11 +443,10 @@ function topicPool(topicId: string): PoolItem[] {
 }
 
 /**
- * Picks one quiz set: it walks round the different styles of question in turn
- * so the set stays varied, never asks about the same idea twice, and starts
- * from a different place on every attempt so a retake is a new set.
+ * The whole pool laid out in one varied running order: it goes round the
+ * different styles of question in turn, so any window of it is mixed.
  */
-function selectSet(topicId: string, attempt: number, size: number): Question[] {
+function interleavedPool(topicId: string): PoolItem[] {
   const pool = topicPool(topicId);
   const byKind = new Map<string, PoolItem[]>();
   for (const item of pool) {
@@ -455,50 +454,53 @@ function selectSet(topicId: string, attempt: number, size: number): Question[] {
     list.push(item);
     byKind.set(item.kind, list);
   }
-
   const kinds = [...byKind.keys()].sort();
-  if (kinds.length === 0) return [];
-  // Each attempt starts from a different style and a different point in each list.
-  const kindStart = attempt % kinds.length;
-  const cursors = new Map<string, number>(
-    kinds.map((kind, index) => [kind, (attempt * (index + 2)) % Math.max((byKind.get(kind) ?? []).length, 1)]),
-  );
+  const cursors = new Map(kinds.map((kind) => [kind, 0]));
+  const out: PoolItem[] = [];
+  while (out.length < pool.length) {
+    let added = 0;
+    for (const kind of kinds) {
+      const list = byKind.get(kind) ?? [];
+      const cursor = cursors.get(kind) ?? 0;
+      if (cursor >= list.length) continue;
+      out.push(list[cursor] as PoolItem);
+      cursors.set(kind, cursor + 1);
+      added += 1;
+    }
+    if (added === 0) break;
+  }
+  return out;
+}
 
+const orderCache = new Map<string, PoolItem[]>();
+
+/**
+ * Picks one quiz set. Each attempt starts a full set further along the running
+ * order, so a retake asks about different material, and no single set asks
+ * about the same idea twice.
+ */
+function selectSet(topicId: string, attempt: number, size: number): Question[] {
+  let order = orderCache.get(topicId);
+  if (!order) {
+    order = interleavedPool(topicId);
+    orderCache.set(topicId, order);
+  }
+  if (order.length === 0) return [];
+
+  const start = (attempt * size) % order.length;
   const chosen: Question[] = [];
   const usedSources = new Set<string>();
   const usedIds = new Set<string>();
-  let guard = 0;
 
-  while (chosen.length < size && guard < pool.length * 4) {
-    let addedThisRound = 0;
-    for (let step = 0; step < kinds.length && chosen.length < size; step += 1) {
-      const kind = kinds[(kindStart + step) % kinds.length] as string;
-      const list = byKind.get(kind) ?? [];
-      if (list.length === 0) continue;
-      let cursor = cursors.get(kind) ?? 0;
-      for (let look = 0; look < list.length; look += 1) {
-        const item = list[(cursor + look) % list.length] as PoolItem;
-        if (usedIds.has(item.question.id) || usedSources.has(item.sourceKey)) continue;
-        chosen.push(item.question);
-        usedIds.add(item.question.id);
-        usedSources.add(item.sourceKey);
-        cursors.set(kind, (cursor + look + 1) % list.length);
-        addedThisRound += 1;
-        break;
-      }
-      cursor = cursors.get(kind) ?? 0;
-    }
-    if (addedThisRound === 0) break;
-    guard += 1;
-  }
-
-  // If the section is thin on material, allow a second question on the same idea.
-  if (chosen.length < size) {
-    for (const item of pool) {
-      if (chosen.length >= size) break;
+  for (let pass = 0; pass < 2 && chosen.length < size; pass += 1) {
+    for (let step = 0; step < order.length && chosen.length < size; step += 1) {
+      const item = order[(start + step) % order.length] as PoolItem;
       if (usedIds.has(item.question.id)) continue;
+      // First pass keeps one question per idea; a second pass fills thin sections.
+      if (pass === 0 && usedSources.has(item.sourceKey)) continue;
       chosen.push(item.question);
       usedIds.add(item.question.id);
+      usedSources.add(item.sourceKey);
     }
   }
 
