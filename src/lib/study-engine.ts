@@ -13,7 +13,8 @@ import type {
   StudySession,
   UserData,
 } from "@/lib/app-data/types";
-import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
+import { adaptivePath } from "@/lib/adaptive-path";
+import { currentJourneyTopic, isTopicOpen, journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
 import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const STUDY_DURATIONS = [30, 60, 90, 120] as const;
@@ -81,9 +82,9 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const nowMs = now.getTime();
   const out: Candidate[] = [];
   const usedTopics = new Set<string>();
-  const focus = adaptivePath(user);
-  const orderedTopics = focusedTopicsFirst(user);
-  const focusTopicIds = new Set(focus.topics.map((topic) => topic.id));
+  // Everything that is not owed work follows the Journey Map order.
+  const orderedTopics = journeyOrderedTopics;
+
 
   // 1. Review, reviews the learner actually has scheduled and due.
   const dueReviews = user.reviews
@@ -138,22 +139,18 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 3. New material, the next untouched topic in path order, prerequisites respected.
-  const untouched = orderedTopics.filter((topic) => {
-    const p = user.topicProgress[topic.id];
-    return !p || p.status === "not_started";
-  });
-  const nextTopic =
-    untouched.find((topic) => focusTopicIds.has(topic.id) && prerequisitesReady(user, topic.id)) ??
-    focus.recommendedTopic ??
-    untouched.find((topic) => prerequisitesReady(user, topic.id));
-  if (nextTopic) {
+  // 3. New material, strictly the current topic on the Journey Map.
+  const nextTopic = currentJourneyTopic(user);
+  if (nextTopic && !usedTopics.has(nextTopic.id)) {
     usedTopics.add(nextTopic.id);
+    const started = (topicScore(user, nextTopic.id) ?? 0) > 0;
     out.push({
       kind: "new_material",
-      title: `Learn ${nextTopic.title}`,
+      title: started ? `Finish ${nextTopic.title}` : `Learn ${nextTopic.title}`,
       detail: nextTopic.summary,
-      reason: "The next topic on your path whose prerequisites you have covered.",
+      reason: started
+        ? "Where you are on the journey. Master this before the next topic opens."
+        : "The next topic on your journey.",
       plannedMinutes: 20,
       to: "/topics/$topicId",
       params: { topicId: nextTopic.id },
@@ -161,9 +158,10 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 4. Practice, topics you have read but never applied.
+  // 4. Practice, topics already opened and still waiting on an applied attempt.
   const practiced = new Set(user.practiceResponses.map((r) => r.topicId));
   const practiceTopic = orderedTopics.find((topic) => {
+    if (!isTopicOpen(user, topic.id)) return false;
     const p = topicScopeProgress(user, topic.id);
     return p.attempted > 0 && !practiced.has(topic.id);
   });
@@ -180,7 +178,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // 5. Lab, finish an open lab first, otherwise the next lab you can support.
+  // 5. Lab, finish an open lab first, otherwise the next lab on an open topic.
   const openLab = user.labAttempts.find((attempt) => attempt.status === "in_progress");
   const openLabDef = openLab ? labs.find((lab) => lab.id === openLab.labId) : undefined;
   const doneLabIds = new Set(
@@ -188,11 +186,14 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
       .filter((a) => a.status === "completed" || a.status === "mastered")
       .map((a) => a.labId),
   );
+  const journeyLabs = [...labs.filter((lab) => isTopicOpen(user, lab.topicId))].sort(
+    (a, b) => journeyIndex(a.topicId) - journeyIndex(b.topicId),
+  );
   const nextLab =
     openLabDef ??
-    labs.find((lab) => focusTopicIds.has(lab.topicId) && !doneLabIds.has(lab.id) && (topicScore(user, lab.topicId) ?? 0) > 0) ??
-    labs.find((lab) => focusTopicIds.has(lab.topicId) && !doneLabIds.has(lab.id)) ??
-    labs.find((lab) => !doneLabIds.has(lab.id));
+    journeyLabs.find((lab) => !doneLabIds.has(lab.id) && (topicScore(user, lab.topicId) ?? 0) > 0) ??
+    journeyLabs.find((lab) => !doneLabIds.has(lab.id));
+
   if (nextLab) {
     out.push({
       kind: "lab",
@@ -218,13 +219,15 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const doneAssignmentIds = new Set(
     user.assignmentAttempts.filter((a) => a.status === "completed").map((a) => a.assignmentId),
   );
+  const journeyAssignments = [...assignments.filter((a) => isTopicOpen(user, a.topicId))].sort(
+    (a, b) => journeyIndex(a.topicId) - journeyIndex(b.topicId),
+  );
   const nextAssignment =
     openAssignmentDef ??
-    assignments.find(
-      (a) => focusTopicIds.has(a.topicId) && !doneAssignmentIds.has(a.id) && (topicScore(user, a.topicId) ?? 0) > 0,
+    journeyAssignments.find(
+      (a) => !doneAssignmentIds.has(a.id) && (topicScore(user, a.topicId) ?? 0) > 0,
     ) ??
-    assignments.find((a) => focusTopicIds.has(a.topicId) && !doneAssignmentIds.has(a.id)) ??
-    assignments.find((a) => !doneAssignmentIds.has(a.id));
+    journeyAssignments.find((a) => !doneAssignmentIds.has(a.id));
   if (nextAssignment) {
     out.push({
       kind: "assignment",
