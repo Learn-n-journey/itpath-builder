@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Activity,
@@ -25,7 +25,8 @@ import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationStatusLabels } from "@/lib/certification-engine";
 import type { CertificationStatus } from "@/lib/app-data/types";
 import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
-import { nextActions } from "@/lib/next-action";
+import { nextActions, type NextAction } from "@/lib/next-action";
+import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import { greetingFor } from "@/lib/greeting";
 import { useProfile } from "@/hooks/use-profile";
@@ -148,7 +149,15 @@ function Dashboard() {
   const d = useMemo(() => computeDashboard(user), [user]);
 
   const path = useMemo(() => adaptivePath(user), [user]);
-  const actions = useMemo(() => nextActions(user), [user]);
+  const [dismissedVersion, setDismissedVersion] = useState(0);
+  const actions = useMemo(
+    () => visibleNextActions(nextActions(user)),
+    [user, dismissedVersion],
+  );
+  const dismissAction = useCallback((action: NextAction) => {
+    dismissNextAction(action);
+    setDismissedVersion((v) => v + 1);
+  }, []);
   const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
   const missedAnchors = useMemo(() => {
     const map: Record<string, string> = {};
@@ -233,7 +242,7 @@ function Dashboard() {
         </Panel>
       ) : (
         <div className="mb-4 grid gap-4 lg:grid-cols-2">
-          <NextActionCard actions={actions} />
+          <NextActionCard actions={actions} onDismiss={dismissAction} />
           <ReadinessPanel report={readiness} />
           <StreakPanel />
         </div>
