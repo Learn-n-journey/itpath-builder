@@ -192,7 +192,7 @@ function Dashboard() {
             title={firstName ? greetingFor(firstName) : "Dashboard"}
             description={`Certification focus: ${user.settings.certificationTarget}.`}
             actions={
-              <Button asChild className="mt-2 sm:mt-14">
+              <Button asChild className="mt-14">
                 <Link to="/study-plan">Open study plan</Link>
               </Button>
             }
