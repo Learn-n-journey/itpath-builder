@@ -256,7 +256,7 @@ export const lessons: Lesson[] = [
     summary:
       "Hardware components have distinct jobs but operate as one system. CPU, RAM, storage, motherboard, power, cooling, and peripherals form the basic map used to explain performance and diagnose faults.",
     nextSteps: [
-      "Locate each major component in a desktop or teardown diagram.",
+      "Open the Hardware Explorer and tap through every major component.",
       "Compare the installed RAM, CPU, and storage reported by an operating system.",
     ],
   },
