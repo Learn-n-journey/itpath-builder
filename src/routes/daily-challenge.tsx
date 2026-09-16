@@ -3,7 +3,8 @@ import { CalendarCheck, Flame, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
-import { QuizRunner, type QuizRunnerQuiz } from "@/components/quiz/quiz-runner";
+import { QuizRunner } from "@/components/quiz/quiz-runner";
+import type { Quiz } from "@/lib/app-data/types";
 import { cn } from "@/lib/utils";
 import {
   dailyChallenge,
