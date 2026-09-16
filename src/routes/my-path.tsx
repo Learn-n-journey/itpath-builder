@@ -41,7 +41,12 @@ function MyPath() {
   const { user } = useAppState();
   const path = adaptivePath(user);
   const queue = adaptiveQueue(user);
-  const startHere = queue.entries.find((entry) => entry.unlocked);
+  // The starting point is the first topic still waiting on you. As soon as the
+  // next one opens, the one before it drops out of here.
+  const current = currentJourneyTopic(user);
+  const startHere = current
+    ? queue.entries.find((entry) => entry.topic.id === current.id)
+    : undefined;
   const levels = certificationsByLevel();
   const certCount = levels.reduce((sum, group) => sum + group.items.length, 0);
 
