@@ -67,10 +67,17 @@ const stage1: Draft[] = [
   {
     topicId: "topic-computer-hardware-basics",
     certificationId: A,
-    prompt: "Which component supplies the timing and instruction execution for everything else in the system?",
-    choices: ["The CPU", "The chipset", "The power supply", "The system RAM"],
-    answer: "The CPU",
-    explanation: "The processor executes instructions; the chipset routes traffic and the supply only provides power.",
+    prompt:
+      "A technician needs one cable that carries display output, data and power delivery to a laptop dock. Which connector fits?",
+    choices: [
+      "USB-C with Thunderbolt support",
+      "DisplayPort 1.4",
+      "USB-A 3.2 Gen 2",
+      "HDMI 2.1",
+    ],
+    answer: "USB-C with Thunderbolt support",
+    explanation:
+      "DisplayPort and HDMI carry video but not data and power; USB-A carries data but not display output.",
   },
   {
     topicId: "topic-computer-hardware-basics",
@@ -253,10 +260,12 @@ const stage1: Draft[] = [
   {
     topicId: "topic-dns-fundamentals",
     certificationId: N,
-    prompt: "Which DNS record type maps a name to an IPv4 address?",
-    choices: ["A", "MX", "CNAME", "TXT"],
-    answer: "A",
-    explanation: "An A record holds an IPv4 address; AAAA holds IPv6 and CNAME points at another name.",
+    prompt:
+      "A remote support tool connects over RDP. Which port must be reachable through the firewall?",
+    choices: ["3389", "3306", "5900", "445"],
+    answer: "3389",
+    explanation:
+      "3389 is RDP, 5900 is VNC, 3306 is MySQL and 445 is SMB, all of which appear in remote access tickets.",
   },
   {
     topicId: "topic-operational-procedures-and-safety",
