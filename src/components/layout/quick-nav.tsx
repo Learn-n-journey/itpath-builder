@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const QUICK_PATHS = [
   "/learn",
   "/quiz-me",
+  "/daily-challenge",
   "/review",
   "/practice",
   "/weak-areas",

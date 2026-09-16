@@ -1,20 +1,62 @@
 import { Link } from "@tanstack/react-router";
-import { Flame } from "lucide-react";
-import { useMemo } from "react";
+import { Flame, Snowflake } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import { toast } from "sonner";
 
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
+import {
+  DAYS_PER_FREEZE,
+  MAX_FREEZES,
+  STREAK_SNAPSHOT_KEY,
+  freezesAvailable,
+  freezesEarned,
+  protectableToday,
+  repairableYesterday,
+  spendFreeze,
+} from "@/lib/streak-freeze";
 import { streakSummary } from "@/lib/streak-engine";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 
+const SNAPSHOT_KEY = STREAK_SNAPSHOT_KEY;
+
 /** Daily goal, current run and the last seven days, all from logged sessions. */
 export function StreakPanel() {
-  const { user } = useAppState();
+  const { user, updateSettings } = useAppState();
   const summary = useMemo(() => streakSummary(user), [user]);
+  const available = freezesAvailable(user);
+  const protect = useMemo(() => protectableToday(user), [user]);
+  const repair = useMemo(() => repairableYesterday(user), [user]);
   const percent = summary.goalMinutes > 0
     ? Math.min(100, Math.round((summary.todayMinutes / summary.goalMinutes) * 100))
     : 0;
+
+  // Keep a small honest snapshot on the device so the sign-in screen can show
+  // the streak after signing out, without pretending anyone is signed in.
+  useEffect(() => {
+    if (summary.current <= 0) return;
+    try {
+      const now = new Date();
+      window.localStorage.setItem(
+        SNAPSHOT_KEY,
+        JSON.stringify({
+          current: summary.current,
+          longest: summary.longest,
+          savedAt: `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`,
+        }),
+      );
+    } catch {
+      /* storage is optional here */
+    }
+  }, [summary.current, summary.longest]);
+
+  function useFreeze(dayKey: string, label: string) {
+    const patch = spendFreeze(user, dayKey);
+    if (!patch) return;
+    updateSettings(patch);
+    toast.success(`Streak protected with a freeze for ${label}.`);
+  }
 
   return (
     <Panel
@@ -74,13 +116,40 @@ export function StreakPanel() {
                     ? "border-border bg-secondary text-foreground"
                     : "border-dashed border-border text-muted-foreground",
               )}
-              title={`${day.date}: ${day.minutes} min`}
+              title={`${day.date}: ${day.frozen ? "protected by a freeze" : `${day.minutes} min`}`}
             >
-              {day.minutes > 0 ? day.minutes : "-"}
+              {day.frozen ? <Snowflake className="size-3.5" aria-hidden /> : day.minutes > 0 ? day.minutes : "-"}
             </div>
             <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">{day.label}</p>
           </div>
         ))}
+      </div>
+
+      <div className="mt-5 rounded-lg border border-border bg-secondary/40 p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="flex items-center gap-2 text-sm font-medium">
+            <Snowflake className="size-4 text-primary" aria-hidden />
+            {available} of {MAX_FREEZES} freezes banked
+          </p>
+          <p className="text-xs text-muted-foreground">
+            A freeze keeps the streak alive on a day you could not study. Every {DAYS_PER_FREEZE} days in a row
+            banks one{freezesEarned(user) > 0 ? ` (${freezesEarned(user)} earned so far)` : ""}.
+          </p>
+        </div>
+        {protect || repair ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {protect ? (
+              <Button size="sm" variant="secondary" onClick={() => useFreeze(protect.dayKey, protect.label)}>
+                <Snowflake /> Protect today
+              </Button>
+            ) : null}
+            {repair ? (
+              <Button size="sm" variant="ghost" onClick={() => useFreeze(repair.dayKey, repair.label)}>
+                <Snowflake /> Repair yesterday
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">

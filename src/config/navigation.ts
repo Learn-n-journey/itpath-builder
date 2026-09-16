@@ -1,8 +1,10 @@
 import {
   Brain,
   LayoutDashboard,
+  Map,
   Route as RouteIcon,
   CalendarDays,
+  CalendarCheck2,
   BookOpen,
   Library,
   ClipboardList,
@@ -59,6 +61,13 @@ export const navItems: NavItem[] = [
     description: "The ordered route through your chosen certification.",
   },
   {
+    label: "Journey Map",
+    to: "/journey",
+    icon: Map,
+    group: "Study",
+    description: "The full two-year route with every topic's real state marked.",
+  },
+  {
     label: "Study Plan",
     to: "/study-plan",
     icon: CalendarDays,
@@ -100,6 +109,13 @@ export const navItems: NavItem[] = [
     group: "Practice",
     description: "Step-by-step hands-on walkthroughs and fault drills.",
     pro: true,
+  },
+  {
+    label: "Daily Challenge",
+    to: "/daily-challenge",
+    icon: CalendarCheck2,
+    group: "Practice",
+    description: "One short mixed set a day, the same for everyone, tracked against your past runs.",
   },
   {
     label: "Quiz Me",

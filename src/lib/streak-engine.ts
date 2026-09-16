@@ -11,6 +11,8 @@ export interface StreakDay {
   met: boolean;
   /** True when the day is one of the user's planned study days. */
   planned: boolean;
+  /** True when a spent freeze protects this day. */
+  frozen: boolean;
 }
 
 export interface StreakSummary {
@@ -74,23 +76,24 @@ export function streakSummary(user: UserData, now: Date = new Date()): StreakSum
   const byDay = minutesByDay(user);
   const goalMinutes = dailyGoalMinutes(user);
   const plannedDays = new Set(user.settings.studyDays);
+  const frozenDays = new Set(user.settings.freezeDays ?? []);
   const todayKey = dateKey(now);
   const todayMinutes = byDay.get(todayKey) ?? 0;
 
   // Current run: count back from today, allowing today to still be empty.
+  // A frozen day counts as kept, that is what the freeze is for.
   let current = 0;
   const start = (byDay.get(todayKey) ?? 0) > 0 ? 0 : -1;
   for (let offset = start; offset > -400; offset -= 1) {
     const key = dateKey(shiftDays(now, offset));
-    if ((byDay.get(key) ?? 0) > 0) current += 1;
+    if ((byDay.get(key) ?? 0) > 0 || frozenDays.has(key)) current += 1;
     else break;
   }
 
-  // Longest run across every recorded day.
-  const sortedKeys = [...byDay.entries()]
-    .filter(([, minutes]) => minutes > 0)
-    .map(([key]) => key)
-    .sort();
+  // Longest run across every recorded day, frozen days included.
+  const activeKeys = new Set([...byDay.entries()].filter(([, minutes]) => minutes > 0).map(([key]) => key));
+  for (const key of frozenDays) activeKeys.add(key);
+  const sortedKeys = [...activeKeys].sort();
   let longest = 0;
   let run = 0;
   let previous: string | null = null;
@@ -114,8 +117,9 @@ export function streakSummary(user: UserData, now: Date = new Date()): StreakSum
       date: key,
       label: weekDayLabels[date.getDay()] ?? "",
       minutes,
-      met: minutes >= goalMinutes && goalMinutes > 0,
+      met: (minutes >= goalMinutes && goalMinutes > 0) || frozenDays.has(key),
       planned: plannedDays.has(weekDayKeys[date.getDay()] as WeekDay),
+      frozen: frozenDays.has(key),
     });
   }
 

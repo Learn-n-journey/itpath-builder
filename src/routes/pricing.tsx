@@ -55,6 +55,7 @@ const FREE_FEATURES = [
   "Full lesson library across all certifications",
   "Practice tasks with meaning-based grading",
   "Quizzes, review buckets and weak-area sets",
+  "Daily Challenge with a tracked study streak and freezes",
   "Progress tracking, insights and study record",
   "Cloud backup of your progress",
 ];

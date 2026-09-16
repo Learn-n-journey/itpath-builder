@@ -242,6 +242,8 @@ export interface UserSettings {
   reminderEnabled?: boolean;
   /** 24-hour local time for the reminder, e.g. "18:30". */
   reminderTime?: string;
+  /** Local date keys (YYYY-MM-DD) protected by a spent streak freeze. */
+  freezeDays?: string[];
 }
 
 export interface TopicProgress {

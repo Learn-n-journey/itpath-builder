@@ -1,5 +1,18 @@
 # IT PATH Review Engine
 
+## Engagement pass (requested 2026-09-15)
+- [ ] Daily Challenge (/daily-challenge): one deterministic mixed 5-question set per day, scored by the shared quiz runner, fed to mistakes/reviews, compared to past attempts, day streak of completed challenges
+- [ ] Streak freeze: freeze tokens protect a missed day (StreakPanel actions), streak engine honors frozen days
+- [ ] Streak shown on the sign-in screen and pricing page
+- [ ] Milestone celebration overlay: first Reliable topic, cert progress thresholds, streak milestones; once per milestone
+- [ ] Journey map: visual route through the curriculum phases with mastered phases lit
+- [ ] GAYL check-in after a 3+ day gap (non-urgent, in the thread and bubble)
+- [ ] Public profile page with real numbers and shareable link (needs scoping decision)
+- [ ] Study groups / accountability partner (needs scoping)
+- [ ] Email recap: bulk recap emails are not possible with Lovable app emails (transactional only); in-app check-in covers the return loop
+
+## About page polish (Sep 2026)
+
 ## About page polish (Sep 2026)
 - [x] Rewrite About page copy in a natural, professional voice
 - [x] Add an email action for reporting errors

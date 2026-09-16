@@ -14,7 +14,7 @@ import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, MessageSquare, X }
 import gaylAvatar from "@/assets/gayl-avatar.png";
 import { useAppState } from "@/state/app-state";
 import { useIntelligence } from "@/hooks/use-intelligence";
-import { gaylMessages, type GaylMessage } from "@/lib/gayl/insights";
+import { checkInMessage, gaylMessages, type GaylMessage } from "@/lib/gayl/insights";
 import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
 import { cn } from "@/lib/utils";
 
@@ -34,18 +34,22 @@ function MessageCard({ message, showWhy }: { message: GaylMessage; showWhy: bool
         message.urgent ? "border-destructive/40 bg-destructive/5" : "border-border bg-secondary/40",
       )}
     >
-      <p className="flex items-start gap-1.5 text-xs font-medium text-foreground">
-        {message.urgent ? (
-          <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" aria-hidden />
-        ) : null}
-        <Link
-          to="/topics/$topicId"
-          params={{ topicId: message.topicId }}
-          className="hover:text-primary"
-        >
-          {message.title}
-        </Link>
-      </p>
+        <p className="flex items-start gap-1.5 text-xs font-medium text-foreground">
+          {message.urgent ? (
+            <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" aria-hidden />
+          ) : null}
+          {message.topicId ? (
+            <Link
+              to="/topics/$topicId"
+              params={{ topicId: message.topicId }}
+              className="hover:text-primary"
+            >
+              {message.title}
+            </Link>
+          ) : (
+            <span>{message.title}</span>
+          )}
+        </p>
       <p className="mt-1 text-sm leading-6 text-foreground">{message.text}</p>
       {message.detail ? (
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -73,7 +77,13 @@ export function GaylBubble() {
     },
     [user],
   );
-  const messages = useMemo(() => gaylMessages(intel, openDetail), [intel, openDetail]);
+  const checkIn = useMemo(() => checkInMessage(user), [user]);
+  // Problems come first. A welcome back only speaks up when nothing else is
+  // asking for attention, so the corner stays a vital-only space.
+  const messages = useMemo(() => {
+    const base = gaylMessages(intel, openDetail);
+    return base.length === 0 && checkIn ? [checkIn] : base;
+  }, [intel, openDetail, checkIn]);
   const latest = messages[0] ?? null;
   const threadId = messages.map((message) => message.id).join("|");
   const unreadCount = messages.filter((message) => message.urgent).length;
