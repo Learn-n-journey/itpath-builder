@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { lessons, resources, type Resource, type Topic } from "@/data/static-content";
+import { getGeneratedRecallQuestions } from "@/data/recall-generator";
 import { getWorkedExamples } from "@/data/worked-examples";
 import { getDeepLesson } from "@/data/deep-lessons";
 import { DeepLessonReading } from "@/components/learning/deep-lesson-reading";

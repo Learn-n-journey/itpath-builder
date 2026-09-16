@@ -142,3 +142,6 @@
 - [x] Three URLs added to sitemap.xml; footer link to the free practice tests
 - [x] Unknown certification id returns a noindex not-found page
 - [x] Verified: typecheck clean, build OK, pages render signed-out, sitemap includes URLs
+
+## GAYL accuracy
+- Investigate false "answers have slipped" message shown with no recent activity
