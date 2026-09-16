@@ -80,6 +80,13 @@ export interface CertificationReadiness {
   quizPerformance: number;
   labCompletion: number;
   assignmentCompletion: number;
+  /** How well the learner scores on the work they have actually done. */
+  performance: number;
+  /** How much of the exam scope has recorded evidence, 0-100. */
+  coverage: number;
+  /** Sections in scope, and how many carry evidence. */
+  topicsTotal: number;
+  topicsCovered: number;
   overall: number;
   domains: DomainReadiness[];
   weakDomains: DomainReadiness[];
@@ -93,39 +100,46 @@ export function scoreCertification(user: UserData, certification: Certification)
   const objectives = getObjectives(user, certification.id);
   const topicIds = [...new Set(objectives.flatMap((objective) => objective.topicIds ?? []))];
   const scopeRows = topicIds.map((topicId) => topicScopeProgress(user, topicId));
+  // Performance is read from the work actually done. Sections with nothing
+  // recorded do not drag a score down, they reduce coverage instead.
+  const workedRows = scopeRows.filter((row) => row.attempted > 0);
 
-  // Knowledge: recorded understanding and recall on the mapped topics.
-  const knowledge = pct(mean(scopeRows.map((row) => mean([
+  // Knowledge: recorded understanding and recall on the topics worked on.
+  const knowledge = pct(mean(workedRows.map((row) => mean([
     row.understanding.score,
     row.recall.score,
     row.application.score,
   ]))));
 
-  const retention = pct(mean(scopeRows.map((row) => row.retention.score)));
+  const retention = pct(mean(workedRows.map((row) => row.retention.score)));
 
   // Labs mapped through their topic.
   const labs = staticContent.labs.filter((lab) => topicIds.includes(lab.topicId));
-  const labAttemptsFor = (labId: EntityId) =>
-    user.labAttempts.filter((attempt) => attempt.labId === labId && attempt.status !== "in_progress");
-  const labCompletion = labs.length === 0 ? 0 : pct((labs.filter((lab) => labAttemptsFor(lab.id).some((a) => a.status === "completed" || a.status === "mastered")).length / labs.length) * 100);
+  const labsDone = labs.filter((lab) =>
+    user.labAttempts.some(
+      (a) => a.labId === lab.id && (a.status === "completed" || a.status === "mastered"),
+    ),
+  ).length;
+  const labCompletion = labs.length === 0 ? 0 : pct((labsDone / labs.length) * 100);
 
   // Assignments mapped through their topic.
   const assignments = staticContent.assignments.filter((a) => topicIds.includes(a.topicId));
-  const assignmentAttemptsFor = (assignmentId: EntityId) =>
-    user.assignmentAttempts.filter((a) => a.assignmentId === assignmentId && a.score !== undefined);
+  const assignmentsDone = assignments.filter((a) =>
+    user.assignmentAttempts.some((x) => x.assignmentId === a.id && x.status === "completed"),
+  ).length;
   const assignmentCompletion = assignments.length === 0
     ? 0
-    : pct((assignments.filter((a) => user.assignmentAttempts.some((x) => x.assignmentId === a.id && x.status === "completed")).length / assignments.length) * 100);
+    : pct((assignmentsDone / assignments.length) * 100);
 
-  const practical = pct(mean(scopeRows.map((row) => mean([
+  const practical = pct(mean(workedRows.map((row) => mean([
     row.application.score,
     row.practicalAbility.score,
   ]))));
 
-  // Troubleshooting: incidents and tickets on the mapped topics.
-  const troubleshooting = pct(mean(scopeRows.map((row) => row.troubleshooting.score)));
+  // Troubleshooting: incidents and tickets on the topics worked on.
+  const troubleshooting = pct(mean(workedRows.map((row) => row.troubleshooting.score)));
 
-  // Quiz performance: questions tagged with this certification.
+  // Quiz performance: share of the questions answered that were answered right.
   const questionIds = new Set(
     staticContent.questions
       .filter((q) => q.certificationId === certification.id || topicIds.includes(q.topicId))
@@ -135,12 +149,13 @@ export function scoreCertification(user: UserData, certification: Certification)
     .filter((attempt) => attempt.status === "submitted")
     .flatMap((attempt) => attempt.results)
     .filter((result) => questionIds.has(result.questionId));
+  const answeredIds = [...new Set(quizResults.map((result) => result.questionId))];
   const quizPerformance = pct(
-    questionIds.size === 0
+    answeredIds.length === 0
       ? 0
-      : ([...questionIds].filter((questionId) =>
+      : (answeredIds.filter((questionId) =>
           quizResults.some((result) => result.questionId === questionId && result.correct),
-        ).length / questionIds.size) * 100,
+        ).length / answeredIds.length) * 100,
   );
 
   // Domains.
@@ -158,14 +173,31 @@ export function scoreCertification(user: UserData, certification: Certification)
     };
   });
 
-  const overall = pct(
-    knowledge * 0.25 +
-      practical * 0.2 +
-      troubleshooting * 0.15 +
-      retention * 0.1 +
-      quizPerformance * 0.2 +
-      ((labCompletion + assignmentCompletion) / 2) * 0.1,
-  );
+  // Performance: how well the recorded work went, over the parts that exist.
+  const parts: Array<[number, number]> = [];
+  if (workedRows.length > 0) {
+    parts.push([knowledge, 0.3], [practical, 0.2], [troubleshooting, 0.15], [retention, 0.1]);
+  }
+  if (answeredIds.length > 0) parts.push([quizPerformance, 0.25]);
+  const partWeight = parts.reduce((sum, [, weight]) => sum + weight, 0);
+  const performance = partWeight === 0
+    ? 0
+    : pct(parts.reduce((sum, [score, weight]) => sum + score * weight, 0) / partWeight);
+
+  // Coverage: how much of the exam scope has been touched at all.
+  const coverageParts: number[] = [];
+  if (topicIds.length > 0) coverageParts.push((workedRows.length / topicIds.length) * 100);
+  if (questionIds.size > 0) {
+    coverageParts.push(Math.min(100, (answeredIds.length / questionIds.size) * 100));
+  }
+  if (labs.length > 0) coverageParts.push((labsDone / labs.length) * 100);
+  if (assignments.length > 0) coverageParts.push((assignmentsDone / assignments.length) * 100);
+  const coverage = pct(mean(coverageParts));
+
+  // Readiness is honest arithmetic: how well you are doing, over how much of
+  // the exam you have evidence for. Strong work on a sliver stays a sliver.
+  const overall = pct((performance * coverage) / 100);
+
 
   const curriculumComplete =
     topicIds.length > 0 &&
@@ -193,6 +225,10 @@ export function scoreCertification(user: UserData, certification: Certification)
     quizPerformance,
     labCompletion,
     assignmentCompletion,
+    performance,
+    coverage,
+    topicsTotal: topicIds.length,
+    topicsCovered: workedRows.length,
     overall,
     domains,
     weakDomains: domains.filter((d) => d.score < 60).sort((a, b) => a.score - b.score),

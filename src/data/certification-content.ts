@@ -30,6 +30,25 @@ const T = {
 
 const seeds: CertSeed[] = [
   {
+    id: "cert-comptia-tech-plus",
+    title: "CompTIA Tech+",
+    code: "FC0-U71",
+    provider: "CompTIA",
+    level: "core",
+    description: "Foundational IT concepts: hardware, software, networking, data and the shape of an IT career.",
+    objectives: [
+      ["1.1", "IT Concepts", "Explain computing basics, notational systems and units", [T.hardware]],
+      ["2.1", "Infrastructure", "Identify common hardware components and connections", [T.hardware]],
+      ["2.2", "Infrastructure", "Explain basic networking concepts and internet service types", [T.netBasic, T.net]],
+      ["3.1", "Applications and Software", "Compare operating system types and their roles", [T.os, T.virt]],
+      ["3.2", "Applications and Software", "Use the command line for simple file and system tasks", [T.cli]],
+      ["4.1", "Software Development", "Explain programming logic, data types and scripting basics", [T.cli]],
+      ["5.1", "Data and Database", "Explain data value, storage concepts and backup basics", [T.hardware]],
+      ["6.1", "Security", "Apply confidentiality, integrity and availability to everyday practice", [T.dns, T.career]],
+      ["6.2", "Career", "Describe IT support roles, ticketing and professional conduct", [T.career]],
+    ],
+  },
+  {
     id: "cert-comptia-a-plus",
     title: "CompTIA A+",
     code: "220-1201/1202",
@@ -174,25 +193,6 @@ const seeds: CertSeed[] = [
       ["2.2", "Architecture", "Integrate identity across hybrid environments", [T.os, T.virt]],
       ["3.1", "Operations", "Lead complex incident investigations", [T.cli]],
       ["4.1", "Engineering", "Evaluate cryptographic and automation solutions", [T.cli]],
-    ],
-  },
-  {
-    id: "cert-comptia-tech-plus",
-    title: "CompTIA Tech+",
-    code: "FC0-U71",
-    provider: "CompTIA",
-    level: "core",
-    description: "Foundational IT concepts: hardware, software, networking, data and the shape of an IT career.",
-    objectives: [
-      ["1.1", "IT Concepts", "Explain computing basics, notational systems and units", [T.hardware]],
-      ["2.1", "Infrastructure", "Identify common hardware components and connections", [T.hardware]],
-      ["2.2", "Infrastructure", "Explain basic networking concepts and internet service types", [T.netBasic, T.net]],
-      ["3.1", "Applications and Software", "Compare operating system types and their roles", [T.os, T.virt]],
-      ["3.2", "Applications and Software", "Use the command line for simple file and system tasks", [T.cli]],
-      ["4.1", "Software Development", "Explain programming logic, data types and scripting basics", [T.cli]],
-      ["5.1", "Data and Database", "Explain data value, storage concepts and backup basics", [T.hardware]],
-      ["6.1", "Security", "Apply confidentiality, integrity and availability to everyday practice", [T.dns, T.career]],
-      ["6.2", "Career", "Describe IT support roles, ticketing and professional conduct", [T.career]],
     ],
   },
 ];

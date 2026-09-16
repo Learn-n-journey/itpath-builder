@@ -178,3 +178,9 @@
 - [x] Reviews wording and dashboard panel clarity
 - [x] Section quiz pass at 80% opens the next topic
 - [x] All 59 sections topped up to 20 multiple choice questions
+
+## Readiness realism + Tech+ foundation (2026-09-16)
+- [x] Tech+ becomes the foundational certificate: first 10 lessons (months 1-2) now belong to Tech+, listed before A+
+- [x] Certification readiness = performance on work done x share of exam scope covered, both shown
+- [x] Job readiness reads "scoring X% on the Y% covered"
+- [x] Dashboard shows "Under 1% complete" instead of a flat 0 once work exists

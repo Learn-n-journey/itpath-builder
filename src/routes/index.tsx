@@ -68,11 +68,13 @@ function ProgressOverview({
   topicsComplete,
   topicsTotal,
   recommendation,
+  hasActivity,
 }: {
   progress: number;
   topicsComplete: number;
   topicsTotal: number;
   recommendation: string;
+  hasActivity: boolean;
 }) {
   const segments = 10;
   const activeSegments = Math.round((progress / 100) * segments);
@@ -86,7 +88,7 @@ function ProgressOverview({
             Learning path
           </div>
           <p className="mt-2 font-display text-2xl font-semibold tabular-nums sm:text-3xl">
-            {progress}% complete
+            {progress === 0 && hasActivity ? "Under 1% complete" : `${progress}% complete`}
           </p>
           <p className="mt-1 truncate text-sm text-muted-foreground">Next: {recommendation}</p>
         </div>
@@ -191,6 +193,7 @@ function Dashboard() {
 
       <ProgressOverview
         progress={d.overallProgress}
+        hasActivity={d.hasAnyActivity}
         topicsComplete={d.masteredTopics}
         topicsTotal={d.topicsTotal}
         recommendation={path.recommendedTopic?.title ?? "Choose a topic in Learn"}
