@@ -93,6 +93,8 @@ interface AppActions {
   addReview: (review: Review) => void;
   ensureReview: (input: { topicId: string; skillId?: string; sourceMistakeId?: string }) => void;
   gradeReview: (reviewId: string, outcome: ReviewOutcome) => void;
+  /** Clears a due review for a topic from real answers instead of a button. */
+  settleTopicReview: (topicId: string, outcome: ReviewOutcome) => void;
   rescheduleReview: (reviewId: string, days: number) => void;
   addPracticeResponse: (response: PracticeResponse) => void;
   setTeachBackResponse: (response: TeachBackResponse) => void;
@@ -323,14 +325,46 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => {
           const existing = findScheduledReview(current, input.topicId);
           if (existing) {
-            // Already scheduled: pull it forward instead of creating a duplicate.
+            const now = Date.now();
+            const due = new Date(existing.dueAt).getTime();
+            // Already due: leave it exactly where it is, otherwise the same item
+            // keeps being pushed back to "now" and never looks cleared.
+            if (due <= now) return current;
+            // Graded very recently: bring it back tomorrow rather than instantly.
+            // Re-testing the same thing minutes later teaches almost nothing.
+            const gradedRecently =
+              existing.lastReviewedAt &&
+              now - new Date(existing.lastReviewedAt).getTime() < 20 * 60 * 60 * 1000;
+            const nextDue = gradedRecently ? now + 24 * 60 * 60 * 1000 : now;
             return userMutations.updateReview(current, {
               ...existing,
-              dueAt: new Date().toISOString(),
+              dueAt: new Date(nextDue).toISOString(),
               updatedAt: new Date().toISOString(),
             });
           }
           return userMutations.addReview(current, createReview(input));
+        }),
+      /**
+       * Grades whatever review is already due for this topic straight from real
+       * work, so answering well in a lesson, quiz or practice clears the review
+       * without anyone having to press a button on the Review page.
+       */
+      settleTopicReview: (topicId, outcome) =>
+        setUser((current) => {
+          const now = Date.now();
+          const target = current.reviews.find(
+            (review) =>
+              review.topicId === topicId &&
+              review.status === "scheduled" &&
+              new Date(review.dueAt).getTime() <= now,
+          );
+          if (!target) return current;
+          const { review, attempt } = gradeReview(target, outcome);
+          let next = userMutations.updateReview(current, review);
+          if (outcome === "pass" && target.sourceMistakeId) {
+            next = userMutations.setMistakeResolved(next, target.sourceMistakeId, true);
+          }
+          return userMutations.addReviewAttempt(next, attempt);
         }),
       gradeReview: (reviewId, outcome) =>
         setUser((current) => {
