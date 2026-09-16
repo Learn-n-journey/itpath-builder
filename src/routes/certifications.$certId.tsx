@@ -346,7 +346,7 @@ function Certifications() {
             <p className="mt-3 text-xs text-muted-foreground">
               {selected.coverage === 0
                 ? "Nothing recorded for this exam yet."
-                : `Readiness is the average of your ${selected.performance}% on the work you have done and the ${selected.coverage}% of the exam you have covered. ${selected.topicsCovered} of ${selected.topicsTotal} sections have evidence.`}
+                : `Readiness applies your ${selected.performance}% on the work you have done to the ${selected.coverage}% of the exam you have covered. ${selected.topicsCovered} of ${selected.topicsTotal} sections have evidence.`}
             </p>
           </Panel>
 
