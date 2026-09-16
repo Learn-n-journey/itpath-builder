@@ -20,6 +20,7 @@ import { Route as CareerSkillsRouteImport } from './routes/career-skills'
 import { Route as CommandLineRouteImport } from './routes/command-line'
 import { Route as DailyChallengeRouteImport } from './routes/daily-challenge'
 import { Route as ExamRouteImport } from './routes/exam'
+import { Route as ExploreHardwareRouteImport } from './routes/explore-hardware'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as JourneyRouteImport } from './routes/journey'
@@ -108,6 +109,11 @@ const DailyChallengeRoute = DailyChallengeRouteImport.update({
 const ExamRoute = ExamRouteImport.update({
   id: '/exam',
   path: '/exam',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreHardwareRoute = ExploreHardwareRouteImport.update({
+  id: '/explore-hardware',
+  path: '/explore-hardware',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuideRoute = GuideRouteImport.update({
@@ -294,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/command-line': typeof CommandLineRoute
   '/daily-challenge': typeof DailyChallengeRoute
   '/exam': typeof ExamRoute
+  '/explore-hardware': typeof ExploreHardwareRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
   '/journey': typeof JourneyRoute
@@ -341,6 +348,7 @@ export interface FileRoutesByTo {
   '/command-line': typeof CommandLineRoute
   '/daily-challenge': typeof DailyChallengeRoute
   '/exam': typeof ExamRoute
+  '/explore-hardware': typeof ExploreHardwareRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
   '/journey': typeof JourneyRoute
@@ -389,6 +397,7 @@ export interface FileRoutesById {
   '/command-line': typeof CommandLineRoute
   '/daily-challenge': typeof DailyChallengeRoute
   '/exam': typeof ExamRoute
+  '/explore-hardware': typeof ExploreHardwareRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
   '/journey': typeof JourneyRoute
@@ -438,6 +447,7 @@ export interface FileRouteTypes {
     | '/command-line'
     | '/daily-challenge'
     | '/exam'
+    | '/explore-hardware'
     | '/guide'
     | '/insights'
     | '/journey'
@@ -485,6 +495,7 @@ export interface FileRouteTypes {
     | '/command-line'
     | '/daily-challenge'
     | '/exam'
+    | '/explore-hardware'
     | '/guide'
     | '/insights'
     | '/journey'
@@ -532,6 +543,7 @@ export interface FileRouteTypes {
     | '/command-line'
     | '/daily-challenge'
     | '/exam'
+    | '/explore-hardware'
     | '/guide'
     | '/insights'
     | '/journey'
@@ -580,6 +592,7 @@ export interface RootRouteChildren {
   CommandLineRoute: typeof CommandLineRoute
   DailyChallengeRoute: typeof DailyChallengeRoute
   ExamRoute: typeof ExamRoute
+  ExploreHardwareRoute: typeof ExploreHardwareRoute
   GuideRoute: typeof GuideRoute
   InsightsRoute: typeof InsightsRoute
   JourneyRoute: typeof JourneyRoute
@@ -693,6 +706,13 @@ declare module '@tanstack/react-router' {
       path: '/exam'
       fullPath: '/exam'
       preLoaderRoute: typeof ExamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore-hardware': {
+      id: '/explore-hardware'
+      path: '/explore-hardware'
+      fullPath: '/explore-hardware'
+      preLoaderRoute: typeof ExploreHardwareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guide': {
@@ -948,6 +968,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommandLineRoute: CommandLineRoute,
   DailyChallengeRoute: DailyChallengeRoute,
   ExamRoute: ExamRoute,
+  ExploreHardwareRoute: ExploreHardwareRoute,
   GuideRoute: GuideRoute,
   InsightsRoute: InsightsRoute,
   JourneyRoute: JourneyRoute,
