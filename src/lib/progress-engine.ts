@@ -32,16 +32,19 @@ export interface Dimensions {
   retention: number;
 }
 
+/**
+ * The five abilities, plus retention. Retention is not a sixth ability: it is
+ * how well the same work holds up once time has passed, so it sits last and is
+ * kept out of the overall score. "Knowledge" is only understanding and recall
+ * averaged, so it is not listed here as a measure of its own.
+ */
 export const dimensionLabels: Array<{ key: keyof Dimensions; label: string; help: string }> = [
-  { key: "knowledge", label: "Knowledge", help: "Understanding and recall combined" },
-  { key: "understanding", label: "Understanding", help: "Explained the idea in your own words" },
-  { key: "recall", label: "Recall", help: "Your latest answer on each item was right" },
-  { key: "application", label: "Application", help: "Chose the right thing to do in a situation" },
-  { key: "practicalAbility", label: "Practical ability", help: "Did the work yourself at the machine or terminal" },
-
-  { key: "troubleshooting", label: "Troubleshooting", help: "Diagnosed incidents and tickets" },
-  { key: "retention", label: "Retention", help: "Still right after days and weeks have passed" },
-
+  { key: "understanding", label: "Understanding", help: "You can say what it means and why, in your own words" },
+  { key: "recall", label: "Recall", help: "You can get the fact back out of memory right now" },
+  { key: "application", label: "Application", help: "You pick the right thing to do in a given situation" },
+  { key: "practicalAbility", label: "Practical ability", help: "You do the work yourself at a machine or terminal" },
+  { key: "troubleshooting", label: "Troubleshooting", help: "You find the cause of a fault and deal with it" },
+  { key: "retention", label: "Retention", help: "The same work is still right days and weeks later" },
 ];
 
 export function topicScore(progress: TopicProgress | undefined): number {

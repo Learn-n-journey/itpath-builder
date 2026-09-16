@@ -360,7 +360,30 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         title="Lesson notes and bookmark"
         description="Notes and bookmarks for this lesson, saved with everything else you have marked."
       />
-      <Panel title="Learning progress" description="Everything in this section counts. Work you have not tried yet counts as zero."><div className="space-y-4">{progressLabels.map(([key, label]) => <div key={key}><div className="mb-1.5 flex justify-between text-sm"><span>{label}</span><span className="tabular-nums text-muted-foreground">{scopeProgress[key].score}%</span></div><Progress value={scopeProgress[key].score} /></div>)}</div></Panel>
+      <Panel
+        title="Learning progress"
+        description="This is for this section only. Work you have not tried yet counts as zero, and anything this section does not contain is left out."
+      >
+        <div className="space-y-4">
+          {progressLabels.map(([key, label]) => {
+            const measure = scopeProgress[key];
+            return (
+              <div key={key}>
+                <div className="mb-1.5 flex justify-between text-sm">
+                  <span>{label}</span>
+                  <span className="tabular-nums text-muted-foreground">
+                    {measure.measured ? `${measure.score}%` : "Not in this section"}
+                  </span>
+                </div>
+                {measure.measured ? <Progress value={measure.score} /> : null}
+              </div>
+            );
+          })}
+        </div>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Retention is the same work seen again later, so it sits outside the section score rather than being counted twice.
+        </p>
+      </Panel>
     </div>
   </div>;
 }

@@ -1,9 +1,22 @@
 /**
- * Full-scope progress calculations.
+ * Full-scope progress, rebuilt around what each measure actually means.
  *
- * Each dimension is earned against every relevant activity that exists for the
- * topic. Unattempted work contributes zero. Retakes improve an activity's best
- * result without making repeated attempts inflate coverage.
+ * Every piece of recorded work is treated as a piece of evidence for one
+ * ability, and nothing is counted twice:
+ *
+ *   Understanding      Can you say what it means and why, in your own words.
+ *   Recall             Can you get the fact back out of memory right now.
+ *   Application        Can you pick the right thing to do in a situation.
+ *   Practical ability  Can you do the work yourself at a machine or terminal.
+ *   Troubleshooting    Can you find the cause of a fault and deal with it.
+ *
+ * Retention is not a sixth ability. It is how well the same evidence holds up
+ * once time has passed, so it is measured across all of the items above and
+ * kept out of the overall score to avoid counting the same work twice.
+ *
+ * Every measure is per topic. A topic only counts the items that exist in it,
+ * and a measure with no items in the topic is simply not measured there.
+ * Unattempted items count as zero: nothing is assumed.
  */
 import { getPracticeActivity, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
 import { getSectionQuizQuestions } from "@/data/topic-quizzes";
@@ -11,11 +24,22 @@ import { staticContent } from "@/data/static-content";
 import { terminalScenarios } from "@/lib/terminal/scenarios";
 import type { EntityId, UserData } from "@/lib/app-data/types";
 
+export type ScopeDimensionKey =
+  | "understanding"
+  | "recall"
+  | "application"
+  | "practicalAbility"
+  | "troubleshooting";
+
 export interface ScopeDimension {
   score: number;
   earned: number;
+  /** How many items of this kind exist in the topic. */
   available: number;
+  /** How many of them have a graded attempt. */
   attempted: number;
+  /** False when the topic has no work of this kind at all. */
+  measured: boolean;
 }
 
 export interface TopicScopeProgress {
@@ -32,71 +56,105 @@ export interface TopicScopeProgress {
   attempted: number;
 }
 
+/** One thing the learner can be graded on, and every graded go they have had. */
+interface EvidenceItem {
+  id: string;
+  dimension: ScopeDimensionKey;
+  /** Recall is "right now", so it reads the latest go. Skills read the best. */
+  reading: "latest" | "best";
+  attempts: Array<{ at: number; score: number }>;
+}
+
 const clamp = (value: number) => Math.max(0, Math.min(100, value));
-const score = (earned: number, available: number) =>
+const pct = (earned: number, available: number) =>
   available === 0 ? 0 : Math.round((earned / available) * 100);
 
-function dimension(values: Array<number | undefined>): ScopeDimension {
-  const normalized = values.map((value) => value === undefined ? undefined : clamp(value));
-  const earned = normalized.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+const PASS = 80;
+const DAY = 24 * 60 * 60 * 1000;
+const dayOf = (time: number) => Math.floor(time / DAY);
+
+function itemScore(item: EvidenceItem): number | undefined {
+  if (!item.attempts.length) return undefined;
+  if (item.reading === "best") return clamp(Math.max(...item.attempts.map((row) => row.score)));
+  const sorted = [...item.attempts].sort((a, b) => a.at - b.at);
+  const last = sorted[sorted.length - 1];
+  return last ? clamp(last.score) : undefined;
+}
+
+function summarise(items: EvidenceItem[]): ScopeDimension {
+  const scores = items.map(itemScore);
+  const earned = scores.reduce<number>((sum, value) => sum + (value ?? 0), 0);
   return {
-    score: score(earned, normalized.length * 100),
+    score: pct(earned, scores.length * 100),
     earned,
-    available: normalized.length,
-    attempted: normalized.filter((value) => value !== undefined).length,
+    available: scores.length,
+    attempted: scores.filter((value) => value !== undefined).length,
+    measured: scores.length > 0,
   };
 }
 
-function bestById<T>(
-  ids: EntityId[],
-  rows: T[],
-  rowId: (row: T) => EntityId,
-  rowScore: (row: T) => number | undefined,
-): Array<number | undefined> {
-  return ids.map((id) => {
-    const values = rows.filter((row) => rowId(row) === id).map(rowScore).filter((value): value is number => value !== undefined);
-    return values.length ? Math.max(...values) : undefined;
-  });
-}
-
 /**
- * Recall is "can you retrieve this now", so it uses the most recent graded
- * attempt rather than the best one ever recorded. An old lucky pass does not
- * keep the score up once a later attempt goes the other way.
+ * Retention: does the same evidence still hold after time has passed.
+ *
+ * A single pass proves it was there once, not that it stuck, so it earns
+ * little. The credit grows as the gap between passes widens: overnight, then
+ * about a week, then about three weeks.
  */
-function latestById<T>(
-  ids: EntityId[],
-  rows: T[],
-  rowId: (row: T) => EntityId,
-  rowAt: (row: T) => string | undefined,
-  rowScore: (row: T) => number | undefined,
-): Array<number | undefined> {
-  return ids.map((id) => {
-    const values = rows
-      .filter((row) => rowId(row) === id && rowScore(row) !== undefined)
-      .sort((a, b) => new Date(rowAt(a) ?? 0).getTime() - new Date(rowAt(b) ?? 0).getTime());
-    const last = values[values.length - 1];
-    return last ? rowScore(last) : undefined;
+function retentionOf(items: EvidenceItem[]): ScopeDimension {
+  const scores = items.map((item) => {
+    if (!item.attempts.length) return undefined;
+    const sorted = [...item.attempts].sort((a, b) => a.at - b.at);
+    const last = sorted[sorted.length - 1];
+    if (!last || last.score < PASS) return 0;
+    const first = sorted.find((row) => row.score >= PASS);
+    if (!first) return 0;
+    const gap = dayOf(last.at) - dayOf(first.at);
+    if (gap < 1) return 20;
+    if (gap < 7) return 50;
+    if (gap < 21) return 80;
+    return 100;
   });
+  const earned = scores.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+  return {
+    score: pct(earned, scores.length * 100),
+    earned,
+    available: scores.length,
+    attempted: scores.filter((value) => value !== undefined).length,
+    measured: scores.length > 0,
+  };
 }
 
-
-function bestSignal(user: UserData, topicId: EntityId, kinds: string[]): number | undefined {
-  const scores = user.learnerSignals
-    .filter((signal) => signal.topicId === topicId && kinds.includes(signal.kind))
-    .map((signal) => typeof signal.score === "number" ? signal.score * 100 : signal.correct === undefined ? undefined : signal.correct ? 100 : 0)
-    .filter((value): value is number => value !== undefined);
-  return scores.length ? Math.max(...scores) : undefined;
-}
-
-function merge(...parts: ScopeDimension[]): ScopeDimension {
-  const earned = parts.reduce((sum, part) => sum + part.earned, 0);
-  const available = parts.reduce((sum, part) => sum + part.available, 0);
-  const attempted = parts.reduce((sum, part) => sum + part.attempted, 0);
-  return { score: score(earned, available * 100), earned, available, attempted };
+/** Which ability an assignment proves, read from what the assignment asks for. */
+function dimensionForAssignment(type: string): ScopeDimensionKey {
+  if (type === "explain" || type === "teach_back") return "understanding";
+  if (type === "recall") return "recall";
+  if (type === "incident" || type === "troubleshoot") return "troubleshooting";
+  if (type === "build" || type === "configure" || type === "command_challenge" || type === "capstone")
+    return "practicalAbility";
+  return "application"; // scenario, compare, design, exam_simulation and the rest
 }
 
 export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScopeProgress {
+  const items: EvidenceItem[] = [];
+  const byId = new Map<string, EvidenceItem>();
+  const add = (id: string, dimension: ScopeDimensionKey, reading: "latest" | "best") => {
+    if (byId.has(id)) return;
+    const item: EvidenceItem = { id, dimension, reading, attempts: [] };
+    byId.set(id, item);
+    items.push(item);
+  };
+  const record = (id: string, at: string | undefined, score: number | undefined) => {
+    const item = byId.get(id);
+    if (!item || !at || score === undefined || Number.isNaN(score)) return;
+    const time = new Date(at).getTime();
+    if (Number.isNaN(time)) return;
+    item.attempts.push({ at: time, score: clamp(score) });
+  };
+  const ratio = (score: number | undefined, max: number | undefined) =>
+    score === undefined || !max ? undefined : (score / max) * 100;
+
+  /* ---------------- what exists in this topic ---------------- */
+
   const recallQuestions = getRecallQuestions(topicId);
   const practiceActivity = getPracticeActivity(topicId);
   const scenario = getRealWorldScenario(topicId);
@@ -106,197 +164,120 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
   const incidents = staticContent.incidents.filter((item) => item.topicId === topicId);
   const tickets = staticContent.tickets.filter((item) => item.topicId === topicId);
   const terminal = terminalScenarios.filter((item) => item.topicId === topicId);
-
-  const quizResults = user.quizAttempts
-    .filter((attempt) => attempt.status === "submitted")
-    .flatMap((attempt) => attempt.results.map((result) => ({ ...result, at: attempt.createdAt })));
-
-  const stored = user.topicProgress[topicId];
-  const teachBack = user.teachBackResponses[topicId];
-  const teachBackScore = teachBack
-    ? bestSignal(user, topicId, ["ai_grading"]) ?? stored?.understanding ?? 0
-    : undefined;
-  const understanding = dimension([teachBackScore]);
-
-  // Every question a learner can meet in this section counts: the recall pool,
-  // the authored question bank and the twenty question section quiz.
-  // Recall is judged on the latest attempt for each item, not the best one.
   const quizQuestionIds = [
-    ...new Set([...questions.map((item) => item.id), ...getSectionQuizQuestions(topicId).map((item) => item.id)]),
+    ...new Set([
+      ...questions.map((item) => item.id),
+      ...getSectionQuizQuestions(topicId).map((item) => item.id),
+    ]),
   ];
-  const recall = merge(
-    dimension(latestById(recallQuestions.map((item) => item.id), user.recallResponses, (row) => row.questionId, (row) => row.createdAt, (row) => row.correct ? 100 : 0)),
-    dimension(latestById(quizQuestionIds, quizResults, (row) => row.questionId, (row) => row.at, (row) => row.correct ? 100 : 0)),
-    dimension(latestById(
-      assignments.filter((item) => item.type === "recall" || item.type === "teach_back").map((item) => item.id),
-      user.assignmentAttempts,
-      (row) => row.assignmentId,
-      (row) => row.submittedAt ?? row.updatedAt,
-      (row) => row.score === undefined || !row.maxScore ? undefined : (row.score / row.maxScore) * 100,
-    )),
-  );
 
+  // Understanding: explaining it back in your own words.
+  add(`teach-back-${topicId}`, "understanding", "best");
+  // Recall: the recall pool plus every question in the section.
+  recallQuestions.forEach((item) => add(item.id, "recall", "latest"));
+  quizQuestionIds.forEach((id) => add(id, "recall", "latest"));
+  // Application: deciding what is right in a described situation.
+  if (practiceActivity) add(practiceActivity.id, "application", "best");
+  if (scenario) add(scenario.id, "application", "best");
+  // Practical ability: doing the work.
+  labs.forEach((item) => add(item.id, "practicalAbility", "best"));
+  terminal.forEach((item) => add(item.id, "practicalAbility", "best"));
+  // Troubleshooting: finding the cause of a fault.
+  incidents.forEach((item) => add(item.id, "troubleshooting", "best"));
+  tickets.forEach((item) => add(item.id, "troubleshooting", "best"));
+  // Assignments land wherever their task type points.
+  assignments.forEach((item) => {
+    const dimension = dimensionForAssignment(item.type);
+    add(item.id, dimension, dimension === "recall" ? "latest" : "best");
+  });
 
+  /* ---------------- what the learner has recorded ---------------- */
 
-  // Assignments are split by what they actually ask for: choosing the right
-  // answer for a situation counts as application, doing the work counts as
-  // practical ability, and diagnosing a fault counts as troubleshooting.
-  const assignmentScoreOf = (row: (typeof user.assignmentAttempts)[number]) =>
-    row.score === undefined || !row.maxScore ? undefined : (row.score / row.maxScore) * 100;
-  const assignmentIdsOfType = (types: string[]) =>
-    assignments.filter((item) => types.includes(item.type)).map((item) => item.id);
-  const applicationAssignments = bestById(
-    assignmentIdsOfType(["scenario", "compare", "design", "exam_simulation", "explain"]),
-    user.assignmentAttempts,
-    (row) => row.assignmentId,
-    assignmentScoreOf,
-  );
-  const practicalAssignments = bestById(
-    assignmentIdsOfType(["build", "configure", "command_challenge", "capstone"]),
-    user.assignmentAttempts,
-    (row) => row.assignmentId,
-    assignmentScoreOf,
-  );
-  const troubleshootingAssignments = bestById(
-    assignmentIdsOfType(["incident", "troubleshoot"]),
-    user.assignmentAttempts,
-    (row) => row.assignmentId,
-    assignmentScoreOf,
-  );
-  const scenarioScore = scenario
-    ? user.scenarioResponses[topicId]?.meetsCriteria === undefined
-      ? undefined
-      : user.scenarioResponses[topicId]?.meetsCriteria ? 100 : 0
-    : undefined;
-  const practiceScore = practiceActivity
-    ? bestById([practiceActivity.id], user.practiceResponses, (row) => row.activityId, (row) => row.correct ? 100 : 0)
-    : [];
-  // Application: using what you know to decide what is right in a situation.
-  const application = merge(
-    dimension(practiceScore),
-    dimension(scenario ? [scenarioScore] : []),
-    dimension(applicationAssignments),
-  );
-
-  const labScores = bestById(
-    labs.map((item) => item.id),
-    user.labAttempts.filter((row) => row.status !== "in_progress"),
-    (row) => row.labId,
-    (row) => row.maxScore > 0 ? (row.score / row.maxScore) * 100 : undefined,
-  );
-  const terminalScores = bestById(
-    terminal.map((item) => item.id),
-    user.terminalAttempts.filter((row) => row.status === "submitted"),
-    (row) => row.scenarioId,
-    (row) => row.score,
-  );
-  // Practical ability: doing the work yourself, at the machine and the terminal.
-  const practicalAbility = merge(dimension(labScores), dimension(terminalScores), dimension(practicalAssignments));
-
-  const incidentScores = bestById(
-    incidents.map((item) => item.id),
-    user.incidentAttempts.filter((row) => row.status === "submitted"),
-    (row) => row.incidentId,
-    (row) => row.totalScore,
-  );
-  const ticketScores = bestById(
-    tickets.map((item) => item.id),
-    user.ticketAttempts.filter((row) => row.status === "submitted"),
-    (row) => row.ticketId,
-    (row) => row.totalScore,
-  );
-  // Troubleshooting: working out the cause of a fault and what to do about it.
-  const troubleshooting = merge(
-    dimension(incidentScores),
-    dimension(ticketScores),
-    dimension(troubleshootingAssignments),
-  );
-
-
-  // Retention covers every item this section contains, not just scheduled
-  // reviews. An item only counts as retained once it has been answered well
-  // again on a later day, so a single first-time pass is partial credit.
-  type Graded = { at: number; pass: boolean };
-  const attemptsByItem = new Map<string, Graded[]>();
-  const addAttempt = (itemId: string, at: string | undefined, pass: boolean) => {
-    if (!at) return;
-    const list = attemptsByItem.get(itemId) ?? [];
-    list.push({ at: new Date(at).getTime(), pass });
-    attemptsByItem.set(itemId, list);
-  };
+  const teachBack = user.teachBackResponses[topicId];
+  if (teachBack) {
+    const graded = user.learnerSignals
+      .filter((signal) => signal.topicId === topicId && signal.kind === "ai_grading")
+      .map((signal) =>
+        typeof signal.score === "number"
+          ? signal.score * 100
+          : signal.correct === undefined
+            ? undefined
+            : signal.correct ? 100 : 0,
+      )
+      .filter((value): value is number => value !== undefined);
+    const best = graded.length
+      ? Math.max(...graded)
+      : user.topicProgress[topicId]?.understanding ?? 0;
+    record(`teach-back-${topicId}`, teachBack.updatedAt ?? teachBack.createdAt, best);
+  }
 
   user.recallResponses
     .filter((row) => row.topicId === topicId)
-    .forEach((row) => addAttempt(row.questionId, row.createdAt, row.correct));
-  user.practiceResponses
-    .filter((row) => row.topicId === topicId)
-    .forEach((row) => addAttempt(row.activityId, row.createdAt, row.correct));
+    .forEach((row) => record(row.questionId, row.createdAt, row.correct ? 100 : 0));
+
   user.quizAttempts
     .filter((attempt) => attempt.status === "submitted")
-    .forEach((attempt) => attempt.results.forEach((result) => addAttempt(result.questionId, attempt.createdAt, result.correct)));
-  user.labAttempts
-    .filter((row) => row.topicId === topicId && row.status !== "in_progress")
-    .forEach((row) => addAttempt(row.labId, row.submittedAt ?? row.updatedAt, row.maxScore > 0 && row.score / row.maxScore >= 0.8));
-  user.terminalAttempts
-    .filter((row) => row.topicId === topicId && row.status === "submitted")
-    .forEach((row) => addAttempt(row.scenarioId, row.createdAt, (row.score ?? 0) >= 80));
-  user.incidentAttempts
-    .filter((row) => row.topicId === topicId && row.status === "submitted")
-    .forEach((row) => addAttempt(row.incidentId, row.createdAt, (row.totalScore ?? 0) >= 80));
-  user.ticketAttempts
-    .filter((row) => row.topicId === topicId && row.status === "submitted")
-    .forEach((row) => addAttempt(row.ticketId, row.createdAt, (row.totalScore ?? 0) >= 80));
-  user.assignmentAttempts
-    .filter((row) => assignments.some((item) => item.id === row.assignmentId))
-    .forEach((row) => addAttempt(row.assignmentId, row.submittedAt ?? row.updatedAt, !!row.score && !!row.maxScore && row.score / row.maxScore >= 0.8));
+    .forEach((attempt) =>
+      attempt.results.forEach((result) =>
+        record(result.questionId, attempt.createdAt, result.correct ? 100 : 0),
+      ),
+    );
+
+  user.practiceResponses
+    .filter((row) => row.topicId === topicId)
+    .forEach((row) => record(row.activityId, row.createdAt, row.correct ? 100 : 0));
+
   const scenarioResponse = user.scenarioResponses[topicId];
-  if (scenario && scenarioResponse) addAttempt(scenario.id, scenarioResponse.updatedAt ?? scenarioResponse.createdAt, !!scenarioResponse.meetsCriteria);
-  if (teachBack) addAttempt(`teach-back-${topicId}`, teachBack.updatedAt ?? teachBack.createdAt, (teachBackScore ?? 0) >= 80);
-  const reviewAttempts = user.reviewAttempts.filter((row) => row.topicId === topicId);
-  reviewAttempts.forEach((row) => addAttempt(`review-${row.reviewId}`, row.createdAt, row.outcome === "pass"));
+  if (scenario && scenarioResponse && scenarioResponse.meetsCriteria !== undefined) {
+    record(
+      scenario.id,
+      scenarioResponse.updatedAt ?? scenarioResponse.createdAt,
+      scenarioResponse.meetsCriteria ? 100 : 0,
+    );
+  }
 
-  const dayOf = (time: number) => Math.floor(time / (24 * 60 * 60 * 1000));
-  const retentionItemIds = [
-    ...new Set([
-      ...recallQuestions.map((item) => item.id),
-      ...quizQuestionIds,
-      ...(practiceActivity ? [practiceActivity.id] : []),
-      ...labs.map((item) => item.id),
-      ...terminal.map((item) => item.id),
-      ...incidents.map((item) => item.id),
-      ...tickets.map((item) => item.id),
-      ...assignments.map((item) => item.id),
-      ...(scenario ? [scenario.id] : []),
-      `teach-back-${topicId}`,
-      ...user.reviews.filter((row) => row.topicId === topicId).map((row) => `review-${row.id}`),
-      ...reviewAttempts.map((row) => `review-${row.reviewId}`),
-    ]),
-  ];
-  // Retention is what is still held after time has passed, so it is earned over
-  // spaced gaps: a same day pass earns nothing lasting yet, and the credit grows
-  // as the gap between passes widens (about a day, a week, then three weeks).
-  const retentionScores: Array<number | undefined> = retentionItemIds.map((itemId) => {
-    const graded = (attemptsByItem.get(itemId) ?? []).sort((a, b) => a.at - b.at);
-    if (!graded.length) return undefined;
-    const last = graded[graded.length - 1];
-    if (!last || !last.pass) return 0;
-    const passes = graded.filter((row) => row.pass);
-    const first = passes[0];
-    if (!first) return 0;
-    const gapDays = dayOf(last.at) - dayOf(first.at);
-    if (gapDays < 1) return 20;
-    if (gapDays < 7) return 50;
-    if (gapDays < 21) return 80;
-    return 100;
-  });
-  const retention = dimension(retentionScores.length ? retentionScores : [undefined]);
+  user.labAttempts
+    .filter((row) => row.status !== "in_progress")
+    .forEach((row) => record(row.labId, row.submittedAt ?? row.updatedAt, ratio(row.score, row.maxScore)));
 
+  user.terminalAttempts
+    .filter((row) => row.status === "submitted")
+    .forEach((row) => record(row.scenarioId, row.createdAt, row.score));
 
+  user.incidentAttempts
+    .filter((row) => row.status === "submitted")
+    .forEach((row) => record(row.incidentId, row.createdAt, row.totalScore));
 
-  const dimensions = [understanding, recall, application, practicalAbility, troubleshooting, retention];
-  const earned = dimensions.reduce((sum, item) => sum + item.earned, 0);
-  const available = dimensions.reduce((sum, item) => sum + item.available, 0);
-  const attempted = dimensions.reduce((sum, item) => sum + item.attempted, 0);
+  user.ticketAttempts
+    .filter((row) => row.status === "submitted")
+    .forEach((row) => record(row.ticketId, row.createdAt, row.totalScore));
+
+  user.assignmentAttempts.forEach((row) =>
+    record(row.assignmentId, row.submittedAt ?? row.updatedAt, ratio(row.score, row.maxScore)),
+  );
+
+  /* ---------------- the measures ---------------- */
+
+  const of = (dimension: ScopeDimensionKey) =>
+    summarise(items.filter((item) => item.dimension === dimension));
+
+  const understanding = of("understanding");
+  const recall = of("recall");
+  const application = of("application");
+  const practicalAbility = of("practicalAbility");
+  const troubleshooting = of("troubleshooting");
+
+  // Retention reads the same items again, this time asking whether the passes
+  // held up over spaced days rather than what the score was.
+  const retention = retentionOf(items);
+
+  // The overall score is the five abilities only. Retention describes how well
+  // that same work has lasted, so folding it in here would count it twice.
+  const abilities = [understanding, recall, application, practicalAbility, troubleshooting];
+  const earned = abilities.reduce((sum, item) => sum + item.earned, 0);
+  const available = abilities.reduce((sum, item) => sum + item.available, 0);
+  const attempted = abilities.reduce((sum, item) => sum + item.attempted, 0);
+
   return {
     topicId,
     understanding,
@@ -305,7 +286,7 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
     practicalAbility,
     troubleshooting,
     retention,
-    overall: score(earned, available * 100),
+    overall: pct(earned, available * 100),
     earned,
     available,
     attempted,
