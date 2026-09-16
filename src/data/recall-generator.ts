@@ -44,10 +44,10 @@ export function getGeneratedRecallQuestions(topicId: string): RecallQuestion[] {
     push(`myth-${index}`, `Someone tells you: "${item}" How would you set that straight?`, item);
   });
   module?.commonProblems.forEach((item, index) => {
-    push(`problem-${index}`, `How would you recognise a ${item.toLowerCase()} problem in this area?`, item);
+    push(`problem-${index}`, `How would you recognize a ${item.toLowerCase()} problem in this area?`, item);
   });
   module?.troubleshooting.forEach((item, index) => {
-    push(`fix-${index}`, `Describe one useful troubleshooting step for this topic and why it helps.`, item);
+    push(`fix-${index}`, `Step ${index + 1} of troubleshooting this topic: what would you do, and what does it tell you?`, item);
   });
 
   return out;
