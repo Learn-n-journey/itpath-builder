@@ -64,14 +64,22 @@ export function MilestoneOverlay() {
       onClick={dismiss}
     >
       <div
-        className="milestone-pop relative w-full max-w-md rounded-2xl border border-primary/30 bg-card p-8 text-center shadow-2xl"
+        className="milestone-pop relative w-full max-w-md overflow-hidden rounded-2xl border border-primary/30 bg-card p-8 text-center shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
+        <span
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-primary/70"
+          aria-hidden
+        />
+        <span
+          className="pointer-events-none absolute -top-24 left-1/2 size-56 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl"
+          aria-hidden
+        />
         <button
           type="button"
           onClick={dismiss}
           aria-label="Close milestone"
-          className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+          className="absolute right-3 top-3 text-muted-foreground transition-colors hover:text-foreground"
         >
           <X className="size-4" />
         </button>
@@ -80,9 +88,9 @@ export function MilestoneOverlay() {
           alt=""
           width={816}
           height={816}
-          className="mx-auto size-16 rounded-full border border-primary/30"
+          className="relative mx-auto size-16 rounded-full border border-primary/30 ring-4 ring-primary/10"
         />
-        <p className="mt-4 flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+        <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
           <Trophy className="size-3.5" aria-hidden />
           Milestone
         </p>

@@ -65,7 +65,7 @@ export const navItems: NavItem[] = [
     to: "/journey",
     icon: Map,
     group: "Study",
-    description: "The full two-year route with every topic's real state marked.",
+    description: "The full route with every topic's real state marked.",
   },
   {
     label: "Study Plan",
