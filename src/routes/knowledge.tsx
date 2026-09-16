@@ -134,6 +134,7 @@ function KnowledgeWorkspace() {
   const [searching, setSearching] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
   const [matches, setMatches] = useState<{ id: string; title: string; why: string }[]>([]);
+  const [asked, setAsked] = useState<string | null>(null);
 
   const stats = useMemo(() => {
     const concepts = new Set<string>();
