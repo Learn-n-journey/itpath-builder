@@ -937,12 +937,38 @@ function expandEnv(state: MachineState, text: string): string {
   return text.replace(/\$(\w+)|%(\w+)%/g, (match, a, b) => state.env[a ?? b] ?? match);
 }
 
+const BASH_COMMANDS = [
+  "alias", "apt", "apt-get", "arp", "cal", "cat", "cd", "chgrp", "chmod", "chown", "clear",
+  "command", "cp", "crontab", "curl", "date", "df", "dig", "dmesg", "dnf", "du", "echo", "env",
+  "exit", "export", "file", "find", "free", "grep", "groups", "head", "help", "history", "host",
+  "hostname", "hostnamectl", "id", "ifconfig", "ip", "journalctl", "kill", "less", "ln", "ls",
+  "lsblk", "lscpu", "lsmod", "lspci", "lsusb", "man", "mkdir", "more", "mount", "mv", "nano",
+  "netstat", "nslookup", "passwd", "ping", "pkill", "ps", "pwd", "reboot", "resolvectl", "rm",
+  "rmdir", "scp", "service", "shutdown", "sleep", "sort", "ss", "ssh", "stat", "su", "sudo",
+  "systemctl", "tail", "tar", "tee", "top", "touch", "traceroute", "type", "ufw", "umount",
+  "uname", "uniq", "uptime", "useradd", "usermod", "vi", "vim", "wc", "wget", "whereis", "which",
+  "whoami", "yum",
+];
+
+function clockTime(): string {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+}
+
 function bashHelp(topic?: string): string[] {
-  if (topic) return [`${topic}: see the lesson notes. This simulator supports the common flags only.`];
+  if (topic) {
+    return BASH_COMMANDS.includes(topic.toLowerCase())
+      ? [`${topic}: supported here with its common flags. Try it and read the output.`]
+      : [`${topic}: not modelled in this simulator. Type help to see the full list.`];
+  }
   return [
-    "Available here: ls cd pwd cat head tail grep find touch mkdir rm rmdir cp mv chmod chown",
-    "                ps kill systemctl journalctl service ip ifconfig ping dig nslookup traceroute",
-    "                ss netstat curl ufw useradd usermod passwd su sudo df free uname id whoami history clear",
+    "Files:    ls cd pwd cat head tail less more grep find touch mkdir rm rmdir cp mv ln",
+    "          chmod chown chgrp stat file wc sort uniq du df tar",
+    "System:   uname hostname hostnamectl lscpu lsblk lspci lsusb lsmod free uptime date dmesg",
+    "          mount ps top kill pkill systemctl service journalctl reboot shutdown",
+    "Network:  ip ifconfig ping traceroute dig host nslookup resolvectl ss netstat arp curl wget ufw",
+    "Users:    whoami id groups useradd usermod passwd su sudo",
+    "Other:    echo env export alias history which whereis type sleep apt crontab clear help man",
   ];
 }
 
