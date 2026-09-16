@@ -182,28 +182,38 @@ function JourneyPage() {
                   </div>
                   <p className="shrink-0 text-xs tabular-nums text-muted-foreground">
                     {litUp === 0
-                      ? `${phase.topics.length} topics, none started`
-                      : `${litUp} of ${phase.topics.length} holding up`}
+                      ? `${phase.topics.length} sections, none passed yet`
+                      : `${litUp} of ${phase.topics.length} passed`}
                   </p>
                 </div>
 
                 <ul className="mt-4 space-y-1">
-                  {phaseTopics.map(({ topic, concept }) => {
-                    const state = concept?.state ?? "unknown";
+                  {phaseTopics.map(({ topic, status }) => {
+                    const best = sectionQuizBest(user, topic.id);
                     return (
                       <li key={topic.id}>
                         <Link
                           to="/topics/$topicId"
                           params={{ topicId: topic.id }}
-                          className="group flex items-start gap-3 rounded-lg border border-transparent px-2.5 py-2 transition-all hover:border-border hover:bg-secondary/50"
+                          className={cn(
+                            "group flex items-start gap-3 rounded-lg border border-transparent px-2.5 py-2 transition-all hover:border-border hover:bg-secondary/50",
+                            status === "current" && "border-primary/50 bg-primary/5",
+                          )}
                         >
-                          <StateDot state={state} />
+                          <StatusDot status={status} />
                           <span className="min-w-0 flex-1">
-                            <span className="block text-sm font-medium transition-colors group-hover:text-primary">
+                            <span
+                              className={cn(
+                                "block text-sm font-medium transition-colors group-hover:text-primary",
+                                status === "current" && "text-primary",
+                                status === "locked" && "text-muted-foreground",
+                              )}
+                            >
                               {topic.title}
                             </span>
                             <span className="block truncate text-xs text-muted-foreground">
-                              {topic.minutes} min · {state === "unknown" ? "Not started" : STATE_LABEL[state]}
+                              {topic.minutes} min · {STATUS_WORD[status]}
+                              {status === "closed" && best > 0 ? ` · quiz ${best}%` : ""}
                             </span>
                           </span>
                         </Link>
@@ -211,6 +221,7 @@ function JourneyPage() {
                     );
                   })}
                 </ul>
+
 
                 {stageExams[phaseIndex] ? (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-secondary/20 p-3">
