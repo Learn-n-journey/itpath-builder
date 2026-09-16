@@ -90,10 +90,10 @@ function ExploreHardwarePage() {
                   aria-pressed={active}
                   style={{ left: `${p.x}%`, top: `${p.y}%` }}
                   className={cn(
-                    "motion-press absolute flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border text-xs font-bold shadow-md transition-all",
+                    "motion-press absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border text-sm font-bold shadow-lg ring-2 backdrop-blur-[2px] transition-all",
                     active
-                      ? "scale-110 border-primary bg-primary text-primary-foreground"
-                      : "border-primary/60 bg-background/90 text-primary hover:scale-110",
+                      ? "scale-110 border-primary bg-primary text-primary-foreground ring-primary/60"
+                      : "border-primary/70 bg-background/85 text-primary ring-background/40 hover:scale-110 hover:bg-primary hover:text-primary-foreground",
                   )}
                 >
                   {i + 1}
