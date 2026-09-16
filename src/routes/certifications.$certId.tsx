@@ -333,15 +333,21 @@ function Certifications() {
               {selected.hasEvidence ? "" : ", no evidence recorded yet"}
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Metric label="Knowledge readiness" value={selected.knowledge} />
-              <Metric label="Practical readiness" value={selected.practical} />
-              <Metric label="Troubleshooting readiness" value={selected.troubleshooting} />
+              <Metric label="Knowledge on work done" value={selected.knowledge} />
+              <Metric label="Practical on work done" value={selected.practical} />
+              <Metric label="Troubleshooting on work done" value={selected.troubleshooting} />
               <Metric label="Retention" value={selected.retention} />
-              <Metric label="Quiz performance" value={selected.quizPerformance} />
+              <Metric label="Quiz accuracy" value={selected.quizPerformance} />
               <Metric label="Lab completion" value={selected.labCompletion} />
                <Metric label="Practice completion" value={selected.assignmentCompletion} />
+              <Metric label="Exam scope covered" value={selected.coverage} />
               <Metric label="Overall readiness" value={selected.overall} />
             </div>
+            <p className="mt-3 text-xs text-muted-foreground">
+              {selected.coverage === 0
+                ? "Nothing recorded for this exam yet."
+                : `Readiness is your ${selected.performance}% on the work you have done, applied to the ${selected.coverage}% of the exam you have covered. ${selected.topicsCovered} of ${selected.topicsTotal} sections have evidence.`}
+            </p>
           </Panel>
 
           <Panel title="Domain readiness" description="Weak domains are listed first.">
