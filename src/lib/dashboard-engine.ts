@@ -5,7 +5,7 @@ import { scoreSkills, scoreTracks } from "@/lib/skills-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { allTopicScopeProgress } from "@/lib/scope-progress";
 import { openMistakeCount, openMistakes } from "@/lib/missed-questions";
-import { currentJourneyTopic, journeyIndex } from "@/lib/journey-order";
+import { currentJourneyTopic, journeyIndexFor } from "@/lib/journey-order";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -149,7 +149,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
   const nextInLine = currentJourneyTopic(user)?.id;
   const topicsNeedingReview = [...needing.entries()]
     .filter(([topicId]) => startedTopics.has(topicId) || topicId === nextInLine)
-    .sort((a, b) => journeyIndex(a[0]) - journeyIndex(b[0]))
+    .sort((a, b) => journeyIndexFor(user, a[0]) - journeyIndexFor(user, b[0]))
     .map(([topicId, reason]) => ({
       topicId,
       title: topics.find((t) => t.id === topicId)?.title ?? topicId,

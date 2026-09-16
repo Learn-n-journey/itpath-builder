@@ -14,7 +14,7 @@ import type {
   UserData,
 } from "@/lib/app-data/types";
 import { adaptivePath } from "@/lib/adaptive-path";
-import { currentJourneyTopic, isTopicOpen, journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
+import { currentJourneyTopic, isTopicOpen, journeyIndexFor, journeyTopics } from "@/lib/journey-order";
 import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const STUDY_DURATIONS = [30, 60, 90, 120] as const;
@@ -83,7 +83,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const out: Candidate[] = [];
   const usedTopics = new Set<string>();
   // Everything that is not owed work follows the Journey Map order.
-  const orderedTopics = journeyOrderedTopics;
+  const orderedTopics = journeyTopics(user);
 
 
   // 1. Review, reviews the learner actually has scheduled and due.
@@ -187,7 +187,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
       .map((a) => a.labId),
   );
   const journeyLabs = [...labs.filter((lab) => isTopicOpen(user, lab.topicId))].sort(
-    (a, b) => journeyIndex(a.topicId) - journeyIndex(b.topicId),
+    (a, b) => journeyIndexFor(user, a.topicId) - journeyIndexFor(user, b.topicId),
   );
   const nextLab =
     openLabDef ??
@@ -220,7 +220,7 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     user.assignmentAttempts.filter((a) => a.status === "completed").map((a) => a.assignmentId),
   );
   const journeyAssignments = [...assignments.filter((a) => isTopicOpen(user, a.topicId))].sort(
-    (a, b) => journeyIndex(a.topicId) - journeyIndex(b.topicId),
+    (a, b) => journeyIndexFor(user, a.topicId) - journeyIndexFor(user, b.topicId),
   );
   const nextAssignment =
     openAssignmentDef ??

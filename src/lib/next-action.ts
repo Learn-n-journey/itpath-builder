@@ -8,7 +8,7 @@
  * material. Every action points at a route that exists.
  */
 import { assignments, labs } from "@/data/static-content";
-import { currentJourneyTopic, journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
+import { currentJourneyTopic, journeyIndexFor, journeyTopics } from "@/lib/journey-order";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationTopics } from "@/lib/cert-path";
 import { buildIntelligence } from "@/lib/intelligence/engine";
@@ -119,7 +119,7 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
   const intelligence = buildIntelligence(user, now);
   const startedConcepts = intelligence.queue
     .filter((concept) => started.has(concept.topicId))
-    .sort((a, b) => journeyIndex(a.topicId) - journeyIndex(b.topicId));
+    .sort((a, b) => journeyIndexFor(user, a.topicId) - journeyIndexFor(user, b.topicId));
   for (const concept of startedConcepts.slice(0, 2)) {
     if (concept.attempts === 0 && concept.diagnosis === "never_learned") continue;
     out.push({
@@ -162,7 +162,7 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
       .filter((attempt) => attempt.status === "submitted")
       .flatMap((attempt) => attempt.results.map((result) => result.topicId)),
   );
-  const untested = journeyOrderedTopics.find((topic) => {
+  const untested = journeyTopics(user).find((topic) => {
     if (!started.has(topic.id)) return false;
     const progress = topicScopeProgress(user, topic.id);
     return (
@@ -182,7 +182,7 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
   }
 
   // 5. Known in theory, unproven in practice.
-  const unproven = journeyOrderedTopics.find((topic) => {
+  const unproven = journeyTopics(user).find((topic) => {
     if (!started.has(topic.id)) return false;
     const progress = topicScopeProgress(user, topic.id);
     if (!certTopicIds.has(topic.id)) return false;
