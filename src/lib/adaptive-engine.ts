@@ -88,7 +88,11 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
     }
 
     // Owed work sits above everything; the rest holds journey order exactly.
-    const priority = (owed ? 1_000_000 : 0) - index;
+    // Material their experience setting lets them skip past sits below the
+    // main line, still open to revisit whenever they want it.
+    const behindStart = index < startIndex ? -100_000 : 0;
+    const priority = (owed ? 1_000_000 : 0) + behindStart - index;
+
 
     return { topic, mastery: score, priority, unlocked, reason, openMistakes, dueReviews };
   });
