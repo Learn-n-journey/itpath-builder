@@ -2,6 +2,9 @@
 import { fundamentalsAndAPlusSeeds } from "./phase-fundamentals-aplus";
 import { networkAndSecuritySeeds } from "./phase-network-security";
 import { linuxServersCloudSeeds } from "./phase-linux-servers-cloud";
+import { linuxExtraSeeds } from "./phase-linux-extra";
+import { serverExtraSeeds } from "./phase-server-extra";
+import { cloudExtraSeeds } from "./phase-cloud-extra";
 import { advancedSecuritySeeds } from "./phase-advanced-security";
 import {
   seedLessons,
