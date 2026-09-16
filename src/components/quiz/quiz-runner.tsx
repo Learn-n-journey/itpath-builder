@@ -77,12 +77,20 @@ export function QuizRunner({
   const pool = useMemo(() => questions ?? quizQuestions(quiz), [questions, quiz]);
 
   const attempts = useMemo(
-    () => user.quizAttempts.filter((attempt) => attempt.quizId === quiz.id),
-    [quiz.id, user.quizAttempts],
+    () =>
+      user.quizAttempts.filter(
+        (attempt) =>
+          attempt.quizId === quiz.id &&
+          // Older attempts can point at questions the current set no longer uses.
+          // Those are skipped so the page offers a fresh start instead of a dead end.
+          attempt.questionOrder.every((id) => pool.some((question) => question.id === id)),
+      ),
+    [pool, quiz.id, user.quizAttempts],
   );
   const activeAttempt = attempts.find((attempt) => attempt.status === "in_progress");
   const latestAttempt = attempts[0];
   const attempt = attempts.find((item) => item.id === attemptId) ?? activeAttempt ?? latestAttempt;
+
 
   useEffect(() => {
     setAttemptId("");
