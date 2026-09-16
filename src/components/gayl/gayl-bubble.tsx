@@ -109,13 +109,13 @@ export function GaylBubble() {
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end gap-2 sm:bottom-6 sm:right-6">
+    <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end gap-2 sm:bottom-6 sm:right-6">
       <div
         aria-hidden={!open}
         className={cn(
           "origin-bottom-right transition-all duration-200 ease-out",
           open
-            ? "visible translate-y-0 scale-100 opacity-100"
+            ? "pointer-events-auto visible translate-y-0 scale-100 opacity-100"
             : "pointer-events-none invisible translate-y-2 scale-95 opacity-0",
         )}
       >
@@ -207,7 +207,7 @@ export function GaylBubble() {
         onClick={() => setOpen((value) => !value)}
         aria-label={open ? "Hide GAYL messages" : "Show GAYL messages"}
         className={cn(
-          "relative flex size-16 items-center justify-center rounded-full border border-border bg-card shadow-lg transition-all duration-200 ease-out hover:scale-105 hover:border-primary/60 active:scale-90 sm:size-14",
+          "pointer-events-auto relative flex size-16 items-center justify-center rounded-full border border-border bg-card shadow-lg transition-all duration-200 ease-out hover:scale-105 hover:border-primary/60 active:scale-90 sm:size-14",
           open && "scale-95 border-primary/60",
         )}
       >
