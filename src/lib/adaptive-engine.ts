@@ -1,9 +1,16 @@
-import { topics as allTopics } from "@/data/static-content";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { buildIntelligence } from "@/lib/intelligence/engine";
 import type { Topic, UserData } from "@/lib/app-data/types";
 import { topicScopeProgress } from "@/lib/scope-progress";
 import { openMistakeCount } from "@/lib/missed-questions";
+import {
+  MASTERY_THRESHOLD,
+  currentJourneyTopic,
+  isMastered,
+  journeyIndex,
+  journeyOrderedTopics,
+} from "@/lib/journey-order";
+
 
 export interface AdaptiveEntry {
   topic: Topic;
