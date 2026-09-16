@@ -33,13 +33,20 @@ export function topicMastery(user: UserData, topicId: string): number {
 /** Best recorded score on a section quiz, or 0 when it has never been taken. */
 export function sectionQuizBest(user: UserData, topicId: string): number {
   const quizId = `section-quiz-${topicId}`;
+  const remembered = user.quizPasses?.[quizId]?.score ?? 0;
   return user.quizAttempts
     .filter((attempt) => attempt.quizId === quizId && attempt.status === "submitted")
-    .reduce((top, attempt) => Math.max(top, attempt.score ?? 0), 0);
+    .reduce((top, attempt) => Math.max(top, attempt.score ?? 0), remembered);
+}
+
+/** The day this section's quiz was first passed, if it has been. */
+export function sectionQuizPassedAt(user: UserData, topicId: string): string | undefined {
+  return user.quizPasses?.[`section-quiz-${topicId}`]?.passedAt;
 }
 
 /** Passing the section quiz at 80% or better counts as proof on its own. */
 export function sectionQuizPassed(user: UserData, topicId: string): boolean {
+  if (user.quizPasses?.[`section-quiz-${topicId}`]) return true;
   return sectionQuizBest(user, topicId) >= MASTERY_THRESHOLD;
 }
 
