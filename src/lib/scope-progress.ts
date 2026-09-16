@@ -109,7 +109,7 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
 
   const quizResults = user.quizAttempts
     .filter((attempt) => attempt.status === "submitted")
-    .flatMap((attempt) => attempt.results);
+    .flatMap((attempt) => attempt.results.map((result) => ({ ...result, at: attempt.createdAt })));
 
   const stored = user.topicProgress[topicId];
   const teachBack = user.teachBackResponses[topicId];
@@ -120,13 +120,15 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
 
   // Every question a learner can meet in this section counts: the recall pool,
   // the authored question bank and the twenty question section quiz.
+  // Recall is judged on the latest attempt for each item, not the best one.
   const quizQuestionIds = [
     ...new Set([...questions.map((item) => item.id), ...getSectionQuizQuestions(topicId).map((item) => item.id)]),
   ];
   const recall = merge(
-    dimension(bestById(recallQuestions.map((item) => item.id), user.recallResponses, (row) => row.questionId, (row) => row.correct ? 100 : 0)),
-    dimension(bestById(quizQuestionIds, quizResults, (row) => row.questionId, (row) => row.correct ? 100 : 0)),
+    dimension(latestById(recallQuestions.map((item) => item.id), user.recallResponses, (row) => row.questionId, (row) => row.createdAt, (row) => row.correct ? 100 : 0)),
+    dimension(latestById(quizQuestionIds, quizResults, (row) => row.questionId, (row) => row.at, (row) => row.correct ? 100 : 0)),
   );
+
 
   const assignmentScores = bestById(
     assignments.map((item) => item.id),
