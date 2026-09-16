@@ -57,7 +57,7 @@ export interface TopicScopeProgress {
 }
 
 /** One thing the learner can be graded on, and every graded go they have had. */
-interface EvidenceItem {
+export interface EvidenceItem {
   id: string;
   dimension: ScopeDimensionKey;
   /** Recall is "right now", so it reads the latest go. Skills read the best. */
@@ -134,7 +134,8 @@ function dimensionForAssignment(type: string): ScopeDimensionKey {
   return "application"; // scenario, compare, design, exam_simulation and the rest
 }
 
-export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScopeProgress {
+/** Every graded item that exists in a topic, with the learner's attempts on it. */
+export function topicEvidence(user: UserData, topicId: EntityId): EvidenceItem[] {
   const items: EvidenceItem[] = [];
   const byId = new Map<string, EvidenceItem>();
   const add = (id: string, dimension: ScopeDimensionKey, reading: "latest" | "best") => {
@@ -255,6 +256,12 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
   user.assignmentAttempts.forEach((row) =>
     record(row.assignmentId, row.submittedAt ?? row.updatedAt, ratio(row.score, row.maxScore)),
   );
+
+  return items;
+}
+
+export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScopeProgress {
+  const items = topicEvidence(user, topicId);
 
   /* ---------------- the measures ---------------- */
 
