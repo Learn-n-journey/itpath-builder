@@ -18,6 +18,7 @@
  * section closes again until it is, and it is asked for again each day until
  * it is passed first time that day.
  */
+import { hasMasteryCheck, type MasteryCheckKind } from "@/data/mastery-checks";
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { topicEvidence, type EvidenceItem, type ScopeDimensionKey } from "@/lib/scope-progress";
 
