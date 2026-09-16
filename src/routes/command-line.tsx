@@ -88,6 +88,31 @@ const shellLabels = {
 } as const;
 type TerminalEnvironment = "unix" | "windows" | "android" | "ios";
 
+const FREE_PREFIX = "terminal-free-";
+
+/** A plain machine with no task attached, for using the command line on its own. */
+function freePlayScenario(shell: TerminalAttempt["shell"]): TerminalScenario {
+  return {
+    id: `${FREE_PREFIX}${shell}`,
+    topicId: "topic-command-line-fundamentals",
+    shell,
+    title: "Free terminal",
+    brief:
+      "A clean virtual machine with nothing to solve. Explore the file system, try commands and see what they return. Type help at any time for the commands this machine supports.",
+    environment: `${shellLabels[shell]} virtual machine, isolated from your real device.`,
+    difficulty: "gentle",
+    estimatedMinutes: 10,
+    goals: [],
+    diagnosticGroups: [],
+    efficientCommandCount: 0,
+    hints: [],
+    explanation: "",
+    reasoningKeywords: [],
+    misconceptionRules: [],
+    source: "random",
+  };
+}
+
 function CommandLinePage() {
   const { user, actions } = useAppState();
   const weakTopicIds = useMemo(
@@ -231,15 +256,26 @@ function CommandLinePage() {
     }
   }
 
-  function start(reset = false) {
+  function openFreeTerminal() {
+    const free = freePlayScenario(shell);
+    setGenerated(free);
+    setScenarioId(free.id);
+    setAttemptId("");
+    setReasoning("");
+    setCommand("");
+    start(false, free);
+  }
+
+  function start(reset = false, useScenario?: TerminalScenario) {
+    const target = useScenario ?? scenario;
     if (reset && attempt && attempt.status === "in_progress") actions.removeTerminalAttempt(attempt.id);
-    const next = createTerminalAttempt(scenario, mode);
+    const next = createTerminalAttempt(target, mode);
     actions.addTerminalAttempt(next);
     setAttemptId(next.id);
     setReasoning("");
     setCommand("");
     setScrollToTerminal(true);
-    toast.success(reset ? "Virtual computer reset" : "Practice started");
+    toast.success(reset ? "Virtual computer reset" : useScenario ? "Terminal ready" : "Practice started");
   }
 
   function run() {
@@ -305,6 +341,7 @@ function CommandLinePage() {
     toast.success(`Scenario checked, ${result.score}%`);
   }
 
+  const isFree = scenario.id.startsWith(FREE_PREFIX);
   const commands = attempt?.machine.history ?? [];
   const completedCount = user.terminalAttempts.filter((item) => item.status === "submitted").length;
   const bestScore = Math.max(0, ...user.terminalAttempts.map((item) => item.score ?? 0));
@@ -364,6 +401,9 @@ function CommandLinePage() {
               <Button type="button" variant="outline" onClick={createAiScenario} disabled={creating} title="Create a new scenario with AI">
                 <Sparkles aria-hidden /> <span className="hidden sm:inline">{creating ? "Creating…" : "AI"}</span>
               </Button>
+              <Button type="button" variant="outline" onClick={openFreeTerminal} title="Open the terminal with no scenario">
+                <SquareTerminal aria-hidden /> <span className="hidden sm:inline">Just the terminal</span>
+              </Button>
             </div>
           </div>
 
@@ -384,6 +424,7 @@ function CommandLinePage() {
           <p className="mt-3 text-sm"><span className="font-medium">Environment: </span><span className="text-muted-foreground">{scenario.environment}</span></p>
           <div className="mt-5 flex flex-wrap gap-2">
             <Button onClick={() => start()}><Play aria-hidden /> Start scenario</Button>
+            <Button variant="outline" onClick={openFreeTerminal}><SquareTerminal aria-hidden /> Open the terminal on its own</Button>
             {scenario.id === recommended.id ? <Badge variant="secondary">Recommended from your learning record</Badge> : null}
           </div>
         </Panel>
@@ -458,6 +499,7 @@ function CommandLinePage() {
               </form>
             </section>
 
+            {isFree ? null : (
             <Panel title="Your diagnosis" description="Explain the cause, the evidence you found, the repair, and how you verified it.">
               <Textarea value={reasoning} onChange={(event) => setReasoning(event.target.value)} disabled={attempt.status === "submitted"} rows={5} placeholder="The evidence showed… I fixed it by… I verified…" />
               <div className="mt-4 flex flex-wrap gap-2">
@@ -465,9 +507,21 @@ function CommandLinePage() {
                 <Button onClick={submit} disabled={attempt.status === "submitted"}><CheckCircle2 aria-hidden /> Check my work</Button>
               </div>
             </Panel>
+            )}
           </div>
 
           <aside className="space-y-5">
+            {isFree ? (
+              <Panel title="Free terminal" description="Nothing is being scored here. Try commands and see what comes back.">
+                <p className="text-sm text-muted-foreground">Type <span className="font-mono">help</span> to see what this machine supports.</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button variant="outline" onClick={() => changeScenario(shellScenarios[0]?.id ?? recommended.id)}>
+                    <Play aria-hidden /> Pick a scenario instead
+                  </Button>
+                  <Button variant="outline" onClick={rollRandomScenario}><Shuffle aria-hidden /> Surprise me</Button>
+                </div>
+              </Panel>
+            ) : (
             <Panel title="Objectives">
               <ul className="space-y-3 text-sm">
                 {scenario.goals.map((goal) => (
@@ -477,8 +531,9 @@ function CommandLinePage() {
                 <li className="flex gap-2"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden /><span>Verify the final state</span></li>
               </ul>
             </Panel>
+            )}
 
-            {attempt.mode === "guided" && attempt.status !== "submitted" ? (
+            {!isFree && attempt.mode === "guided" && attempt.status !== "submitted" ? (
               <Panel title="Hints" description="Hints are staged so you can stop when you have enough.">
                 {scenario.hints.slice(0, attempt.hintsUsed).map((hint, index) => {
                   const steps = hintStepsFor(scenario, index);
