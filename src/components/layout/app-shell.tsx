@@ -28,9 +28,9 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                     onClick={onNavigate}
                     title={item.description}
                     activeOptions={{ exact: item.to === "/" }}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:font-medium data-[status=active]:text-sidebar-primary"
+                    className="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:scale-[0.98] data-[status=active]:bg-sidebar-accent data-[status=active]:font-medium data-[status=active]:text-sidebar-primary"
                   >
-                    <item.icon className="size-4 shrink-0" aria-hidden />
+                    <item.icon className="size-4 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden />
                     <span className="flex flex-1 items-center justify-between gap-2">
                       <span>{item.label}</span>
                       {item.pro ? (
@@ -118,7 +118,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className={cn("lg:pl-64")}>
         <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
           <BackButton className="mb-4" />
-          {children}
+          <div key={pathname} className="page-enter">
+            {children}
+          </div>
           <div className="mt-10 border-t border-border pt-4">
             <BackButton />
           </div>

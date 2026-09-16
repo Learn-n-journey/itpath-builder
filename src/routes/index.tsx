@@ -55,8 +55,8 @@ export const Route = createFileRoute("/")({
 
 function Meter({ value }: { value: number }) {
   return (
-    <div className="h-1.5 w-full rounded-full bg-secondary" aria-hidden>
-      <div className="h-full rounded-full bg-primary" style={{ width: `${value}%` }} />
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary" aria-hidden>
+      <div className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out" style={{ width: `${value}%` }} />
     </div>
   );
 }
