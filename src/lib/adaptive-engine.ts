@@ -6,10 +6,13 @@ import { openMistakeCount } from "@/lib/missed-questions";
 import {
   MASTERY_THRESHOLD,
   currentJourneyTopic,
+  experienceStartIndex,
   isMastered,
+  isTopicOpen,
   journeyIndex,
   journeyOrderedTopics,
 } from "@/lib/journey-order";
+
 
 
 export interface AdaptiveEntry {
