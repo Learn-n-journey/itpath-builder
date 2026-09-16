@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarCheck, Flame, Target, Trophy } from "lucide-react";
+import { CalendarCheck, Flame, PartyPopper, Share2, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { Button } from "@/components/ui/button";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import type { Quiz } from "@/lib/app-data/types";
 import { cn } from "@/lib/utils";
+
 import {
   DAILY_TIERS,
   dailyChallenge,
