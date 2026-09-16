@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { topics } from "@/data/static-content";
 import { SECTION_PASS_SCORE, SECTION_QUIZ_SIZE, getSectionQuizQuestions } from "@/data/topic-quizzes";
 import type { Quiz } from "@/lib/app-data/types";
-import { nextJourneyTopic, sectionQuizBest } from "@/lib/journey-order";
+import { nextJourneyTopic, sectionQuizBest, sectionQuizPassedAt } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
 
 const findTopic = (topicId: string) => topics.find((topic) => topic.id === topicId);
@@ -51,7 +51,11 @@ function SectionQuizPage() {
   if (!topic) return null;
 
   const best = sectionQuizBest(user, topicId);
-  const passed = best >= SECTION_PASS_SCORE;
+  const passedAt = sectionQuizPassedAt(user, topicId);
+  const passed = Boolean(passedAt) || best >= SECTION_PASS_SCORE;
+  const passedOn = passedAt
+    ? new Date(passedAt).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })
+    : undefined;
   const next = passed ? nextJourneyTopic(topicId) : undefined;
 
   const quiz: Quiz = {
@@ -74,7 +78,8 @@ function SectionQuizPage() {
         <Panel className="mb-5 border-primary/50" title="Section passed">
           <p className="flex items-center gap-2 text-sm text-foreground">
             <CheckCircle2 className="size-4 text-primary" aria-hidden />
-            Your best score here is {best}%. You can take it again any time to keep it fresh.
+            {passedOn ? `You passed this on ${passedOn}. ` : ""}Your best score here is {best}%. That pass stays
+            recorded, so taking it again can only help.
           </p>
           {next ? (
             <div className="mt-3 flex flex-wrap items-center gap-3">
