@@ -1,3 +1,12 @@
+## Stage quizzes (requested 2026-09-16)
+- [ ] 20 question quiz at the end of each journey stage, covering Professor Messer program content
+- [ ] 80 percent to pass
+- [ ] Shareable celebration screen on passing
+
+## Journey order (requested 2026-09-16)
+- [x] My Path and Study Plan follow Journey Map order, reviews and open mistakes first
+- [x] A topic stays locked until the previous one is mastered
+
 ## Question quality pass (requested 2026-09-16)
 - [ ] Replace unrelated and joke multiple-choice distractors with plausible same-domain alternatives
 - [ ] Keep generated terminology distractors within the same topic or certification where possible

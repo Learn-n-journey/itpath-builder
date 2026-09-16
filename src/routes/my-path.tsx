@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Award } from "lucide-react";
+import { ArrowRight, Award, Lock } from "lucide-react";
 
 import { GaylPathNote } from "@/components/gayl/gayl-insights";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
