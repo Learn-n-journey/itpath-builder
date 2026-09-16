@@ -196,6 +196,18 @@ html.light {
     0 12px 32px color-mix(in oklab, var(--color-background) 42%, transparent);
 }
 
+.sidebar-glass {
+  background-color: color-mix(in oklab, var(--color-sidebar) 80%, transparent);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .sidebar-glass {
+    background-color: var(--color-sidebar);
+  }
+}
+
 @utility technical-rule {
   background-color: color-mix(in oklab, var(--color-primary) 58%, var(--color-border));
 }

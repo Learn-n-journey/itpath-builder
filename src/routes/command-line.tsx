@@ -118,6 +118,8 @@ function CommandLinePage() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [reasoning, setReasoning] = useState("");
   const terminalEnd = useRef<HTMLDivElement>(null);
+  const terminalPanel = useRef<HTMLElement>(null);
+  const [scrollToTerminal, setScrollToTerminal] = useState(false);
   const [generated, setGenerated] = useState<TerminalScenario | null>(null);
   const [creating, setCreating] = useState(false);
   const [revealedSteps, setRevealedSteps] = useState<number[]>([]);
@@ -143,6 +145,14 @@ function CommandLinePage() {
   useEffect(() => {
     setRevealedSteps([]);
   }, [attempt?.id]);
+
+  // Starting a scenario swaps the brief for the terminal further down the page,
+  // which looks like nothing happened on small screens, so bring it into view.
+  useEffect(() => {
+    if (!scrollToTerminal || !terminalPanel.current) return;
+    terminalPanel.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    setScrollToTerminal(false);
+  }, [scrollToTerminal, attempt?.id]);
 
   function changeShell(value: TerminalAttempt["shell"]) {
     const next = scenariosForShell(value);
@@ -225,6 +235,7 @@ function CommandLinePage() {
     setAttemptId(next.id);
     setReasoning("");
     setCommand("");
+    setScrollToTerminal(true);
     toast.success(reset ? "Virtual computer reset" : "Practice started");
   }
 
@@ -380,7 +391,7 @@ function CommandLinePage() {
               <p className="text-sm leading-relaxed text-muted-foreground">{scenario.brief}</p>
             </Panel>
 
-            <section aria-label="Virtual terminal" className="overflow-hidden rounded-md border border-border bg-[color:var(--terminal-background,#07100d)] shadow-sm">
+            <section ref={terminalPanel} aria-label="Virtual terminal" className="scroll-mt-20 overflow-hidden rounded-md border border-border bg-[color:var(--terminal-background,#07100d)] shadow-sm">
               <div className="flex items-center justify-between border-b border-border bg-card px-3 py-2">
                 <span className="flex items-center gap-2 font-mono text-xs text-muted-foreground"><SquareTerminal className="size-4" aria-hidden />{shellLabels[attempt.shell]} · {attempt.machine.hostname}</span>
                 <Button type="button" size="sm" variant="ghost" onClick={() => start(true)} disabled={attempt.status === "submitted"} title="Reset virtual computer"><RefreshCw aria-hidden /> Reset</Button>

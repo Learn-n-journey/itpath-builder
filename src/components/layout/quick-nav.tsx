@@ -30,12 +30,12 @@ export function QuickNav() {
   }, [pathname]);
 
   return (
-    <div className="fixed bottom-5 left-4 z-40 flex flex-col items-start gap-3 lg:left-[17.5rem]">
+    <div className="pointer-events-none fixed bottom-5 left-4 z-40 flex flex-col items-start gap-3 lg:left-[17.5rem]">
       <div
         className={cn(
           "origin-bottom-left transition-all duration-200 ease-out",
           open
-            ? "visible translate-y-0 scale-100 opacity-100"
+            ? "pointer-events-auto visible translate-y-0 scale-100 opacity-100"
             : "pointer-events-none invisible translate-y-2 scale-95 opacity-0",
         )}
       >
@@ -66,7 +66,7 @@ export function QuickNav() {
         aria-label={open ? "Close quick menu" : "Open quick menu"}
         aria-expanded={open}
         className={cn(
-          "flex size-14 items-center justify-center rounded-full border border-border bg-card text-primary shadow-xl transition-all duration-200 ease-out hover:scale-105 active:scale-90 sm:size-12",
+          "pointer-events-auto flex size-14 items-center justify-center rounded-full border border-border bg-card text-primary shadow-xl transition-all duration-200 ease-out hover:scale-105 active:scale-90 sm:size-12",
           open && "scale-95 border-primary/60",
         )}
       >
