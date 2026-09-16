@@ -2,7 +2,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader } from "@/components/page-kit";
 import { journeyPhases } from "@/data/journey-phases";
-import { STAGE_PASS_SCORE, stageExams } from "@/data/stage-exams";
+import { STAGE_EXAM_SIZE, STAGE_PASS_SCORE, stageExams } from "@/data/stage-exams";
 import { STATE_LABEL } from "@/lib/intelligence/states";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import { cn } from "@/lib/utils";
@@ -170,7 +170,7 @@ function JourneyPage() {
                 {stageExams[phaseIndex] ? (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-secondary/20 p-3">
                     <p className="min-w-0 text-xs text-muted-foreground">
-                      End of stage exam: 20 questions, written answers included. {STAGE_PASS_SCORE}% to pass.
+                      End of stage exam: {STAGE_EXAM_SIZE} questions, written answers included. {STAGE_PASS_SCORE}% to pass.
                     </p>
                     <Link
                       to="/stage-exam/$stageId"

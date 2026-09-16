@@ -172,6 +172,21 @@ function TopicPage() {
       <TopicLearningExperience topic={topic} />
 
       <div className="mt-4">
+        <Panel
+          title="Section quiz"
+          description="Twenty questions on this section alone, part multiple choice and part written in your own words. Eighty percent is a pass."
+        >
+          <Link
+            to="/section-quiz/$topicId"
+            params={{ topicId: topic.id }}
+            className="inline-flex items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15"
+          >
+            Take the section quiz
+          </Link>
+        </Panel>
+      </div>
+
+      <div className="mt-4">
         <TopicKnowledgePanel topicId={topic.id} />
       </div>
 
