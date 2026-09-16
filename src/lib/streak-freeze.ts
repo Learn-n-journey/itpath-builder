@@ -3,27 +3,31 @@
  *
  * A freeze protects the streak on a day life got in the way. Freezes are
  * banked: every complete 7-day run of studied days earns one, and at most two
- * can be held at a time. Everything here is derived from the recorded record,
- * so the numbers stay honest.
+ * can be held at a time. Spent freezes are recorded as protected date keys,
+ * and everything else is derived from the recorded study, so the numbers stay
+ * honest.
  */
 import type { UserData } from "@/lib/app-data/types";
 
 export const MAX_FREEZES = 2;
-/** How many complete 7-day runs earn one freeze. */
+/** Days in a row that earn one freeze. */
 export const DAYS_PER_FREEZE = 7;
 
-/** All date keys with any recorded study, sorted, grouped into maximal runs. */
-function studyRunLengths(user: UserData): number[] {
+/** Local date key for a date, YYYY-MM-DD. */
+export function dateKeyOf(date: Date): string {
+  return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, "0")}-${`${date.getDate()}`.padStart(2, "0")}`;
+}
+
+/** Longest run of consecutive studied days ever recorded. */
+function longestStudyRun(user: UserData): number {
   const keys = new Set<string>();
   for (const session of user.studySessions) {
     const started = new Date(session.startedAt);
     if (Number.isNaN(started.getTime()) || session.minutes <= 0) continue;
-    keys.add(
-      `${started.getFullYear()}-${`${started.getMonth() + 1}`.padStart(2, "0")}-${`${started.getDate()}`.padStart(2, "0")}`,
-    );
+    keys.add(dateKeyOf(started));
   }
   const sorted = [...keys].sort();
-  const runs: number[] = [];
+  let longest = 0;
   let run = 0;
   let previous: string | null = null;
   for (const key of sorted) {
@@ -35,31 +39,24 @@ function studyRunLengths(user: UserData): number[] {
     } else {
       run = 1;
     }
-    runs.push(run);
+    longest = Math.max(longest, run);
     previous = key;
   }
-  return runs;
+  return longest;
 }
 
-/** Complete 7-day runs ever recorded; each one has banked a freeze. */
-function runsOfSeven(user: UserData): number {
-  return studyRunLengths(user)
-    .reduce((max, run) => Math.max(max, run), 0);
-}
-
+/** Freezes earned so far: one for every complete 7-day run. */
 export function freezesEarned(user: UserData): number {
-  return Math.floor(runsOfSeven(user) / DAYS_PER_FREEZE);
+  return Math.floor(longestStudyRun(user) / DAYS_PER_FREEZE);
+}
+
+export function freezesSpent(user: UserData): number {
+  return (user.settings.freezeDays ?? []).length;
 }
 
 /** Freezes ready to spend right now: two to start, one more per 7-day run, capped. */
 export function freezesAvailable(user: UserData): number {
-  const spent = (user.settings.freezeDays ?? []).length;
-  return Math.max(0, Math.min(MAX_FREEZES, MAX_FREEZES + freezesEarned(user) - spent));
-}
-
-/** Local date key for a date, YYYY-MM-DD. */
-export function dateKeyOf(date: Date): string {
-  return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, "0")}-${`${date.getDate()}`.padStart(2, "0")}`;
+  return Math.max(0, Math.min(MAX_FREEZES, MAX_FREEZES + freezesEarned(user) - freezesSpent(user)));
 }
 
 function hasMinutesOn(user: UserData, key: string): boolean {
@@ -85,7 +82,7 @@ export function protectableToday(user: UserData, now: Date = new Date()): Freeze
   return { dayKey: key, label: "today" };
 }
 
-/** Yesterday can be repaired if it ended empty and is not already frozen. */
+/** Yesterday can be repaired if it ended empty, is unfrozen, and a real run is at stake. */
 export function repairableYesterday(user: UserData, now: Date = new Date()): FreezeOption | null {
   const yesterday = new Date(now);
   yesterday.setDate(yesterday.getDate() - 1);
@@ -101,19 +98,9 @@ export function repairableYesterday(user: UserData, now: Date = new Date()): Fre
   return { dayKey: key, label: "yesterday" };
 }
 
-/** Spends one freeze on a day. Returns the settings patch to apply. */
-export function spendFreeze(
-  user: UserData,
-  dayKey: string,
-): { streakFreezes: number; freezeDays: string[] } | null {
+/** Spends one freeze on a day. Returns the settings patch to apply, or null. */
+export function spendFreeze(user: UserData, dayKey: string): { freezeDays: string[] } | null {
   if (freezesAvailable(user) <= 0) return null;
   if ((user.settings.freezeDays ?? []).includes(dayKey)) return null;
-  const spent = (user.settings.freezeDays ?? []).length + 1;
-  return {
-    streakFreezes: Math.max(0, freezesAvailable(user) - 1),
-    freezeDays: [...(user.settings.freezeDays ?? []), dayKey].sort(),
-    // streakFreezes is kept as a plain counter for display; the real check is
-    // earned minus spent, computed in freezesAvailable.
-    ...{ spent },
-  };
+  return { freezeDays: [...(user.settings.freezeDays ?? []), dayKey].sort() };
 }
