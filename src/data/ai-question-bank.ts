@@ -6843,6 +6843,111 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'Troubleshooting', it states: 'Verify each finding is reproducible before reporting it.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-linux-filesystem-and-permissions",
+    "certificationId": "cert-comptia-linux-plus",
+    "prompt": "According to the provided material, in what order does the kernel check user, group, and other permissions for a file?",
+    "choices": [
+      "User, then group, then other.",
+      "Group, then user, then other.",
+      "Other, then group, then user.",
+      "Group, then other, then user."
+    ],
+    "answerIndex": 0,
+    "explanation": "The kernel checks user, then group, then other permissions in that order and stops at the first match.",
+    "difficulty": "standard",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-linux-filesystem-and-permissions",
+    "certificationId": "cert-comptia-linux-plus",
+    "prompt": "What is the primary function of the 'execute' permission bit when applied to a directory?",
+    "choices": [
+      "It allows a user to list the contents of the directory.",
+      "It controls whether a path can be traversed to access its subdirectories or files.",
+      "It grants the ability to create new files within that directory.",
+      "It enables the modification of existing files within the directory."
+    ],
+    "answerIndex": 1,
+    "explanation": "Directory execute permission controls whether a path can be traversed.",
+    "difficulty": "standard",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-linux-filesystem-and-permissions",
+    "certificationId": "cert-comptia-linux-plus",
+    "prompt": "If the default permissions for new files are 666 and a user's umask is set to 022, what will be the effective permissions for a newly created file?",
+    "choices": [
+      "644",
+      "755",
+      "666",
+      "600"
+    ],
+    "answerIndex": 0,
+    "explanation": "Umask removes bits from the default 666 for files. 666 (rw-rw-rw-) minus 022 (--w--w-) results in 644 (rw-r--r--).",
+    "difficulty": "standard",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-linux-filesystem-and-permissions",
+    "certificationId": "cert-comptia-linux-plus",
+    "prompt": "When troubleshooting a 'Permission denied' error for a service account, what is the best initial step according to the troubleshooting guidelines?",
+    "choices": [
+      "Recursively change ownership of the target directory to the service account.",
+      "Examine the system logs for related error messages from the kernel.",
+      "Identify the account the process runs as, then test access as that account.",
+      "Temporarily set permissions to 777 on the problematic file or directory."
+    ],
+    "answerIndex": 2,
+    "explanation": "The troubleshooting section suggests: 'Identify the account the process runs as, then test access as that account.'",
+    "difficulty": "standard",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-linux-filesystem-and-permissions",
+    "certificationId": "cert-comptia-linux-plus",
+    "prompt": "A common problem identified in the section is 'Full /var from logs'. Which of the following is an associated common problem?",
+    "choices": [
+      "Incorrect network interface configuration.",
+      "Overly permissive modes.",
+      "Service accounts running with root privileges.",
+      "Corrupted kernel modules."
+    ],
+    "answerIndex": 1,
+    "explanation": "The section lists 'Common problems' as: 'Permission denied for a service account | Wrong ownership after copying as root | Overly permissive modes | Full /var from logs'. 'Overly permissive modes' is another common problem.",
+    "difficulty": "standard",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-linux-filesystem-and-permissions",
+    "certificationId": "cert-comptia-linux-plus",
+    "prompt": "When troubleshooting a 'Permission denied' error, why is it important to 'Check every directory in the path, not only the target file'?",
+    "choices": [
+      "To ensure all parent directories have the sticky bit set correctly.",
+      "Because the effective permission only applies to the final file.",
+      "Directory execute permission controls whether a path can be traversed.",
+      "To verify that all directories have the same ownership as the target file."
+    ],
+    "answerIndex": 2,
+    "explanation": "The troubleshooting step 'Check every directory in the path, not only the target file' is relevant because 'Directory execute permission controls whether a path can be traversed'.",
+    "difficulty": "standard",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-linux-filesystem-and-permissions",
+    "certificationId": "cert-comptia-linux-plus",
+    "prompt": "The section mentions 'Wrong ownership after copying as root' as a common problem. What is this issue primarily related to?",
+    "choices": [
+      "The umask setting not being applied during copy operations.",
+      "The source file permissions being incorrectly inherited.",
+      "The default behavior of some copy commands when run as root not preserving original ownership.",
+      "The kernel's permission checking order being bypassed by root."
+    ],
+    "answerIndex": 2,
+    "explanation": "The problem 'Wrong ownership after copying as root' implies that root operations might not always maintain the desired ownership, requiring manual correction or specific command flags (though not explicitly stated, it's the underlying cause of 'wrong ownership'). The other options are less directly related to this specific common problem.",
+    "difficulty": "standard",
+    "mistakeCategory": "concept"
   }
 ] as AiQuestionSeed[];
 
