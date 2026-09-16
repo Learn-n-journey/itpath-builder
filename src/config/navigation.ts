@@ -30,6 +30,7 @@ import {
   Crown,
   Settings as SettingsIcon,
   SquareTerminal,
+  CircuitBoard,
   BrainCircuit,
   type LucideIcon,
 } from "lucide-react";
@@ -154,6 +155,13 @@ export const navItems: NavItem[] = [
     group: "Practice",
     description: "Practice CMD, PowerShell and Linux in safe, persistent virtual computers.",
     pro: true,
+  },
+  {
+    label: "Explore Hardware",
+    to: "/explore-hardware",
+    icon: CircuitBoard,
+    group: "Practice",
+    description: "Tap through diagrams of a motherboard, RAM, GPU and SSD to learn each part.",
   },
   {
     label: "Weak Areas",
