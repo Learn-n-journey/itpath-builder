@@ -1,12 +1,17 @@
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { CheckCircle2 } from "lucide-react";
 
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { topics } from "@/data/static-content";
-import { SECTION_PASS_SCORE, SECTION_QUIZ_SIZE, getSectionQuizQuestions } from "@/data/topic-quizzes";
+import {
+  SECTION_PASS_SCORE,
+  SECTION_QUIZ_SIZE,
+  getSectionQuizQuestions,
+  getTopicQuestionPool,
+} from "@/data/topic-quizzes";
 import type { Quiz } from "@/lib/app-data/types";
 import { nextJourneyTopic, sectionQuizBest, sectionQuizPassedAt } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
