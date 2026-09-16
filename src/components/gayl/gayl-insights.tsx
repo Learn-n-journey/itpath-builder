@@ -56,9 +56,9 @@ export function GaylProgressNote({ className }: { className?: string }) {
   return <Note insight={progressInsight(intel)} {...(className ? { className } : {})} />;
 }
 
-export function GaylPathNote({ className }: { className?: string }) {
+export function GaylPathNote({ className, topicId }: { className?: string; topicId?: string }) {
   const intel = useIntelligence();
-  const insight = pathInsight(intel);
+  const insight = pathInsight(intel, topicId);
   // Cleared until the note itself changes, then she speaks up again.
   const { hidden, dismiss } = useDismissable("itpath.gayl.path.cleared", insight?.message ?? null);
   if (!insight || hidden) return null;
