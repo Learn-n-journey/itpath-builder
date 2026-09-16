@@ -113,7 +113,11 @@ function DailyChallengePage() {
 
       {quiz ? (
         <div className="mt-6 space-y-4">
-          <QuizRunner quiz={quiz} questions={challenge ? challenge.questions : undefined} startLabel="Start today's challenge" />
+          {challenge ? (
+            <QuizRunner quiz={quiz} questions={challenge.questions} startLabel="Start today's challenge" />
+          ) : (
+            <QuizRunner quiz={quiz} startLabel="Start today's challenge" />
+          )}
         </div>
       ) : (
         <Panel title="Loading today's set" description="One moment." />

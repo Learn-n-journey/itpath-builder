@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { journeyPhases } from "@/data/journey-phases";
