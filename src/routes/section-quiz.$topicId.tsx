@@ -110,6 +110,8 @@ function SectionQuizPage() {
       <QuizRunner
         quiz={quiz}
         questions={questions}
+        nextQuestions={nextQuestions}
+        historyPool={fullPool}
         startLabel={passed ? "Take it again" : "Start the section quiz"}
         passScore={SECTION_PASS_SCORE}
       />
