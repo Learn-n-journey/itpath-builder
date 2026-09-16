@@ -105,12 +105,14 @@ export function hasTopicActivity(user: UserData, topicId: string): boolean {
 
 
 
-/** True when the topic is proven well enough to move past it. */
+/**
+ * True when the section is proven well enough to move past it.
+ *
+ * A quiz score on its own is not enough. Every form of proof the section
+ * contains has to stand up on its own, and the delayed check has to be clear.
+ */
 export function isMastered(user: UserData, topicId: string): boolean {
-  const status = user.topicProgress[topicId]?.status;
-  if (status === "mastered") return true;
-  if (sectionQuizPassed(user, topicId)) return true;
-  return topicMastery(user, topicId) >= MASTERY_THRESHOLD;
+  return masteryGate(user, topicId).met;
 }
 
 /** The topic straight after this one on the journey. */
