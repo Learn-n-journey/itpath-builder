@@ -20,6 +20,9 @@ export const expansionSeeds: TopicSeed[] = [
   ...fundamentalsAndAPlusSeeds,
   ...networkAndSecuritySeeds,
   ...linuxServersCloudSeeds,
+  ...linuxExtraSeeds,
+  ...serverExtraSeeds,
+  ...cloudExtraSeeds,
   ...advancedSecuritySeeds,
 ];
 
