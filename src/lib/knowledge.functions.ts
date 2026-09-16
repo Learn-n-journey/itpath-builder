@@ -469,11 +469,19 @@ export const searchKnowledge = createServerFn({ method: "POST" })
     if (items.length === 0)
       return { ok: true, answer: "You have not saved any material yet.", matches: [] };
 
-    const system = `You search a learner's own saved IT study material. Answer only from the material provided.
-Return strict JSON: {"answer":"plain text answer, or a clear statement that the saved material does not cover it","matches":[{"id":"item id","why":"one line on why it is relevant"}]}
-Never use ids that are not in the material list. Never add outside facts to the answer; if the saved material is thin, say what is missing.`;
+    const system = `You search a learner's own saved IT study material: notes, articles, transcripts and documents.
+Read the full text of every item provided, not just the summaries, and answer only from that material.
 
-    const digest = items.map(itemDigest).join("\n---\n");
+Gather everything the material says on the question, across all items, and lay it out in full:
+one short opening line, then a point for each distinct thing the material states, each attributed
+to the item title it came from. Paraphrase closely and quote short phrases where the wording matters.
+Only say something is not covered when no item mentions it, and in that case still report what the
+material does say on the subject first.
+
+Return strict JSON: {"answer":"plain text answer","matches":[{"id":"item id","why":"one line on why it is relevant"}]}
+Never use ids that are not in the material list. Never add outside facts to the answer.`;
+
+    const digest = buildSearchDigest(items, data.query);
 
     // Searching the same library for the same thing twice costs nothing the
     // second time, and a reworded question reuses the same answer.
