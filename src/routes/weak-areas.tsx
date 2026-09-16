@@ -8,7 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { generatedQuestions } from "@/data/question-bank";
 import { questions as staticQuestions, topics } from "@/data/static-content";
-import { missedQuestions } from "@/lib/missed-questions";
+import {
+  missedQuestionPrompt,
+  missedQuestions,
+  type MissedQuestion,
+} from "@/lib/missed-questions";
 import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import type { Question, Quiz } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
@@ -42,24 +46,33 @@ function WeakAreas() {
 
   const missed = useMemo(() => missedQuestions(user), [user]);
 
-  /** Topics you have got something wrong in, strongest signal first. */
-  const weakTopicIds = useMemo(() => {
-    const counts = new Map<string, number>();
-    const add = (id?: string) => {
-      if (!id) return;
-      counts.set(id, (counts.get(id) ?? 0) + 1);
-    };
-    for (const mistake of user.mistakes) {
-      if (mistake.resolved) continue;
-      add(mistake.topicId);
-    }
+  /**
+   * Topics you have got something wrong in, strongest signal first, with the
+   * actual items behind each one so the count can always be explained.
+   */
+  const weakBreakdown = useMemo(() => {
+    const groups = new Map<string, MissedQuestion[]>();
     for (const item of missed) {
-      if (item.kind === "quiz") add(item.question.topicId);
-      if (item.kind === "recall") add(item.recall.topicId);
-      if (item.kind === "practice") add(item.assignment.topicId);
+      const topicId =
+        item.kind === "quiz"
+          ? item.question.topicId
+          : item.kind === "recall"
+            ? item.recall.topicId
+            : item.assignment.topicId;
+      const list = groups.get(topicId) ?? [];
+      list.push(item);
+      groups.set(topicId, list);
     }
-    return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([id]) => id);
-  }, [missed, user.mistakes]);
+    return [...groups.entries()]
+      .map(([topicId, items]) => ({
+        topicId,
+        topic: topics.find((candidate) => candidate.id === topicId),
+        items,
+      }))
+      .sort((a, b) => b.items.length - a.items.length);
+  }, [missed]);
+
+  const weakTopicIds = useMemo(() => weakBreakdown.map((group) => group.topicId), [weakBreakdown]);
 
   const pool = useMemo(() => {
     const missedQuiz = missed
@@ -111,9 +124,15 @@ function WeakAreas() {
     }
   }, [actions, quiz, user.mistakes, user.quizAttempts]);
 
-  const weakTopics = weakTopicIds
-    .map((id) => topics.find((topic) => topic.id === id))
+  const weakTopics = weakBreakdown
+    .map((group) => group.topic)
     .filter((topic): topic is NonNullable<typeof topic> => Boolean(topic));
+
+  function sourceLabel(item: MissedQuestion): string {
+    if (item.kind === "quiz") return "Missed in a quiz";
+    if (item.kind === "recall") return "Missed in a recall answer";
+    return "Practice task scored under 70";
+  }
 
   return (
     <>
@@ -128,7 +147,9 @@ function WeakAreas() {
       />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Open mistakes" value={missed.length} />
-        <StatCard label="Weak topics" value={weakTopics.length} />
+        <a href="#why-weak" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <StatCard label="Weak topics" value={weakTopics.length} hint="Tap to see why" />
+        </a>
         <StatCard label="Questions in set" value={pool.length} />
         <StatCard
           label="Cleared"
@@ -159,13 +180,51 @@ function WeakAreas() {
           </Panel>
         )}
 
-        {weakTopics.length > 0 ? (
-          <Panel title="Topics in this set" description="Where your open mistakes are concentrated.">
-            <div className="flex flex-wrap gap-2">
-              {weakTopics.map((topic) => (
-                <Badge key={topic.id} variant="outline">
-                  {topic.title}
-                </Badge>
+        {weakBreakdown.length > 0 ? (
+          <Panel
+            id="why-weak"
+            title="Why these topics are flagged"
+            description="Every topic here is on the list because of something you actually answered. Here is each one, and what it came from."
+          >
+            <div className="space-y-3">
+              {weakBreakdown.map((group) => (
+                <div key={group.topicId} className="rounded-xl border border-border/70 bg-secondary/25 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="font-display text-sm font-semibold">
+                      {group.topic?.title ?? group.topicId}
+                    </h3>
+                    <Badge variant="outline">
+                      {group.items.length} open {group.items.length === 1 ? "item" : "items"}
+                    </Badge>
+                  </div>
+                  <ul className="mt-3 space-y-2">
+                    {group.items.slice(0, 4).map((item) => (
+                      <li key={item.mistake.id} className="text-sm text-muted-foreground">
+                        <span className="text-xs uppercase tracking-wide text-primary">
+                          {sourceLabel(item)}
+                        </span>
+                        <p className="mt-0.5 leading-6">{missedQuestionPrompt(item)}</p>
+                      </li>
+                    ))}
+                    {group.items.length > 4 ? (
+                      <li className="text-xs text-muted-foreground">
+                        and {group.items.length - 4} more in Review.
+                      </li>
+                    ) : null}
+                  </ul>
+                  {group.topic ? (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Button asChild size="sm" variant="outline">
+                        <Link to="/topics/$topicId" params={{ topicId: group.topic.id }}>
+                          Open the lesson
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm" variant="ghost">
+                        <Link to="/review">See it in Review</Link>
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
               ))}
             </div>
           </Panel>
