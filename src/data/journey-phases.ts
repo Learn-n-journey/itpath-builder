@@ -75,5 +75,5 @@ export const journeyPhases: JourneyPhase[] = PHASE_DEFS.map((phase) => ({
         summary: seed.summary,
         minutes: seed.minutes,
       })),
-  ].sort((a, b) => a.id.localeCompare(b.id) === 0 ? 0 : 0),
+  ],
 }));
