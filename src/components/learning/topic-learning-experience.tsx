@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { lessons, resources, type Resource, type Topic } from "@/data/static-content";
+import { getGeneratedRecallQuestions } from "@/data/recall-generator";
 import { getWorkedExamples } from "@/data/worked-examples";
 import { getDeepLesson } from "@/data/deep-lessons";
 import { DeepLessonReading } from "@/components/learning/deep-lesson-reading";
@@ -68,7 +69,28 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const lesson = lessons.find((item) => item.topicId === topic.id);
   const module = getLearningModule(topic.id);
   const deepLesson = getDeepLesson(topic.id);
-  const recallQuestions = getRecallQuestions(topic.id);
+  // Every recall prompt available for this topic: the authored pair plus ones built from the lesson.
+  const recallQuestions = useMemo(
+    () => [...getRecallQuestions(topic.id), ...getGeneratedRecallQuestions(topic.id)],
+    [topic.id],
+  );
+  // Show two at a time, skipping the ones already answered well, so a return visit brings new ones.
+  const visibleRecall = useMemo(() => {
+    const answeredWell = new Set(
+      user.recallResponses.filter((item) => item.topicId === topic.id && item.correct).map((item) => item.questionId),
+    );
+    const fresh = recallQuestions.filter((item) => !answeredWell.has(item.id));
+    if (fresh.length > 0) return fresh.slice(0, 2);
+    // Pool exhausted, so come back round to the ones answered longest ago.
+    const lastSeen = new Map<string, string>();
+    for (const response of user.recallResponses.filter((item) => item.topicId === topic.id)) {
+      const current = lastSeen.get(response.questionId);
+      if (!current || response.createdAt > current) lastSeen.set(response.questionId, response.createdAt);
+    }
+    return [...recallQuestions]
+      .sort((a, b) => (lastSeen.get(a.id) ?? "").localeCompare(lastSeen.get(b.id) ?? ""))
+      .slice(0, 2);
+  }, [recallQuestions, user.recallResponses, topic.id]);
   const practiceActivities = getPracticeActivities(topic.id);
   const practice = practiceActivities[0];
   const scenario = getRealWorldScenario(topic.id);
@@ -304,7 +326,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
         <TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Teach Back</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
       </TabsList>
-      <TabsContent value="recall"><div className="space-y-4">{recallQuestions.map((question, index) => {
+      <TabsContent value="recall"><div className="space-y-4">{visibleRecall.map((question, index) => {
         const feedback = recallFeedback[question.id];
         return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={question.id}>Your answer</Label><Textarea id={question.id} className="mt-2" rows={4} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "Marking…" : "Check answer"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-primary" : "text-amber-400"}`}>{feedback.correct ? "Correct. " : feedback.message.startsWith("Nearly there") ? "" : "Here is where I would go next. "}{feedback.message}</p> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
       })}</div></TabsContent>
