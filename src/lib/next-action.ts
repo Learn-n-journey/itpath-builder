@@ -8,7 +8,7 @@
  * material. Every action points at a route that exists.
  */
 import { assignments, labs } from "@/data/static-content";
-import { journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
+import { currentJourneyTopic, journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationTopics } from "@/lib/cert-path";
 import { buildIntelligence } from "@/lib/intelligence/engine";
