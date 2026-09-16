@@ -1,3 +1,8 @@
+## Question quality pass (requested 2026-09-16)
+- [ ] Replace unrelated and joke multiple-choice distractors with plausible same-domain alternatives
+- [ ] Keep generated terminology distractors within the same topic or certification where possible
+- [ ] Validate answer placement and question-bank integrity
+
 # IT PATH Review Engine
 
 ## Engagement pass (requested 2026-09-15)
