@@ -39,7 +39,7 @@ export function isMastered(user: UserData, topicId: string): boolean {
 
 /** The first topic on the journey that is not yet mastered. */
 export function currentJourneyTopic(user: UserData): Topic | undefined {
-  return journeyOrderedTopics.find((topic) => !isMastered(user, topic));
+  return journeyOrderedTopics.find((topic) => !isMastered(user, topic.id));
 }
 
 /**
