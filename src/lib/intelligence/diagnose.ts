@@ -156,7 +156,9 @@ export function diagnose(input: DiagnoseInput): Diagnosis {
   if (prerequisiteGap && profile.mastery < 0.6) return "prerequisite_gap";
   if (measures.confidentErrors >= 2) return "confident_but_wrong";
   if (repeatedMisconception) return "misconception";
-  if (measures.recentFailureAfterSuccess && profile.mastery < 0.75) return "retrieval_failure";
+  if (input.itemRegression && measures.recentFailureAfterSuccess && profile.mastery < 0.75) {
+    return "retrieval_failure";
+  }
 
   const knows = (scope.understanding.score + scope.recall.score) / 2;
   if (knows >= 55 && scope.practicalAbility.score < 40) return "application_failure";
