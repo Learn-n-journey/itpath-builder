@@ -87,6 +87,16 @@ export function GaylNote({
             </>
           ) : null}
         </div>
+        {onClear ? (
+          <button
+            type="button"
+            onClick={onClear}
+            aria-label="Clear this message"
+            className="-mr-1 -mt-1 shrink-0 rounded p-1 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-4" />
+          </button>
+        ) : null}
       </div>
     </aside>
   );
