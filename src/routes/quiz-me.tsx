@@ -14,6 +14,8 @@ import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/quiz-me")({
   staticData: { sitemap: false },
+  validateSearch: (search: Record<string, unknown>): { quiz?: string } =>
+    typeof search['quiz'] === "string" && search['quiz'] ? { quiz: search['quiz'] } : {},
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
