@@ -51,6 +51,7 @@ import { Route as WeakAreasRouteImport } from './routes/weak-areas'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
 import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
+import { Route as MasteryCheckTopicIdRouteImport } from './routes/mastery-check.$topicId'
 import { Route as MeasuresMeasureRouteImport } from './routes/measures.$measure'
 import { Route as PracticeTestsCertIdRouteImport } from './routes/practice-tests.$certId'
 import { Route as SectionQuizTopicIdRouteImport } from './routes/section-quiz.$topicId'
@@ -269,6 +270,11 @@ const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
   path: '/checkout/success',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MasteryCheckTopicIdRoute = MasteryCheckTopicIdRouteImport.update({
+  id: '/mastery-check/$topicId',
+  path: '/mastery-check/$topicId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MeasuresMeasureRoute = MeasuresMeasureRouteImport.update({
   id: '/measures/$measure',
   path: '/measures/$measure',
@@ -348,6 +354,7 @@ export interface FileRoutesByFullPath {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/measures/$measure': typeof MeasuresMeasureRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
@@ -399,6 +406,7 @@ export interface FileRoutesByTo {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/measures/$measure': typeof MeasuresMeasureRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
@@ -451,6 +459,7 @@ export interface FileRoutesById {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/measures/$measure': typeof MeasuresMeasureRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
@@ -504,6 +513,7 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/mastery-check/$topicId'
     | '/measures/$measure'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
@@ -555,6 +565,7 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/mastery-check/$topicId'
     | '/measures/$measure'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
@@ -606,6 +617,7 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/mastery-check/$topicId'
     | '/measures/$measure'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
@@ -658,6 +670,7 @@ export interface RootRouteChildren {
   WeakAreasRoute: typeof WeakAreasRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
+  MasteryCheckTopicIdRoute: typeof MasteryCheckTopicIdRoute
   MeasuresMeasureRoute: typeof MeasuresMeasureRoute
   PracticeTestsCertIdRoute: typeof PracticeTestsCertIdRoute
   SectionQuizTopicIdRoute: typeof SectionQuizTopicIdRoute
@@ -964,6 +977,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mastery-check/$topicId': {
+      id: '/mastery-check/$topicId'
+      path: '/mastery-check/$topicId'
+      fullPath: '/mastery-check/$topicId'
+      preLoaderRoute: typeof MasteryCheckTopicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/measures/$measure': {
       id: '/measures/$measure'
       path: '/measures/$measure'
@@ -1058,6 +1078,7 @@ const rootRouteChildren: RootRouteChildren = {
   WeakAreasRoute: WeakAreasRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
   CheckoutSuccessRoute: CheckoutSuccessRoute,
+  MasteryCheckTopicIdRoute: MasteryCheckTopicIdRoute,
   MeasuresMeasureRoute: MeasuresMeasureRoute,
   PracticeTestsCertIdRoute: PracticeTestsCertIdRoute,
   SectionQuizTopicIdRoute: SectionQuizTopicIdRoute,
