@@ -8,6 +8,17 @@ import { SiteEngagementPanel } from "@/components/site-engagement-panel";
 
 
 import { SystemDiagnostics } from "@/components/system-diagnostics";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -323,16 +334,34 @@ function SettingsPage() {
           Storage: {storageAvailable ? "available" : "unavailable in this browser"}
           {lastSavedAt ? ` · last saved ${new Date(lastSavedAt).toLocaleTimeString()}` : ""}
         </p>
-        <Button
-          className="mt-3"
-          variant="destructive"
-          onClick={() => {
-            resetAll();
-            toast.success("All local data reset.");
-          }}
-        >
-          Reset all local data
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button className="mt-3" variant="destructive">
+              Reset all local data
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reset everything?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This would reset everything: your progress, quiz results, recall answers,
+                notes, Second Brain entries, streaks and all saved activity in this
+                browser. It cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Keep my data</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  resetAll();
+                  toast.success("All local data reset.");
+                }}
+              >
+                Yes, reset everything
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </Panel>
 
       <SiteEngagementPanel />
