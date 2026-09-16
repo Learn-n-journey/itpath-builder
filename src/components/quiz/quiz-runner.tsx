@@ -62,11 +62,14 @@ export function quizQuestions(quiz: Quiz, extra: Question[] = []): Question[] {
 export function QuizRunner({
   quiz,
   questions,
+  nextQuestions,
   startLabel = "Start quiz",
   passScore,
 }: {
   quiz: Quiz;
   questions?: Question[];
+  /** Called when an attempt starts, so each attempt can use a new set of questions. */
+  nextQuestions?: () => Question[];
   startLabel?: string;
   passScore?: number;
 }) {
@@ -74,7 +77,18 @@ export function QuizRunner({
   const [attemptId, setAttemptId] = useState("");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [reviewing, setReviewing] = useState(false);
-  const pool = useMemo(() => questions ?? quizQuestions(quiz), [questions, quiz]);
+  const [freshSet, setFreshSet] = useState<Question[] | null>(null);
+  const base = useMemo(() => questions ?? quizQuestions(quiz), [questions, quiz]);
+  const pool = freshSet ?? base;
+  // Everything we can still render, so earlier attempts keep working.
+  const known = useMemo(() => {
+    const seen = new Set<string>();
+    return [...pool, ...base].filter((item) => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+  }, [base, pool]);
 
   const attempts = useMemo(
     () =>
@@ -83,9 +97,9 @@ export function QuizRunner({
           attempt.quizId === quiz.id &&
           // Older attempts can point at questions the current set no longer uses.
           // Those are skipped so the page offers a fresh start instead of a dead end.
-          attempt.questionOrder.every((id) => pool.some((question) => question.id === id)),
+          attempt.questionOrder.every((id) => known.some((question) => question.id === id)),
       ),
-    [pool, quiz.id, user.quizAttempts],
+    [known, quiz.id, user.quizAttempts],
   );
   const activeAttempt = attempts.find((attempt) => attempt.status === "in_progress");
   const latestAttempt = attempts[0];
@@ -96,15 +110,19 @@ export function QuizRunner({
     setAttemptId("");
     setQuestionIndex(0);
     setReviewing(false);
+    setFreshSet(null);
   }, [quiz.id]);
 
   function start(previousAttemptId?: string) {
-    const next = createQuizAttempt(quiz.id, pool, previousAttemptId);
+    const set = nextQuestions ? nextQuestions() : base;
+    const usable = set.length > 0 ? set : base;
+    setFreshSet(usable);
+    const next = createQuizAttempt(quiz.id, usable, previousAttemptId);
     actions.addQuizAttempt(next);
     setAttemptId(next.id);
     setQuestionIndex(0);
     setReviewing(false);
-    toast.success(previousAttemptId ? "Retake started." : "Started.");
+    toast.success(previousAttemptId ? "Retake started. These are new questions." : "Started.");
   }
 
   if (!attempt) {
