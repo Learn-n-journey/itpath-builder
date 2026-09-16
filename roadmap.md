@@ -145,3 +145,6 @@
 
 ## GAYL accuracy
 - Investigate false "answers have slipped" message shown with no recent activity
+
+## Second Brain search
+- [ ] "Ask your own material" must read full articles and transcripts, not just short notes; answer should quote everything relevant across sources.
