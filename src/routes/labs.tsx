@@ -75,9 +75,13 @@ const categoryLabels: Record<Lab["category"], string> = {
 
 function LabsPage() {
   const { user } = useAppState();
+  const { lab: requestedLabId } = Route.useSearch();
   const focus = useMemo(() => adaptivePath(user), [user]);
   const [seed, reshuffle] = useShuffleSeed();
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState(requestedLabId ?? "");
+  useEffect(() => {
+    if (requestedLabId) setSelectedId(requestedLabId);
+  }, [requestedLabId]);
   const shuffled = useMemo(() => {
     const focusIds = new Set(focus.topics.map((topic) => topic.id));
     return shuffleWithSeed(labs, seed).sort((a, b) => Number(focusIds.has(b.topicId)) - Number(focusIds.has(a.topicId)));
