@@ -115,7 +115,7 @@ function JourneyPage() {
 
               <div
                 className={cn(
-                  "panel-glass overflow-hidden rounded-xl border p-5 transition-colors",
+                  "panel overflow-hidden p-5 transition-colors",
                   allLit ? "border-primary/40" : "border-border",
                 )}
               >

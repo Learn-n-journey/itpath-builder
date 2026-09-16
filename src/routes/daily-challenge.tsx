@@ -135,20 +135,25 @@ function DailyChallengePage() {
               <div key={key} className="text-center">
                 <div
                   className={cn(
-                    "flex h-9 items-center justify-center rounded-lg border text-[11px] font-semibold tabular-nums",
+                    "flex h-12 items-center justify-center rounded-xl border text-sm font-semibold tabular-nums transition-all",
                     entry
                       ? entry.best >= 80
-                        ? "border-primary/40 bg-primary/20 text-primary"
+                        ? "border-primary/50 bg-primary/20 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
                         : "border-border bg-secondary text-foreground"
-                      : "border-dashed border-border text-muted-foreground",
-                    isToday && !entry && "border-primary/60",
+                      : "border-dashed border-border/70 text-muted-foreground",
+                    isToday && "ring-2 ring-primary/40 ring-offset-2 ring-offset-background",
                   )}
                   title={`${dailyKeyLabel(key)}: ${entry ? `${entry.best}% on attempt(s) ×${entry.attempts}` : "not done"}`}
                 >
                   {entry ? entry.best : "-"}
                 </div>
-                <p className="mt-1 truncate text-[10px] uppercase tracking-wide text-muted-foreground">
-                  {dailyKeyLabel(key).split(" ").slice(-2).join(" ")}
+                <p
+                  className={cn(
+                    "mt-1.5 truncate text-[10px] uppercase tracking-wide",
+                    isToday ? "font-semibold text-primary" : "text-muted-foreground",
+                  )}
+                >
+                  {isToday ? "Today" : dailyKeyLabel(key).split(" ").slice(-2).join(" ")}
                 </p>
               </div>
             );
