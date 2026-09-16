@@ -200,6 +200,53 @@ function DailyChallengePage() {
         />
       </div>
 
+      {today ? (
+        <Panel
+          className="mt-5 border-primary/50"
+          title={`Today's ${tierInfo(tier).label.toLowerCase()} set is done`}
+          description={`Your best today is ${today.best}%. Every answer counted towards your reviews.`}
+        >
+          <div className="flex flex-col items-center gap-4 rounded-xl border border-primary/40 bg-primary/5 p-8 text-center">
+            <span className="flex size-14 items-center justify-center rounded-full bg-primary/15 text-primary">
+              <PartyPopper className="size-7" aria-hidden />
+            </span>
+            <div>
+              <h2 className="font-display text-2xl font-semibold">
+                {today.best === 100
+                  ? "Full marks"
+                  : today.best >= 80
+                    ? "Strong day"
+                    : "Day logged"}
+              </h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                {today.best === 100
+                  ? `A clean sweep of the ${tierInfo(tier).label.toLowerCase()} set.`
+                  : today.best >= 80
+                    ? `You held on to most of it today at ${today.best}%.`
+                    : `${today.best}% today, and the misses are already queued for review.`}{" "}
+                {challengeStreak > 1
+                  ? `That is ${challengeStreak} days in a row.`
+                  : "Come back tomorrow to start a streak."}
+                {tierBest > 0 && today.best >= tierBest ? " That also matches your personal best." : ""}
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button onClick={() => void shareResult()}>
+                <Share2 aria-hidden /> {shared ? "Share again" : "Share this"}
+              </Button>
+              {tier !== "expert" && today.best >= 80 ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => setTier(tier === "beginner" ? "intermediate" : "expert")}
+                >
+                  Try the next tier
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </Panel>
+      ) : null}
+
       {quiz && challenge ? (
         <div className="mt-6 space-y-4">
           <QuizRunner
@@ -212,6 +259,7 @@ function DailyChallengePage() {
       ) : (
         <Panel title="Loading today's set" description="One moment." />
       )}
+
 
       <Panel
         title="Your last seven days"
