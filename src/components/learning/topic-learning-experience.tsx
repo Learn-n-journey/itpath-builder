@@ -68,7 +68,29 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const lesson = lessons.find((item) => item.topicId === topic.id);
   const module = getLearningModule(topic.id);
   const deepLesson = getDeepLesson(topic.id);
-  const recallQuestions = getRecallQuestions(topic.id);
+  // Every recall prompt available for this topic: the authored pair plus ones built from the lesson.
+  const recallQuestions = useMemo(
+    () => [...getRecallQuestions(topic.id), ...getGeneratedRecallQuestions(topic.id)],
+    [topic.id],
+  );
+  // Show two at a time, skipping the ones already answered well, so a return visit brings new ones.
+  const visibleRecall = useMemo(() => {
+    const answeredWell = new Set(
+      user.recallResponses.filter((item) => item.topicId === topic.id && item.correct).map((item) => item.questionId),
+    );
+    const fresh = recallQuestions.filter((item) => !answeredWell.has(item.id));
+    if (fresh.length > 0) return fresh.slice(0, 2);
+    // Pool exhausted, so come back round to the ones answered longest ago.
+    const lastSeen = new Map<string, string>();
+    for (const response of user.recallResponses.filter((item) => item.topicId === topic.id)) {
+      const current = lastSeen.get(response.questionId);
+      if (!current || response.createdAt > current) lastSeen.set(response.questionId, response.createdAt);
+    }
+    return [...recallQuestions]
+      .sort((a, b) => (lastSeen.get(a.id) ?? "").localeCompare(lastSeen.get(b.id) ?? ""))
+      .slice(0, 2);
+  }, [recallQuestions, user.recallResponses, topic.id]);
+  const recallDone = recallQuestions.length - visibleRecall.filter((item) => true).length;
   const practiceActivities = getPracticeActivities(topic.id);
   const practice = practiceActivities[0];
   const scenario = getRealWorldScenario(topic.id);
