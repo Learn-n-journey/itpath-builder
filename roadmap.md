@@ -175,3 +175,6 @@
 - [ ] Dashboard reviews not clearing after all reviews done
 - [ ] "You had this right before" only when there is an earlier attempt at that same item
 - [ ] Passing a section quiz above 80% opens the next topic
+- [x] Reviews wording and dashboard panel clarity
+- [x] Section quiz pass at 80% opens the next topic
+- [x] All 59 sections topped up to 20 multiple choice questions
