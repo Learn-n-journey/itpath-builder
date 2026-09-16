@@ -11,6 +11,7 @@
 import { DIAGNOSIS_LABEL } from "@/lib/intelligence/types";
 import { STATE_LABEL, STATE_MEANING } from "@/lib/intelligence/states";
 import type { ConceptIntel, Intelligence } from "@/lib/intelligence/types";
+import type { UserData } from "@/lib/app-data/types";
 
 export interface GaylInsight {
   message: string;
