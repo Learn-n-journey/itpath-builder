@@ -62,12 +62,12 @@ function distractorPool(topicId: string): { term: string; meaning: string }[] {
   return pool;
 }
 
-function generatedFor(topicId: string): { choice: Question[]; written: Question[] } {
+function generatedFor(topicId: string): { choice: Question[] } {
   const lesson = lessons.find((item) => item.topicId === topicId);
   const module = getLearningModule(topicId);
   const pool = distractorPool(topicId);
   const choice: Question[] = [];
-  const written: Question[] = [];
+
 
   lesson?.keyTerms.forEach((term, index) => {
     const correct = shortMeaning(term.meaning);
