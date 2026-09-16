@@ -42,18 +42,21 @@ export const Route = createFileRoute("/daily-challenge")({
 
 function DailyChallengePage() {
   const { user } = useAppState();
-  // The date is resolved after mount so the server render and the browser
-  // always agree on which set today is.
-  const [todayKey, setTodayKey] = useState<string | null>(null);
+  // Today's key is worked out straight away so the set is never stuck loading.
+  // The effect then corrects it to the browser's local day if that differs.
+  const [todayKey, setTodayKey] = useState<string>(() => dailyDateKey());
   const [tier, setTier] = useState<ChallengeTier>("beginner");
+  const [shared, setShared] = useState(false);
   useEffect(() => {
-    setTodayKey(dailyDateKey());
+    const local = dailyDateKey();
+    setTodayKey((current) => (current === local ? current : local));
   }, []);
 
   const challenge = useMemo(
     () => (todayKey ? dailyChallenge(todayKey, tier) : null),
     [todayKey, tier],
   );
+
   const historyKeys = useMemo(
     () => (todayKey ? recentDailyKeys(7, new Date(`${todayKey}T12:00:00`)) : []),
     [todayKey],
