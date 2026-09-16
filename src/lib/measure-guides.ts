@@ -1,3 +1,5 @@
+import type { LinkProps } from "@tanstack/react-router";
+
 /**
  * Plain-language guides for each learning measure.
  *
@@ -18,7 +20,7 @@ export interface MeasureGuide {
   label: string;
   meaning: string;
   counts: string[];
-  raise: Array<{ text: string; to: string; params?: Record<string, string> }>;
+  raise: Array<{ text: string; to: LinkProps["to"] }>;
   note: string;
 }
 
