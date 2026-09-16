@@ -8,7 +8,7 @@
  * material. Every action points at a route that exists.
  */
 import { assignments, labs } from "@/data/static-content";
-import { journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
+import { currentJourneyTopic, journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationTopics } from "@/lib/cert-path";
 import { buildIntelligence } from "@/lib/intelligence/engine";
@@ -233,6 +233,19 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
       to: "/certifications",
     });
   }
+
+  // Final guard: never ask for work on a topic that has not been started. The one
+  // exception is the topic next in line, and there the only thing offered is reading it.
+  const currentId = currentJourneyTopic(user)?.id;
+  const filtered = out.filter((action) => {
+    if (!action.topicId) return true;
+    if (started.has(action.topicId)) return true;
+    const isNextInLine =
+      action.topicId === currentId || action.topicId === path.recommendedTopic?.id;
+    return isNextInLine && action.to === "/topics/$topicId";
+  });
+  out.length = 0;
+  out.push(...filtered);
 
   if (out.length === 0) {
     out.push({
