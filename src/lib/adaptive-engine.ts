@@ -52,6 +52,8 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
   const intelligence = buildIntelligence(user, now);
   const current = currentJourneyTopic(user);
   const currentIndex = current ? journeyIndex(current.id) : Number.MAX_SAFE_INTEGER;
+  const startIndex = experienceStartIndex(user);
+
 
   const entries: AdaptiveEntry[] = journeyOrderedTopics.map((topic) => {
     const index = journeyIndex(topic.id);
