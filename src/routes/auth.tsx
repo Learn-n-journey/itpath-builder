@@ -133,6 +133,8 @@ function AuthPage() {
         phone and never lose your work.
       </p>
 
+      <StreakSnapshot />
+
       {sentConfirmation ? (
         <div className="rounded-xl border border-border bg-card p-5 text-sm">
           <p className="font-medium text-foreground">Confirm your email</p>

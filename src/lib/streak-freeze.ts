@@ -12,6 +12,8 @@ import type { UserData } from "@/lib/app-data/types";
 export const MAX_FREEZES = 2;
 /** Days in a row that earn one freeze. */
 export const DAYS_PER_FREEZE = 7;
+/** Device key holding the last seen streak snapshot for the sign-in screen. */
+export const STREAK_SNAPSHOT_KEY = "itpath.streak.snapshot";
 
 /** Local date key for a date, YYYY-MM-DD. */
 export function dateKeyOf(date: Date): string {

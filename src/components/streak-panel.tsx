@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   DAYS_PER_FREEZE,
   MAX_FREEZES,
+  STREAK_SNAPSHOT_KEY,
   freezesAvailable,
   freezesEarned,
   protectableToday,
@@ -18,7 +19,7 @@ import { streakSummary } from "@/lib/streak-engine";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 
-const SNAPSHOT_KEY = "itpath.streak.snapshot";
+const SNAPSHOT_KEY = STREAK_SNAPSHOT_KEY;
 
 /** Daily goal, current run and the last seven days, all from logged sessions. */
 export function StreakPanel() {
