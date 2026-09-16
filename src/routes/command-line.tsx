@@ -415,7 +415,7 @@ function CommandLinePage() {
                 <div ref={terminalEnd} />
               </div>
               <form className="terminal-inputbar" onSubmit={(event) => { event.preventDefault(); run(); }}>
-                <span className="hidden shrink-0 px-2 py-2 font-mono text-sm text-primary sm:block">{prompt(attempt.machine)}</span>
+                <span className="term-prompt hidden shrink-0 px-2 py-2 font-mono text-sm sm:block">{prompt(attempt.machine)}</span>
                 <Input
                   aria-label="Terminal command"
                   autoCapitalize="off"
@@ -434,7 +434,7 @@ function CommandLinePage() {
                     setHistoryIndex(next);
                     setCommand(next < 0 ? "" : commands[commands.length - 1 - next] ?? "");
                   }}
-                  className="border-0 font-mono shadow-none focus-visible:ring-0"
+                  className="border-0 bg-transparent font-mono shadow-none focus-visible:ring-0 dark:bg-transparent"
                   placeholder="Enter a command"
                 />
                 <Button type="submit" size="icon" disabled={!command.trim() || attempt.status === "submitted"} title="Run command"><ArrowDown aria-hidden /></Button>
