@@ -59,6 +59,28 @@ function bestById<T>(
   });
 }
 
+/**
+ * Recall is "can you retrieve this now", so it uses the most recent graded
+ * attempt rather than the best one ever recorded. An old lucky pass does not
+ * keep the score up once a later attempt goes the other way.
+ */
+function latestById<T>(
+  ids: EntityId[],
+  rows: T[],
+  rowId: (row: T) => EntityId,
+  rowAt: (row: T) => string | undefined,
+  rowScore: (row: T) => number | undefined,
+): Array<number | undefined> {
+  return ids.map((id) => {
+    const values = rows
+      .filter((row) => rowId(row) === id && rowScore(row) !== undefined)
+      .sort((a, b) => new Date(rowAt(a) ?? 0).getTime() - new Date(rowAt(b) ?? 0).getTime());
+    const last = values[values.length - 1];
+    return last ? rowScore(last) : undefined;
+  });
+}
+
+
 function bestSignal(user: UserData, topicId: EntityId, kinds: string[]): number | undefined {
   const scores = user.learnerSignals
     .filter((signal) => signal.topicId === topicId && kinds.includes(signal.kind))
