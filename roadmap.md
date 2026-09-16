@@ -1,10 +1,10 @@
 ## Stage quizzes (requested 2026-09-16)
-- [ ] 20 question quiz at the end of each journey stage
-- [ ] Verify question coverage against the Professor Messer video course objectives (A+ 220-1101/1102, Network+ N10-009, Security+ SY0-701)
-- [ ] Mix of multiple choice and written (short answer) questions
-- [ ] Distractors must be plausible, not obviously wrong
-- [ ] 80 percent to pass
-- [ ] Shareable celebration screen on passing
+- [x] 20 question quiz at the end of each journey stage
+- [x] Verify question coverage against the Professor Messer video course objectives (A+ 220-1101/1102, Network+ N10-009, Security+ SY0-701)
+- [x] Mix of multiple choice and written (short answer) questions
+- [x] Distractors must be plausible, not obviously wrong
+- [x] 80 percent to pass
+- [x] Shareable celebration screen on passing
 
 ## Journey order (requested 2026-09-16)
 - [x] My Path and Study Plan follow Journey Map order, reviews and open mistakes first
