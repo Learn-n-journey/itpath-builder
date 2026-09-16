@@ -19,6 +19,17 @@ import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
 import { cn } from "@/lib/utils";
 
 const DISMISS_KEY = "itpath.gayl.bubble.dismissed";
+const CLEARED_KEY = "itpath.gayl.bubble.cleared";
+
+function readCleared(): string[] {
+  try {
+    const raw = window.localStorage.getItem(CLEARED_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
 
 /** Shortens a question prompt so the note stays readable. */
 function trim(text: string): string {
@@ -26,7 +37,15 @@ function trim(text: string): string {
   return clean.length > 120 ? `${clean.slice(0, 117)}...` : clean;
 }
 
-function MessageCard({ message, showWhy }: { message: GaylMessage; showWhy: boolean }) {
+function MessageCard({
+  message,
+  showWhy,
+  onClear,
+}: {
+  message: GaylMessage;
+  showWhy: boolean;
+  onClear?: () => void;
+}) {
   return (
     <div
       className={cn(
@@ -34,6 +53,7 @@ function MessageCard({ message, showWhy }: { message: GaylMessage; showWhy: bool
         message.urgent ? "border-destructive/40 bg-destructive/5" : "border-border bg-secondary/40",
       )}
     >
+      <div className="flex items-start justify-between gap-2">
         <p className="flex items-start gap-1.5 text-xs font-medium text-foreground">
           {message.urgent ? (
             <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" aria-hidden />
@@ -47,9 +67,20 @@ function MessageCard({ message, showWhy }: { message: GaylMessage; showWhy: bool
               {message.title}
             </Link>
           ) : (
-            <span>{message.title}</span>
+          <span>{message.title}</span>
           )}
         </p>
+        {onClear ? (
+          <button
+            type="button"
+            onClick={onClear}
+            aria-label="Clear this message"
+            className="-mr-1 -mt-0.5 shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-3.5" />
+          </button>
+        ) : null}
+      </div>
       <p className="mt-1 text-sm leading-6 text-foreground">{message.text}</p>
       {message.detail ? (
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
@@ -78,12 +109,16 @@ export function GaylBubble() {
     [user],
   );
   const checkIn = useMemo(() => checkInMessage(user), [user]);
+  const [clearedIds, setClearedIds] = useState<string[]>([]);
   // Problems come first. A welcome back only speaks up when nothing else is
-  // asking for attention, so the corner stays a vital-only space.
+  // asking for attention, so the corner stays a vital-only space. Cleared
+  // messages stay out of the thread until the evidence behind them changes
+  // and the message id changes with it.
   const messages = useMemo(() => {
     const base = gaylMessages(intel, openDetail);
-    return base.length === 0 && checkIn ? [checkIn] : base;
-  }, [intel, openDetail, checkIn]);
+    const all = base.length === 0 && checkIn ? [checkIn] : base;
+    return all.filter((message) => !clearedIds.includes(message.id));
+  }, [intel, openDetail, checkIn, clearedIds]);
   const latest = messages[0] ?? null;
   const threadId = messages.map((message) => message.id).join("|");
   const unreadCount = messages.filter((message) => message.urgent).length;
@@ -99,7 +134,20 @@ export function GaylBubble() {
     } catch {
       setDismissed(null);
     }
+    setClearedIds(readCleared());
   }, []);
+
+  const clearMessages = (ids: string[]) => {
+    setClearedIds((current) => {
+      const next = Array.from(new Set([...current, ...ids]));
+      try {
+        window.localStorage.setItem(CLEARED_KEY, JSON.stringify(next));
+      } catch {
+        /* storage is optional here */
+      }
+      return next;
+    });
+  };
 
   if (!latest) return null;
 
@@ -174,7 +222,12 @@ export function GaylBubble() {
 
           <div key={showAll ? "all" : "latest"} className="gayl-rise max-h-[60vh] space-y-3 overflow-y-auto p-3">
             {(showAll ? messages : [latest]).map((message) => (
-              <MessageCard key={message.id} message={message} showWhy={showWhy} />
+              <MessageCard
+                key={message.id}
+                message={message}
+                showWhy={showWhy}
+                onClear={() => clearMessages([message.id])}
+              />
             ))}
           </div>
 
@@ -199,6 +252,15 @@ export function GaylBubble() {
               >
                 <MessageSquare className="size-3" aria-hidden />
                 {messages.length > 1 ? `See all ${messages.length} messages` : "See all messages"}
+              </button>
+            ) : null}
+            {messages.length > 1 ? (
+              <button
+                type="button"
+                onClick={() => clearMessages(messages.map((message) => message.id))}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary"
+              >
+                Clear all
               </button>
             ) : null}
             <button
