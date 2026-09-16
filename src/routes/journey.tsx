@@ -223,7 +223,7 @@ function JourneyPage() {
                               {topic.title}
                             </span>
                             <span className="block truncate text-xs text-muted-foreground">
-                              {topic.minutes} min · {STATUS_WORD[status]}
+                              {STATUS_WORD[status]}
                               {status === "closed" && best > 0 ? ` · quiz ${best}%` : ""}
                               {status === "closed" && passedAt ? ` · passed ${shortDate(passedAt)}` : ""}
                             </span>

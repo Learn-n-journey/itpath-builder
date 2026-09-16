@@ -264,7 +264,6 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
             <h2 className="mt-3 font-display text-xl font-semibold">{lab.title}</h2>
             <p className="mt-2 text-sm text-muted-foreground">{lab.objective}</p>
           </div>
-          <Badge variant="outline"><Clock3 /> {lab.estimatedMinutes} min</Badge>
         </div>
         <dl className="mt-5 grid gap-4 border-t border-border pt-5 sm:grid-cols-2">
           <div><dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Environment</dt><dd className="mt-1 text-sm">{lab.environment}</dd></div>

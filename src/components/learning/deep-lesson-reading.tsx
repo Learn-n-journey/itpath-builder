@@ -16,7 +16,7 @@ import type { DeepLesson } from "@/data/deep-lessons";
 export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
   return (
     <div className="space-y-4">
-      <Panel title="Start here" description={`About ${lesson.readingMinutes} minutes of reading, in ${lesson.sections.length} short parts.`}>
+      <Panel title="Start here" description={`Read it at your own pace, in ${lesson.sections.length} short parts.`}>
         <div className="space-y-4 text-sm leading-7 text-muted-foreground">
           {lesson.plain ? (
             <p className="rounded-lg border border-border/70 bg-secondary/25 p-4 text-foreground">

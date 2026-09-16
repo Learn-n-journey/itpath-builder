@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Clock, Sparkles, X } from "lucide-react";
+import { ArrowRight, Sparkles, X } from "lucide-react";
 
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -56,10 +56,6 @@ export function NextActionCard({
           <div className="min-w-0">
             <p className="font-medium">{primary.label}</p>
             <p className="mt-1 text-sm text-muted-foreground">{primary.reason}</p>
-            <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Clock className="size-3.5" aria-hidden />
-              About {primary.minutes} minutes
-            </p>
           </div>
         </div>
         <div className="mt-4 flex items-center gap-2">
@@ -99,9 +95,6 @@ export function NextActionCard({
                     <span className="block truncate text-xs text-muted-foreground">
                       {action.reason}
                     </span>
-                  </span>
-                  <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                    {action.minutes}m
                   </span>
                 </ActionLink>
                 {onDismiss ? (
