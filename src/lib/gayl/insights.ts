@@ -154,22 +154,20 @@ export function quizResultInsight(input: {
   const { score, correct, total, weakTopicTitles } = input;
   const spread = weakTopicTitles.length;
 
+  const retake = "Go back over the section, then run the whole quiz again. A full second run shows me more than any single question can.";
+
   let message: string;
   if (total === 0) {
     message = "No questions were scored in this attempt.";
-  } else if (score >= 85 && spread === 0) {
-    message =
-      "A strong run across the board. One good result is a snapshot rather than proof it will stick, so I'll check this again later rather than mark it finished.";
-  } else if (score >= 85) {
-    message = `Mostly comfortable, with ${spread === 1 ? "one topic" : `${spread} topics`} standing out from the rest. That pattern usually points at a specific gap, not general difficulty.`;
+  } else if (score > 80) {
+    message = "That run speaks for itself. Nothing from me here.";
   } else if (score >= 60) {
     message =
       spread <= 1
-        ? "A mixed result concentrated in one area. That's usually one idea to clear up rather than the whole subject."
-        : `Misses spread across ${spread} topics rather than sitting in one place. One attempt does not tell me whether that is thin coverage or slipping recall, so a second pass on those topics will.`;
+        ? `A mixed result, mostly sitting in one area. ${retake}`
+        : `The misses are spread across ${spread} topics rather than sitting in one place. ${retake}`;
   } else {
-    message =
-      "A low score here is information, not a verdict. It usually means the material hasn't had enough exposure yet, or something underneath it is not solid yet.";
+    message = `This score is information, not a verdict. It usually means the material hasn't had enough exposure yet. ${retake}`;
   }
 
   return {
