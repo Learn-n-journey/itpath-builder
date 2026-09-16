@@ -310,9 +310,8 @@ function problemIssue(concept: ConceptIntel): string {
     return "you had it right earlier, then it came back wrong on a later answer";
   }
   if (concept.diagnosis === "fading") {
-    const days = concept.daysSinceExposure;
-    return days && days >= 7
-      ? `it has been about ${Math.round(days)} days since you worked on it and recall has faded`
+    return concept.daysOverdue >= 7
+      ? `it has been a while since you worked on it, ${Math.round(concept.daysOverdue)} days past its review point, and recall has faded`
       : "recall here has faded since you last had it right";
   }
   if (concept.misconceptions[0]) {
@@ -341,9 +340,8 @@ function casualText(concept: ConceptIntel): string {
     return `Quick one. You had ${concept.title} right earlier, then a later answer came back wrong. A short pass should settle it.`;
   }
   if (concept.diagnosis === "fading") {
-    const days = concept.daysSinceExposure;
-    return days && days >= 7
-      ? `Quick one. It has been about ${Math.round(days)} days since you worked on ${concept.title}, so recall will have faded. A short pass should bring it back.`
+    return concept.daysOverdue >= 7
+      ? `Quick one. ${concept.title} is ${Math.round(concept.daysOverdue)} days past its review point, so recall will have faded. A short pass should bring it back.`
       : `Quick one. Recall on ${concept.title} has faded since you last had it right. A short pass should bring it back.`;
   }
   if (concept.misconceptions[0]) {
