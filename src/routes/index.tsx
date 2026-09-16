@@ -4,6 +4,7 @@ import {
   Activity,
   Award,
   Brain,
+  Check,
   CheckCircle2,
   ClipboardList,
   Clock,
@@ -27,6 +28,7 @@ import type { CertificationStatus } from "@/lib/app-data/types";
 import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
 import { nextActions, type NextAction } from "@/lib/next-action";
 import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
+import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import { greetingFor } from "@/lib/greeting";
 import { useProfile } from "@/hooks/use-profile";
@@ -160,6 +162,14 @@ function Dashboard() {
     dismissNextAction(action);
     setDismissedVersion((v) => v + 1);
   }, []);
+  const reviewTopics = useMemo(
+    () => visibleReviewTopics(d.topicsNeedingReview),
+    [d.topicsNeedingReview, dismissedVersion],
+  );
+  const markReviewDone = useCallback((row: { topicId: string; reason: string }) => {
+    clearReviewTopic(row);
+    setDismissedVersion((v) => v + 1);
+  }, []);
   const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
   const missedAnchors = useMemo(() => {
     const map: Record<string, string> = {};
@@ -182,7 +192,7 @@ function Dashboard() {
             title={firstName ? greetingFor(firstName) : "Dashboard"}
             description={`Certification focus: ${user.settings.certificationTarget}.`}
             actions={
-              <Button asChild>
+              <Button asChild className="mt-2 sm:mt-14">
                 <Link to="/study-plan">Open study plan</Link>
               </Button>
             }
@@ -346,16 +356,18 @@ function Dashboard() {
         </Panel>
 
         <Panel title="Topics to come back to" description="Each line says why it is here: a review that is due, an open mistake, or a low score.">
-          {d.topicsNeedingReview.length === 0 ? (
+          {reviewTopics.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Nothing flagged for review yet.
+              {d.topicsNeedingReview.length === 0
+                ? "Nothing flagged for review yet."
+                : "All cleared for now. Anything new will show up here."}
             </p>
           ) : (
             <ul className="space-y-2 text-sm">
-              {d.topicsNeedingReview.map((item) => (
+              {reviewTopics.map((item) => (
                 <li
                   key={item.topicId}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"
+                  className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3"
                 >
                   <Link
                     to="/review"
@@ -367,6 +379,16 @@ function Dashboard() {
                     {item.title}
                   </Link>
                   <span className="shrink-0 text-xs text-muted-foreground">{item.reason}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 shrink-0 px-2 text-xs"
+                    onClick={() => markReviewDone(item)}
+                    aria-label={`Mark ${item.title} as done`}
+                  >
+                    <Check className="size-3.5" aria-hidden /> Done
+                  </Button>
                 </li>
               ))}
             </ul>

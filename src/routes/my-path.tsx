@@ -147,7 +147,6 @@ function MyPath() {
               {group.items.map((certification) => {
                 const studyIndex = certificationStudyIndex(certification.id);
                 const stages = certificationStages(certification.id);
-                const hours = Math.round((studyIndex.totalMinutes / 60) * 10) / 10;
 
                 return (
                   <div
@@ -168,7 +167,7 @@ function MyPath() {
                     </div>
 
                     <p className="text-xs text-muted-foreground">
-                      {studyIndex.topics.length} topics · {hours}h recommended study
+                      {studyIndex.topics.length} topics
                     </p>
 
                     {stages.length > 0 ? (
