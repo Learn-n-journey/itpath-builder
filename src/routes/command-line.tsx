@@ -88,6 +88,31 @@ const shellLabels = {
 } as const;
 type TerminalEnvironment = "unix" | "windows" | "android" | "ios";
 
+const FREE_PREFIX = "terminal-free-";
+
+/** A plain machine with no task attached, for using the command line on its own. */
+function freePlayScenario(shell: TerminalAttempt["shell"]): TerminalScenario {
+  return {
+    id: `${FREE_PREFIX}${shell}`,
+    topicId: "topic-command-line-fundamentals",
+    shell,
+    title: "Free terminal",
+    brief:
+      "A clean virtual machine with nothing to solve. Explore the file system, try commands and see what they return. Type help at any time for the commands this machine supports.",
+    environment: `${shellLabels[shell]} virtual machine, isolated from your real device.`,
+    difficulty: "gentle",
+    estimatedMinutes: 10,
+    goals: [],
+    diagnosticGroups: [],
+    efficientCommandCount: 0,
+    hints: [],
+    explanation: "",
+    reasoningKeywords: [],
+    misconceptionRules: [],
+    source: "random",
+  };
+}
+
 function CommandLinePage() {
   const { user, actions } = useAppState();
   const weakTopicIds = useMemo(
@@ -231,15 +256,26 @@ function CommandLinePage() {
     }
   }
 
-  function start(reset = false) {
+  function openFreeTerminal() {
+    const free = freePlayScenario(shell);
+    setGenerated(free);
+    setScenarioId(free.id);
+    setAttemptId("");
+    setReasoning("");
+    setCommand("");
+    start(false, free);
+  }
+
+  function start(reset = false, useScenario?: TerminalScenario) {
+    const target = useScenario ?? scenario;
     if (reset && attempt && attempt.status === "in_progress") actions.removeTerminalAttempt(attempt.id);
-    const next = createTerminalAttempt(scenario, mode);
+    const next = createTerminalAttempt(target, mode);
     actions.addTerminalAttempt(next);
     setAttemptId(next.id);
     setReasoning("");
     setCommand("");
     setScrollToTerminal(true);
-    toast.success(reset ? "Virtual computer reset" : "Practice started");
+    toast.success(reset ? "Virtual computer reset" : useScenario ? "Terminal ready" : "Practice started");
   }
 
   function run() {
@@ -305,6 +341,7 @@ function CommandLinePage() {
     toast.success(`Scenario checked, ${result.score}%`);
   }
 
+  const isFree = scenario.id.startsWith(FREE_PREFIX);
   const commands = attempt?.machine.history ?? [];
   const completedCount = user.terminalAttempts.filter((item) => item.status === "submitted").length;
   const bestScore = Math.max(0, ...user.terminalAttempts.map((item) => item.score ?? 0));
