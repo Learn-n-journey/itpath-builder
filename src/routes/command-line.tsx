@@ -235,6 +235,7 @@ function CommandLinePage() {
     setAttemptId(next.id);
     setReasoning("");
     setCommand("");
+    setScrollToTerminal(true);
     toast.success(reset ? "Virtual computer reset" : "Practice started");
   }
 
@@ -390,7 +391,7 @@ function CommandLinePage() {
               <p className="text-sm leading-relaxed text-muted-foreground">{scenario.brief}</p>
             </Panel>
 
-            <section aria-label="Virtual terminal" className="overflow-hidden rounded-md border border-border bg-[color:var(--terminal-background,#07100d)] shadow-sm">
+            <section ref={terminalPanel} aria-label="Virtual terminal" className="scroll-mt-20 overflow-hidden rounded-md border border-border bg-[color:var(--terminal-background,#07100d)] shadow-sm">
               <div className="flex items-center justify-between border-b border-border bg-card px-3 py-2">
                 <span className="flex items-center gap-2 font-mono text-xs text-muted-foreground"><SquareTerminal className="size-4" aria-hidden />{shellLabels[attempt.shell]} · {attempt.machine.hostname}</span>
                 <Button type="button" size="sm" variant="ghost" onClick={() => start(true)} disabled={attempt.status === "submitted"} title="Reset virtual computer"><RefreshCw aria-hidden /> Reset</Button>
