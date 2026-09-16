@@ -59,6 +59,7 @@ function Brand() {
 }
 
 import { GaylBubble } from "@/components/gayl/gayl-bubble";
+import { MilestoneOverlay } from "@/components/milestones/milestone-overlay";
 import { BackButton } from "@/components/layout/back-button";
 import { QuickNav } from "@/components/layout/quick-nav";
 
@@ -128,6 +129,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <BackButton />
           </div>
         </div>
+        <MilestoneOverlay />
         <GaylBubble />
         <QuickNav />
         <footer className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6 lg:px-10">

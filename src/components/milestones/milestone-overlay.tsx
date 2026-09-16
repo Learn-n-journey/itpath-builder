@@ -40,8 +40,9 @@ export function MilestoneOverlay() {
     () => (seen ? achievedMilestones(intel, user) : []),
     [intel, user, seen],
   );
-  const milestone: Milestone | null =
-    seen && achieved.find((item) => !seen.includes(item.id))) ?? null;
+  const milestone: Milestone | null = seen
+    ? (achieved.find((item) => !seen.includes(item.id)) ?? null)
+    : null;
 
   if (!seen || !milestone) return null;
 
