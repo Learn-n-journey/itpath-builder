@@ -152,7 +152,7 @@ export function QuizRunner({
       <QuizReview
         attempt={attempt}
         attempts={attempts}
-        pool={pool}
+        pool={known}
         {...(passScore !== undefined ? { passScore } : {})}
         onRetake={() => start(attempt.id)}
         onSelectAttempt={(id) => {
@@ -166,7 +166,7 @@ export function QuizRunner({
   return (
     <QuizWorkspace
       attempt={attempt}
-      pool={pool}
+      pool={known}
       questionIndex={questionIndex}
       setQuestionIndex={setQuestionIndex}
       onReview={() => setReviewing(true)}
