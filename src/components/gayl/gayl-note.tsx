@@ -32,12 +32,15 @@ export function GaylNote({
   why,
   className,
   compact = false,
+  onClear,
 }: {
   message: string;
   /** Plain lines showing what this was based on, behind a "Why this?" toggle. */
   why?: string[];
   className?: string;
   compact?: boolean;
+  /** When given, the learner can clear this note. */
+  onClear?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const hasWhy = Boolean(why && why.length > 0);
