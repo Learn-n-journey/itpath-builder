@@ -1676,6 +1676,33 @@ function runPowerShell(state: MachineState, input: string): ExecResult {
     case "get-eventlog":
     case "get-winevent":
       return ok(state, state.eventLog.length > 0 ? state.eventLog.slice(0, 25) : ["No events recorded."]);
+    case "get-date":
+      return ok(state, new Date().toString());
+    case "get-history":
+      return ok(state, state.history.map((entry, index) => `${padStart(index + 1, 5)} ${entry}`));
+    case "get-command":
+      return ok(state, POWERSHELL_COMMANDS.map((cmd) => `Cmdlet          ${cmd}`));
+    case "test-path": {
+      const target = operands[0] ?? ".";
+      return ok(state, getNode(state, resolvePath(state, target)) ? "True" : "False");
+    }
+    case "get-item":
+    case "get-itemproperty": {
+      const target = operands[0] ?? ".";
+      const node = getNode(state, resolvePath(state, target));
+      if (!node) return fail(state, `Get-Item : Cannot find path '${target}' because it does not exist.`);
+      return ok(state, [
+        "Mode                 Length Name",
+        "----                 ------ ----",
+        `${pad(node.type === "dir" ? "d-----" : "-a----", 15)}${padStart(node.type === "dir" ? "" : (node.content ?? "").length, 10)} ${node.name}`,
+      ]);
+    }
+    case "get-hotfix":
+      return ok(state, [
+        "Source        Description      HotFixID      InstalledOn",
+        "------        -----------      --------      -----------",
+        `${pad(state.hostname, 14)}Security Update  KB5034441     ${new Date().toLocaleDateString()}`,
+      ]);
     case "get-volume":
       return ok(state, [
         "DriveLetter FileSystem SizeRemaining      Size",
