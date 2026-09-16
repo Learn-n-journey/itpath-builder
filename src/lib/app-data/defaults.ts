@@ -33,6 +33,7 @@ export function createDefaultUserData(): UserData {
     notes: [],
     bookmarks: [],
     labAttempts: [],
+    masteryCheckAttempts: [],
     assignmentAttempts: [],
     careerTickets: [],
     portfolio: [],

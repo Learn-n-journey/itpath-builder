@@ -22,6 +22,7 @@ import type {
   TicketAttempt,
   TeachBackResponse,
   TerminalAttempt,
+  MasteryCheckAttempt,
   TopicProgress,
   UserData,
   UserSettings,
@@ -37,6 +38,7 @@ type UserCollectionKey =
   | "notes"
   | "bookmarks"
   | "labAttempts"
+  | "masteryCheckAttempts"
   | "assignmentAttempts"
   | "careerTickets"
   | "portfolio"
@@ -162,6 +164,8 @@ export const userMutations = {
     labAttempts: user.labAttempts.map((attempt) => (attempt.id === item.id ? item : attempt)),
   }),
   removeLabAttempt: (user: UserData, id: string) => removeById(user, "labAttempts", id),
+  addMasteryCheckAttempt: (user: UserData, item: MasteryCheckAttempt) =>
+    prepend(user, "masteryCheckAttempts", item),
   addAssignmentAttempt: (user: UserData, item: AssignmentAttempt) =>
     prepend(user, "assignmentAttempts", item),
   updateAssignmentAttempt: (user: UserData, item: AssignmentAttempt): UserData => ({

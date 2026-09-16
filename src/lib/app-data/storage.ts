@@ -146,6 +146,7 @@ export function sanitizeUser(raw: unknown): UserData {
     reviewAttempts: arr(r.reviewAttempts, base.reviewAttempts),
     notes: arr(r.notes, base.notes),
     bookmarks: arr(r.bookmarks, base.bookmarks),
+    masteryCheckAttempts: arr(r.masteryCheckAttempts, base.masteryCheckAttempts),
     labAttempts: arr(r.labAttempts, base.labAttempts).map((attempt) => ({
       ...attempt,
       status:
