@@ -187,9 +187,45 @@ html.light {
 }
 
 @utility panel {
-  background-color: var(--color-card);
+  background-color: color-mix(in oklab, var(--color-card) 86%, transparent);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
+  backdrop-filter: blur(14px) saturate(115%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--color-foreground) 4%, transparent),
+    0 12px 32px color-mix(in oklab, var(--color-background) 42%, transparent);
+}
+
+@utility technical-rule {
+  background-color: color-mix(in oklab, var(--color-primary) 58%, var(--color-border));
+}
+
+.dashboard-summary {
+  position: relative;
+  overflow: hidden;
+  background-color: color-mix(in oklab, var(--color-card) 78%, transparent);
+  border-color: color-mix(in oklab, var(--color-primary) 26%, var(--color-border));
+}
+
+.dashboard-summary::before,
+.dashboard-summary::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.dashboard-summary::before {
+  inset: 0 auto 0 0;
+  width: 2px;
+  background-color: var(--color-primary);
+}
+
+.dashboard-summary::after {
+  top: 0;
+  right: 0;
+  width: 4rem;
+  height: 1px;
+  background-color: color-mix(in oklab, var(--color-primary) 55%, transparent);
 }
 
 /* GAYL bubble: soft rise for messages entering the panel. */
@@ -256,6 +292,15 @@ html.light {
     background-color 180ms ease,
     box-shadow 180ms ease,
     transform 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .motion-surface:hover {
+    border-color: color-mix(in oklab, var(--color-primary) 22%, var(--color-border));
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--color-foreground) 5%, transparent),
+      0 16px 36px color-mix(in oklab, var(--color-background) 48%, transparent);
+  }
 }
 
 .motion-surface:nth-child(2) {
