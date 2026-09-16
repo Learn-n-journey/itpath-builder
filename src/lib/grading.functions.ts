@@ -237,12 +237,18 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
       },
     });
 
+    const status = statusFor(reviewed.score);
+    const aiHints = parsed.data.hints.map((s) => s.trim()).filter(Boolean).slice(0, 5);
     const grade: WrittenGrade = {
       ...reviewed,
-      correct: reviewed.score >= 70,
+      correct: status === "correct",
       criteria,
       aiMarked: true,
+      status,
+      // Nearly there answers always carry something to add, even if the marker forgot.
+      hints: status === "correct" ? [] : aiHints.length ? aiHints : reviewed.missed.slice(0, 4),
     };
+
     if (key) await writeCache({ key, feature: "grading", value: grade, model: result.model });
     return { ok: true, grade };
   });
