@@ -152,10 +152,10 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   // rebuilt every render and the state updates loop.
   function mergeSaved<T>(current: Record<string, T>, saved: Record<string, T>): Record<string, T> {
     const merged = { ...saved, ...current };
-    const sameSize = Object.keys(merged).length === Object.keys(current).length;
-    if (sameSize && Object.keys(merged).every((key) => merged[key] === current[key])) return current;
+    if (JSON.stringify(merged) === JSON.stringify(current)) return current;
     return merged;
   }
+
 
   useEffect(() => {
     setRecallAnswers((current) => mergeSaved(current, savedRecall.answers));
