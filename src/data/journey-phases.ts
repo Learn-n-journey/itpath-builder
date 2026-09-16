@@ -53,6 +53,11 @@ const PHASE_DEFS: Array<{ minMonth: number; maxMonth: number; title: string; mon
   },
 ];
 
+// The seed files repeat some entries; keep the first copy of each topic id.
+const dedupedExpansion = expansionSeeds.filter(
+  (seed, index) => expansionSeeds.findIndex((other) => other.slug === seed.slug) === index,
+);
+
 export const journeyPhases: JourneyPhase[] = PHASE_DEFS.map((phase) => ({
   title: phase.title,
   months: phase.months,
@@ -67,7 +72,7 @@ export const journeyPhases: JourneyPhase[] = PHASE_DEFS.map((phase) => ({
         summary: topic.summary,
         minutes: topic.estimatedMinutes,
       })),
-    ...expansionSeeds
+    ...dedupedExpansion
       .filter((seed) => seed.month >= phase.minMonth && seed.month <= phase.maxMonth)
       .map((seed) => ({
         id: `topic-${seed.slug}`,
