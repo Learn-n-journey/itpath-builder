@@ -9,7 +9,7 @@
  */
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight, Compass } from "lucide-react";
+import { ChevronDown, ChevronRight, Compass, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -32,12 +32,15 @@ export function GaylNote({
   why,
   className,
   compact = false,
+  onClear,
 }: {
   message: string;
   /** Plain lines showing what this was based on, behind a "Why this?" toggle. */
   why?: string[];
   className?: string;
   compact?: boolean;
+  /** When given, the learner can clear this note. */
+  onClear?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const hasWhy = Boolean(why && why.length > 0);
@@ -84,6 +87,16 @@ export function GaylNote({
             </>
           ) : null}
         </div>
+        {onClear ? (
+          <button
+            type="button"
+            onClick={onClear}
+            aria-label="Clear this message"
+            className="-mr-1 -mt-1 shrink-0 rounded p-1 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-4" />
+          </button>
+        ) : null}
       </div>
     </aside>
   );

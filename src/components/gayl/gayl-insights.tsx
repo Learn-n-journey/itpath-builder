@@ -6,6 +6,7 @@
  * useful. No engine logic lives here.
  */
 import { GaylNote } from "@/components/gayl/gayl-note";
+import { useDismissable } from "@/hooks/use-dismissable";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import {
   dashboardInsight,
@@ -57,5 +58,16 @@ export function GaylProgressNote({ className }: { className?: string }) {
 
 export function GaylPathNote({ className }: { className?: string }) {
   const intel = useIntelligence();
-  return <Note insight={pathInsight(intel)} {...(className ? { className } : {})} />;
+  const insight = pathInsight(intel);
+  // Cleared until the note itself changes, then she speaks up again.
+  const { hidden, dismiss } = useDismissable("itpath.gayl.path.cleared", insight?.message ?? null);
+  if (!insight || hidden) return null;
+  return (
+    <GaylNote
+      message={insight.message}
+      onClear={dismiss}
+      {...(insight.why ? { why: insight.why } : {})}
+      {...(className ? { className } : {})}
+    />
+  );
 }

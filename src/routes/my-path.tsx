@@ -15,6 +15,7 @@ import { useAppState, useStats } from "@/state/app-state";
 import { adaptivePath, experienceStartBlurb } from "@/lib/adaptive-path";
 import { adaptiveQueue } from "@/lib/adaptive-engine";
 import { currentJourneyTopic } from "@/lib/journey-order";
+import { useDismissable } from "@/hooks/use-dismissable";
 
 export const Route = createFileRoute("/my-path")({
   staticData: { sitemap: false },
@@ -48,6 +49,12 @@ function MyPath() {
   const startHere = current
     ? queue.entries.find((entry) => entry.topic.id === current.id)
     : undefined;
+  // Cleared starting points come back on their own once the next section opens.
+  const {
+    hidden: startHereCleared,
+    dismiss: clearStartHere,
+    restore: restoreStartHere,
+  } = useDismissable("itpath.path.starting-point.cleared", startHere?.topic.id ?? null);
   const levels = certificationsByLevel();
   const certCount = levels.reduce((sum, group) => sum + group.items.length, 0);
 
@@ -59,7 +66,7 @@ function MyPath() {
         description="The roadmap organised by certification, not by calendar. Start with entry-level certifications, then move into infrastructure, security and advanced work."
       />
 
-      {startHere ? (
+      {startHere && !startHereCleared ? (
         <Panel
           className="mb-4"
           title={`${path.certification.title}: your starting point`}
@@ -67,9 +74,20 @@ function MyPath() {
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm font-medium">{startHere.topic.title}</p>
-            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: startHere.topic.id }}>Start here <ArrowRight /></Link></Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={clearStartHere}>
+                Not now
+              </Button>
+              <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: startHere.topic.id }}>Start here <ArrowRight /></Link></Button>
+            </div>
           </div>
         </Panel>
+      ) : startHere ? (
+        <div className="mb-4 flex justify-end">
+          <Button variant="ghost" size="sm" onClick={restoreStartHere}>
+            Show my starting point
+          </Button>
+        </div>
       ) : null}
 
 
