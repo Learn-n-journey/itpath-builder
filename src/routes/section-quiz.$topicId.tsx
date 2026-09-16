@@ -45,10 +45,9 @@ function SectionQuizPage() {
 
   const questions = getSectionQuizQuestions(topicId);
   const quizId = `section-quiz-${topicId}`;
-  const best = user.quizAttempts
-    .filter((attempt) => attempt.quizId === quizId && attempt.status === "submitted")
-    .reduce((top, attempt) => Math.max(top, attempt.score ?? 0), 0);
+  const best = sectionQuizBest(user, topicId);
   const passed = best >= SECTION_PASS_SCORE;
+  const next = passed ? nextJourneyTopic(topicId) : undefined;
 
   const quiz: Quiz = {
     id: quizId,
@@ -72,6 +71,18 @@ function SectionQuizPage() {
             <CheckCircle2 className="size-4 text-primary" aria-hidden />
             Your best score here is {best}%. You can take it again any time to keep it fresh.
           </p>
+          {next ? (
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <p className="text-sm text-muted-foreground">
+                That opened the next section: {next.title}.
+              </p>
+              <Button asChild size="sm">
+                <Link to="/topics/$topicId" params={{ topicId: next.id }}>
+                  Start {next.title}
+                </Link>
+              </Button>
+            </div>
+          ) : null}
         </Panel>
       ) : null}
 
