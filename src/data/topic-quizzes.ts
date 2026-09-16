@@ -262,7 +262,7 @@ function buildPool(topicId: string): PoolItem[] {
         otherStatements(topicId, "whereYouSeeIt"),
         index,
         `From this section: ${tidy(line)}`,
-        "application",
+        "procedure",
       );
       if (item) items.push(item);
     });
@@ -292,7 +292,7 @@ function buildPool(topicId: string): PoolItem[] {
         otherStatements(topicId, "practicalKnowledge"),
         index,
         `From this section: ${tidy(line)}`,
-        "application",
+        "procedure",
       );
       if (item) items.push(item);
     });
