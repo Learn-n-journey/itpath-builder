@@ -16,6 +16,18 @@ export const experienceLabels: Record<ExperienceLevel, string> = {
   intermediate: "Working in IT already",
 };
 
+/** Plain wording for where the path starts, given the experience setting. */
+export const experienceStartBlurb = (experience: ExperienceLevel): string => {
+  if (experience === "intermediate")
+    return "You told us you already work in IT, so the whole path is open.";
+  if (experience === "some")
+    return "You told us you have home lab experience, so the basics are open and your path starts after them.";
+  if (experience === "beginner")
+    return "You told us you have some basics, so the path starts at the beginning.";
+  return "You told us you are starting fresh, so the path starts at the very beginning.";
+};
+
+
 export function selectedCertification(settings: UserSettings): Certification {
   const match = certifications.find(
       (certification) =>
