@@ -99,9 +99,10 @@ async function copyText(text: string): Promise<boolean> {
 
 function AiTutor() {
   const { user } = useAppState();
-  const [mode, setMode] = useState<TutorMode>("teach_me");
+  const [mode, setMode] = useState<TutorMode>("ask_anything");
   const [topicId, setTopicId] = useState<string>(NO_TOPIC);
   const [answer, setAnswer] = useState("");
+  const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [followUp, setFollowUp] = useState("");
   const [busy, setBusy] = useState(false);
@@ -170,9 +171,14 @@ function AiTutor() {
       toast.error("Paste the answer you want reviewed first.");
       return;
     }
+    if (mode === "ask_anything" && !question.trim()) {
+      toast.error("Type your question first.");
+      return;
+    }
     const prompt = generateTutorPrompt(user, mode, {
       ...(topicId === NO_TOPIC ? {} : { topicId }),
       learnerAnswer: answer,
+      question,
     });
     await send([{ role: "user", content: prompt }]);
   }
@@ -188,6 +194,7 @@ function AiTutor() {
     setMessages([]);
     setFollowUp("");
     setAnswer("");
+    setQuestion("");
     setThreadId(null);
   }
 
@@ -286,6 +293,24 @@ function AiTutor() {
                 </SelectContent>
               </Select>
             </div>
+
+            {mode === "ask_anything" && !started ? (
+              <div className="grid gap-2">
+                <Label htmlFor="tutor-question">Your question</Label>
+                <Textarea
+                  id="tutor-question"
+                  rows={5}
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="Ask anything, for example: why does DNS still resolve after I change the record?"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Answers use the course material, your saved notes and Second Brain material, and
+                  general knowledge, and say which one each part came from. Picking a topic above is
+                  optional.
+                </p>
+              </div>
+            ) : null}
 
             {mode === "review_answer" && !started ? (
               <div className="grid gap-2">
