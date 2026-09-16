@@ -95,17 +95,24 @@ function ProgressPage() {
       >
         <ul className="divide-y divide-border">
           {dimensionLabels.map((dimension) => (
-            <li key={dimension.key} className="py-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <p className="text-sm font-medium">{dimension.label}</p>
-                  <p className="text-xs text-muted-foreground">{dimension.help}</p>
+            <li key={dimension.key}>
+              <Link
+                to="/measures/$measure"
+                params={{ measure: measureSlug(dimension.key as MeasureKey) }}
+                className="block rounded-md py-3 transition-colors hover:bg-muted/40"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-medium">{dimension.label}</p>
+                    <p className="text-xs text-muted-foreground">{dimension.help}</p>
+                  </div>
+                  <span className={`text-sm tabular-nums ${scoreTone(report.dimensions[dimension.key])}`}>
+                    {report.dimensions[dimension.key]}%
+                  </span>
                 </div>
-                <span className={`text-sm tabular-nums ${scoreTone(report.dimensions[dimension.key])}`}>
-                  {report.dimensions[dimension.key]}%
-                </span>
-              </div>
-              <ProgressBar value={report.dimensions[dimension.key]} className="mt-2 h-1.5" />
+                <ProgressBar value={report.dimensions[dimension.key]} className="mt-2 h-1.5" />
+                <p className="mt-1.5 text-xs text-primary">How to get this up</p>
+              </Link>
             </li>
           ))}
         </ul>
