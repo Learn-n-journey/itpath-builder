@@ -92,7 +92,7 @@ function DailyChallengePage() {
         "Five mixed questions drawn from across the whole material. Same set for everyone today; your answers feed the same review and mistake engine as every other quiz.",
       topicIds: [...new Set(challenge.questions.map((question) => question.topicId))],
       questionIds: challenge.questions.map((question) => question.id),
-    } satisfies QuizRunnerQuiz;
+    } satisfies Quiz;
   }, [challenge]);
 
   return (
