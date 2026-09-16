@@ -62,6 +62,7 @@ import { GaylBubble } from "@/components/gayl/gayl-bubble";
 import { MilestoneOverlay } from "@/components/milestones/milestone-overlay";
 import { BackButton } from "@/components/layout/back-button";
 import { QuickNav } from "@/components/layout/quick-nav";
+import { SidePanel } from "@/components/layout/side-panel";
 import { StudyTabs } from "@/components/layout/study-tabs";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -133,6 +134,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <MilestoneOverlay />
         <GaylBubble />
+        <SidePanel />
         <QuickNav />
         <footer className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">

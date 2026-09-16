@@ -24,7 +24,6 @@ import {
   Timer,
   AlarmClock,
   Compass,
-  Sparkles,
   Info,
   FileDown,
   Crown,
@@ -32,6 +31,7 @@ import {
   SquareTerminal,
   CircuitBoard,
   BrainCircuit,
+  UserRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -209,7 +209,7 @@ export const navItems: NavItem[] = [
   {
     label: "Second Brain",
     to: "/knowledge",
-    icon: Sparkles,
+    icon: Brain,
     group: "You",
     description: "Save notes, links, videos and files; IT PATH reads them and connects them to your topics.",
     pro: true,
@@ -231,7 +231,7 @@ export const navItems: NavItem[] = [
   {
     label: "Learner profile",
     to: "/learner",
-    icon: Brain,
+    icon: UserRound,
     group: "You",
     description: "Mastery, retention and error patterns per concept, with what to study next.",
     pro: true,

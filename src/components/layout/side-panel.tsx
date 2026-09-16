@@ -49,10 +49,17 @@ export function SidePanel({ className }: { className?: string }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className={cn("gap-2", className)}>
-          <Brain className="size-4" aria-hidden />
-          Second Brain
-        </Button>
+        <button
+          type="button"
+          aria-label="Ask your own notes (Second Brain)"
+          title="Second Brain: ask your own saved notes"
+          className={cn(
+            "fixed right-3 top-1/2 z-40 flex size-12 -translate-y-1/2 items-center justify-center rounded-full border border-primary/40 bg-background/80 text-primary shadow-lg backdrop-blur-xl transition-all duration-200 hover:scale-105 hover:border-primary/70 hover:bg-primary/10 active:scale-95",
+            className,
+          )}
+        >
+          <Brain className="size-5" aria-hidden />
+        </button>
       </SheetTrigger>
       <SheetContent side="right" className="flex w-full flex-col gap-4 overflow-y-auto sm:max-w-md">
         <SheetHeader className="p-0">
