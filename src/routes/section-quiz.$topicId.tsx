@@ -42,10 +42,13 @@ function SectionQuizPage() {
   const { topicId } = Route.useParams();
   const topic = findTopic(topicId);
   const { user } = useAppState();
+  const quizId = `section-quiz-${topicId}`;
+  const takenBefore = user.quizAttempts.filter((attempt) => attempt.quizId === quizId).length;
+  // Each attempt moves through the section's material, so a retake is a new set.
+  const round = useRef(takenBefore);
+  const questions = useMemo(() => getSectionQuizQuestions(topicId, round.current), [topicId]);
   if (!topic) return null;
 
-  const questions = getSectionQuizQuestions(topicId);
-  const quizId = `section-quiz-${topicId}`;
   const best = sectionQuizBest(user, topicId);
   const passed = best >= SECTION_PASS_SCORE;
   const next = passed ? nextJourneyTopic(topicId) : undefined;
@@ -53,7 +56,7 @@ function SectionQuizPage() {
   const quiz: Quiz = {
     id: quizId,
     title: `${topic.title} section quiz`,
-    description: `${SECTION_QUIZ_SIZE} questions on this section, all multiple choice. ${SECTION_PASS_SCORE}% to pass.`,
+    description: `${SECTION_QUIZ_SIZE} questions on this section, all multiple choice, with new questions each time you take it. ${SECTION_PASS_SCORE}% to pass.`,
     topicIds: [topicId],
     questionIds: questions.map((question) => question.id),
     kind: "assessment",
