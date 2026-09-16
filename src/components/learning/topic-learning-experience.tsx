@@ -47,6 +47,21 @@ function passesOffline(answer: string, concepts: string[], modelAnswer?: string)
   return modelAnswer ? answerMatches(answer, modelAnswer) : false;
 }
 
+/**
+ * Nearly there: some of the expected thinking is present, so the answer gets a
+ * nudge towards the missing step rather than a plain fail.
+ */
+function offlineHints(answer: string, concepts: string[]): string[] {
+  const matched = new Set(matchConcepts(answer, concepts));
+  if (matched.size === 0) return [];
+  return concepts
+    .filter((concept) => !matched.has(concept))
+    .slice(0, 4)
+    .map((concept) => `Add the step about ${concept.charAt(0).toLowerCase()}${concept.slice(1)}`);
+}
+
+
+
 
 export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const { user, actions } = useAppState();
