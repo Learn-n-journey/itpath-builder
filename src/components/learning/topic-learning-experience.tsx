@@ -111,6 +111,25 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const [scenarioFeedback, setScenarioFeedback] = useState<string | null>(savedScenario ? scenario?.guidance ?? null : null);
   const recallMarking = useAiMarking();
   const [markedRecallId, setMarkedRecallId] = useState<string | null>(null);
+  /**
+   * Which practice tab is open. Shortcuts elsewhere on the page can open a tab
+   * directly by setting the address hash, for example #teach-back.
+   */
+  const [workTab, setWorkTab] = useState("recall");
+  useEffect(() => {
+    const tabs = ["recall", "practice", "teach-back", "scenario"];
+    const applyHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (!tabs.includes(hash)) return;
+      setWorkTab(hash);
+      window.requestAnimationFrame(() => {
+        document.getElementById("work-on-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    };
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, []);
   const teachBackMarking = useAiMarking();
   const scenarioMarking = useAiMarking();
   
@@ -255,19 +274,19 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     </Panel>
 
 
-    <div className="space-y-4">{deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}{deepLesson?.depth ? <LessonDepthReading depth={deepLesson.depth} /> : null}<Panel title={deepLesson ? "Quick reference" : lesson.title} description={deepLesson ? "A condensed summary of the lesson above, for revision." : lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
+    <div id="lesson-reading" className="scroll-mt-24 space-y-4">{deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}{deepLesson?.depth ? <LessonDepthReading depth={deepLesson.depth} /> : null}<Panel title={deepLesson ? "Quick reference" : lesson.title} description={deepLesson ? "A condensed summary of the lesson above, for revision." : lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
         <ContentSection title="What It Is" text={lesson.definition} /><ContentSection title="Why It Matters" text={lesson.whyItMatters} />
         <ListSection title="How It Works" items={module.howItWorks} /><ListSection title="Where You See It" items={module.whereYouSeeIt} />
         <section><h2 className="mb-3 text-base font-semibold text-foreground">Key Terms</h2><dl className="divide-y divide-border border-y border-border">{lesson.keyTerms.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
         <ListSection title="Examples" items={lesson.realWorldExamples} /><ListSection title="Common Problems" items={module.commonProblems} /><ListSection title="How It Fails" items={module.howItFails} /><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /><ListSection title="Exam Coverage" items={module.examCoverage} /><ListSection title="Interview Questions" items={module.interviewQuestions} />
-      </div></Panel><WorkedExamples examples={getWorkedExamples(topic.id)} /><MediaPanel topic={topic} /></div>
+      </div></Panel><div id="worked-examples" className="scroll-mt-24"><WorkedExamples examples={getWorkedExamples(topic.id)} /></div><MediaPanel topic={topic} /></div>
 
-    <section className="space-y-4">
+    <section id="work-on-it" className="scroll-mt-24 space-y-4">
       <div>
         <h2 className="text-lg font-semibold text-foreground">Work on it</h2>
         <p className="text-sm text-muted-foreground">Read the lesson first, then check yourself here. Your answers are saved as you go.</p>
       </div>
-      <Tabs defaultValue="recall" className="space-y-4">
+      <Tabs value={workTab} onValueChange={setWorkTab} className="space-y-4">
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
         <TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Teach Back</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
       </TabsList>
