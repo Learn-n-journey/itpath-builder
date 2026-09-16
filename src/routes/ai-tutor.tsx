@@ -194,6 +194,7 @@ function AiTutor() {
     setMessages([]);
     setFollowUp("");
     setAnswer("");
+    setQuestion("");
     setThreadId(null);
   }
 
