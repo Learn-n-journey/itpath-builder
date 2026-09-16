@@ -8,6 +8,7 @@ import { useIntelligence } from "@/hooks/use-intelligence";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/journey")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Journey Map | IT PATH" },
@@ -51,7 +52,6 @@ function JourneyPage() {
   return (
     <div className="mx-auto w-full max-w-3xl">
       <PageHeader
-        icon={<MapIcon className="size-5" />}
         title="Journey map"
         description="The whole two-year route, and where you actually stand on it. Every marker comes from your recorded answers; nothing is lit up until there is evidence."
       />

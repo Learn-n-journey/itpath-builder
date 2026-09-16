@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Map,
   Route as RouteIcon,
+  CalendarDays,
   CalendarCheck2,
   BookOpen,
   Library,

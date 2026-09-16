@@ -446,3 +446,41 @@ export function alertInsight(
 
 
 
+
+/**
+ * A short welcome back after a few days away.
+ *
+ * Never urgent and never a guilt trip: it says what was last recorded and
+ * what is waiting, then leaves the choice to the learner. Returns null unless
+ * there is a real gap of three days or more after recorded study.
+ */
+export function checkInMessage(user: UserData, now: Date = new Date()): GaylMessage | null {
+  let last: number | null = null;
+  for (const session of user.studySessions) {
+    const time = new Date(session.startedAt).getTime();
+    if (!Number.isNaN(time) && (last === null || time > last)) last = time;
+  }
+  if (last === null) return null;
+
+  const days = Math.floor((now.getTime() - last) / 86_400_000);
+  if (days < 3) return null;
+
+  const due = user.reviews.filter(
+    (review) => review.status === "scheduled" && new Date(review.dueAt).getTime() <= now.getTime(),
+  ).length;
+  const lastLabel = new Date(last).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  const text = due > 0
+    ? `Hey, welcome back. It's been ${days} days since your last session on ${lastLabel}. Nothing is on fire, and ${due} review${due === 1 ? " is" : "s are"} waiting whenever you're ready.`
+    : `Hey, welcome back. It's been ${days} days since your last session on ${lastLabel}. Nothing is on fire; pick up where you left off and I'll keep track of the rest.`;
+
+  return {
+    id: `checkin:${days}:${lastLabel}`,
+    topicId: "",
+    title: "Welcome back",
+    text,
+    detail: null,
+    route: "/",
+    urgent: false,
+    why: [`Last recorded session: ${lastLabel}.`, `Reviews currently due: ${due}.`],
+  };
+}
