@@ -48,6 +48,12 @@ function SectionQuizPage() {
   // Each attempt moves through the section's material, so a retake is a new set.
   const round = useRef(takenBefore);
   const questions = useMemo(() => getSectionQuizQuestions(topicId, round.current), [topicId]);
+  // Every question this section can ask, so earlier attempts still show their review.
+  const fullPool = useMemo(() => getTopicQuestionPool(topicId), [topicId]);
+  const nextQuestions = useCallback(() => {
+    round.current += 1;
+    return getSectionQuizQuestions(topicId, round.current);
+  }, [topicId]);
   if (!topic) return null;
 
   const best = sectionQuizBest(user, topicId);

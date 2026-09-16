@@ -63,6 +63,7 @@ export function QuizRunner({
   quiz,
   questions,
   nextQuestions,
+  historyPool,
   startLabel = "Start quiz",
   passScore,
 }: {
@@ -70,6 +71,8 @@ export function QuizRunner({
   questions?: Question[];
   /** Called when an attempt starts, so each attempt can use a new set of questions. */
   nextQuestions?: () => Question[];
+  /** Every question this quiz can ever ask, so older attempts still render. */
+  historyPool?: Question[];
   startLabel?: string;
   passScore?: number;
 }) {
@@ -83,12 +86,12 @@ export function QuizRunner({
   // Everything we can still render, so earlier attempts keep working.
   const known = useMemo(() => {
     const seen = new Set<string>();
-    return [...pool, ...base].filter((item) => {
+    return [...pool, ...base, ...(historyPool ?? [])].filter((item) => {
       if (seen.has(item.id)) return false;
       seen.add(item.id);
       return true;
     });
-  }, [base, pool]);
+  }, [base, pool, historyPool]);
 
   const attempts = useMemo(
     () =>
