@@ -8,7 +8,7 @@ import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
-import { formatStudyTime, topicStudyTimeForSession } from "@/lib/study-time";
+import { topicStudyTimeForSession } from "@/lib/study-time";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/topics/$topicId")({

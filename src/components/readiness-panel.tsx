@@ -8,7 +8,7 @@ import {
   readinessBandLabels,
   type ReadinessReport,
 } from "@/lib/readiness-engine";
-import { formatStudyTime } from "@/lib/study-time";
+
 
 function Ring({ value }: { value: number }) {
   return (

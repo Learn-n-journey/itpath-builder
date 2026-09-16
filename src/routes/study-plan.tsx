@@ -195,7 +195,7 @@ function StudyPlanPage() {
                 <li key={plan.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                   <span className="text-muted-foreground">
                     {new Date(plan.completedAt ?? plan.createdAt).toLocaleString()} ·{" "}
-                    {durationLabel(plan.targetMinutes)} plan
+                    Current plan
                   </span>
                   <span className="tabular-nums">
                     {formatDuration(plan.trackedSeconds)} tracked · {done} done · {skipped} skipped
@@ -238,7 +238,7 @@ function ActivePlan({
   onFinish: () => void;
 }) {
   const tracked = liveTrackedSeconds(plan);
-  const plannedMinutes = plan.tasks.reduce((sum, task) => sum + task.plannedMinutes, 0);
+  
   const remaining = plan.tasks.filter((task) => task.status === "pending" || task.status === "active");
 
   return (
@@ -286,7 +286,7 @@ function ActivePlan({
                 <span className="rounded bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
                   {index + 1}. {studyTaskKindLabels[task.kind]}
                 </span>
-                <span className="text-xs text-muted-foreground">{task.plannedMinutes} min</span>
+                
                 <span className="text-xs tabular-nums text-muted-foreground">
                   {formatDuration(task.trackedSeconds)} tracked
                 </span>
