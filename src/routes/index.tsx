@@ -27,6 +27,7 @@ import type { CertificationStatus } from "@/lib/app-data/types";
 import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
 import { nextActions, type NextAction } from "@/lib/next-action";
 import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
+import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import { greetingFor } from "@/lib/greeting";
 import { useProfile } from "@/hooks/use-profile";
@@ -158,6 +159,14 @@ function Dashboard() {
   );
   const dismissAction = useCallback((action: NextAction) => {
     dismissNextAction(action);
+    setDismissedVersion((v) => v + 1);
+  }, []);
+  const reviewTopics = useMemo(
+    () => visibleReviewTopics(d.topicsNeedingReview),
+    [d.topicsNeedingReview, dismissedVersion],
+  );
+  const markReviewDone = useCallback((row: { topicId: string; reason: string }) => {
+    clearReviewTopic(row);
     setDismissedVersion((v) => v + 1);
   }, []);
   const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
