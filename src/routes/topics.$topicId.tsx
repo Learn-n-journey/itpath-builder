@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
 import { TopicKnowledgePanel } from "@/components/knowledge/topic-knowledge-panel";
@@ -29,6 +29,17 @@ export const Route = createFileRoute("/topics/$topicId")({
   },
   component: TopicPage,
 });
+
+/** Which part of the page each study stage jumps to. */
+const STUDY_PART_TARGETS: Record<string, string | undefined> = {
+  "Read the lesson": "#lesson-reading",
+  "Second pass with notes": "#lesson-reading",
+  "Work through the examples": "#worked-examples",
+  "Recall from memory": "#recall",
+  "Practice decision": "#practice",
+  "Teach it back": "#teach-back",
+  "Real-world scenario": "#scenario",
+};
 
 function TopicPage() {
   const { topicId } = Route.useParams();
