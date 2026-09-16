@@ -69,14 +69,6 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
   { id: "intermediate", label: "Working in IT already" },
 ];
 
-const JOBS = [
-  "IT Support Specialist",
-  "Helpdesk Technician",
-  "Network Administrator",
-  "Systems Administrator",
-  "SOC Analyst",
-  "Cybersecurity Analyst",
-];
 
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
@@ -274,22 +266,6 @@ function SettingsPage() {
                   {EXPERIENCE.map((e) => (
                     <SelectItem key={e.id} value={e.id}>
                       {e.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Target job</Label>
-              <Select value={s.targetJob} onValueChange={(v) => updateSettings({ targetJob: v })}>
-                <SelectTrigger className="mt-1.5 w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {JOBS.map((j) => (
-                    <SelectItem key={j} value={j}>
-                      {j}
                     </SelectItem>
                   ))}
                 </SelectContent>

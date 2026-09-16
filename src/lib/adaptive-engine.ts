@@ -9,8 +9,8 @@ import {
   experienceStartIndex,
   isMastered,
   isTopicOpen,
-  journeyIndex,
-  journeyOrderedTopics,
+  journeyIndexFor,
+  journeyTopics,
 } from "@/lib/journey-order";
 
 
@@ -54,12 +54,12 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
   // to the top.
   const intelligence = buildIntelligence(user, now);
   const current = currentJourneyTopic(user);
-  const currentIndex = current ? journeyIndex(current.id) : Number.MAX_SAFE_INTEGER;
+  const currentIndex = current ? journeyIndexFor(user, current.id) : Number.MAX_SAFE_INTEGER;
   const startIndex = experienceStartIndex(user);
 
 
-  const entries: AdaptiveEntry[] = journeyOrderedTopics.map((topic) => {
-    const index = journeyIndex(topic.id);
+  const entries: AdaptiveEntry[] = journeyTopics(user).map((topic) => {
+    const index = journeyIndexFor(user, topic.id);
     const score = mastery(user, topic.id);
     const openMistakes = openMistakeCount(user, topic.id);
     const dueReviews = user.reviews.filter(

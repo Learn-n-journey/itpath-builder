@@ -522,12 +522,12 @@ export function SystemDiagnostics() {
 
     const settingsOk =
       loaded.state.user.settings.studyHoursPerWeek === user.settings.studyHoursPerWeek &&
-      loaded.state.user.settings.targetJob === user.settings.targetJob;
+      loaded.state.user.settings.certificationTarget === user.settings.certificationTarget;
     results.push({
       name: "Settings save",
       pass: settingsOk,
       detail: settingsOk
-        ? `Saved settings match (${user.settings.studyHoursPerWeek}h/week, ${user.settings.targetJob}).`
+        ? `Saved settings match (${user.settings.studyHoursPerWeek}h/week, ${user.settings.certificationTarget}).`
         : "Stored settings do not match the current values.",
     });
 

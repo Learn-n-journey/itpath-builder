@@ -9,6 +9,7 @@ import {
   hasTopicActivity,
   isMastered,
   isTopicOpen,
+  onJourney,
   sectionQuizBest,
   sectionQuizPassedAt,
 } from "@/lib/journey-order";
@@ -99,7 +100,11 @@ function JourneyPage() {
     return "not-started";
   }
 
-  const allTopics = journeyPhases.flatMap((phase) => phase.topics);
+  // Only the sections that belong to the certification chosen in settings.
+  const phases = journeyPhases
+    .map((phase) => ({ ...phase, topics: phase.topics.filter((topic) => onJourney(user, topic.id)) }))
+    .filter((phase) => phase.topics.length > 0);
+  const allTopics = phases.flatMap((phase) => phase.topics);
   const passed = allTopics.filter((topic) => isMastered(user, topic.id)).length;
 
   return (
@@ -128,7 +133,7 @@ function JourneyPage() {
       </div>
 
       <ol className="relative space-y-6">
-        {journeyPhases.map((phase, phaseIndex) => {
+        {phases.map((phase, phaseIndex) => {
           const phaseTopics = phase.topics.map((topic) => ({
             topic,
             status: statusOf(topic.id),
@@ -141,7 +146,7 @@ function JourneyPage() {
           return (
             <li key={phase.title} className="relative pl-9">
               {/* Connector line to the next phase */}
-              {phaseIndex < journeyPhases.length - 1 ? (
+              {phaseIndex < phases.length - 1 ? (
                 <span
                   className={cn(
                     "absolute left-[11px] top-9 h-[calc(100%-1rem)] w-px",

@@ -178,7 +178,7 @@ function Dashboard() {
         <div className="min-w-0 flex-1">
           <PageHeader
             title={firstName ? greetingFor(firstName) : "Dashboard"}
-            description={`Target role: ${user.settings.targetJob}. Certification focus: ${user.settings.certificationTarget}.`}
+            description={`Certification focus: ${user.settings.certificationTarget}.`}
             actions={
               <Button asChild>
                 <Link to="/study-plan">Open study plan</Link>
