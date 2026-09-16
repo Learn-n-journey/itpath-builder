@@ -4,6 +4,7 @@ import {
   Activity,
   Award,
   Brain,
+  Check,
   CheckCircle2,
   ClipboardList,
   Clock,
