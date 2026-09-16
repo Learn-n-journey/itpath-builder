@@ -242,6 +242,13 @@ function QuizWorkspace({
       );
     });
     reviewTopicIds.forEach((topicId) => actions.ensureReview({ topicId }));
+    // Topics that came through clean settle their due review straight away, so
+    // the queue reflects the work that was just done.
+    const weakSet = new Set(result.weakTopicIds);
+    const cleanTopicIds = new Set(
+      orderedQuestions.map((item) => item.topicId).filter((id) => !weakSet.has(id) && !reviewTopicIds.has(id)),
+    );
+    cleanTopicIds.forEach((topicId) => actions.settleTopicReview(topicId, "pass"));
     onReview();
     toast.success("Submitted and scored.");
   }

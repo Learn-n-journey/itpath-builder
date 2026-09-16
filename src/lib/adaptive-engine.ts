@@ -47,7 +47,10 @@ export function adaptiveQueue(user: UserData, now: Date = new Date()): AdaptiveQ
     const score = mastery(user, topic.id);
     const openMistakes = openMistakeCount(user, topic.id);
     const dueReviews = user.reviews.filter(
-      (review) => review.topicId === topic.id && new Date(review.dueAt).getTime() <= nowMs,
+      (review) =>
+        review.topicId === topic.id &&
+        review.status === "scheduled" &&
+        new Date(review.dueAt).getTime() <= nowMs,
     ).length;
 
     const prerequisites = topic.prerequisiteTopicIds

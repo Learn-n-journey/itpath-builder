@@ -216,6 +216,9 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         createdAt: now,
       });
       actions.ensureReview({ topicId: topic.id });
+    } else {
+      // Answered it well, so any review waiting on this topic is settled.
+      actions.settleTopicReview(topic.id, "pass");
     }
     const message = almost
       ? `Nearly there. ${hints.length ? hints.join(". ") + "." : question.explanation}`
@@ -232,6 +235,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     const correct = choice === activity.answerIndex;
     actions.addPracticeResponse({ id: crypto.randomUUID(), activityId: activity.id, topicId: topic.id, selectedIndex: choice, correct, createdAt: new Date().toISOString() });
     setPracticeFeedback((current) => ({ ...current, [activity.id]: `${correct ? "Correct. " : "Not yet. "}${activity.explanation}` }));
+    if (correct) actions.settleTopicReview(topic.id, "pass");
     raiseProgress({ application: Math.max(progress.application, correct ? 35 : 10), practicalAbility: Math.max(progress.practicalAbility, correct ? 25 : 10) });
   }
 
