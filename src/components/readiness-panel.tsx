@@ -8,7 +8,7 @@ import {
   readinessBandLabels,
   type ReadinessReport,
 } from "@/lib/readiness-engine";
-import { formatStudyTime } from "@/lib/study-time";
+
 
 function Ring({ value }: { value: number }) {
   return (
@@ -60,29 +60,8 @@ export function ReadinessPanel({
               : `Average of ${readiness.performance}% on the work you have done and ${readiness.coverage}% of the exam covered`}
           </p>
           <p className="text-muted-foreground">
-            {report.topicsDone} of {report.topicsTotal} topics finished ·{" "}
-            {formatStudyTime(report.minutesRemaining)} of study left
+            {report.topicsDone} of {report.topicsTotal} topics finished. Learn at your own pace, the score grows as the work does.
           </p>
-          {report.weeksRemaining === undefined ? (
-            <p className="text-muted-foreground">
-              Set your study days and session length to see a projected date.
-            </p>
-          ) : report.weeksRemaining === 0 ? (
-            <p className="text-muted-foreground">No study time outstanding at your current pace.</p>
-          ) : (
-            <p className="text-muted-foreground">
-              About {report.weeksRemaining} week{report.weeksRemaining === 1 ? "" : "s"} away,
-              roughly {report.projectedReadyDate?.toLocaleDateString(undefined, {
-                month: "long",
-                year: "numeric",
-              })}
-              , at{" "}
-              {report.paceFromRecordedSessions
-                ? `your recorded pace of ${report.paceWeeklyMinutes} minutes a week`
-                : `your planned ${report.paceWeeklyMinutes} minutes a week`}
-              .
-            </p>
-          )}
         </div>
       </div>
 

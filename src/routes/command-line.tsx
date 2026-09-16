@@ -419,7 +419,7 @@ function CommandLinePage() {
       </Panel>
 
       {!attempt ? (
-        <Panel className="mt-5" title={scenario.title} description={`${shellLabels[scenario.shell]} · about ${scenario.estimatedMinutes} minutes`}>
+        <Panel className="mt-5" title={scenario.title} description={shellLabels[scenario.shell]}>
           <p className="text-sm leading-relaxed text-muted-foreground">{scenario.brief}</p>
           <p className="mt-3 text-sm"><span className="font-medium">Environment: </span><span className="text-muted-foreground">{scenario.environment}</span></p>
           <div className="mt-5 flex flex-wrap gap-2">

@@ -199,11 +199,7 @@ function SettingsPage() {
                 {formatStudyTime(s.sessionLengthMinutes)} a day.
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                {weeklyHours < 8
-                  ? `Most IT certification guidance recommends 8–10 hours a week, you are ${formatStudyTime(Math.round((8 - weeklyHours) * 60))} below that. Add a day or extend your daily time to reach it.`
-                  : weeklyHours <= 10
-                    ? "This sits inside the recommended 8–10 hours a week for steady certification progress."
-                    : "This is above the recommended 8–10 hours a week, ambitious, but watch out for burnout and keep your review sessions."}
+                Learn at your own pace. There is no schedule to keep up with, this only shapes how your daily plan is built.
               </p>
             </div>
           </div>

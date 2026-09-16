@@ -189,7 +189,7 @@ function ExamPage() {
               <p className="text-xs text-muted-foreground">
                 {expired
                   ? "Time is up. Submit now, anything unanswered is marked wrong, exactly like the real exam."
-                  : `${questionCount} questions · ${Math.round(totalSeconds / 60)} minutes · ${PASS_SCORE}% to pass`}
+                  : `${questionCount} questions · ${PASS_SCORE}% to pass`}
               </p>
             </div>
             <ExamTimer seconds={totalSeconds} onExpire={() => setExpired(true)} />
