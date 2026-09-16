@@ -62,13 +62,23 @@ export function NextActionCard({
             </p>
           </div>
         </div>
-        <div className="mt-4">
+        <div className="mt-4 flex items-center gap-2">
           <Button asChild size="sm">
             <ActionLink action={primary}>
               Start now
               <ArrowRight className="size-4" aria-hidden />
             </ActionLink>
           </Button>
+          {onDismiss ? (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onDismiss(primary)}
+              aria-label="Dismiss this suggestion"
+            >
+              Not now
+            </Button>
+          ) : null}
         </div>
       </div>
 
@@ -79,7 +89,7 @@ export function NextActionCard({
           </p>
           <ul className="mt-2 space-y-1.5">
             {rest.slice(0, 3).map((action) => (
-              <li key={action.id}>
+              <li key={action.id} className="group relative">
                 <ActionLink
                   action={action}
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-secondary"
@@ -94,6 +104,16 @@ export function NextActionCard({
                     {action.minutes}m
                   </span>
                 </ActionLink>
+                {onDismiss ? (
+                  <button
+                    type="button"
+                    onClick={() => onDismiss(action)}
+                    aria-label={`Dismiss: ${action.label}`}
+                    className="absolute right-1 top-1 rounded-md p-1 text-muted-foreground/60 opacity-0 transition-opacity hover:bg-secondary hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100"
+                  >
+                    <X className="size-3.5" aria-hidden />
+                  </button>
+                ) : null}
               </li>
             ))}
           </ul>
