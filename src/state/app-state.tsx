@@ -41,6 +41,7 @@ import {
   type CertificationObjectiveOverride,
   type IncidentAttempt,
   type LabAttempt,
+  type MasteryCheckAttempt,
   type Note,
   type Mistake,
   type PracticeResponse,
@@ -66,6 +67,7 @@ interface AppActions {
   updateQuizAttempt: (attempt: QuizAttempt) => void;
   recordQuizPass: (pass: { quizId: string; topicId?: string; score: number }) => void;
   addLabAttempt: (attempt: LabAttempt) => void;
+  addMasteryCheckAttempt: (attempt: MasteryCheckAttempt) => void;
   updateLabAttempt: (attempt: LabAttempt) => void;
   addIncidentAttempt: (attempt: IncidentAttempt) => void;
   updateIncidentAttempt: (attempt: IncidentAttempt) => void;
@@ -281,6 +283,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.recordQuizPass(current, pass)),
       addLabAttempt: (attempt) =>
         setUser((current) => userMutations.addLabAttempt(current, attempt)),
+      addMasteryCheckAttempt: (attempt) =>
+        setUser((current) => userMutations.addMasteryCheckAttempt(current, attempt)),
       updateLabAttempt: (attempt) =>
         setUser((current) => userMutations.updateLabAttempt(current, attempt)),
       addIncidentAttempt: (attempt) =>
