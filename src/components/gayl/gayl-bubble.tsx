@@ -67,9 +67,20 @@ function MessageCard({
               {message.title}
             </Link>
           ) : (
-            <span>{message.title}</span>
+          <span>{message.title}</span>
           )}
         </p>
+        {onClear ? (
+          <button
+            type="button"
+            onClick={onClear}
+            aria-label="Clear this message"
+            className="-mr-1 -mt-0.5 shrink-0 rounded p-0.5 text-muted-foreground hover:text-foreground"
+          >
+            <X className="size-3.5" />
+          </button>
+        ) : null}
+      </div>
       <p className="mt-1 text-sm leading-6 text-foreground">{message.text}</p>
       {message.detail ? (
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
