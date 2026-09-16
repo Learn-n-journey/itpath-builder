@@ -400,9 +400,9 @@ html.light {
     var(--tw-bg);
   text-shadow: 0 0 6px color-mix(in oklab, var(--tw-fg) 22%, transparent);
 }
-.terminal-screen .term-prompt { color: var(--tw-accent); font-weight: 600; }
-.terminal-screen .term-muted { color: color-mix(in oklab, var(--tw-fg) 55%, transparent); }
-.terminal-screen .term-error { color: #ff8a80; }
+.terminal-window .term-prompt { color: var(--tw-accent); font-weight: 600; }
+.terminal-window .term-muted { color: color-mix(in oklab, var(--tw-fg) 55%, transparent); }
+.terminal-window .term-error { color: #ff8a80; }
 
 .terminal-inputbar {
   display: flex;
@@ -427,4 +427,12 @@ html.light {
 @keyframes terminal-blink {
   0%, 55% { opacity: 1; }
   56%, 100% { opacity: 0; }
+}
+
+.terminal-window .terminal-titlebar button {
+  color: color-mix(in oklab, var(--tw-fg) 75%, transparent);
+}
+.terminal-window .terminal-titlebar button:hover {
+  color: var(--tw-fg);
+  background: color-mix(in oklab, var(--tw-accent) 15%, transparent);
 }
