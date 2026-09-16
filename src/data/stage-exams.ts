@@ -9,8 +9,11 @@
  * A score of 80% or higher is a pass.
  */
 import type { Question } from "@/lib/app-data/types";
+import { topics } from "@/data/static-content";
+import { getTopicQuestionPool } from "@/data/topic-quizzes";
 
 export const STAGE_PASS_SCORE = 80;
+export const STAGE_EXAM_SIZE = 50;
 
 export interface StageExam {
   id: string;
@@ -956,7 +959,7 @@ export const stageExams: StageExam[] = [
     stage: "Stage 1",
     title: "Stage 1 exam: Foundations and CompTIA A+",
     description:
-      "Twenty questions across hardware, operating systems, troubleshooting, mobile devices and safety, matched to the A+ 220-1101 and 220-1102 objectives covered in the Professor Messer course.",
+      "Fifty questions across hardware, operating systems, troubleshooting, mobile devices and safety, matched to the A+ 220-1101 and 220-1102 objectives covered in the Professor Messer course.",
     from: 1,
     to: 7,
     questions: build("stage-exam-1", stage1),
@@ -966,7 +969,7 @@ export const stageExams: StageExam[] = [
     stage: "Stage 2",
     title: "Stage 2 exam: Networking and Security",
     description:
-      "Twenty questions across the OSI model, switching, subnetting, routing, network services, wireless and the Security+ core, matched to the Network+ N10-009 and Security+ SY0-701 objectives in the Professor Messer courses.",
+      "Fifty questions across the OSI model, switching, subnetting, routing, network services, wireless and the Security+ core, matched to the Network+ N10-009 and Security+ SY0-701 objectives in the Professor Messer courses.",
     from: 8,
     to: 13,
     questions: build("stage-exam-2", stage2),
@@ -976,7 +979,7 @@ export const stageExams: StageExam[] = [
     stage: "Stage 3",
     title: "Stage 3 exam: Linux, Servers and Cloud",
     description:
-      "Twenty questions across the Linux filesystem, services, scripting, server hardware, directory services, backup, monitoring, cloud models and containers.",
+      "Fifty questions across the Linux filesystem, services, scripting, server hardware, directory services, backup, monitoring, cloud models and containers.",
     from: 14,
     to: 19,
     questions: build("stage-exam-3", stage3),
@@ -986,7 +989,7 @@ export const stageExams: StageExam[] = [
     stage: "Stage 4",
     title: "Stage 4 exam: Advanced Security and Career",
     description:
-      "Twenty questions across monitoring and SIEM, detection engineering, threat hunting, vulnerability management, penetration testing, zero trust, risk leadership and forensics.",
+      "Fifty questions across monitoring and SIEM, detection engineering, threat hunting, vulnerability management, penetration testing, zero trust, risk leadership and forensics.",
     from: 20,
     to: 24,
     questions: build("stage-exam-4", stage4),
@@ -996,3 +999,44 @@ export const stageExams: StageExam[] = [
 export function getStageExam(id: string): StageExam | undefined {
   return stageExams.find((exam) => exam.id === id);
 }
+
+/**
+ * The full 50 question stage exam: the authored stage questions first, then questions drawn
+ * evenly from every section in the stage so the whole stage is examined, not just part of it.
+ */
+export function getStageExamQuestions(examId: string): Question[] {
+  const exam = getStageExam(examId);
+  if (!exam) return [];
+  const cached = stageQuestionCache.get(examId);
+  if (cached) return cached;
+
+  const out: Question[] = [...exam.questions];
+  const used = new Set(out.map((item) => item.id));
+  const stageTopics = topics.filter((topic) => topic.month >= exam.from && topic.month <= exam.to);
+  const pools = stageTopics.map((topic) => getTopicQuestionPool(topic.id));
+
+  const writtenCap = 15;
+  let written = out.filter((item) => item.choices.length === 0).length;
+  for (let round = 0; out.length < STAGE_EXAM_SIZE; round += 1) {
+    let addedThisRound = false;
+    for (const pool of pools) {
+      if (out.length >= STAGE_EXAM_SIZE) break;
+      const next = pool.find((item) => {
+        if (used.has(item.id)) return false;
+        if (item.choices.length === 0 && written >= writtenCap) return false;
+        return true;
+      });
+      if (!next) continue;
+      used.add(next.id);
+      if (next.choices.length === 0) written += 1;
+      out.push({ ...next, quizId: examId });
+      addedThisRound = true;
+    }
+    if (!addedThisRound) break;
+  }
+
+  stageQuestionCache.set(examId, out);
+  return out;
+}
+
+const stageQuestionCache = new Map<string, Question[]>();
