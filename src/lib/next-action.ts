@@ -7,7 +7,8 @@
  * then the gap between what has been read and what has been proven, then new
  * material. Every action points at a route that exists.
  */
-import { assignments, labs, topics } from "@/data/static-content";
+import { assignments, labs } from "@/data/static-content";
+import { journeyIndex, journeyOrderedTopics } from "@/lib/journey-order";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationTopics } from "@/lib/cert-path";
 import { buildIntelligence } from "@/lib/intelligence/engine";
@@ -52,6 +53,24 @@ function mean(values: number[]): number {
 }
 
 /**
+ * Topics the learner has actually opened up.
+ *
+ * Finishing a practice task on a topic is the marker: until that happens the
+ * topic counts as untouched and nothing here will point at it, so the list
+ * never asks for work on material that has not been started.
+ */
+function startedTopicIds(user: UserData): Set<EntityId> {
+  const started = new Set<EntityId>();
+  for (const attempt of user.assignmentAttempts) {
+    if (!attempt.topicId) continue;
+    if (attempt.status === "completed" || attempt.status === "evaluated") {
+      started.add(attempt.topicId);
+    }
+  }
+  return started;
+}
+
+/**
  * The full ranked list. The first entry is the recommendation; the rest are
  * shown as alternatives so the learner is never boxed in.
  */
@@ -60,6 +79,7 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
   const nowMs = now.getTime();
   const path = adaptivePath(user);
   const certTopicIds = new Set(certificationTopics(path.certification.id).map((t) => t.id));
+  const started = startedTopicIds(user);
 
   // 1. Reviews that are already due. Retention decays first.
   const due = user.reviews.filter(
@@ -97,7 +117,10 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
   // 3. The learning intelligence engine's top concept: the diagnosed cause of
   // the current struggle, taught the way that cause needs to be taught.
   const intelligence = buildIntelligence(user, now);
-  for (const concept of intelligence.queue.slice(0, 2)) {
+  const startedConcepts = intelligence.queue
+    .filter((concept) => started.has(concept.topicId))
+    .sort((a, b) => journeyIndex(a.topicId) - journeyIndex(b.topicId));
+  for (const concept of startedConcepts.slice(0, 2)) {
     if (concept.attempts === 0 && concept.diagnosis === "never_learned") continue;
     out.push({
       id: `next-intel-${concept.topicId}`,
@@ -139,7 +162,8 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
       .filter((attempt) => attempt.status === "submitted")
       .flatMap((attempt) => attempt.results.map((result) => result.topicId)),
   );
-  const untested = topics.find((topic) => {
+  const untested = journeyOrderedTopics.find((topic) => {
+    if (!started.has(topic.id)) return false;
     const progress = topicScopeProgress(user, topic.id);
     return (
       certTopicIds.has(topic.id) &&
@@ -158,7 +182,8 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
   }
 
   // 5. Known in theory, unproven in practice.
-  const unproven = topics.find((topic) => {
+  const unproven = journeyOrderedTopics.find((topic) => {
+    if (!started.has(topic.id)) return false;
     const progress = topicScopeProgress(user, topic.id);
     if (!certTopicIds.has(topic.id)) return false;
     return mean([progress.understanding.score, progress.recall.score]) >= 60 && progress.practicalAbility.score < 40;
