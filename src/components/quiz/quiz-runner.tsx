@@ -167,6 +167,8 @@ export function QuizRunner({
     <QuizWorkspace
       attempt={attempt}
       pool={known}
+      quiz={quiz}
+      {...(passScore !== undefined ? { passScore } : {})}
       questionIndex={questionIndex}
       setQuestionIndex={setQuestionIndex}
       onReview={() => setReviewing(true)}
@@ -177,12 +179,16 @@ export function QuizRunner({
 function QuizWorkspace({
   attempt,
   pool,
+  quiz,
+  passScore,
   questionIndex,
   setQuestionIndex,
   onReview,
 }: {
   attempt: QuizAttempt;
   pool: Question[];
+  quiz: Quiz;
+  passScore?: number;
   questionIndex: number;
   setQuestionIndex: (index: number) => void;
   onReview: () => void;
