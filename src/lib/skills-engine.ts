@@ -491,7 +491,10 @@ export interface TrackReadiness {
   label: string;
   /** 0-100. Skills with no evidence count as zero, so readiness starts at zero. */
   score: number;
+  /** How much of this role's material has been attempted, 0-100. */
   coverage: number;
+  /** How well the attempted work went, ignoring what has not been touched. */
+  performance: number;
   weakSkills: SkillScore[];
   strongSkills: SkillScore[];
   evidenceCount: number;
@@ -503,15 +506,25 @@ export function scoreTracks(skills: SkillScore[]): TrackReadiness[] {
     const profile = Object.entries(trackProfiles[track]) as Array<[SkillId, number]>;
     const totalWeight = profile.reduce((sum, [, weight]) => sum + weight, 0);
     const relevant = profile.map(([skillId]) => byId.get(skillId)!).filter(Boolean);
-    const score = pct(
-      profile.reduce((sum, [skillId, weight]) => sum + (byId.get(skillId)?.score ?? 0) * weight, 0) / totalWeight,
+    const coverage = pct(
+      profile.reduce((sum, [skillId, weight]) => sum + (byId.get(skillId)?.coverage ?? 0) * weight, 0) / totalWeight,
     );
-    const withEvidence = relevant.filter((skill) => skill.hasEvidence);
+    // Performance reads only the work that was actually done.
+    const scored = profile.filter(([skillId]) => byId.get(skillId)?.hasEvidence);
+    const scoredWeight = scored.reduce((sum, [, weight]) => sum + weight, 0);
+    const performance = scoredWeight === 0
+      ? 0
+      : pct(
+          scored.reduce((sum, [skillId, weight]) => sum + (byId.get(skillId)?.accuracy ?? 0) * weight, 0) /
+            scoredWeight,
+        );
+    const score = pct((performance * coverage) / 100);
     return {
       track,
       label: trackLabels[track],
       score,
-      coverage: pct((withEvidence.length / relevant.length) * 100),
+      coverage,
+      performance,
       weakSkills: relevant.filter((skill) => skill.score < 60).sort((a, b) => a.score - b.score),
       strongSkills: relevant.filter((skill) => skill.score >= 60).sort((a, b) => b.score - a.score),
       evidenceCount: relevant.reduce((sum, skill) => sum + skill.evidenceCount, 0),
