@@ -233,15 +233,25 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
       ...reviewAttempts.map((row) => `review-${row.reviewId}`),
     ]),
   ];
+  // Retention is what is still held after time has passed, so it is earned over
+  // spaced gaps: a same day pass earns nothing lasting yet, and the credit grows
+  // as the gap between passes widens (about a day, a week, then three weeks).
   const retentionScores: Array<number | undefined> = retentionItemIds.map((itemId) => {
     const graded = (attemptsByItem.get(itemId) ?? []).sort((a, b) => a.at - b.at);
     if (!graded.length) return undefined;
     const last = graded[graded.length - 1];
     if (!last || !last.pass) return 0;
-    const passDays = new Set(graded.filter((row) => row.pass).map((row) => dayOf(row.at)));
-    return passDays.size >= 2 ? 100 : 50;
+    const passes = graded.filter((row) => row.pass);
+    const first = passes[0];
+    if (!first) return 0;
+    const gapDays = dayOf(last.at) - dayOf(first.at);
+    if (gapDays < 1) return 20;
+    if (gapDays < 7) return 50;
+    if (gapDays < 21) return 80;
+    return 100;
   });
   const retention = dimension(retentionScores.length ? retentionScores : [undefined]);
+
 
 
   const dimensions = [understanding, recall, application, practicalAbility, troubleshooting, retention];
