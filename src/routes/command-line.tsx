@@ -146,6 +146,14 @@ function CommandLinePage() {
     setRevealedSteps([]);
   }, [attempt?.id]);
 
+  // Starting a scenario swaps the brief for the terminal further down the page,
+  // which looks like nothing happened on small screens, so bring it into view.
+  useEffect(() => {
+    if (!scrollToTerminal || !terminalPanel.current) return;
+    terminalPanel.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    setScrollToTerminal(false);
+  }, [scrollToTerminal, attempt?.id]);
+
   function changeShell(value: TerminalAttempt["shell"]) {
     const next = scenariosForShell(value);
     setShell(value);
