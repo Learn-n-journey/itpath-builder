@@ -134,7 +134,7 @@ function CareerSkills() {
                   <p className="mt-1 text-xs text-muted-foreground">
                     {track.evidenceCount === 0
                       ? "No evidence recorded for this role yet."
-                      : `Scoring ${track.performance}% on the ${track.coverage}% of this role you have covered · weak: ${
+                      : `Average of ${track.performance}% on work done and ${track.coverage}% of the role covered · weak: ${
                           track.weakSkills.length === 0
                             ? "none"
                             : track.weakSkills.slice(0, 3).map((s) => s.label).join(", ")

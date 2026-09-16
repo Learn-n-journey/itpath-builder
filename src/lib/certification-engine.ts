@@ -194,8 +194,6 @@ export function scoreCertification(user: UserData, certification: Certification)
   if (assignments.length > 0) coverageParts.push((assignmentsDone / assignments.length) * 100);
   const coverage = pct(mean(coverageParts));
 
-  // Readiness is honest arithmetic: how well you are doing, over how much of
-  // the exam you have evidence for. Strong work on a sliver stays a sliver.
   // Solid single number: the straight average of how well you did and how much you have covered.
   const overall = pct((performance + coverage) / 2);
 
