@@ -185,4 +185,4 @@
 - [x] Job readiness reads "scoring X% on the Y% covered"
 - [x] Dashboard shows "Under 1% complete" instead of a flat 0 once work exists
 
-- [ ] One identification lab per section, subject-matched (hardware lab = hardware parts, etc.)
+- [x] One identification lab per section, subject-matched (verified: 75 sections, 1 each, own material)
