@@ -164,7 +164,7 @@ export const hardwareComponents: HardwareComponent[] = [
       {
         id: "heat-spreader",
         x: 50,
-        y: 18,
+        y: 32,
         name: "Heat spreader",
         whatItIs:
           "The metal shell covering the stick, usually aluminum. Plain sticks skip it, but gaming and high-speed RAM almost always has one.",
@@ -175,8 +175,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "gold-contacts",
-        x: 50,
-        y: 86,
+        x: 60,
+        y: 74,
         name: "Gold contact edge",
         whatItIs:
           "The row of gold-colored fingers along the bottom edge that slides into the motherboard slot.",
@@ -187,8 +187,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "notch",
-        x: 32,
-        y: 92,
+        x: 34,
+        y: 76,
         name: "Alignment notch",
         whatItIs:
           "A gap cut into the contact edge, off-center on purpose.",
@@ -255,7 +255,7 @@ export const hardwareComponents: HardwareComponent[] = [
       {
         id: "pcie-connector",
         x: 45,
-        y: 90,
+        y: 71,
         name: "PCIe connector",
         whatItIs:
           "The long gold edge at the bottom of the card that slots into the motherboard's x16 PCIe slot.",
@@ -266,8 +266,8 @@ export const hardwareComponents: HardwareComponent[] = [
       },
       {
         id: "gpu-power",
-        x: 78,
-        y: 10,
+        x: 79,
+        y: 20,
         name: "Power connectors",
         whatItIs:
           "One or two 6-pin or 8-pin sockets along the top edge of the card.",
