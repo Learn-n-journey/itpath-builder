@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarCheck, Flame, Target, Trophy } from "lucide-react";
+import { CalendarCheck, Flame, PartyPopper, Share2, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { Button } from "@/components/ui/button";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import type { Quiz } from "@/lib/app-data/types";
 import { cn } from "@/lib/utils";
+
 import {
   DAILY_TIERS,
   dailyChallenge,
@@ -42,18 +45,21 @@ export const Route = createFileRoute("/daily-challenge")({
 
 function DailyChallengePage() {
   const { user } = useAppState();
-  // The date is resolved after mount so the server render and the browser
-  // always agree on which set today is.
-  const [todayKey, setTodayKey] = useState<string | null>(null);
+  // Today's key is worked out straight away so the set is never stuck loading.
+  // The effect then corrects it to the browser's local day if that differs.
+  const [todayKey, setTodayKey] = useState<string>(() => dailyDateKey());
   const [tier, setTier] = useState<ChallengeTier>("beginner");
+  const [shared, setShared] = useState(false);
   useEffect(() => {
-    setTodayKey(dailyDateKey());
+    const local = dailyDateKey();
+    setTodayKey((current) => (current === local ? current : local));
   }, []);
 
   const challenge = useMemo(
     () => (todayKey ? dailyChallenge(todayKey, tier) : null),
     [todayKey, tier],
   );
+
   const historyKeys = useMemo(
     () => (todayKey ? recentDailyKeys(7, new Date(`${todayKey}T12:00:00`)) : []),
     [todayKey],
@@ -138,6 +144,22 @@ function DailyChallengePage() {
     } satisfies Quiz;
   }, [challenge]);
 
+  async function shareResult() {
+    const text = `I scored ${today?.best ?? 0}% on today's ${tierInfo(tier).label.toLowerCase()} Daily Challenge on IT PATH${challengeStreak > 1 ? `, ${challengeStreak} days in a row` : ""}. https://www.it-path.net/daily-challenge`;
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: "IT PATH Daily Challenge", text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        toast.success("Copied. Paste it wherever you like.");
+      }
+      setShared(true);
+    } catch {
+      // A cancelled share is not worth reporting.
+    }
+  }
+
+
   return (
     <>
       <PageHeader
@@ -197,6 +219,53 @@ function DailyChallengePage() {
         />
       </div>
 
+      {today ? (
+        <Panel
+          className="mt-5 border-primary/50"
+          title={`Today's ${tierInfo(tier).label.toLowerCase()} set is done`}
+          description={`Your best today is ${today.best}%. Every answer counted towards your reviews.`}
+        >
+          <div className="flex flex-col items-center gap-4 rounded-xl border border-primary/40 bg-primary/5 p-8 text-center">
+            <span className="flex size-14 items-center justify-center rounded-full bg-primary/15 text-primary">
+              <PartyPopper className="size-7" aria-hidden />
+            </span>
+            <div>
+              <h2 className="font-display text-2xl font-semibold">
+                {today.best === 100
+                  ? "Full marks"
+                  : today.best >= 80
+                    ? "Strong day"
+                    : "Day logged"}
+              </h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                {today.best === 100
+                  ? `A clean sweep of the ${tierInfo(tier).label.toLowerCase()} set.`
+                  : today.best >= 80
+                    ? `You held on to most of it today at ${today.best}%.`
+                    : `${today.best}% today, and the misses are already queued for review.`}{" "}
+                {challengeStreak > 1
+                  ? `That is ${challengeStreak} days in a row.`
+                  : "Come back tomorrow to start a streak."}
+                {tierBest > 0 && today.best >= tierBest ? " That also matches your personal best." : ""}
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
+              <Button onClick={() => void shareResult()}>
+                <Share2 aria-hidden /> {shared ? "Share again" : "Share this"}
+              </Button>
+              {tier !== "expert" && today.best >= 80 ? (
+                <Button
+                  variant="secondary"
+                  onClick={() => setTier(tier === "beginner" ? "intermediate" : "expert")}
+                >
+                  Try the next tier
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </Panel>
+      ) : null}
+
       {quiz && challenge ? (
         <div className="mt-6 space-y-4">
           <QuizRunner
@@ -209,6 +278,7 @@ function DailyChallengePage() {
       ) : (
         <Panel title="Loading today's set" description="One moment." />
       )}
+
 
       <Panel
         title="Your last seven days"
