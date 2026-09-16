@@ -116,7 +116,10 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
   // 3. The learning intelligence engine's top concept: the diagnosed cause of
   // the current struggle, taught the way that cause needs to be taught.
   const intelligence = buildIntelligence(user, now);
-  for (const concept of intelligence.queue.slice(0, 2)) {
+  const startedConcepts = intelligence.queue
+    .filter((concept) => started.has(concept.topicId))
+    .sort((a, b) => journeyIndex(a.topicId) - journeyIndex(b.topicId));
+  for (const concept of startedConcepts.slice(0, 2)) {
     if (concept.attempts === 0 && concept.diagnosis === "never_learned") continue;
     out.push({
       id: `next-intel-${concept.topicId}`,
