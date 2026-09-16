@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Activity,
@@ -25,7 +25,8 @@ import { adaptivePath } from "@/lib/adaptive-path";
 import { certificationStatusLabels } from "@/lib/certification-engine";
 import type { CertificationStatus } from "@/lib/app-data/types";
 import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
-import { nextActions } from "@/lib/next-action";
+import { nextActions, type NextAction } from "@/lib/next-action";
+import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import { greetingFor } from "@/lib/greeting";
 import { useProfile } from "@/hooks/use-profile";
