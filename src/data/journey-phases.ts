@@ -21,8 +21,9 @@ export interface JourneyPhase {
   topics: JourneyTopic[];
 }
 
-const PHASE_DEFS: Array<{ maxMonth: number; title: string; months: string; blurb: string }> = [
+const PHASE_DEFS: Array<{ minMonth: number; maxMonth: number; title: string; months: string; blurb: string }> = [
   {
+    minMonth: 1,
     maxMonth: 7,
     title: "Foundations and CompTIA A+",
     months: "Months 1 to 7",
