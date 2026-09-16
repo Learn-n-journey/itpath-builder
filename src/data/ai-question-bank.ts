@@ -6213,6 +6213,636 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'Troubleshooting,' the first advice given is: 'Identify which evidence sources exist and their retention before planning the investigation,' as this knowledge is foundational.",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-windows-administration-tools",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "Which Windows tool is best suited for identifying a process that is consuming excessive CPU resources?",
+    "choices": [
+      "Task Manager",
+      "Event Viewer",
+      "Services",
+      "Registry Editor"
+    ],
+    "answerIndex": 0,
+    "explanation": "Task Manager provides real-time information on processes, including CPU and memory usage, making it ideal for identifying runaway processes.",
+    "difficulty": "standard",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-windows-administration-tools",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "A user reports an application repeatedly crashing. What is the most effective initial step to investigate this issue?",
+    "choices": [
+      "Edit the application's entry in the Registry Editor.",
+      "Check the Services console to ensure all dependencies are running.",
+      "Use Event Viewer to filter logs to the time of the crash for correlation.",
+      "Restart the system and monitor for the crash in Task Manager."
+    ],
+    "answerIndex": 2,
+    "explanation": "To troubleshoot repeated application crashes, it's essential to 'Establish the exact time of the symptom, then filter logs to that window' in Event Viewer to 'Correlate a crash with recent update, driver, or configuration events.'",
+    "difficulty": "standard",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-windows-administration-tools",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "What role does PowerShell play in Windows administration according to the provided material?",
+    "choices": [
+      "It exclusively manages network configurations.",
+      "It acts as a graphical interface for the Registry.",
+      "It exposes the same management objects as graphical consoles.",
+      "It is primarily used for creating Scheduled tasks."
+    ],
+    "answerIndex": 2,
+    "explanation": "The section states, 'PowerShell cmdlets expose the same management objects as the graphical consoles,' indicating its role as a powerful command-line administration tool.",
+    "difficulty": "standard",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-windows-administration-tools",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "You suspect a recently installed driver is causing system instability. Which administrative tool would you use to find evidence of driver-related events?",
+    "choices": [
+      "Task Manager",
+      "Registry Editor",
+      "Event Viewer",
+      "Services"
+    ],
+    "answerIndex": 2,
+    "explanation": "Event Viewer stores 'structured events with source, ID, level, and timestamp,' making it the correct tool to correlate system instability with recent driver or configuration events.",
+    "difficulty": "standard",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-windows-administration-tools",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "Which of the following is described as 'A top-level branch of the Windows configuration database'?",
+    "choices": [
+      "Service",
+      "Event ID",
+      "Registry hive",
+      "Scheduled task"
+    ],
+    "answerIndex": 2,
+    "explanation": "The key terms define 'Registry hive' as 'A top-level branch of the Windows configuration database.'",
+    "difficulty": "standard",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-windows-administration-tools",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "Before reinstalling software due to a service failing to start, what troubleshooting steps are explicitly recommended?",
+    "choices": [
+      "Check for new Windows updates.",
+      "Verify network connectivity and firewall rules.",
+      "Test service dependencies and account permissions.",
+      "Run a full system malware scan."
+    ],
+    "answerIndex": 2,
+    "explanation": "The troubleshooting advice states, 'Test service dependencies and account permissions before reinstalling software' for a failing service.",
+    "difficulty": "standard",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-windows-administration-tools",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "Which tool provides the functionality to start, stop, and recover background processes in Windows?",
+    "choices": [
+      "Task Manager",
+      "Registry Editor",
+      "Services console",
+      "Event Viewer"
+    ],
+    "answerIndex": 2,
+    "explanation": "The section mentions, 'The service control manager starts, stops, and recovers background services,' which is accessed through the Services console.",
+    "difficulty": "standard",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-mobile-configuration-and-apps",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "When migrating a user to a new device, why is it crucial to verify synchronization settings on the old device *before* wiping it?",
+    "choices": [
+      "To ensure all data categories, like contacts and photos, are actively syncing to cloud services.",
+      "To prevent the new device from automatically deleting data that hasn't been backed up.",
+      "To confirm the device's IMEI number for warranty purposes before the transfer.",
+      "To check if the old device has enough available storage for a complete backup."
+    ],
+    "answerIndex": 0,
+    "explanation": "The troubleshooting section states: 'Verify sync per data category on the old device before wiping it, never after.' This is to ensure all desired data has been copied to the cloud and will be available for the new device.",
+    "difficulty": "standard",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-mobile-configuration-and-apps",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "A user is experiencing 'Apps stuck pending in the store' on their mobile device. Which of the following is the most appropriate first troubleshooting step?",
+    "choices": [
+      "Perform a factory reset on the device to clear all app data.",
+      "Check the device's available storage and verify the associated app store account.",
+      "Attempt to sideload the pending apps from a third-party source.",
+      "Disable all background app refresh settings to free up resources."
+    ],
+    "answerIndex": 1,
+    "explanation": "The troubleshooting section advises: 'Check available storage and the store account when apps will not install or update.' This addresses the common causes for apps being stuck.",
+    "difficulty": "standard",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-mobile-configuration-and-apps",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "Which of the following best describes the security advantage of obtaining applications solely from official app stores like Google Play or the Apple App Store?",
+    "choices": [
+      "Official app stores guarantee that all apps are compatible with every device model.",
+      "Apps from official stores are typically signed by the store and scanned for malware.",
+      "Official app stores provide direct communication channels to the app developers.",
+      "They ensure faster download speeds and more efficient app updates than other sources."
+    ],
+    "answerIndex": 1,
+    "explanation": "The section 'How it works' states: 'Apps from official stores are signed and scanned; sideloaded apps skip those checks and are the main mobile malware route.'",
+    "difficulty": "standard",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-mobile-configuration-and-apps",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "A user frequently travels internationally and requires the ability to quickly switch between local carrier plans without physically swapping cards. Which technology is best suited for this need?",
+    "choices": [
+      "SIM (Subscriber Identity Module)",
+      "eSIM (embedded SIM)",
+      "MicroSD card for carrier profile storage",
+      "NFC (Near Field Communication) for carrier authentication"
+    ],
+    "answerIndex": 1,
+    "explanation": "The key term definition for eSIM states: 'An embedded, reprogrammable SIM activated by downloading a carrier profile, common for travel plans and dual-line phones.'",
+    "difficulty": "standard",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-mobile-configuration-and-apps",
+    "certificationId": "cert-comptia-a-plus",
+    "prompt": "After setting up a new corporate email account on a BYOD (Bring Your Own Device) phone, the user is prompted to set a device PIN, which they previously did not have. What is the most likely reason for this requirement?",
+    "choices": [
+      "The corporate email system is enforcing a security policy that requires a device PIN.",
+      "The phone's operating system automatically enables a PIN when a new email account is added.",
+      "The email protocol selected (e.g., POP3) inherently demands a device PIN for encryption.",
+      "A glitch in the email app is incorrectly prompting for a PIN during setup."
+    ],
+    "answerIndex": 0,
+    "explanation": "The 'How it works' section mentions: 'Email profiles for work typically enforce security policy and can wipe only the corporate partition on BYOD devices.' This implies security requirements like a PIN.",
+    "difficulty": "standard",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-identity-and-access-management",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "Which security principle is directly addressed by preventing \"Permanent admin rights\"?",
+    "choices": [
+      "Separation of duties",
+      "Least privilege",
+      "Need-to-know",
+      "Defense in depth"
+    ],
+    "answerIndex": 1,
+    "explanation": "Permanent admin rights violate the principle of least privilege, which dictates that users should only have the minimum access necessary to perform their job functions.",
+    "difficulty": "challenging",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-identity-and-access-management",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "What is the primary function of an identity provider in the context of federation?",
+    "choices": [
+      "To manage application data storage",
+      "To authenticate the user and issue a signed assertion or token",
+      "To enforce network perimeter security",
+      "To define internal application roles and permissions"
+    ],
+    "answerIndex": 1,
+    "explanation": "According to the 'How it works' section, an identity provider authenticates the user and issues a signed assertion or token to the application.",
+    "difficulty": "challenging",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-identity-and-access-management",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "When troubleshooting an access failure, what is the recommended first step?",
+    "choices": [
+      "Check the application's database permissions",
+      "Verify network connectivity to the application server",
+      "Trace an access failure through identity provider logs",
+      "Reboot the user's device and try again"
+    ],
+    "answerIndex": 2,
+    "explanation": "The troubleshooting advice states: 'Trace an access failure through identity provider logs before touching the application.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-identity-and-access-management",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "What common problem can lead to excessive access accumulation for users over time if not managed?",
+    "choices": [
+      "MFA fatigue attacks",
+      "Shared service credentials",
+      "Group nesting sprawl",
+      "Orphaned accounts after leavers"
+    ],
+    "answerIndex": 2,
+    "explanation": "Group nesting sprawl is a common problem listed, and it can lead to users having more access than needed due to complex and unmanaged group memberships.",
+    "difficulty": "challenging",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-identity-and-access-management",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "Which protocol is described as 'An identity layer built on OAuth 2.0 used by modern applications'?",
+    "choices": [
+      "SAML",
+      "SSO",
+      "OIDC",
+      "PAM"
+    ],
+    "answerIndex": 2,
+    "explanation": "OIDC is defined as 'An identity layer built on OAuth 2.0 used by modern applications.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-identity-and-access-management",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "A policy that evaluates device, location, and risk signals before granting access aligns with which key term?",
+    "choices": [
+      "Privileged Access Management",
+      "Single Sign-On",
+      "Conditional Access",
+      "Security Assertion Markup Language"
+    ],
+    "answerIndex": 2,
+    "explanation": "Conditional Access is defined as 'Policy that evaluates risk signals before granting access.' The 'How it works' section further elaborates that 'Conditional policies evaluate device, location, and risk before issuing access.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-identity-and-access-management",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "After a user's permissions are changed, but they still have access to a system they shouldn't, what should be checked?",
+    "choices": [
+      "The application's role-based access control (RBAC) settings",
+      "The user's direct group memberships only",
+      "Token lifetime and session revocation",
+      "The physical network connection to the server"
+    ],
+    "answerIndex": 2,
+    "explanation": "The troubleshooting section advises: 'Verify token lifetime and session revocation when access persists after a change.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-network-security-controls",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "What is the primary function of a stateful firewall in managing network traffic?",
+    "choices": [
+      "It tracks active network sessions to permit return traffic automatically.",
+      "It applies strict default-deny rules to all incoming connections.",
+      "It encrypts all data packets passing between internal networks.",
+      "It inspects packet payloads for known malicious signatures."
+    ],
+    "answerIndex": 0,
+    "explanation": "Stateful firewalls track sessions, which allows return traffic to be permitted without requiring a separate rule, simplifying rule sets and improving security.",
+    "difficulty": "challenging",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-network-security-controls",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "A company wants to ensure that different departments' networks cannot directly communicate with each other without going through specific security controls. Which network security control is best suited for this requirement?",
+    "choices": [
+      "Segmentation using VLANs or security groups.",
+      "Deployment of a single, centralized firewall.",
+      "Implementing a comprehensive VPN solution for all internal users.",
+      "Configuring an Intrusion Detection System (IDS) to alert on unusual traffic."
+    ],
+    "answerIndex": 0,
+    "explanation": "Segmentation, whether using VLANs, VRFs, or cloud security groups, is used to enforce policy between different network segments and prevent direct communication where not explicitly allowed.",
+    "difficulty": "challenging",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-network-security-controls",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "An Intrusion Prevention System (IPS) operates 'inline'. What does this imply about its position and function?",
+    "choices": [
+      "It is positioned so that all traffic must pass through it, enabling real-time blocking.",
+      "It passively monitors a copy of network traffic for analysis without interfering.",
+      "It operates on endpoints rather than at network chokepoints.",
+      "It can only detect threats but cannot take preventative action."
+    ],
+    "answerIndex": 0,
+    "explanation": "The term 'Inline' means a device is positioned so traffic must pass through it, enabling blocking and active prevention measures, such as those performed by an IPS.",
+    "difficulty": "challenging",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-network-security-controls",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "Which of the following is a 'common problem' listed for network security controls?",
+    "choices": [
+      "Overly broad 'any-any' rules.",
+      "Under-provisioned network bandwidth.",
+      "Lack of physical security for network devices.",
+      "Absence of a formal incident response plan."
+    ],
+    "answerIndex": 0,
+    "explanation": "Overly broad 'any-any' rules are explicitly mentioned as a common problem in network security, as they can create significant security gaps.",
+    "difficulty": "challenging",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-network-security-controls",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "After deploying a new firewall and experiencing connectivity issues, what is the 'first troubleshooting step' recommended if a business application fails to connect?",
+    "choices": [
+      "Read the rule that actually matched in the logs.",
+      "Revert to the previous firewall configuration immediately.",
+      "Check if the application server is powered on.",
+      "Perform a full network vulnerability scan."
+    ],
+    "answerIndex": 0,
+    "explanation": "The recommended first troubleshooting step is to 'Read the rule that actually matched in the logs rather than the rule you expected' to understand why traffic was blocked or misdirected.",
+    "difficulty": "challenging",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-network-security-controls",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "A network administrator is troubleshooting an application connectivity issue and suspects the firewall is blocking traffic. What should be verified regarding inspection?",
+    "choices": [
+      "Verify inspection is enabled on the path in question, not just licensed.",
+      "Confirm the inspection license has not expired.",
+      "Check if the inspection engine's firmware is up to date.",
+      "Ensure the inspection engine has sufficient CPU and memory resources."
+    ],
+    "answerIndex": 0,
+    "explanation": "A troubleshooting step specifically mentions verifying that 'inspection is enabled on the path in question, not just licensed,' as licensing does not guarantee active inspection.",
+    "difficulty": "challenging",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-network-security-controls",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "What does ZTNA primarily focus on regarding user access to applications?",
+    "choices": [
+      "Granting per-application, verified access based on zero trust principles.",
+      "Creating encrypted tunnels for all user traffic to the corporate network.",
+      "Ensuring all internal network traffic is unmonitored for privacy.",
+      "Allowing broad access to network resources once a user is authenticated."
+    ],
+    "answerIndex": 0,
+    "explanation": "ZTNA (Zero-Trust Network Access) is defined as 'Zero-trust network access granting per-application, verified access,' emphasizing granular, verified access.",
+    "difficulty": "challenging",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-risk-governance-and-compliance",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "According to the provided section, what is the primary purpose of a 'Policy'?",
+    "choices": [
+      "To detail the specific technical steps for a task.",
+      "To record identified risks and their owners.",
+      "A management statement of required intent.",
+      "A committed service level between provider and consumer."
+    ],
+    "answerIndex": 2,
+    "explanation": "The section defines 'Policy' as 'A management statement of required intent.' The other options describe procedures, risk registers, or SLAs.",
+    "difficulty": "standard",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-risk-governance-and-compliance",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "Which of the following best describes the function of a 'Control objective'?",
+    "choices": [
+      "To document the findings of a security audit.",
+      "The outcome a control is meant to achieve.",
+      "A record of all identified security vulnerabilities.",
+      "The technical standard that implements a policy."
+    ],
+    "answerIndex": 1,
+    "explanation": "The section defines 'Control objective' as 'The outcome a control is meant to achieve.' This refers to the desired end state of a control measure.",
+    "difficulty": "standard",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-risk-governance-and-compliance",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "In the context of the provided material, what role do 'Standards' play in relation to 'Policies'?",
+    "choices": [
+      "Standards replace policies when policies are too vague.",
+      "Standards are used to make policies measurable.",
+      "Standards define the 'what' while policies define the 'how'.",
+      "Standards are primarily concerned with risk identification, not policy implementation."
+    ],
+    "answerIndex": 1,
+    "explanation": "The section states: 'Standards make policy measurable, and procedures make standards repeatable.' This indicates that standards provide the quantifiable aspects for policies.",
+    "difficulty": "standard",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-risk-governance-and-compliance",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "A security analyst discovers that a critical risk identified during an assessment does not have a designated owner. According to the section, what is this situation categorized as?",
+    "choices": [
+      "An untested recovery plan.",
+      "Evidence collected only before audits.",
+      "A policy nobody reads.",
+      "An unowned risk."
+    ],
+    "answerIndex": 3,
+    "explanation": "The 'Common problems' section explicitly lists 'Unowned risks' as a problem. This aligns with a critical risk lacking a designated owner.",
+    "difficulty": "standard",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-risk-governance-and-compliance",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "When troubleshooting a control that has failed, what is one of the initial checks recommended by the section?",
+    "choices": [
+      "Immediately implement a new, stronger control.",
+      "Check whether the control was defined, owned, and monitored.",
+      "Focus solely on punishing the operator responsible for the failure.",
+      "Update the risk register without further investigation."
+    ],
+    "answerIndex": 1,
+    "explanation": "The 'Troubleshooting' section advises: 'When a control fails, check whether it was defined, owned, and monitored.' This is a crucial first step.",
+    "difficulty": "standard",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-risk-governance-and-compliance",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "An auditor is reviewing a company's security practices and finds that the documented procedure for data backup differs significantly from what the operators actually perform. What troubleshooting step is most relevant here?",
+    "choices": [
+      "Trace an audit finding to the missing evidence.",
+      "Check if the control objective is still valid.",
+      "Compare documented procedure with what operators actually do.",
+      "Review the SLA commitments for backup services."
+    ],
+    "answerIndex": 2,
+    "explanation": "The 'Troubleshooting' section directly addresses this by stating: 'Compare documented procedure with what operators actually do.' This helps identify discrepancies between policy and practice.",
+    "difficulty": "standard",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-risk-governance-and-compliance",
+    "certificationId": "cert-comptia-security-plus",
+    "prompt": "What kind of information is contained within a 'Risk register'?",
+    "choices": [
+      "A list of all security policies and standards.",
+      "The outcome a control is meant to achieve.",
+      "The recorded set of identified risks, owners, and treatments.",
+      "Evidence proving a control operated as described."
+    ],
+    "answerIndex": 2,
+    "explanation": "The section defines 'Risk register' as 'The recorded set of identified risks, owners, and treatments.' This captures the comprehensive view of risks.",
+    "difficulty": "standard",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-exploitation-and-reporting",
+    "certificationId": "cert-comptia-pentest-plus",
+    "prompt": "What is the primary goal of an exploit in the context of an IT and cybersecurity course?",
+    "choices": [
+      "To execute code, bypass authentication, or access data.",
+      "To remove test artifacts and clean up configuration changes.",
+      "To recheck risk ratings against the client's actual exposure.",
+      "To provide a business-level explanation of risk and priority."
+    ],
+    "answerIndex": 0,
+    "explanation": "According to the section, 'Exploits abuse a flaw to execute code, bypass authentication, or access data.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-exploitation-and-reporting",
+    "certificationId": "cert-comptia-pentest-plus",
+    "prompt": "Which of the following best describes 'Privilege escalation' as defined in the provided material?",
+    "choices": [
+      "Gaining higher rights than initially obtained.",
+      "Using access on one system to reach another.",
+      "Minimal evidence demonstrating an issue without excess risk.",
+      "The potential impact of an action taken during testing."
+    ],
+    "answerIndex": 0,
+    "explanation": "The key term definition states: 'Privilege escalation = Gaining higher rights than initially obtained.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-exploitation-and-reporting",
+    "certificationId": "cert-comptia-pentest-plus",
+    "prompt": "What is the primary characteristic of 'Lateral movement' in cybersecurity operations?",
+    "choices": [
+      "It involves gaining higher rights on the current system.",
+      "It involves using access on one system to reach another.",
+      "It focuses on demonstrating minimal evidence of an exploit.",
+      "It assesses the potential impact of an action taken during testing."
+    ],
+    "answerIndex": 1,
+    "explanation": "The key term definition states: 'Lateral movement = Using access on one system to reach another.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-exploitation-and-reporting",
+    "certificationId": "cert-comptia-pentest-plus",
+    "prompt": "What is the purpose of a 'Proof of concept' in penetration testing?",
+    "choices": [
+      "To provide a comprehensive list of all accessible data.",
+      "To establish minimal evidence of an issue without excess risk.",
+      "To outline all potential remediation actions for a vulnerability.",
+      "To ensure all test artifacts are removed post-testing."
+    ],
+    "answerIndex": 1,
+    "explanation": "The key term definition states: 'Proof of concept = Minimal evidence demonstrating the issue without excess risk.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "concept"
+  },
+  {
+    "topicId": "topic-exploitation-and-reporting",
+    "certificationId": "cert-comptia-pentest-plus",
+    "prompt": "What should be done with accounts, files, and configuration changes made during a penetration test?",
+    "choices": [
+      "They should be documented as part of the report.",
+      "They should be left in place to serve as future test points.",
+      "They should be confirmed for cleanup at the end of the test.",
+      "They should be used to demonstrate the blast radius to the client."
+    ],
+    "answerIndex": 2,
+    "explanation": "Under 'Troubleshooting', it states: 'Confirm cleanup of accounts, files, and configuration changes at the end.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "procedure"
+  },
+  {
+    "topicId": "topic-exploitation-and-reporting",
+    "certificationId": "cert-comptia-pentest-plus",
+    "prompt": "What is a 'Blast radius' primarily concerned with in the context of security testing?",
+    "choices": [
+      "The initial entry point of an exploit.",
+      "The potential impact of an action taken during testing.",
+      "The number of systems affected by lateral movement.",
+      "The severity of the vulnerability found."
+    ],
+    "answerIndex": 1,
+    "explanation": "The key term definition states: 'Blast radius = The potential impact of an action taken during testing.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-exploitation-and-reporting",
+    "certificationId": "cert-comptia-pentest-plus",
+    "prompt": "Which of the following is a common problem identified in penetration testing processes?",
+    "choices": [
+      "Minimal evidence demonstrating an issue.",
+      "Findings with clear reproduction steps.",
+      "Risk ratings ignoring context.",
+      "Regular confirmation of cleanup procedures."
+    ],
+    "answerIndex": 2,
+    "explanation": "Under 'Common problems', it lists: 'Risk ratings ignoring context'.",
+    "difficulty": "challenging",
+    "mistakeCategory": "diagnosis"
+  },
+  {
+    "topicId": "topic-exploitation-and-reporting",
+    "certificationId": "cert-comptia-pentest-plus",
+    "prompt": "What is the primary characteristic of an 'Executive summary' in a penetration test report?",
+    "choices": [
+      "Detailed technical steps for vulnerability reproduction.",
+      "A comprehensive list of all exploited systems.",
+      "Business-level explanation of risk and priority.",
+      "Evidence handling and cleanup procedures."
+    ],
+    "answerIndex": 2,
+    "explanation": "The key term definition states: 'Executive summary = Business-level explanation of risk and priority.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "terminology"
+  },
+  {
+    "topicId": "topic-exploitation-and-reporting",
+    "certificationId": "cert-comptia-pentest-plus",
+    "prompt": "Before reporting a finding, what is a crucial troubleshooting step to perform?",
+    "choices": [
+      "Ensure the 'blast radius' is fully documented.",
+      "Verify each finding is reproducible.",
+      "Confirm all test artifacts have been removed.",
+      "Establish an 'executive summary' for the client."
+    ],
+    "answerIndex": 1,
+    "explanation": "Under 'Troubleshooting', it states: 'Verify each finding is reproducible before reporting it.'",
+    "difficulty": "challenging",
+    "mistakeCategory": "procedure"
   }
 ] as AiQuestionSeed[];
 
