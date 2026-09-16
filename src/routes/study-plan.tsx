@@ -98,8 +98,9 @@ function StudyPlanPage() {
       toast.error("There is nothing to schedule yet. Open a topic first.");
       return;
     }
-    actions.addStudyPlan(plan);
-    toast.success(`Session built with ${plan.tasks.length} task(s).`);
+    // Start tracking straight away so time is counted without an extra tap.
+    actions.addStudyPlan(startPlan(plan));
+    toast.success(`Session started with ${plan.tasks.length} task(s). Time is tracking now.`);
   }
 
   function finish(plan: StudyPlan) {
@@ -288,7 +289,11 @@ function ActivePlan({
               <p className="mt-1 text-xs text-muted-foreground">Why: {task.reason}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="secondary">
-                  <Link to={task.to as never} {...(task.params ? { params: task.params as never } : {})}>
+                  <Link
+                    to={task.to as never}
+                    {...(task.params ? { params: task.params as never } : {})}
+                    {...(taskSearch(task) ? { search: taskSearch(task) as never } : {})}
+                  >
                     Open
                   </Link>
                 </Button>
