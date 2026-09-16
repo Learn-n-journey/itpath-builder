@@ -161,7 +161,7 @@ export const navItems: NavItem[] = [
     to: "/explore-hardware",
     icon: CircuitBoard,
     group: "Practice",
-    description: "Tap through diagrams of a motherboard, RAM, GPU and SSD to learn each part.",
+    description: "Tap through photos of a motherboard, RAM, GPU, drives, power supply, cooler and case to learn each part.",
   },
   {
     label: "Weak Areas",
