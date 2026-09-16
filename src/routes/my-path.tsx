@@ -14,6 +14,7 @@ import {
 import { useAppState, useStats } from "@/state/app-state";
 import { adaptivePath, experienceStartBlurb } from "@/lib/adaptive-path";
 import { adaptiveQueue } from "@/lib/adaptive-engine";
+import { currentJourneyTopic } from "@/lib/journey-order";
 
 export const Route = createFileRoute("/my-path")({
   staticData: { sitemap: false },
