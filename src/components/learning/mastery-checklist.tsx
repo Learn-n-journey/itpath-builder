@@ -12,6 +12,44 @@ import { useAppState } from "@/state/app-state";
  * What this section asks for before the next one opens. Each line stands on
  * its own, so a strong score in one place cannot cover a gap somewhere else.
  */
+const ROW = "flex gap-3 rounded-md p-1 -m-1 transition-colors hover:bg-muted/50";
+
+/** Each line goes straight to the work that proves it. */
+function CompetencyLink({
+  topicId,
+  competencyKey,
+  children,
+}: {
+  topicId: string;
+  competencyKey: string;
+  children: React.ReactNode;
+}) {
+  if (competencyKey === "knowledge") {
+    return (
+      <Link to="/section-quiz/$topicId" params={{ topicId }} className={ROW}>
+        {children}
+      </Link>
+    );
+  }
+  if (competencyKey === "practicalAbility") {
+    return (
+      <Link to="/labs" search={{ lab: identificationLabId(topicId) }} className={ROW}>
+        {children}
+      </Link>
+    );
+  }
+  return (
+    <Link
+      to="/mastery-check/$topicId"
+      params={{ topicId }}
+      hash={`check-${competencyKey}`}
+      className={ROW}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export function MasteryChecklist({ topicId }: { topicId: string }) {
   const { user } = useAppState();
   const gate = useMemo(() => masteryGate(user, topicId), [user, topicId]);
