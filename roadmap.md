@@ -172,3 +172,6 @@
 
 - [ ] GAYL: stay quiet on quiz scores over 80%; when she does speak, suggest retaking the quiz rather than picking at single missed questions
 - [ ] Quizzes: multiple choice only, drop nonsense questions, expand bank with AI
+- [ ] Dashboard reviews not clearing after all reviews done
+- [ ] "You had this right before" only when there is an earlier attempt at that same item
+- [ ] Passing a section quiz above 80% opens the next topic
