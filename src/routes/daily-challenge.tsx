@@ -7,10 +7,14 @@ import { QuizRunner } from "@/components/quiz/quiz-runner";
 import type { Quiz } from "@/lib/app-data/types";
 import { cn } from "@/lib/utils";
 import {
+  DAILY_TIERS,
   dailyChallenge,
   dailyDateKey,
   dailyKeyLabel,
+  parseDailyQuizId,
   recentDailyKeys,
+  tierInfo,
+  type ChallengeTier,
 } from "@/data/daily-challenge";
 import { useAppState } from "@/state/app-state";
 
@@ -41,38 +45,78 @@ function DailyChallengePage() {
   // The date is resolved after mount so the server render and the browser
   // always agree on which set today is.
   const [todayKey, setTodayKey] = useState<string | null>(null);
+  const [tier, setTier] = useState<ChallengeTier>("beginner");
   useEffect(() => {
     setTodayKey(dailyDateKey());
   }, []);
 
-  const challenge = useMemo(() => (todayKey ? dailyChallenge(todayKey) : null), [todayKey]);
+  const challenge = useMemo(
+    () => (todayKey ? dailyChallenge(todayKey, tier) : null),
+    [todayKey, tier],
+  );
   const historyKeys = useMemo(
     () => (todayKey ? recentDailyKeys(7, new Date(`${todayKey}T12:00:00`)) : []),
     [todayKey],
   );
+  const monthKeys = useMemo(
+    () => (todayKey ? recentDailyKeys(30, new Date(`${todayKey}T12:00:00`)) : []),
+    [todayKey],
+  );
 
-  const submittedByDay = useMemo(() => {
-    const map = new Map<string, { best: number; attempts: number }>();
+  /** Best score and attempt count per day, split by tier and across all tiers. */
+  const history = useMemo(() => {
+    const byTier = new Map<string, { best: number; attempts: number }>();
+    const byDay = new Map<string, { best: number; attempts: number }>();
     for (const attempt of user.quizAttempts) {
-      if (!attempt.quizId.startsWith("daily-") || attempt.status !== "submitted") continue;
-      const key = attempt.quizId.slice("daily-".length);
-      const entry = map.get(key) ?? { best: 0, attempts: 0 };
-      entry.attempts += 1;
-      entry.best = Math.max(entry.best, attempt.score);
-      map.set(key, entry);
+      if (attempt.status !== "submitted") continue;
+      const parsed = parseDailyQuizId(attempt.quizId);
+      if (!parsed) continue;
+      const tierEntry = byTier.get(`${parsed.dateKey}:${parsed.tier}`) ?? { best: 0, attempts: 0 };
+      tierEntry.attempts += 1;
+      tierEntry.best = Math.max(tierEntry.best, attempt.score);
+      byTier.set(`${parsed.dateKey}:${parsed.tier}`, tierEntry);
+
+      const dayEntry = byDay.get(parsed.dateKey) ?? { best: 0, attempts: 0 };
+      dayEntry.attempts += 1;
+      dayEntry.best = Math.max(dayEntry.best, attempt.score);
+      byDay.set(parsed.dateKey, dayEntry);
     }
-    return map;
+    return { byTier, byDay };
   }, [user.quizAttempts]);
 
-  const today = challenge ? submittedByDay.get(challenge.dateKey) : undefined;
-  const allBest = [...submittedByDay.values()].reduce((best, entry) => Math.max(best, entry.best), 0);
+  const submittedByDay = history.byDay;
+  const today = challenge ? history.byTier.get(`${challenge.dateKey}:${tier}`) : undefined;
+  const tierBest = useMemo(() => {
+    let best = 0;
+    for (const [key, entry] of history.byTier) {
+      if (key.endsWith(`:${tier}`)) best = Math.max(best, entry.best);
+    }
+    return best;
+  }, [history.byTier, tier]);
+
+  /** Thirty day trend: the average of the first half against the second half. */
+  const monthStats = useMemo(() => {
+    const scored = monthKeys
+      .map((key) => ({ key, entry: submittedByDay.get(key) }))
+      .filter((item): item is { key: string; entry: { best: number; attempts: number } } =>
+        Boolean(item.entry),
+      );
+    if (scored.length === 0) return { days: 0, average: 0, change: 0 };
+    const average =
+      Math.round(scored.reduce((sum, item) => sum + item.entry.best, 0) / scored.length);
+    const half = Math.floor(scored.length / 2);
+    const mean = (list: typeof scored) =>
+      list.length === 0 ? 0 : list.reduce((sum, item) => sum + item.entry.best, 0) / list.length;
+    const change = half === 0 ? 0 : Math.round(mean(scored.slice(half)) - mean(scored.slice(0, half)));
+    return { days: scored.length, average, change };
+  }, [monthKeys, submittedByDay]);
 
   // Consecutive days ending today (or yesterday, if today is not done yet)
-  // with a submitted daily challenge.
+  // with a submitted daily challenge on any tier.
   const challengeStreak = useMemo(() => {
     let streak = 0;
-    const start = today ? -1 : 0;
     if (!todayKey) return 0;
+    const start = submittedByDay.has(todayKey) ? 0 : -1;
     for (let offset = start; offset > -400; offset -= 1) {
       const date = new Date(`${todayKey}T12:00:00`);
       date.setDate(date.getDate() + offset);
@@ -81,15 +125,14 @@ function DailyChallengePage() {
       else break;
     }
     return streak;
-  }, [submittedByDay, today, todayKey]);
+  }, [submittedByDay, todayKey]);
 
   const quiz = useMemo(() => {
     if (!challenge) return null;
     return {
       id: challenge.id,
-      title: `Daily Challenge · ${dailyKeyLabel(challenge.dateKey)}`,
-      description:
-        "Five mixed questions drawn from across the whole material. Same set for everyone today; your answers feed the same review and mistake engine as every other quiz.",
+      title: `Daily Challenge · ${tierInfo(challenge.tier).label} · ${dailyKeyLabel(challenge.dateKey)}`,
+      description: `${tierInfo(challenge.tier).description} Same set for everyone today; your answers feed the same review and mistake engine as every other quiz.`,
       topicIds: [...new Set(challenge.questions.map((question) => question.topicId))],
       questionIds: challenge.questions.map((question) => question.id),
     } satisfies Quiz;
@@ -99,25 +142,69 @@ function DailyChallengePage() {
     <>
       <PageHeader
         title="Daily Challenge"
-        description="One short set, about three minutes. Come back tomorrow for a fresh one and keep the run going."
+        description="One short set a day. Pick your tier, and move up when the easier one stops stretching you."
       />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard
-          label="Today"
-          value={today ? `${today.best}%` : "Not started"}
-        />
+
+      <Panel
+        title="Choose your tier"
+        description="Each tier is a different set, drawn from harder material as you climb. All three count towards the same streak."
+      >
+        <div className="grid gap-3 sm:grid-cols-3">
+          {DAILY_TIERS.map((item) => {
+            const best = [...history.byTier.entries()]
+              .filter(([key]) => key.endsWith(`:${item.id}`))
+              .reduce((top, [, entry]) => Math.max(top, entry.best), 0);
+            const active = item.id === tier;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setTier(item.id)}
+                aria-pressed={active}
+                className={cn(
+                  "rounded-xl border p-4 text-left transition-all",
+                  active
+                    ? "border-primary/60 bg-primary/10 shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
+                    : "border-border/70 bg-secondary/30 hover:border-primary/40",
+                )}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-display text-sm font-semibold">{item.label}</span>
+                  <span className="text-xs tabular-nums text-muted-foreground">
+                    {item.count} questions
+                  </span>
+                </div>
+                <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{item.description}</p>
+                <p className="mt-2 text-xs font-medium text-primary">
+                  {best > 0 ? `Your best: ${best}%` : "No score yet"}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </Panel>
+
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard label={`Today, ${tierInfo(tier).label.toLowerCase()}`} value={today ? `${today.best}%` : "Not started"} />
         <StatCard label="Attempts today" value={today?.attempts ?? 0} />
         <StatCard label="Challenge streak" value={challengeStreak} />
-        <StatCard label="Personal best" value={allBest > 0 ? `${allBest}%` : "-"} />
+        <StatCard
+          label={`Best, ${tierInfo(tier).label.toLowerCase()}`}
+          value={tierBest > 0 ? `${tierBest}%` : "-"}
+          {...(tierBest >= 100 && tier !== "expert"
+            ? { hint: "Full marks here. Try the next tier up." }
+            : {})}
+        />
       </div>
 
-      {quiz ? (
+      {quiz && challenge ? (
         <div className="mt-6 space-y-4">
-          {challenge ? (
-            <QuizRunner quiz={quiz} questions={challenge.questions} startLabel="Start today's challenge" />
-          ) : (
-            <QuizRunner quiz={quiz} startLabel="Start today's challenge" />
-          )}
+          <QuizRunner
+            key={quiz.id}
+            quiz={quiz}
+            questions={challenge.questions}
+            startLabel={`Start today's ${tierInfo(tier).label.toLowerCase()} set`}
+          />
         </div>
       ) : (
         <Panel title="Loading today's set" description="One moment." />
@@ -161,20 +248,91 @@ function DailyChallengePage() {
         </div>
       </Panel>
 
+      <Panel
+        title="Your last thirty days"
+        description="One bar per day, tallest is your best score that day. Over a month you can see whether the line is drifting upwards."
+      >
+        {monthStats.days === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Nothing to plot yet. Submit a few daily sets and the month view fills in.
+          </p>
+        ) : (
+          <>
+            <div className="flex h-28 items-end gap-[3px]">
+              {monthKeys.map((key) => {
+                const entry = submittedByDay.get(key);
+                const height = entry ? Math.max(6, entry.best) : 0;
+                const isToday = key === todayKey;
+                return (
+                  <div
+                    key={key}
+                    className="flex h-full flex-1 items-end"
+                    title={`${dailyKeyLabel(key)}: ${entry ? `${entry.best}%` : "not done"}`}
+                  >
+                    <div
+                      className={cn(
+                        "w-full rounded-sm transition-all",
+                        entry
+                          ? entry.best >= 80
+                            ? "bg-primary"
+                            : "bg-primary/45"
+                          : "bg-border/60",
+                        isToday && "ring-1 ring-primary/60",
+                      )}
+                      style={{ height: entry ? `${height}%` : "4px" }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Days done</p>
+                <p className="mt-1 font-semibold tabular-nums">{monthStats.days} of 30</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Average score</p>
+                <p className="mt-1 font-semibold tabular-nums">{monthStats.average}%</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Trend</p>
+                <p
+                  className={cn(
+                    "mt-1 font-semibold tabular-nums",
+                    monthStats.change > 0 ? "text-primary" : "text-foreground",
+                  )}
+                >
+                  {monthStats.change > 0 ? `+${monthStats.change}` : monthStats.change} pts
+                </p>
+              </div>
+            </div>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {monthStats.days < 6
+                ? "A few more days and this will start to mean something."
+                : monthStats.change > 0
+                  ? "Your second half of the month is scoring higher than the first. That is the shape you want."
+                  : monthStats.change < 0
+                    ? "Scores dipped a little in the second half. Often that is harder material rather than lost ground."
+                    : "Steady across the month so far."}
+            </p>
+          </>
+        )}
+      </Panel>
+
       <Panel title="How the challenge works">
         <ul className="grid gap-2 sm:grid-cols-2">
           {[
             {
               Icon: CalendarCheck,
-              text: "Everyone gets the same five questions on the same day; the set changes at midnight.",
+              text: "Everyone gets the same set on the same day for a given tier; the sets change at midnight.",
             },
             {
               Icon: Target,
-              text: "Questions are mixed across topics and question styles, so it is retrieval practice, not a single-topic drill.",
+              text: "Beginner, intermediate and expert draw from progressively harder questions, and the higher tiers are longer.",
             },
             {
               Icon: Flame,
-              text: "Submitting on consecutive days builds the challenge streak. Retakes on the same day are fine; the best score counts.",
+              text: "Submitting on consecutive days builds the challenge streak, whichever tier you play. Retakes on the same day are fine; the best score counts.",
             },
             {
               Icon: Trophy,

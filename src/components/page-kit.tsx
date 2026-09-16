@@ -34,14 +34,18 @@ export function Panel({
   description,
   children,
   className,
+  id,
 }: {
   title?: string;
   description?: string;
   children?: ReactNode;
   className?: string | undefined;
+  /** Lets other parts of the page link straight to this panel. */
+  id?: string;
 }) {
   return (
-    <section className={cn("panel motion-surface p-5 sm:p-6", className)}>
+    <section id={id} className={cn("panel motion-surface scroll-mt-24 p-5 sm:p-6", className)}>
+
       {title ? (
         <div className="flex items-center gap-2">
           <span className="h-3 w-0.5 shrink-0 bg-primary/70" aria-hidden />
