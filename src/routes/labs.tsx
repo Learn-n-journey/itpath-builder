@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   CheckCircle2,
   
@@ -78,6 +78,7 @@ const categoryLabels: Record<Lab["category"], string> = {
 function LabsPage() {
   const { user } = useAppState();
   const { lab: requestedLabId } = Route.useSearch();
+  const navigate = useNavigate();
   const focus = useMemo(() => adaptivePath(user), [user]);
   const [seed, reshuffle] = useShuffleSeed();
   const [selectedId, setSelectedId] = useState(requestedLabId ?? "");
@@ -91,6 +92,33 @@ function LabsPage() {
   const lab = shuffled.find((item) => item.id === selectedId) ?? shuffled[0];
   const attempts = user.labAttempts;
   const latest = lab ? attempts.find((attempt) => attempt.labId === lab.id) : undefined;
+  // Arriving from a section opens that one lab on its own, not the whole menu.
+  const focused = Boolean(requestedLabId) && lab?.id === requestedLabId;
+
+  if (focused && lab) {
+    return (
+      <>
+        <PageHeader
+          title={lab.title}
+          description={lab.objective}
+          actions={
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSelectedId("");
+                void navigate({ to: "/labs", search: {} });
+              }}
+            >
+              Browse all labs
+            </Button>
+          }
+        />
+        <div className="mt-6">
+          <LabWorkspace key={lab.id} lab={lab} {...(latest ? { latestAttempt: latest } : {})} />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
