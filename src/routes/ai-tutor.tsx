@@ -294,6 +294,24 @@ function AiTutor() {
               </Select>
             </div>
 
+            {mode === "ask_anything" && !started ? (
+              <div className="grid gap-2">
+                <Label htmlFor="tutor-question">Your question</Label>
+                <Textarea
+                  id="tutor-question"
+                  rows={5}
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="Ask anything, for example: why does DNS still resolve after I change the record?"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Answers use the course material, your saved notes and Second Brain material, and
+                  general knowledge, and say which one each part came from. Picking a topic above is
+                  optional.
+                </p>
+              </div>
+            ) : null}
+
             {mode === "review_answer" && !started ? (
               <div className="grid gap-2">
                 <Label htmlFor="tutor-answer">Your answer</Label>
