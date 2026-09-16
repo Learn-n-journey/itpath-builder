@@ -6,6 +6,9 @@ import { linuxExtraSeeds } from "./phase-linux-extra";
 import { serverExtraSeeds } from "./phase-server-extra";
 import { cloudExtraSeeds } from "./phase-cloud-extra";
 import { advancedSecuritySeeds } from "./phase-advanced-security";
+import { cysaExtraSeeds } from "./phase-cysa-extra";
+import { pentestExtraSeeds } from "./phase-pentest-extra";
+import { securityxExtraSeeds } from "./phase-securityx-extra";
 import {
   seedLessons,
   seedModules,
@@ -24,6 +27,9 @@ export const expansionSeeds: TopicSeed[] = [
   ...serverExtraSeeds,
   ...cloudExtraSeeds,
   ...advancedSecuritySeeds,
+  ...cysaExtraSeeds,
+  ...pentestExtraSeeds,
+  ...securityxExtraSeeds,
 ];
 
 export const expansionTopics = seedTopics(expansionSeeds);
