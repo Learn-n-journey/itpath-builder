@@ -144,6 +144,22 @@ function DailyChallengePage() {
     } satisfies Quiz;
   }, [challenge]);
 
+  async function shareResult() {
+    const text = `I scored ${today?.best ?? 0}% on today's ${tierInfo(tier).label.toLowerCase()} Daily Challenge on IT PATH${challengeStreak > 1 ? `, ${challengeStreak} days in a row` : ""}. https://www.it-path.net/daily-challenge`;
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title: "IT PATH Daily Challenge", text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        toast.success("Copied. Paste it wherever you like.");
+      }
+      setShared(true);
+    } catch {
+      // A cancelled share is not worth reporting.
+    }
+  }
+
+
   return (
     <>
       <PageHeader
