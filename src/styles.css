@@ -354,3 +354,77 @@ html.light {
   }
 }
 
+
+/* Virtual terminal windows: per-shell identity */
+.terminal-window {
+  --tw-bg: #0a0f0d;
+  --tw-fg: #d7f7e5;
+  --tw-accent: var(--primary);
+  --tw-title: color-mix(in oklab, var(--tw-bg) 78%, white 6%);
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in oklab, var(--tw-accent) 28%, transparent);
+  background: var(--tw-bg);
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white 6%, transparent),
+    0 12px 32px -12px rgb(0 0 0 / 0.55);
+}
+.terminal-window[data-shell="powershell"] { --tw-bg: #0a1a33; --tw-fg: #dbeafe; --tw-accent: #5aa2f0; }
+.terminal-window[data-shell="cmd"] { --tw-bg: #101216; --tw-fg: #e4e6ea; --tw-accent: #9aa3ad; }
+.terminal-window[data-shell="android"] { --tw-bg: #0b1407; --tw-fg: #d9f7c4; --tw-accent: #8fd35a; }
+.terminal-window[data-shell="ios"] { --tw-bg: #14161c; --tw-fg: #e8eaf2; --tw-accent: #b9c0d4; }
+
+.terminal-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid color-mix(in oklab, var(--tw-accent) 22%, transparent);
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--tw-bg) 70%, white 9%), var(--tw-title));
+  padding: 0.5rem 0.75rem;
+}
+.terminal-dot { width: 0.7rem; height: 0.7rem; border-radius: 9999px; box-shadow: inset 0 -1px 2px rgb(0 0 0 / 0.4); }
+.terminal-dot-close { background: #e0655f; }
+.terminal-dot-min { background: #e0b45f; }
+.terminal-dot-max { background: #63c568; }
+
+.terminal-screen {
+  height: 430px;
+  overflow-y: auto;
+  padding: 1rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--tw-fg);
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in oklab, var(--tw-accent) 7%, transparent), transparent 60%),
+    var(--tw-bg);
+  text-shadow: 0 0 6px color-mix(in oklab, var(--tw-fg) 22%, transparent);
+}
+.terminal-screen .term-prompt { color: var(--tw-accent); font-weight: 600; }
+.terminal-screen .term-muted { color: color-mix(in oklab, var(--tw-fg) 55%, transparent); }
+.terminal-screen .term-error { color: #ff8a80; }
+
+.terminal-inputbar {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid color-mix(in oklab, var(--tw-accent) 22%, transparent);
+  background: var(--tw-title);
+  padding: 0.35rem 0.5rem;
+}
+.terminal-inputbar input {
+  color: var(--tw-fg);
+  caret-color: var(--tw-accent);
+}
+.terminal-cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--tw-accent);
+  animation: terminal-blink 1.1s steps(1) infinite;
+}
+@keyframes terminal-blink {
+  0%, 55% { opacity: 1; }
+  56%, 100% { opacity: 0; }
+}
