@@ -4,7 +4,7 @@ import { CircuitBoard, MousePointerClick, Cpu } from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { hardwareComponents, type HardwarePart } from "@/data/hardware-explorer";
-import { hardwareDiagrams } from "@/components/hardware/diagrams";
+import { hardwarePhotos } from "@/components/hardware/photos";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/explore-hardware")({
@@ -35,7 +35,7 @@ function ExploreHardwarePage() {
   const [partId, setPartId] = useState<string | null>(null);
 
   const component = hardwareComponents.find((c) => c.id === componentId)!;
-  const Diagram = hardwareDiagrams[component.id]!;
+  const photo = hardwarePhotos[component.id]!;
   const selected: HardwarePart | null = component.parts.find((p) => p.id === partId) ?? null;
 
   const pickComponent = (id: string) => {
@@ -47,7 +47,7 @@ function ExploreHardwarePage() {
     <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-6">
       <PageHeader
         title="Explore Hardware"
-        description="Tap the numbered markers on each diagram to see what that part is and what it does."
+        description="Tap the numbered markers on each photo to see what that part is and what it does."
       />
 
       <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Hardware components">
@@ -72,7 +72,14 @@ function ExploreHardwarePage() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Panel title={component.name} description={component.tagline}>
           <div className="relative mx-auto mt-2 max-w-xl">
-            <Diagram />
+            <img
+              src={photo.src}
+              alt={photo.alt}
+              width={photo.width}
+              height={photo.height}
+              loading="lazy"
+              className="w-full rounded-lg border border-border"
+            />
             {component.parts.map((p, i) => {
               const active = p.id === partId;
               return (
