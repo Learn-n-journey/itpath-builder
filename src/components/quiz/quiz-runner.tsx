@@ -408,10 +408,10 @@ function QuizReview({
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Score" value={`${attempt.score}%`} />
         <StatCard label="Correct" value={attempt.correct} />
-        <StatCard label="Incorrect" value={attempt.incorrect} />
+        <StatCard label="To revisit" value={attempt.incorrect} />
         <StatCard
           label={passScore ? `Pass mark ${passScore}%` : "Questions"}
-          value={passScore ? (attempt.score >= passScore ? "Passed" : "Not passed") : attempt.total}
+          value={passScore ? (attempt.score >= passScore ? "Passed" : "Not there yet") : attempt.total}
         />
       </div>
       {diagnostic.items.length > 0 ? (

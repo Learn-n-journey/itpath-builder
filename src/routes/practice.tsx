@@ -338,7 +338,7 @@ function AssignmentWorkspace({
           marked?.feedback ||
           (passed
             ? "Correct, your answer carries this idea."
-            : `Incorrect, this idea is missing. Expected: ${criterion.expectedAnswer ?? criterion.description}`),
+            : `This idea is not in your answer yet. Here is what I was looking for: ${criterion.expectedAnswer ?? criterion.description}`),
       };
     });
     const score =
@@ -352,8 +352,8 @@ function AssignmentWorkspace({
       feedback:
         graded?.verdict ||
         (score >= 70
-          ? `Correct, you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer.`
-          : `Incorrect, you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer. Compare your work with the answer below and retake.`),
+          ? `Nice work, you covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer.`
+          : `You covered ${results.filter((item) => item.earnedPoints > 0).length} of ${results.length} points of the answer. Have a look at the answer below, then take another run at it.`),
       evaluationMode: assignment.evaluationMode,
       evaluatedAt: now,
     });
@@ -380,8 +380,8 @@ function AssignmentWorkspace({
         attemptId: attempt.id,
         createdAt: now,
       });
-    if (score >= 70) toast.success(`Correct, scored ${score}/100.`);
-    else toast.error(`Incorrect, scored ${score}/100. The answer is shown below.`);
+    if (score >= 70) toast.success(`Nice work, scored ${score}/100.`);
+    else toast(`Scored ${score}/100. The answer is below whenever you want another go.`);
   }
 
   function complete() {
@@ -503,8 +503,8 @@ function AssignmentWorkspace({
                           <p className="text-sm font-medium">{criterion.label}</p>
                           <div className="flex items-center gap-2">
                             {result ? (
-                              <Badge variant={result.earnedPoints > 0 ? "default" : "destructive"}>
-                                {result.earnedPoints > 0 ? "Correct" : "Incorrect"}
+                              <Badge variant={result.earnedPoints > 0 ? "default" : "secondary"}>
+                                {result.earnedPoints > 0 ? "Correct" : "Not yet"}
                               </Badge>
                             ) : null}
                             <span className="text-xs text-muted-foreground">
