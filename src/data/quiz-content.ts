@@ -1,4 +1,5 @@
 import { weekQuestions } from "@/data/week-question-bank";
+import { usableQuestions } from "@/lib/question-quality";
 import type { Question, Quiz } from "@/lib/app-data/types";
 
 const quizId = "quiz-it-foundations-checkpoint";
@@ -313,7 +314,7 @@ const baseQuestions: Question[] = [
     requiresReasoning: false,
   },
 ];
-export const questions: Question[] = [...baseQuestions, ...weekQuestions];
+export const questions: Question[] = usableQuestions([...baseQuestions, ...weekQuestions]);
 
 const weekPlan: Array<{ weekId: string; number: number; title: string; topicIds: string[] }> = [
   {
