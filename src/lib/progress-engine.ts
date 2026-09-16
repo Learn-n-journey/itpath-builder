@@ -35,11 +35,12 @@ export interface Dimensions {
 export const dimensionLabels: Array<{ key: keyof Dimensions; label: string; help: string }> = [
   { key: "knowledge", label: "Knowledge", help: "Understanding and recall combined" },
   { key: "understanding", label: "Understanding", help: "Explained the idea in your own words" },
-  { key: "recall", label: "Recall", help: "Answered recall questions correctly" },
+  { key: "recall", label: "Recall", help: "Your latest answer on each item was right" },
   { key: "application", label: "Application", help: "Applied the idea in practice tasks" },
   { key: "practicalAbility", label: "Practical ability", help: "Completed labs and hands-on work" },
   { key: "troubleshooting", label: "Troubleshooting", help: "Diagnosed incidents and tickets" },
-  { key: "retention", label: "Retention", help: "Passed spaced reviews over time" },
+  { key: "retention", label: "Retention", help: "Still right after days and weeks have passed" },
+
 ];
 
 export function topicScore(progress: TopicProgress | undefined): number {

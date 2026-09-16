@@ -59,6 +59,28 @@ function bestById<T>(
   });
 }
 
+/**
+ * Recall is "can you retrieve this now", so it uses the most recent graded
+ * attempt rather than the best one ever recorded. An old lucky pass does not
+ * keep the score up once a later attempt goes the other way.
+ */
+function latestById<T>(
+  ids: EntityId[],
+  rows: T[],
+  rowId: (row: T) => EntityId,
+  rowAt: (row: T) => string | undefined,
+  rowScore: (row: T) => number | undefined,
+): Array<number | undefined> {
+  return ids.map((id) => {
+    const values = rows
+      .filter((row) => rowId(row) === id && rowScore(row) !== undefined)
+      .sort((a, b) => new Date(rowAt(a) ?? 0).getTime() - new Date(rowAt(b) ?? 0).getTime());
+    const last = values[values.length - 1];
+    return last ? rowScore(last) : undefined;
+  });
+}
+
+
 function bestSignal(user: UserData, topicId: EntityId, kinds: string[]): number | undefined {
   const scores = user.learnerSignals
     .filter((signal) => signal.topicId === topicId && kinds.includes(signal.kind))
@@ -87,7 +109,7 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
 
   const quizResults = user.quizAttempts
     .filter((attempt) => attempt.status === "submitted")
-    .flatMap((attempt) => attempt.results);
+    .flatMap((attempt) => attempt.results.map((result) => ({ ...result, at: attempt.createdAt })));
 
   const stored = user.topicProgress[topicId];
   const teachBack = user.teachBackResponses[topicId];
@@ -98,13 +120,15 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
 
   // Every question a learner can meet in this section counts: the recall pool,
   // the authored question bank and the twenty question section quiz.
+  // Recall is judged on the latest attempt for each item, not the best one.
   const quizQuestionIds = [
     ...new Set([...questions.map((item) => item.id), ...getSectionQuizQuestions(topicId).map((item) => item.id)]),
   ];
   const recall = merge(
-    dimension(bestById(recallQuestions.map((item) => item.id), user.recallResponses, (row) => row.questionId, (row) => row.correct ? 100 : 0)),
-    dimension(bestById(quizQuestionIds, quizResults, (row) => row.questionId, (row) => row.correct ? 100 : 0)),
+    dimension(latestById(recallQuestions.map((item) => item.id), user.recallResponses, (row) => row.questionId, (row) => row.createdAt, (row) => row.correct ? 100 : 0)),
+    dimension(latestById(quizQuestionIds, quizResults, (row) => row.questionId, (row) => row.at, (row) => row.correct ? 100 : 0)),
   );
+
 
   const assignmentScores = bestById(
     assignments.map((item) => item.id),
@@ -209,15 +233,25 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
       ...reviewAttempts.map((row) => `review-${row.reviewId}`),
     ]),
   ];
+  // Retention is what is still held after time has passed, so it is earned over
+  // spaced gaps: a same day pass earns nothing lasting yet, and the credit grows
+  // as the gap between passes widens (about a day, a week, then three weeks).
   const retentionScores: Array<number | undefined> = retentionItemIds.map((itemId) => {
     const graded = (attemptsByItem.get(itemId) ?? []).sort((a, b) => a.at - b.at);
     if (!graded.length) return undefined;
     const last = graded[graded.length - 1];
     if (!last || !last.pass) return 0;
-    const passDays = new Set(graded.filter((row) => row.pass).map((row) => dayOf(row.at)));
-    return passDays.size >= 2 ? 100 : 50;
+    const passes = graded.filter((row) => row.pass);
+    const first = passes[0];
+    if (!first) return 0;
+    const gapDays = dayOf(last.at) - dayOf(first.at);
+    if (gapDays < 1) return 20;
+    if (gapDays < 7) return 50;
+    if (gapDays < 21) return 80;
+    return 100;
   });
   const retention = dimension(retentionScores.length ? retentionScores : [undefined]);
+
 
 
   const dimensions = [understanding, recall, application, practicalAbility, troubleshooting, retention];
