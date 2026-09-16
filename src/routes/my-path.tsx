@@ -64,8 +64,8 @@ function MyPath() {
 
       <Panel
         className="mb-4"
-        title="Your adapted order"
-        description={`Recalculated from your scores, open mistakes and due reviews for ${queue.certificationTitle}.`}
+        title="Your order"
+        description="The Journey Map order, with anything you owe (due reviews and open mistakes) lifted to the top."
       >
         <ul className="space-y-2">
           {queue.entries.slice(0, 6).map((entry) => (
@@ -79,20 +79,28 @@ function MyPath() {
                   {entry.reason} {entry.mastery}% recorded.
                 </p>
               </div>
-              <Button asChild size="sm" variant="secondary">
-                <Link to="/topics/$topicId" params={{ topicId: entry.topic.id }}>
-                  Open
-                </Link>
-              </Button>
+              {entry.unlocked ? (
+                <Button asChild size="sm" variant="secondary">
+                  <Link to="/topics/$topicId" params={{ topicId: entry.topic.id }}>
+                    Open
+                  </Link>
+                </Button>
+              ) : (
+                <span className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                  <Lock className="size-3" aria-hidden />
+                  Locked
+                </span>
+              )}
             </li>
           ))}
         </ul>
-        {!queue.hasData ? (
-          <p className="mt-3 text-xs text-muted-foreground">
-            This order is curriculum order until you record some work; then it adapts to you.
-          </p>
-        ) : null}
+        <p className="mt-3 text-xs text-muted-foreground">
+          {queue.hasData
+            ? "A topic opens once the one before it is mastered."
+            : "This is the Journey Map order. Reviews and open mistakes move to the top once you have recorded some work."}
+        </p>
       </Panel>
+
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatCard label="Certifications" value={certCount} />
