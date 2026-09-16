@@ -47,6 +47,10 @@ export interface WrittenGrade {
   criteria: CriterionGrade[];
   /** True when the marking came from the AI marker rather than the offline fallback. */
   aiMarked: boolean;
+  /** "almost" means the thinking is sound but a step is missing, so it is not a fail. */
+  status: GradeStatus;
+  /** Short nudges naming the steps to add, shown instead of a flat fail. */
+  hints: string[];
 }
 
 export type GradeReply = { ok: true; grade: WrittenGrade } | { ok: false; error: string };
@@ -56,6 +60,7 @@ const responseShape = z.object({
   verdict: z.string().default(""),
   strengths: z.array(z.string()).default([]),
   missed: z.array(z.string()).default([]),
+  hints: z.array(z.string()).default([]),
   correctedAnswer: z.string().default(""),
   followUp: z.string().default(""),
   criteria: z
@@ -68,6 +73,14 @@ const responseShape = z.object({
     )
     .default([]),
 });
+
+/** Sound thinking with a gap is an "almost", never a fail. */
+function statusFor(score: number): GradeStatus {
+  if (score >= 70) return "correct";
+  if (score >= 45) return "almost";
+  return "not_yet";
+}
+
 
 function clamp(value: number): number {
   if (!Number.isFinite(value)) return 0;
