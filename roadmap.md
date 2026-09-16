@@ -10,6 +10,9 @@
 - [ ] Public profile page with real numbers and shareable link (needs scoping decision)
 - [ ] Study groups / accountability partner (needs scoping)
 - [ ] Email recap: bulk recap emails are not possible with Lovable app emails (transactional only); in-app check-in covers the return loop
+- [ ] Journey map: list each of the 59 topics once (build from static topic list only)
+- [ ] Remove month and year/duration references from the journey map wording
+- [ ] Visual polish for the engagement additions (journey map, daily challenge, milestone overlay)
 
 ## About page polish (Sep 2026)
 

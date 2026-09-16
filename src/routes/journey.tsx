@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
-import { PageHeader, Panel } from "@/components/page-kit";
+import { PageHeader } from "@/components/page-kit";
 import { journeyPhases } from "@/data/journey-phases";
 import { STATE_LABEL } from "@/lib/intelligence/states";
 import { useIntelligence } from "@/hooks/use-intelligence";
@@ -14,12 +14,12 @@ export const Route = createFileRoute("/journey")({
       {
         name: "description",
         content:
-          "The full two-year IT PATH route, phase by phase, with each topic's real learning state from your recorded answers.",
+          "The full IT PATH route, stage by stage, with each topic's real learning state from your recorded answers.",
       },
       { property: "og:title", content: "Your IT PATH Journey Map" },
       {
         property: "og:description",
-        content: "See the whole two-year path and how much of it holds up so far.",
+        content: "See the whole path and how much of it holds up so far.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
