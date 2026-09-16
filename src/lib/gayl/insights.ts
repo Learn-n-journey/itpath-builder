@@ -277,7 +277,7 @@ export function pathInsight(intel: Intelligence, preferredTopicId?: string): Gay
 
   return {
     message: `This order comes from your own work, not a fixed course plan. ${top.title} is first because ${reason}. ${top.instruction}`,
-    why: intel.queue
+    why: [top, ...intel.queue.filter((concept) => concept.topicId !== top.topicId)]
       .slice(0, 4)
       .map((concept) => `${concept.title}: ${concept.instruction}`),
   };
