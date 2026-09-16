@@ -37,7 +37,15 @@ function trim(text: string): string {
   return clean.length > 120 ? `${clean.slice(0, 117)}...` : clean;
 }
 
-function MessageCard({ message, showWhy }: { message: GaylMessage; showWhy: boolean }) {
+function MessageCard({
+  message,
+  showWhy,
+  onClear,
+}: {
+  message: GaylMessage;
+  showWhy: boolean;
+  onClear?: () => void;
+}) {
   return (
     <div
       className={cn(
@@ -45,6 +53,7 @@ function MessageCard({ message, showWhy }: { message: GaylMessage; showWhy: bool
         message.urgent ? "border-destructive/40 bg-destructive/5" : "border-border bg-secondary/40",
       )}
     >
+      <div className="flex items-start justify-between gap-2">
         <p className="flex items-start gap-1.5 text-xs font-medium text-foreground">
           {message.urgent ? (
             <AlertCircle className="mt-0.5 size-3.5 shrink-0 text-destructive" aria-hidden />
