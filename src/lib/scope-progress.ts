@@ -127,7 +127,15 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
   const recall = merge(
     dimension(latestById(recallQuestions.map((item) => item.id), user.recallResponses, (row) => row.questionId, (row) => row.createdAt, (row) => row.correct ? 100 : 0)),
     dimension(latestById(quizQuestionIds, quizResults, (row) => row.questionId, (row) => row.at, (row) => row.correct ? 100 : 0)),
+    dimension(latestById(
+      assignments.filter((item) => item.type === "recall" || item.type === "teach_back").map((item) => item.id),
+      user.assignmentAttempts,
+      (row) => row.assignmentId,
+      (row) => row.submittedAt ?? row.updatedAt,
+      (row) => row.score === undefined || !row.maxScore ? undefined : (row.score / row.maxScore) * 100,
+    )),
   );
+
 
 
   // Assignments are split by what they actually ask for: choosing the right
