@@ -66,7 +66,7 @@ export const mobileDevicesLessonDepth: Record<string, LessonDepth> = {
     keyIdeas: [
       "Wi-Fi association and internet access are two separate stages; full bars only prove the first one succeeded.",
       "Bluetooth pairing and Bluetooth connection are different states, and a paired device can still fail to connect a profile.",
-      "NFC works over a few centimetres, so most payment failures are positioning, a thick case, or a disabled setting.",
+      "NFC works over an inch or two, so most payment failures are positioning, a thick case, or a disabled setting.",
       "A hotspot shares the phone's cellular data, consuming its allowance and battery, and can be blocked by the carrier plan.",
       "GPS is receive-only: it locates the device but transmits nothing by itself, and needs sky visibility.",
       "Airplane mode is a safe diagnostic reset because it restarts every radio without deleting saved configuration.",
@@ -90,9 +90,9 @@ export const mobileDevicesLessonDepth: Record<string, LessonDepth> = {
     reference: {
       heading: "Mobile Wireless Reference",
       rows: [
-        { term: "Wi-Fi", detail: "Tens of metres, highest throughput, no carrier data cost" },
-        { term: "Bluetooth", detail: "About 10 m, low power, for peripherals and audio profiles" },
-        { term: "NFC", detail: "A few centimetres, for payments, transit cards, and tap-to-pair" },
+        { term: "Wi-Fi", detail: "Tens of feet, highest throughput, no carrier data cost" },
+        { term: "Bluetooth", detail: "About 30 feet, low power, for peripherals and audio profiles" },
+        { term: "NFC", detail: "An inch or two, for payments, transit cards, and tap-to-pair" },
         { term: "4G LTE", detail: "Wide-area carrier data and voice, broad coverage" },
         { term: "5G", detail: "Higher speed and lower latency where deployed; low-band 5G can perform like LTE" },
         { term: "GPS", detail: "Receive-only satellite positioning; needs sky visibility" },
@@ -109,12 +109,12 @@ export const mobileDevicesLessonDepth: Record<string, LessonDepth> = {
     ],
     examTraps: [
       "'Connected but no internet' questions are testing the association-versus-addressing distinction.",
-      "Centimetre-range scenarios are always NFC, never Bluetooth.",
+      "Inch-range scenarios are always NFC, never Bluetooth.",
       "Hotspot questions often hide a carrier plan restriction rather than a device fault.",
       "Battery drain while travelling is usually weak cellular signal, not a failing battery.",
     ],
     checkYourself: [
-      { question: "Which technology works within a few centimetres?", answer: "NFC." },
+      { question: "Which technology works within an inch or two?", answer: "NFC." },
       { question: "How do you quickly prove a fault is Wi-Fi rather than the handset?", answer: "Disable Wi-Fi, retest over cellular, and compare with a second device in the same place." },
       { question: "What does a hotspot actually share?", answer: "The phone's cellular data connection, consuming its allowance and battery." },
       { question: "Why use airplane mode during diagnosis?", answer: "It restarts every radio at once without changing saved network configuration." },

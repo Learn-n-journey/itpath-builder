@@ -26,7 +26,7 @@ export const mobileDevicesPlainLanguage: Record<string, LessonPlainLanguage> = {
       { term: "Wi-Fi", plain: "A short-range wireless connection, usually to a router at home or work, that gives fast internet without using mobile data." },
       { term: "Cellular data (4G/5G)", plain: "The wide-area connection to a phone carrier's towers, used for calls and internet away from Wi-Fi." },
       { term: "Bluetooth", plain: "A short-range wireless link used to connect nearby accessories like headphones or a smartwatch." },
-      { term: "NFC", plain: "A very short-range wireless link, only a few centimetres, used for things like tap-to-pay." },
+      { term: "NFC", plain: "A very short-range wireless link, only an inch or two, used for things like tap-to-pay." },
       { term: "GPS", plain: "A system that listens to satellites to work out the phone's location. It does not send your location out by itself." },
       { term: "Hotspot / tethering", plain: "Sharing the phone's own mobile data connection with another device, such as a laptop." },
       { term: "Pairing", plain: "The one-time process of introducing a Bluetooth accessory to your phone so they remember each other." },

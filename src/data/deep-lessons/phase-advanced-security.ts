@@ -56,7 +56,7 @@ export const advancedSecurityDeepLessons: DeepLesson[] = [
           "Query: index=identity sourcetype=azuread-signin | stats earliest(_time) as t1, latest(_time) as t2 by user, country | where t2-t1 < 3600 AND country_distance_km > 1000",
           "Event 1: user=j.morris, country=United Kingdom, ip=81.x.x.x, mfa_result=satisfied, time=02:14 UTC",
           "Event 2: user=j.morris, country=Vietnam, ip=113.x.x.x, mfa_result=satisfied, time=02:41 UTC",
-          "Calculated travel speed required: roughly 20,000 km/h, physically impossible.",
+          "Calculated travel speed required: roughly 12,000 mph, physically impossible.",
           "Enrichment check: no corporate VPN egress registered in Vietnam.",
           "Analyst verdict: true positive, escalate to incident response with both raw events attached.",
           "Timeline entry: 02:14 legitimate sign-in, 02:41 suspicious sign-in, 02:45 password reset forced, 02:50 active sessions revoked.",
