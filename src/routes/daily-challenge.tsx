@@ -6,7 +6,6 @@ import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import type { Quiz } from "@/lib/app-data/types";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   DAILY_TIERS,
   dailyChallenge,
