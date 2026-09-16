@@ -213,7 +213,7 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
     const graded = (attemptsByItem.get(itemId) ?? []).sort((a, b) => a.at - b.at);
     if (!graded.length) return undefined;
     const last = graded[graded.length - 1];
-    if (!last.pass) return 0;
+    if (!last || !last.pass) return 0;
     const passDays = new Set(graded.filter((row) => row.pass).map((row) => dayOf(row.at)));
     return passDays.size >= 2 ? 100 : 50;
   });
