@@ -57,7 +57,7 @@ export interface TopicScopeProgress {
 }
 
 /** One thing the learner can be graded on, and every graded go they have had. */
-interface EvidenceItem {
+export interface EvidenceItem {
   id: string;
   dimension: ScopeDimensionKey;
   /** Recall is "right now", so it reads the latest go. Skills read the best. */
