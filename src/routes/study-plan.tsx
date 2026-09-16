@@ -245,7 +245,7 @@ function ActivePlan({
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
         <span className="rounded-md bg-secondary px-3 py-1.5 text-sm text-muted-foreground">
-          {durationLabel(plan.targetMinutes)} plan · {plannedMinutes} min scheduled
+          {plan.tasks.length} tasks planned
         </span>
         <span className="rounded-md bg-primary/15 px-3 py-1.5 text-sm font-medium tabular-nums text-primary">
           {formatDuration(tracked)} tracked

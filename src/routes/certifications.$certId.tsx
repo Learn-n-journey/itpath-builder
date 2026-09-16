@@ -208,7 +208,6 @@ function Certifications() {
         <StatCard label="Overall readiness" value={`${selected.overall}%`} />
         <StatCard label="Status" value={certificationStatusLabels[selected.status]} />
         <StatCard label="Topics" value={index.topics.length} />
-        <StatCard label="Recommended study time" value={formatStudyTime(index.totalMinutes)} />
       </div>
 
       {report ? <ReadinessPanel report={report} className="mt-4" showLink={false} /> : null}
@@ -241,9 +240,6 @@ function Certifications() {
                           className="block min-w-0 rounded-lg border border-border bg-background/40 p-3 hover:bg-secondary/50"
                         >
                           <span className="block truncate text-sm font-medium">{topic.title}</span>
-                          <span className="block text-xs text-muted-foreground">
-                            {formatStudyTime(topicStudyMinutes(topic.id))} recommended
-                          </span>
                         </Link>
                       </li>
                     ))}

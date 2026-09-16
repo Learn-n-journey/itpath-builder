@@ -113,7 +113,6 @@ function TopicPage() {
       <dl className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
         {[
           ["Certification", certification?.title ?? "General IT"],
-          ["Recommended study time", formatStudyTime(studyTime.totalMinutes)],
           ["Status", progress ? "In progress" : "Not started"],
         ].map(([label, value], index) => (
           <div
@@ -128,20 +127,15 @@ function TopicPage() {
 
       <Panel
         className="mb-4"
-        title="Recommended study time"
-        description={`About ${formatStudyTime(studyTime.totalMinutes)} in total, measured from the material on this page. At your session length of ${user.settings.sessionLengthMinutes} minutes that is ${studyTime.sessions} ${studyTime.sessions === 1 ? "sitting" : "sittings"}. Tap any stage to jump straight to it.`}
+        title="What is in this topic"
+        description="Work through it at your own pace. Tap any stage to jump straight to it."
       >
         <ul className="grid gap-3 sm:grid-cols-2">
           {studyTime.parts.map((part) => {
             const target = STUDY_PART_TARGETS[part.label];
             const inner = (
               <>
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-sm font-medium text-foreground">{part.label}</span>
-                  <span className="shrink-0 text-sm tabular-nums text-primary">
-                    {formatStudyTime(part.minutes)}
-                  </span>
-                </div>
+                <span className="block text-sm font-medium text-foreground">{part.label}</span>
                 <p className="mt-1 text-xs text-muted-foreground">{part.detail}</p>
                 {target ? (
                   <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary">
