@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { BetaAccessPanel } from "@/components/beta-access-panel";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { ProfileNamePanel } from "@/components/profile-name-panel";
+import { SiteEngagementPanel } from "@/components/site-engagement-panel";
+
 
 import { SystemDiagnostics } from "@/components/system-diagnostics";
 import { Button } from "@/components/ui/button";
@@ -332,6 +334,8 @@ function SettingsPage() {
           Reset all local data
         </Button>
       </Panel>
+
+      <SiteEngagementPanel />
 
       <BetaAccessPanel />
     </>
