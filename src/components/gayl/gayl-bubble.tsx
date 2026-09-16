@@ -19,6 +19,17 @@ import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
 import { cn } from "@/lib/utils";
 
 const DISMISS_KEY = "itpath.gayl.bubble.dismissed";
+const CLEARED_KEY = "itpath.gayl.bubble.cleared";
+
+function readCleared(): string[] {
+  try {
+    const raw = window.localStorage.getItem(CLEARED_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
 
 /** Shortens a question prompt so the note stays readable. */
 function trim(text: string): string {
