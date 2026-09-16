@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { topics } from "@/data/static-content";
 import { SECTION_PASS_SCORE, SECTION_QUIZ_SIZE, getSectionQuizQuestions } from "@/data/topic-quizzes";
 import type { Quiz } from "@/lib/app-data/types";
+import { nextJourneyTopic, sectionQuizBest } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
 
 const findTopic = (topicId: string) => topics.find((topic) => topic.id === topicId);
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/section-quiz/$topicId")({
     const topic = findTopic(params.topicId);
     const title = topic ? `${topic.title} section quiz | IT PATH` : "Section quiz | IT PATH";
     const description = topic
-      ? `A ${SECTION_QUIZ_SIZE} question quiz on ${topic.title}, mixing multiple choice and written answers.`
+      ? `A ${SECTION_QUIZ_SIZE} question quiz on ${topic.title}, all multiple choice.`
       : "A section quiz on IT PATH.";
     return {
       meta: [
@@ -52,7 +53,7 @@ function SectionQuizPage() {
   const quiz: Quiz = {
     id: quizId,
     title: `${topic.title} section quiz`,
-    description: `${SECTION_QUIZ_SIZE} questions on this section, mixing multiple choice and written answers. ${SECTION_PASS_SCORE}% to pass.`,
+    description: `${SECTION_QUIZ_SIZE} questions on this section, all multiple choice. ${SECTION_PASS_SCORE}% to pass.`,
     topicIds: [topicId],
     questionIds: questions.map((question) => question.id),
     kind: "assessment",
@@ -62,7 +63,7 @@ function SectionQuizPage() {
     <>
       <PageHeader
         title={`${topic.title}: section quiz`}
-        description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Some are multiple choice, some you write in your own words, and ${SECTION_PASS_SCORE}% is a pass.`}
+        description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Every question is multiple choice, and ${SECTION_PASS_SCORE}% is a pass. Pass it and the next section opens.`}
       />
 
       {passed ? (

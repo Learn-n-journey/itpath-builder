@@ -333,7 +333,7 @@ function Dashboard() {
           </div>
         </Panel>
 
-        <Panel title="Topics needing review" description="Due reviews, open mistakes and weak scores.">
+        <Panel title="Topics to come back to" description="Each line says why it is here: a review that is due, an open mistake, or a low score.">
           {d.topicsNeedingReview.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Nothing flagged for review yet.
