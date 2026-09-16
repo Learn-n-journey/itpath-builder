@@ -99,9 +99,10 @@ async function copyText(text: string): Promise<boolean> {
 
 function AiTutor() {
   const { user } = useAppState();
-  const [mode, setMode] = useState<TutorMode>("teach_me");
+  const [mode, setMode] = useState<TutorMode>("ask_anything");
   const [topicId, setTopicId] = useState<string>(NO_TOPIC);
   const [answer, setAnswer] = useState("");
+  const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [followUp, setFollowUp] = useState("");
   const [busy, setBusy] = useState(false);
