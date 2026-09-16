@@ -162,23 +162,35 @@ function DailyChallengePage() {
       </Panel>
 
       <Panel title="How the challenge works">
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li className="flex items-start gap-2">
-            <CalendarCheck className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-            Everyone gets the same five questions on the same day; the set changes at midnight.
-          </li>
-          <li className="flex items-start gap-2">
-            <Target className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-            Questions are mixed across topics and question styles, so it is retrieval practice, not a single-topic drill.
-          </li>
-          <li className="flex items-start gap-2">
-            <Flame className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-            Submitting on consecutive days builds the challenge streak. Retakes on the same day are fine; the best score counts.
-          </li>
-          <li className="flex items-start gap-2">
-            <Trophy className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-            Every answer is real evidence: misses land in your mistakes log and reviews, exactly like Quiz Me.
-          </li>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {[
+            {
+              Icon: CalendarCheck,
+              text: "Everyone gets the same five questions on the same day; the set changes at midnight.",
+            },
+            {
+              Icon: Target,
+              text: "Questions are mixed across topics and question styles, so it is retrieval practice, not a single-topic drill.",
+            },
+            {
+              Icon: Flame,
+              text: "Submitting on consecutive days builds the challenge streak. Retakes on the same day are fine; the best score counts.",
+            },
+            {
+              Icon: Trophy,
+              text: "Every answer is real evidence: misses land in your mistakes log and reviews, exactly like Quiz Me.",
+            },
+          ].map(({ Icon, text }) => (
+            <li
+              key={text}
+              className="flex items-start gap-3 rounded-xl border border-border/70 bg-secondary/30 p-3 text-sm text-muted-foreground transition-colors hover:border-primary/40"
+            >
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary">
+                <Icon className="size-4" aria-hidden />
+              </span>
+              <span className="leading-6">{text}</span>
+            </li>
+          ))}
         </ul>
       </Panel>
     </>
