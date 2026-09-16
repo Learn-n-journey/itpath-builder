@@ -258,10 +258,17 @@ export function progressInsight(intel: Intelligence): GaylInsight | null {
   };
 }
 
-/** My Path: why the recommended order looks the way it does. */
-export function pathInsight(intel: Intelligence): GaylInsight | null {
+/**
+ * My Path: why the recommended order looks the way it does.
+ *
+ * `preferredTopicId` is the section the journey map says you are on. When it is
+ * given, GAYL talks about that one, so her note can never name a different
+ * starting point to the one shown on the page.
+ */
+export function pathInsight(intel: Intelligence, preferredTopicId?: string): GaylInsight | null {
   if (!intel.hasEvidence) return null;
-  const top = intel.queue[0];
+  const preferred = preferredTopicId ? intel.byTopic[preferredTopicId] : undefined;
+  const top = preferred ?? intel.queue[0];
   if (!top) return null;
 
   const reason = top.isDiagnostic
@@ -270,7 +277,7 @@ export function pathInsight(intel: Intelligence): GaylInsight | null {
 
   return {
     message: `This order comes from your own work, not a fixed course plan. ${top.title} is first because ${reason}. ${top.instruction}`,
-    why: intel.queue
+    why: [top, ...intel.queue.filter((concept) => concept.topicId !== top.topicId)]
       .slice(0, 4)
       .map((concept) => `${concept.title}: ${concept.instruction}`),
   };

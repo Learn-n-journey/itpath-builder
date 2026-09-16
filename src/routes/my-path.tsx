@@ -91,7 +91,7 @@ function MyPath() {
       ) : null}
 
 
-      <GaylPathNote className="mb-4" />
+      <GaylPathNote className="mb-4" {...(current ? { topicId: current.id } : {})} />
 
       <Panel
         className="mb-4"
