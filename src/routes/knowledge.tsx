@@ -222,15 +222,29 @@ function KnowledgeWorkspace() {
   async function onSearch() {
     const q = query.trim();
     if (q.length < 2) return;
+    // Clear the last answer straight away so a new question never sits under an
+    // old one.
+    setAnswer(null);
+    setMatches([]);
+    setAsked(q);
     setSearching(true);
     const reply = await ask({ data: { query: q } });
     setSearching(false);
     if (!reply.ok) {
+      setAsked(null);
       toast.error(reply.error);
       return;
     }
     setAnswer(reply.answer);
     setMatches(reply.matches);
+    setQuery("");
+  }
+
+  function clearAnswer() {
+    setAnswer(null);
+    setMatches([]);
+    setAsked(null);
+    setQuery("");
   }
 
   async function openFile(path: string) {
