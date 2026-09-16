@@ -82,7 +82,7 @@ function SectionQuizPage() {
     <>
       <PageHeader
         title={`${topic.title}: section quiz`}
-        description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Every question is multiple choice, and ${SECTION_PASS_SCORE}% is a pass. Pass it and the next section opens.`}
+        description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Every question is multiple choice, and ${SECTION_PASS_SCORE}% is a pass. This is one part of what opens the next section, alongside recall, teach back and the hands on work.`}
       />
 
       {passed ? (
@@ -95,7 +95,7 @@ function SectionQuizPage() {
           {next ? (
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <p className="text-sm text-muted-foreground">
-                That opened the next section: {next.title}.
+                That is the knowledge check done. The rest of this section still has to stand up before {next.title} opens.
               </p>
               <Button asChild size="sm">
                 <Link to="/topics/$topicId" params={{ topicId: next.id }}>
