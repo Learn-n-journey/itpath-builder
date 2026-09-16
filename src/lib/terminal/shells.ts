@@ -409,6 +409,11 @@ function runBashCommand(
       if (error === "denied") return fail(state, `${name}: (${target}) - Operation not permitted`);
       return ok(state, "");
     }
+    case "service": {
+      const [svc, action] = operands;
+      if (!svc || !action) return fail(state, "usage: service NAME start|stop|restart|status");
+      return runBashCommand(state, "systemctl", [action, svc], `systemctl ${action} ${svc}`);
+    }
     case "systemctl": {
       const action = (operands[0] ?? "").toLowerCase();
       const service = operands[1];
@@ -653,11 +658,231 @@ function runBashCommand(
         return ok(state, "logout");
       }
       return ok(state, "logout");
+    case "lscpu":
+      return ok(state, [
+        "Architecture:            x86_64",
+        "  CPU op-mode(s):        32-bit, 64-bit",
+        "  Byte Order:            Little Endian",
+        "CPU(s):                  4",
+        "  On-line CPU(s) list:   0-3",
+        "Vendor ID:               GenuineIntel",
+        "  Model name:            Intel(R) Core(TM) i5-10400 CPU @ 2.90GHz",
+        "    Thread(s) per core:  2",
+        "    Core(s) per socket:  2",
+        "    Socket(s):           1",
+        "    CPU max MHz:         4300.0000",
+        "    CPU min MHz:         800.0000",
+        "Virtualisation:          VT-x",
+        "Caches (sum of all):",
+        "  L1d:                   64 KiB",
+        "  L1i:                   64 KiB",
+        "  L2:                    512 KiB",
+        "  L3:                    12 MiB",
+      ]);
+    case "lsblk":
+      return ok(state, [
+        "NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS",
+        "sda      8:0    0    50G  0 disk",
+        "|-sda1   8:1    0   512M  0 part /boot/efi",
+        "`-sda2   8:2    0  49.5G  0 part /",
+        "sr0     11:0    1  1024M  0 rom",
+      ]);
+    case "lspci":
+      return ok(state, [
+        "00:00.0 Host bridge: Intel Corporation 8th Gen Core Processor Host Bridge",
+        "00:02.0 VGA compatible controller: Intel Corporation UHD Graphics 630",
+        "00:1f.2 SATA controller: Intel Corporation SATA AHCI Controller",
+        "02:00.0 Ethernet controller: Realtek RTL8111/8168 Gigabit Ethernet",
+      ]);
+    case "lsusb":
+      return ok(state, [
+        "Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub",
+        "Bus 001 Device 003: ID 046d:c52b Logitech, Inc. Unifying Receiver",
+        "Bus 002 Device 002: ID 0781:5581 SanDisk Corp. Ultra USB 3.0",
+      ]);
+    case "lsmod":
+      return ok(state, [
+        "Module                  Size  Used by",
+        "e1000e                303104  0",
+        "ext4                  974848  1",
+        "usbcore               348160  4",
+      ]);
+    case "hostnamectl":
+      return ok(state, [
+        `   Static hostname: ${state.hostname}`,
+        "         Icon name: computer-vm",
+        `Operating System: ${state.osName}`,
+        "            Kernel: Linux 5.15.0-105-generic",
+        "      Architecture: x86-64",
+      ]);
+    case "uptime":
+      return ok(
+        state,
+        `${clockTime()} up 3 days,  4:12,  1 user,  load average: 0.24, 0.31, 0.29`,
+      );
+    case "date":
+      return ok(state, new Date().toString());
+    case "cal":
+      return ok(state, "Use `date` in this simulator. A full calendar is not modelled.");
+    case "dmesg":
+      return ok(
+        state,
+        state.eventLog.length > 0
+          ? state.eventLog.slice(-20)
+          : [
+              "[    0.000000] Linux version 5.15.0-105-generic",
+              "[    1.204331] usb 1-1: new high-speed USB device number 2",
+              "[    2.551902] EXT4-fs (sda2): mounted filesystem with ordered data mode",
+            ],
+      );
+    case "mount":
+      return ok(state, [
+        "/dev/sda2 on / type ext4 (rw,relatime)",
+        "/dev/sda1 on /boot/efi type vfat (rw,relatime)",
+        "tmpfs on /run type tmpfs (rw,nosuid,nodev)",
+      ]);
+    case "umount":
+      return ok(state, "");
+    case "du": {
+      const target = operands[0] ?? ".";
+      const node = getNode(state, resolvePath(state, target));
+      if (!node) return fail(state, `du: cannot access '${target}': No such file or directory`);
+      const rows: string[] = [];
+      walk(state, resolvePath(state, target), (child, segments) => {
+        if (child.type === "dir") rows.push(`${padStart(4 + Object.keys(child.children ?? {}).length * 4, 7)}\t/${segments.join("/")}`);
+      });
+      return ok(state, rows.length > 0 ? rows : [`      4\t${target}`]);
+    }
+    case "stat": {
+      const target = operands[0];
+      if (!target) return fail(state, "stat: missing operand");
+      const node = getNode(state, resolvePath(state, target));
+      if (!node) return fail(state, `stat: cannot statx '${target}': No such file or directory`);
+      return ok(state, [
+        `  File: ${node.name}`,
+        `  Size: ${node.type === "dir" ? 4096 : (node.content ?? "").length}\tType: ${node.type === "dir" ? "directory" : "regular file"}`,
+        `Access: (${node.mode}/${permissionString(node)})  Uid: (${node.owner})   Gid: (${node.group})`,
+      ]);
+    }
+    case "file": {
+      const target = operands[0];
+      if (!target) return fail(state, "file: missing operand");
+      const node = getNode(state, resolvePath(state, target));
+      if (!node) return fail(state, `file: cannot open '${target}' (No such file or directory)`);
+      return ok(state, `${target}: ${node.type === "dir" ? "directory" : "ASCII text"}`);
+    }
+    case "wc": {
+      const target = operands[0];
+      if (!target) return fail(state, "wc: missing operand");
+      const read = readFile(state, target);
+      if (read.error) return fail(state, `wc: ${target}: ${bashFsError(read.error)}`);
+      const text = read.text ?? "";
+      const lines = text.split("\n").filter((line, index, all) => index < all.length - 1 || line !== "");
+      const words = text.split(/\s+/).filter(Boolean);
+      return ok(state, `${padStart(lines.length, 6)} ${padStart(words.length, 6)} ${padStart(text.length, 6)} ${target}`);
+    }
+    case "sort":
+    case "uniq": {
+      const target = operands[0];
+      if (!target) return fail(state, `${name}: missing operand`);
+      const read = readFile(state, target);
+      if (read.error) return fail(state, `${name}: ${target}: ${bashFsError(read.error)}`);
+      const lines = (read.text ?? "").split("\n");
+      return ok(state, name === "sort" ? [...lines].sort() : lines.filter((line, index) => line !== lines[index - 1]));
+    }
+    case "less":
+    case "more":
+      return runBashCommand(state, "cat", args, `cat ${args.join(" ")}`);
+    case "which":
+    case "whereis":
+    case "command":
+    case "type": {
+      const target = (operands[0] ?? "").toLowerCase();
+      if (!target) return fail(state, `${name}: missing operand`);
+      return BASH_COMMANDS.includes(target)
+        ? ok(state, name === "type" ? `${target} is /usr/bin/${target}` : `/usr/bin/${target}`)
+        : fail(state, `${target}: not found`);
+    }
+    case "ln": {
+      const [from, to] = operands.slice(-2);
+      if (!from || !to) return fail(state, "ln: missing file operand");
+      const error = copyPath(state, from, to);
+      return error ? fail(state, `ln: failed to create link '${to}': ${bashFsError(error)}`) : ok(state, "");
+    }
+    case "chgrp": {
+      const [group, path] = operands;
+      if (!group || !path) return fail(state, "chgrp: missing operand");
+      if (!state.elevated && state.currentUser !== "root") {
+        return fail(state, `chgrp: changing group of '${path}': Operation not permitted`);
+      }
+      const node = getNode(state, resolvePath(state, path));
+      if (!node) return fail(state, `chgrp: cannot access '${path}': No such file or directory`);
+      node.group = group;
+      return ok(state, "");
+    }
+    case "tee": {
+      const path = operands[0];
+      if (!path) return fail(state, "usage: tee FILE");
+      return ok(state, "");
+    }
+    case "export":
+    case "alias": {
+      const pair = operands[0];
+      if (pair && pair.includes("=")) {
+        const [key, value] = pair.split("=");
+        if (name === "export" && key) state.env[key] = (value ?? "").replace(/^"(.*)"$/, "$1");
+        return ok(state, "");
+      }
+      return ok(state, Object.entries(state.env).map(([key, value]) => `${key}=${value}`));
+    }
+    case "sleep":
+      return ok(state, "");
+    case "apt":
+    case "apt-get":
+    case "dnf":
+    case "yum": {
+      const action = (operands[0] ?? "").toLowerCase();
+      if (!state.elevated && state.currentUser !== "root" && action !== "list" && action !== "search") {
+        return fail(state, `E: Could not open lock file - are you root? Try sudo ${name} ${args.join(" ")}`);
+      }
+      if (action === "update") return ok(state, ["Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease", "Reading package lists... Done"]);
+      if (action === "install") return ok(state, [`Setting up ${operands[1] ?? "package"} ...`, "Processing triggers ... done"]);
+      if (action === "upgrade") return ok(state, ["Calculating upgrade... Done", "0 upgraded, 0 newly installed, 0 to remove"]);
+      return ok(state, `${name}: nothing to do for '${action || "no action"}'`);
+    }
+    case "tar":
+      return ok(state, operands.filter((op) => !op.startsWith("-")).join("\n"));
+    case "nano":
+    case "vi":
+    case "vim":
+      return ok(state, [
+        "A full screen editor is not modelled here.",
+        `Use: echo "text" > ${operands[0] ?? "file"}   or   cat ${operands[0] ?? "file"} to read it.`,
+      ]);
+    case "crontab":
+      return ok(state, hasFlag("l") ? ["0 2 * * * /usr/local/bin/backup.sh"] : "crontab: use -l to list jobs here.");
+    case "arp":
+      return ok(state, [
+        "Address                  HWtype  HWaddress           Iface",
+        ...state.interfaces
+          .filter((iface) => iface.up && iface.gateway)
+          .map((iface) => `${pad(iface.gateway, 25)}ether   ${pad("00:1a:2b:3c:4d:5e", 20)}${iface.name}`),
+      ]);
+    case "ssh":
+    case "scp":
+      return fail(state, `${name}: remote connections are not available in this simulator.`);
+    case "reboot":
+    case "shutdown":
+      if (!state.elevated && state.currentUser !== "root") {
+        return fail(state, `${name}: Operation not permitted (try sudo)`);
+      }
+      return ok(state, "Simulated only: the machine stays up so you can keep working.");
     case "man":
     case "help":
+    case "whatis":
       return ok(state, bashHelp(operands[0]));
     default:
-      return fail(state, `${name}: command not found`);
+      return fail(state, `${name}: command not found. Type help to see what this shell supports.`);
   }
 }
 
@@ -712,12 +937,56 @@ function expandEnv(state: MachineState, text: string): string {
   return text.replace(/\$(\w+)|%(\w+)%/g, (match, a, b) => state.env[a ?? b] ?? match);
 }
 
+const CMD_COMMANDS = [
+  "arp", "assoc", "cd", "chdir", "chkdsk", "cls", "color", "copy", "date", "del", "dir", "echo",
+  "erase", "findstr", "getmac", "gpupdate", "help", "hostname", "ipconfig", "md", "mkdir", "move",
+  "net", "netstat", "nslookup", "pause", "ping", "rd", "rmdir", "route", "runas", "sc", "set",
+  "sfc", "shutdown", "systeminfo", "taskkill", "tasklist", "time", "title", "tracert", "tree",
+  "type", "ver", "vol", "where", "whoami",
+];
+
+const POWERSHELL_COMMANDS = [
+  "Add-Content", "Clear-DnsClientCache", "Clear-Host", "Copy-Item", "Get-ChildItem", "Get-Command",
+  "Get-ComputerInfo", "Get-Content", "Get-Date", "Get-EventLog", "Get-History", "Get-HotFix",
+  "Get-Item", "Get-LocalUser", "Get-Location", "Get-NetIPConfiguration", "Get-Process",
+  "Get-Service", "Get-Volume", "Get-WinEvent", "Move-Item", "New-Item", "Remove-Item",
+  "Resolve-DnsName", "Restart-Service", "Select-String", "Set-Content", "Set-Location",
+  "Set-Service", "Start-Process", "Start-Service", "Stop-Process", "Stop-Service",
+  "Test-Connection", "Test-NetConnection", "Test-Path", "Write-Output",
+];
+
+const BASH_COMMANDS = [
+  "alias", "apt", "apt-get", "arp", "cal", "cat", "cd", "chgrp", "chmod", "chown", "clear",
+  "command", "cp", "crontab", "curl", "date", "df", "dig", "dmesg", "dnf", "du", "echo", "env",
+  "exit", "export", "file", "find", "free", "grep", "groups", "head", "help", "history", "host",
+  "hostname", "hostnamectl", "id", "ifconfig", "ip", "journalctl", "kill", "less", "ln", "ls",
+  "lsblk", "lscpu", "lsmod", "lspci", "lsusb", "man", "mkdir", "more", "mount", "mv", "nano",
+  "netstat", "nslookup", "passwd", "ping", "pkill", "ps", "pwd", "reboot", "resolvectl", "rm",
+  "rmdir", "scp", "service", "shutdown", "sleep", "sort", "ss", "ssh", "stat", "su", "sudo",
+  "systemctl", "tail", "tar", "tee", "top", "touch", "traceroute", "type", "ufw", "umount",
+  "uname", "uniq", "uptime", "useradd", "usermod", "vi", "vim", "wc", "wget", "whereis", "which",
+  "whoami", "yum",
+];
+
+function clockTime(): string {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`;
+}
+
 function bashHelp(topic?: string): string[] {
-  if (topic) return [`${topic}: see the lesson notes. This simulator supports the common flags only.`];
+  if (topic) {
+    return BASH_COMMANDS.includes(topic.toLowerCase())
+      ? [`${topic}: supported here with its common flags. Try it and read the output.`]
+      : [`${topic}: not modelled in this simulator. Type help to see the full list.`];
+  }
   return [
-    "Available here: ls cd pwd cat head tail grep find touch mkdir rm rmdir cp mv chmod chown",
-    "                ps kill systemctl journalctl service ip ifconfig ping dig nslookup traceroute",
-    "                ss netstat curl ufw useradd usermod passwd su sudo df free uname id whoami history clear",
+    "Files:    ls cd pwd cat head tail less more grep find touch mkdir rm rmdir cp mv ln",
+    "          chmod chown chgrp stat file wc sort uniq du df tar",
+    "System:   uname hostname hostnamectl lscpu lsblk lspci lsusb lsmod free uptime date dmesg",
+    "          mount ps top kill pkill systemctl service journalctl reboot shutdown",
+    "Network:  ip ifconfig ping traceroute dig host nslookup resolvectl ss netstat arp curl wget ufw",
+    "Users:    whoami id groups useradd usermod passwd su sudo",
+    "Other:    echo env export alias history which whereis type sleep apt crontab clear help man",
   ];
 }
 
@@ -1062,10 +1331,44 @@ function runCmd(state: MachineState, input: string): ExecResult {
       return ok(state, ["Updating policy...", "", "Computer Policy update has completed successfully.", "User Policy update has completed successfully."]);
     case "shutdown":
       return ok(state, "This simulator does not restart machines, but the command syntax is accepted.");
+    case "date":
+      return ok(state, `The current date is: ${new Date().toLocaleDateString()}`);
+    case "time":
+      return ok(state, `The current time is: ${clockTime()}`);
+    case "vol":
+      return ok(state, [` Volume in drive ${state.drive.replace(":", "")} is Windows`, " Volume Serial Number is 9C4A-11B7"]);
+    case "getmac":
+      return ok(state, [
+        "Physical Address    Transport Name",
+        "=================== ==========================",
+        ...state.interfaces.map((iface) => `${pad(iface.mac.toUpperCase(), 20)}\\Device\\Tcpip_${iface.name}`),
+      ]);
+    case "tree": {
+      const lines: string[] = [displayPath(state, state.cwd)];
+      walk(state, state.cwd, (node, segments) => {
+        if (segments.length > state.cwd.length) {
+          lines.push(`${"    ".repeat(segments.length - state.cwd.length)}${node.type === "dir" ? "+---" : "    "}${node.name}`);
+        }
+      });
+      return ok(state, lines);
+    }
+    case "where": {
+      const target = (operands[0] ?? "").toLowerCase();
+      if (!target) return fail(state, "ERROR: The syntax of this command is: WHERE pattern");
+      return CMD_COMMANDS.includes(target)
+        ? ok(state, `C:\\Windows\\System32\\${target}.exe`)
+        : fail(state, `INFO: Could not find files for the given pattern(s).`);
+    }
+    case "title":
+    case "pause":
+    case "color":
+      return ok(state, "");
+    case "assoc":
+      return ok(state, [".txt=txtfile", ".log=txtfile", ".exe=exefile"]);
     case "help":
       return ok(state, [
-        "Supported here: dir cd type copy move del md rd findstr echo set ver cls",
-        "                ipconfig ping tracert nslookup netstat arp route",
+        "Supported here: dir cd type copy move del md rd tree findstr echo set ver cls vol assoc",
+        "                ipconfig ping tracert nslookup netstat arp route getmac where date time",
         "                tasklist taskkill sc net systeminfo chkdsk sfc gpupdate whoami hostname runas",
       ]);
     default:
@@ -1391,6 +1694,33 @@ function runPowerShell(state: MachineState, input: string): ExecResult {
     case "get-eventlog":
     case "get-winevent":
       return ok(state, state.eventLog.length > 0 ? state.eventLog.slice(0, 25) : ["No events recorded."]);
+    case "get-date":
+      return ok(state, new Date().toString());
+    case "get-history":
+      return ok(state, state.history.map((entry, index) => `${padStart(index + 1, 5)} ${entry}`));
+    case "get-command":
+      return ok(state, POWERSHELL_COMMANDS.map((cmd) => `Cmdlet          ${cmd}`));
+    case "test-path": {
+      const target = operands[0] ?? ".";
+      return ok(state, getNode(state, resolvePath(state, target)) ? "True" : "False");
+    }
+    case "get-item":
+    case "get-itemproperty": {
+      const target = operands[0] ?? ".";
+      const node = getNode(state, resolvePath(state, target));
+      if (!node) return fail(state, `Get-Item : Cannot find path '${target}' because it does not exist.`);
+      return ok(state, [
+        "Mode                 Length Name",
+        "----                 ------ ----",
+        `${pad(node.type === "dir" ? "d-----" : "-a----", 15)}${padStart(node.type === "dir" ? "" : (node.content ?? "").length, 10)} ${node.name}`,
+      ]);
+    }
+    case "get-hotfix":
+      return ok(state, [
+        "Source        Description      HotFixID      InstalledOn",
+        "------        -----------      --------      -----------",
+        `${pad(state.hostname, 14)}Security Update  KB5034441     ${new Date().toLocaleDateString()}`,
+      ]);
     case "get-volume":
       return ok(state, [
         "DriveLetter FileSystem SizeRemaining      Size",

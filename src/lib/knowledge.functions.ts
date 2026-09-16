@@ -364,18 +364,90 @@ export const deleteKnowledge = createServerFn({ method: "POST" })
 /* Natural language search                                             */
 /* ------------------------------------------------------------------ */
 
-function itemDigest(item: KnowledgeItem): string {
+function itemDigest(item: KnowledgeItem, textLimit = 1200, notesLimit = 600): string {
   return [
     `id: ${item.id}`,
     `title: ${item.title}`,
     item.summary ? `summary: ${item.summary}` : "",
     item.concepts.length ? `concepts: ${item.concepts.join(", ")}` : "",
     item.keyTerms.length ? `terms: ${item.keyTerms.join(", ")}` : "",
-    item.notes ? `notes: ${item.notes.slice(0, 600)}` : "",
-    item.content ? `text: ${item.content.slice(0, 1200)}` : "",
+    item.notes ? `notes: ${item.notes.slice(0, notesLimit)}` : "",
+    item.content ? `full text: ${item.content.slice(0, textLimit)}` : "",
   ]
     .filter(Boolean)
     .join("\n");
+}
+
+const STOP_WORDS = new Set([
+  "what", "does", "about", "with", "from", "that", "this", "have", "they", "them", "your", "notes",
+  "note", "material", "materials", "there", "which", "when", "where", "into", "than", "then",
+  "tell", "explain", "between", "difference", "differences", "say", "says", "said", "the", "and",
+  "for", "are", "how", "why", "who", "can", "you", "all", "any", "its", "was", "were",
+]);
+
+/** Words worth matching on, including short technical tokens such as 32, 64, ram, cpu. */
+function queryTerms(query: string): string[] {
+  const raw = query
+    .toLowerCase()
+    .split(/[^a-z0-9+#.-]+/)
+    .map((word) => word.replace(/^[.-]+|[.-]+$/g, ""))
+    .filter(Boolean);
+  const terms = new Set<string>();
+  for (const word of raw) {
+    if (STOP_WORDS.has(word)) continue;
+    if (word.length < 2) continue;
+    terms.add(word);
+    // "64-bit" also matches "64bit" and "x64" style writing.
+    if (word.includes("-")) word.split("-").forEach((part) => part.length >= 2 && terms.add(part));
+  }
+  return [...terms];
+}
+
+/** How strongly one saved item answers the question. */
+function relevanceScore(item: KnowledgeItem, terms: string[]): number {
+  if (terms.length === 0) return 0;
+  const title = item.title.toLowerCase();
+  const meta = [item.summary ?? "", item.concepts.join(" "), item.keyTerms.join(" "), item.notes ?? ""]
+    .join(" ")
+    .toLowerCase();
+  const body = (item.content ?? "").toLowerCase();
+  let score = 0;
+  for (const term of terms) {
+    if (title.includes(term)) score += 6;
+    if (meta.includes(term)) score += 3;
+    const hits = body.split(term).length - 1;
+    if (hits > 0) score += Math.min(6, 1 + hits);
+  }
+  return score;
+}
+
+/**
+ * Builds the material the model reads.
+ *
+ * Items that actually mention the question get their full saved text, so a
+ * transcript or article is answered from the whole thing rather than a
+ * truncated preview. Everything else stays as a short digest for context.
+ */
+function buildSearchDigest(items: KnowledgeItem[], query: string): string {
+  const terms = queryTerms(query);
+  const ranked = items
+    .map((item) => ({ item, score: relevanceScore(item, terms) }))
+    .sort((a, b) => b.score - a.score);
+
+  const relevant = ranked.filter((entry) => entry.score > 0).slice(0, 10);
+  const chosen = relevant.length > 0 ? relevant : ranked.slice(0, 6);
+  const chosenIds = new Set(chosen.map((entry) => entry.item.id));
+
+  const TOTAL_BUDGET = 90000;
+  const perItem = Math.max(4000, Math.floor(TOTAL_BUDGET / Math.max(1, chosen.length)));
+
+  const full = chosen.map((entry) => itemDigest(entry.item, perItem, 4000));
+  const rest = items
+    .filter((item) => !chosenIds.has(item.id))
+    .slice(0, 60)
+    .map((item) => itemDigest(item, 300, 200));
+
+  return [...full, ...rest].join("\n---\n");
 }
 
 export const searchKnowledge = createServerFn({ method: "POST" })
@@ -397,11 +469,19 @@ export const searchKnowledge = createServerFn({ method: "POST" })
     if (items.length === 0)
       return { ok: true, answer: "You have not saved any material yet.", matches: [] };
 
-    const system = `You search a learner's own saved IT study material. Answer only from the material provided.
-Return strict JSON: {"answer":"plain text answer, or a clear statement that the saved material does not cover it","matches":[{"id":"item id","why":"one line on why it is relevant"}]}
-Never use ids that are not in the material list. Never add outside facts to the answer; if the saved material is thin, say what is missing.`;
+    const system = `You search a learner's own saved IT study material: notes, articles, transcripts and documents.
+Read the full text of every item provided, not just the summaries, and answer only from that material.
 
-    const digest = items.map(itemDigest).join("\n---\n");
+Gather everything the material says on the question, across all items, and lay it out in full:
+one short opening line, then a point for each distinct thing the material states, each attributed
+to the item title it came from. Paraphrase closely and quote short phrases where the wording matters.
+Only say something is not covered when no item mentions it, and in that case still report what the
+material does say on the subject first.
+
+Return strict JSON: {"answer":"plain text answer","matches":[{"id":"item id","why":"one line on why it is relevant"}]}
+Never use ids that are not in the material list. Never add outside facts to the answer.`;
+
+    const digest = buildSearchDigest(items, data.query);
 
     // Searching the same library for the same thing twice costs nothing the
     // second time, and a reworded question reuses the same answer.

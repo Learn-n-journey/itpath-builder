@@ -145,3 +145,9 @@
 
 ## GAYL accuracy
 - Investigate false "answers have slipped" message shown with no recent activity
+
+## Second Brain search
+- [ ] "Ask your own material" must read full articles and transcripts, not just short notes; answer should quote everything relevant across sources.
+
+## In-app tabs
+- [ ] Explore opening multiple pages as tabs (e.g. Second Brain alongside a lesson) so a lesson is not lost when jumping elsewhere.
