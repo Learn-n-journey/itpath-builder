@@ -30,18 +30,21 @@ const PHASE_DEFS: Array<{ minMonth: number; maxMonth: number; title: string; mon
     blurb: "How computers actually work, and the A+ hardware, software and troubleshooting material.",
   },
   {
+    minMonth: 8,
     maxMonth: 13,
     title: "Networking and Security",
     months: "Months 8 to 13",
     blurb: "Networks end to end, then the Network+ and Security+ core: protocols, hardening and threats.",
   },
   {
+    minMonth: 14,
     maxMonth: 19,
     title: "Linux, Servers and Cloud",
     months: "Months 14 to 19",
     blurb: "The command line, servers, containers and the cloud platforms most infrastructure runs on.",
   },
   {
+    minMonth: 20,
     maxMonth: 24,
     title: "Advanced Security and Career",
     months: "Months 20 to 24",
@@ -54,7 +57,7 @@ export const journeyPhases: JourneyPhase[] = PHASE_DEFS.map((phase) => ({
   months: phase.months,
   blurb: phase.blurb,
   topics: expansionSeeds
-    .filter((seed) => seed.month <= phase.maxMonth)
+    .filter((seed) => seed.month >= phase.minMonth && seed.month <= phase.maxMonth)
     .map((seed) => ({
       id: `topic-${seed.slug}`,
       title: seed.title,
