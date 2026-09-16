@@ -24,25 +24,30 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
     >
       <ul className="space-y-3">
         {required.map((item) => (
-          <li key={item.key} className="flex gap-3 text-sm">
-            <span
-              className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border ${
-                item.met
-                  ? "border-primary bg-primary/15 text-primary"
-                  : "border-destructive/60 text-destructive"
-              }`}
-              aria-hidden
-            >
-              {item.met ? <Check className="size-3" /> : <Circle className="size-2 fill-current" />}
-            </span>
-            <span>
-              <span className={item.met ? "font-medium text-foreground" : "font-medium text-destructive"}>
-                {item.label}
+          <li key={item.key} className="text-sm">
+            <CompetencyLink topicId={topicId} competencyKey={item.key}>
+              <span
+                className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border ${
+                  item.met
+                    ? "border-primary bg-primary/15 text-primary"
+                    : "border-destructive/60 text-destructive"
+                }`}
+                aria-hidden
+              >
+                {item.met ? <Check className="size-3" /> : <Circle className="size-2 fill-current" />}
               </span>
-              <span className="block text-muted-foreground">
-                {item.met ? item.detail : `${item.requirement} ${item.detail}`}
+              <span>
+                <span className={item.met ? "font-medium text-foreground" : "font-medium text-destructive"}>
+                  {item.label}
+                </span>
+                <span className="block text-muted-foreground">
+                  {item.met ? item.detail : `${item.requirement} ${item.detail}`}
+                </span>
+                <span className="mt-1 block text-xs font-medium text-primary">
+                  {item.met ? "Open it again" : "Open this check"}
+                </span>
               </span>
-            </span>
+            </CompetencyLink>
           </li>
         ))}
         <li className="flex gap-3 text-sm">
