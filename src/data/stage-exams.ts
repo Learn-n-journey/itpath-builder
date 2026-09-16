@@ -107,12 +107,13 @@ const stage1: Draft[] = [
     prompt: "Before handling a motherboard out of the case, what is the correct precaution?",
     choices: [
       "Wear an anti-static strap bonded to a grounded point",
-      "Leave the supply switched on for grounding",
-      "Work on carpet to absorb shocks",
-      "Hold the board by the contacts to steady it",
+      "Touch the case once, then work on an anti-static mat",
+      "Leave the supply plugged in but switched off and hold the heatsink",
+      "Handle the board by its edges in a low humidity room",
     ],
     answer: "Wear an anti-static strap bonded to a grounded point",
-    explanation: "Static discharge damages components silently; bonding yourself to ground prevents it.",
+    explanation:
+      "Edge handling and a single case touch help, but only a bonded strap keeps you at ground the whole time.",
   },
   {
     topicId: "topic-operating-systems-overview",
@@ -130,9 +131,10 @@ const stage1: Draft[] = [
   {
     topicId: "topic-windows-installation-and-configuration",
     certificationId: A,
-    prompt: "Which Windows file system is required for a boot volume with permissions and journaling?",
-    choices: ["NTFS", "FAT32", "exFAT", "ext4"],
+    prompt:
+      "Name the Windows file system required for a boot volume with permissions and journaling.",
     answer: "NTFS",
+    accept: ["ntfs file system"],
     explanation: "NTFS supports permissions, journaling and large files; FAT32 and exFAT support none of the first two.",
   },
   {
@@ -146,22 +148,19 @@ const stage1: Draft[] = [
   {
     topicId: "topic-command-line-fundamentals",
     certificationId: A,
-    prompt: "Which Windows command shows the IP configuration of every adapter, including DNS servers?",
-    choices: ["ipconfig /all", "ping -a", "netstat -r", "nslookup"],
+    prompt:
+      "Type the Windows command that shows the full IP configuration of every adapter, including DNS servers.",
     answer: "ipconfig /all",
+    accept: ["ipconfig all", "ipconfig/all"],
     explanation: "The /all switch adds DNS, DHCP, MAC and lease detail that plain ipconfig leaves out.",
   },
   {
     topicId: "topic-troubleshooting-methodology",
     certificationId: A,
-    prompt: "In the CompTIA troubleshooting method, what comes directly after establishing a theory?",
-    choices: [
-      "Test the theory to determine the cause",
-      "Implement the fix",
-      "Document the outcome",
-      "Escalate to a senior technician",
-    ],
+    prompt:
+      "In the CompTIA troubleshooting method, describe in your own words what you do directly after establishing a theory of probable cause.",
     answer: "Test the theory to determine the cause",
+    accept: ["test the theory", "test it to confirm the cause"],
     explanation: "A theory is only a guess until it is tested; the plan of action comes after it is confirmed.",
   },
   {
@@ -180,14 +179,10 @@ const stage1: Draft[] = [
   {
     topicId: "topic-endpoint-security-fundamentals",
     certificationId: A,
-    prompt: "Which of these best describes ransomware?",
-    choices: [
-      "Malware that encrypts files and demands payment",
-      "Software that shows unwanted adverts",
-      "A program that records keystrokes",
-      "A tool that scans open ports",
-    ],
-    answer: "Malware that encrypts files and demands payment",
+    prompt:
+      "Explain in a sentence what ransomware does to a victim system.",
+    answer: "It encrypts files and demands a payment to restore access",
+    accept: ["encrypts data and demands payment", "locks files until a ransom is paid"],
     explanation: "Ransomware denies access to your own data until a payment is made, and tested backups are the real defence.",
   },
   {
@@ -219,9 +214,10 @@ const stage1: Draft[] = [
   {
     topicId: "topic-printers-and-peripherals",
     certificationId: A,
-    prompt: "Pages from a laser printer smudge when rubbed. Which part should be checked?",
-    choices: ["The fuser assembly", "The pickup roller", "The toner hopper level", "The network cable"],
-    answer: "The fuser assembly",
+    prompt:
+      "Pages from a laser printer smudge when rubbed. Name the assembly at fault and say what it does.",
+    answer: "The fuser bonds toner to the page with heat and pressure",
+    accept: ["fuser", "fuser assembly heat pressure"],
     explanation: "The fuser bonds toner to the page with heat and pressure; unfused toner rubs straight off.",
   },
   {
@@ -240,9 +236,10 @@ const stage1: Draft[] = [
   {
     topicId: "topic-binary-and-number-systems",
     certificationId: A,
-    prompt: "What is the decimal value of the binary number 11010?",
-    choices: ["26", "24", "22", "30"],
+    prompt:
+      "Write the decimal value of the binary number 11010.",
     answer: "26",
+    accept: ["26 "],
     explanation: "16 + 8 + 0 + 2 + 0 equals 26.",
   },
   {
@@ -267,12 +264,13 @@ const stage1: Draft[] = [
     prompt: "A change is needed on a production system. What should exist before it is made?",
     choices: [
       "An approved change request with a rollback plan",
-      "A verbal agreement from a colleague",
-      "A screenshot of the current screen",
-      "A note in a personal notebook",
+      "A tested backup of the affected system",
+      "A maintenance window agreed with the service desk",
+      "A configuration export saved to the ticket",
     ],
     answer: "An approved change request with a rollback plan",
-    explanation: "Change management requires approval, a documented plan and a way back if it goes badly.",
+    explanation:
+      "The others are sensible parts of the work, but the approved request with a rollback plan is what change management requires first.",
   },
 ];
 
@@ -296,9 +294,10 @@ const stage2: Draft[] = [
   {
     topicId: "topic-ethernet-switching-and-vlans",
     certificationId: N,
-    prompt: "Which standard tags frames so several VLANs can cross one link?",
-    choices: ["802.1Q", "802.1X", "802.11ax", "802.3af"],
+    prompt:
+      "Name the standard that tags frames so several VLANs can share one link.",
     answer: "802.1Q",
+    accept: ["dot1q", "8021q"],
     explanation: "802.1Q inserts the VLAN tag; 802.1X is port authentication and 802.3af is Power over Ethernet.",
   },
   {
@@ -317,9 +316,10 @@ const stage2: Draft[] = [
   {
     topicId: "topic-ip-addressing-and-subnetting",
     certificationId: N,
-    prompt: "How many usable host addresses does a /27 subnet provide?",
-    choices: ["30", "32", "14", "62"],
+    prompt:
+      "How many usable host addresses does a /27 subnet provide? Write the number.",
     answer: "30",
+    accept: ["30 hosts"],
     explanation: "A /27 has 32 addresses, less the network and broadcast addresses, which leaves 30.",
   },
   {
@@ -351,17 +351,19 @@ const stage2: Draft[] = [
   {
     topicId: "topic-routing-fundamentals",
     certificationId: N,
-    prompt: "Which protocol carries routing between autonomous systems on the internet?",
-    choices: ["BGP", "OSPF", "RIPv2", "EIGRP"],
+    prompt:
+      "Name the routing protocol used between autonomous systems on the internet.",
     answer: "BGP",
+    accept: ["border gateway protocol"],
     explanation: "BGP is the exterior gateway protocol; OSPF, RIP and EIGRP operate inside an organisation.",
   },
   {
     topicId: "topic-network-services-and-protocols",
     certificationId: N,
-    prompt: "Which port does DNS use for standard name queries?",
-    choices: ["53", "67", "161", "389"],
+    prompt:
+      "Write the port number DNS uses for standard name queries.",
     answer: "53",
+    accept: ["port 53"],
     explanation: "DNS uses 53, DHCP uses 67 and 68, SNMP uses 161 and LDAP uses 389.",
   },
   {
@@ -380,9 +382,10 @@ const stage2: Draft[] = [
   {
     topicId: "topic-wireless-and-network-troubleshooting",
     certificationId: N,
-    prompt: "Which 2.4 GHz channels do not overlap in North America?",
-    choices: ["1, 6 and 11", "1, 5 and 9", "2, 7 and 12", "All channels overlap"],
+    prompt:
+      "List the three non-overlapping 2.4 GHz channels used in North America.",
     answer: "1, 6 and 11",
+    accept: ["1 6 11"],
     explanation: "Those three are far enough apart in frequency to avoid co-channel interference.",
   },
   {
@@ -404,9 +407,10 @@ const stage2: Draft[] = [
   {
     topicId: "topic-security-principles-and-threats",
     certificationId: S,
-    prompt: "An attacker sends a targeted email to the finance director only. What is that called?",
-    choices: ["Spear phishing", "Whaling by volume", "Smishing", "Tailgating"],
-    answer: "Spear phishing",
+    prompt:
+      "An attacker sends a tailored email to the finance director alone. Name this attack and say what makes it different from ordinary phishing.",
+    answer: "Spear phishing, it targets a named individual with tailored detail",
+    accept: ["spear phishing", "targeted phishing at one person"],
     explanation: "Spear phishing targets a named individual with tailored detail rather than a mass mailing.",
   },
   {
@@ -483,22 +487,19 @@ const stage3: Draft[] = [
   {
     topicId: "topic-linux-filesystem-and-permissions",
     certificationId: L,
-    prompt: "What permission set does chmod 640 give a file?",
-    choices: [
-      "Owner read and write, group read, others none",
-      "Owner all, group all, others read",
-      "Owner read only, group write, others read",
-      "Everyone read and write",
-    ],
+    prompt:
+      "Describe the access chmod 640 gives to the owner, the group and everyone else.",
     answer: "Owner read and write, group read, others none",
+    accept: ["owner rw group r others none", "read write for owner, read for group, nothing for others"],
     explanation: "6 is read plus write, 4 is read, and 0 is no access.",
   },
   {
     topicId: "topic-linux-filesystem-and-permissions",
     certificationId: L,
-    prompt: "Which directory holds system-wide configuration files on Linux?",
-    choices: ["/etc", "/var", "/proc", "/opt"],
+    prompt:
+      "Name the Linux directory that holds system-wide configuration files.",
     answer: "/etc",
+    accept: ["etc"],
     explanation: "/etc holds configuration, /var holds changing data and /proc exposes kernel state.",
   },
   {
@@ -533,14 +534,10 @@ const stage3: Draft[] = [
   {
     topicId: "topic-bash-scripting-and-automation",
     certificationId: L,
-    prompt: "In a cron entry, what does 0 3 * * * mean?",
-    choices: [
-      "Every day at 03:00",
-      "Every three hours",
-      "At three minutes past every hour",
-      "On the third day of every month",
-    ],
+    prompt:
+      "In a cron entry, what schedule does 0 3 * * * describe?",
     answer: "Every day at 03:00",
+    accept: ["daily at 3am", "every day at three in the morning"],
     explanation: "The fields are minute, hour, day of month, month and day of week.",
   },
   {
@@ -567,9 +564,10 @@ const stage3: Draft[] = [
   {
     topicId: "topic-server-hardware-and-storage-arrays",
     certificationId: SV,
-    prompt: "Which RAID level survives a single drive failure while striping with distributed parity?",
-    choices: ["RAID 5", "RAID 0", "RAID 1", "JBOD"],
+    prompt:
+      "Name the RAID level that stripes with distributed parity and survives one drive failure.",
     answer: "RAID 5",
+    accept: ["raid5"],
     explanation: "RAID 5 spreads parity across members, so one member can be lost and rebuilt.",
   },
   {
@@ -601,22 +599,19 @@ const stage3: Draft[] = [
   {
     topicId: "topic-windows-server-and-active-directory",
     certificationId: SV,
-    prompt: "Which protocol does Active Directory use for authentication by default?",
-    choices: ["Kerberos", "NTLM v1", "RADIUS", "TACACS+"],
+    prompt:
+      "Name the protocol Active Directory uses for authentication by default.",
     answer: "Kerberos",
+    accept: ["kerberos tickets"],
     explanation: "Kerberos ticketing is the default; NTLM remains only as a fallback.",
   },
   {
     topicId: "topic-backup-and-disaster-recovery",
     certificationId: SV,
-    prompt: "What does a recovery point objective define?",
-    choices: [
-      "How much data loss is acceptable",
-      "How long recovery may take",
-      "How many backup copies are kept",
-      "Where backups are stored",
-    ],
-    answer: "How much data loss is acceptable",
+    prompt:
+      "Explain what a recovery point objective defines.",
+    answer: "How much data loss is acceptable, measured in time since the last good copy",
+    accept: ["acceptable data loss", "how much data you can afford to lose"],
     explanation: "RPO is measured in time since the last good copy; RTO is how long restoration may take.",
   },
   {
@@ -776,9 +771,10 @@ const stage4: Draft[] = [
   {
     topicId: "topic-threat-intelligence-and-hunting",
     certificationId: CY,
-    prompt: "Which framework maps adversary tactics and techniques for detection coverage?",
-    choices: ["MITRE ATT&CK", "COBIT", "ITIL", "TOGAF"],
+    prompt:
+      "Name the framework that maps adversary tactics and techniques so detection coverage can be measured.",
     answer: "MITRE ATT&CK",
+    accept: ["attack framework", "mitre attack"],
     explanation: "ATT&CK catalogues observed behaviours, so coverage can be measured against it.",
   },
   {
@@ -849,27 +845,19 @@ const stage4: Draft[] = [
   {
     topicId: "topic-exploitation-and-reporting",
     certificationId: PT,
-    prompt: "What is lateral movement?",
-    choices: [
-      "Moving from one compromised host to others inside the network",
-      "Raising privileges on a single host",
-      "Exfiltrating data to the internet",
-      "Scanning external addresses",
-    ],
+    prompt:
+      "Explain what lateral movement means during an intrusion.",
     answer: "Moving from one compromised host to others inside the network",
+    accept: ["spreading to other machines internally"],
     explanation: "It is how a single foothold becomes access across the estate.",
   },
   {
     topicId: "topic-security-architecture-and-zero-trust",
     certificationId: X,
-    prompt: "What is the central assumption of a zero trust architecture?",
-    choices: [
-      "No request is trusted by network location alone",
-      "Internal traffic is inherently safe",
-      "The perimeter firewall is enough",
-      "VPN access removes the need for checks",
-    ],
+    prompt:
+      "State the central assumption of a zero trust architecture.",
     answer: "No request is trusted by network location alone",
+    accept: ["never trust always verify", "trust nothing by default"],
     explanation: "Every request is authenticated and authorised on its own merits.",
   },
   {
@@ -914,14 +902,10 @@ const stage4: Draft[] = [
   {
     topicId: "topic-enterprise-risk-and-security-program",
     certificationId: X,
-    prompt: "What does residual risk mean?",
-    choices: [
-      "The risk left after controls are applied",
-      "The risk before any assessment",
-      "Risk transferred to an insurer",
-      "Risk that cannot be measured",
-    ],
+    prompt:
+      "Explain what residual risk means.",
     answer: "The risk left after controls are applied",
+    accept: ["what remains after mitigation"],
     explanation: "Controls reduce risk; what remains has to be accepted or treated further.",
   },
   {
@@ -940,27 +924,19 @@ const stage4: Draft[] = [
   {
     topicId: "topic-advanced-incident-response-and-forensics",
     certificationId: X,
-    prompt: "In what order should evidence be collected during forensics?",
-    choices: [
-      "Most volatile first, such as memory before disk",
-      "Disk images before memory",
-      "Backups before live systems",
-      "Printed logs before anything else",
-    ],
-    answer: "Most volatile first, such as memory before disk",
+    prompt:
+      "State the order evidence is collected in during forensics and give an example.",
+    answer: "Most volatile first, for example memory before disk",
+    accept: ["order of volatility", "volatile data first then disk"],
     explanation: "Volatile data disappears on shutdown, so it is captured before persistent storage.",
   },
   {
     topicId: "topic-advanced-incident-response-and-forensics",
     certificationId: X,
-    prompt: "Why is a chain of custody record kept?",
-    choices: [
-      "To prove evidence was handled without tampering",
-      "To speed up disk imaging",
-      "To compress evidence files",
-      "To decide who pays for the investigation",
-    ],
+    prompt:
+      "Explain why a chain of custody record is kept.",
     answer: "To prove evidence was handled without tampering",
+    accept: ["shows who handled evidence and when", "keeps evidence admissible"],
     explanation: "Every transfer is documented so the evidence holds up later.",
   },
 ];
