@@ -109,7 +109,7 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
         expectedPoints: data.expectedPoints,
       });
       if (offline) {
-        const passed = offline.score >= 70;
+        const passed = offline.status === "correct";
         return {
           ok: true,
           grade: {
@@ -118,12 +118,13 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
             criteria: allCriteria.map((c) => ({
               ...c,
               correct: passed,
-              feedback: passed ? "Covered in your answer." : "Not covered in your answer.",
+              feedback: passed ? "Covered in your answer." : "Not covered in your answer yet.",
             })),
             aiMarked: false,
           },
         };
       }
+
     }
 
     // 2. The same answer to the same task is only ever paid for once. A mark
