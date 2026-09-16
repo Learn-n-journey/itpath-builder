@@ -1,5 +1,5 @@
 /**
- * Stage exams: one 20 question exam at the end of each Journey Map stage.
+ * Stage exams: one 50 question exam at the end of each Journey Map stage.
  *
  * The questions are authored against the same objectives the free Professor
  * Messer courses cover (A+ 220-1101 and 220-1102, Network+ N10-009,
