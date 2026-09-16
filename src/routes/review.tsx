@@ -350,14 +350,14 @@ function ReviewQueue({
                       size="sm"
                       onClick={() => actions.gradeReview(review.id, "pass")}
                     >
-                      Passed
+                      Got it
                     </Button>
                     <Button
                       size="sm"
                       variant="destructive"
                       onClick={() => actions.gradeReview(review.id, "fail")}
                     >
-                      Failed
+                      Not yet
                     </Button>
                   </>
                 ) : null}

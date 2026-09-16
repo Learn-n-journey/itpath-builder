@@ -131,7 +131,7 @@ export function AiFeedback({
             <CircleAlert aria-hidden className={almost ? "size-4 text-amber-400" : "size-4 text-destructive"} />
           )}
           <Badge variant={grade.correct ? "default" : almost ? "secondary" : "destructive"}>
-            {grade.correct ? "Correct" : almost ? "Nearly there" : "Not yet"}
+            {grade.correct ? "Correct" : almost ? "Nearly there" : "Let us work on this"}
           </Badge>
           <Badge variant="outline" className="gap-1.5">
             <GaylMark />
