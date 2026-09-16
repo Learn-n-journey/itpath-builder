@@ -184,3 +184,5 @@
 - [x] Certification readiness = performance on work done x share of exam scope covered, both shown
 - [x] Job readiness reads "scoring X% on the Y% covered"
 - [x] Dashboard shows "Under 1% complete" instead of a flat 0 once work exists
+
+- [x] One identification lab per section, subject-matched (verified: 75 sections, 1 each, own material)

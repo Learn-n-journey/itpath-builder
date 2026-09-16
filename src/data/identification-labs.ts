@@ -9,6 +9,7 @@
  * A fresh set is chosen on every attempt, so no run repeats the last one.
  */
 import { hardwareComponents } from "@/data/hardware-explorer";
+import { categoryFor } from "@/data/lab-generator";
 import type { Lab, Lesson, Topic } from "@/lib/app-data/types";
 
 export const HARDWARE_TOPIC_ID = "topic-computer-hardware-basics";
@@ -105,7 +106,7 @@ export function buildIdentificationLabs(topicList: Topic[], lessonList: Lesson[]
       id: identificationLabId(topic.id),
       topicId: topic.id,
       title: hardware ? "Identify the hardware, no labels" : `${topic.title}: identify and explain`,
-      category: hardware ? "hardware" : "windows",
+      category: hardware ? "hardware" : categoryFor(topic),
       objective: hardware
         ? "Name every numbered part on a blank diagram and say what each one does."
         : `Name each key part of ${topic.title} from its description and explain what it does.`,

@@ -15,6 +15,7 @@
 
 import { lessons, topics } from "@/data/static-content";
 import { getLearningModule, learningModules } from "@/data/learning-content";
+import { deepLessons, getDeepLesson } from "@/data/deep-lessons";
 import { questions as authoredQuestions } from "@/data/quiz-content";
 import { generatedQuestions } from "@/data/question-bank";
 import { usableQuestions } from "@/lib/question-quality";
@@ -403,6 +404,140 @@ function buildPool(topicId: string): PoolItem[] {
     if (mattersItem) items.push(mattersItem);
   }
 
+  // Exam coverage and objectives: more of the section's own material, so a
+  // retake has somewhere new to draw from.
+  if (module) {
+    module.examCoverage.forEach((line, index) => {
+      const item = statementItem(
+        topicId,
+        title,
+        "exam-point",
+        `Which of these does the exam expect you to know about {topic}?`,
+        line,
+        learningModules
+          .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
+          .flatMap((other) => other.examCoverage.map(tidy)),
+        index,
+        `From this section: ${tidy(line)}`,
+      );
+      if (item) items.push(item);
+    });
+  }
+
+  topic?.learningObjectives.forEach((line, index) => {
+    const item = statementItem(
+      topicId,
+      title,
+      "objective",
+      `Which of these should you be able to do after working through {topic}?`,
+      line,
+      topics
+        .filter((other) => other.id !== topicId && other.certificationId === cert)
+        .flatMap((other) => other.learningObjectives.map(tidy)),
+      index,
+      `An objective of this section: ${tidy(line)}`,
+      "procedure",
+    );
+    if (item) items.push(item);
+  });
+
+  // The depth layer: key ideas, exam traps, corrections, reference rows and
+  // the short self-checks, all authored per topic.
+  const depth = getDeepLesson(topicId)?.depth;
+  if (depth) {
+    const otherDepths = deepLessons.filter(
+      (other) => other.topicId !== topicId && certOf(other.topicId) === cert,
+    );
+    depth.keyIdeas.forEach((line, index) => {
+      const item = statementItem(
+        topicId,
+        title,
+        "key-idea",
+        `Which of these is one of the ideas worth keeping from {topic}?`,
+        shortMeaning(line),
+        otherDepths.flatMap((other) => (other.depth?.keyIdeas ?? []).map((row) => shortMeaning(row))),
+        index,
+        `From this section: ${tidy(line)}`,
+      );
+      if (item) items.push(item);
+    });
+    depth.examTraps.forEach((line, index) => {
+      const item = statementItem(
+        topicId,
+        title,
+        "exam-trap",
+        `Which of these is a way the exam tries to catch you out on {topic}?`,
+        shortMeaning(line),
+        otherDepths.flatMap((other) => (other.depth?.examTraps ?? []).map((row) => shortMeaning(row))),
+        index,
+        `Watch for this: ${tidy(line)}`,
+      );
+      if (item) items.push(item);
+    });
+    depth.misconceptions.forEach((row, index) => {
+      const item = statementItem(
+        topicId,
+        title,
+        "correction",
+        `Someone says: "${tidy(row.claim)}" What is actually the case?`,
+        shortMeaning(row.correction),
+        otherDepths.flatMap((other) =>
+          (other.depth?.misconceptions ?? []).map((entry) => shortMeaning(entry.correction)),
+        ),
+        index,
+        tidy(row.correction),
+      );
+      if (item) items.push(item);
+    });
+    depth.reference.rows.forEach((row, index) => {
+      const item = statementItem(
+        topicId,
+        title,
+        "reference",
+        `In {topic}, which of these describes ${tidy(row.term)}?`,
+        shortMeaning(row.detail),
+        otherDepths.flatMap((other) =>
+          (other.depth?.reference.rows ?? []).map((entry) => shortMeaning(entry.detail)),
+        ),
+        index,
+        `${tidy(row.term)}: ${tidy(row.detail)}`,
+        "terminology",
+      );
+      if (item) items.push(item);
+    });
+    depth.checkYourself.forEach((row, index) => {
+      const item = statementItem(
+        topicId,
+        title,
+        "self-check",
+        tidy(row.question),
+        shortMeaning(row.answer),
+        otherDepths.flatMap((other) =>
+          (other.depth?.checkYourself ?? []).map((entry) => shortMeaning(entry.answer)),
+        ),
+        index,
+        tidy(row.answer),
+      );
+      if (item) items.push(item);
+    });
+    depth.walkthrough.steps.forEach((step, index) => {
+      const item = statementItem(
+        topicId,
+        title,
+        "walkthrough",
+        `Working through ${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}, what does "${tidy(step.label)}" involve?`,
+        shortMeaning(step.detail),
+        otherDepths.flatMap((other) =>
+          (other.depth?.walkthrough.steps ?? []).map((entry) => shortMeaning(entry.detail)),
+        ),
+        index,
+        tidy(step.detail),
+        "procedure",
+      );
+      if (item) items.push(item);
+    });
+  }
+
   return items.filter((item) => usableQuestions([item.question]).length === 1);
 }
 
@@ -474,28 +609,47 @@ function interleavedPool(topicId: string): PoolItem[] {
 
 const orderCache = new Map<string, PoolItem[]>();
 
-/**
- * Picks one quiz set. Each attempt starts a full set further along the running
- * order, so a retake asks about different material, and no single set asks
- * about the same idea twice.
- */
-function selectSet(topicId: string, attempt: number, size: number): Question[] {
+interface Sequence {
+  sets: Question[][];
+  /** Questions already asked in the current pass through the pool. */
+  cycleUsed: Set<string>;
+  /** Where the running order starts for the current pass. */
+  offset: number;
+}
+
+const sequenceCache = new Map<string, Sequence>();
+
+function orderFor(topicId: string): PoolItem[] {
   let order = orderCache.get(topicId);
   if (!order) {
     order = interleavedPool(topicId);
     orderCache.set(topicId, order);
   }
-  if (order.length === 0) return [];
+  return order;
+}
 
-  const start = (attempt * size) % order.length;
+/**
+ * Builds the next set in the running order. Nothing already asked in this pass
+ * through the pool can come back, so consecutive retakes are entirely new
+ * questions. When the pool runs out the pass resets and the order shifts, so
+ * the sets after that are grouped differently from the first time round.
+ */
+function nextSet(topicId: string, order: PoolItem[], sequence: Sequence, size: number): Question[] {
+  const unused = order.filter((item) => !sequence.cycleUsed.has(item.question.id));
+  if (unused.length < size) {
+    sequence.cycleUsed = new Set<string>();
+    sequence.offset = (sequence.offset + Math.max(1, Math.floor(size / 2))) % order.length;
+  }
+
   const chosen: Question[] = [];
   const usedSources = new Set<string>();
   const usedIds = new Set<string>();
 
   for (let pass = 0; pass < 2 && chosen.length < size; pass += 1) {
     for (let step = 0; step < order.length && chosen.length < size; step += 1) {
-      const item = order[(start + step) % order.length] as PoolItem;
+      const item = order[(sequence.offset + step) % order.length] as PoolItem;
       if (usedIds.has(item.question.id)) continue;
+      if (sequence.cycleUsed.has(item.question.id)) continue;
       // First pass keeps one question per idea; a second pass fills thin sections.
       if (pass === 0 && usedSources.has(item.sourceKey)) continue;
       chosen.push(item.question);
@@ -504,6 +658,8 @@ function selectSet(topicId: string, attempt: number, size: number): Question[] {
     }
   }
 
+  for (const question of chosen) sequence.cycleUsed.add(question.id);
+
   return chosen.map((item, index) => ({
     ...item,
     quizId: `section-quiz-${topicId}`,
@@ -511,19 +667,22 @@ function selectSet(topicId: string, attempt: number, size: number): Question[] {
   })) as Question[];
 }
 
-const setCache = new Map<string, Question[]>();
-
 /**
  * The 20 question quiz for one section. Pass an attempt number to get a
  * different set of questions from the same section's material.
  */
 export function getSectionQuizQuestions(topicId: string, attempt = 0): Question[] {
-  const key = `${topicId}:${attempt}`;
-  const cached = setCache.get(key);
-  if (cached) return cached;
-  const result = selectSet(topicId, attempt, SECTION_QUIZ_SIZE);
-  setCache.set(key, result);
-  return result;
+  const order = orderFor(topicId);
+  if (order.length === 0) return [];
+  let sequence = sequenceCache.get(topicId);
+  if (!sequence) {
+    sequence = { sets: [], cycleUsed: new Set<string>(), offset: 0 };
+    sequenceCache.set(topicId, sequence);
+  }
+  while (sequence.sets.length <= attempt) {
+    sequence.sets.push(nextSet(topicId, order, sequence, SECTION_QUIZ_SIZE));
+  }
+  return sequence.sets[attempt] as Question[];
 }
 
 /** Every question available for a topic, used to top up the larger stage exams. */
