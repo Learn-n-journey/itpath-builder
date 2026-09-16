@@ -6,7 +6,8 @@
  * and unresolved mistakes. Everything else stays in journey order, and a topic
  * stays locked until the one before it is mastered.
  */
-import { topics as allTopics } from "@/data/static-content";
+import { certifications, topics as allTopics } from "@/data/static-content";
+import { certificationTopics } from "@/lib/cert-path";
 import type { Topic, UserData } from "@/lib/app-data/types";
 import { topicScopeProgress } from "@/lib/scope-progress";
 
@@ -24,6 +25,43 @@ const ORDER_INDEX = new Map(journeyOrderedTopics.map((topic, index) => [topic.id
 /** Position of a topic on the journey, or a large number when it is not on it. */
 export function journeyIndex(topicId: string): number {
   return ORDER_INDEX.get(topicId) ?? Number.MAX_SAFE_INTEGER;
+}
+
+/** The certification the learner is aiming at, from their settings. */
+function chosenCertification(user: UserData) {
+  const target = user.settings.certificationTarget;
+  return (
+    certifications.find((item) => item.id === target || item.title === target) ?? certifications[0]
+  );
+}
+
+const JOURNEY_CACHE = new Map<string, Topic[]>();
+
+/**
+ * The journey for this learner: only the sections that belong to the
+ * certification they selected, in journey order.
+ */
+export function journeyTopics(user: UserData): Topic[] {
+  const certification = chosenCertification(user);
+  if (!certification) return journeyOrderedTopics;
+  const cached = JOURNEY_CACHE.get(certification.id);
+  if (cached) return cached;
+  const ids = new Set(certificationTopics(certification.id).map((topic) => topic.id));
+  const list = journeyOrderedTopics.filter((topic) => ids.has(topic.id));
+  const result = list.length > 0 ? list : journeyOrderedTopics;
+  JOURNEY_CACHE.set(certification.id, result);
+  return result;
+}
+
+/** Position of a topic inside this learner's certification journey. */
+export function journeyIndexFor(user: UserData, topicId: string): number {
+  const index = journeyTopics(user).findIndex((topic) => topic.id === topicId);
+  return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+}
+
+/** True when the topic belongs to the certification the learner selected. */
+export function onJourney(user: UserData, topicId: string): boolean {
+  return journeyIndexFor(user, topicId) !== Number.MAX_SAFE_INTEGER;
 }
 
 export function topicMastery(user: UserData, topicId: string): number {
@@ -76,10 +114,11 @@ export function isMastered(user: UserData, topicId: string): boolean {
 }
 
 /** The topic straight after this one on the journey. */
-export function nextJourneyTopic(topicId: string): Topic | undefined {
-  const index = journeyIndex(topicId);
+export function nextJourneyTopic(topicId: string, user?: UserData): Topic | undefined {
+  const list = user ? journeyTopics(user) : journeyOrderedTopics;
+  const index = user ? journeyIndexFor(user, topicId) : journeyIndex(topicId);
   if (index === Number.MAX_SAFE_INTEGER) return undefined;
-  return journeyOrderedTopics[index + 1];
+  return list[index + 1];
 }
 
 /** Last month band counted as "the basics" (Stage 1 of the Journey Map). */
@@ -95,23 +134,24 @@ const BASICS_COUNT = journeyOrderedTopics.filter((topic) => topic.month <= BASIC
  */
 export function unlockedByExperience(user: UserData): number {
   const level = user.settings.experienceLevel;
-  if (level === "intermediate") return journeyOrderedTopics.length;
-  if (level === "some") return BASICS_COUNT;
+  const list = journeyTopics(user);
+  if (level === "intermediate") return list.length;
+  if (level === "some") return Math.min(BASICS_COUNT, list.length);
   return 0;
 }
 
 /** Where the suggested starting point sits for this experience setting. */
 export function experienceStartIndex(user: UserData): number {
-  return user.settings.experienceLevel === "some" ? BASICS_COUNT : 0;
+  if (user.settings.experienceLevel !== "some") return 0;
+  return Math.min(BASICS_COUNT, Math.max(0, journeyTopics(user).length - 1));
 }
 
 /** The first topic on the journey that is not yet mastered, from their start point. */
 export function currentJourneyTopic(user: UserData): Topic | undefined {
   const from = experienceStartIndex(user);
+  const list = journeyTopics(user);
   const notMastered = (topic: Topic) => !isMastered(user, topic.id);
-  return (
-    journeyOrderedTopics.slice(from).find(notMastered) ?? journeyOrderedTopics.find(notMastered)
-  );
+  return list.slice(from).find(notMastered) ?? list.find(notMastered);
 }
 
 /**
@@ -120,12 +160,12 @@ export function currentJourneyTopic(user: UserData): Topic | undefined {
  * open; everything after it waits.
  */
 export function isTopicOpen(user: UserData, topicId: string): boolean {
-  const index = journeyIndex(topicId);
+  const index = journeyIndexFor(user, topicId);
   if (index === Number.MAX_SAFE_INTEGER) return true;
   if (index < unlockedByExperience(user)) return true;
   const current = currentJourneyTopic(user);
   if (!current) return true;
-  return index <= journeyIndex(current.id);
+  return index <= journeyIndexFor(user, current.id);
 }
 
 
