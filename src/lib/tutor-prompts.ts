@@ -52,6 +52,8 @@ function list(lines: string[]): string {
 export interface TutorContext {
   topicId?: EntityId;
   learnerAnswer?: string;
+  /** A free-form question the learner typed themselves. */
+  question?: string;
 }
 
 /** Builds the state-derived context block. Everything here comes from real saved data. */
