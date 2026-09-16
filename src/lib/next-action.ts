@@ -234,6 +234,17 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
     });
   }
 
+  // Final guard: never ask for work on a topic that has not been started. The one
+  // exception is the topic next in line, and there the only thing offered is reading it.
+  const currentId = currentJourneyTopic(user)?.id;
+  const filtered = out.filter((action) => {
+    if (!action.topicId) return true;
+    if (started.has(action.topicId)) return true;
+    return action.topicId === currentId && action.to === "/topics/$topicId";
+  });
+  out.length = 0;
+  out.push(...filtered);
+
   if (out.length === 0) {
     out.push({
       id: "next-settings",
