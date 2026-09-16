@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Progress as ProgressBar } from "@/components/ui/progress";
 import { certificationStatusLabels } from "@/lib/certification-engine";
 import { computeProgress, dimensionLabels, type ProgressReport } from "@/lib/progress-engine";
+import { measureSlug, type MeasureKey } from "@/lib/measure-guides";
 import { evidenceSourceLabels } from "@/lib/skills-engine";
 import { useAppState } from "@/state/app-state";
 import { TrendingUp } from "lucide-react";
