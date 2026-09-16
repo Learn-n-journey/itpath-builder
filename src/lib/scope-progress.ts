@@ -6,6 +6,7 @@
  * result without making repeated attempts inflate coverage.
  */
 import { getPracticeActivity, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
+import { getSectionQuizQuestions } from "@/data/topic-quizzes";
 import { staticContent } from "@/data/static-content";
 import { terminalScenarios } from "@/lib/terminal/scenarios";
 import type { EntityId, UserData } from "@/lib/app-data/types";
@@ -95,9 +96,14 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
     : undefined;
   const understanding = dimension([teachBackScore]);
 
+  // Every question a learner can meet in this section counts: the recall pool,
+  // the authored question bank and the twenty question section quiz.
+  const quizQuestionIds = [
+    ...new Set([...questions.map((item) => item.id), ...getSectionQuizQuestions(topicId).map((item) => item.id)]),
+  ];
   const recall = merge(
     dimension(bestById(recallQuestions.map((item) => item.id), user.recallResponses, (row) => row.questionId, (row) => row.correct ? 100 : 0)),
-    dimension(bestById(questions.map((item) => item.id), quizResults, (row) => row.questionId, (row) => row.correct ? 100 : 0)),
+    dimension(bestById(quizQuestionIds, quizResults, (row) => row.questionId, (row) => row.correct ? 100 : 0)),
   );
 
   const assignmentScores = bestById(
@@ -144,8 +150,28 @@ export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScop
   );
   const troubleshooting = merge(dimension(incidentScores), dimension(ticketScores), dimension(terminalScores));
 
+  // Retention covers every review this section has scheduled, not one lump
+  // result. Each item scores on its most recent graded outcome.
   const reviewAttempts = user.reviewAttempts.filter((row) => row.topicId === topicId);
-  const retention = dimension([reviewAttempts.length ? (reviewAttempts.some((row) => row.outcome === "pass") ? 100 : 0) : undefined]);
+  const reviewItems = user.reviews.filter((row) => row.topicId === topicId);
+  const reviewScores: Array<number | undefined> = reviewItems.map((item) => {
+    const graded = reviewAttempts
+      .filter((row) => row.reviewId === item.id)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const last = graded[graded.length - 1];
+    return last ? (last.outcome === "pass" ? 100 : 0) : undefined;
+  });
+  // Graded reviews whose scheduled item has since been cleared still count.
+  const orphanAttempts = reviewAttempts.filter((row) => !reviewItems.some((item) => item.id === row.reviewId));
+  const orphanByReview = [...new Set(orphanAttempts.map((row) => row.reviewId))].map((reviewId) => {
+    const graded = orphanAttempts
+      .filter((row) => row.reviewId === reviewId)
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const last = graded[graded.length - 1];
+    return last ? (last.outcome === "pass" ? 100 : 0) : undefined;
+  });
+  const allReviewScores = [...reviewScores, ...orphanByReview];
+  const retention = dimension(allReviewScores.length ? allReviewScores : [undefined]);
 
   const dimensions = [understanding, recall, application, practicalAbility, troubleshooting, retention];
   const earned = dimensions.reduce((sum, item) => sum + item.earned, 0);
