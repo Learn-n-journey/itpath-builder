@@ -134,7 +134,8 @@ function dimensionForAssignment(type: string): ScopeDimensionKey {
   return "application"; // scenario, compare, design, exam_simulation and the rest
 }
 
-export function topicScopeProgress(user: UserData, topicId: EntityId): TopicScopeProgress {
+/** Every graded item that exists in a topic, with the learner's attempts on it. */
+export function topicEvidence(user: UserData, topicId: EntityId): EvidenceItem[] {
   const items: EvidenceItem[] = [];
   const byId = new Map<string, EvidenceItem>();
   const add = (id: string, dimension: ScopeDimensionKey, reading: "latest" | "best") => {
