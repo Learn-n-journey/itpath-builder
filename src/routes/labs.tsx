@@ -91,6 +91,27 @@ function LabsPage() {
   const lab = shuffled.find((item) => item.id === selectedId) ?? shuffled[0];
   const attempts = user.labAttempts;
   const latest = lab ? attempts.find((attempt) => attempt.labId === lab.id) : undefined;
+  // Arriving from a section opens that one lab on its own, not the whole menu.
+  const focused = Boolean(requestedLabId) && lab?.id === requestedLabId;
+
+  if (focused && lab) {
+    return (
+      <>
+        <PageHeader
+          title={lab.title}
+          description={lab.objective}
+          actions={
+            <Button variant="outline" onClick={() => setSelectedId("")}>
+              Browse all labs
+            </Button>
+          }
+        />
+        <div className="mt-6">
+          <LabWorkspace key={lab.id} lab={lab} {...(latest ? { latestAttempt: latest } : {})} />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
