@@ -167,6 +167,8 @@ export function QuizRunner({
     <QuizWorkspace
       attempt={attempt}
       pool={known}
+      quiz={quiz}
+      {...(passScore !== undefined ? { passScore } : {})}
       questionIndex={questionIndex}
       setQuestionIndex={setQuestionIndex}
       onReview={() => setReviewing(true)}
@@ -177,12 +179,16 @@ export function QuizRunner({
 function QuizWorkspace({
   attempt,
   pool,
+  quiz,
+  passScore,
   questionIndex,
   setQuestionIndex,
   onReview,
 }: {
   attempt: QuizAttempt;
   pool: Question[];
+  quiz: Quiz;
+  passScore?: number;
   questionIndex: number;
   setQuestionIndex: (index: number) => void;
   onReview: () => void;
@@ -244,6 +250,14 @@ function QuizWorkspace({
       submittedAt: now,
     };
     actions.updateQuizAttempt(submittedAttempt);
+    // A pass is remembered for good, whatever happens on later runs.
+    if (passScore !== undefined && submittedAttempt.score >= passScore) {
+      actions.recordQuizPass({
+        quizId: quiz.id,
+        ...(quiz.topicIds[0] ? { topicId: quiz.topicIds[0] } : {}),
+        score: submittedAttempt.score,
+      });
+    }
     // Every missed question becomes evidence: skill, type, answers, difficulty and likely cause.
     const diagnostic = buildQuizDiagnostic(user, orderedQuestions, result.results);
     diagnostic.missed.forEach((item) => {

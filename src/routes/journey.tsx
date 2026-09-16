@@ -10,6 +10,7 @@ import {
   isMastered,
   isTopicOpen,
   sectionQuizBest,
+  sectionQuizPassedAt,
 } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
 import { cn } from "@/lib/utils";
@@ -72,6 +73,10 @@ function StatusDot({ status }: { status: TopicStatus }) {
     );
   }
   return <span className="mt-0.5 size-4 shrink-0 rounded-full border-2 border-border" aria-hidden />;
+}
+
+function shortDate(value: string): string {
+  return new Date(value).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 
 const STATUS_WORD: Record<TopicStatus, string> = {
@@ -190,6 +195,7 @@ function JourneyPage() {
                 <ul className="mt-4 space-y-1">
                   {phaseTopics.map(({ topic, status }) => {
                     const best = sectionQuizBest(user, topic.id);
+                    const passedAt = sectionQuizPassedAt(user, topic.id);
                     return (
                       <li key={topic.id}>
                         <Link
@@ -214,6 +220,7 @@ function JourneyPage() {
                             <span className="block truncate text-xs text-muted-foreground">
                               {topic.minutes} min · {STATUS_WORD[status]}
                               {status === "closed" && best > 0 ? ` · quiz ${best}%` : ""}
+                              {status === "closed" && passedAt ? ` · passed ${shortDate(passedAt)}` : ""}
                             </span>
                           </span>
                         </Link>

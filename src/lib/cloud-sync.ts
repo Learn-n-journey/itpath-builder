@@ -46,6 +46,7 @@ export function activityCount(user: UserData): number {
   return (
     Object.keys(user.topicProgress).length +
     user.quizAttempts.length +
+    Object.keys(user.quizPasses ?? {}).length +
     user.assignmentAttempts.length +
     user.labAttempts.length +
     user.ticketAttempts.length +

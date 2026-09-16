@@ -770,10 +770,25 @@ export interface LearnerSignal {
   at: string;
 }
 
+/** A quiz that has been passed. Kept for good, so a pass is never lost. */
+export interface QuizPass {
+  quizId: EntityId;
+  topicId?: EntityId;
+  /** Best score recorded on this quiz so far. */
+  score: number;
+  /** Score on the run that first passed it. */
+  firstScore: number;
+  passedAt: string;
+  updatedAt: string;
+  timesPassed: number;
+}
+
 export interface UserData {
   createdAt: string;
   topicProgress: Record<EntityId, TopicProgress>;
   quizAttempts: QuizAttempt[];
+  /** Every quiz the learner has passed, keyed by quiz id. */
+  quizPasses: Record<EntityId, QuizPass>;
   recallResponses: RecallResponse[];
   practiceResponses: PracticeResponse[];
   teachBackResponses: Record<EntityId, TeachBackResponse>;

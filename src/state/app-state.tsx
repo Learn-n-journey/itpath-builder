@@ -64,6 +64,7 @@ import { allTopicScopeProgress } from "@/lib/scope-progress";
 interface AppActions {
   addQuizAttempt: (attempt: QuizAttempt) => void;
   updateQuizAttempt: (attempt: QuizAttempt) => void;
+  recordQuizPass: (pass: { quizId: string; topicId?: string; score: number }) => void;
   addLabAttempt: (attempt: LabAttempt) => void;
   updateLabAttempt: (attempt: LabAttempt) => void;
   addIncidentAttempt: (attempt: IncidentAttempt) => void;
@@ -276,6 +277,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.addQuizAttempt(current, attempt)),
       updateQuizAttempt: (attempt) =>
         setUser((current) => userMutations.updateQuizAttempt(current, attempt)),
+      recordQuizPass: (pass) =>
+        setUser((current) => userMutations.recordQuizPass(current, pass)),
       addLabAttempt: (attempt) =>
         setUser((current) => userMutations.addLabAttempt(current, attempt)),
       updateLabAttempt: (attempt) =>
