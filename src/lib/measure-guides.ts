@@ -20,7 +20,7 @@ export interface MeasureGuide {
   label: string;
   meaning: string;
   counts: string[];
-  raise: Array<{ text: string; to: LinkProps["to"] }>;
+  raise: Array<{ text: string; to: NonNullable<LinkProps["to"]> }>;
   note: string;
 }
 
