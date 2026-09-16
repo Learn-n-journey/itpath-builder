@@ -62,6 +62,7 @@ import { GaylBubble } from "@/components/gayl/gayl-bubble";
 import { MilestoneOverlay } from "@/components/milestones/milestone-overlay";
 import { BackButton } from "@/components/layout/back-button";
 import { QuickNav } from "@/components/layout/quick-nav";
+import { StudyTabs } from "@/components/layout/study-tabs";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -122,6 +123,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main className={cn("lg:pl-64")}>
         <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
           <BackButton className="mb-4" />
+          <StudyTabs />
           <div key={pathname} className="page-enter">
             {children}
           </div>
