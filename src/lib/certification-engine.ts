@@ -80,6 +80,13 @@ export interface CertificationReadiness {
   quizPerformance: number;
   labCompletion: number;
   assignmentCompletion: number;
+  /** How well the learner scores on the work they have actually done. */
+  performance: number;
+  /** How much of the exam scope has recorded evidence, 0-100. */
+  coverage: number;
+  /** Sections in scope, and how many carry evidence. */
+  topicsTotal: number;
+  topicsCovered: number;
   overall: number;
   domains: DomainReadiness[];
   weakDomains: DomainReadiness[];
