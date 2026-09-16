@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck } from "lucide-react";
+import { Flame, ShieldCheck } from "lucide-react";
+
+import { STREAK_SNAPSHOT_KEY } from "@/lib/streak-freeze";
 
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -33,6 +35,37 @@ export const Route = createFileRoute("/auth")({
 });
 
 type Mode = "signin" | "signup";
+
+interface StreakSnapshotData {
+  current: number;
+  longest: number;
+  savedAt: string;
+}
+
+/** The streak as it was last recorded on this device, shown while signed out. */
+function StreakSnapshot() {
+  const [snap, setSnap] = useState<StreakSnapshotData | null>(null);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STREAK_SNAPSHOT_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as StreakSnapshotData;
+      if (typeof parsed?.current === "number" && parsed.current > 0) setSnap(parsed);
+    } catch {
+      /* storage is optional here */
+    }
+  }, []);
+
+  if (!snap) return null;
+  return (
+    <p className="mb-4 flex items-center gap-2 rounded-lg border border-border bg-secondary/40 px-3 py-2 text-sm text-muted-foreground">
+      <Flame className="size-4 shrink-0 text-primary" aria-hidden />
+      Your streak is {snap.current} day{snap.current === 1 ? "" : "s"} in a row, best {snap.longest} (last
+      recorded {snap.savedAt}). Sign in and keep it going.
+    </p>
+  );
+}
 
 function AuthPage() {
   const navigate = useNavigate();
