@@ -90,7 +90,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       .sort((a, b) => (lastSeen.get(a.id) ?? "").localeCompare(lastSeen.get(b.id) ?? ""))
       .slice(0, 2);
   }, [recallQuestions, user.recallResponses, topic.id]);
-  const recallDone = recallQuestions.length - visibleRecall.filter((item) => true).length;
   const practiceActivities = getPracticeActivities(topic.id);
   const practice = practiceActivities[0];
   const scenario = getRealWorldScenario(topic.id);
@@ -326,7 +325,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
         <TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Teach Back</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
       </TabsList>
-      <TabsContent value="recall"><div className="space-y-4">{recallQuestions.map((question, index) => {
+      <TabsContent value="recall"><div className="space-y-4">{visibleRecall.map((question, index) => {
         const feedback = recallFeedback[question.id];
         return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={question.id}>Your answer</Label><Textarea id={question.id} className="mt-2" rows={4} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "Marking…" : "Check answer"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-primary" : "text-amber-400"}`}>{feedback.correct ? "Correct. " : feedback.message.startsWith("Nearly there") ? "" : "Here is where I would go next. "}{feedback.message}</p> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
       })}</div></TabsContent>
