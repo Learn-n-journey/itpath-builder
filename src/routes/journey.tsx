@@ -52,20 +52,28 @@ function JourneyPage() {
     <div className="mx-auto w-full max-w-3xl">
       <PageHeader
         title="Journey map"
-        description="The whole two-year route, and where you actually stand on it. Every marker comes from your recorded answers; nothing is lit up until there is evidence."
+        description="The whole route, stage by stage, and where you actually stand on it. Every marker comes from your recorded answers; nothing is lit up until there is evidence."
       />
 
-      <div className="mb-6">
-        <div className="dashboard-summary rounded-xl p-4">
+      <div className="mb-8">
+        <div className="dashboard-summary rounded-xl p-5">
           <p className="text-sm text-foreground">
             {holdingUp === 0
               ? `${intel.certificationTitle} has ${intel.concepts.length} topics to work through. Nothing holds up yet, which is exactly where everyone starts.`
               : `${holdingUp} of ${intel.concepts.length} topics in ${intel.certificationTitle} now hold up in questions. The rest are waiting for their turn.`}
           </p>
+          <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-border/60">
+            <div
+              className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out"
+              style={{
+                width: `${intel.concepts.length > 0 ? Math.round((holdingUp / intel.concepts.length) * 100) : 0}%`,
+              }}
+            />
+          </div>
         </div>
       </div>
 
-      <ol className="relative space-y-8">
+      <ol className="relative space-y-6">
         {journeyPhases.map((phase, phaseIndex) => {
           const phaseTopics = phase.topics.map((topic) => ({
             topic,
@@ -77,14 +85,15 @@ function JourneyPage() {
               ["functional", "transferable", "reliable", "retained"].includes(entry.concept.state),
           ).length;
           const allLit = phaseTopics.length > 0 && litUp === phaseTopics.length;
+          const pct = phaseTopics.length > 0 ? Math.round((litUp / phaseTopics.length) * 100) : 0;
 
           return (
-            <li key={phase.title} className="relative pl-8">
+            <li key={phase.title} className="relative pl-9">
               {/* Connector line to the next phase */}
               {phaseIndex < journeyPhases.length - 1 ? (
                 <span
                   className={cn(
-                    "absolute left-[9px] top-8 h-[calc(100%-1rem)] w-px",
+                    "absolute left-[11px] top-9 h-[calc(100%-1rem)] w-px",
                     allLit ? "bg-primary/50" : "bg-border",
                   )}
                   aria-hidden
@@ -92,34 +101,47 @@ function JourneyPage() {
               ) : null}
               <span
                 className={cn(
-                  "absolute left-0 top-1 flex size-[19px] items-center justify-center rounded-full border-2",
-                  allLit ? "border-primary bg-primary" : "border-border bg-background",
+                  "absolute left-0 top-2 flex size-[23px] items-center justify-center rounded-full border-2 text-[10px] font-semibold tabular-nums transition-colors",
+                  allLit
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : litUp > 0
+                      ? "border-primary/60 bg-background text-primary"
+                      : "border-border bg-background text-muted-foreground",
                 )}
                 aria-hidden
               >
-                {allLit ? <span className="size-1.5 rounded-full bg-primary-foreground" /> : null}
+                {phaseIndex + 1}
               </span>
 
               <div
                 className={cn(
-                  "rounded-xl border bg-card p-5",
+                  "panel-glass overflow-hidden rounded-xl border p-5 transition-colors",
                   allLit ? "border-primary/40" : "border-border",
                 )}
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h2 className="font-display text-lg font-semibold">{phase.title}</h2>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    {phase.months}
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary/80">
+                    {phase.stage}
                   </p>
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">{phase.blurb}</p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {litUp === 0
-                    ? `${phase.topics.length} topics, none started yet`
-                    : `${litUp} of ${phase.topics.length} topics holding up`}
-                </p>
 
-                <ul className="mt-4 space-y-2">
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-border/60">
+                    <div
+                      className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                  <p className="shrink-0 text-xs tabular-nums text-muted-foreground">
+                    {litUp === 0
+                      ? `${phase.topics.length} topics, none started`
+                      : `${litUp} of ${phase.topics.length} holding up`}
+                  </p>
+                </div>
+
+                <ul className="mt-4 space-y-1">
                   {phaseTopics.map(({ topic, concept }) => {
                     const state = concept?.state ?? "unknown";
                     return (
@@ -127,11 +149,13 @@ function JourneyPage() {
                         <Link
                           to="/topics/$topicId"
                           params={{ topicId: topic.id }}
-                          className="flex items-start gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-secondary/50"
+                          className="group flex items-start gap-3 rounded-lg border border-transparent px-2.5 py-2 transition-all hover:border-border hover:bg-secondary/50"
                         >
                           <StateDot state={state} />
                           <span className="min-w-0 flex-1">
-                            <span className="block text-sm font-medium">{topic.title}</span>
+                            <span className="block text-sm font-medium transition-colors group-hover:text-primary">
+                              {topic.title}
+                            </span>
                             <span className="block truncate text-xs text-muted-foreground">
                               {topic.minutes} min · {state === "unknown" ? "Not started" : STATE_LABEL[state]}
                             </span>
