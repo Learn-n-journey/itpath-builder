@@ -78,6 +78,7 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
   const nowMs = now.getTime();
   const path = adaptivePath(user);
   const certTopicIds = new Set(certificationTopics(path.certification.id).map((t) => t.id));
+  const started = startedTopicIds(user);
 
   // 1. Reviews that are already due. Retention decays first.
   const due = user.reviews.filter(
