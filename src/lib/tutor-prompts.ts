@@ -21,6 +21,11 @@ export type TutorMode =
   | "study_plan";
 
 export const tutorModes: { id: TutorMode; label: string; description: string }[] = [
+  {
+    id: "ask_anything",
+    label: "Ask Anything",
+    description: "Ask any question in your own words. Answers use the course material and your saved notes.",
+  },
   { id: "teach_me", label: "Teach Me", description: "A structured explanation of the topic from the ground up." },
   { id: "socratic", label: "Socratic Tutor", description: "Questions that make you reason instead of being told." },
   { id: "quiz_me", label: "Quiz Me", description: "A mixed question set with answers held back until the end." },
