@@ -79,7 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background">
       <StudyReminder />
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-sidebar-border bg-sidebar lg:flex">
+      <aside className="sidebar-glass fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-sidebar-border lg:flex">
         <Brand />
         <CommandPaletteButton onClick={() => palette.setOpen(true)} />
         <NavList />
@@ -95,7 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Menu className="size-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-72 overflow-y-auto bg-sidebar p-0">
+          <SheetContent side="left" className="sidebar-glass w-72 overflow-y-auto p-0">
             <SheetTitle className="sr-only">Navigation</SheetTitle>
             <Brand />
             <NavList onNavigate={() => setOpen(false)} />
