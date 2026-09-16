@@ -148,7 +148,15 @@ function Dashboard() {
   const d = useMemo(() => computeDashboard(user), [user]);
 
   const path = useMemo(() => adaptivePath(user), [user]);
-  const actions = useMemo(() => nextActions(user), [user]);
+  const [dismissedVersion, setDismissedVersion] = useState(0);
+  const actions = useMemo(
+    () => visibleNextActions(nextActions(user)),
+    [user, dismissedVersion],
+  );
+  const dismissAction = useCallback((action: NextAction) => {
+    dismissNextAction(action);
+    setDismissedVersion((v) => v + 1);
+  }, []);
   const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
   const missedAnchors = useMemo(() => {
     const map: Record<string, string> = {};
@@ -233,7 +241,7 @@ function Dashboard() {
         </Panel>
       ) : (
         <div className="mb-4 grid gap-4 lg:grid-cols-2">
-          <NextActionCard actions={actions} />
+          <NextActionCard actions={actions} onDismiss={dismissAction} />
           <ReadinessPanel report={readiness} />
           <StreakPanel />
         </div>
