@@ -139,7 +139,9 @@ function subjectFor(topicId: string, line: string, topicTitle: string): string {
     .filter((entry) => entry.length >= 3)
     .sort((a, b) => b.length - a.length)
     .find((entry) => lower.includes(entry.toLowerCase()));
-  return term ?? topicTitle.toLowerCase();
+  if (!term) return topicTitle.toLowerCase();
+  // Acronyms read better with an article: "how the CPU works", not "how CPU works".
+  return /^[A-Z0-9.\- ]+$/.test(term) ? `the ${term}` : term;
 }
 
 function statementItem(
