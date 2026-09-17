@@ -159,7 +159,7 @@ export function masteryCheckPool(topicId: string, kind: MasteryCheckKind): Maste
       out.push({
         id: `mc-${slug}-recall-step-${index + 1}`,
         kind,
-        prompt: `From memory, and in one or two sentences: how does this part of ${topic.title} actually work?`,
+        prompt: `From memory, in one or two sentences: in ${lower(topic.title)}, what happens at the stage involving ${cueFrom(step, termList)}, and why does it matter?`,
         choices: [],
         concepts: [step],
         explanation: sentence(step),
@@ -169,13 +169,14 @@ export function masteryCheckPool(topicId: string, kind: MasteryCheckKind): Maste
       out.push({
         id: `mc-${slug}-recall-fail-${index + 1}`,
         kind,
-        prompt: `From memory: name one way ${lower(topic.title)} goes wrong in practice, and what a user would notice.`,
+        prompt: `From memory: describe the problem involving ${cueFrom(failure, termList)}, and what a user would notice when it happens.`,
         choices: [],
         concepts: [failure],
         explanation: sentence(failure),
       });
     });
   }
+
 
   if (kind === "understanding") {
     (lesson?.commonMisconceptions ?? []).forEach((idea, index) => {
