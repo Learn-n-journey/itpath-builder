@@ -2,16 +2,15 @@
  * Study tabs.
  *
  * Tabs never open on their own. A "+" button at the end of the tab strip
- * opens a menu of study pages, and picking one opens it as a tab so you can
- * jump to Second Brain or the AI Tutor and come straight back to where you
- * were. Only study pages can be opened as tabs, so the tab bar never turns
- * into a copy of the whole menu.
+ * opens a menu of study pages, and picking one opens it as a tab in
+ * addition to the page you are already on: the current page stays in the
+ * strip and the new tab opens beside it. Only study pages can be opened as
+ * tabs, so the tab bar never turns into a copy of the whole menu.
  */
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Plus, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { topics } from "@/data/static-content";
 import { cn } from "@/lib/utils";
 
@@ -81,15 +80,23 @@ export function StudyTabs() {
     (path: string) => {
       const label = studyLabel(path);
       if (!label) return;
+      const currentLabel = studyLabel(pathname);
       setTabs((current) => {
-        if (current.some((tab) => tab.path === path)) return current;
-        const next = [...current, { path, label }].slice(-8);
+        let next = current;
+        // Keep the page you are on as a tab, so the new one sits beside it.
+        if (currentLabel && !next.some((tab) => tab.path === pathname)) {
+          next = [...next, { path: pathname, label: currentLabel }];
+        }
+        if (!next.some((tab) => tab.path === path)) {
+          next = [...next, { path, label }];
+        }
+        next = next.slice(-8);
         writeTabs(next);
         return next;
       });
       void navigate({ to: path });
     },
-    [navigate],
+    [navigate, pathname],
   );
 
   const close = useCallback(
@@ -107,81 +114,84 @@ export function StudyTabs() {
     [navigate, pathname],
   );
 
-  const openPages = STUDY_PAGES.filter((page) => !tabs.some((tab) => tab.path === page.path));
+  const openPages = STUDY_PAGES.filter(
+    (page) => page.path !== pathname && !tabs.some((tab) => tab.path === page.path),
+  );
 
   return (
-    <div className="mb-4 flex flex-wrap items-center gap-2">
-      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-        {tabs.map((tab) => {
-          const active = tab.path === pathname;
-          return (
-            <span
-              key={tab.path}
+    <div className="mb-4 flex flex-wrap items-center gap-1.5">
+      {tabs.map((tab) => {
+        const active = tab.path === pathname;
+        return (
+          <span
+            key={tab.path}
+            className={cn(
+              "group flex max-w-[15rem] items-center gap-1 rounded-full border py-1 pl-3.5 pr-1.5 text-xs font-medium shadow-sm transition-all duration-200",
+              active
+                ? "border-primary/50 bg-primary text-primary-foreground shadow-primary/20"
+                : "border-border bg-card/70 text-muted-foreground hover:border-primary/40 hover:bg-card hover:text-foreground",
+            )}
+          >
+            <Link to={tab.path} className="truncate">
+              {tab.label}
+            </Link>
+            <button
+              type="button"
+              aria-label={`Close ${tab.label}`}
+              onClick={() => close(tab.path)}
               className={cn(
-                "group flex max-w-[15rem] items-center gap-1 rounded-t-md border border-b-0 px-2.5 py-1.5 text-xs transition-colors",
+                "flex size-4.5 shrink-0 items-center justify-center rounded-full transition-colors",
                 active
-                  ? "border-primary/40 bg-primary/10 text-foreground"
-                  : "border-border bg-muted/40 text-muted-foreground hover:text-foreground",
+                  ? "text-primary-foreground/70 hover:bg-primary-foreground/20 hover:text-primary-foreground"
+                  : "text-muted-foreground/60 hover:bg-muted hover:text-foreground",
               )}
             >
-              <Link to={tab.path} className="truncate">
-                {tab.label}
-              </Link>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-5 shrink-0 opacity-60 hover:opacity-100"
-                aria-label={`Close ${tab.label}`}
-                onClick={() => close(tab.path)}
-              >
-                <X className="size-3" aria-hidden />
-              </Button>
-            </span>
-          );
-        })}
-        <div className="relative">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Open a study tab"
-            title="Open a study tab"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
-            className="size-7 rounded-md border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
-          >
-            <Plus className="size-4" aria-hidden />
-          </Button>
-          {menuOpen ? (
-            <>
-              <button
-                type="button"
-                aria-label="Close the menu"
-                className="fixed inset-0 z-40 cursor-default"
-                onClick={() => setMenuOpen(false)}
-              />
-              <div className="absolute left-0 z-50 mt-1 max-h-72 w-56 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-md">
-                <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Open a tab</p>
-                {openPages.length === 0 ? (
-                  <p className="px-2 py-1.5 text-xs text-muted-foreground">Every study page is already open</p>
-                ) : (
-                  openPages.map((page) => (
-                    <button
-                      key={page.path}
-                      type="button"
-                      className="block w-full rounded-sm px-2 py-1.5 text-left text-sm text-foreground hover:bg-accent"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        openTab(page.path);
-                      }}
-                    >
-                      {page.label}
-                    </button>
-                  ))
-                )}
-              </div>
-            </>
-          ) : null}
-        </div>
+              <X className="size-3" aria-hidden />
+            </button>
+          </span>
+        );
+      })}
+      <div className="relative">
+        <button
+          type="button"
+          aria-label="Open a study tab"
+          title="Open a study tab"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+          className="flex size-7 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground transition-colors hover:border-primary/60 hover:bg-primary/10 hover:text-primary"
+        >
+          <Plus className="size-4" aria-hidden />
+        </button>
+        {menuOpen ? (
+          <>
+            <button
+              type="button"
+              aria-label="Close the menu"
+              className="fixed inset-0 z-40 cursor-default"
+              onClick={() => setMenuOpen(false)}
+            />
+            <div className="absolute left-0 z-50 mt-1.5 max-h-72 w-56 overflow-y-auto rounded-xl border border-border bg-popover p-1.5 shadow-lg">
+              <p className="px-2.5 py-1.5 text-xs font-medium text-muted-foreground">Open a tab</p>
+              {openPages.length === 0 ? (
+                <p className="px-2.5 py-1.5 text-xs text-muted-foreground">Every study page is already open</p>
+              ) : (
+                openPages.map((page) => (
+                  <button
+                    key={page.path}
+                    type="button"
+                    className="block w-full rounded-lg px-2.5 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-accent"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      openTab(page.path);
+                    }}
+                  >
+                    {page.label}
+                  </button>
+                ))
+              )}
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );
