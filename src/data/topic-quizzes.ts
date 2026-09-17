@@ -180,9 +180,18 @@ function pickThree(
 /** Puts the answer in a different position each time so it is never predictable. */
 function withAnswerPlaced(correct: string, wrong: string[], index: number): string[] {
   const options = [...wrong];
-  options.splice(index % 4, 0, correct);
+  // The slot is spread by the wording itself, so the right answer does not
+  // settle into a favourite position across a section.
+  const seedText = `${correct}|${wrong.join("|")}|${index}`;
+  let seed = 0;
+  for (let i = 0; i < seedText.length; i += 1) {
+    seed = (seed * 31 + seedText.charCodeAt(i)) % 100003;
+  }
+  const slot = seed % (options.length + 1);
+  options.splice(slot, 0, correct);
   return options;
 }
+
 
 /**
  * What the question should actually name. A statement usually turns on one of
