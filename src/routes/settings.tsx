@@ -128,14 +128,11 @@ function SettingsPage() {
               <SelectContent>
                 <SelectItem value="dark">Dark</SelectItem>
                 <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="system">System</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
-            {theme === "system"
-              ? `Following your system setting (${resolvedTheme === "light" ? "light" : "dark"} mode right now).`
-              : `Currently using ${theme === "light" ? "light" : "dark"} mode.`}
+            {`Currently using ${resolvedTheme === "light" ? "light" : "dark"} mode. IT PATH opens in dark mode everywhere unless you pick light here.`}
           </p>
         </Panel>
 
