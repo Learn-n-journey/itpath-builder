@@ -219,7 +219,8 @@ describe("learning engine stress", () => {
         }
 
         const model = buildLearnerModel(user, NOW);
-        expect(Array.isArray(model.concepts)).toBe(true);
+        expect(Array.isArray(model.profiles)).toBe(true);
+        PERCENT(model.pathMastery, "path mastery");
 
         const queue = adaptiveQueue(user, NOW);
         for (const entry of queue.entries) {
