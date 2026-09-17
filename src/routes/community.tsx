@@ -258,6 +258,6 @@ function CommunityPage() {
           </div>
         </form>
       </Panel>
-    </div>
+    </>
   );
 }
