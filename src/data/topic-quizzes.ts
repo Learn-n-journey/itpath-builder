@@ -216,7 +216,24 @@ function statementItem(
   const answer = tidy(correct);
   if (answer.length < 25 || answer.length > 200) return null;
   const subject = subjectFor(topicId, answer, topicTitle);
-  const wrong = pickThree(candidates, answer, index * 3 + 1, subject);
+  // Some styles ask what is true in general, so a wrong option that shades into
+  // the answer could be defended as correct. Those are held further apart.
+  const openEnded = new Set([
+    "where-used",
+    "practice-point",
+    "common-problem",
+    "exam-point",
+    "objective",
+    "key-idea",
+    "exam-trap",
+  ]);
+  const wrong = pickThree(
+    candidates,
+    answer,
+    index * 3 + 1,
+    subject,
+    openEnded.has(kind) ? 0.25 : 0.5,
+  );
   if (!wrong) return null;
   return {
     kind,
