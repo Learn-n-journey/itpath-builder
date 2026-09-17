@@ -240,7 +240,8 @@ describe("learning engine stress", () => {
 
         const actions = nextActions(user, NOW);
         for (const action of actions) {
-          expect(action.title.length).toBeGreaterThan(0);
+          expect(action.label.length).toBeGreaterThan(0);
+          expect(action.reason.includes("NaN")).toBe(false);
           expect(action.to.startsWith("/")).toBe(true);
         }
 
