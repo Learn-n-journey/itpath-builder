@@ -11,7 +11,9 @@ import {
   Flame,
   FlaskConical,
   HelpCircle,
+  PlayCircle,
   RotateCcw,
+  ShieldAlert,
   Target,
   Wrench,
 } from "lucide-react";
@@ -30,7 +32,10 @@ import { nextActions, type NextAction } from "@/lib/next-action";
 import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
 import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
 import { buildReadinessReport } from "@/lib/readiness-engine";
+import { resumeTarget, type ResumeTarget } from "@/lib/resume";
 import { greetingFor } from "@/lib/greeting";
+import { currentJourneyTopic, journeyIndexFor } from "@/lib/journey-order";
+import { masteryGate } from "@/lib/mastery-gate";
 import { useProfile } from "@/hooks/use-profile";
 import { useAppState } from "@/state/app-state";
 
@@ -130,6 +135,46 @@ function ProgressOverview({
   );
 }
 
+/** One tappable chip in the today strip. */
+function TodayChip({
+  to,
+  params,
+  icon,
+  label,
+  detail,
+}: {
+  to: string;
+  params?: Record<string, string>;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  detail: string;
+}) {
+  const Icon = icon;
+  return (
+    <Link
+      to={to}
+      {...(params ? { params: params as never } : {})}
+      className="flex min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 py-2.5 transition-colors hover:border-primary/50"
+    >
+      <Icon className="size-4 shrink-0 text-primary" aria-hidden />
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-medium">{label}</span>
+        <span className="block truncate text-xs text-muted-foreground">{detail}</span>
+      </span>
+    </Link>
+  );
+}
+
+/** What is owed today: due reviews, a delayed check, the next topic, open mistakes. */
+function TodayStrip({ chips }: { chips: React.ReactNode[] }) {
+  if (chips.length === 0) return null;
+  return (
+    <div className="mb-4 flex gap-2 overflow-x-auto pb-1" aria-label="What is owed today">
+      {chips}
+    </div>
+  );
+}
+
 function MeterRow({ label, value, suffix = "%" }: { label: string; value: number; suffix?: string }) {
   return (
     <div>
@@ -171,6 +216,7 @@ function Dashboard() {
     setDismissedVersion((v) => v + 1);
   }, []);
   const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
+  const resume = useMemo(() => (d.hasAnyActivity ? resumeTarget(user) : null), [user, d.hasAnyActivity]);
   const missedAnchors = useMemo(() => {
     const map: Record<string, string> = {};
     for (const item of missedQuestions(user)) {
@@ -178,6 +224,60 @@ function Dashboard() {
     }
     return map;
   }, [user]);
+  const todayChips = useMemo(() => {
+    const chips: React.ReactNode[] = [];
+    if (reviewTopics.length > 0) {
+      chips.push(
+        <TodayChip
+          key="review"
+          to="/review"
+          icon={Clock}
+          label={`${reviewTopics.length} ${reviewTopics.length === 1 ? "topic" : "topics"} due for review`}
+          detail="Spaced review is scheduled"
+        />,
+      );
+    }
+    const journeyTopic = currentJourneyTopic(user);
+    if (journeyTopic) {
+      const gate = masteryGate(user, journeyTopic.id);
+      if (gate.delayed.scheduled && gate.delayed.due) {
+        chips.push(
+          <TodayChip
+            key="delayed"
+            to="/mastery-check/$topicId"
+            params={{ topicId: journeyTopic.id }}
+            icon={ShieldAlert}
+            label="Delayed check due"
+            detail={journeyTopic.title}
+          />,
+        );
+      } else if (!gate.met) {
+        chips.push(
+          <TodayChip
+            key="next"
+            to="/topics/$topicId"
+            params={{ topicId: journeyTopic.id }}
+            icon={Target}
+            label="Next on the path"
+            detail={journeyTopic.title}
+          />,
+        );
+      }
+    }
+    const weakCount = missedQuestions(user).length;
+    if (weakCount > 0) {
+      chips.push(
+        <TodayChip
+          key="weak"
+          to="/weak-areas"
+          icon={Wrench}
+          label={`${weakCount} ${weakCount === 1 ? "question" : "questions"} to clean up`}
+          detail="Missed answers worth another look"
+        />,
+      );
+    }
+    return chips;
+  }, [user, reviewTopics]);
 
   return (
     <>
@@ -200,6 +300,26 @@ function Dashboard() {
         </div>
 
       </div>
+
+      {d.hasAnyActivity ? <TodayStrip chips={todayChips} /> : null}
+
+      {resume ? (
+        <Panel className="mb-4" title="Pick up where you left off">
+          <Link
+            to={resume.to}
+            {...(resume.params ? { params: resume.params as never } : {})}
+            {...(resume.search ? { search: resume.search as never } : {})}
+            className="group flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4 transition-colors hover:border-primary/50"
+          >
+            <PlayCircle className="size-8 shrink-0 text-primary" aria-hidden />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate font-medium">{resume.label}</span>
+              <span className="block truncate text-sm text-muted-foreground">{resume.detail}</span>
+            </span>
+            <span className="hidden shrink-0 text-sm font-medium text-primary sm:block">Resume</span>
+          </Link>
+        </Panel>
+      ) : null}
 
       <ProgressOverview
         progress={d.overallProgress}

@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Check, Lock } from "lucide-react";
+import { Check, FileText, FlaskConical, Lock } from "lucide-react";
 
+import { TopicRowMenu } from "@/components/learning/topic-row-menu";
 import { PageHeader } from "@/components/page-kit";
 import { journeyPhases } from "@/data/journey-phases";
 import { STAGE_EXAM_SIZE, STAGE_PASS_SCORE, stageExams } from "@/data/stage-exams";
+import { labs, topics } from "@/data/static-content";
 import {
   currentJourneyTopic,
   hasTopicActivity,
@@ -18,6 +21,25 @@ import { cn } from "@/lib/utils";
 import { SectionTabs, PATH_TABS } from "@/components/layout/section-tabs";
 
 type TopicStatus = "closed" | "current" | "started" | "not-started" | "locked";
+type JourneyFilter = "all" | "todo" | "passed" | "locked";
+
+const FILTERS: { value: JourneyFilter; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "todo", label: "To do" },
+  { value: "passed", label: "Passed" },
+  { value: "locked", label: "Locked" },
+];
+
+function statusMatchesFilter(status: TopicStatus, filter: JourneyFilter): boolean {
+  if (filter === "all") return true;
+  if (filter === "passed") return status === "closed";
+  if (filter === "locked") return status === "locked";
+  return status !== "closed" && status !== "locked";
+}
+
+function labIdFor(topicId: string): string | undefined {
+  return labs.find((lab) => lab.topicId === topicId)?.id;
+}
 
 
 export const Route = createFileRoute("/journey")({
@@ -92,6 +114,7 @@ const STATUS_WORD: Record<TopicStatus, string> = {
 function JourneyPage() {
   const { user } = useAppState();
   const current = currentJourneyTopic(user);
+  const [filter, setFilter] = useState<JourneyFilter>("all");
 
   function statusOf(topicId: string): TopicStatus {
     if (isMastered(user, topicId)) return "closed";
@@ -134,15 +157,34 @@ function JourneyPage() {
         </div>
       </div>
 
+      <div className="mb-6 flex gap-2" role="group" aria-label="Filter the map">
+        {FILTERS.map((entry) => (
+          <button
+            key={entry.value}
+            type="button"
+            onClick={() => setFilter(entry.value)}
+            aria-pressed={filter === entry.value}
+            className={cn(
+              "rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+              filter === entry.value
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-border bg-card text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {entry.label}
+          </button>
+        ))}
+      </div>
+
       <ol className="relative space-y-6">
         {phases.map((phase, phaseIndex) => {
-          const phaseTopics = phase.topics.map((topic) => ({
-            topic,
-            status: statusOf(topic.id),
-          }));
-          const litUp = phaseTopics.filter((entry) => entry.status === "closed").length;
-          const allLit = phaseTopics.length > 0 && litUp === phaseTopics.length;
-          const pct = phaseTopics.length > 0 ? Math.round((litUp / phaseTopics.length) * 100) : 0;
+          const allPhaseTopics = phase.topics.map((topic) => ({ topic, status: statusOf(topic.id) }));
+          const phaseTopics = allPhaseTopics.filter((entry) => statusMatchesFilter(entry.status, filter));
+          if (phaseTopics.length === 0) return null;
+          const litUp = allPhaseTopics.filter((entry) => entry.status === "closed").length;
+          const allLit = allPhaseTopics.length > 0 && litUp === allPhaseTopics.length;
+          const pct =
+            allPhaseTopics.length > 0 ? Math.round((litUp / allPhaseTopics.length) * 100) : 0;
 
 
           return (
@@ -203,34 +245,63 @@ function JourneyPage() {
                   {phaseTopics.map(({ topic, status }) => {
                     const best = sectionQuizBest(user, topic.id);
                     const passedAt = sectionQuizPassedAt(user, topic.id);
+                    const open = status !== "locked";
+                    const labId = labIdFor(topic.id);
                     return (
-                      <li key={topic.id}>
-                        <Link
-                          to="/topics/$topicId"
-                          params={{ topicId: topic.id }}
-                          className={cn(
-                            "group flex items-start gap-3 rounded-lg border border-transparent px-2.5 py-2 transition-all hover:border-border hover:bg-secondary/50",
-                            status === "current" && "border-primary/50 bg-primary/5",
-                          )}
-                        >
-                          <StatusDot status={status} />
-                          <span className="min-w-0 flex-1">
-                            <span
-                              className={cn(
-                                "block text-sm font-medium transition-colors group-hover:text-primary",
-                                status === "current" && "text-primary",
-                                status === "locked" && "text-muted-foreground",
-                              )}
-                            >
-                              {topic.title}
+                      <li key={topic.id} className="group/row relative">
+                        <div className="flex items-start gap-1">
+                          <Link
+                            to="/topics/$topicId"
+                            params={{ topicId: topic.id }}
+                            className={cn(
+                              "group flex min-w-0 flex-1 items-start gap-3 rounded-lg border border-transparent px-2.5 py-2 transition-all hover:border-border hover:bg-secondary/50",
+                              status === "current" && "border-primary/50 bg-primary/5",
+                            )}
+                          >
+                            <StatusDot status={status} />
+                            <span className="min-w-0 flex-1">
+                              <span
+                                className={cn(
+                                  "block text-sm font-medium transition-colors group-hover:text-primary",
+                                  status === "current" && "text-primary",
+                                  status === "locked" && "text-muted-foreground",
+                                )}
+                              >
+                                {topic.title}
+                              </span>
+                              <span className="block truncate text-xs text-muted-foreground">
+                                {STATUS_WORD[status]}
+                                {status === "closed" && best > 0 ? ` · quiz ${best}%` : ""}
+                                {status === "closed" && passedAt ? ` · passed ${shortDate(passedAt)}` : ""}
+                              </span>
                             </span>
-                            <span className="block truncate text-xs text-muted-foreground">
-                              {STATUS_WORD[status]}
-                              {status === "closed" && best > 0 ? ` · quiz ${best}%` : ""}
-                              {status === "closed" && passedAt ? ` · passed ${shortDate(passedAt)}` : ""}
-                            </span>
-                          </span>
-                        </Link>
+                          </Link>
+                          {open ? (
+                            <div className="flex shrink-0 items-center gap-1 self-center pr-1 opacity-0 transition-opacity group-hover/row:opacity-100 focus-within:opacity-100 max-sm:opacity-100">
+                              <Link
+                                to="/section-quiz/$topicId"
+                                params={{ topicId: topic.id }}
+                                title={`Take the ${topic.title} quiz`}
+                                aria-label={`Take the ${topic.title} quiz`}
+                                className="flex size-7 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+                              >
+                                <FileText className="size-3.5" aria-hidden />
+                              </Link>
+                              {labId ? (
+                                <Link
+                                  to="/labs"
+                                  search={{ lab: labId }}
+                                  title={`Open the ${topic.title} lab`}
+                                  aria-label={`Open the ${topic.title} lab`}
+                                  className="flex size-7 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary"
+                                >
+                                  <FlaskConical className="size-3.5" aria-hidden />
+                                </Link>
+                              ) : null}
+                              <TopicRowMenu topicId={topic.id} title={topic.title} />
+                            </div>
+                          ) : null}
+                        </div>
                       </li>
                     );
                   })}

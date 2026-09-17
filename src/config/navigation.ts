@@ -26,6 +26,7 @@ import {
   Settings as SettingsIcon,
   SquareTerminal,
   CircuitBoard,
+  Bug,
   type LucideIcon,
 } from "lucide-react";
 
@@ -142,6 +143,13 @@ export const navItems: NavItem[] = [
     group: "Practice",
     description: "Practice CMD, PowerShell and Linux in safe, persistent virtual computers.",
     pro: true,
+  },
+  {
+    label: "Virus Run",
+    to: "/virus",
+    icon: Bug,
+    group: "Practice",
+    description: "A quick arcade game: play as the virus and breach endlessly harder systems.",
   },
   {
     label: "Explore Hardware",

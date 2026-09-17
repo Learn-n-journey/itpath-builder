@@ -448,11 +448,46 @@ function QuizReview({
   onSelectAttempt: (id: string) => void;
 }) {
   const { user } = useAppState();
+  // Walkthrough mode: one question at a time, instead of the full list.
+  const [walkIndex, setWalkIndex] = useState<number | null>(null);
   const topicName = (id: string) => topics.find((topic) => topic.id === id)?.title ?? id;
   const diagnostic = useMemo(
     () => buildQuizDiagnostic(user, pool, attempt.results),
     [attempt.results, pool, user],
   );
+
+  function renderQuestionCard(questionId: string, index: number) {
+    const question = pool.find((item) => item.id === questionId);
+    const result = attempt.results.find((item) => item.questionId === questionId);
+    if (!question || !result) return null;
+    return (
+      <article key={questionId} className="rounded-md border border-border p-4">
+        <div className="flex items-start gap-3">
+          {result.correct ? (
+            <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" />
+          ) : (
+            <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
+          )}
+          <div className="min-w-0">
+            <p className="font-medium">
+              {index + 1}. {question.prompt}
+            </p>
+            <p className="mt-2 break-words text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">Your answer:</span>{" "}
+              {result.response.join(", ") || "No answer"}
+            </p>
+            {!result.correct ? (
+              <p className="mt-1 break-words text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Correct answer:</span>{" "}
+                {question.correctAnswer.join(", ")}
+              </p>
+            ) : null}
+            <p className="mt-2 text-sm text-muted-foreground">{question.explanation}</p>
+          </div>
+        </div>
+      </article>
+    );
+  }
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -623,7 +658,10 @@ function QuizReview({
           </p>
         )}
       </Panel>
-      <Panel title="Question review" description="Your saved answers, correct answers, and explanations.">
+      <Panel
+        title="Question review"
+        description="Your saved answers, correct answers, and explanations."
+      >
         {attempt.questionOrder.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             This summary was preserved from an earlier data version. Per-question answers were not recorded by that
@@ -631,38 +669,43 @@ function QuizReview({
           </p>
         ) : (
           <div className="space-y-4">
-            {attempt.questionOrder.map((questionId, index) => {
-              const question = pool.find((item) => item.id === questionId);
-              const result = attempt.results.find((item) => item.questionId === questionId);
-              if (!question || !result) return null;
-              return (
-                <article key={questionId} className="rounded-md border border-border p-4">
-                  <div className="flex items-start gap-3">
-                    {result.correct ? (
-                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success" />
-                    ) : (
-                      <XCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
-                    )}
-                    <div className="min-w-0">
-                      <p className="font-medium">
-                        {index + 1}. {question.prompt}
-                      </p>
-                      <p className="mt-2 break-words text-sm text-muted-foreground">
-                        <span className="font-medium text-foreground">Your answer:</span>{" "}
-                        {result.response.join(", ") || "No answer"}
-                      </p>
-                      {!result.correct ? (
-                        <p className="mt-1 break-words text-sm text-muted-foreground">
-                          <span className="font-medium text-foreground">Correct answer:</span>{" "}
-                          {question.correctAnswer.join(", ")}
-                        </p>
-                      ) : null}
-                      <p className="mt-2 text-sm text-muted-foreground">{question.explanation}</p>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm text-muted-foreground">
+                {walkIndex === null
+                  ? `${attempt.questionOrder.length} questions`
+                  : `Question ${walkIndex + 1} of ${attempt.questionOrder.length}`}
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setWalkIndex(walkIndex === null ? 0 : null)}
+              >
+                {walkIndex === null ? "Walk through one at a time" : "Show all"}
+              </Button>
+            </div>
+            {(walkIndex === null
+              ? attempt.questionOrder.map((questionId, index) => ({ questionId, index }))
+              : attempt.questionOrder[walkIndex]
+                ? [{ questionId: attempt.questionOrder[walkIndex]!, index: walkIndex }]
+                : []
+            ).map(({ questionId, index }) => renderQuestionCard(questionId, index))}
+            {walkIndex !== null ? (
+              <div className="flex items-center justify-between gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setWalkIndex(Math.max(0, walkIndex - 1))}
+                  disabled={walkIndex === 0}
+                >
+                  <ArrowLeft /> Previous
+                </Button>
+                <Button
+                  onClick={() => setWalkIndex(Math.min(attempt.questionOrder.length - 1, walkIndex + 1))}
+                  disabled={walkIndex === attempt.questionOrder.length - 1}
+                >
+                  Next <ArrowRight />
+                </Button>
+              </div>
+            ) : null}
           </div>
         )}
       </Panel>
