@@ -124,7 +124,7 @@ function distanceField(grid: Grid, sx: number, sy: number): number[][] {
       [-1, 0],
       [0, 1],
       [0, -1],
-    ]) {
+    ] as [number, number][]) {
       const nx = x + dx;
       const ny = y + dy;
       if (nx >= 0 && nx < COLS && ny >= 0 && ny < ROWS && grid[ny]![nx] === 0 && dist[ny]![nx] === -1) {
