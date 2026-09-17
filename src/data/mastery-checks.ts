@@ -143,6 +143,8 @@ export function masteryCheckPool(topicId: string, kind: MasteryCheckKind): Maste
   if (!topic || !learningModule) return [];
   const slug = topicId.replace(/^topic-/, "");
   const out: MasteryItem[] = [];
+  const termList = (lesson?.keyTerms ?? []).map((term) => term.term);
+
 
   if (kind === "recall") {
     (lesson?.keyTerms ?? []).forEach((term, index) => {
