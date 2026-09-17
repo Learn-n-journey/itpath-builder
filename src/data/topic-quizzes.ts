@@ -126,6 +126,22 @@ function withAnswerPlaced(correct: string, wrong: string[], index: number): stri
   return options;
 }
 
+/**
+ * What the question should actually name. A statement usually turns on one of
+ * the section's key terms, and asking about that term reads like a real
+ * question. Only when nothing matches do we fall back to the section name.
+ */
+function subjectFor(topicId: string, line: string, topicTitle: string): string {
+  const lesson = lessons.find((item) => item.topicId === topicId);
+  const lower = line.toLowerCase();
+  const term = (lesson?.keyTerms ?? [])
+    .map((entry) => entry.term)
+    .filter((entry) => entry.length >= 3)
+    .sort((a, b) => b.length - a.length)
+    .find((entry) => lower.includes(entry.toLowerCase()));
+  return term ?? topicTitle.toLowerCase();
+}
+
 function statementItem(
   topicId: string,
   topicTitle: string,
@@ -141,13 +157,14 @@ function statementItem(
   if (answer.length < 25 || answer.length > 200) return null;
   const wrong = pickThree(candidates, answer, index * 3 + 1);
   if (!wrong) return null;
+  const subject = subjectFor(topicId, answer, topicTitle);
   return {
     kind,
     sourceKey: `${kind}:${answer.slice(0, 60).toLowerCase()}`,
     question: question({
       id: `section-${topicId}-${kind}-${index}`,
       topicId,
-      prompt: prompt.replace("{topic}", topicTitle),
+      prompt: prompt.replace("{topic}", subject).replace("{section}", topicTitle),
       choices: withAnswerPlaced(answer, wrong, index + 1),
       correctAnswer: [answer],
       acceptableAnswers: [answer],
