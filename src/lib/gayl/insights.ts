@@ -160,7 +160,7 @@ export function quizResultInsight(input: {
   if (total === 0) {
     message = "No questions were scored in this attempt.";
   } else if (score > 80) {
-    message = "That run speaks for itself. Nothing from me here.";
+    message = "That is a strong run, really well done. I'll bring a few of these back later just to check they stick, but there is nothing to fix today.";
   } else if (score >= 60) {
     message =
       spread <= 1
@@ -339,21 +339,21 @@ function casualText(concept: ConceptIntel): string {
   const plural = count === 1 ? "" : "s";
 
   if (count > 0) {
-    return `Hey, just a heads up, you've still got ${count} open mistake${plural} in ${concept.title}. ${concept.instruction}`;
+    return `${concept.title} has ${count} spot${plural} we haven't circled back to yet. ${concept.instruction}`;
   }
   if (concept.diagnosis === "retrieval_failure") {
-    return `Quick one. You had ${concept.title} right earlier, then a later answer came back wrong. A short pass should settle it.`;
+    return `You had ${concept.title} earlier, then a later answer slipped. A short pass should settle it.`;
   }
   if (concept.diagnosis === "fading") {
     return concept.daysOverdue >= 7
-      ? `Quick one. ${concept.title} is ${Math.round(concept.daysOverdue)} days past its review point, so recall will have faded. A short pass should bring it back.`
-      : `Quick one. Recall on ${concept.title} has faded since you last had it right. A short pass should bring it back.`;
+      ? `${concept.title} has had a good rest, ${Math.round(concept.daysOverdue)} days since its review point, so recall will have softened. A short pass brings it straight back.`
+      : `Recall on ${concept.title} has softened a little since you last had it. A short pass brings it back.`;
   }
   if (concept.misconceptions[0]) {
     return `Something keeps catching you out in ${concept.title}: ${concept.misconceptions[0].toLowerCase()}. Worth clearing that one up before you build on it.`;
   }
   if (concept.diagnosis === "confident_but_wrong") {
-    return `A few answers in ${concept.title} came back quick and wrong. Nothing to worry about, it usually just means slowing down for a minute.`;
+    return `A few answers in ${concept.title} came quickly and didn't quite land. Nothing to worry about, it usually just means slowing down for a minute.`;
   }
   if (concept.diagnosis === "prerequisite_gap") {
     const base = concept.prerequisiteGaps[0];
