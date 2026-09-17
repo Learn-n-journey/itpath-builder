@@ -69,7 +69,7 @@ function CommunityPage() {
 
   if (ready && !userId) {
     return (
-      <div className="page-shell">
+      <>
         <PageHeader
           title="Community chat"
           description="One shared room for IT PATH learners."
@@ -115,7 +115,7 @@ function CommunityPage() {
   }
 
   return (
-    <div className="page-shell">
+    <>
       <PageHeader
         title="Community chat"
         description="One shared room for everyone studying with IT PATH. Ask for help, share a win, compare notes."
