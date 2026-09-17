@@ -41,7 +41,6 @@ interface StreakSnapshotData {
   savedAt: string;
 }
 
-/** The streak as it was last recorded on this device, shown while signed out. */
 function StreakSnapshot() {
   const [snap, setSnap] = useState<StreakSnapshotData | null>(null);
 
@@ -75,7 +74,6 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [sentConfirmation, setSentConfirmation] = useState(false);
-
 
   useEffect(() => {
     if (ready && userId) void navigate({ to: "/", replace: true });
@@ -122,6 +120,9 @@ function AuthPage() {
         provider: "google",
         options: {
           redirectTo: window.location.origin,
+          queryParams: {
+            prompt: "select_account",
+          },
         },
       });
       if (error) {
@@ -207,7 +208,6 @@ function AuthPage() {
               </div>
             ) : null}
             <div className="space-y-2">
-
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
