@@ -79,7 +79,7 @@ function CommunityPage() {
             <Link to="/auth">Sign in or create an account</Link>
           </Button>
         </Panel>
-      </div>
+      </>
     );
   }
 
