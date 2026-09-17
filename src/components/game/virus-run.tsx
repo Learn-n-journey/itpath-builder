@@ -75,14 +75,20 @@ function generateMaze(): Grid {
   grid[1]![1] = 0;
   while (stack.length > 0) {
     const [cx, cy] = stack[stack.length - 1]!;
-    const dirs: [number, number][] = [
-      [2, 0],
-      [-2, 0],
-      [0, 2],
-      [0, -2],
-    ].sort(() => Math.random() - 0.5);
-    let carved = false;
-    for (const [dx, dy] of dirs) {
+  const dirs: [number, number][] = [
+    [2, 0],
+    [-2, 0],
+    [0, 2],
+    [0, -2],
+  ];
+  for (let i = dirs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = dirs[i]!;
+    dirs[i] = dirs[j]!;
+    dirs[j] = tmp;
+  }
+  let carved = false;
+  for (const [dx, dy] of dirs) {
       const nx = cx + dx;
       const ny = cy + dy;
       if (nx > 0 && nx < COLS - 1 && ny > 0 && ny < ROWS - 1 && grid[ny]![nx] === 1) {

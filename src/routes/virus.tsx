@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { VirusRun } from "@/components/game/virus-run";
 
 export const Route = createFileRoute("/virus")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Virus Run — IT PATH" },
