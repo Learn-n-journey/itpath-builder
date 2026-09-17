@@ -1,7 +1,6 @@
 import {
   Brain,
   LayoutDashboard,
-  Map,
   Route as RouteIcon,
   CalendarDays,
   CalendarCheck2,
@@ -14,13 +13,10 @@ import {
   Briefcase,
   RotateCcw,
   Award,
-  Users,
   FolderGit2,
   Bot,
   BookMarked,
   TrendingUp,
-  LineChart,
-  Target,
   Timer,
   AlarmClock,
   Compass,
@@ -30,8 +26,6 @@ import {
   Settings as SettingsIcon,
   SquareTerminal,
   CircuitBoard,
-  BrainCircuit,
-  UserRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -161,7 +155,7 @@ export const navItems: NavItem[] = [
     to: "/review",
     icon: RotateCcw,
     group: "Practice",
-    description: "Spaced repetition plus your full log of mistakes.",
+    description: "Spaced repetition, your mistake log and a quiz on your weak areas.",
   },
   {
     label: "Certifications",
