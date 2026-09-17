@@ -75,6 +75,7 @@ export function StudyTabs() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const navigate = useNavigate();
   const [tabs, setTabs] = useState<StudyTab[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const openTab = useCallback(
     (path: string) => {
