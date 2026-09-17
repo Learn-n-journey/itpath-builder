@@ -264,7 +264,19 @@ describe("learning engine stress", () => {
 
           const scope = topicScopeProgress(user, topic.id);
           PERCENT(scope.overall, `${topic.id} scope`);
-          for (const dimension of scope.dimensions) PERCENT(dimension.score, `${topic.id} ${dimension.key}`);
+          const dimensions = ["understanding", "recall", "application", "practicalAbility", "troubleshooting", "retention"] as const;
+          for (const key of dimensions) {
+            const dimension = scope[key];
+            PERCENT(dimension.score, `${topic.id} ${key}`);
+            expect(dimension.attempted, `${topic.id} ${key} attempted`).toBeLessThanOrEqual(dimension.available);
+            // An unmeasured dimension must never claim a score.
+            if (!dimension.measured) expect(dimension.score, `${topic.id} ${key} unmeasured`).toBe(0);
+          }
+          // Retention is reported separately and never inflates the overall score.
+          const abilities = dimensions.slice(0, 5).map((key) => scope[key]).filter((item) => item.measured);
+          if (abilities.length > 0 && scope.retention.score === 100 && abilities.every((item) => item.score === 0)) {
+            expect(scope.overall, `${topic.id} retention leak`).toBe(0);
+          }
         }
 
         for (const readiness of scoreAllCertifications(user)) {
