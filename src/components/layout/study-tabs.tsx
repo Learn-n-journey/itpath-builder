@@ -9,7 +9,7 @@
  */
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Plus, X } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { topics } from "@/data/static-content";
 import { cn } from "@/lib/utils";
