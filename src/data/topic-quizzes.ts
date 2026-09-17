@@ -249,12 +249,16 @@ function buildPool(topicId: string): PoolItem[] {
     }
   }
 
+  // Terms taught in this same section make the closest wrong options.
+  const ownTerms = new Set((lesson?.keyTerms ?? []).map((entry) => entry.term.toLowerCase()));
+
   lesson?.keyTerms.forEach((term, index) => {
     const correct = shortMeaning(term.meaning);
     const meaningOptions = pickThree(
       meaningPool.filter((entry) => entry.term !== term.term).map((entry) => entry.meaning),
       correct,
       index * 2 + 1,
+      term.term,
     );
     if (meaningOptions) {
       items.push({
@@ -273,10 +277,15 @@ function buildPool(topicId: string): PoolItem[] {
       });
     }
 
+    const description = shortMeaning(term.meaning);
+    // A term named in the description could fairly be the answer, so leave it out.
+    const nameCandidates = meaningPool
+      .map((entry) => entry.term)
+      .filter((entry) => entry.toLowerCase() !== term.term.toLowerCase())
+      .filter((entry) => !description.toLowerCase().includes(entry.toLowerCase()));
+    const sameSection = nameCandidates.filter((entry) => ownTerms.has(entry.toLowerCase()));
     const nameOptions = pickThree(
-      meaningPool
-        .filter((entry) => entry.term.toLowerCase() !== term.term.toLowerCase())
-        .map((entry) => entry.term),
+      sameSection.length >= 3 ? sameSection : nameCandidates,
       term.term,
       index * 2 + 3,
     );
@@ -287,7 +296,7 @@ function buildPool(topicId: string): PoolItem[] {
         question: question({
           id: `section-${topicId}-name-${index}`,
           topicId,
-          prompt: `Which term is being described? ${shortMeaning(term.meaning)}`,
+          prompt: `Which term is being described? ${description}`,
           choices: withAnswerPlaced(term.term, nameOptions, index + 2),
           correctAnswer: [term.term],
           acceptableAnswers: [term.term],
