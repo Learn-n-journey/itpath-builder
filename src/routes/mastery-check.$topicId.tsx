@@ -60,7 +60,7 @@ function MasteryCheckPage() {
     <>
       <PageHeader
         title={`${topic.title}: mastery checks`}
-        description="These are separate from the practice in the lesson. Practice is where you learn with help. These runs are the proof, each one stands on its own, and the questions are new every time."
+        description="Practice is where you learn with help. This is the proof: each run stands on its own, with new questions every time."
       />
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">

@@ -104,7 +104,7 @@ function KnowledgePage() {
     <>
       <PageHeader
         title="Second Brain"
-        description="Save anything you study, notes, links, videos, screenshots, PDFs, and IT PATH reads it, pulls out the concepts and wires them into your topics, certifications and learner profile."
+        description="Save what you study: notes, links, videos, screenshots, PDFs. IT PATH reads it and wires the concepts into your topics and profile."
       />
       <ProGate feature="Second Brain">
         <KnowledgeWorkspace />
