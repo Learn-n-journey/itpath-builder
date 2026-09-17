@@ -66,6 +66,13 @@ export function isUsableQuestion(question: Question): boolean {
   if (question.type === "multiple_response" ? answers.length < 2 : answers.length !== 1) return false;
   if (answers.length >= choices.length) return false;
 
+  // Exactly one option can be right, so no wrong option may restate the answer.
+  const answerSets = answers.map(contentWords);
+  const wrong = choices.filter((choice) => !answers.some((answer) => norm(answer) === norm(choice)));
+  if (wrong.some((choice) => answerSets.some((set) => overlap(contentWords(choice), set) > 0.6))) {
+    return false;
+  }
+
   return true;
 }
 
