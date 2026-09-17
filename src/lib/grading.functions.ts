@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requirePlan } from "@/lib/entitlement.server";
 import { reviewGrade } from "@/lib/ai-self-check.server";
 import { cacheKey as buildCacheKey, readExact, writeCache } from "@/lib/ai/cache.server";
 import { compressContext } from "@/lib/ai/compress.server";
@@ -91,6 +92,9 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
   .handler(async ({ data, context }): Promise<GradeReply> => {
+    const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "AI grading and feedback");
+    if (denied) return denied;
+
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI marking is not configured." };
 

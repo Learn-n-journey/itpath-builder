@@ -4,6 +4,7 @@ import type { MachineSpec, ShellKind } from "./machine";
 import type { TerminalScenario } from "./scenarios";
 import { runAi } from "@/lib/ai/run.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requirePlan } from "@/lib/entitlement.server";
 
 const shellKinds = ["cmd", "powershell", "bash", "android", "ios"] as const;
 
@@ -236,6 +237,9 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
   .handler(async ({ data, context }): Promise<AiScenarioReply> => {
+    const denied = await requirePlan(context.supabase, context.userId, context.claims, "plus", "AI practice scenarios");
+    if (denied) return denied;
+
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI practice is not configured." };
 
