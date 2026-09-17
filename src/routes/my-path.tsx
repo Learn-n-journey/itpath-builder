@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Award, Lock } from "lucide-react";
 
 import { GaylPathNote } from "@/components/gayl/gayl-insights";
+import { TopicRowMenu } from "@/components/learning/topic-row-menu";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -104,7 +105,7 @@ function MyPath() {
           {queue.entries.slice(0, 6).map((entry) => (
             <li
               key={entry.topic.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-border bg-background/40 p-3"
+              className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 rounded-lg border border-border bg-background/40 p-3"
             >
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{entry.topic.title}</p>
@@ -113,16 +114,22 @@ function MyPath() {
                 </p>
               </div>
               {entry.unlocked ? (
-                <Button asChild size="sm" variant="secondary">
-                  <Link to="/topics/$topicId" params={{ topicId: entry.topic.id }}>
-                    Open
-                  </Link>
-                </Button>
+                <>
+                  <Button asChild size="sm" variant="secondary">
+                    <Link to="/topics/$topicId" params={{ topicId: entry.topic.id }}>
+                      Open
+                    </Link>
+                  </Button>
+                  <TopicRowMenu topicId={entry.topic.id} title={entry.topic.title} />
+                </>
               ) : (
-                <span className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
-                  <Lock className="size-3" aria-hidden />
-                  Locked
-                </span>
+                <>
+                  <span className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
+                    <Lock className="size-3" aria-hidden />
+                    Locked
+                  </span>
+                  <span />
+                </>
               )}
             </li>
           ))}

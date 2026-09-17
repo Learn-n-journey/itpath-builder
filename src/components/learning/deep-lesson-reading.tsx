@@ -1,4 +1,5 @@
 import { BookOpen, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Panel } from "@/components/page-kit";
 import {
@@ -8,12 +9,30 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import type { DeepLesson } from "@/data/deep-lessons";
+import { lessonPartAnchor } from "@/lib/lesson-anchor";
 
 /**
  * The main reading for a topic, broken into numbered parts so a beginner can
  * work through one idea at a time instead of facing a wall of text.
  */
 export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
+  // Controlled so a search hit (or any #lesson-part anchor) can open the right part.
+  const [openParts, setOpenParts] = useState<string[]>(() =>
+    lesson.sections.slice(0, 1).map((_, index) => `part-${index}`),
+  );
+
+  useEffect(() => {
+    const hash = window.location.hash.replace("#", "");
+    if (!hash) return;
+    const index = lesson.sections.findIndex((section) => lessonPartAnchor(section.heading) === hash);
+    if (index === -1) return;
+    setOpenParts((current) => (current.includes(`part-${index}`) ? current : [...current, `part-${index}`]));
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [lesson.sections]);
+
   return (
     <div className="space-y-4">
       <Panel title="Start here" description={`Read it at your own pace, in ${lesson.sections.length} short parts.`}>
@@ -63,11 +82,17 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
       >
         <Accordion
           type="multiple"
-          defaultValue={lesson.sections.slice(0, 1).map((_, index) => `part-${index}`)}
+          value={openParts}
+          onValueChange={setOpenParts}
           className="w-full"
         >
           {lesson.sections.map((section, index) => (
-            <AccordionItem key={section.heading} value={`part-${index}`}>
+            <AccordionItem
+              key={section.heading}
+              value={`part-${index}`}
+              id={lessonPartAnchor(section.heading)}
+              className="scroll-mt-24"
+            >
               <AccordionTrigger className="text-left">
                 <span className="flex min-w-0 items-baseline gap-3">
                   <span className="font-mono text-xs text-primary">

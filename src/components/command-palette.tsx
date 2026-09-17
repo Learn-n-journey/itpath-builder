@@ -11,17 +11,23 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { navItems } from "@/config/navigation";
-import { certifications, labs, topics } from "@/data/static-content";
+import { certifications, labs, lessons, topics } from "@/data/static-content";
+import { deepLessons } from "@/data/deep-lessons";
+import { lessonPartAnchor } from "@/lib/lesson-anchor";
 
 interface PaletteEntry {
   id: string;
   label: string;
   hint: string;
+  /** Extra words this entry matches on, so searching a term finds its lesson. */
+  keywords?: string;
   go: () => void;
 }
 
 /**
- * Quick search over every page, topic, certification and lab.
+ * Quick search over every page, topic, certification, lab and lesson part.
+ * Topic and lab hits deep-link: a lab opens on its own, a lesson part opens
+ * scrolled to that exact part of the reading.
  * Opens with Ctrl/Cmd+K or the search button in the sidebar.
  */
 export function CommandPalette({
@@ -49,11 +55,19 @@ export function CommandPalette({
       hint: item.description,
       go: run(() => void navigate({ to: item.to })),
     }));
+    const termsByTopic = new Map<string, string>();
+    for (const lesson of lessons) {
+      const words = lesson.keyTerms.map((entry) => entry.term).join(" ");
+      termsByTopic.set(lesson.topicId, words);
+    }
     const topicEntries: PaletteEntry[] = topics.map((topic) => ({
       id: `topic-${topic.id}`,
       label: topic.title,
       hint: topic.summary ?? "Topic lesson",
-      go: run(() => void navigate({ to: "/topics/$topicId", params: { topicId: topic.id } })),
+      keywords: termsByTopic.get(topic.id) ?? "",
+      go: run(() =>
+        void navigate({ to: "/topics/$topicId", params: { topicId: topic.id } }),
+      ),
     }));
     const certEntries: PaletteEntry[] = certifications.map((certification) => ({
       id: `cert-${certification.id}`,
@@ -64,12 +78,30 @@ export function CommandPalette({
     const labEntries: PaletteEntry[] = labs.slice(0, 200).map((lab) => ({
       id: `lab-${lab.id}`,
       label: lab.title,
-      hint: "Hands-on lab",
-      go: run(() => void navigate({ to: "/labs" })),
+      hint: "Hands-on lab, opens on its own",
+      go: run(() => void navigate({ to: "/labs", search: { lab: lab.id } })),
     }));
+    const partEntries: PaletteEntry[] = deepLessons.flatMap((lesson) =>
+      lesson.sections.map((section) => {
+        const topic = topics.find((item) => item.id === lesson.topicId);
+        return {
+          id: `part-${lesson.topicId}-${section.heading}`,
+          label: section.heading,
+          hint: topic?.title ?? "Lesson part",
+          go: run(() =>
+            void navigate({
+              to: "/topics/$topicId",
+              params: { topicId: lesson.topicId },
+              hash: lessonPartAnchor(section.heading),
+            }),
+          ),
+        };
+      }),
+    );
     return [
       { heading: "Pages", items: pages },
       { heading: "Topics", items: topicEntries },
+      { heading: "Lesson parts", items: partEntries },
       { heading: "Certifications", items: certEntries },
       { heading: "Labs", items: labEntries },
     ];
@@ -80,14 +112,18 @@ export function CommandPalette({
       <CommandInput
         value={query}
         onValueChange={setQuery}
-        placeholder="Search pages, topics, certifications and labs…"
+        placeholder="Search pages, topics, lesson parts, certifications and labs…"
       />
       <CommandList>
         <CommandEmpty>Nothing matched that search.</CommandEmpty>
         {groups.map((group) => (
           <CommandGroup key={group.heading} heading={group.heading}>
             {group.items.map((entry) => (
-              <CommandItem key={entry.id} value={`${entry.label} ${entry.hint}`} onSelect={entry.go}>
+              <CommandItem
+                key={entry.id}
+                value={[entry.label, entry.hint, entry.keywords ?? ""].join(" ")}
+                onSelect={entry.go}
+              >
                 <span className="truncate">{entry.label}</span>
                 <span className="ml-auto truncate pl-3 text-xs text-muted-foreground">{entry.hint}</span>
               </CommandItem>
