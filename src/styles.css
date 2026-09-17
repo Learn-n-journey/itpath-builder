@@ -153,6 +153,90 @@ html.light {
   --sidebar-ring: oklch(0.58 0.1 196);
 }
 
+/* Fallback for browsers without oklch support (older mobile Chrome). */
+@supports not (color: oklch(0 0 0)) {
+  :root,
+  .dark {
+    --background: #0e141c;
+    --foreground: #e8ebef;
+    --surface: #171d26;
+    --card: #171d26;
+    --card-foreground: #e8ebef;
+    --popover: #161c25;
+    --popover-foreground: #e8ebef;
+    --primary: #29bbbc;
+    --primary-foreground: #0c121a;
+    --secondary: #222933;
+    --secondary-foreground: #e5e8ec;
+    --muted: #21272f;
+    --muted-foreground: #9299a1;
+    --accent: #242f3b;
+    --accent-foreground: #e8ebef;
+    --destructive: #da4149;
+    --destructive-foreground: #f3f5f8;
+    --success: #3fb171;
+    --success-foreground: #0c121a;
+    --warning: #e3ad4b;
+    --warning-foreground: #0c121a;
+    --border: #272e38;
+    --input: #2c333d;
+    --ring: #29bbbc;
+    --chart-1: #29bbbc;
+    --chart-2: #3fb171;
+    --chart-3: #e3ad4b;
+    --chart-4: #6b8fe2;
+    --chart-5: #da4149;
+    --sidebar: #090f16;
+    --sidebar-foreground: #dadee3;
+    --sidebar-primary: #29bbbc;
+    --sidebar-primary-foreground: #0c121a;
+    --sidebar-accent: #1e252e;
+    --sidebar-accent-foreground: #ebeff2;
+    --sidebar-border: #222933;
+    --sidebar-ring: #29bbbc;
+  }
+
+  html.light {
+    --background: #f5f7fa;
+    --foreground: #172033;
+    --surface: #ffffff;
+    --card: #ffffff;
+    --card-foreground: #172033;
+    --popover: #ffffff;
+    --popover-foreground: #172033;
+    --primary: #008c8e;
+    --primary-foreground: #ffffff;
+    --secondary: #edf1f7;
+    --secondary-foreground: #172033;
+    --muted: #edf1f7;
+    --muted-foreground: #64748b;
+    --accent: #edf1f7;
+    --accent-foreground: #172033;
+    --destructive: #dc2627;
+    --destructive-foreground: #ffffff;
+    --success: #18a349;
+    --success-foreground: #ffffff;
+    --warning: #d9770a;
+    --warning-foreground: #ffffff;
+    --border: #e2e8f0;
+    --input: #cbd5e1;
+    --ring: #008c8e;
+    --chart-1: #008c8e;
+    --chart-2: #18a349;
+    --chart-3: #d9770a;
+    --chart-4: #466cc8;
+    --chart-5: #dc2627;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #172033;
+    --sidebar-primary: #008c8e;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #edf1f7;
+    --sidebar-accent-foreground: #172033;
+    --sidebar-border: #e2e8f0;
+    --sidebar-ring: #008c8e;
+  }
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
