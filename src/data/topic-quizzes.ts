@@ -246,7 +246,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "misconception",
-      `Which statement about {topic} is correct?`,
+      `Which of these statements about {topic} is correct?`,
       line,
       otherMisconceptions(topicId),
       index,
@@ -290,7 +290,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "how-it-fails",
-        `Which of these is a way {topic} typically goes off track?`,
+        `Which of these describes a way {topic} commonly goes wrong?`,
         line,
         otherStatements(topicId, "howItFails"),
         index,
@@ -305,7 +305,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "practice-point",
-        `Which of these reflects sound practice with {topic}?`,
+        `Which of these is sound practice when working with {topic}?`,
         line,
         otherStatements(topicId, "practicalKnowledge"),
         index,
@@ -378,7 +378,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "real-example",
-        `Which of these is a real example of {topic} in use?`,
+        `Which of these is a real example of {section} in use?`,
         line,
         lessons
           .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -395,7 +395,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "definition",
-      `Which of these best describes {topic}?`,
+      `Which of these best describes {section}?`,
       definition,
       lessons
         .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -410,7 +410,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "why-it-matters",
-      `Why does {topic} matter in day to day work?`,
+      `Why does {section} matter in day to day work?`,
       matters,
       lessons
         .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -429,7 +429,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "exam-point",
-        `Which of these does the exam expect you to know about {topic}?`,
+        `Which of these does the exam expect you to know about {section}?`,
         line,
         learningModules
           .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
