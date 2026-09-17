@@ -12,14 +12,6 @@ import { Plus, X } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { topics } from "@/data/static-content";
 import { cn } from "@/lib/utils";
 
@@ -83,6 +75,7 @@ export function StudyTabs() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const navigate = useNavigate();
   const [tabs, setTabs] = useState<StudyTab[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const openTab = useCallback(
     (path: string) => {
@@ -146,32 +139,49 @@ export function StudyTabs() {
             </span>
           );
         })}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Open a study tab"
-              title="Open a study tab"
-              className="size-7 rounded-md border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
-            >
-              <Plus className="size-4" aria-hidden />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto">
-            <DropdownMenuLabel>Open a tab</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {openPages.length === 0 ? (
-              <DropdownMenuItem disabled>Every study page is already open</DropdownMenuItem>
-            ) : (
-              openPages.map((page) => (
-                <DropdownMenuItem key={page.path} onSelect={() => openTab(page.path)}>
-                  {page.label}
-                </DropdownMenuItem>
-              ))
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Open a study tab"
+            title="Open a study tab"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+            className="size-7 rounded-md border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+          >
+            <Plus className="size-4" aria-hidden />
+          </Button>
+          {menuOpen ? (
+            <>
+              <button
+                type="button"
+                aria-label="Close the menu"
+                className="fixed inset-0 z-40 cursor-default"
+                onClick={() => setMenuOpen(false)}
+              />
+              <div className="absolute left-0 z-50 mt-1 max-h-72 w-56 overflow-y-auto rounded-md border border-border bg-popover p-1 shadow-md">
+                <p className="px-2 py-1.5 text-xs font-medium text-muted-foreground">Open a tab</p>
+                {openPages.length === 0 ? (
+                  <p className="px-2 py-1.5 text-xs text-muted-foreground">Every study page is already open</p>
+                ) : (
+                  openPages.map((page) => (
+                    <button
+                      key={page.path}
+                      type="button"
+                      className="block w-full rounded-sm px-2 py-1.5 text-left text-sm text-foreground hover:bg-accent"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        openTab(page.path);
+                      }}
+                    >
+                      {page.label}
+                    </button>
+                  ))
+                )}
+              </div>
+            </>
+          ) : null}
+        </div>
       </div>
     </div>
   );
