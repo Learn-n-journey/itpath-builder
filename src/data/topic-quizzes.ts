@@ -542,7 +542,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "walkthrough",
-        `Working through ${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}, what does "${tidy(step.label)}" involve?`,
+        `A scenario from this section: ${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}. At the "${tidy(step.label)}" step, what are you actually doing?`,
         shortMeaning(step.detail),
         otherDepths.flatMap((other) =>
           (other.depth?.walkthrough.steps ?? []).map((entry) => shortMeaning(entry.detail)),
