@@ -145,7 +145,7 @@ describe("review, streak and study plan engines", () => {
           if (live.tasks[0]) live = completeTask(live, live.tasks[0].id, NOW);
           if (live.tasks[1]) live = skipTask(live, live.tasks[1].id, NOW);
           const finished = finishPlan(live, NOW);
-          expect(finished.plan.status).toBe("finished");
+          expect(finished.plan.status).toBe("completed");
           CLEAN_TEXT(formatDuration(Math.round(Math.random() * 100000)), "duration");
         }
       }
@@ -235,7 +235,7 @@ describe("career, troubleshooting and portfolio engines", () => {
       const full = scoreTicket(ticket, done);
       PERCENT(full.total, `${ticket.id} complete ticket`);
       expect(full.total, "doing the work scores higher than doing nothing").toBeGreaterThanOrEqual(empty.total);
-      for (const signal of ticketMistakeSignals(ticket, done)) CLEAN_TEXT(signal.detail ?? "", "ticket signal");
+      for (const signal of ticketMistakeSignals(ticket, done, full.scores)) CLEAN_TEXT(signal.detail, "ticket signal");
 
       // Noise only: clicking everything must not be a shortcut to a pass.
       const noisy = { ...blank, performedActionIds: ticket.actions.map((action) => action.id) };
@@ -260,7 +260,7 @@ describe("career, troubleshooting and portfolio engines", () => {
       const full = scoreIncident(incident, done);
       PERCENT(full.total, `${incident.id} complete incident`);
       expect(full.total).toBeGreaterThanOrEqual(empty.total);
-      for (const signal of incidentMistakeSignals(incident, done)) CLEAN_TEXT(signal.detail ?? "", "incident signal");
+      for (const signal of incidentMistakeSignals(incident, done, full.scores)) CLEAN_TEXT(signal.detail, "incident signal");
       void pick(random, [1, 2, 3]);
     }
   });
