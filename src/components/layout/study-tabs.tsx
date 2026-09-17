@@ -9,7 +9,7 @@
  */
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Plus, X } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { topics } from "@/data/static-content";
 import { cn } from "@/lib/utils";
@@ -76,6 +76,12 @@ export function StudyTabs() {
   const navigate = useNavigate();
   const [tabs, setTabs] = useState<StudyTab[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // Restore the tabs the learner had open before a reload. Done in an
+  // effect, not the state initializer, so server and client markup match.
+  useEffect(() => {
+    setTabs(readTabs());
+  }, []);
 
   const openTab = useCallback(
     (path: string) => {
