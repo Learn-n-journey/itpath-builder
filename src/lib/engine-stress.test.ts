@@ -298,14 +298,12 @@ describe("learning engine stress", () => {
       const current = currentJourneyTopic(user);
       if (!current) continue;
       const currentIndex = order.findIndex((topic) => topic.id === current.id);
+      // Material the experience setting already opened is allowed ahead of the line.
+      const openedByExperience = unlockedByExperience(user);
       for (let i = currentIndex + 1; i < order.length; i += 1) {
         const topic = order[i]!;
-        if (isTopicOpen(user, topic.id)) {
-          // Only permitted when everything before it really is mastered.
-          for (let j = 0; j < i; j += 1) {
-            expect(isMastered(user, order[j]!.id), `${order[j]!.id} before ${topic.id}`).toBe(true);
-          }
-        }
+        if (i < openedByExperience) continue;
+        expect(isTopicOpen(user, topic.id), `${topic.id} should be locked`).toBe(false);
       }
     }
   });
