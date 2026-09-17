@@ -183,7 +183,7 @@ function instructions(mode: TutorMode, topicTitle: string, ctx: TutorContext): s
     case "explain_mistake":
       return `Work through my unresolved mistakes above. For each one, explain the underlying concept I got wrong, tell me whether the root cause is a missing prerequisite or a misunderstanding of the topic itself, and give one short exercise that would prove I fixed it. Prioritise prerequisites before advanced material.`;
     case "give_lab":
-      return `Design a hands-on lab for ${topicTitle} I can do on my own machine or a free VM. Include objective, prerequisites, estimated time, environment and setup, numbered instructions, expected result, a verification checklist and reflection questions. Do not assume I have paid infrastructure.`;
+      return `Design a hands-on lab for ${topicTitle} I can do on my own machine or a free VM. Include objective, prerequisites, environment and setup, numbered instructions, expected result, a verification checklist and reflection questions. Do not assume I have paid infrastructure.`;
     case "troubleshoot_me":
       return `Give me a realistic incident involving ${topicTitle}. Describe the symptoms only. Wait for me to request diagnostic actions one at a time and respond with realistic output for each. Do not reveal the cause when I choose a wrong action. When I state a diagnosis and fix, score my diagnostic choices, technical accuracy, reasoning, efficiency, verification and documentation.`;
     case "interview_me":
