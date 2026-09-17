@@ -27,6 +27,7 @@ import {
   SquareTerminal,
   CircuitBoard,
   Bug,
+  MessagesSquare,
   type LucideIcon,
 } from "lucide-react";
 
@@ -194,6 +195,13 @@ export const navItems: NavItem[] = [
     group: "You",
     description: "Save notes, links, videos and files; IT PATH reads them and connects them to your topics.",
     pro: true,
+  },
+  {
+    label: "Community",
+    to: "/community",
+    icon: MessagesSquare,
+    group: "You",
+    description: "One shared chat room with other IT PATH learners.",
   },
   {
     label: "Bookmarks",
