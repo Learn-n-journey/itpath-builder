@@ -4,13 +4,13 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { useAppState } from "@/state/app-state";
 import {
-import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
   evidenceSourceLabels,
   recommendActivities,
   scoreSkills,
   scoreTracks,
   type SkillScore,
 } from "@/lib/skills-engine";
+import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/career-skills")({
   staticData: { sitemap: false },
