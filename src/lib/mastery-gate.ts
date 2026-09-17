@@ -7,11 +7,13 @@
  *   Knowledge check      the section quiz, passed at 80 or better
  *   Recall               answering from memory with nothing in front of you
  *   Application          choosing the right move in a described situation
- *   Practical ability    doing the work yourself at a machine or terminal
  *   Troubleshooting      finding the cause of a fault
  *   Teach back           explaining it clearly in your own words
  *
  * Anything a section does not contain is simply not asked for.
+ *
+ * Hands-on lab work is extra practice, never a condition of moving on, so
+ * nobody is held back by work they cannot reach.
  *
  * Once all of those are proven the next section opens and a delayed check is
  * scheduled for the following day. If that check is not passed, the next
@@ -33,8 +35,10 @@ export interface Competency {
   label: string;
   /** What proving it looks like, in plain words. */
   requirement: string;
-  /** False when the section contains no work of this kind. */
+  /** False when the section contains no work of this kind, or when it is extra practice. */
   required: boolean;
+  /** True for work that is offered but never stands between sections. */
+  optional: boolean;
   met: boolean;
   /** Graded items of this kind in the section. */
   available: number;
@@ -85,8 +89,8 @@ const LABELS: Record<CompetencyKey, { label: string; requirement: string }> = {
     requirement: "Pick the right move in a described situation.",
   },
   practicalAbility: {
-    label: "Practical task",
-    requirement: "Do the work yourself in a lab or at the terminal.",
+    label: "Practical task (extra)",
+    requirement: "Hands-on practice in a lab or at the terminal. Good for you, never needed to move on.",
   },
   troubleshooting: {
     label: "Troubleshooting",
@@ -127,6 +131,7 @@ function requiredCount(key: CompetencyKey, available: number): number {
 function buildCompetency(
   key: CompetencyKey,
   items: EvidenceItem[],
+  optional = false,
 ): Competency {
   const { label, requirement } = LABELS[key];
   const available = items.length;
@@ -141,7 +146,8 @@ function buildCompetency(
 
   let detail: string;
   if (available === 0) detail = "Not in this section.";
-  else if (met) detail = `Proven, ${passed} of ${available} passed.`;
+  else if (met) detail = `Done, ${passed} of ${available} passed.`;
+  else if (optional) detail = "Open whenever you want the hands-on practice.";
   else if (attempted.length === 0) detail = `Nothing recorded yet, ${need} to pass.`;
   else detail = `${passed} of ${need} passed so far.`;
 
@@ -149,7 +155,8 @@ function buildCompetency(
     key,
     label,
     requirement,
-    required: available > 0,
+    required: !optional && available > 0,
+    optional,
     met,
     available,
     passed,
@@ -173,6 +180,7 @@ function knowledgeCompetency(user: UserData, topicId: EntityId): Competency {
     label,
     requirement,
     required: true,
+    optional: false,
     met,
     available: 1,
     passed: met ? 1 : 0,
@@ -211,6 +219,7 @@ function checkCompetency(user: UserData, topicId: EntityId, kind: MasteryCheckKi
     label,
     requirement,
     required: exists,
+    optional: false,
     met,
     available: exists ? 1 : 0,
     passed: met ? 1 : 0,
@@ -235,12 +244,14 @@ const CHECK_KINDS: MasteryCheckKind[] = ["recall", "understanding", "application
 export function masteryGate(user: UserData, topicId: EntityId, now: Date = new Date()): MasteryGate {
   const evidence = topicEvidence(user, topicId);
   const practical = evidence.filter((item) => item.dimension === "practicalAbility");
+  const gating = evidence.filter((item) => item.dimension !== "practicalAbility");
 
   const quiz = knowledgeCompetency(user, topicId);
   const competencies: Competency[] = [
     quiz,
     ...CHECK_KINDS.map((kind) => checkCompetency(user, topicId, kind)),
-    buildCompetency("practicalAbility", practical),
+    // Hands-on labs stay on the list as optional practice, never as a gate.
+    buildCompetency("practicalAbility", practical, true),
   ];
 
   const required = competencies.filter((item) => item.required);
@@ -254,7 +265,6 @@ export function masteryGate(user: UserData, topicId: EntityId, now: Date = new D
   const provenDays = [
     quizPassedAt ? dayOf(new Date(quizPassedAt).getTime()) : undefined,
     ...CHECK_KINDS.map((kind) => checkPassDay(user, topicId, kind)),
-    ...practical.map(firstPassDay),
   ].filter((value): value is number => value !== undefined);
   const proven = coreProven && provenDays.length ? Math.max(...provenDays) : undefined;
   const todayDay = dayOf(now.getTime());
@@ -267,7 +277,7 @@ export function masteryGate(user: UserData, topicId: EntityId, now: Date = new D
         row.score >= PASS &&
         dayOf(new Date(row.createdAt).getTime()) >= proven + 1,
     ) ||
-      evidence.some((item) => item.attempts.some((row) => row.score >= PASS && dayOf(row.at) >= proven + 1)));
+      gating.some((item) => item.attempts.some((row) => row.score >= PASS && dayOf(row.at) >= proven + 1)));
   const due = dueDay !== undefined && todayDay >= dueDay && !laterPass;
 
   const delayed: DelayedCheck = {
