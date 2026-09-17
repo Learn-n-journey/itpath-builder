@@ -68,12 +68,12 @@ const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
 
 /** A short, specific cue drawn from a line so a prompt names what it is asking about. */
 function cueFrom(text: string, terms: readonly string[]): string {
-  const clean = text.trim().replace(/\.$/, "");
+  const clean = text.trim().replace(/\.$/, "").replace(/^(a|an|the)\s+/i, "");
   const match = [...terms]
     .sort((a, b) => b.length - a.length)
     .find((term) => term.length > 2 && clean.toLowerCase().includes(term.toLowerCase()));
   if (match) return match;
-  const words = clean.split(/\s+/).slice(0, 7).join(" ");
+  const words = clean.split(/\s+/).slice(0, 5).join(" ").replace(/[,;:]$/, "");
   return words.length < clean.length ? `${words}...` : words;
 }
 
@@ -161,7 +161,7 @@ export function masteryCheckPool(topicId: string, kind: MasteryCheckKind): Maste
       out.push({
         id: `mc-${slug}-recall-step-${index + 1}`,
         kind,
-        prompt: `From memory, in one or two sentences: in ${lower(topic.title)}, what happens at the stage involving ${cueFrom(step, termList)}, and why does it matter?`,
+        prompt: `From memory, in one or two sentences: in ${topic.title}, what happens at the stage involving ${cueFrom(step, termList)}, and why does it matter?`,
         choices: [],
         concepts: [step],
         explanation: sentence(step),
