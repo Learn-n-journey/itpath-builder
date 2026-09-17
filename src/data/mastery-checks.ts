@@ -66,6 +66,18 @@ const sentence = (text: string) => {
 
 const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
 
+/** A short, specific cue drawn from a line so a prompt names what it is asking about. */
+function cueFrom(text: string, terms: readonly string[]): string {
+  const clean = text.trim().replace(/\.$/, "");
+  const match = [...terms]
+    .sort((a, b) => b.length - a.length)
+    .find((term) => term.length > 2 && clean.toLowerCase().includes(term.toLowerCase()));
+  if (match) return match;
+  const words = clean.split(/\s+/).slice(0, 7).join(" ");
+  return words.length < clean.length ? `${words}...` : words;
+}
+
+
 function hash(value: string): number {
   let out = 2166136261;
   for (let index = 0; index < value.length; index += 1) {
