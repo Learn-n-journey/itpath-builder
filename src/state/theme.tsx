@@ -5,16 +5,16 @@ export type ResolvedTheme = "dark" | "light";
 
 const STORAGE_KEY = "itpath.theme";
 
+/**
+ * IT PATH is dark first. A phone or laptop set to light mode used to flip the
+ * whole app to the pale palette, which reads as a washed out white page, so
+ * light only applies when it is chosen here in settings.
+ */
 function resolveTheme(preference: ThemePreference | null): ResolvedTheme {
-  if (preference === "light") return "light";
-  if (preference === "dark") return "dark";
-  if (typeof window !== "undefined" && window.matchMedia) {
-    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-  }
-  return "dark";
+  return preference === "light" ? "light" : "dark";
 }
 
-export const themeBootScript = `(function(){try{var t=localStorage.getItem("${STORAGE_KEY}");var e=document.documentElement;var m=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches;var r=t==="light"||((!t||t==="system")&&m)?"light":"dark";if(r==="light"){e.classList.remove("dark");e.classList.add("light")}else{e.classList.add("dark");e.classList.remove("light")}}catch(_){}})();`;
+export const themeBootScript = `(function(){try{var t=localStorage.getItem("${STORAGE_KEY}");var e=document.documentElement;if(t==="light"){e.classList.remove("dark");e.classList.add("light")}else{e.classList.add("dark");e.classList.remove("light")}}catch(_){}})();`;
 
 function applyTheme(theme: ResolvedTheme) {
   const el = document.documentElement;
