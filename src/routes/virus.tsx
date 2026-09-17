@@ -6,13 +6,13 @@ export const Route = createFileRoute("/virus")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Virus Run — IT PATH" },
+      { title: "Virus Run | IT PATH" },
       {
         name: "description",
         content:
           "A small arcade game inside your study app: play as the virus, harvest data packets, dodge antivirus daemons and breach endlessly harder systems.",
       },
-      { property: "og:title", content: "Virus Run — IT PATH" },
+      { property: "og:title", content: "Virus Run | IT PATH" },
       {
         property: "og:description",
         content:

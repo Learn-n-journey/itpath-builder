@@ -15,4 +15,5 @@ Done when: typecheck + build clean, features verified in browser.
 
 - [x] 9. NEW REQUEST: "Play as the virus" arcade game, linked from the sidebar. Tiny digital organism moving through a block-based computer world; each stage is a different system; collect resources, avoid antivirus, find vulnerable paths; later stages add stronger security. Simple arcade gameplay, strong IT identity.
 - [x] 10. Game accumulates infinite levels, each harder than the last (endless difficulty ramp).
-- [ ] 11. After the game: confirm the app is production ready as an educational app (system-wide check).
+- [x] 11. After the game: confirm the app is production ready as an educational app (system-wide check).
+- [ ] 12. Explore a social feature (study community): decide scope with the user before building.
