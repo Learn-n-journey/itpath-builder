@@ -212,9 +212,9 @@ function statementItem(
 ): PoolItem | null {
   const answer = tidy(correct);
   if (answer.length < 25 || answer.length > 200) return null;
-  const wrong = pickThree(candidates, answer, index * 3 + 1);
-  if (!wrong) return null;
   const subject = subjectFor(topicId, answer, topicTitle);
+  const wrong = pickThree(candidates, answer, index * 3 + 1, subject);
+  if (!wrong) return null;
   return {
     kind,
     sourceKey: `${kind}:${answer.slice(0, 60).toLowerCase()}`,
