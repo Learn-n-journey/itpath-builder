@@ -10,6 +10,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requirePlan } from "@/lib/entitlement.server";
 import { certifications, topics } from "@/data/static-content";
 import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
 import { allowAiCall } from "@/lib/ai-budget.server";
@@ -250,6 +251,9 @@ export const saveKnowledge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => saveSchema.parse(data))
   .handler(async ({ context, data }): Promise<ItemReply> => {
+    const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "Second Brain");
+    if (denied) return denied;
+
     const apiKey = process.env["LOVABLE_API_KEY"];
 
     let filePath: string | null = null;
@@ -454,6 +458,9 @@ export const searchKnowledge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ query: z.string().min(2).max(500) }).parse(data))
   .handler(async ({ context, data }): Promise<SearchReply> => {
+    const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "Second Brain");
+    if (denied) return denied;
+
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI service is not configured." };
 

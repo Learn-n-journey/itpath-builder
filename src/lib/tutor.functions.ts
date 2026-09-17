@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requirePlan } from "@/lib/entitlement.server";
 import { reviewTutorAnswer } from "@/lib/ai-self-check.server";
 import { compressContext } from "@/lib/ai/compress.server";
 import { shouldSelfCheck } from "@/lib/ai/router.server";
@@ -22,6 +23,9 @@ export const askTutor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
   .handler(async ({ data, context }): Promise<TutorReply> => {
+    const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "The AI Tutor");
+    if (denied) return denied;
+
     const question = [...data.messages].reverse().find((m) => m.role === "user")?.content ?? "";
 
     // Only the part of the learner's saved material that relates to the
