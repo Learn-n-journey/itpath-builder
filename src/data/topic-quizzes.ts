@@ -151,11 +151,13 @@ function pickThree(
     // Anything this close to the answer is the same claim in other words.
     .filter((entry) => entry.near <= 0.5);
 
-  // Closest in subject matter first, then trimmed to options of a similar length.
-  const pool = scored
-    .sort((a, b) => b.near - a.near)
-    .slice(0, 24)
-    .map((entry) => entry.text)
+  // Closest in subject matter first, then trimmed to options of a similar length
+  // so the answer never stands out simply by being longer or shorter.
+  const ranked = scored.sort((a, b) => b.near - a.near).slice(0, 24).map((entry) => entry.text);
+  const similarLength = ranked.filter(
+    (item) => item.length >= correct.length * 0.5 && item.length <= correct.length * 2,
+  );
+  const pool = (similarLength.length >= 3 ? similarLength : ranked)
     .sort((a, b) => Math.abs(a.length - correct.length) - Math.abs(b.length - correct.length))
     .slice(0, 10);
   if (pool.length < 3) return null;
