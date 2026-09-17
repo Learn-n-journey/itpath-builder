@@ -99,20 +99,78 @@ function otherMisconceptions(topicId: string): string[] {
   return [...new Set(out)].filter((line) => line.length >= 25 && line.length <= 200);
 }
 
-/** Three wrong options of a similar length to the answer, chosen without randomness. */
-function pickThree(candidates: string[], correct: string, offset: number): string[] | null {
-  const pool = candidates
+const STOP_WORDS = new Set([
+  "that", "this", "with", "from", "when", "what", "which", "your", "into", "than", "then", "they",
+  "them", "have", "will", "been", "each", "more", "most", "some", "such", "only", "also", "over",
+  "does", "make", "makes", "used", "using", "there", "these", "those", "their", "about", "after",
+  "before", "other", "would", "could", "should", "while", "where", "every", "still", "being",
+]);
+
+/** Content words of a line, used to judge how close two options are. */
+function contentWords(text: string): Set<string> {
+  return new Set(
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, " ")
+      .split(/\s+/)
+      .filter((word) => word.length > 3 && !STOP_WORDS.has(word)),
+  );
+}
+
+/** How much two lines share, scaled against the shorter one. */
+function overlap(a: Set<string>, b: Set<string>): number {
+  if (a.size === 0 || b.size === 0) return 0;
+  let shared = 0;
+  for (const word of a) if (b.has(word)) shared += 1;
+  return shared / Math.min(a.size, b.size);
+}
+
+/**
+ * Three wrong options, chosen without randomness.
+ *
+ * A wrong option has to be in the same territory as the answer so the question
+ * is a real choice, and it has to be clearly not the answer: anything that
+ * restates the answer, or that talks about the very thing the question names,
+ * is dropped so exactly one option can be correct.
+ */
+function pickThree(
+  candidates: string[],
+  correct: string,
+  offset: number,
+  subject?: string,
+  maxNear = 0.5,
+): string[] | null {
+  const correctWords = contentWords(correct);
+  const subjectKey = subject?.toLowerCase().replace(/^the\s+/, "").trim() ?? "";
+  const scored = candidates
+    .map((item) => tidy(item))
     .filter((item) => item.toLowerCase() !== correct.toLowerCase())
     .filter((item, index, all) => all.indexOf(item) === index)
+    // An option that names the thing the question asks about could be true too.
+    .filter((item) => !(subjectKey.length >= 3 && item.toLowerCase().includes(subjectKey)))
+    .map((item) => ({ text: item, near: overlap(contentWords(item), correctWords) }))
+    // Anything this close to the answer is the same claim in other words.
+    .filter((entry) => entry.near <= maxNear);
+
+  // Closest in subject matter first, then trimmed to options of a similar length
+  // so the answer never stands out simply by being longer or shorter.
+  const ranked = scored.sort((a, b) => b.near - a.near).slice(0, 24).map((entry) => entry.text);
+  const similarLength = ranked.filter(
+    (item) => item.length >= correct.length * 0.5 && item.length <= correct.length * 2,
+  );
+  const pool = (similarLength.length >= 3 ? similarLength : ranked)
     .sort((a, b) => Math.abs(a.length - correct.length) - Math.abs(b.length - correct.length))
-    .slice(0, 12);
+    .slice(0, 10);
   if (pool.length < 3) return null;
   const picked: string[] = [];
   let index = offset;
   let guard = 0;
   while (picked.length < 3 && guard < pool.length * 3) {
     const candidate = pool[index % pool.length] as string;
-    if (!picked.includes(candidate)) picked.push(candidate);
+    const clash = picked.some(
+      (item) => overlap(contentWords(item), contentWords(candidate)) > 0.7,
+    );
+    if (!picked.includes(candidate) && !clash) picked.push(candidate);
     index += 1;
     guard += 1;
   }
@@ -157,9 +215,26 @@ function statementItem(
 ): PoolItem | null {
   const answer = tidy(correct);
   if (answer.length < 25 || answer.length > 200) return null;
-  const wrong = pickThree(candidates, answer, index * 3 + 1);
-  if (!wrong) return null;
   const subject = subjectFor(topicId, answer, topicTitle);
+  // Some styles ask what is true in general, so a wrong option that shades into
+  // the answer could be defended as correct. Those are held further apart.
+  const openEnded = new Set([
+    "where-used",
+    "practice-point",
+    "common-problem",
+    "exam-point",
+    "objective",
+    "key-idea",
+    "exam-trap",
+  ]);
+  const wrong = pickThree(
+    candidates,
+    answer,
+    index * 3 + 1,
+    subject,
+    openEnded.has(kind) ? 0.25 : 0.5,
+  );
+  if (!wrong) return null;
   return {
     kind,
     sourceKey: `${kind}:${answer.slice(0, 60).toLowerCase()}`,
@@ -194,12 +269,16 @@ function buildPool(topicId: string): PoolItem[] {
     }
   }
 
+  // Terms taught in this same section make the closest wrong options.
+  const ownTerms = new Set((lesson?.keyTerms ?? []).map((entry) => entry.term.toLowerCase()));
+
   lesson?.keyTerms.forEach((term, index) => {
     const correct = shortMeaning(term.meaning);
     const meaningOptions = pickThree(
       meaningPool.filter((entry) => entry.term !== term.term).map((entry) => entry.meaning),
       correct,
       index * 2 + 1,
+      term.term,
     );
     if (meaningOptions) {
       items.push({
@@ -218,10 +297,15 @@ function buildPool(topicId: string): PoolItem[] {
       });
     }
 
+    const description = shortMeaning(term.meaning);
+    // A term named in the description could fairly be the answer, so leave it out.
+    const nameCandidates = meaningPool
+      .map((entry) => entry.term)
+      .filter((entry) => entry.toLowerCase() !== term.term.toLowerCase())
+      .filter((entry) => !description.toLowerCase().includes(entry.toLowerCase()));
+    const sameSection = nameCandidates.filter((entry) => ownTerms.has(entry.toLowerCase()));
     const nameOptions = pickThree(
-      meaningPool
-        .filter((entry) => entry.term.toLowerCase() !== term.term.toLowerCase())
-        .map((entry) => entry.term),
+      sameSection.length >= 3 ? sameSection : nameCandidates,
       term.term,
       index * 2 + 3,
     );
@@ -232,7 +316,7 @@ function buildPool(topicId: string): PoolItem[] {
         question: question({
           id: `section-${topicId}-name-${index}`,
           topicId,
-          prompt: `Which term is being described? ${shortMeaning(term.meaning)}`,
+          prompt: `Which term is being described? ${description}`,
           choices: withAnswerPlaced(term.term, nameOptions, index + 2),
           correctAnswer: [term.term],
           acceptableAnswers: [term.term],
@@ -540,15 +624,25 @@ function buildPool(topicId: string): PoolItem[] {
       if (item) items.push(item);
     });
     depth.walkthrough.steps.forEach((step, index) => {
+      // The other steps of the same walkthrough are the fairest wrong options:
+      // they belong to the same scenario, but only one fits the step named.
+      const sameScenario = depth.walkthrough.steps
+        .filter((entry) => entry.label !== step.label)
+        .map((entry) => shortMeaning(entry.detail));
       const item = statementItem(
         topicId,
         title,
         "walkthrough",
         `A scenario from this section: ${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}. At the "${tidy(step.label)}" step, what are you actually doing?`,
         shortMeaning(step.detail),
-        otherDepths.flatMap((other) =>
-          (other.depth?.walkthrough.steps ?? []).map((entry) => shortMeaning(entry.detail)),
-        ),
+        sameScenario.length >= 3
+          ? sameScenario
+          : [
+              ...sameScenario,
+              ...otherDepths.flatMap((other) =>
+                (other.depth?.walkthrough.steps ?? []).map((entry) => shortMeaning(entry.detail)),
+              ),
+            ],
         index,
         tidy(step.detail),
         "procedure",

@@ -21,6 +21,31 @@ const BROKEN_PROMPT_PATTERNS: RegExp[] = [
 
 const norm = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
 
+const STOP_WORDS = new Set([
+  "that", "this", "with", "from", "when", "what", "which", "your", "into", "than", "then", "they",
+  "them", "have", "will", "been", "each", "more", "most", "some", "such", "only", "also", "over",
+  "does", "make", "makes", "used", "using", "there", "these", "those", "their", "about", "after",
+  "before", "other", "would", "could", "should", "while", "where", "every", "still", "being",
+]);
+
+function contentWords(text: string): Set<string> {
+  return new Set(
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, " ")
+      .split(/\s+/)
+      .filter((word) => word.length > 3 && !STOP_WORDS.has(word)),
+  );
+}
+
+/** How much two options say the same thing, scaled against the shorter one. */
+function overlap(a: Set<string>, b: Set<string>): number {
+  if (a.size < 3 || b.size < 3) return 0;
+  let shared = 0;
+  for (const word of a) if (b.has(word)) shared += 1;
+  return shared / Math.min(a.size, b.size);
+}
+
 /** True when the question is a well formed multiple choice item we can show. */
 export function isUsableQuestion(question: Question): boolean {
   const prompt = question.prompt?.trim() ?? "";
@@ -40,6 +65,13 @@ export function isUsableQuestion(question: Question): boolean {
   if (!answers.every((answer) => choices.some((choice) => norm(choice) === norm(answer)))) return false;
   if (question.type === "multiple_response" ? answers.length < 2 : answers.length !== 1) return false;
   if (answers.length >= choices.length) return false;
+
+  // Exactly one option can be right, so no wrong option may restate the answer.
+  const answerSets = answers.map(contentWords);
+  const wrong = choices.filter((choice) => !answers.some((answer) => norm(answer) === norm(choice)));
+  if (wrong.some((choice) => answerSets.some((set) => overlap(contentWords(choice), set) > 0.6))) {
+    return false;
+  }
 
   return true;
 }
