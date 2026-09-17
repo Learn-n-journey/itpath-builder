@@ -54,11 +54,12 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
   const { user } = useAppState();
   const gate = useMemo(() => masteryGate(user, topicId), [user, topicId]);
   const required = gate.competencies.filter((item) => item.required);
+  const extras = gate.competencies.filter((item) => item.optional && item.available > 0);
 
   return (
     <Panel
       title="What opens the next section"
-      description="Every part below has to stand on its own. An overall percentage is not enough, and anything this section does not contain is not asked for."
+      description="Every part below has to stand on its own. An overall percentage is not enough, anything this section does not contain is not asked for, and hands-on labs are extra practice rather than a condition of moving on."
     >
       <ul className="space-y-3">
         {required.map((item) => (
@@ -107,6 +108,31 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
           </span>
         </li>
       </ul>
+      {extras.length > 0 ? (
+        <div className="mt-5 border-t border-border pt-4">
+          <p className="text-xs font-medium text-muted-foreground">Extra practice, not needed to move on</p>
+          <ul className="mt-2 space-y-3">
+            {extras.map((item) => (
+              <li key={item.key} className="text-sm">
+                <CompetencyLink topicId={topicId} competencyKey={item.key}>
+                  <span
+                    className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground"
+                    aria-hidden
+                  >
+                    {item.met ? <Check className="size-3" /> : <Circle className="size-2 fill-current" />}
+                  </span>
+                  <span>
+                    <span className="font-medium text-foreground">{item.label}</span>
+                    <span className="block text-muted-foreground">
+                      {item.met ? item.detail : item.requirement}
+                    </span>
+                  </span>
+                </CompetencyLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       <p className="mt-4 text-xs text-muted-foreground">{gate.summary}</p>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button asChild size="sm" variant="secondary">
@@ -116,7 +142,7 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
         </Button>
         <Button asChild size="sm" variant="ghost">
           <Link to="/labs" search={{ lab: identificationLabId(topicId) }}>
-            Identification lab
+            Identification lab (extra)
           </Link>
         </Button>
       </div>
