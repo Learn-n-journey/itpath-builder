@@ -485,7 +485,7 @@ export function checkInMessage(user: UserData, now: Date = new Date()): GaylMess
   ).length;
   const lastLabel = new Date(last).toLocaleDateString(undefined, { month: "short", day: "numeric" });
   const text = due > 0
-    ? `Hey, welcome back. It's been ${days} days since your last session on ${lastLabel}. Nothing is on fire, and ${due} review${due === 1 ? " is" : "s are"} waiting whenever you're ready.`
+    ? `Hey, welcome back, good to see you. It's been ${days} days since your last session on ${lastLabel}. Nothing urgent is waiting, and ${due} review${due === 1 ? " is" : "s are"} there whenever you're ready.`
     : `Hey, welcome back, good to see you. It's been ${days} days since your last session on ${lastLabel}. No pressure at all, just pick up where you left off and I'll keep track of the rest.`;
 
   return {
