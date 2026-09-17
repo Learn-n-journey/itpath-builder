@@ -98,9 +98,9 @@ describe("review, streak and study plan engines", () => {
         const user = buildRichUser(seed * 104729 + shape.volume, shape);
 
         const buckets = bucketReviews(user.reviews, NOW);
-        const bucketed = buckets.overdue.length + buckets.today.length + buckets.upcoming.length;
+        const bucketed = buckets.overdue.length + buckets.dueToday.length + buckets.upcoming.length;
         expect(bucketed).toBeLessThanOrEqual(user.reviews.length);
-        for (const review of [...buckets.overdue, ...buckets.today, ...buckets.upcoming]) {
+        for (const review of [...buckets.overdue, ...buckets.dueToday, ...buckets.upcoming]) {
           CLEAN_TEXT(describeSchedule(review), "review schedule");
         }
         expect(recentlyFailed(user).length).toBeLessThanOrEqual(8);
@@ -181,7 +181,7 @@ describe("readiness, skills and certification engines", () => {
         for (const track of scoreTracks(skills)) PERCENT(track.score, `${track.track} track`);
         for (const activity of recommendActivities(user, skills)) {
           CLEAN_TEXT(activity.reason, "recommendation reason");
-          expect(activity.to.startsWith("/")).toBe(true);
+          expect(activity.href.startsWith("/")).toBe(true);
         }
 
         const path = adaptivePath(user);
@@ -200,9 +200,16 @@ describe("readiness, skills and certification engines", () => {
       const stages = certificationStages(certification.id);
       expect(stages.reduce((sum, stage) => sum + stage.topics.length, 0)).toBeLessThanOrEqual(scope.length);
       const pool = certificationQuestionPool(certification.id);
-      const exam = generateExam(certification.id, 50);
-      expect(exam.length, `${certification.id} exam size`).toBeLessThanOrEqual(Math.max(pool.length, 0));
-      expect(new Set(exam.map((question) => question.id)).size).toBe(exam.length);
+      const exam = generateExam(certification, 11, 50);
+      if (pool.length === 0) {
+        expect(exam, `${certification.id} has no pool`).toBeNull();
+        continue;
+      }
+      expect(exam, `${certification.id} exam`).not.toBeNull();
+      const drawn = exam!.questions;
+      expect(drawn.length, `${certification.id} exam size`).toBeLessThanOrEqual(Math.min(50, pool.length));
+      expect(new Set(drawn.map((question) => question.id)).size).toBe(drawn.length);
+      expect(exam!.quiz.questionIds.length).toBe(drawn.length);
     }
   });
 });
@@ -220,7 +227,7 @@ describe("career, troubleshooting and portfolio engines", () => {
       const done = {
         ...blank,
         performedActionIds: ticket.keyActionIds,
-        diagnosisGuessIds: ticket.causes.filter((cause) => cause.correct).map((cause) => cause.id),
+        diagnosisGuessIds: ticket.diagnoses.filter((option) => option.correct).map((option) => option.id),
         resolutionIds: ticket.resolutions.filter((item) => item.correct).map((item) => item.id),
         verificationIds: ticket.verifications.filter((item) => item.correct).map((item) => item.id),
         reasoning: "I checked the evidence and worked from the symptom back to the cause.",
@@ -316,14 +323,17 @@ describe("quiz, grading and question engines", () => {
     const perfect = scoreQuiz(sample, allRight);
     const blank = scoreQuiz(sample, {});
     const wrong = scoreQuiz(sample, allWrong);
-    expect(perfect.score).toBe(100);
-    expect(blank.score).toBe(0);
-    expect(wrong.score).toBe(0);
-    PERCENT(perfect.score, "perfect");
-    expect(perfect.correct).toBe(sample.length);
+    expect(perfect.correct, "every answer right").toBe(sample.length);
+    expect(perfect.incorrect).toBe(0);
+    expect(blank.correct, "answering nothing scores nothing").toBe(0);
+    expect(wrong.correct, "every answer wrong scores nothing").toBe(0);
+    expect(wrong.incorrect).toBe(sample.length);
+    PERCENT(Math.round((perfect.correct / sample.length) * 100), "perfect percent");
 
-    const diagnostic = buildQuizDiagnostic(createDefaultUserData(), sample, perfect.results);
-    CLEAN_TEXT(diagnostic.summary ?? "", "diagnostic summary");
+    const diagnostic = buildQuizDiagnostic(createDefaultUserData(), sample, wrong.results);
+    CLEAN_TEXT(diagnostic.explanation, "diagnostic explanation");
+    CLEAN_TEXT(diagnostic.guidance, "diagnostic guidance");
+    expect(diagnostic.missed.length).toBe(sample.length);
   });
 
   it("marks written answers by meaning and never fails an empty one silently", () => {
