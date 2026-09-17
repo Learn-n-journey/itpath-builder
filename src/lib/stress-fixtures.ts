@@ -200,9 +200,14 @@ export function buildRichUser(seed: number, shape: Shape): UserData {
       id: `review-attempt-${seed}-${index}`,
       reviewId: `review-${seed}-${index}`,
       topicId,
-      outcome: pick(random, ["remembered", "shaky", "forgotten"]),
+      outcome: pick(random, ["pass", "fail"] as const),
+      intervalBefore: 3,
+      intervalAfter: 7,
+      dueBefore: at,
+      dueAfter: dateNear(random, 30),
+      wasOverdue: random() < 0.5,
       createdAt: at,
-    } as UserData["reviewAttempts"][number]);
+    });
 
     if (random() < 0.3) {
       user.notes.push({

@@ -108,7 +108,7 @@ describe("review, streak and study plan engines", () => {
         // Grading must always move the schedule forward in time.
         const random = rng(seed);
         for (const review of user.reviews.slice(0, 10)) {
-          for (const outcome of ["remembered", "shaky", "forgotten"] as const) {
+          for (const outcome of ["pass", "fail"] as const) {
             const graded = gradeReview(review, outcome, NOW);
             expect(new Date(graded.review.dueAt).getTime()).toBeGreaterThan(NOW.getTime() - 86400000);
             FINITE(graded.review.interval, "interval");
@@ -175,8 +175,8 @@ describe("readiness, skills and certification engines", () => {
         for (const item of evidence) PERCENT(item.score, "evidence score");
         const skills = scoreSkills(user);
         for (const skill of skills) {
-          PERCENT(skill.score, `${skill.id} skill`);
-          if (skill.evidenceCount === 0) expect(skill.score, `${skill.id} unproven`).toBe(0);
+          PERCENT(skill.score, `${skill.skillId} skill`);
+          if (skill.evidenceCount === 0) expect(skill.score, `${skill.skillId} unproven`).toBe(0);
         }
         for (const track of scoreTracks(skills)) PERCENT(track.score, `${track.track} track`);
         for (const activity of recommendActivities(user, skills)) {
@@ -252,7 +252,9 @@ describe("career, troubleshooting and portfolio engines", () => {
         ...blank,
         performedActionIds: incident.keyActionIds,
         causeGuessIds: incident.causes.filter((cause) => cause.correct).map((cause) => cause.id),
-        selectedFixId: incident.fixes.find((fix) => fix.correct)?.id,
+        ...(incident.fixes.find((fix) => fix.correct)?.id
+          ? { selectedFixId: incident.fixes.find((fix) => fix.correct)!.id }
+          : {}),
         verificationIds: incident.verifications.filter((item) => item.correct).map((item) => item.id),
         documentation: "Cause, fix and verification written up in full.",
         reasoning: "Narrowed it down from the evidence.",
@@ -270,7 +272,7 @@ describe("career, troubleshooting and portfolio engines", () => {
       for (let seed = 1; seed <= SEEDS; seed += 1) {
         const user = buildRichUser(seed * 3571 + shape.volume, shape);
 
-        const projects = availableLabEvidence(user).map((attempt) => projectFromLabAttempt(attempt));
+        const projects = availableLabEvidence(user).map((entry) => projectFromLabAttempt(entry.lab, entry.attempt));
         const markdown = portfolioToMarkdown(projects);
         CLEAN_TEXT(markdown, "portfolio markdown");
 
@@ -383,7 +385,7 @@ describe("everyday helpers", () => {
 
   it("creates reviews that are always schedulable", () => {
     for (let index = 0; index < 10; index += 1) {
-      const review = createReview({ topicId: topics[index]?.id ?? "topic-x", source: "quiz" } as Parameters<typeof createReview>[0]);
+      const review = createReview({ topicId: topics[index]?.id ?? "topic-x", now: NOW });
       expect(Number.isNaN(new Date(review.dueAt).getTime())).toBe(false);
       CLEAN_TEXT(describeSchedule(review), "new review schedule");
     }
