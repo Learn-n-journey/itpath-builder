@@ -47,6 +47,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StudyPlanRouteImport } from './routes/study-plan'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
+import { Route as VirusRouteImport } from './routes/virus'
 import { Route as WeakAreasRouteImport } from './routes/weak-areas'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
@@ -250,6 +251,11 @@ const TroubleshootRoute = TroubleshootRouteImport.update({
   path: '/troubleshoot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VirusRoute = VirusRouteImport.update({
+  id: '/virus',
+  path: '/virus',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WeakAreasRoute = WeakAreasRouteImport.update({
   id: '/weak-areas',
   path: '/weak-areas',
@@ -351,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/study-plan': typeof StudyPlanRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/virus': typeof VirusRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
@@ -403,6 +410,7 @@ export interface FileRoutesByTo {
   '/study-plan': typeof StudyPlanRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/virus': typeof VirusRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
@@ -456,6 +464,7 @@ export interface FileRoutesById {
   '/study-plan': typeof StudyPlanRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/virus': typeof VirusRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
@@ -510,6 +519,7 @@ export interface FileRouteTypes {
     | '/study-plan'
     | '/terms'
     | '/troubleshoot'
+    | '/virus'
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
@@ -562,6 +572,7 @@ export interface FileRouteTypes {
     | '/study-plan'
     | '/terms'
     | '/troubleshoot'
+    | '/virus'
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
@@ -614,6 +625,7 @@ export interface FileRouteTypes {
     | '/study-plan'
     | '/terms'
     | '/troubleshoot'
+    | '/virus'
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
@@ -667,6 +679,7 @@ export interface RootRouteChildren {
   StudyPlanRoute: typeof StudyPlanRoute
   TermsRoute: typeof TermsRoute
   TroubleshootRoute: typeof TroubleshootRoute
+  VirusRoute: typeof VirusRoute
   WeakAreasRoute: typeof WeakAreasRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
@@ -949,6 +962,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TroubleshootRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/virus': {
+      id: '/virus'
+      path: '/virus'
+      fullPath: '/virus'
+      preLoaderRoute: typeof VirusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/weak-areas': {
       id: '/weak-areas'
       path: '/weak-areas'
@@ -1075,6 +1095,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudyPlanRoute: StudyPlanRoute,
   TermsRoute: TermsRoute,
   TroubleshootRoute: TroubleshootRoute,
+  VirusRoute: VirusRoute,
   WeakAreasRoute: WeakAreasRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
   CheckoutSuccessRoute: CheckoutSuccessRoute,
