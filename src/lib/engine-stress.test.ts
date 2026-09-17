@@ -88,6 +88,7 @@ function buildUser(seed: number, shape: Shape): UserData {
       recommendedTopicIds: [topicId],
       createdAt: at,
       submittedAt: at,
+      updatedAt: at,
     } as UserData["quizAttempts"][number]);
 
     user.recallResponses.push({
