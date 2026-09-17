@@ -1,22 +1,31 @@
 /**
  * Study tabs.
  *
- * Opening another study page while you are mid lesson keeps the lesson in a
- * tab, so you can jump to Second Brain or the AI Tutor and come straight back
- * to where you were. Only study pages open as tabs, so the tab bar never turns
+ * Tabs never open on their own. A "+" button at the end of the tab strip
+ * opens a menu of study pages, and picking one opens it as a tab so you can
+ * jump to Second Brain or the AI Tutor and come straight back to where you
+ * were. Only study pages can be opened as tabs, so the tab bar never turns
  * into a copy of the whole menu.
  */
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { X } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Plus, X } from "lucide-react";
+import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { topics } from "@/data/static-content";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "itpath.tabs.v1";
 
-/** Pages worth keeping open side by side while studying. */
+/** Pages that can be opened as tabs from the "+" button. */
 const STUDY_PAGES: { path: string; label: string }[] = [
   { path: "/learn", label: "Learn" },
   { path: "/knowledge", label: "Second Brain" },
@@ -38,7 +47,7 @@ export interface StudyTab {
   label: string;
 }
 
-/** A label for any page that is allowed to open as a tab, or null. */
+/** A label for any page that is allowed to sit in a tab, or null. */
 function studyLabel(pathname: string): string | null {
   const known = STUDY_PAGES.find((page) => page.path === pathname);
   if (known) return known.label;
@@ -62,39 +71,39 @@ function readTabs(): StudyTab[] {
   }
 }
 
+function writeTabs(tabs: StudyTab[]) {
+  try {
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(tabs));
+  } catch {
+    /* storage is optional */
+  }
+}
+
 export function StudyTabs() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const navigate = useNavigate();
   const [tabs, setTabs] = useState<StudyTab[]>([]);
 
-  useEffect(() => {
-    setTabs(readTabs());
-  }, []);
-
-  useEffect(() => {
-    const label = studyLabel(pathname);
-    if (!label) return;
-    setTabs((current) => {
-      if (current.some((tab) => tab.path === pathname)) return current;
-      const next = [...current, { path: pathname, label }].slice(-8);
-      try {
-        window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        /* storage is optional */
-      }
-      return next;
-    });
-  }, [pathname]);
+  const openTab = useCallback(
+    (path: string) => {
+      const label = studyLabel(path);
+      if (!label) return;
+      setTabs((current) => {
+        if (current.some((tab) => tab.path === path)) return current;
+        const next = [...current, { path, label }].slice(-8);
+        writeTabs(next);
+        return next;
+      });
+      void navigate({ to: path });
+    },
+    [navigate],
+  );
 
   const close = useCallback(
     (path: string) => {
       setTabs((current) => {
         const next = current.filter((tab) => tab.path !== path);
-        try {
-          window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        } catch {
-          /* storage is optional */
-        }
+        writeTabs(next);
         if (path === pathname) {
           const fallback = next[next.length - 1]?.path ?? "/";
           void navigate({ to: fallback });
@@ -105,9 +114,7 @@ export function StudyTabs() {
     [navigate, pathname],
   );
 
-  const showTabs = tabs.length > 1;
-
-  if (!showTabs) return null;
+  const openPages = STUDY_PAGES.filter((page) => !tabs.some((tab) => tab.path === page.path));
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -139,6 +146,32 @@ export function StudyTabs() {
             </span>
           );
         })}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Open a study tab"
+              title="Open a study tab"
+              className="size-7 rounded-md border border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+            >
+              <Plus className="size-4" aria-hidden />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto">
+            <DropdownMenuLabel>Open a tab</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {openPages.length === 0 ? (
+              <DropdownMenuItem disabled>Every study page is already open</DropdownMenuItem>
+            ) : (
+              openPages.map((page) => (
+                <DropdownMenuItem key={page.path} onSelect={() => openTab(page.path)}>
+                  {page.label}
+                </DropdownMenuItem>
+              ))
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
