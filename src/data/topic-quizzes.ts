@@ -183,11 +183,13 @@ function withAnswerPlaced(correct: string, wrong: string[], index: number): stri
   // The slot is spread by the wording itself, so the right answer does not
   // settle into a favourite position across a section.
   const seedText = `${correct}|${wrong.join("|")}|${index}`;
-  let seed = 0;
+  let seed = 2166136261;
   for (let i = 0; i < seedText.length; i += 1) {
-    seed = (seed * 31 + seedText.charCodeAt(i)) % 100003;
+    seed ^= seedText.charCodeAt(i);
+    seed = Math.imul(seed, 16777619) >>> 0;
   }
-  const slot = seed % (options.length + 1);
+  const slot = (seed >>> 8) % (options.length + 1);
+
   options.splice(slot, 0, correct);
   return options;
 }
