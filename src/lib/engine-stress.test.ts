@@ -247,15 +247,19 @@ describe("learning engine stress", () => {
 
         for (const topic of journeyTopics(user).slice(0, 12)) {
           const gate = masteryGate(user, topic.id, NOW);
-          PERCENT(gate.score, `${topic.id} gate score`);
+          expect(gate.summary.length, `${topic.id} gate summary`).toBeGreaterThan(0);
+          expect(gate.summary.includes("NaN")).toBe(false);
           for (const competency of gate.competencies) {
-            PERCENT(competency.score, `${topic.id}/${competency.kind}`);
+            PERCENT(competency.score, `${topic.id}/${competency.key}`);
+            expect(competency.outstanding).toBeGreaterThanOrEqual(0);
+            expect(competency.passed).toBeLessThanOrEqual(competency.available);
           }
-          // The gate may only open when every present competency is proven.
-          if (gate.mastered) {
+          // The gate may only open when every required competency is proven.
+          if (gate.met) {
             for (const competency of gate.competencies) {
-              if (competency.present) expect(competency.met, `${topic.id} ${competency.kind}`).toBe(true);
+              if (competency.required) expect(competency.met, `${topic.id} ${competency.key}`).toBe(true);
             }
+            expect(gate.delayed.passed, `${topic.id} delayed check`).toBe(true);
           }
 
           const scope = topicScopeProgress(user, topic.id);
