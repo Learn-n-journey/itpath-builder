@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">IT PATH</string>
+    <string name="title_activity_main">IT PATH</string>
+    <string name="package_name">net.itpath.app</string>
+    <string name="custom_url_scheme">net.itpath.app</string>
+</resources>

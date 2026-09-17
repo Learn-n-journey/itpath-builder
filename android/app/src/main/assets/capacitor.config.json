@@ -1,0 +1,39 @@
+{
+	"appId": "net.itpath.app",
+	"appName": "IT PATH",
+	"webDir": "mobile/www",
+	"server": {
+		"url": "https://www.it-path.net",
+		"cleartext": false,
+		"androidScheme": "https",
+		"allowNavigation": [
+			"www.it-path.net",
+			"it-path.net",
+			"*.lovable.app",
+			"*.supabase.co",
+			"*.paddle.com",
+			"*.paddle.io"
+		]
+	},
+	"ios": {
+		"contentInset": "always",
+		"backgroundColor": "#0f1720",
+		"limitsNavigationsToAppBoundDomains": false
+	},
+	"android": {
+		"backgroundColor": "#0f1720",
+		"allowMixedContent": false
+	},
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 1200,
+			"backgroundColor": "#0f1720",
+			"showSpinner": false,
+			"androidScaleType": "CENTER_CROP"
+		},
+		"StatusBar": {
+			"style": "DARK",
+			"backgroundColor": "#0f1720"
+		}
+	}
+}
