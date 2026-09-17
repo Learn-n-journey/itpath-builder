@@ -30,7 +30,7 @@ const STUDY_PAGES: { path: string; label: string }[] = [
   { path: "/weak-areas", label: "Weak Areas" },
   { path: "/daily-challenge", label: "Daily Challenge" },
   { path: "/study-plan", label: "Study Plan" },
-  { path: "/notes", label: "Notes" },
+  { path: "/bookmarks", label: "Saved and notes" },
 ];
 
 export interface StudyTab {
