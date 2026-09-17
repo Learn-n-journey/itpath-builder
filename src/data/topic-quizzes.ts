@@ -126,6 +126,24 @@ function withAnswerPlaced(correct: string, wrong: string[], index: number): stri
   return options;
 }
 
+/**
+ * What the question should actually name. A statement usually turns on one of
+ * the section's key terms, and asking about that term reads like a real
+ * question. Only when nothing matches do we fall back to the section name.
+ */
+function subjectFor(topicId: string, line: string, topicTitle: string): string {
+  const lesson = lessons.find((item) => item.topicId === topicId);
+  const lower = line.toLowerCase();
+  const term = (lesson?.keyTerms ?? [])
+    .map((entry) => entry.term)
+    .filter((entry) => entry.length >= 3)
+    .sort((a, b) => b.length - a.length)
+    .find((entry) => lower.includes(entry.toLowerCase()));
+  if (!term) return topicTitle.toLowerCase();
+  // Acronyms read better with an article: "how the CPU works", not "how CPU works".
+  return /^[A-Z0-9.\- ]+$/.test(term) ? `the ${term}` : term;
+}
+
 function statementItem(
   topicId: string,
   topicTitle: string,
@@ -141,13 +159,14 @@ function statementItem(
   if (answer.length < 25 || answer.length > 200) return null;
   const wrong = pickThree(candidates, answer, index * 3 + 1);
   if (!wrong) return null;
+  const subject = subjectFor(topicId, answer, topicTitle);
   return {
     kind,
     sourceKey: `${kind}:${answer.slice(0, 60).toLowerCase()}`,
     question: question({
       id: `section-${topicId}-${kind}-${index}`,
       topicId,
-      prompt: prompt.replace("{topic}", topicTitle),
+      prompt: prompt.replace("{topic}", subject).replace("{section}", topicTitle),
       choices: withAnswerPlaced(answer, wrong, index + 1),
       correctAnswer: [answer],
       acceptableAnswers: [answer],
@@ -229,7 +248,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "misconception",
-      `Which statement about {topic} is correct?`,
+      `Which of these statements about {topic} is correct?`,
       line,
       otherMisconceptions(topicId),
       index,
@@ -273,7 +292,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "how-it-fails",
-        `Which of these is a way {topic} typically goes off track?`,
+        `Which of these describes a way {topic} commonly goes wrong?`,
         line,
         otherStatements(topicId, "howItFails"),
         index,
@@ -288,7 +307,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "practice-point",
-        `Which of these reflects sound practice with {topic}?`,
+        `Which of these is sound practice when working with {topic}?`,
         line,
         otherStatements(topicId, "practicalKnowledge"),
         index,
@@ -361,7 +380,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "real-example",
-        `Which of these is a real example of {topic} in use?`,
+        `Which of these is a real example of {section} in use?`,
         line,
         lessons
           .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -378,7 +397,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "definition",
-      `Which of these best describes {topic}?`,
+      `Which of these best describes {section}?`,
       definition,
       lessons
         .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -393,7 +412,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "why-it-matters",
-      `Why does {topic} matter in day to day work?`,
+      `Why does {section} matter in day to day work?`,
       matters,
       lessons
         .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -412,7 +431,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "exam-point",
-        `Which of these does the exam expect you to know about {topic}?`,
+        `Which of these does the exam expect you to know about {section}?`,
         line,
         learningModules
           .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -429,7 +448,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "objective",
-      `Which of these should you be able to do after working through {topic}?`,
+      `Which of these should you be able to do after working through {section}?`,
       line,
       topics
         .filter((other) => other.id !== topicId && other.certificationId === cert)
@@ -453,7 +472,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "key-idea",
-        `Which of these is one of the ideas worth keeping from {topic}?`,
+        `Which of these is one of the ideas worth keeping from {section}?`,
         shortMeaning(line),
         otherDepths.flatMap((other) => (other.depth?.keyIdeas ?? []).map((row) => shortMeaning(row))),
         index,
@@ -466,7 +485,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "exam-trap",
-        `Which of these is a way the exam tries to catch you out on {topic}?`,
+        `Which of these is a way the exam tries to catch you out on {section}?`,
         shortMeaning(line),
         otherDepths.flatMap((other) => (other.depth?.examTraps ?? []).map((row) => shortMeaning(row))),
         index,
@@ -494,7 +513,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "reference",
-        `In {topic}, which of these describes ${tidy(row.term)}?`,
+        `In {section}, which of these describes ${tidy(row.term)}?`,
         shortMeaning(row.detail),
         otherDepths.flatMap((other) =>
           (other.depth?.reference.rows ?? []).map((entry) => shortMeaning(entry.detail)),
@@ -525,7 +544,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "walkthrough",
-        `Working through ${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}, what does "${tidy(step.label)}" involve?`,
+        `A scenario from this section: ${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}. At the "${tidy(step.label)}" step, what are you actually doing?`,
         shortMeaning(step.detail),
         otherDepths.flatMap((other) =>
           (other.depth?.walkthrough.steps ?? []).map((entry) => shortMeaning(entry.detail)),
