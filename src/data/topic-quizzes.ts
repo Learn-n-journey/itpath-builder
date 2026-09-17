@@ -604,15 +604,25 @@ function buildPool(topicId: string): PoolItem[] {
       if (item) items.push(item);
     });
     depth.walkthrough.steps.forEach((step, index) => {
+      // The other steps of the same walkthrough are the fairest wrong options:
+      // they belong to the same scenario, but only one fits the step named.
+      const sameScenario = depth.walkthrough.steps
+        .filter((entry) => entry.label !== step.label)
+        .map((entry) => shortMeaning(entry.detail));
       const item = statementItem(
         topicId,
         title,
         "walkthrough",
         `A scenario from this section: ${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}. At the "${tidy(step.label)}" step, what are you actually doing?`,
         shortMeaning(step.detail),
-        otherDepths.flatMap((other) =>
-          (other.depth?.walkthrough.steps ?? []).map((entry) => shortMeaning(entry.detail)),
-        ),
+        sameScenario.length >= 3
+          ? sameScenario
+          : [
+              ...sameScenario,
+              ...otherDepths.flatMap((other) =>
+                (other.depth?.walkthrough.steps ?? []).map((entry) => shortMeaning(entry.detail)),
+              ),
+            ],
         index,
         tidy(step.detail),
         "procedure",
