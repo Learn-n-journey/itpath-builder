@@ -446,7 +446,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "objective",
-      `Which of these should you be able to do after working through {topic}?`,
+      `Which of these should you be able to do after working through {section}?`,
       line,
       topics
         .filter((other) => other.id !== topicId && other.certificationId === cert)
@@ -470,7 +470,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "key-idea",
-        `Which of these is one of the ideas worth keeping from {topic}?`,
+        `Which of these is one of the ideas worth keeping from {section}?`,
         shortMeaning(line),
         otherDepths.flatMap((other) => (other.depth?.keyIdeas ?? []).map((row) => shortMeaning(row))),
         index,
@@ -483,7 +483,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "exam-trap",
-        `Which of these is a way the exam tries to catch you out on {topic}?`,
+        `Which of these is a way the exam tries to catch you out on {section}?`,
         shortMeaning(line),
         otherDepths.flatMap((other) => (other.depth?.examTraps ?? []).map((row) => shortMeaning(row))),
         index,
@@ -511,7 +511,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "reference",
-        `In {topic}, which of these describes ${tidy(row.term)}?`,
+        `In {section}, which of these describes ${tidy(row.term)}?`,
         shortMeaning(row.detail),
         otherDepths.flatMap((other) =>
           (other.depth?.reference.rows ?? []).map((entry) => shortMeaning(entry.detail)),
