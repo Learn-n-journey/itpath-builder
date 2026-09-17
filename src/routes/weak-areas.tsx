@@ -16,6 +16,7 @@ import {
 import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import type { Question, Quiz } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
+import { SectionTabs, REVIEW_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/weak-areas")({
   staticData: { sitemap: false },
@@ -136,6 +137,7 @@ function WeakAreas() {
 
   return (
     <>
+      <SectionTabs tabs={REVIEW_TABS} />
       <PageHeader
         title="Weak Areas"
         description="A quiz assembled from your own mistakes. Nothing appears here until you have missed something."

@@ -5,6 +5,7 @@ import autopathLogo from "@/assets/autopath-logo.png.asset.json";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SectionTabs, ABOUT_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/about")({
   staticData: { sitemap: true },
@@ -32,6 +33,7 @@ export const Route = createFileRoute("/about")({
 function AboutPage() {
   return (
     <>
+      <SectionTabs tabs={ABOUT_TABS} />
       <PageHeader
         title="About IT PATH"
         description="I created IT PATH to give people starting out in IT and cybersecurity a structured, practical way to study."

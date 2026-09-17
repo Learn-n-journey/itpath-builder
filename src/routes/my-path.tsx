@@ -16,6 +16,7 @@ import { adaptivePath, experienceStartBlurb } from "@/lib/adaptive-path";
 import { adaptiveQueue } from "@/lib/adaptive-engine";
 import { currentJourneyTopic } from "@/lib/journey-order";
 import { useDismissable } from "@/hooks/use-dismissable";
+import { SectionTabs, PATH_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/my-path")({
   staticData: { sitemap: false },
@@ -61,6 +62,7 @@ function MyPath() {
 
   return (
     <>
+      <SectionTabs tabs={PATH_TABS} />
       <PageHeader
         title="My Path"
         description="The roadmap organised by certification, not by calendar. Start with entry-level certifications, then move into infrastructure, security and advanced work."

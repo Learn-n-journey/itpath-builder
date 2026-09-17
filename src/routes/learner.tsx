@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useLearnerModel } from "@/hooks/use-learner-model";
 import type { ConceptProfile } from "@/lib/learner-model";
+import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/learner")({
   staticData: { sitemap: false },
@@ -165,6 +166,7 @@ function LearnerContent() {
 
   return (
     <div className="space-y-6">
+      <SectionTabs tabs={PROGRESS_TABS} />
       <PageHeader
         title="Learner profile"
         description="A live model of what you know, built only from work you have actually done."

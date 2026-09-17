@@ -23,6 +23,7 @@ import {
 } from "@/lib/review-engine";
 import { missedQuestionCount, missedQuestions, type MissedQuestion } from "@/lib/missed-questions";
 import { useAppState } from "@/state/app-state";
+import { SectionTabs, REVIEW_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/review")({
   staticData: { sitemap: false },
@@ -80,6 +81,7 @@ function Review() {
 
   return (
     <>
+      <SectionTabs tabs={REVIEW_TABS} />
       <PageHeader
         title="Review"
         description="Every mistake is logged with its cause and the prerequisite it points back to, so review starts at the root cause instead of the newest topic."

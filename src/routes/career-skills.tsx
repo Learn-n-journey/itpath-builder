@@ -10,6 +10,7 @@ import {
   scoreTracks,
   type SkillScore,
 } from "@/lib/skills-engine";
+import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/career-skills")({
   staticData: { sitemap: false },
@@ -94,6 +95,7 @@ function CareerSkills() {
 
   return (
     <>
+      <SectionTabs tabs={PROGRESS_TABS} />
       <PageHeader
         title="Career Skills"
         description="Every score below is calculated from work you actually recorded. Nothing is estimated."
