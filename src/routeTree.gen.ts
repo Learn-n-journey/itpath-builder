@@ -18,6 +18,7 @@ import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
 import { Route as CareerSkillsRouteImport } from './routes/career-skills'
 import { Route as CommandLineRouteImport } from './routes/command-line'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as DailyChallengeRouteImport } from './routes/daily-challenge'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as ExploreHardwareRouteImport } from './routes/explore-hardware'
@@ -104,6 +105,11 @@ const CareerSkillsRoute = CareerSkillsRouteImport.update({
 const CommandLineRoute = CommandLineRouteImport.update({
   id: '/command-line',
   path: '/command-line',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DailyChallengeRoute = DailyChallengeRouteImport.update({
@@ -328,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
   '/command-line': typeof CommandLineRoute
+  '/community': typeof CommunityRoute
   '/daily-challenge': typeof DailyChallengeRoute
   '/exam': typeof ExamRoute
   '/explore-hardware': typeof ExploreHardwareRoute
@@ -381,6 +388,7 @@ export interface FileRoutesByTo {
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
   '/command-line': typeof CommandLineRoute
+  '/community': typeof CommunityRoute
   '/daily-challenge': typeof DailyChallengeRoute
   '/exam': typeof ExamRoute
   '/explore-hardware': typeof ExploreHardwareRoute
@@ -435,6 +443,7 @@ export interface FileRoutesById {
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
   '/command-line': typeof CommandLineRoute
+  '/community': typeof CommunityRoute
   '/daily-challenge': typeof DailyChallengeRoute
   '/exam': typeof ExamRoute
   '/explore-hardware': typeof ExploreHardwareRoute
@@ -490,6 +499,7 @@ export interface FileRouteTypes {
     | '/career-mode'
     | '/career-skills'
     | '/command-line'
+    | '/community'
     | '/daily-challenge'
     | '/exam'
     | '/explore-hardware'
@@ -543,6 +553,7 @@ export interface FileRouteTypes {
     | '/career-mode'
     | '/career-skills'
     | '/command-line'
+    | '/community'
     | '/daily-challenge'
     | '/exam'
     | '/explore-hardware'
@@ -596,6 +607,7 @@ export interface FileRouteTypes {
     | '/career-mode'
     | '/career-skills'
     | '/command-line'
+    | '/community'
     | '/daily-challenge'
     | '/exam'
     | '/explore-hardware'
@@ -650,6 +662,7 @@ export interface RootRouteChildren {
   CareerModeRoute: typeof CareerModeRoute
   CareerSkillsRoute: typeof CareerSkillsRoute
   CommandLineRoute: typeof CommandLineRoute
+  CommunityRoute: typeof CommunityRoute
   DailyChallengeRoute: typeof DailyChallengeRoute
   ExamRoute: typeof ExamRoute
   ExploreHardwareRoute: typeof ExploreHardwareRoute
@@ -757,6 +770,13 @@ declare module '@tanstack/react-router' {
       path: '/command-line'
       fullPath: '/command-line'
       preLoaderRoute: typeof CommandLineRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/daily-challenge': {
@@ -1066,6 +1086,7 @@ const rootRouteChildren: RootRouteChildren = {
   CareerModeRoute: CareerModeRoute,
   CareerSkillsRoute: CareerSkillsRoute,
   CommandLineRoute: CommandLineRoute,
+  CommunityRoute: CommunityRoute,
   DailyChallengeRoute: DailyChallengeRoute,
   ExamRoute: ExamRoute,
   ExploreHardwareRoute: ExploreHardwareRoute,
