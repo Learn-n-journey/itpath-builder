@@ -32,7 +32,7 @@ function becauseClause(concept: ConceptIntel): string {
     case "misconception":
       return "the same kind of mistake keeps coming back on it";
     case "confident_but_wrong":
-      return "a few quick answers on it turned out wrong";
+      return "a few quick answers on it did not quite land";
     case "application_failure":
       return "you can explain it, but using it in a task is where it slips";
     case "troubleshooting_failure":
@@ -160,7 +160,7 @@ export function quizResultInsight(input: {
   if (total === 0) {
     message = "No questions were scored in this attempt.";
   } else if (score > 80) {
-    message = "That run speaks for itself. Nothing from me here.";
+    message = "That is a strong run, really well done. I'll bring a few of these back later just to check they stick, but there is nothing to fix today.";
   } else if (score >= 60) {
     message =
       spread <= 1
@@ -312,7 +312,7 @@ export interface GaylMessage {
 /** Names the exact problem on one topic, in plain words. */
 function problemIssue(concept: ConceptIntel): string {
   if (concept.diagnosis === "retrieval_failure") {
-    return "you had it right earlier, then it came back wrong on a later answer";
+    return "you had it earlier, then it slipped on a later answer";
   }
   if (concept.diagnosis === "fading") {
     return concept.daysOverdue >= 7
@@ -323,7 +323,7 @@ function problemIssue(concept: ConceptIntel): string {
     return `the same mix-up keeps coming back: ${concept.misconceptions[0].toLowerCase()}`;
   }
   if (concept.diagnosis === "confident_but_wrong") {
-    return "some quick answers here turned out wrong";
+    return "some quick answers here did not quite land";
   }
   if (concept.unresolvedMistakes > 0) {
     return `${concept.unresolvedMistakes} answer${concept.unresolvedMistakes === 1 ? "" : "s"} here ${
@@ -339,21 +339,21 @@ function casualText(concept: ConceptIntel): string {
   const plural = count === 1 ? "" : "s";
 
   if (count > 0) {
-    return `Hey, just a heads up, you've still got ${count} open mistake${plural} in ${concept.title}. ${concept.instruction}`;
+    return `${concept.title} has ${count} spot${plural} we haven't circled back to yet. ${concept.instruction}`;
   }
   if (concept.diagnosis === "retrieval_failure") {
-    return `Quick one. You had ${concept.title} right earlier, then a later answer came back wrong. A short pass should settle it.`;
+    return `You had ${concept.title} earlier, then a later answer slipped. A short pass should settle it.`;
   }
   if (concept.diagnosis === "fading") {
     return concept.daysOverdue >= 7
-      ? `Quick one. ${concept.title} is ${Math.round(concept.daysOverdue)} days past its review point, so recall will have faded. A short pass should bring it back.`
-      : `Quick one. Recall on ${concept.title} has faded since you last had it right. A short pass should bring it back.`;
+      ? `${concept.title} has had a good rest, ${Math.round(concept.daysOverdue)} days since its review point, so recall will have softened. A short pass brings it straight back.`
+      : `Recall on ${concept.title} has softened a little since you last had it. A short pass brings it back.`;
   }
   if (concept.misconceptions[0]) {
     return `Something keeps catching you out in ${concept.title}: ${concept.misconceptions[0].toLowerCase()}. Worth clearing that one up before you build on it.`;
   }
   if (concept.diagnosis === "confident_but_wrong") {
-    return `A few answers in ${concept.title} came back quick and wrong. Nothing to worry about, it usually just means slowing down for a minute.`;
+    return `A few answers in ${concept.title} came quickly and didn't quite land. Nothing to worry about, it usually just means slowing down for a minute.`;
   }
   if (concept.diagnosis === "prerequisite_gap") {
     const base = concept.prerequisiteGaps[0];
@@ -485,8 +485,8 @@ export function checkInMessage(user: UserData, now: Date = new Date()): GaylMess
   ).length;
   const lastLabel = new Date(last).toLocaleDateString(undefined, { month: "short", day: "numeric" });
   const text = due > 0
-    ? `Hey, welcome back. It's been ${days} days since your last session on ${lastLabel}. Nothing is on fire, and ${due} review${due === 1 ? " is" : "s are"} waiting whenever you're ready.`
-    : `Hey, welcome back. It's been ${days} days since your last session on ${lastLabel}. Nothing is on fire; pick up where you left off and I'll keep track of the rest.`;
+    ? `Hey, welcome back, good to see you. It's been ${days} days since your last session on ${lastLabel}. Nothing urgent is waiting, and ${due} review${due === 1 ? " is" : "s are"} there whenever you're ready.`
+    : `Hey, welcome back, good to see you. It's been ${days} days since your last session on ${lastLabel}. No pressure at all, just pick up where you left off and I'll keep track of the rest.`;
 
   return {
     id: `checkin:${days}:${lastLabel}`,

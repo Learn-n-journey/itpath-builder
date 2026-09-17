@@ -114,7 +114,7 @@ function buildCalibration(items: QuestionDiagnostic[]): Calibration {
       return `One thing I noticed: everything you marked as sure came back correct. Your read on your own answers is accurate, which means I can trust it when you say you are unsure.`;
     }
     if (guessRight >= 2) {
-      return `Heads up on the ${guessRight} you guessed and still got right. Those look fine on the score but I am not counting them as proven, so they will come back around.`;
+      return `Nice instincts on the ${guessRight} you guessed and still got right. They count on the score, and I will bring them round again so you can prove them properly.`;
     }
     if (unsureRight >= 2) {
       return `You got ${unsureRight} right that you were not sure about. The knowledge is further along than it feels, which is normal at this stage.`;

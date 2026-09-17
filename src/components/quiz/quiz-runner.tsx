@@ -293,7 +293,7 @@ function QuizWorkspace({
     );
     cleanTopicIds.forEach((topicId) => actions.settleTopicReview(topicId, "pass"));
     onReview();
-    toast.success("Submitted and scored.");
+    toast.success("Nice, that is in. Let us see how it landed.");
   }
 
   const response = attempt.responses[question.id] ?? [];
