@@ -3,6 +3,7 @@ import { Heart } from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
+import { SectionTabs, ABOUT_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/meet-gayl")({
   staticData: { sitemap: true },
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/meet-gayl")({
 function MeetGaylPage() {
   return (
     <>
+      <SectionTabs tabs={ABOUT_TABS} />
       <PageHeader
         title="Meet GAYL"
         description="Grades aren't your legacy. They don't tell the whole story about what you understand, what you can do, or who you can become."

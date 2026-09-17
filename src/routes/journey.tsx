@@ -15,6 +15,7 @@ import {
 } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
 import { cn } from "@/lib/utils";
+import { SectionTabs, PATH_TABS } from "@/components/layout/section-tabs";
 
 type TopicStatus = "closed" | "current" | "started" | "not-started" | "locked";
 
@@ -109,6 +110,7 @@ function JourneyPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl">
+      <SectionTabs tabs={PATH_TABS} />
       <PageHeader
         title="Journey map"
         description="The whole route, stage by stage. A section closes once you pass its quiz, and the next one down becomes the one you are on."

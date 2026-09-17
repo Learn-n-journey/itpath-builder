@@ -11,6 +11,7 @@ import { measureSlug, type MeasureKey } from "@/lib/measure-guides";
 import { evidenceSourceLabels } from "@/lib/skills-engine";
 import { useAppState } from "@/state/app-state";
 import { TrendingUp } from "lucide-react";
+import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/progress")({
   staticData: { sitemap: false },
@@ -64,6 +65,7 @@ function ProgressPage() {
 
   return (
     <>
+      <SectionTabs tabs={PROGRESS_TABS} />
       <PageHeader
         title="Progress"
         description="Correct and completed work is measured against everything available. Untouched work counts as zero."

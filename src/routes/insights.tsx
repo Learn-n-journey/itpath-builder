@@ -6,6 +6,7 @@ import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { computeInsights, type DayPoint, type TopicAccuracy } from "@/lib/insights-engine";
 import { useAppState } from "@/state/app-state";
+import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/insights")({
   staticData: { sitemap: false },
@@ -89,6 +90,7 @@ function Insights() {
   if (!insights.hasData) {
     return (
       <>
+        <SectionTabs tabs={PROGRESS_TABS} />
         <PageHeader
           title="Study Insights"
           description="Trends calculated from your own record. Nothing here is simulated."

@@ -4,6 +4,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { useAppState } from "@/state/app-state";
 import {
+import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
   evidenceSourceLabels,
   recommendActivities,
   scoreSkills,
@@ -94,6 +95,7 @@ function CareerSkills() {
 
   return (
     <>
+      <SectionTabs tabs={PROGRESS_TABS} />
       <PageHeader
         title="Career Skills"
         description="Every score below is calculated from work you actually recorded. Nothing is estimated."
