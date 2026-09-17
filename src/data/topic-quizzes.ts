@@ -138,6 +138,7 @@ function pickThree(
   correct: string,
   offset: number,
   subject?: string,
+  maxNear = 0.5,
 ): string[] | null {
   const correctWords = contentWords(correct);
   const subjectKey = subject?.toLowerCase().replace(/^the\s+/, "").trim() ?? "";
@@ -149,7 +150,7 @@ function pickThree(
     .filter((item) => !(subjectKey.length >= 3 && item.toLowerCase().includes(subjectKey)))
     .map((item) => ({ text: item, near: overlap(contentWords(item), correctWords) }))
     // Anything this close to the answer is the same claim in other words.
-    .filter((entry) => entry.near <= 0.5);
+    .filter((entry) => entry.near <= maxNear);
 
   // Closest in subject matter first, then trimmed to options of a similar length
   // so the answer never stands out simply by being longer or shorter.
