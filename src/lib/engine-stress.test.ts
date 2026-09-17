@@ -22,7 +22,7 @@ import { masteryGate } from "@/lib/mastery-gate";
 import { topicScopeProgress, allTopicScopeProgress } from "@/lib/scope-progress";
 import { summarizeMistakes } from "@/lib/mistake-engine";
 import { scoreAllCertifications } from "@/lib/certification-engine";
-import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics } from "@/lib/journey-order";
+import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics, unlockedByExperience } from "@/lib/journey-order";
 
 /** Deterministic PRNG so a failure can be reproduced from its seed. */
 function rng(seed: number) {
