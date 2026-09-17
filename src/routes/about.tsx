@@ -45,17 +45,11 @@ function AboutPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel title="What IT PATH is">
           <p className="text-sm text-muted-foreground">
-            I built IT PATH for beginners who want a clear route into IT and cybersecurity. I wanted
-            studying for a certification to feel active, not like working through an endless playlist.
-            Each topic brings together lessons, recall questions, practice tasks, hands-on labs,
-            quizzes, troubleshooting incidents and teach-back exercises to help you understand the
-            material and remember it.
-          </p>
-          <p className="mt-3 text-sm text-muted-foreground">
-            It is designed with students in mind, but it is just as useful if you are simply curious
-            about the technology you use every day. Most of us spend our lives interfacing with
-            devices, networks and accounts, understanding how they work is practical knowledge for
-            almost anyone.
+            I built IT PATH for beginners who want a clear route into IT and cybersecurity, with
+            studying that feels active rather than an endless playlist. Each topic brings together
+            lessons, recall, practice tasks, labs, quizzes, troubleshooting and teach-back. It suits
+            certification students, and anyone curious how the devices and networks they use every
+            day actually work.
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
             The app only shows progress you have earned. Readiness scores, weak areas and insights are
@@ -132,12 +126,9 @@ function AboutPage() {
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
                 AUTO PATH is the next app I am building. It teaches automotive
-                knowledge and skills the same way IT PATH teaches IT: starting
-                from zero, building up to real diagnostic ability, and never
-                pretending you know something you have not proven yet. You will
-                work through engines, brakes, electrical systems and more, with
-                hands-on scenarios and a diagnostic scan-tool simulator that
-                mirrors how real shops find faults.
+                knowledge the same way IT PATH teaches IT: starting from zero,
+                building to real diagnostic ability, with hands-on scenarios and
+                a scan-tool simulator that mirrors how real shops find faults.
               </p>
               <p className="mt-3 text-sm text-muted-foreground">
                 It runs on the same learning engine as IT PATH, including GAYL,
