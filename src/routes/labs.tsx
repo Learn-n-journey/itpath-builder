@@ -272,7 +272,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
       });
     }
     setShowReview(true);
-    toast.success(complete ? "Lab completed and added to Portfolio." : "Lab submitted for review.");
+    toast.success(complete ? "Great work, that is added to your portfolio." : "That is in, ready for review.");
   }
 
   function markMastered() {

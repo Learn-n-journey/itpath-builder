@@ -314,7 +314,7 @@ function IncidentWorkspace({
     if (total < 70) {
       actions.ensureReview({ topicId: incident.topicId });
     }
-    toast.success(`Incident submitted, ${total}%`);
+    toast.success(`Incident closed at ${total}%, solid diagnosis work.`);
   }
 
   if (!attempt) {

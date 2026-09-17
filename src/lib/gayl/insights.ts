@@ -32,7 +32,7 @@ function becauseClause(concept: ConceptIntel): string {
     case "misconception":
       return "the same kind of mistake keeps coming back on it";
     case "confident_but_wrong":
-      return "a few quick answers on it turned out wrong";
+      return "a few quick answers on it did not quite land";
     case "application_failure":
       return "you can explain it, but using it in a task is where it slips";
     case "troubleshooting_failure":
@@ -312,7 +312,7 @@ export interface GaylMessage {
 /** Names the exact problem on one topic, in plain words. */
 function problemIssue(concept: ConceptIntel): string {
   if (concept.diagnosis === "retrieval_failure") {
-    return "you had it right earlier, then it came back wrong on a later answer";
+    return "you had it earlier, then it slipped on a later answer";
   }
   if (concept.diagnosis === "fading") {
     return concept.daysOverdue >= 7
@@ -323,7 +323,7 @@ function problemIssue(concept: ConceptIntel): string {
     return `the same mix-up keeps coming back: ${concept.misconceptions[0].toLowerCase()}`;
   }
   if (concept.diagnosis === "confident_but_wrong") {
-    return "some quick answers here turned out wrong";
+    return "some quick answers here did not quite land";
   }
   if (concept.unresolvedMistakes > 0) {
     return `${concept.unresolvedMistakes} answer${concept.unresolvedMistakes === 1 ? "" : "s"} here ${
@@ -486,7 +486,7 @@ export function checkInMessage(user: UserData, now: Date = new Date()): GaylMess
   const lastLabel = new Date(last).toLocaleDateString(undefined, { month: "short", day: "numeric" });
   const text = due > 0
     ? `Hey, welcome back. It's been ${days} days since your last session on ${lastLabel}. Nothing is on fire, and ${due} review${due === 1 ? " is" : "s are"} waiting whenever you're ready.`
-    : `Hey, welcome back. It's been ${days} days since your last session on ${lastLabel}. Nothing is on fire; pick up where you left off and I'll keep track of the rest.`;
+    : `Hey, welcome back, good to see you. It's been ${days} days since your last session on ${lastLabel}. No pressure at all, just pick up where you left off and I'll keep track of the rest.`;
 
   return {
     id: `checkin:${days}:${lastLabel}`,

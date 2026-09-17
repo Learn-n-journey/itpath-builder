@@ -284,7 +284,7 @@ function TicketWorkspace({
           },
         };
       });
-      toast.success(`Ticket closed, ${total}%`);
+      toast.success(`Ticket closed at ${total}%, nicely handled.`);
     } else {
       actions.ensureReview({ topicId: ticket.topicId });
       toast.error(`Ticket needs rework, ${total}%`);
