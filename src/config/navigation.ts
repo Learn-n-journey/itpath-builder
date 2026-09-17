@@ -59,14 +59,7 @@ export const navItems: NavItem[] = [
     to: "/my-path",
     icon: RouteIcon,
     group: "Study",
-    description: "The ordered route through your chosen certification.",
-  },
-  {
-    label: "Journey Map",
-    to: "/journey",
-    icon: Map,
-    group: "Study",
-    description: "The full route with every topic's real state marked.",
+    description: "Your route through the certification, as a list or a map.",
   },
   {
     label: "Study Plan",
@@ -164,13 +157,6 @@ export const navItems: NavItem[] = [
     description: "Tap through photos of a motherboard, RAM, GPU, drives, power supply, cooler and case to learn each part.",
   },
   {
-    label: "Weak Areas",
-    to: "/weak-areas",
-    icon: Target,
-    group: "Practice",
-    description: "A quiz built only from questions you have missed.",
-  },
-  {
     label: "Review",
     to: "/review",
     icon: RotateCcw,
@@ -183,13 +169,6 @@ export const navItems: NavItem[] = [
     icon: Award,
     group: "Career",
     description: "Readiness per certification and the material behind it.",
-  },
-  {
-    label: "Career Skills",
-    to: "/career-skills",
-    icon: Users,
-    group: "Career",
-    description: "Job-ready skills scored from the work you have recorded.",
   },
   {
     label: "Portfolio",
@@ -226,22 +205,7 @@ export const navItems: NavItem[] = [
     to: "/progress",
     icon: TrendingUp,
     group: "You",
-    description: "Detailed scores per topic and per skill dimension.",
-  },
-  {
-    label: "Learner profile",
-    to: "/learner",
-    icon: UserRound,
-    group: "You",
-    description: "Mastery, retention and error patterns per concept, with what to study next.",
-    pro: true,
-  },
-  {
-    label: "Insights",
-    to: "/insights",
-    icon: LineChart,
-    group: "You",
-    description: "Trends over time: study habits, accuracy and repeated mistakes.",
+    description: "Scores, trends, your learner profile and career skills.",
   },
   {
     label: "How it works",
@@ -249,13 +213,6 @@ export const navItems: NavItem[] = [
     icon: Compass,
     group: "You",
     description: "What each section is for and how scoring is calculated.",
-  },
-  {
-    label: "Meet GAYL",
-    to: "/meet-gayl",
-    icon: BrainCircuit,
-    group: "You",
-    description: "An introduction to the learning intelligence behind IT PATH.",
   },
   {
     label: "Study record",
