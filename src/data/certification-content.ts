@@ -106,7 +106,7 @@ const seeds: CertSeed[] = [
   {
     id: "cert-comptia-linux-plus",
     title: "CompTIA Linux+",
-    code: "XK0-005",
+    code: "XK0-006",
     provider: "CompTIA",
     level: "infrastructure",
     description: "Linux system administration, scripting and troubleshooting.",
@@ -153,7 +153,7 @@ const seeds: CertSeed[] = [
   {
     id: "cert-comptia-cysa-plus",
     title: "CompTIA CySA+",
-    code: "CS0-003",
+    code: "CS0-004",
     provider: "CompTIA",
     level: "advanced",
     description: "Security operations, vulnerability management and incident response.",
