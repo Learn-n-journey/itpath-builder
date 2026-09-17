@@ -47,7 +47,9 @@ export function MilestoneOverlay() {
   if (!seen || !milestone) return null;
 
   const dismiss = () => {
-    const next = [...(seen ?? []), milestone.id];
+    // Clearing one milestone clears every smaller one earned at the same time,
+    // so a big jump never stacks up several popups in a row.
+    const next = Array.from(new Set([...(seen ?? []), ...achieved.map((item) => item.id)]));
     setSeen(next);
     try {
       window.localStorage.setItem(SEEN_KEY, JSON.stringify(next));
