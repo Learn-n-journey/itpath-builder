@@ -22,7 +22,7 @@ import { masteryGate } from "@/lib/mastery-gate";
 import { topicScopeProgress, allTopicScopeProgress } from "@/lib/scope-progress";
 import { summarizeMistakes } from "@/lib/mistake-engine";
 import { scoreAllCertifications } from "@/lib/certification-engine";
-import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics } from "@/lib/journey-order";
+import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics, unlockedByExperience } from "@/lib/journey-order";
 
 /** Deterministic PRNG so a failure can be reproduced from its seed. */
 function rng(seed: number) {
@@ -88,6 +88,7 @@ function buildUser(seed: number, shape: Shape): UserData {
       recommendedTopicIds: [topicId],
       createdAt: at,
       submittedAt: at,
+      updatedAt: at,
     } as UserData["quizAttempts"][number]);
 
     user.recallResponses.push({
@@ -219,7 +220,8 @@ describe("learning engine stress", () => {
         }
 
         const model = buildLearnerModel(user, NOW);
-        expect(Array.isArray(model.concepts)).toBe(true);
+        expect(Array.isArray(model.profiles)).toBe(true);
+        PERCENT(model.pathMastery, "path mastery");
 
         const queue = adaptiveQueue(user, NOW);
         for (const entry of queue.entries) {
@@ -239,26 +241,43 @@ describe("learning engine stress", () => {
 
         const actions = nextActions(user, NOW);
         for (const action of actions) {
-          expect(action.title.length).toBeGreaterThan(0);
+          expect(action.label.length).toBeGreaterThan(0);
+          expect(action.reason.includes("NaN")).toBe(false);
           expect(action.to.startsWith("/")).toBe(true);
         }
 
         for (const topic of journeyTopics(user).slice(0, 12)) {
           const gate = masteryGate(user, topic.id, NOW);
-          PERCENT(gate.score, `${topic.id} gate score`);
+          expect(gate.summary.length, `${topic.id} gate summary`).toBeGreaterThan(0);
+          expect(gate.summary.includes("NaN")).toBe(false);
           for (const competency of gate.competencies) {
-            PERCENT(competency.score, `${topic.id}/${competency.kind}`);
+            PERCENT(competency.score, `${topic.id}/${competency.key}`);
+            expect(competency.outstanding).toBeGreaterThanOrEqual(0);
+            expect(competency.passed).toBeLessThanOrEqual(competency.available);
           }
-          // The gate may only open when every present competency is proven.
-          if (gate.mastered) {
+          // The gate may only open when every required competency is proven.
+          if (gate.met) {
             for (const competency of gate.competencies) {
-              if (competency.present) expect(competency.met, `${topic.id} ${competency.kind}`).toBe(true);
+              if (competency.required) expect(competency.met, `${topic.id} ${competency.key}`).toBe(true);
             }
+            expect(gate.delayed.passed, `${topic.id} delayed check`).toBe(true);
           }
 
           const scope = topicScopeProgress(user, topic.id);
           PERCENT(scope.overall, `${topic.id} scope`);
-          for (const dimension of scope.dimensions) PERCENT(dimension.score, `${topic.id} ${dimension.key}`);
+          const dimensions = ["understanding", "recall", "application", "practicalAbility", "troubleshooting", "retention"] as const;
+          for (const key of dimensions) {
+            const dimension = scope[key];
+            PERCENT(dimension.score, `${topic.id} ${key}`);
+            expect(dimension.attempted, `${topic.id} ${key} attempted`).toBeLessThanOrEqual(dimension.available);
+            // An unmeasured dimension must never claim a score.
+            if (!dimension.measured) expect(dimension.score, `${topic.id} ${key} unmeasured`).toBe(0);
+          }
+          // Retention is reported separately and never inflates the overall score.
+          const abilities = dimensions.slice(0, 5).map((key) => scope[key]).filter((item) => item.measured);
+          if (abilities.length > 0 && scope.retention.score === 100 && abilities.every((item) => item.score === 0)) {
+            expect(scope.overall, `${topic.id} retention leak`).toBe(0);
+          }
         }
 
         for (const readiness of scoreAllCertifications(user)) {
@@ -297,14 +316,12 @@ describe("learning engine stress", () => {
       const current = currentJourneyTopic(user);
       if (!current) continue;
       const currentIndex = order.findIndex((topic) => topic.id === current.id);
+      // Material the experience setting already opened is allowed ahead of the line.
+      const openedByExperience = unlockedByExperience(user);
       for (let i = currentIndex + 1; i < order.length; i += 1) {
         const topic = order[i]!;
-        if (isTopicOpen(user, topic.id)) {
-          // Only permitted when everything before it really is mastered.
-          for (let j = 0; j < i; j += 1) {
-            expect(isMastered(user, order[j]!.id), `${order[j]!.id} before ${topic.id}`).toBe(true);
-          }
-        }
+        if (i < openedByExperience) continue;
+        expect(isTopicOpen(user, topic.id), `${topic.id} should be locked`).toBe(false);
       }
     }
   });
