@@ -21,7 +21,7 @@ export function lessonForTopic(topicId: string): Lesson | undefined {
 }
 
 export function certificationTitle(certificationId: string): string {
-  return certifications.find((cert) => cert.id === certificationId)?.name ?? "IT PATH";
+  return certifications.find((cert) => cert.id === certificationId)?.title ?? "IT PATH";
 }
 
 export function guidePath(topicId: string): string {
