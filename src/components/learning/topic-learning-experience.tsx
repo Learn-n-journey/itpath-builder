@@ -373,33 +373,33 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         description="Notes and bookmarks for this lesson, saved with everything else you have marked."
       />
       <Panel
-        title="Learning progress"
-        description="This is for this section only. Work you have not tried yet counts as zero, and anything this section does not contain is left out."
+        title="Where you stand in this section"
+        description="How much of this section you have done, and how the final section quiz went."
       >
         <div className="space-y-4">
-          {progressLabels.map(([key, label]) => {
-            const measure = scopeProgress[key];
-            return (
-              <Link
-                key={key}
-                to="/measures/$measure"
-                params={{ measure: measureSlug(key) }}
-                className="block rounded-md p-1 transition-colors hover:bg-muted/40"
-              >
-                <div className="mb-1.5 flex justify-between text-sm">
-                  <span className="underline-offset-4 hover:underline">{label}</span>
-                  <span className="tabular-nums text-muted-foreground">
-                    {measure.measured ? `${measure.score}%` : "Not in this section"}
-                  </span>
-                </div>
-                {measure.measured ? <Progress value={measure.score} /> : null}
-              </Link>
-            );
-          })}
+          <div>
+            <div className="mb-1.5 flex justify-between text-sm">
+              <span>Learning progress</span>
+              <span className="tabular-nums text-muted-foreground">{sectionMeasures.learningProgress}%</span>
+            </div>
+            <Progress value={sectionMeasures.learningProgress} />
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              {sectionMeasures.activitiesCompleted} of {sectionMeasures.activitiesTotal} activities done
+            </p>
+          </div>
+          <div>
+            <div className="mb-1.5 flex justify-between text-sm">
+              <span>Overall mastery</span>
+              <span className="tabular-nums text-muted-foreground">{sectionMeasures.overallMastery}%</span>
+            </div>
+            <Progress value={sectionMeasures.overallMastery} />
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              {sectionMeasures.assessmentsTaken > 0
+                ? "Your best result on the final section quiz."
+                : "Take the final section quiz to set this."}
+            </p>
+          </div>
         </div>
-        <p className="mt-3 text-xs text-muted-foreground">
-          Retention is the same work seen again later, so it sits outside the section score rather than being counted twice.
-        </p>
       </Panel>
     </div>
   </div>;
