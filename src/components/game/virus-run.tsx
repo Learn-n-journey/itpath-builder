@@ -8,7 +8,18 @@
  * generated endlessly and each one is harder than the last.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Heart, Pause, Play, Package, RotateCcw, Shield } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Heart,
+  Pause,
+  Play,
+  Package,
+  RotateCcw,
+  Shield,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
