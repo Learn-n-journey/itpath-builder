@@ -31,3 +31,4 @@ Done when: typecheck + build clean, features verified in browser.
 20. [x] Tech Jobs: detect visitor country and aggregate from country-appropriate job sources (add per-country boards, e.g. USAJOBS/Adzuna/Jooble style, plus country filter UI)
 
 21. [ ] Tech Jobs: try to list Indeed, Monster and ZipRecruiter postings (check what each allows)
+22. [x] Automated protections: nightly external link crawler, JSON-LD course/guide structured data, content lint script, originality check API, Lighthouse CI

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { getAiDashboard, type AiDashboard } from "@/lib/ai-dashboard.functions";
 import { formatCost } from "@/lib/ai/pricing";
 import { listContentReports, type ContentReportRow } from "@/lib/content-reports.functions";
+import { checkMarkdownOriginality, type OriginalityReport } from "@/lib/originality.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/ai-usage")({
   staticData: { sitemap: false },
@@ -85,8 +87,145 @@ function AiUsagePage() {
       )}
 
       {state.status === "ready" ? <ReportedProblems /> : null}
+      {state.status === "ready" ? <LinkHealth /> : null}
+      {state.status === "ready" ? <OriginalityTool /> : null}
     </div>
   );
+}
+
+/** What the nightly crawler found when it opened the outside links. */
+function LinkHealth() {
+  const [rows, setRows] = useState<LinkCheckRow[] | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      const { data } = await supabase
+        .from("link_checks")
+        .select("url, kind, label, status, ok, fail_count, last_error, checked_at")
+        .order("ok", { ascending: true })
+        .order("checked_at", { ascending: false })
+        .limit(400);
+      setRows((data ?? []) as LinkCheckRow[]);
+    })();
+  }, []);
+
+  const broken = (rows ?? []).filter((row) => !row.ok);
+
+  return (
+    <div className="mt-6">
+      <Panel
+        title="Outside link health"
+        description="A background check opens every training video and documentation page the lessons link to, a batch at a time."
+      >
+        {rows === null ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : rows.length === 0 ? (
+          <p className="text-sm text-muted-foreground">The checker has not run yet.</p>
+        ) : broken.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            {rows.length} links checked, all working. Last check {new Date(rows[0]!.checked_at ?? "").toLocaleString()}.
+          </p>
+        ) : (
+          <ul className="divide-y divide-border text-sm">
+            {broken.map((row) => (
+              <li key={row.url} className="py-3">
+                <p className="font-medium">{row.label ?? row.url}</p>
+                <p className="text-xs text-muted-foreground">
+                  {row.kind} · {row.status ?? "no answer"} · failed {row.fail_count} time
+                  {row.fail_count === 1 ? "" : "s"}
+                </p>
+                <a href={row.url} className="text-xs text-primary hover:underline" rel="noreferrer" target="_blank">
+                  {row.url}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
+    </div>
+  );
+}
+
+/** Paste text in and see how much of it repeats published or protected wording. */
+function OriginalityTool() {
+  const [markdown, setMarkdown] = useState("");
+  const [protectedText, setProtectedText] = useState("");
+  const [report, setReport] = useState<OriginalityReport | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const run = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const reply = await checkMarkdownOriginality({
+        data: { markdown, protectedText: protectedText.trim() || undefined },
+      });
+      if (reply.ok) setReport(reply.report);
+      else setError(reply.error);
+    } catch {
+      setError("Could not run the check. The text may be too short.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mt-6">
+      <Panel
+        title="Originality check"
+        description="Checks new writing against every published lesson, and against any protected wording you paste in."
+      >
+        <textarea
+          className="min-h-32 w-full rounded-md border border-border bg-background p-3 text-sm"
+          onChange={(event) => setMarkdown(event.target.value)}
+          placeholder="Paste the new lesson or article text here"
+          value={markdown}
+        />
+        <textarea
+          className="mt-3 min-h-20 w-full rounded-md border border-border bg-background p-3 text-sm"
+          onChange={(event) => setProtectedText(event.target.value)}
+          placeholder="Optional: paste protected exam wording it must not mirror"
+          value={protectedText}
+        />
+        <Button className="mt-3" disabled={busy || markdown.trim().length < 40} onClick={() => void run()}>
+          {busy ? "Checking…" : "Check this text"}
+        </Button>
+        {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
+        {report ? (
+          <div className="mt-4 space-y-2 text-sm">
+            <p className="font-medium">
+              {report.verdict === "clear" ? "Looks original." : "Worth a rewrite before publishing."}
+            </p>
+            <p className="text-muted-foreground">
+              {Math.round(report.againstCurriculum.overlap * 100)}% matches wording already published here.
+            </p>
+            {report.againstProtected ? (
+              <p className="text-muted-foreground">
+                {Math.round(report.againstProtected.overlap * 100)}% matches the protected wording you pasted.
+              </p>
+            ) : null}
+            {report.againstCurriculum.matches.length > 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Longest repeated run: “{report.againstCurriculum.matches[0]?.slice(0, 160)}”
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+      </Panel>
+    </div>
+  );
+}
+
+interface LinkCheckRow {
+  url: string;
+  kind: string;
+  label: string | null;
+  status: number | null;
+  ok: boolean;
+  fail_count: number;
+  last_error: string | null;
+  checked_at: string | null;
 }
 
 /** What learners have flagged as wrong in lessons, questions and AI answers. */

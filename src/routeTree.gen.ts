@@ -64,6 +64,7 @@ import { Route as SectionQuizTopicIdRouteImport } from './routes/section-quiz.$t
 import { Route as StageExamStageIdRouteImport } from './routes/stage-exam.$stageId'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
+import { Route as ApiPublicLinkCheckRouteImport } from './routes/api/public/link-check'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -341,6 +342,11 @@ const TopicsTopicIdRoute = TopicsTopicIdRouteImport.update({
   path: '/topics/$topicId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicLinkCheckRoute = ApiPublicLinkCheckRouteImport.update({
+  id: '/api/public/link-check',
+  path: '/api/public/link-check',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -404,6 +410,7 @@ export interface FileRoutesByFullPath {
   '/certifications/': typeof CertificationsIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/topics/': typeof TopicsIndexRoute
+  '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -462,6 +469,7 @@ export interface FileRoutesByTo {
   '/certifications': typeof CertificationsIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/topics': typeof TopicsIndexRoute
+  '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -521,6 +529,7 @@ export interface FileRoutesById {
   '/certifications/': typeof CertificationsIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/topics/': typeof TopicsIndexRoute
+  '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -581,6 +590,7 @@ export interface FileRouteTypes {
     | '/certifications/'
     | '/guides/'
     | '/topics/'
+    | '/api/public/link-check'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -639,6 +649,7 @@ export interface FileRouteTypes {
     | '/certifications'
     | '/guides'
     | '/topics'
+    | '/api/public/link-check'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -697,6 +708,7 @@ export interface FileRouteTypes {
     | '/certifications/'
     | '/guides/'
     | '/topics/'
+    | '/api/public/link-check'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -756,6 +768,7 @@ export interface RootRouteChildren {
   CertificationsIndexRoute: typeof CertificationsIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   TopicsIndexRoute: typeof TopicsIndexRoute
+  ApiPublicLinkCheckRoute: typeof ApiPublicLinkCheckRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -1146,6 +1159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TopicsTopicIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/link-check': {
+      id: '/api/public/link-check'
+      path: '/api/public/link-check'
+      fullPath: '/api/public/link-check'
+      preLoaderRoute: typeof ApiPublicLinkCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -1212,6 +1232,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertificationsIndexRoute: CertificationsIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
+  ApiPublicLinkCheckRoute: ApiPublicLinkCheckRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport

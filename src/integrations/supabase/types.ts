@@ -241,6 +241,27 @@ export type Database = {
         }
         Relationships: []
       }
+      job_locks: {
+        Row: {
+          job: string
+          locked_until: string
+          note: string | null
+          updated_at: string
+        }
+        Insert: {
+          job: string
+          locked_until: string
+          note?: string | null
+          updated_at?: string
+        }
+        Update: {
+          job?: string
+          locked_until?: string
+          note?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       knowledge_items: {
         Row: {
           cert_ids: Json
@@ -304,6 +325,39 @@ export type Database = {
           topic_ids?: Json
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      link_checks: {
+        Row: {
+          checked_at: string | null
+          fail_count: number
+          kind: string
+          label: string | null
+          last_error: string | null
+          ok: boolean
+          status: number | null
+          url: string
+        }
+        Insert: {
+          checked_at?: string | null
+          fail_count?: number
+          kind: string
+          label?: string | null
+          last_error?: string | null
+          ok?: boolean
+          status?: number | null
+          url: string
+        }
+        Update: {
+          checked_at?: string | null
+          fail_count?: number
+          kind?: string
+          label?: string | null
+          last_error?: string | null
+          ok?: boolean
+          status?: number | null
+          url?: string
         }
         Relationships: []
       }
