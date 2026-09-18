@@ -637,6 +637,9 @@ export function VirusRun() {
   const releaseDir = (dir: string) => {
     keysRef.current = keysRef.current.filter((k) => k !== dir);
   };
+  const releaseAllDirs = () => {
+    keysRef.current = [];
+  };
 
   // Drag-to-steer on the play area: touch and drag, and the virus follows
   // the direction of your finger relative to where you first touched down.
@@ -676,7 +679,7 @@ export function VirusRun() {
         </p>
         <div className="flex flex-col items-center gap-1 font-mono text-xs text-muted-foreground">
           <span>Arrow keys or WASD to move, Esc to pause.</span>
-          <span>On touch screens, drag on the play area or use the arrow pad below it.</span>
+          <span>On touch screens, drag on the play area, use the arrow pad, or tilt the stick in its middle.</span>
         </div>
         <button
           onClick={startRun}
@@ -784,7 +787,7 @@ export function VirusRun() {
           <PadButton label="Up" icon={<ChevronUp className="size-7" aria-hidden />} onPress={() => pressDir("up")} onRelease={() => releaseDir("up")} />
           <span />
           <PadButton label="Left" icon={<ChevronLeft className="size-7" aria-hidden />} onPress={() => pressDir("left")} onRelease={() => releaseDir("left")} />
-          <span />
+          <Joystick onDir={(dir) => pressDir(dir)} onRelease={releaseAllDirs} />
           <PadButton label="Right" icon={<ChevronRight className="size-7" aria-hidden />} onPress={() => pressDir("right")} onRelease={() => releaseDir("right")} />
           <span />
           <PadButton label="Down" icon={<ChevronDown className="size-7" aria-hidden />} onPress={() => pressDir("down")} onRelease={() => releaseDir("down")} />
@@ -821,6 +824,70 @@ function PadButton({
     >
       {icon}
     </button>
+  );
+}
+
+function Joystick({ onDir, onRelease }: { onDir: (dir: string) => void; onRelease: () => void }) {
+  const baseRef = useRef<HTMLDivElement>(null);
+  const holdingRef = useRef(false);
+  const [knob, setKnob] = useState({ x: 0, y: 0 });
+
+  const steer = (clientX: number, clientY: number) => {
+    const base = baseRef.current;
+    if (!base) return;
+    const rect = base.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    let dx = clientX - cx;
+    let dy = clientY - cy;
+    const mag = Math.hypot(dx, dy);
+    const max = rect.width / 2 - 13; // keep the knob inside the ring
+    if (mag > max) {
+      dx = (dx / mag) * max;
+      dy = (dy / mag) * max;
+    }
+    setKnob({ x: dx, y: dy });
+    if (mag < 11) {
+      onRelease(); // stick near centre: stop
+    } else {
+      onDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
+    }
+  };
+
+  return (
+    <div
+      ref={baseRef}
+      role="application"
+      aria-label="Movement stick"
+      className="relative flex size-16 touch-none items-center justify-center rounded-full border border-border bg-secondary/50 select-none"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        e.currentTarget.setPointerCapture(e.pointerId);
+        holdingRef.current = true;
+        steer(e.clientX, e.clientY);
+      }}
+      onPointerMove={(e) => {
+        if (holdingRef.current) steer(e.clientX, e.clientY);
+      }}
+      onPointerUp={() => {
+        holdingRef.current = false;
+        setKnob({ x: 0, y: 0 });
+        onRelease();
+      }}
+      onPointerCancel={() => {
+        holdingRef.current = false;
+        setKnob({ x: 0, y: 0 });
+        onRelease();
+      }}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <span className="absolute inset-2 rounded-full border border-dashed border-border/60" aria-hidden />
+      <span
+        className="pointer-events-none absolute size-7 rounded-full border border-border bg-card shadow-md transition-transform duration-75"
+        style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
+        aria-hidden
+      />
+    </div>
   );
 }
 
