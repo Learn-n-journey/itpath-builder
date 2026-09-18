@@ -22,3 +22,4 @@ Done when: typecheck + build clean, features verified in browser.
 14. [ ] Tech News sidebar page: modern scrolling feed (AI, security, hardware, networking, Windows, Linux, cloud, programming, mobile, careers, releases, outages) with image, category, headline, summary, date, source, link. Kept entirely outside the learning system.
 
 15. Confirm every topic has topic-specific resources (videos/links) that match that topic only.
+16. Confirm every topic has topic-specific reading material, not generic links.
