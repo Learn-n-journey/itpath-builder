@@ -1,5 +1,5 @@
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 
 import { QuizRunner } from "@/components/quiz/quiz-runner";
