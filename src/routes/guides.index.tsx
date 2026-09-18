@@ -1,6 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { PageHeader, Panel } from "@/components/page-kit";
+import { Button } from "@/components/ui/button";
 import { certifications } from "@/data/static-content";
 import { GUIDE_BASE_URL, guidePath, guideTopics } from "@/lib/public-guides";
 
@@ -32,6 +33,16 @@ function GuidesIndexPage() {
   return (
     <>
       <PageHeader title={TITLE} description={DESCRIPTION} />
+      <div className="mb-6 flex flex-wrap gap-2">
+        <Button asChild>
+          <Link to="/auth">Create a free account</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link to="/practice-tests/$certId" params={{ certId: "cert-comptia-a-plus" }}>
+            Free practice tests
+          </Link>
+        </Button>
+      </div>
       <div className="space-y-6">
         {certifications.map((cert) => {
           const certTopics = topics.filter((topic) => topic.certificationId === cert.id);
