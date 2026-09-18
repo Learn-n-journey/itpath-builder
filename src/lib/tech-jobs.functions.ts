@@ -307,39 +307,51 @@ interface JobicyJob {
   jobIndustry?: string[];
 }
 
+const JOBICY_INDUSTRIES = [
+  "technical-support",
+  "engineering",
+  "devops-sysadmin",
+  "information-security",
+  "data-science",
+  "programming",
+];
+
 async function fetchJobicy(country: string): Promise<TechJob[]> {
   const geo = JOBICY_GEO[country];
   if (!geo) return [];
-  const jobs: TechJob[] = [];
-  for (const industry of ["technical-support", "engineering", "devops-sysadmin"]) {
-    try {
-      const res = await fetch(
-        `https://jobicy.com/api/v2/remote-jobs?count=40&geo=${geo}&industry=${industry}`,
-        { signal: AbortSignal.timeout(12000) },
-      );
-      if (!res.ok) continue;
-      const payload = (await res.json()) as { jobs?: JobicyJob[] };
-      for (const job of payload.jobs ?? []) {
-        const text = `${job.jobTitle} ${stripHtml(job.jobDescription ?? "")}`;
-        jobs.push({
-          id: `jobicy-${job.id}`,
-          title: job.jobTitle,
-          company: job.companyName,
-          location: job.jobGeo?.replace(/\s+/g, " ").trim() || "Remote",
-          remote: true,
-          source: "Jobicy",
-          url: job.url,
-          postedAt: job.pubDate ?? new Date().toISOString(),
-          tags: job.jobIndustry ?? [],
-          country,
-          certifications: detectCertifications(text),
-        });
+  const batches = await Promise.all(
+    JOBICY_INDUSTRIES.map(async (industry) => {
+      const jobs: TechJob[] = [];
+      try {
+        const res = await fetch(
+          `https://jobicy.com/api/v2/remote-jobs?count=50&geo=${geo}&industry=${industry}`,
+          { signal: AbortSignal.timeout(12000) },
+        );
+        if (!res.ok) return jobs;
+        const payload = (await res.json()) as { jobs?: JobicyJob[] };
+        for (const job of payload.jobs ?? []) {
+          const text = `${job.jobTitle} ${stripHtml(job.jobDescription ?? "")}`;
+          jobs.push({
+            id: `jobicy-${job.id}`,
+            title: job.jobTitle,
+            company: job.companyName,
+            location: job.jobGeo?.replace(/\s+/g, " ").trim() || "Remote",
+            remote: true,
+            source: "Jobicy",
+            url: job.url,
+            postedAt: job.pubDate ?? new Date().toISOString(),
+            tags: job.jobIndustry ?? [],
+            country,
+            certifications: detectCertifications(text),
+          });
+        }
+      } catch {
+        // One source failing must not empty the board.
       }
-    } catch {
-      // One source failing must not empty the board.
-    }
-  }
-  return jobs.filter((job) => isItJob(job.title, job.tags));
+      return jobs;
+    }),
+  );
+  return batches.flat().filter((job) => isItJob(job.title, job.tags));
 }
 
 interface RemotiveJob {
