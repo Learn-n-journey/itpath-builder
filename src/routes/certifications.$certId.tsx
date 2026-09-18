@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ExternalLink, RefreshCw } from "lucide-react";
+import { ExternalLink, Lock, RefreshCw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,8 @@ import { adaptivePath } from "@/lib/adaptive-path";
 import { certifications as allCertifications } from "@/data/static-content";
 import { ReadinessPanel } from "@/components/readiness-panel";
 import { buildReadinessReport } from "@/lib/readiness-engine";
+import { inJourneyOrder, isMastered } from "@/lib/journey-order";
+import { certificationTopics } from "@/lib/cert-path";
 
 export const Route = createFileRoute("/certifications/$certId")({
   staticData: { sitemap: false },
@@ -120,6 +122,25 @@ function Certifications() {
   const stages = useMemo(() => certificationStages(certId), [certId]);
   const index = useMemo(() => certificationStudyIndex(certId), [certId]);
   const poolSize = useMemo(() => certificationQuestionPool(certId).length, [certId]);
+
+  // Unlock order for this certification: journey order, with each section
+  // open only when every earlier section is mastered (or opened by the
+  // learner's experience setting).
+  const unlock = useMemo(() => {
+    const ordered = inJourneyOrder(certificationTopics(certId));
+    const level = user.settings.experienceLevel;
+    let experienceOpens = 0;
+    if (level === "intermediate") experienceOpens = ordered.length;
+    else if (level === "some") experienceOpens = ordered.filter((t) => t.month <= 7).length;
+    let currentIndex = ordered.findIndex((topic) => !isMastered(user, topic.id));
+    if (currentIndex === -1) currentIndex = ordered.length - 1;
+    const openIds = new Set<string>();
+    ordered.forEach((topic, i) => {
+      if (i < experienceOpens || i <= currentIndex) openIds.add(topic.id);
+    });
+    const orderIndex = new Map(ordered.map((topic, i) => [topic.id, i]));
+    return { openIds, orderIndex };
+  }, [certId, user]);
   const exam = useMemo(
     () => (selected ? generateExam(selected.certification, examSeed) : null),
     [selected, examSeed],
@@ -194,7 +215,7 @@ function Certifications() {
         <Panel
           className="mb-4"
           title={`Your recommended start: ${personalPath.recommendedTopic.title}`}
-          description={`${personalPath.startLabel} based on your experience setting. You can still open any topic below.`}
+          description={`${personalPath.startLabel} based on your experience setting. Sections unlock in order as you master the one before.`}
         >
           <Button asChild size="sm">
             <Link to="/topics/$topicId" params={{ topicId: personalPath.recommendedTopic.id }}>
@@ -224,7 +245,13 @@ function Certifications() {
             </p>
           ) : (
             <div className="space-y-5">
-              {stages.map((stage) => (
+              {[...stages]
+                .sort((a, b) => {
+                  const min = (list: typeof a.topics) =>
+                    Math.min(...list.map((t) => unlock.orderIndex.get(t.id) ?? 0));
+                  return min(a.topics) - min(b.topics);
+                })
+                .map((stage) => (
                 <section key={stage.id}>
                   <div className="mb-1 flex items-center gap-3">
                     <span className="font-mono text-xs font-medium text-primary">{stage.label.toUpperCase()}</span>
@@ -232,17 +259,38 @@ function Certifications() {
                   </div>
                   <p className="mb-2 text-xs text-muted-foreground">{stage.description}</p>
                   <ul className="grid gap-2 sm:grid-cols-2">
-                    {stage.topics.map((topic) => (
-                      <li key={topic.id}>
-                        <Link
-                          to="/topics/$topicId"
-                          params={{ topicId: topic.id }}
-                          className="block min-w-0 rounded-lg border border-border bg-background/40 p-3 hover:bg-secondary/50"
-                        >
-                          <span className="block truncate text-sm font-medium">{topic.title}</span>
-                        </Link>
-                      </li>
-                    ))}
+                    {[...stage.topics]
+                      .sort(
+                        (a, b) =>
+                          (unlock.orderIndex.get(a.id) ?? 0) - (unlock.orderIndex.get(b.id) ?? 0),
+                      )
+                      .map((topic) => {
+                        const isOpen = unlock.openIds.has(topic.id);
+                        return (
+                          <li key={topic.id}>
+                            {isOpen ? (
+                              <Link
+                                to="/topics/$topicId"
+                                params={{ topicId: topic.id }}
+                                className="block min-w-0 rounded-lg border border-border bg-background/40 p-3 hover:bg-secondary/50"
+                              >
+                                <span className="block truncate text-sm font-medium">{topic.title}</span>
+                              </Link>
+                            ) : (
+                              <div
+                                className="flex min-w-0 flex-col items-center gap-1 rounded-lg border border-border bg-background/40 p-3 opacity-50"
+                                aria-label={`${topic.title} (locked)`}
+                                title="Finish the section before this one to unlock it"
+                              >
+                                <Lock className="size-4 text-muted-foreground" aria-hidden />
+                                <span className="block w-full truncate text-center text-sm font-medium text-muted-foreground">
+                                  {topic.title}
+                                </span>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
                   </ul>
                 </section>
               ))}
