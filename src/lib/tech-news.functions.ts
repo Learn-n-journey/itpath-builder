@@ -61,6 +61,10 @@ const FEEDS: Feed[] = [
   { url: "https://aws.amazon.com/blogs/aws/feed/", source: "AWS News", fallback: "Cloud" },
   { url: "https://blog.google/technology/ai/rss/", source: "Google AI", fallback: "AI" },
   { url: "https://dev.to/feed", source: "DEV Community", fallback: "Programming", max: 5 },
+  { url: "https://9to5mac.com/feed/", source: "9to5Mac", fallback: "Mobile" },
+  { url: "https://feeds.macrumors.com/MacRumors-All", source: "MacRumors", fallback: "Mobile" },
+  { url: "https://9to5google.com/feed/", source: "9to5Google", fallback: "Mobile" },
+  { url: "https://www.androidauthority.com/feed/", source: "Android Authority", fallback: "Mobile" },
 ];
 
 const RULES: [NewsCategory, RegExp][] = [
@@ -71,7 +75,7 @@ const RULES: [NewsCategory, RegExp][] = [
   ["Windows", /\b(windows|microsoft 365|azure ad|entra|powershell|surface)\b/i],
   ["Cloud", /\b(cloud|aws|azure|google cloud|kubernetes|container|serverless|saas|data ?cent(re|er))\b/i],
   ["Networking", /\b(network|router|wi-?fi|5g|broadband|dns|bgp|ethernet|fibre|fiber optic|vpn)\b/i],
-  ["Mobile", /\b(iphone|android|ipad|smartphone|pixel|galaxy|ios \d|tablet|wearable)\b/i],
+  ["Mobile", /\b(iphone|android|ipad|smartphone|pixel|galaxy|ios \d|tablet|wearable|macos|macbook|apple|airpods|apple watch|vision pro|pixel watch|chromebook)\b/i],
   ["Programming", /\b(developer|programming|javascript|typescript|python|rust|golang|api|framework|compiler|code|git)\b/i],
   ["Hardware", /\b(cpu|gpu|processor|motherboard|ssd|ram|laptop|chip|nvidia|amd|intel|arm\b|storage drive)\b/i],
   ["Releases", /\b(launch|released|announc|unveil|now available|general availability|version \d)\b/i],
