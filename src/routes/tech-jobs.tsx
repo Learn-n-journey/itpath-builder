@@ -244,7 +244,7 @@ function TechJobsPage() {
       )}
 
       <p className="mt-8 text-xs text-muted-foreground">
-        Listings come from Job Data API, Jobicy, Remotive, Arbeitnow and Remote OK, gathered for the country you pick. IT PATH does not host or alter
+        Listings come from Job Data API, Jobicy, Remotive, Arbeitnow, Remote OK, Himalayas, We Work Remotely and company career boards, gathered for the country you pick. IT PATH does not host or alter
         postings; applying always happens on the original site.
       </p>
     </div>
