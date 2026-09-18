@@ -827,6 +827,70 @@ function PadButton({
   );
 }
 
+function Joystick({ onDir, onRelease }: { onDir: (dir: string) => void; onRelease: () => void }) {
+  const baseRef = useRef<HTMLDivElement>(null);
+  const holdingRef = useRef(false);
+  const [knob, setKnob] = useState({ x: 0, y: 0 });
+
+  const steer = (clientX: number, clientY: number) => {
+    const base = baseRef.current;
+    if (!base) return;
+    const rect = base.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    let dx = clientX - cx;
+    let dy = clientY - cy;
+    const mag = Math.hypot(dx, dy);
+    const max = rect.width / 2 - 13; // keep the knob inside the ring
+    if (mag > max) {
+      dx = (dx / mag) * max;
+      dy = (dy / mag) * max;
+    }
+    setKnob({ x: dx, y: dy });
+    if (mag < 11) {
+      onRelease(); // stick near centre: stop
+et      } else {
+      onDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
+    }
+  };
+
+  return (
+    <div
+      ref={baseRef}
+      role="application"
+      aria-label="Movement stick"
+      className="relative flex size-16 touch-none items-center justify-center rounded-full border border-border bg-secondary/50 select-none"
+      onPointerDown={(e) => {
+        e.preventDefault();
+        e.currentTarget.setPointerCapture(e.pointerId);
+        holdingRef.current = true;
+        steer(e.clientX, e.clientY);
+      }}
+      onPointerMove={(e) => {
+        if (holdingRef.current) steer(e.clientX, e.clientY);
+      }}
+      onPointerUp={() => {
+        holdingRef.current = false;
+        setKnob({ x: 0, y: 0 });
+        onRelease();
+      }}
+      onPointerCancel={() => {
+        holdingRef.current = false;
+        setKnob({ x: 0, y: 0 });
+        onRelease();
+      }}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <span className="absolute inset-2 rounded-full border border-dashed border-border/60" aria-hidden />
+      <span
+        className="pointer-events-none absolute size-7 rounded-full border border-border bg-card shadow-md transition-transform duration-75"
+        style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
+        aria-hidden
+      />
+    </div>
+  );
+}
+
 function Overlay({ children }: { children: React.ReactNode }) {
   return (
     <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-background/85 p-6 text-center backdrop-blur-sm">
