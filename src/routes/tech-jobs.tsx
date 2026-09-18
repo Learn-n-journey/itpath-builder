@@ -7,7 +7,7 @@ import { Award, Briefcase, ExternalLink, Globe, MapPin, RefreshCw, Search } from
 import { EmptyState, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { JOB_COUNTRIES } from "@/lib/job-countries";
+import { JOB_COUNTRIES, countryName } from "@/lib/job-countries";
 import {
   DEFAULT_JOB_COUNTRY,
   getTechJobs,
@@ -45,6 +45,23 @@ function whenLabel(iso: string): string {
   const days = Math.round(hours / 24);
   if (days < 30) return `${days} d ago`;
   return then.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+/**
+ * Indeed, Monster and ZipRecruiter block automated reading of their listings,
+ * so instead of copying their postings we hand the same search straight over to
+ * their own site.
+ */
+function bigBoardLinks(query: string, country: string) {
+  const what = encodeURIComponent(query.trim() || "IT support");
+  const where = encodeURIComponent(countryName(country));
+  return [
+    { name: "Indeed", url: `https://www.indeed.com/jobs?q=${what}&l=${where}` },
+    { name: "Monster", url: `https://www.monster.com/jobs/search?q=${what}&where=${where}` },
+    { name: "ZipRecruiter", url: `https://www.ziprecruiter.com/jobs-search?search=${what}&location=${where}` },
+    { name: "LinkedIn", url: `https://www.linkedin.com/jobs/search?keywords=${what}&location=${where}` },
+    { name: "Glassdoor", url: `https://www.glassdoor.com/Job/index.htm?keyword=${what}&locName=${where}` },
+  ];
 }
 
 function JobCard({ job }: { job: TechJob }) {
