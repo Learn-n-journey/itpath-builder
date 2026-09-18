@@ -1062,43 +1062,59 @@ export function getStageExamQuestions(examId: string, nonce: number = Math.rando
     return false;
   };
 
-  // Objectives grouped by exam domain, for every certification this stage closes.
-  const domains: CertificationObjective[][] = [];
-  for (const cert of stageCerts) {
-    const byDomain = new Map<string, CertificationObjective[]>();
+  /**
+   * For one certification: the sections it examines in this stage, ordered so
+   * that each exam domain is reached before any domain repeats. Sections the
+   * objective map does not name yet are added after the mapped ones, so nothing
+   * the exam covers is left out of the paper.
+   */
+  const examOrder = (certId: string): string[] => {
+    const byDomain = new Map<string, string[]>();
     for (const objective of certificationObjectives) {
-      if (objective.certificationId !== cert.id) continue;
-      const objectiveTopics = objective.topicIds ?? [];
-      if (!objectiveTopics.some((topicId) => stageTopicIds.has(topicId))) continue;
+      if (objective.certificationId !== certId) continue;
       const domain = objective.domain ?? "General";
       const list = byDomain.get(domain) ?? [];
-      list.push(objective);
+      for (const topicId of objective.topicIds ?? []) {
+        if (stageTopicIds.has(topicId) && !list.includes(topicId)) list.push(topicId);
+      }
       byDomain.set(domain, list);
     }
-    for (const objectives of byDomain.values()) domains.push(shuffle(objectives));
-  }
+    const lanes = shuffle([...byDomain.values()].filter((list) => list.length > 0).map(shuffle));
+    const ordered: string[] = [];
+    for (let index = 0; lanes.some((lane) => index < lane.length); index += 1) {
+      for (const lane of lanes) {
+        const topicId = lane[index];
+        if (topicId && !ordered.includes(topicId)) ordered.push(topicId);
+      }
+    }
+    for (const topicId of shuffle(
+      stageTopics.filter((topic) => topic.certificationId === certId).map((topic) => topic.id),
+    )) {
+      if (!ordered.includes(topicId)) ordered.push(topicId);
+    }
+    return ordered;
+  };
 
-  // One pass per round over every domain, so each domain of each exam is covered
-  // before any domain is asked about twice.
-  const order = shuffle(domains);
-  for (let round = 0; out.length < STAGE_EXAM_SIZE && round < STAGE_EXAM_SIZE; round += 1) {
+  // Every certification the stage closes gets its share of the paper, and inside
+  // each one the questions rotate through its exam domains.
+  const lanes = shuffle(stageCerts.map((cert) => examOrder(cert.id))).filter((lane) => lane.length > 0);
+  const fallback = shuffle(stageTopics.map((topic) => topic.id));
+  if (lanes.length === 0) lanes.push(fallback);
+
+  for (let round = 0; out.length < STAGE_EXAM_SIZE && round < STAGE_EXAM_SIZE * 4; round += 1) {
     let added = false;
-    for (const objectives of order) {
+    for (const lane of lanes) {
       if (out.length >= STAGE_EXAM_SIZE) break;
-      const objective = objectives[round % Math.max(objectives.length, 1)];
-      if (!objective) continue;
-      if (take(objective.topicIds ?? [])) added = true;
+      const topicId = lane[round % lane.length];
+      if (topicId && take([topicId])) added = true;
     }
     if (!added) break;
   }
 
-  // If the mapped objectives cannot fill the paper, the rest come from the
-  // stage's own sections rather than leaving the exam short.
-  for (const topic of shuffle(stageTopics)) {
-    while (out.length < STAGE_EXAM_SIZE) {
-      if (!take([topic.id])) break;
-    }
-    if (out.length >= STAGE_EXAM_SIZE) break;
+  // If the mapped sections run dry, the rest come from anywhere in the stage
+  // rather than leaving the exam short.
+  for (let round = 0; out.length < STAGE_EXAM_SIZE && round < STAGE_EXAM_SIZE * 4; round += 1) {
+    if (!take(fallback)) break;
   }
 
   return shuffle(out).slice(0, STAGE_EXAM_SIZE);
