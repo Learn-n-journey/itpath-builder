@@ -18,6 +18,7 @@ import { cysaGapSeeds } from "./phase-cysa-gap";
 import { pentestExtraSeeds } from "./phase-pentest-extra";
 import { pentestGapSeeds } from "./phase-pentest-gap";
 import { securityxExtraSeeds } from "./phase-securityx-extra";
+import { securityxGapSeeds } from "./phase-securityx-gap";
 import {
   seedLessons,
   seedModules,
@@ -48,6 +49,7 @@ export const expansionSeeds: TopicSeed[] = [
   ...pentestExtraSeeds,
   ...pentestGapSeeds,
   ...securityxExtraSeeds,
+  ...securityxGapSeeds,
 ];
 
 export const expansionTopics = seedTopics(expansionSeeds);
