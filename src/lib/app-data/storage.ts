@@ -259,6 +259,9 @@ export function sanitizeUser(raw: unknown): UserData {
       (signal) =>
         signal && typeof signal.topicId === "string" && typeof signal.at === "string",
     ),
+    flashcardReviews: arr(r.flashcardReviews, base.flashcardReviews).filter(
+      (card) => card && typeof card.id === "string" && typeof card.topicId === "string",
+    ),
     settings: {
       ...defaultSettings,
       ...(r.settings ?? {}),

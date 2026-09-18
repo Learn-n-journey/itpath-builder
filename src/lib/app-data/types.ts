@@ -2,7 +2,7 @@ import type { MachineState, ShellKind } from "@/lib/terminal/machine";
 import type { TerminalScenario } from "@/lib/terminal/scenarios";
 
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 16;
+export const APP_DATA_VERSION = 17;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -829,7 +829,26 @@ export interface UserData {
   ticketAttempts: TicketAttempt[];
   /** Interaction stream feeding the learner intelligence engine. */
   learnerSignals: LearnerSignal[];
+  /** Spaced repetition state for flashcards, one record per card seen. */
+  flashcardReviews: FlashcardReview[];
   settings: UserSettings;
+}
+
+/** One flashcard the learner has answered at least once. */
+export interface FlashcardReview {
+  /** Stable card id, derived from the section and the card content. */
+  id: EntityId;
+  topicId: EntityId;
+  /** Days until the card is due again after the last answer. */
+  interval: number;
+  /** How fast the gap grows for this learner on this card. */
+  ease: number;
+  /** Consecutive "got it" answers. */
+  streak: number;
+  reviewCount: number;
+  lastAnswer: "known" | "unknown";
+  lastReviewedAt: string;
+  dueAt: string;
 }
 
 export type IncidentCategory =

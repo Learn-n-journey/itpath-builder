@@ -153,6 +153,7 @@ export type Database = {
           display_name: string
           hidden: boolean
           id: string
+          room: string
           user_id: string
         }
         Insert: {
@@ -161,6 +162,7 @@ export type Database = {
           display_name: string
           hidden?: boolean
           id?: string
+          room?: string
           user_id: string
         }
         Update: {
@@ -169,6 +171,7 @@ export type Database = {
           display_name?: string
           hidden?: boolean
           id?: string
+          room?: string
           user_id?: string
         }
         Relationships: []

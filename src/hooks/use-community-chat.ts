@@ -14,19 +14,20 @@ export interface CommunityMessage {
 
 const LIMIT = 200;
 
-/** Reads the shared community room, keeps it live, and posts as the signed-in learner. */
-export function useCommunityChat() {
+/** Reads one community room, keeps it live, and posts as the signed-in learner. */
+export function useCommunityChat(room = "general") {
   const { userId, ready } = useAuth();
   const queryClient = useQueryClient();
 
   const messages = useQuery({
-    queryKey: ["community-messages"],
+    queryKey: ["community-messages", room],
     enabled: ready && Boolean(userId),
     queryFn: async (): Promise<CommunityMessage[]> => {
       const { data, error } = await supabase
         .from("community_messages")
         .select("id, user_id, display_name, body, created_at")
         .eq("hidden", false)
+        .eq("room", room)
         .order("created_at", { ascending: false })
         .limit(LIMIT);
       if (error) throw error;
@@ -45,19 +46,19 @@ export function useCommunityChat() {
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
-      .channel("community-room")
+      .channel(`community-room-${room}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "community_messages" },
+        { event: "*", schema: "public", table: "community_messages", filter: `room=eq.${room}` },
         () => {
-          void queryClient.invalidateQueries({ queryKey: ["community-messages"] });
+          void queryClient.invalidateQueries({ queryKey: ["community-messages", room] });
         },
       )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [userId, queryClient]);
+  }, [userId, queryClient, room]);
 
   const send = useMutation({
     mutationFn: async (input: { body: string; displayName: string }) => {
@@ -66,11 +67,12 @@ export function useCommunityChat() {
         user_id: userId,
         display_name: input.displayName,
         body: input.body.trim(),
+        room,
       });
       if (error) throw new Error(friendly(error.message));
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["community-messages"] });
+      void queryClient.invalidateQueries({ queryKey: ["community-messages", room] });
     },
   });
 
@@ -80,7 +82,7 @@ export function useCommunityChat() {
       if (error) throw new Error(friendly(error.message));
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["community-messages"] });
+      void queryClient.invalidateQueries({ queryKey: ["community-messages", room] });
     },
   });
 

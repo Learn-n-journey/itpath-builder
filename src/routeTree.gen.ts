@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AiUsageRouteImport } from './routes/ai-usage'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -56,6 +57,8 @@ import { Route as WeakAreasRouteImport } from './routes/weak-areas'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
 import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
+import { Route as FlashcardsIndexRouteImport } from './routes/flashcards.index'
+import { Route as FlashcardsTopicIdRouteImport } from './routes/flashcards.$topicId'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as MasteryCheckTopicIdRouteImport } from './routes/mastery-check.$topicId'
@@ -64,6 +67,8 @@ import { Route as SectionQuizTopicIdRouteImport } from './routes/section-quiz.$t
 import { Route as StageExamStageIdRouteImport } from './routes/stage-exam.$stageId'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
+import { Route as TracksIndexRouteImport } from './routes/tracks.index'
+import { Route as TracksSlugRouteImport } from './routes/tracks.$slug'
 import { Route as ApiPublicLinkCheckRouteImport } from './routes/api/public/link-check'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -75,6 +80,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AchievementsRoute = AchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiTutorRoute = AiTutorRouteImport.update({
@@ -302,6 +312,16 @@ const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
   path: '/checkout/success',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FlashcardsIndexRoute = FlashcardsIndexRouteImport.update({
+  id: '/flashcards/',
+  path: '/flashcards/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FlashcardsTopicIdRoute = FlashcardsTopicIdRouteImport.update({
+  id: '/flashcards/$topicId',
+  path: '/flashcards/$topicId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GuidesIndexRoute = GuidesIndexRouteImport.update({
   id: '/guides/',
   path: '/guides/',
@@ -342,6 +362,16 @@ const TopicsTopicIdRoute = TopicsTopicIdRouteImport.update({
   path: '/topics/$topicId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TracksIndexRoute = TracksIndexRouteImport.update({
+  id: '/tracks/',
+  path: '/tracks/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TracksSlugRoute = TracksSlugRouteImport.update({
+  id: '/tracks/$slug',
+  path: '/tracks/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicLinkCheckRoute = ApiPublicLinkCheckRouteImport.update({
   id: '/api/public/link-check',
   path: '/api/public/link-check',
@@ -357,6 +387,7 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/achievements': typeof AchievementsRoute
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
@@ -401,21 +432,26 @@ export interface FileRoutesByFullPath {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
+  '/tracks/$slug': typeof TracksSlugRoute
   '/certifications/': typeof CertificationsIndexRoute
+  '/flashcards/': typeof FlashcardsIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/topics/': typeof TopicsIndexRoute
+  '/tracks/': typeof TracksIndexRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/achievements': typeof AchievementsRoute
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
@@ -460,15 +496,19 @@ export interface FileRoutesByTo {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
+  '/tracks/$slug': typeof TracksSlugRoute
   '/certifications': typeof CertificationsIndexRoute
+  '/flashcards': typeof FlashcardsIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/topics': typeof TopicsIndexRoute
+  '/tracks': typeof TracksIndexRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -476,6 +516,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/achievements': typeof AchievementsRoute
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
@@ -520,15 +561,19 @@ export interface FileRoutesById {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
+  '/tracks/$slug': typeof TracksSlugRoute
   '/certifications/': typeof CertificationsIndexRoute
+  '/flashcards/': typeof FlashcardsIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/topics/': typeof TopicsIndexRoute
+  '/tracks/': typeof TracksIndexRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -537,6 +582,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/achievements'
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
@@ -581,21 +627,26 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/flashcards/$topicId'
     | '/guides/$slug'
     | '/mastery-check/$topicId'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
     | '/topics/$topicId'
+    | '/tracks/$slug'
     | '/certifications/'
+    | '/flashcards/'
     | '/guides/'
     | '/topics/'
+    | '/tracks/'
     | '/api/public/link-check'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/achievements'
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
@@ -640,21 +691,26 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/flashcards/$topicId'
     | '/guides/$slug'
     | '/mastery-check/$topicId'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
     | '/topics/$topicId'
+    | '/tracks/$slug'
     | '/certifications'
+    | '/flashcards'
     | '/guides'
     | '/topics'
+    | '/tracks'
     | '/api/public/link-check'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/achievements'
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
@@ -699,15 +755,19 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/flashcards/$topicId'
     | '/guides/$slug'
     | '/mastery-check/$topicId'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
     | '/topics/$topicId'
+    | '/tracks/$slug'
     | '/certifications/'
+    | '/flashcards/'
     | '/guides/'
     | '/topics/'
+    | '/tracks/'
     | '/api/public/link-check'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -715,6 +775,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AchievementsRoute: typeof AchievementsRoute
   AiTutorRoute: typeof AiTutorRoute
   AiUsageRoute: typeof AiUsageRoute
   AuthRoute: typeof AuthRoute
@@ -759,15 +820,19 @@ export interface RootRouteChildren {
   WeakAreasRoute: typeof WeakAreasRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
+  FlashcardsTopicIdRoute: typeof FlashcardsTopicIdRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   MasteryCheckTopicIdRoute: typeof MasteryCheckTopicIdRoute
   PracticeTestsCertIdRoute: typeof PracticeTestsCertIdRoute
   SectionQuizTopicIdRoute: typeof SectionQuizTopicIdRoute
   StageExamStageIdRoute: typeof StageExamStageIdRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
+  TracksSlugRoute: typeof TracksSlugRoute
   CertificationsIndexRoute: typeof CertificationsIndexRoute
+  FlashcardsIndexRoute: typeof FlashcardsIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   TopicsIndexRoute: typeof TopicsIndexRoute
+  TracksIndexRoute: typeof TracksIndexRoute
   ApiPublicLinkCheckRoute: typeof ApiPublicLinkCheckRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -786,6 +851,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/achievements': {
+      id: '/achievements'
+      path: '/achievements'
+      fullPath: '/achievements'
+      preLoaderRoute: typeof AchievementsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-tutor': {
@@ -1103,6 +1175,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/flashcards/': {
+      id: '/flashcards/'
+      path: '/flashcards'
+      fullPath: '/flashcards/'
+      preLoaderRoute: typeof FlashcardsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flashcards/$topicId': {
+      id: '/flashcards/$topicId'
+      path: '/flashcards/$topicId'
+      fullPath: '/flashcards/$topicId'
+      preLoaderRoute: typeof FlashcardsTopicIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guides/': {
       id: '/guides/'
       path: '/guides'
@@ -1159,6 +1245,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TopicsTopicIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tracks/': {
+      id: '/tracks/'
+      path: '/tracks'
+      fullPath: '/tracks/'
+      preLoaderRoute: typeof TracksIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tracks/$slug': {
+      id: '/tracks/$slug'
+      path: '/tracks/$slug'
+      fullPath: '/tracks/$slug'
+      preLoaderRoute: typeof TracksSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/link-check': {
       id: '/api/public/link-check'
       path: '/api/public/link-check'
@@ -1179,6 +1279,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AchievementsRoute: AchievementsRoute,
   AiTutorRoute: AiTutorRoute,
   AiUsageRoute: AiUsageRoute,
   AuthRoute: AuthRoute,
@@ -1223,15 +1324,19 @@ const rootRouteChildren: RootRouteChildren = {
   WeakAreasRoute: WeakAreasRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
   CheckoutSuccessRoute: CheckoutSuccessRoute,
+  FlashcardsTopicIdRoute: FlashcardsTopicIdRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   MasteryCheckTopicIdRoute: MasteryCheckTopicIdRoute,
   PracticeTestsCertIdRoute: PracticeTestsCertIdRoute,
   SectionQuizTopicIdRoute: SectionQuizTopicIdRoute,
   StageExamStageIdRoute: StageExamStageIdRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,
+  TracksSlugRoute: TracksSlugRoute,
   CertificationsIndexRoute: CertificationsIndexRoute,
+  FlashcardsIndexRoute: FlashcardsIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
+  TracksIndexRoute: TracksIndexRoute,
   ApiPublicLinkCheckRoute: ApiPublicLinkCheckRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }

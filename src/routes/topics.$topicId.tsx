@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, BookOpen, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Layers, Lock, MessagesSquare } from "lucide-react";
 import { blockingTopic } from "@/lib/journey-order";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
@@ -109,6 +109,21 @@ function TopicPage() {
       </Button>
 
       <PageHeader title={topic.title} description={topic.summary} />
+
+      <div className="mb-6 flex flex-wrap gap-2">
+        <Button asChild variant="secondary" size="sm">
+          <Link to="/flashcards/$topicId" params={{ topicId: topic.id }}>
+            <Layers aria-hidden />
+            Flashcards
+          </Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm">
+          <Link to="/community" search={{ room: topic.id }}>
+            <MessagesSquare aria-hidden />
+            Discuss this section
+          </Link>
+        </Button>
+      </div>
 
       <dl className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
         {[

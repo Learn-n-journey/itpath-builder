@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { getRouterInstance } from "@tanstack/react-start";
 import { sitemapStaticPaths, sitemapXML, type SitemapEntry } from "@/lib/sitemap";
 import { guidePath, guideTopics } from "@/lib/public-guides";
+import { publishedTracks, trackSlug } from "@/lib/tracks";
 
 const BASE_URL = "https://it-path.net";
 
@@ -19,6 +20,11 @@ export const Route = createFileRoute("/sitemap.xml")({
           "comptia-security-plus",
         ].map((slug) => `/practice-tests/cert-${slug}`);
         for (const path of practiceTestPaths) {
+          if (!entries.some((entry) => entry.path === path)) entries.push({ path });
+        }
+        // Public certification track pages, one per certificate.
+        for (const cert of publishedTracks()) {
+          const path = `/tracks/${trackSlug(cert.id)}`;
           if (!entries.some((entry) => entry.path === path)) entries.push({ path });
         }
         // Public study guide pages, one per curriculum section.

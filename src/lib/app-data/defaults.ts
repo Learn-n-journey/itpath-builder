@@ -52,6 +52,7 @@ export function createDefaultUserData(): UserData {
     incidentAttempts: [],
     ticketAttempts: [],
     learnerSignals: [],
+    flashcardReviews: [],
     settings: { ...defaultSettings },
   };
 }
