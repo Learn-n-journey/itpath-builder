@@ -6,11 +6,14 @@ import { navGroups, navItems } from "@/config/navigation";
 import { AccountPanel } from "@/components/layout/account-panel";
 import { CommandPalette, CommandPaletteButton, useCommandPalette } from "@/components/command-palette";
 import { StudyReminder } from "@/components/study-reminder";
+import { useSidebarAttention } from "@/hooks/use-sidebar-attention";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
+  const attention = useSidebarAttention();
+
   return (
     <nav className="flex flex-col gap-6 px-3 py-4">
       {navGroups.map((group) => (
@@ -21,25 +24,39 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           <ul className="space-y-0.5">
             {navItems
               .filter((item) => item.group === group)
-              .map((item) => (
-                <li key={item.to}>
-                  <Link
-                    to={item.to}
-                    onClick={onNavigate}
-                    title={item.description}
-                    activeOptions={{ exact: item.to === "/" }}
-                    className="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:scale-[0.98] data-[status=active]:bg-sidebar-accent data-[status=active]:font-medium data-[status=active]:text-sidebar-primary"
-                  >
-                    <item.icon className="size-4 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden />
-                    <span className="flex flex-1 items-center justify-between gap-2">
-                      <span>{item.label}</span>
-                      {item.pro ? (
-                        <Crown className="size-3 text-primary" aria-hidden />
-                      ) : null}
-                    </span>
-                  </Link>
-                </li>
-              ))}
+              .map((item) => {
+                const needsAttention = attention.get(item.to);
+                return (
+                  <li key={item.to}>
+                    <Link
+                      to={item.to}
+                      onClick={onNavigate}
+                      title={item.description}
+                      activeOptions={{ exact: item.to === "/" }}
+                      className="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:scale-[0.98] data-[status=active]:bg-sidebar-accent data-[status=active]:font-medium data-[status=active]:text-sidebar-primary"
+                    >
+                      <item.icon className="size-4 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden />
+                      <span className="flex flex-1 items-center justify-between gap-2">
+                        <span>{item.label}</span>
+                        <span className="flex items-center gap-1.5">
+                          {item.pro ? (
+                            <Crown className="size-3 text-primary" aria-hidden />
+                          ) : null}
+                          {needsAttention ? (
+                            <span
+                              className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground"
+                              aria-label={needsAttention.label}
+                              role="status"
+                            >
+                              {needsAttention.count > 1 ? needsAttention.count : ""}
+                            </span>
+                          ) : null}
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
           </ul>
         </div>
       ))}
