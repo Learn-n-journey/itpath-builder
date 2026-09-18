@@ -8,7 +8,18 @@
  * generated endlessly and each one is harder than the last.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Heart, Pause, Play, Package, RotateCcw, Shield } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  Heart,
+  Pause,
+  Play,
+  Package,
+  RotateCcw,
+  Shield,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -627,6 +638,32 @@ export function VirusRun() {
     keysRef.current = keysRef.current.filter((k) => k !== dir);
   };
 
+  // Drag-to-steer on the play area: touch and drag, and the virus follows
+  // the direction of your finger relative to where you first touched down.
+  const dragRef = useRef<{ id: number; x: number; y: number } | null>(null);
+
+  const steerFromDrag = (dx: number, dy: number) => {
+    if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return; // dead zone
+    const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
+    keysRef.current = [dir];
+  };
+
+  const onCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e.pointerType !== "touch") return;
+    dragRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  };
+  const onCanvasPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const drag = dragRef.current;
+    if (!drag || e.pointerId !== drag.id) return;
+    steerFromDrag(e.clientX - drag.x, e.clientY - drag.y);
+  };
+  const onCanvasPointerEnd = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (dragRef.current && e.pointerId === dragRef.current.id) {
+      dragRef.current = null;
+      keysRef.current = [];
+    }
+  };
+
   const run = runRef.current;
   const overlay =
     phase === "menu" ? (
@@ -639,7 +676,7 @@ export function VirusRun() {
         </p>
         <div className="flex flex-col items-center gap-1 font-mono text-xs text-muted-foreground">
           <span>Arrow keys or WASD to move, Esc to pause.</span>
-          <span>On touch screens, use the pad in the corner.</span>
+          <span>On touch screens, drag on the play area or use the arrow pad below it.</span>
         </div>
         <button
           onClick={startRun}
@@ -729,27 +766,46 @@ export function VirusRun() {
       </div>
 
       <div className="relative overflow-hidden rounded-xl border border-border">
-        <canvas ref={canvasRef} className="block h-auto w-full aspect-[25/17] touch-none" />
+        <canvas
+          ref={canvasRef}
+          className="block h-auto w-full aspect-[25/17] touch-none"
+          onPointerDown={onCanvasPointerDown}
+          onPointerMove={onCanvasPointerMove}
+          onPointerUp={onCanvasPointerEnd}
+          onPointerCancel={onCanvasPointerEnd}
+        />
         {overlay}
       </div>
 
       {/* Touch pad, visible on small screens. */}
-      <div className="mt-4 grid grid-cols-3 gap-2 md:hidden select-none" aria-label="Movement pad">
-        <span />
-        <PadButton label="Up" onPress={() => pressDir("up")} onRelease={() => releaseDir("up")} />
-        <span />
-        <PadButton label="Left" onPress={() => pressDir("left")} onRelease={() => releaseDir("left")} />
-        <span />
-        <PadButton label="Right" onPress={() => pressDir("right")} onRelease={() => releaseDir("right")} />
-        <span />
-        <PadButton label="Down" onPress={() => pressDir("down")} onRelease={() => releaseDir("down")} />
-        <span />
+      <div className="mt-4 flex justify-center md:hidden select-none" aria-label="Movement pad">
+        <div className="grid grid-cols-3 gap-2">
+          <span />
+          <PadButton label="Up" icon={<ChevronUp className="size-7" aria-hidden />} onPress={() => pressDir("up")} onRelease={() => releaseDir("up")} />
+          <span />
+          <PadButton label="Left" icon={<ChevronLeft className="size-7" aria-hidden />} onPress={() => pressDir("left")} onRelease={() => releaseDir("left")} />
+          <span />
+          <PadButton label="Right" icon={<ChevronRight className="size-7" aria-hidden />} onPress={() => pressDir("right")} onRelease={() => releaseDir("right")} />
+          <span />
+          <PadButton label="Down" icon={<ChevronDown className="size-7" aria-hidden />} onPress={() => pressDir("down")} onRelease={() => releaseDir("down")} />
+          <span />
+        </div>
       </div>
     </div>
   );
 }
 
-function PadButton({ label, onPress, onRelease }: { label: string; onPress: () => void; onRelease: () => void }) {
+function PadButton({
+  label,
+  icon,
+  onPress,
+  onRelease,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  onPress: () => void;
+  onRelease: () => void;
+}) {
   return (
     <button
       aria-label={label}
@@ -760,9 +816,10 @@ function PadButton({ label, onPress, onRelease }: { label: string; onPress: () =
       onPointerUp={onRelease}
       onPointerLeave={onRelease}
       onPointerCancel={onRelease}
-      className="flex h-12 items-center justify-center rounded-lg border border-border bg-card font-mono text-xs text-muted-foreground active:border-primary/60 active:text-primary"
+      onContextMenu={(e) => e.preventDefault()}
+      className="flex size-16 items-center justify-center rounded-2xl border border-border bg-card text-muted-foreground shadow-sm transition-colors active:border-primary active:bg-primary/15 active:text-primary"
     >
-      {label}
+      {icon}
     </button>
   );
 }
