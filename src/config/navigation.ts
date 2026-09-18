@@ -29,6 +29,8 @@ import {
   CircuitBoard,
   Bug,
   MessagesSquare,
+  Layers,
+  Medal,
   Newspaper,
   Video,
   type LucideIcon,
@@ -163,6 +165,13 @@ export const navItems: NavItem[] = [
     description: "Tap through photos of a motherboard, RAM, GPU, drives, power supply, cooler and case to learn each part.",
   },
   {
+    label: "Flashcards",
+    to: "/flashcards",
+    icon: Layers,
+    group: "Practice",
+    description: "Quick spaced repetition cards from the key terms, quick reference and exam traps in each section.",
+  },
+  {
     label: "Review",
     to: "/review",
     icon: RotateCcw,
@@ -189,6 +198,13 @@ export const navItems: NavItem[] = [
     icon: FolderGit2,
     group: "Career",
     description: "Write up completed work as evidence for employers.",
+  },
+  {
+    label: "Achievements",
+    to: "/achievements",
+    icon: Medal,
+    group: "You",
+    description: "Exam readiness, your streak and every badge earned from recorded work.",
   },
   {
     label: "AI Tutor",

@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flag, MessagesSquare, Send, Trash2 } from "lucide-react";
+import { Flag, MessagesSquare, Send, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
@@ -9,24 +9,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/state/auth-state";
+import { useAppState } from "@/state/app-state";
 import { useCommunityChat } from "@/hooks/use-community-chat";
 import { useDisplayName } from "@/hooks/use-display-name";
 import { checkDisplayName, checkMessage } from "@/lib/community/word-filter";
+import { GENERAL_ROOM, isValidRoom, roomTitle, topicForRoom } from "@/lib/community/rooms";
+import { currentJourneyTopic, journeyTopics } from "@/lib/journey-order";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/community")({
   staticData: { sitemap: false },
+  validateSearch: (search: Record<string, unknown>) => ({
+    room: typeof search["room"] === "string" ? search["room"] : GENERAL_ROOM,
+  }),
   head: () => ({
     meta: [
-      { title: "Community Chat | IT PATH" },
+      { title: "Community and study rooms | IT PATH" },
       {
         name: "description",
         content:
-          "Talk with other IT PATH learners in one shared room: ask for help, share wins and compare notes on certification study.",
+          "Talk with other IT PATH learners in the general room or in a study room for the section you are working on right now.",
       },
-      { property: "og:title", content: "Community Chat | IT PATH" },
+      { property: "og:title", content: "Community and study rooms | IT PATH" },
       {
         property: "og:description",
-        content: "One shared room for IT PATH learners to ask questions and share study wins.",
+        content: "General chat plus a study room for every section of the curriculum.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -48,12 +55,28 @@ function timeLabel(iso: string): string {
 
 function CommunityPage() {
   const { userId, ready } = useAuth();
+  const { user } = useAppState();
+  const navigate = useNavigate({ from: "/community" });
+  const search = Route.useSearch();
+  const room = isValidRoom(search.room) ? search.room : GENERAL_ROOM;
   const { displayName, loading: nameLoading, saveDisplayName, saving } = useDisplayName();
-  const { messages, loading, send, sending, remove, report } = useCommunityChat();
+  const { messages, loading, send, sending, remove, report } = useCommunityChat(room);
   const [draft, setDraft] = useState("");
   const [nameDraft, setNameDraft] = useState("");
   const [editingName, setEditingName] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+
+  const rooms = useMemo(() => {
+    const sections = journeyTopics(user);
+    const current = currentJourneyTopic(user);
+    const ordered = current
+      ? [current, ...sections.filter((topic) => topic.id !== current.id)]
+      : sections;
+    return [
+      { id: GENERAL_ROOM, label: "General" },
+      ...ordered.map((topic) => ({ id: topic.id, label: topic.title })),
+    ];
+  }, [user]);
 
   useEffect(() => {
     setNameDraft(displayName);
@@ -62,19 +85,20 @@ function CommunityPage() {
   useEffect(() => {
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [messages.length]);
+  }, [messages.length, room]);
 
   const needsName = ready && Boolean(userId) && !nameLoading && !displayName;
-  const grouped = useMemo(() => messages, [messages]);
+  const sectionId = topicForRoom(room);
+  const title = roomTitle(room);
 
   if (ready && !userId) {
     return (
       <>
         <PageHeader
-          title="Community chat"
-          description="One shared room for IT PATH learners."
+          title="Community and study rooms"
+          description="A general room plus a study room for every section."
         />
-        <Panel title="Sign in to join" description="The chat is for people with an IT PATH account.">
+        <Panel title="Sign in to join" description="The rooms are for people with an IT PATH account.">
           <Button asChild>
             <Link to="/auth">Sign in or create an account</Link>
           </Button>
@@ -117,8 +141,8 @@ function CommunityPage() {
   return (
     <>
       <PageHeader
-        title="Community chat"
-        description="One shared room for everyone studying with IT PATH. Ask for help, share a win, compare notes."
+        title="Community and study rooms"
+        description="Ask for help where it belongs: the general room for anything, a section room for the material you are on."
       />
 
       {needsName || editingName ? (
@@ -150,12 +174,43 @@ function CommunityPage() {
       ) : null}
 
       <Panel
-        title="The room"
+        title="Rooms"
+        description="General chat, then one room for each section of your certificate."
+        className="mb-6"
+      >
+        <div className="flex flex-wrap gap-2">
+          {rooms.map((entry) => (
+            <button
+              key={entry.id}
+              type="button"
+              onClick={() => void navigate({ search: { room: entry.id } })}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                entry.id === room
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {entry.label}
+            </button>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel
+        title={title}
         description={
           displayName ? `Posting as ${displayName}.` : "Set a name above before posting."
         }
       >
-        <div className="mb-3 flex justify-end">
+        <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
+          {sectionId ? (
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/topics/$topicId" params={{ topicId: sectionId }}>
+                Open this section
+              </Link>
+            </Button>
+          ) : null}
           {displayName && !editingName ? (
             <Button type="button" variant="ghost" size="sm" onClick={() => setEditingName(true)}>
               Change name
@@ -169,15 +224,21 @@ function CommunityPage() {
         >
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading the room.</p>
-          ) : grouped.length === 0 ? (
+          ) : messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 py-10 text-center">
-              <MessagesSquare className="size-6 text-muted-foreground" aria-hidden />
+              {sectionId ? (
+                <Users className="size-6 text-muted-foreground" aria-hidden />
+              ) : (
+                <MessagesSquare className="size-6 text-muted-foreground" aria-hidden />
+              )}
               <p className="text-sm text-muted-foreground">
-                Nothing here yet. Say hello and get it started.
+                {sectionId
+                  ? `No messages about ${title} yet. Post the part you are stuck on and get it started.`
+                  : "Nothing here yet. Say hello and get it started."}
               </p>
             </div>
           ) : (
-            grouped.map((message) => {
+            messages.map((message) => {
               const mine = message.userId === userId;
               return (
                 <div key={message.id} className="group flex flex-col gap-1">

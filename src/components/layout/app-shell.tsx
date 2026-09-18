@@ -102,7 +102,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Public study guides sit outside the app chrome so search engines and
   // signed-out visitors get a plain, readable page.
-  if (pathname === "/guides" || pathname.startsWith("/guides/")) {
+  if (
+    pathname === "/guides" ||
+    pathname.startsWith("/guides/") ||
+    pathname === "/tracks" ||
+    pathname.startsWith("/tracks/")
+  ) {
     return <PublicShell>{children}</PublicShell>;
   }
 
