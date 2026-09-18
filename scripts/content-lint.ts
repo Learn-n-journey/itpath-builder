@@ -61,7 +61,7 @@ for (const question of questions) {
 
 // 2. Questions that cannot be answered as written.
 for (const question of questions) {
-  const options = question.options ?? [];
+  const options = question.choices ?? [];
   const correct = question.correctAnswer ?? [];
   if (question.prompt.trim().length < 15) {
     findings.push({ area: "questions", where: question.id, detail: "The question is too short to answer." });
