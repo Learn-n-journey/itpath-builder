@@ -34,6 +34,7 @@ import {
   type TutorMode,
 } from "@/lib/tutor-prompts";
 import { useAppState } from "@/state/app-state";
+import { ContentReportButton } from "@/components/content-report-button";
 
 export const Route = createFileRoute("/ai-tutor")({
   staticData: { sitemap: false },

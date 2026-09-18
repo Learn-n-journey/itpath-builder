@@ -27,6 +27,7 @@ import type { TopicProgress } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { topicMeasures } from "@/lib/mastery-summary";
 import { answerMatches, coveredConcepts } from "@/lib/fuzzy-match";
+import { ContentReportButton } from "@/components/content-report-button";
 
 
 /**
