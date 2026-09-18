@@ -9,9 +9,10 @@
  */
 import { getDeepLesson } from "@/data/deep-lessons";
 import { lessons, topics } from "@/data/static-content";
+import { getTopicQuestionPool } from "@/data/topic-quizzes";
 import type { FlashcardReview, UserData } from "@/lib/app-data/types";
 
-export type FlashcardKind = "term" | "reference" | "trap" | "mixup" | "check";
+export type FlashcardKind = "term" | "reference" | "trap" | "mixup" | "check" | "quiz";
 
 export interface Flashcard {
   id: string;
@@ -30,6 +31,7 @@ export const flashcardKindLabels: Record<FlashcardKind, string> = {
   trap: "Exam trap",
   mixup: "Common mix-up",
   check: "Self check",
+  quiz: "Quiz question",
 };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -93,6 +95,12 @@ export function topicFlashcards(topicId: string): Flashcard[] {
   });
   deep?.depth?.checkYourself.forEach((check, index) => {
     push("check", index, check.question, check.answer);
+  });
+  getTopicQuestionPool(topicId).forEach((item, index) => {
+    const answer = item.correctAnswer.filter((entry) => entry.trim().length > 0).join("; ");
+    if (answer.length < 2) return;
+    const explanation = item.explanation?.trim();
+    push("quiz", index, item.prompt, explanation ? `${answer}. ${explanation}` : answer);
   });
 
   return out;
