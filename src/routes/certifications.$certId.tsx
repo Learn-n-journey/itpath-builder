@@ -253,17 +253,42 @@ function Certifications() {
                   </div>
                   <p className="mb-2 text-xs text-muted-foreground">{stage.description}</p>
                   <ul className="grid gap-2 sm:grid-cols-2">
-                    {stage.topics.map((topic) => (
-                      <li key={topic.id}>
-                        <Link
-                          to="/topics/$topicId"
-                          params={{ topicId: topic.id }}
-                          className="block min-w-0 rounded-lg border border-border bg-background/40 p-3 hover:bg-secondary/50"
-                        >
-                          <span className="block truncate text-sm font-medium">{topic.title}</span>
-                        </Link>
-                      </li>
-                    ))}
+                    {[...stage.topics]
+                      .sort(
+                        (a, b) =>
+                          (unlock.orderIndex.get(a.id) ?? 0) - (unlock.orderIndex.get(b.id) ?? 0),
+                      )
+                      .map((topic) => {
+                        const isOpen = unlock.openIds.has(topic.id);
+                        return (
+                          <li key={topic.id}>
+                            {isOpen ? (
+                              <Link
+                                to="/topics/$topicId"
+                                params={{ topicId: topic.id }}
+                                className="block min-w-0 rounded-lg border border-border bg-background/40 p-3 hover:bg-secondary/50"
+                              >
+                                <span className="block truncate text-sm font-medium">{topic.title}</span>
+                              </Link>
+                            ) : (
+                              <div
+                                className="relative block min-w-0 rounded-lg border border-border bg-background/40 p-3 opacity-50"
+                                aria-label={`${topic.title} (locked)`}
+                                title="Finish the section before this one to unlock it"
+                              >
+                                <span className="block truncate text-sm font-medium text-muted-foreground">
+                                  {topic.title}
+                                </span>
+                                <Lock
+                                  className="absolute left-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 text-muted-foreground"
+                                  aria-hidden
+                                />
+                                <span className="invisible block truncate text-sm font-medium">{topic.title}</span>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
                   </ul>
                 </section>
               ))}
