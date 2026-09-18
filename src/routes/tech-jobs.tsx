@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Award, Briefcase, ExternalLink, MapPin, RefreshCw, Search } from "lucide-react";
+import { Award, Briefcase, ExternalLink, Globe, MapPin, RefreshCw, Search } from "lucide-react";
 
 import { EmptyState, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -128,7 +128,7 @@ function TechJobsPage() {
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
       <PageHeader
         title="Tech Jobs"
-        description="Live IT roles from public job boards. Filter by where you want to work and the certificate you are studying for. Every card links to the original posting."
+        description="Live IT roles from public job boards in your country. Filter by city or remote work and the certificate you are studying for. Every card links to the original posting."
         actions={
           <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
             <RefreshCw className={isFetching ? "size-4 animate-spin" : "size-4"} aria-hidden />
@@ -244,7 +244,7 @@ function TechJobsPage() {
       )}
 
       <p className="mt-8 text-xs text-muted-foreground">
-        Listings come from Remotive, Arbeitnow and Remote OK. IT PATH does not host or alter
+        Listings come from Job Data API, Jobicy, Remotive, Arbeitnow and Remote OK, gathered for the country you pick. IT PATH does not host or alter
         postings; applying always happens on the original site.
       </p>
     </div>
