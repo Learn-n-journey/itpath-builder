@@ -1,4 +1,5 @@
-import { topics, lessons, learningModules, certifications, certificationObjectives } from "@/data/static-content";
+import { topics, lessons, certifications, certificationObjectives } from "@/data/static-content";
+import { learningModules } from "@/data/learning-content";
 import { getSectionQuizQuestions, getTopicQuestionPool } from "@/data/topic-quizzes";
 import { stageExams, getStageExamQuestions } from "@/data/stage-exams";
 
