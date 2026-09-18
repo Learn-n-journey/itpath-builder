@@ -34,20 +34,12 @@ export const Route = createFileRoute("/guides/$slug")({
         { name: "twitter:card", content: "summary" },
       ],
       links: [{ rel: "canonical", href: url }],
-      scripts: [
-        {
-          type: "application/ld+json",
-          children: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            headline: title,
-            description,
-            about: certificationTitle(topic.certificationId),
-            mainEntityOfPage: url,
-            publisher: { "@type": "Organization", name: "IT PATH", url: GUIDE_BASE_URL },
-          }),
-        },
-      ],
+      // Article plus learning resource, tied to its certificate course, with
+      // breadcrumbs so the hierarchy is explicit.
+      scripts: guideJsonLd(
+        topic,
+        (lessonForTopic(topic.id)?.keyTerms ?? []).map((term) => term.term),
+      ).map((entry) => ({ type: "application/ld+json", children: JSON.stringify(entry) })),
     };
   },
   component: GuidePage,
