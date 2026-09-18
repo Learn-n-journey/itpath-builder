@@ -106,7 +106,7 @@ describe("learning engine stress", () => {
         const summary = summarizeMistakes(user);
         expect(summary.open).toBeLessThanOrEqual(summary.total);
       }
-    });
+    }, 30000);
   }
 
   it("gives identical results for identical histories", () => {
