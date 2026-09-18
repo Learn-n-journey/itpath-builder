@@ -637,6 +637,9 @@ export function VirusRun() {
   const releaseDir = (dir: string) => {
     keysRef.current = keysRef.current.filter((k) => k !== dir);
   };
+  const releaseAllDirs = () => {
+    keysRef.current = [];
+  };
 
   // Drag-to-steer on the play area: touch and drag, and the virus follows
   // the direction of your finger relative to where you first touched down.
@@ -676,7 +679,7 @@ export function VirusRun() {
         </p>
         <div className="flex flex-col items-center gap-1 font-mono text-xs text-muted-foreground">
           <span>Arrow keys or WASD to move, Esc to pause.</span>
-          <span>On touch screens, drag on the play area or use the arrow pad below it.</span>
+          <span>On touch screens, drag on the play area, use the arrow pad, or tilt the stick in its middle.</span>
         </div>
         <button
           onClick={startRun}
@@ -784,7 +787,7 @@ export function VirusRun() {
           <PadButton label="Up" icon={<ChevronUp className="size-7" aria-hidden />} onPress={() => pressDir("up")} onRelease={() => releaseDir("up")} />
           <span />
           <PadButton label="Left" icon={<ChevronLeft className="size-7" aria-hidden />} onPress={() => pressDir("left")} onRelease={() => releaseDir("left")} />
-          <Joystick onDir={(dir) => pressDir(dir)} onRelease={() => releaseDir("up") & releaseDir("down") & releaseDir("left") & releaseDir("right")} />
+          <Joystick onDir={(dir) => pressDir(dir)} onRelease={releaseAllDirs} />
           <PadButton label="Right" icon={<ChevronRight className="size-7" aria-hidden />} onPress={() => pressDir("right")} onRelease={() => releaseDir("right")} />
           <span />
           <PadButton label="Down" icon={<ChevronDown className="size-7" aria-hidden />} onPress={() => pressDir("down")} onRelease={() => releaseDir("down")} />
