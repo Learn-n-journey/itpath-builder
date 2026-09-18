@@ -36,6 +36,7 @@ import { resumeTarget, type ResumeTarget } from "@/lib/resume";
 import { greetingFor } from "@/lib/greeting";
 import { currentJourneyTopic, journeyIndexFor } from "@/lib/journey-order";
 import { masteryGate } from "@/lib/mastery-gate";
+import { overallMeasures } from "@/lib/mastery-summary";
 import { useProfile } from "@/hooks/use-profile";
 import { useAppState } from "@/state/app-state";
 
@@ -196,6 +197,7 @@ function Dashboard() {
   const { user, hydrated } = useAppState();
   const { firstName } = useProfile();
   const d = useMemo(() => computeDashboard(user), [user]);
+  const measures = useMemo(() => overallMeasures(user), [user]);
 
   const path = useMemo(() => adaptivePath(user), [user]);
   const [dismissedVersion, setDismissedVersion] = useState(0);
@@ -322,7 +324,7 @@ function Dashboard() {
       ) : null}
 
       <ProgressOverview
-        progress={d.overallProgress}
+        progress={measures.learningProgress}
         hasActivity={d.hasAnyActivity}
         topicsComplete={d.masteredTopics}
         topicsTotal={d.topicsTotal}
@@ -383,10 +385,10 @@ function Dashboard() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard
-          label="Overall progress"
-          value={`${d.overallProgress}%`}
+          label="Learning progress"
+          value={`${measures.learningProgress}%`}
           icon={Target}
-          hint={`Across ${d.topicsTotal} topics`}
+          hint={`${measures.activitiesCompleted} of ${measures.activitiesTotal} activities done`}
         />
         <StatCard
           label="Current goal"
@@ -464,15 +466,17 @@ function Dashboard() {
         </Panel>
 
         <Panel
-          title="Skill dimensions"
-          description="Averaged over every curriculum topic. Untouched topics count as zero."
+          title="Where you stand"
+          description="Two numbers: how much of the work you have done, and how well the final assessments went."
         >
           <div className="space-y-3">
-            <MeterRow label="Knowledge" value={d.knowledge} />
-            <MeterRow label="Practical skills" value={d.practical} />
-            <MeterRow label="Troubleshooting" value={d.troubleshooting} />
-            <MeterRow label="Retention" value={d.retention} />
+            <MeterRow label="Learning progress" value={measures.learningProgress} />
+            <MeterRow label="Overall mastery" value={measures.overallMastery} />
           </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            {measures.activitiesCompleted} of {measures.activitiesTotal} activities done ·{" "}
+            {measures.assessmentsTaken} of {measures.assessmentsTotal} final assessments taken
+          </p>
         </Panel>
 
         <Panel title="Topics to come back to" description="Each line says why it is here: a review that is due, an open mistake, or a low score.">

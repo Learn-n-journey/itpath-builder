@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress as ProgressBar } from "@/components/ui/progress";
 import { certificationStatusLabels } from "@/lib/certification-engine";
-import { computeProgress, dimensionLabels, type ProgressReport } from "@/lib/progress-engine";
-import { measureSlug, type MeasureKey } from "@/lib/measure-guides";
+import { computeProgress, type ProgressReport } from "@/lib/progress-engine";
+import { overallMeasures } from "@/lib/mastery-summary";
 import { evidenceSourceLabels } from "@/lib/skills-engine";
 import { useAppState } from "@/state/app-state";
 import { TrendingUp } from "lucide-react";
@@ -56,6 +56,7 @@ function Row({ label, score, right }: { label: string; score: number; right?: st
 function ProgressPage() {
   const { user } = useAppState();
   const report = useMemo<ProgressReport>(() => computeProgress(user), [user]);
+  const measures = useMemo(() => overallMeasures(user), [user]);
   const [showAllTopics, setShowAllTopics] = useState(false);
 
   const startedTopics = report.byTopic.filter((row) => row.hasActivity);
@@ -71,8 +72,9 @@ function ProgressPage() {
         description="Correct and completed work is measured against everything available. Untouched work counts as zero."
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Overall" value={`${report.overall}%`} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <StatCard label="Learning progress" value={`${measures.learningProgress}%`} />
+        <StatCard label="Overall mastery" value={`${measures.overallMastery}%`} />
         <StatCard label="Topics started" value={`${startedTopics.length}/${report.byTopic.length}`} />
         <StatCard label="Mastered" value={report.masteredTopics.length} />
         <StatCard label="Study time" value={`${Math.round((report.study.totalMinutes / 60) * 10) / 10}h`} />
@@ -93,31 +95,39 @@ function ProgressPage() {
 
       <Panel
         className="mt-6"
-        title="Learning dimensions"
-        description="Averaged across the whole curriculum, so untouched topics count as zero."
+        title="Where you stand"
+        description="Work you have not done counts as zero, and an assessment you have not taken counts as zero."
       >
         <ul className="divide-y divide-border">
-          {dimensionLabels.map((dimension) => (
-            <li key={dimension.key}>
-              <Link
-                to="/measures/$measure"
-                params={{ measure: measureSlug(dimension.key as MeasureKey) }}
-                className="block rounded-md py-3 transition-colors hover:bg-muted/40"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-medium">{dimension.label}</p>
-                    <p className="text-xs text-muted-foreground">{dimension.help}</p>
-                  </div>
-                  <span className={`text-sm tabular-nums ${scoreTone(report.dimensions[dimension.key])}`}>
-                    {report.dimensions[dimension.key]}%
-                  </span>
-                </div>
-                <ProgressBar value={report.dimensions[dimension.key]} className="mt-2 h-1.5" />
-                <p className="mt-1.5 text-xs text-primary">How to get this up</p>
-              </Link>
-            </li>
-          ))}
+          <li className="py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium">Learning progress</p>
+                <p className="text-xs text-muted-foreground">
+                  {measures.activitiesCompleted} of {measures.activitiesTotal} activities completed
+                </p>
+              </div>
+              <span className={`text-sm tabular-nums ${scoreTone(measures.learningProgress)}`}>
+                {measures.learningProgress}%
+              </span>
+            </div>
+            <ProgressBar value={measures.learningProgress} className="mt-2 h-1.5" />
+          </li>
+          <li className="py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium">Overall mastery</p>
+                <p className="text-xs text-muted-foreground">
+                  Final section quizzes and stage exams · {measures.assessmentsTaken} of{" "}
+                  {measures.assessmentsTotal} taken
+                </p>
+              </div>
+              <span className={`text-sm tabular-nums ${scoreTone(measures.overallMastery)}`}>
+                {measures.overallMastery}%
+              </span>
+            </div>
+            <ProgressBar value={measures.overallMastery} className="mt-2 h-1.5" />
+          </li>
         </ul>
       </Panel>
 

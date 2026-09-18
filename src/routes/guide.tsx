@@ -61,18 +61,20 @@ const STEPS: Array<{ title: string; body: string; to: string; cta: string }> = [
 ];
 
 const DIMENSIONS: Array<[string, string]> = [
-  ["Understanding", "Recorded when you work through a lesson and answer its questions."],
-  ["Recall", "From recall questions answered without the lesson in front of you."],
-  ["Application", "From practice activities and written practice tasks."],
-  ["Practical ability", "From completed labs and their checklists."],
-  ["Troubleshooting", "From incidents and career tickets you diagnose, fix and verify."],
-  ["Retention", "From passing spaced reviews at longer and longer intervals."],
+  [
+    "Learning progress",
+    "How much of the available work you have finished: lessons, recall questions, practice, labs, incidents and checks.",
+  ],
+  [
+    "Overall mastery",
+    "How well you did on the final assessments: the quiz at the end of each section and the stage exams. Anything not taken yet counts as zero.",
+  ],
 ];
 
 const VOCABULARY: Array<[string, string]> = [
   [
     "Mastered topic",
-    "All six skill dimensions for that topic are high, backed by recorded work, not just by opening the lesson.",
+    "Every proof this section asks for is passed, backed by recorded work, not just by opening the lesson.",
   ],
   [
     "Mastered review",
@@ -168,8 +170,8 @@ function GuidePage() {
 
         <div className="space-y-4">
           <Panel
-            title="The six skill dimensions"
-            description="Every topic is scored on six separate measures. Reading alone only moves the first one."
+            title="The two measures"
+            description="Everything you see is one of these two. Reading alone only moves the first one."
           >
             <ul className="space-y-2 text-sm">
               {DIMENSIONS.map(([term, meaning]) => (
