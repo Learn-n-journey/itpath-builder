@@ -357,12 +357,20 @@ export function SystemDiagnostics() {
         : "Spacing did not respond to pass and fail outcomes as expected.",
     });
 
-    const storedAttempts =
+    const storedAttempt = reviewUser.reviewAttempts[0];
+    const storedAttempts = Boolean(
       reviewUser.reviewAttempts.length === 1 &&
-      reviewUser.reviewAttempts[0]?.outcome === "fail" &&
-      reviewUser.reviewAttempts[0]?.intervalBefore === 7 &&
-      reviewUser.reviewAttempts[0]?.intervalAfter === 1 &&
-      initialized.reviewAttempts.length === 0;
+        storedAttempt &&
+        storedAttempt.outcome === "fail" &&
+        storedAttempt.reviewId === seedReview.id &&
+        storedAttempt.topicId === seedReview.topicId &&
+        storedAttempt.intervalBefore === secondPass.review.interval &&
+        storedAttempt.intervalAfter === afterFail.review.interval &&
+        storedAttempt.dueBefore === secondPass.review.dueAt &&
+        storedAttempt.dueAfter === afterFail.review.dueAt &&
+        storedAttempt.createdAt &&
+        initialized.reviewAttempts.length === 0,
+    );
     results.push({
       name: "Review attempts stored",
       pass: storedAttempts,
