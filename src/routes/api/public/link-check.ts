@@ -12,7 +12,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { externalLinks } from "@/lib/external-links";
 
 /** How many links one run is allowed to check. */
-const BATCH = 25;
+const BATCH = 60;
 /** How long one run may hold the lock before another run may take over. */
 const LOCK_MINUTES = 10;
 const JOB = "link-check";
