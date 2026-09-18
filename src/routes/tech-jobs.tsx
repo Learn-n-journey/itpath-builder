@@ -153,21 +153,34 @@ function TechJobsPage() {
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter by certification">
-        {["all", ...JOB_CERTIFICATIONS].map((option) => (
-          <button
-            key={option}
-            type="button"
-            onClick={() => setCert(option)}
-            aria-pressed={cert === option}
-            className={
-              cert === option
-                ? "rounded-full bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground"
-                : "rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
-            }
-          >
-            {option === "all" ? "All certificates" : option}
-          </button>
-        ))}
+        {["all", ...JOB_CERTIFICATIONS].map((option) => {
+          const count =
+            option === "all"
+              ? jobs.length
+              : jobs.filter((job) => job.certifications.includes(option)).length;
+          return (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setCert(option)}
+              aria-pressed={cert === option}
+              disabled={option !== "all" && count === 0}
+              title={
+                option !== "all" && count === 0
+                  ? "No current listings mention this certificate"
+                  : undefined
+              }
+              className={
+                cert === option
+                  ? "rounded-full bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground"
+                  : "rounded-full border border-border px-3.5 py-1.5 text-xs text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:hover:text-muted-foreground"
+              }
+            >
+              {option === "all" ? "All certificates" : option}
+              {option !== "all" && count > 0 ? ` (${count})` : ""}
+            </button>
+          );
+        })}
       </div>
 
       {isLoading ? (
@@ -199,8 +212,8 @@ function TechJobsPage() {
       )}
 
       <p className="mt-8 text-xs text-muted-foreground">
-        Listings come from Remotive and Arbeitnow. IT PATH does not host or alter postings; applying
-        always happens on the original site.
+        Listings come from Remotive, Arbeitnow and Remote OK. IT PATH does not host or alter
+        postings; applying always happens on the original site.
       </p>
     </div>
   );
