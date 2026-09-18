@@ -11,9 +11,8 @@
  * Exits non zero when anything is found, so a pipeline can stop on it.
  */
 import { lessons, questions as storedQuestions, topics } from "@/data/static-content";
-import { stageExams } from "@/data/stage-exams";
+import { getStageExamQuestions, stageExams } from "@/data/stage-exams";
 import { getSectionQuizQuestions } from "@/data/topic-quizzes";
-import { getStageExamQuestions } from "@/data/stage-exams";
 import { buildReference, checkOriginality } from "@/lib/originality";
 import { checkTechnicalClaims } from "@/lib/technical-validation";
 
