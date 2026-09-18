@@ -36,6 +36,7 @@ import { resumeTarget, type ResumeTarget } from "@/lib/resume";
 import { greetingFor } from "@/lib/greeting";
 import { currentJourneyTopic, journeyIndexFor } from "@/lib/journey-order";
 import { masteryGate } from "@/lib/mastery-gate";
+import { overallMeasures } from "@/lib/mastery-summary";
 import { useProfile } from "@/hooks/use-profile";
 import { useAppState } from "@/state/app-state";
 
