@@ -849,7 +849,7 @@ function Joystick({ onDir, onRelease }: { onDir: (dir: string) => void; onReleas
     setKnob({ x: dx, y: dy });
     if (mag < 11) {
       onRelease(); // stick near centre: stop
-et      } else {
+    } else {
       onDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
     }
   };
