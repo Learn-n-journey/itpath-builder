@@ -18,6 +18,17 @@ export interface QuizSetReport {
   problems: string[];
 }
 
+// Checking a question is the same work every time, so the result is kept.
+const issueCache = new WeakMap<Question, boolean>();
+
+function isSound(question: Question): boolean {
+  const cached = issueCache.get(question);
+  if (cached !== undefined) return cached;
+  const sound = questionIssues(question).length === 0;
+  issueCache.set(question, sound);
+  return sound;
+}
+
 const normalise = (text: string) => text.trim().toLowerCase().replace(/\s+/g, " ");
 
 /** Where the right answer sits in each question, when there is a single answer. */
@@ -38,7 +49,7 @@ export function reviewQuizSet(items: TaggedQuestion[], size: number): QuizSetRep
 
   items.forEach((item, index) => {
     // Quality: anything unanswerable, or with options that give it away.
-    if (questionIssues(item.question).length > 0) {
+    if (!isSound(item.question)) {
       replace.add(index);
       return;
     }
