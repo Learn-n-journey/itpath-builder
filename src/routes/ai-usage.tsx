@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { getAiDashboard, type AiDashboard } from "@/lib/ai-dashboard.functions";
 import { formatCost } from "@/lib/ai/pricing";
 import { listContentReports, type ContentReportRow } from "@/lib/content-reports.functions";
+import { checkMarkdownOriginality, type OriginalityReport } from "@/lib/originality.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/ai-usage")({
   staticData: { sitemap: false },
