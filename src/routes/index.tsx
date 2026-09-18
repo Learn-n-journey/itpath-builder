@@ -385,10 +385,10 @@ function Dashboard() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard
-          label="Overall progress"
-          value={`${d.overallProgress}%`}
+          label="Learning progress"
+          value={`${measures.learningProgress}%`}
           icon={Target}
-          hint={`Across ${d.topicsTotal} topics`}
+          hint={`${measures.activitiesCompleted} of ${measures.activitiesTotal} activities done`}
         />
         <StatCard
           label="Current goal"
