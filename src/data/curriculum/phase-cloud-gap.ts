@@ -349,7 +349,7 @@ export const cloudGapSeeds: TopicSeed[] = [
     },
     scenario: {
       title: "The bucket found by an outsider",
-      situation": "A security researcher reports that a storage bucket containing customer records is publicly readable. Internal vulnerability scans had not flagged it.",
+      situation: "A security researcher reports that a storage bucket containing customer records is publicly readable. Internal vulnerability scans had not flagged it.",
       decisionPrompt: "Explain the responsibility for this issue and the process gap that let it go unnoticed.",
       expectedConcepts: ["shared responsibility", "customer configuration", "scan coverage", "public exposure", "remediate"],
       guidance: "The customer is responsible for that configuration under the shared responsibility model, since the provider secures the underlying infrastructure but not how the customer sets access on their own resources. Restrict access immediately, then extend vulnerability scanning to explicitly cover public exposure checks on customer-configured resources so the internal scan would have caught it.",
