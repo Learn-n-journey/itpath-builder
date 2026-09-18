@@ -747,6 +747,7 @@ export const getTechJobs = createServerFn({ method: "GET" })
 
     const settled = await Promise.all([
       fetchJobDataApi(country),
+      fetchTheMuse(country),
       fetchJobicy(country),
       fetchRemotive(country),
       fetchArbeitnow(country),
@@ -766,7 +767,7 @@ export const getTechJobs = createServerFn({ method: "GET" })
         return true;
       })
       .sort((a, b) => b.postedAt.localeCompare(a.postedAt))
-      .slice(0, 600);
+      .slice(0, 2000);
 
     if (jobs.length > 0) cache.set(country, { at: Date.now(), jobs });
     return { country, detected, jobs: jobs.length > 0 ? jobs : (cached?.jobs ?? []) };
