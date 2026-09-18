@@ -784,7 +784,7 @@ export function VirusRun() {
           <PadButton label="Up" icon={<ChevronUp className="size-7" aria-hidden />} onPress={() => pressDir("up")} onRelease={() => releaseDir("up")} />
           <span />
           <PadButton label="Left" icon={<ChevronLeft className="size-7" aria-hidden />} onPress={() => pressDir("left")} onRelease={() => releaseDir("left")} />
-          <span />
+          <Joystick onDir={(dir) => pressDir(dir)} onRelease={() => releaseDir("up") & releaseDir("down") & releaseDir("left") & releaseDir("right")} />
           <PadButton label="Right" icon={<ChevronRight className="size-7" aria-hidden />} onPress={() => pressDir("right")} onRelease={() => releaseDir("right")} />
           <span />
           <PadButton label="Down" icon={<ChevronDown className="size-7" aria-hidden />} onPress={() => pressDir("down")} onRelease={() => releaseDir("down")} />
