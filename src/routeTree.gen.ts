@@ -46,6 +46,7 @@ import { Route as ReviewRouteImport } from './routes/review'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StudyPlanRouteImport } from './routes/study-plan'
+import { Route as TechJobsRouteImport } from './routes/tech-jobs'
 import { Route as TechNewsRouteImport } from './routes/tech-news'
 import { Route as TechVideosRouteImport } from './routes/tech-videos'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -248,6 +249,11 @@ const StudyPlanRoute = StudyPlanRouteImport.update({
   path: '/study-plan',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TechJobsRoute = TechJobsRouteImport.update({
+  id: '/tech-jobs',
+  path: '/tech-jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TechNewsRoute = TechNewsRouteImport.update({
   id: '/tech-news',
   path: '/tech-news',
@@ -368,6 +374,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/study-plan': typeof StudyPlanRoute
+  '/tech-jobs': typeof TechJobsRoute
   '/tech-news': typeof TechNewsRoute
   '/tech-videos': typeof TechVideosRoute
   '/terms': typeof TermsRoute
@@ -423,6 +430,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/study-plan': typeof StudyPlanRoute
+  '/tech-jobs': typeof TechJobsRoute
   '/tech-news': typeof TechNewsRoute
   '/tech-videos': typeof TechVideosRoute
   '/terms': typeof TermsRoute
@@ -479,6 +487,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/study-plan': typeof StudyPlanRoute
+  '/tech-jobs': typeof TechJobsRoute
   '/tech-news': typeof TechNewsRoute
   '/tech-videos': typeof TechVideosRoute
   '/terms': typeof TermsRoute
@@ -536,6 +545,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/study-plan'
+    | '/tech-jobs'
     | '/tech-news'
     | '/tech-videos'
     | '/terms'
@@ -591,6 +601,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/study-plan'
+    | '/tech-jobs'
     | '/tech-news'
     | '/tech-videos'
     | '/terms'
@@ -646,6 +657,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/sitemap.xml'
     | '/study-plan'
+    | '/tech-jobs'
     | '/tech-news'
     | '/tech-videos'
     | '/terms'
@@ -702,6 +714,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StudyPlanRoute: typeof StudyPlanRoute
+  TechJobsRoute: typeof TechJobsRoute
   TechNewsRoute: typeof TechNewsRoute
   TechVideosRoute: typeof TechVideosRoute
   TermsRoute: typeof TermsRoute
@@ -981,6 +994,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudyPlanRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tech-jobs': {
+      id: '/tech-jobs'
+      path: '/tech-jobs'
+      fullPath: '/tech-jobs'
+      preLoaderRoute: typeof TechJobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/tech-news': {
       id: '/tech-news'
       path: '/tech-news'
@@ -1134,6 +1154,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StudyPlanRoute: StudyPlanRoute,
+  TechJobsRoute: TechJobsRoute,
   TechNewsRoute: TechNewsRoute,
   TechVideosRoute: TechVideosRoute,
   TermsRoute: TermsRoute,

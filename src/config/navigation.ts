@@ -13,6 +13,7 @@ import {
   Briefcase,
   RotateCcw,
   Award,
+  Building2,
   FolderGit2,
   Bot,
   BookMarked,
@@ -37,7 +38,7 @@ export interface NavItem {
   label: string;
   to: string;
   icon: LucideIcon;
-  group: "Study" | "Practice" | "Career" | "You";
+  group: "Study" | "Practice" | "Career" | "Connect" | "You";
   /** One line explaining what this section is for, shown in the guide and as a tooltip. */
   description: string;
   /** True if this route is gated behind Pro. A small crown is shown in the sidebar. */
@@ -176,6 +177,13 @@ export const navItems: NavItem[] = [
     description: "Readiness per certification and the material behind it.",
   },
   {
+    label: "Tech Jobs",
+    to: "/tech-jobs",
+    icon: Building2,
+    group: "Career",
+    description: "Live IT job listings, filtered by location and certification.",
+  },
+  {
     label: "Portfolio",
     to: "/portfolio",
     icon: FolderGit2,
@@ -202,21 +210,21 @@ export const navItems: NavItem[] = [
     label: "Tech News",
     to: "/tech-news",
     icon: Newspaper,
-    group: "You",
+    group: "Connect",
     description: "A live feed of technology headlines, kept separate from your studies.",
   },
   {
     label: "Tech Videos",
     to: "/tech-videos",
     icon: Video,
-    group: "You",
+    group: "Connect",
     description: "A scrolling feed of technology videos, played in each platform's own player.",
   },
   {
     label: "Community",
     to: "/community",
     icon: MessagesSquare,
-    group: "You",
+    group: "Connect",
     description: "One shared chat room with other IT PATH learners.",
   },
   {
@@ -270,4 +278,4 @@ export const navItems: NavItem[] = [
   },
 ];
 
-export const navGroups = ["Study", "Practice", "Career", "You"] as const;
+export const navGroups = ["Study", "Practice", "Career", "Connect", "You"] as const;

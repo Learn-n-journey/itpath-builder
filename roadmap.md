@@ -24,3 +24,6 @@ Done when: typecheck + build clean, features verified in browser.
 15. Done: all 128 topics have curated Professor Messer videos, each URL opened and checked.
 16. Done: all 128 topics have topic-specific reading from verified primary sources (src/data/topic-reading.ts).
 17. Done: Tech Videos sidebar page (src/lib/tech-videos.functions.ts, src/routes/tech-videos.tsx) - official YouTube channel feeds, server-side fetch and 15 min cache, youtube-nocookie embeds, category filters, source links. No downloads, no re-hosting, no learning state.
+
+18. [ ] Tech Jobs sidebar page: aggregated real IT job listings, filter/sort by location and certification. Sources: free public job APIs with no key needed (Remotive remote jobs, Arbeitnow). Server-side fetch + cache, link out to original postings. Outside the learning system.
+19. [ ] Recategorize the "You" sidebar group: move Tech News, Tech Videos, Community into a new "Connect" group; keep personal items in "You"; Tech Jobs goes in Career.
