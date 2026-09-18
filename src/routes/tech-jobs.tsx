@@ -258,15 +258,40 @@ function TechJobsPage() {
             {new Date(dataUpdatedAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
-            {filtered.map((job) => (
+            {filtered.slice(0, shown).map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
           </div>
+          {filtered.length > shown ? (
+            <div className="mt-6 flex justify-center">
+              <Button variant="outline" onClick={() => setShown((current) => current + 60)}>
+                Show more roles
+              </Button>
+            </div>
+          ) : null}
         </>
       )}
 
+      <section className="panel mt-8 p-5">
+        <h2 className="font-display text-sm font-semibold">Search the big job sites too</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Indeed, Monster and ZipRecruiter do not let other sites read their listings, so IT PATH
+          cannot show them here. These buttons run your search on their own site.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {bigBoardLinks(query, activeCountry).map((board) => (
+            <Button key={board.name} asChild size="sm" variant="outline">
+              <a href={board.url} target="_blank" rel="noopener noreferrer">
+                {board.name}
+                <ExternalLink className="size-3.5" aria-hidden />
+              </a>
+            </Button>
+          ))}
+        </div>
+      </section>
+
       <p className="mt-8 text-xs text-muted-foreground">
-        Listings come from Job Data API, Jobicy, Remotive, Arbeitnow, Remote OK, Himalayas, We Work Remotely and company career boards, gathered for the country you pick. IT PATH does not host or alter
+        Listings come from Job Data API, The Muse, Jobicy, Remotive, Arbeitnow, Remote OK, Himalayas, We Work Remotely and company career boards, gathered for the country you pick. IT PATH does not host or alter
         postings; applying always happens on the original site.
       </p>
     </div>
