@@ -139,8 +139,13 @@ function pickThree(
   offset: number,
   subject?: string,
   maxNear = 0.5,
+  preferred: string[] = [],
 ): string[] | null {
   const correctWords = contentWords(correct);
+  // Wrong options that are known misunderstandings of this very section beat
+  // any other wrong option: they are what a learner actually believes.
+  const preferSet = new Set(preferred.map((item) => tidy(item).toLowerCase()));
+  candidates = [...preferred, ...candidates];
   const subjectKey = subject?.toLowerCase().replace(/^the\s+/, "").trim() ?? "";
   const scored = candidates
     .map((item) => tidy(item))
@@ -163,7 +168,11 @@ function pickThree(
   );
   if (similarLength.length < 3) return null;
   const pool = similarLength
-    .sort((a, b) => Math.abs(a.length - correct.length) - Math.abs(b.length - correct.length))
+    .sort((a, b) => {
+      const weight = Number(preferSet.has(b.toLowerCase())) - Number(preferSet.has(a.toLowerCase()));
+      if (weight !== 0) return weight;
+      return Math.abs(a.length - correct.length) - Math.abs(b.length - correct.length);
+    })
     .slice(0, 10);
   if (pool.length < 3) return null;
   const picked: string[] = [];
@@ -227,6 +236,7 @@ function statementItem(
   index: number,
   explanation: string,
   mistakeCategory: Question["mistakeCategory"] = "concept",
+  preferred: string[] = [],
 ): PoolItem | null {
   const answer = tidy(correct);
   if (answer.length < 25 || answer.length > 200) return null;
@@ -248,6 +258,7 @@ function statementItem(
     index * 3 + 1,
     subject,
     openEnded.has(kind) ? 0.25 : 0.5,
+    kind === "misconception" ? [] : preferred,
   );
   if (!wrong) return null;
   return {
@@ -286,6 +297,16 @@ function buildPool(topicId: string): PoolItem[] {
 
   // Terms taught in this same section make the closest wrong options.
   const ownTerms = new Set((lesson?.keyTerms ?? []).map((entry) => entry.term.toLowerCase()));
+
+  // The things people actually get wrong about this section. Used as wrong
+  // options first, so a wrong choice is a real misunderstanding rather than
+  // an unrelated statement that nobody would pick.
+  const misbeliefs = [
+    ...(lesson?.commonMisconceptions ?? []),
+    ...((getDeepLesson(topicId)?.mixUps ?? []) as unknown as string[]),
+  ]
+    .map((line) => tidy(typeof line === "string" ? line : String(line)))
+    .filter((line) => line.length >= 25 && line.length <= 200);
 
   lesson?.keyTerms.forEach((term, index) => {
     const correct = shortMeaning(term.meaning);
