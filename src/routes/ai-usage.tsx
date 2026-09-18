@@ -6,6 +6,7 @@ import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { getAiDashboard, type AiDashboard } from "@/lib/ai-dashboard.functions";
 import { formatCost } from "@/lib/ai/pricing";
+import { listContentReports, type ContentReportRow } from "@/lib/content-reports.functions";
 
 export const Route = createFileRoute("/ai-usage")({
   staticData: { sitemap: false },
