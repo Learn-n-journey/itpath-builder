@@ -3,7 +3,7 @@ import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "l
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
-import { measureSlug } from "@/lib/measure-guides";
+
 
 import { MasteryChecklist } from "@/components/learning/mastery-checklist";
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
@@ -313,7 +313,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   }
 
 
-  const scopeProgress = useMemo(() => topicScopeProgress(user, topic.id), [user, topic.id]);
+  const sectionMeasures = useMemo(() => topicMeasures(user, topic.id), [user, topic.id]);
   if (!lesson || !module || !practice || !scenario) return null;
   const keywords = [
     ...lesson.keyTerms.map(({ term, meaning }) => ({ term, meaning })),
