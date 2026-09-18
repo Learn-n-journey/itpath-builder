@@ -34,3 +34,5 @@ Done when: typecheck + build clean, features verified in browser.
 22. [x] Automated protections: nightly external link crawler, JSON-LD course/guide structured data, content lint script, originality check API, Lighthouse CI
 23. [x] Course pack boundary in src/content so the engine can be reused for other subjects
 24. [ ] Document how remixing works when payments are enabled
+
+22. [x] Community study rooms per section, achievement badges page, public certification track pages, spaced repetition flashcards.
