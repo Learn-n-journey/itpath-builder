@@ -18,7 +18,10 @@ import { getLearningModule, learningModules } from "@/data/learning-content";
 import { deepLessons, getDeepLesson } from "@/data/deep-lessons";
 import { questions as authoredQuestions } from "@/data/quiz-content";
 import { generatedQuestions } from "@/data/question-bank";
-import { usableQuestions } from "@/lib/question-quality";
+import { isUsableQuestion, usableQuestions } from "@/lib/question-quality";
+import { selectQuizQuestions } from "@/lib/quiz-selection";
+import { tagQuestion, type TaggedQuestion } from "@/lib/question-tags";
+import type { ConceptStat } from "@/lib/concept-mastery";
 import type { Question } from "@/lib/app-data/types";
 
 export const SECTION_QUIZ_SIZE = 20;
@@ -139,8 +142,13 @@ function pickThree(
   offset: number,
   subject?: string,
   maxNear = 0.5,
+  preferred: string[] = [],
 ): string[] | null {
   const correctWords = contentWords(correct);
+  // Wrong options that are known misunderstandings of this very section beat
+  // any other wrong option: they are what a learner actually believes.
+  const preferSet = new Set(preferred.map((item) => tidy(item).toLowerCase()));
+  candidates = [...preferred, ...candidates];
   const subjectKey = subject?.toLowerCase().replace(/^the\s+/, "").trim() ?? "";
   const scored = candidates
     .map((item) => tidy(item))
@@ -163,7 +171,11 @@ function pickThree(
   );
   if (similarLength.length < 3) return null;
   const pool = similarLength
-    .sort((a, b) => Math.abs(a.length - correct.length) - Math.abs(b.length - correct.length))
+    .sort((a, b) => {
+      const weight = Number(preferSet.has(b.toLowerCase())) - Number(preferSet.has(a.toLowerCase()));
+      if (weight !== 0) return weight;
+      return Math.abs(a.length - correct.length) - Math.abs(b.length - correct.length);
+    })
     .slice(0, 10);
   if (pool.length < 3) return null;
   const picked: string[] = [];
@@ -217,6 +229,13 @@ function subjectFor(topicId: string, line: string, topicTitle: string): string {
   return /^[A-Z0-9.\- ]+$/.test(term) ? `the ${term}` : term;
 }
 
+/**
+ * What learners actually get wrong in the section currently being built.
+ * These are offered as wrong options first, because a believable wrong option
+ * is one somebody really believes.
+ */
+let currentMisbeliefs: string[] = [];
+
 function statementItem(
   topicId: string,
   topicTitle: string,
@@ -227,6 +246,7 @@ function statementItem(
   index: number,
   explanation: string,
   mistakeCategory: Question["mistakeCategory"] = "concept",
+  preferred: string[] = [],
 ): PoolItem | null {
   const answer = tidy(correct);
   if (answer.length < 25 || answer.length > 200) return null;
@@ -248,6 +268,11 @@ function statementItem(
     index * 3 + 1,
     subject,
     openEnded.has(kind) ? 0.25 : 0.5,
+    kind === "misconception" || kind === "correction"
+      ? []
+      : preferred.length > 0
+        ? preferred
+        : currentMisbeliefs,
   );
   if (!wrong) return null;
   return {
@@ -286,6 +311,13 @@ function buildPool(topicId: string): PoolItem[] {
 
   // Terms taught in this same section make the closest wrong options.
   const ownTerms = new Set((lesson?.keyTerms ?? []).map((entry) => entry.term.toLowerCase()));
+
+  // The things people actually get wrong about this section. Used as wrong
+  // options first, so a wrong choice is a real misunderstanding rather than
+  // an unrelated statement that nobody would pick.
+  currentMisbeliefs = (getDeepLesson(topicId)?.depth?.misconceptions ?? [])
+    .map((row) => tidy(row.claim))
+    .filter((line) => line.length >= 25 && line.length <= 200);
 
   lesson?.keyTerms.forEach((term, index) => {
     const correct = shortMeaning(term.meaning);
@@ -427,7 +459,7 @@ function buildPool(topicId: string): PoolItem[] {
           question: question({
             id: `section-${topicId}-problem-${index}`,
             topicId,
-            prompt: `A user reports this problem: ${tidy(problem).replace(/\.$/, "")}. Which step comes first?`,
+            prompt: `A user reports this problem: ${tidy(problem).replace(/\.$/, "")}. You have seen it happen yourself and nothing else has been changed. Going on what you can actually observe, which step comes first?`,
             choices: withAnswerPlaced(firstStep, otherSteps.slice(0, 3), index),
             correctAnswer: [firstStep],
             acceptableAnswers: [firstStep],
@@ -448,7 +480,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "next-step",
-        `You have just done this: ${tidy(before).replace(/\.$/, "")}. What comes next?`,
+        `You have just done this: ${tidy(before).replace(/\.$/, "")} It told you nothing conclusive. What does the evidence so far point you to next?`,
         step,
         [...module.troubleshooting.filter((_, at) => at !== index), ...otherStatements(topicId, "troubleshooting")],
         index,
@@ -693,15 +725,12 @@ function topicPool(topicId: string): PoolItem[] {
   const authored: PoolItem[] = (authoredByTopic.get(topicId) ?? []).map((item) => ({
     question: item,
     kind: "authored",
-    sourceKey: `authored:${(item.correctAnswer[0] ?? item.id).trim().toLowerCase()}`,
+    // The idea comes from what the question asks, not from the answer text.
+    // Two questions that share an answer but ask different things are two
+    // questions, so neither is thrown away as a duplicate.
+    sourceKey: `authored:${item.prompt.trim().toLowerCase().slice(0, 70)}`,
   }));
-  const generated = buildPool(topicId);
-  // Do not generate a question about something the authored bank already tests.
-  const asked = new Set(authored.map((item) => item.sourceKey.replace("authored:", "")));
-  const fresh = generated.filter(
-    (item) => !asked.has((item.question.correctAnswer[0] ?? "").trim().toLowerCase()),
-  );
-  const all = [...authored, ...fresh];
+  const all = [...authored, ...buildPool(topicId)];
   // Drop repeated prompts across the whole pool.
   const seen = new Set<string>();
   const unique = all.filter((item) => {
@@ -835,6 +864,62 @@ function seeded(seed: string): () => number {
     value ^= value + Math.imul(value ^ (value >>> 7), 61 | value);
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+const taggedCache = new Map<string, TaggedQuestion[]>();
+
+/** The section's pool with every question tagged, ready for the quiz builder. */
+export function getTaggedTopicPool(topicId: string): TaggedQuestion[] {
+  const cached = taggedCache.get(topicId);
+  if (cached) return cached;
+  const tagged = topicPool(topicId)
+    .filter((item) => isUsableQuestion(item.question))
+    .map((item) => ({
+      question: item.question,
+      tags: tagQuestion(item.question, item.kind, item.sourceKey),
+    }));
+  taggedCache.set(topicId, tagged);
+  return tagged;
+}
+
+/** Which idea a question tests, for tracking mastery concept by concept. */
+export function conceptOfQuestion(topicId: string, questionId: string): string | undefined {
+  return getTaggedTopicPool(topicId).find((item) => item.question.id === questionId)?.tags.conceptId;
+}
+
+/** A lookup from question id to concept for one section, for mastery tracking. */
+export function topicConceptLookup(topicId: string): (questionId: string) => string | undefined {
+  const map = new Map(
+    getTaggedTopicPool(topicId).map((item) => [item.question.id, item.tags.conceptId] as const),
+  );
+  return (questionId: string) => map.get(questionId);
+}
+
+/**
+ * A mastery driven section quiz.
+ *
+ * Shaky ideas and ideas due for another look come first, ideas never met come
+ * next, and ideas already proven several times over take up very little room.
+ * The set is checked before it is handed over and only failing places are
+ * filled again.
+ */
+export function buildSectionQuiz(
+  topicId: string,
+  nonce: number,
+  stats: Map<string, ConceptStat> = new Map(),
+): Question[] {
+  const pool = getTaggedTopicPool(topicId);
+  if (pool.length === 0) return [];
+  const chosen = selectQuizQuestions(pool, {
+    size: SECTION_QUIZ_SIZE,
+    stats,
+    random: seeded(`${topicId}:${nonce}`),
+  });
+  return chosen.map((item, index) => ({
+    ...item.question,
+    quizId: `section-quiz-${topicId}`,
+    order: index,
+  })) as Question[];
 }
 
 /**
