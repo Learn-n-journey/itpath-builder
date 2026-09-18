@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Award, Briefcase, ExternalLink, Globe, MapPin, RefreshCw, Search } from "lucide-react";
@@ -120,6 +120,11 @@ function TechJobsPage() {
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
   const [cert, setCert] = useState<string>("all");
+  const [shown, setShown] = useState(60);
+
+  useEffect(() => {
+    setShown(60);
+  }, [query, location, cert, country]);
 
   const jobs = data?.jobs ?? [];
   const activeCountry = country ?? data?.country ?? DEFAULT_JOB_COUNTRY;
