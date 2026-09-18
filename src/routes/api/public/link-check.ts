@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/public/link-check")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const secret = process.env["LOVABLE_CRON_SECRET"];
+        const secret = process.env["LINK_CHECK_TOKEN"];
         const given = request.headers.get("x-cron-secret");
         if (!secret || given !== secret) {
           return Response.json({ error: "Unauthorized" }, { status: 401 });
