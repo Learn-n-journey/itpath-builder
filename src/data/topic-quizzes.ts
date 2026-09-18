@@ -226,6 +226,13 @@ function subjectFor(topicId: string, line: string, topicTitle: string): string {
   return /^[A-Z0-9.\- ]+$/.test(term) ? `the ${term}` : term;
 }
 
+/**
+ * What learners actually get wrong in the section currently being built.
+ * These are offered as wrong options first, because a believable wrong option
+ * is one somebody really believes.
+ */
+let currentMisbeliefs: string[] = [];
+
 function statementItem(
   topicId: string,
   topicTitle: string,
@@ -258,7 +265,11 @@ function statementItem(
     index * 3 + 1,
     subject,
     openEnded.has(kind) ? 0.25 : 0.5,
-    kind === "misconception" ? [] : preferred,
+    kind === "misconception" || kind === "correction"
+      ? []
+      : preferred.length > 0
+        ? preferred
+        : currentMisbeliefs,
   );
   if (!wrong) return null;
   return {
@@ -301,11 +312,8 @@ function buildPool(topicId: string): PoolItem[] {
   // The things people actually get wrong about this section. Used as wrong
   // options first, so a wrong choice is a real misunderstanding rather than
   // an unrelated statement that nobody would pick.
-  const misbeliefs = [
-    ...(lesson?.commonMisconceptions ?? []),
-    ...((getDeepLesson(topicId)?.mixUps ?? []) as unknown as string[]),
-  ]
-    .map((line) => tidy(typeof line === "string" ? line : String(line)))
+  currentMisbeliefs = (getDeepLesson(topicId)?.depth?.misconceptions ?? [])
+    .map((row) => tidy(row.claim))
     .filter((line) => line.length >= 25 && line.length <= 200);
 
   lesson?.keyTerms.forEach((term, index) => {
@@ -448,7 +456,7 @@ function buildPool(topicId: string): PoolItem[] {
           question: question({
             id: `section-${topicId}-problem-${index}`,
             topicId,
-            prompt: `A user reports this problem: ${tidy(problem).replace(/\.$/, "")}. Which step comes first?`,
+            prompt: `A user reports this problem: ${tidy(problem).replace(/\.$/, "")}. You have seen it happen yourself and nothing else has been changed. Going on what you can actually observe, which step comes first?`,
             choices: withAnswerPlaced(firstStep, otherSteps.slice(0, 3), index),
             correctAnswer: [firstStep],
             acceptableAnswers: [firstStep],
@@ -469,7 +477,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "next-step",
-        `You have just done this: ${tidy(before).replace(/\.$/, "")}. What comes next?`,
+        `You have just done this: ${tidy(before).replace(/\.$/, "")} It told you nothing conclusive. What does the evidence so far point you to next?`,
         step,
         [...module.troubleshooting.filter((_, at) => at !== index), ...otherStatements(topicId, "troubleshooting")],
         index,
