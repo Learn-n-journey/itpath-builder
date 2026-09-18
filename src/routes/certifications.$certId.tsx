@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { ExternalLink, RefreshCw } from "lucide-react";
+import { ExternalLink, Lock, RefreshCw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,8 @@ import { adaptivePath } from "@/lib/adaptive-path";
 import { certifications as allCertifications } from "@/data/static-content";
 import { ReadinessPanel } from "@/components/readiness-panel";
 import { buildReadinessReport } from "@/lib/readiness-engine";
+import { inJourneyOrder, isMastered } from "@/lib/journey-order";
+import { certificationTopics } from "@/lib/cert-path";
 
 export const Route = createFileRoute("/certifications/$certId")({
   staticData: { sitemap: false },
