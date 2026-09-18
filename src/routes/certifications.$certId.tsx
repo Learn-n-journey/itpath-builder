@@ -215,7 +215,7 @@ function Certifications() {
         <Panel
           className="mb-4"
           title={`Your recommended start: ${personalPath.recommendedTopic.title}`}
-          description={`${personalPath.startLabel} based on your experience setting. You can still open any topic below.`}
+          description={`${personalPath.startLabel} based on your experience setting. Sections unlock in order as you master the one before.`}
         >
           <Button asChild size="sm">
             <Link to="/topics/$topicId" params={{ topicId: personalPath.recommendedTopic.id }}>
