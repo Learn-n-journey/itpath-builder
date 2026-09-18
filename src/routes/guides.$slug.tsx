@@ -10,6 +10,7 @@ import {
   lessonForTopic,
   topicForSlug,
 } from "@/lib/public-guides";
+import { guideJsonLd } from "@/lib/structured-data";
 
 export const Route = createFileRoute("/guides/$slug")({
   staticData: { sitemap: true },
