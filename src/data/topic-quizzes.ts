@@ -155,10 +155,14 @@ function pickThree(
   // Closest in subject matter first, then trimmed to options of a similar length
   // so the answer never stands out simply by being longer or shorter.
   const ranked = scored.sort((a, b) => b.near - a.near).slice(0, 24).map((entry) => entry.text);
+  // A wrong option that is far longer or shorter than the answer gives the
+  // answer away and usually comes from unrelated material, so a question that
+  // cannot find three options of a comparable size is dropped rather than asked.
   const similarLength = ranked.filter(
     (item) => item.length >= correct.length * 0.5 && item.length <= correct.length * 2,
   );
-  const pool = (similarLength.length >= 3 ? similarLength : ranked)
+  if (similarLength.length < 3) return null;
+  const pool = similarLength
     .sort((a, b) => Math.abs(a.length - correct.length) - Math.abs(b.length - correct.length))
     .slice(0, 10);
   if (pool.length < 3) return null;
