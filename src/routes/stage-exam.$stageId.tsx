@@ -40,6 +40,7 @@ function StageExamPage() {
   const exam = getStageExam(stageId);
   const { user } = useAppState();
   const [shared, setShared] = useState(false);
+  const [paper] = useState(() => Math.random());
 
   const stageTopics = useMemo(
     () =>
