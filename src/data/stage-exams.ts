@@ -8,8 +8,9 @@
  *
  * A score of 80% or higher is a pass.
  */
-import type { Question } from "@/lib/app-data/types";
+import type { CertificationObjective, Question } from "@/lib/app-data/types";
 import { topics } from "@/data/static-content";
+import { certifications, certificationObjectives } from "@/data/certification-content";
 import { getTopicQuestionPool } from "@/data/topic-quizzes";
 import { usableQuestions } from "@/lib/question-quality";
 
@@ -1002,38 +1003,135 @@ export function getStageExam(id: string): StageExam | undefined {
 }
 
 /**
- * The full 50 question stage exam: the authored stage questions first, then questions drawn
- * evenly from every section in the stage so the whole stage is examined, not just part of it.
+ * The 50 question stage exam, assembled fresh every time it is opened.
+ *
+ * The blueprint is the published exam itself: the certifications sitting in this
+ * stage, their exam domains, and the objectives inside each domain. Slots are
+ * spread evenly across every domain, then across the objectives inside it, and
+ * each slot is filled at random from the questions belonging to the sections
+ * that objective maps to. Right and wrong answers therefore always come from
+ * material written against that exam objective, and no two sittings are the
+ * same set.
  */
-export function getStageExamQuestions(examId: string): Question[] {
+export function getStageExamQuestions(examId: string, nonce: number = Math.random()): Question[] {
   const exam = getStageExam(examId);
   if (!exam) return [];
-  const cached = stageQuestionCache.get(examId);
-  if (cached) return cached;
 
-  const out: Question[] = usableQuestions(exam.questions);
-  const used = new Set(out.map((item) => item.id));
-  const stageTopics = topics.filter((topic) => topic.month >= exam.from && topic.month <= exam.to);
-  const pools = stageTopics.map((topic) => getTopicQuestionPool(topic.id));
-
-  for (let round = 0; out.length < STAGE_EXAM_SIZE; round += 1) {
-    let addedThisRound = false;
-    for (const pool of pools) {
-      if (out.length >= STAGE_EXAM_SIZE) break;
-      const next = pool.find((item) => {
-        if (used.has(item.id)) return false;
-        return true;
-      });
-      if (!next) continue;
-      used.add(next.id);
-      out.push({ ...next, quizId: examId });
-      addedThisRound = true;
+  const random = seededRandom(`${examId}:${nonce}`);
+  const shuffle = <T,>(items: T[]): T[] => {
+    const copy = [...items];
+    for (let index = copy.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(random() * (index + 1));
+      [copy[index], copy[swap]] = [copy[swap]!, copy[index]!];
     }
-    if (!addedThisRound) break;
+    return copy;
+  };
+
+  const stageTopics = topics.filter((topic) => topic.month >= exam.from && topic.month <= exam.to);
+  const stageTopicIds = new Set(stageTopics.map((topic) => topic.id));
+  const stageCerts = certifications.filter((cert) =>
+    (cert.months ?? []).some((month) => month >= exam.from && month <= exam.to),
+  );
+
+  const poolCache = new Map<string, Question[]>();
+  const pool = (topicId: string): Question[] => {
+    let found = poolCache.get(topicId);
+    if (!found) {
+      found = [
+        ...usableQuestions(exam.questions.filter((item) => item.topicId === topicId)),
+        ...getTopicQuestionPool(topicId),
+      ];
+      poolCache.set(topicId, found);
+    }
+    return found;
+  };
+
+  const used = new Set<string>();
+  const out: Question[] = [];
+
+  const take = (topicIds: readonly string[]): boolean => {
+    for (const topicId of shuffle([...topicIds])) {
+      if (!stageTopicIds.has(topicId)) continue;
+      const choices = pool(topicId).filter((item) => !used.has(item.id));
+      if (choices.length === 0) continue;
+      const picked = choices[Math.floor(random() * choices.length)]!;
+      used.add(picked.id);
+      out.push({ ...picked, quizId: examId });
+      return true;
+    }
+    return false;
+  };
+
+  /**
+   * For one certification: the sections it examines in this stage, ordered so
+   * that each exam domain is reached before any domain repeats. Sections the
+   * objective map does not name yet are added after the mapped ones, so nothing
+   * the exam covers is left out of the paper.
+   */
+  const examOrder = (certId: string): string[] => {
+    const byDomain = new Map<string, string[]>();
+    for (const objective of certificationObjectives) {
+      if (objective.certificationId !== certId) continue;
+      const domain = objective.domain ?? "General";
+      const list = byDomain.get(domain) ?? [];
+      for (const topicId of objective.topicIds ?? []) {
+        if (stageTopicIds.has(topicId) && !list.includes(topicId)) list.push(topicId);
+      }
+      byDomain.set(domain, list);
+    }
+    const lanes = shuffle([...byDomain.values()].filter((list) => list.length > 0).map(shuffle));
+    const ordered: string[] = [];
+    for (let index = 0; lanes.some((lane) => index < lane.length); index += 1) {
+      for (const lane of lanes) {
+        const topicId = lane[index];
+        if (topicId && !ordered.includes(topicId)) ordered.push(topicId);
+      }
+    }
+    for (const topicId of shuffle(
+      stageTopics.filter((topic) => topic.certificationId === certId).map((topic) => topic.id),
+    )) {
+      if (!ordered.includes(topicId)) ordered.push(topicId);
+    }
+    return ordered;
+  };
+
+  // Every certification the stage closes gets its share of the paper, and inside
+  // each one the questions rotate through its exam domains.
+  const lanes = shuffle(stageCerts.map((cert) => examOrder(cert.id))).filter((lane) => lane.length > 0);
+  const fallback = shuffle(stageTopics.map((topic) => topic.id));
+  if (lanes.length === 0) lanes.push(fallback);
+
+  for (let round = 0; out.length < STAGE_EXAM_SIZE && round < STAGE_EXAM_SIZE * 4; round += 1) {
+    let added = false;
+    for (const lane of lanes) {
+      if (out.length >= STAGE_EXAM_SIZE) break;
+      const topicId = lane[round % lane.length];
+      if (topicId && take([topicId])) added = true;
+    }
+    if (!added) break;
   }
 
-  stageQuestionCache.set(examId, out);
-  return out;
+  // If the mapped sections run dry, the rest come from anywhere in the stage
+  // rather than leaving the exam short.
+  for (let round = 0; out.length < STAGE_EXAM_SIZE && round < STAGE_EXAM_SIZE * 4; round += 1) {
+    if (!take(fallback)) break;
+  }
+
+  return shuffle(out).slice(0, STAGE_EXAM_SIZE);
 }
 
-const stageQuestionCache = new Map<string, Question[]>();
+/** Small deterministic generator so one sitting keeps the same paper while it is open. */
+function seededRandom(seed: string): () => number {
+  let hash = 2166136261;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash ^= seed.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  let state = hash >>> 0;
+  return () => {
+    state = (state + 0x6d2b79f5) >>> 0;
+    let value = Math.imul(state ^ (state >>> 15), 1 | state);
+    value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
