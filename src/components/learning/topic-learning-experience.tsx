@@ -320,6 +320,13 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
   const scopeProgress = useMemo(() => topicScopeProgress(user, topic.id), [user, topic.id]);
   if (!lesson || !module || !practice || !scenario) return null;
+  const keywords = [
+    ...lesson.keyTerms.map(({ term, meaning }) => ({ term, meaning })),
+    ...(deepLesson?.plain?.wordList.map(({ term, plain }) => ({ term, meaning: plain })) ?? []),
+  ].filter(
+    (entry, index, entries) =>
+      entries.findIndex((candidate) => candidate.term.trim().toLowerCase() === entry.term.trim().toLowerCase()) === index,
+  );
 
   return <div className="space-y-4">
     <Panel title="Learning objectives">
@@ -331,7 +338,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     <div id="lesson-reading" className="scroll-mt-24 space-y-4">{deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}{deepLesson?.depth ? <LessonDepthReading depth={deepLesson.depth} /> : null}<Panel title={deepLesson ? "Quick reference" : lesson.title} description={deepLesson ? "A condensed summary of the lesson above, for revision." : lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
         <ContentSection title="What It Is" text={lesson.definition} /><ContentSection title="Why It Matters" text={lesson.whyItMatters} />
         <ListSection title="How It Works" items={module.howItWorks} /><ListSection title="Where You See It" items={module.whereYouSeeIt} />
-        <section><h2 className="mb-3 text-base font-semibold text-foreground">Key Terms</h2><dl className="divide-y divide-border border-y border-border">{lesson.keyTerms.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
+        <section><h2 className="mb-3 text-base font-semibold text-foreground">Keywords</h2><dl className="divide-y divide-border border-y border-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
         <ListSection title="Examples" items={lesson.realWorldExamples} /><ListSection title="Common Problems" items={module.commonProblems} /><ListSection title="How It Fails" items={module.howItFails} /><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /><ListSection title="Exam Coverage" items={module.examCoverage} /><ListSection title="Interview Questions" items={module.interviewQuestions} />
       </div></Panel><div id="worked-examples" className="scroll-mt-24"><WorkedExamples examples={getWorkedExamples(topic.id)} /></div><MediaPanel topic={topic} /></div>
 

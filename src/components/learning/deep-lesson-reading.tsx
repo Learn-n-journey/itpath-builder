@@ -59,23 +59,6 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
         </div>
       </Panel>
 
-      {lesson.plain && lesson.plain.wordList.length > 0 ? (
-        <Panel
-          title="Words used in this lesson"
-          description="Every term below is used in the reading. Come back here whenever one stops making sense."
-        >
-          <dl className="space-y-3 text-sm leading-7">
-            {lesson.plain.wordList.map((entry) => (
-              <div key={entry.term} className="border-b border-border/50 pb-3 last:border-0 last:pb-0">
-                <dt className="font-medium text-foreground">{entry.term}</dt>
-                <dd className="text-muted-foreground">{entry.plain}</dd>
-              </div>
-            ))}
-          </dl>
-        </Panel>
-      ) : null}
-
-
       <Panel
         title="The lesson, part by part"
         description="Open one part at a time. Each part stands on its own, so you can stop and come back."
