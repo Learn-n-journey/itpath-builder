@@ -86,8 +86,8 @@ export const cloudGapSeeds: TopicSeed[] = [
     scenario: {
       title: "The oversized instance",
       situation: "A cost review finds a production database instance running at under fifteen percent CPU and memory utilisation for the past three months, provisioned at a size chosen when the application launched.",
-      decisionPrompt": "Explain how you would decide on a new size and what you would check before changing it.",
-      expectedConcepts": ["right sizing", "utilisation metrics", "peak load", "test", "monitor"],
+      decisionPrompt: "Explain how you would decide on a new size and what you would check before changing it.",
+      expectedConcepts: ["right sizing", "utilisation metrics", "peak load", "test", "monitor"],
       guidance: "Review sustained and peak utilisation over a representative period, not just the average, choose a smaller instance size that still covers peak demand with headroom, test the change in a non-production environment if possible, and monitor closely after resizing.",
     },
   },
