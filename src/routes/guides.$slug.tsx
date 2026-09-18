@@ -140,11 +140,14 @@ function GuidePage() {
       ) : null}
 
       <Panel
-        title="Study this section in IT PATH"
-        description="Lessons, recall practice, quizzes and mastery checks for this section are part of the full path."
+        title="Practise this section in IT PATH"
+        description="Create a free account to work through the guided lesson, recall practice, labs, quizzes and the mastery check for this section."
       >
         <div className="flex flex-wrap gap-2">
           <Button asChild>
+            <Link to="/auth">Create a free account</Link>
+          </Button>
+          <Button asChild variant="outline">
             <Link to="/topics/$topicId" params={{ topicId: topic.id }}>
               Open the full section
             </Link>

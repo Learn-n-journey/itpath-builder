@@ -192,3 +192,51 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
+
+/** Plain, crawlable layout for public pages. No sidebar, no learner state. */
+function PublicShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-xl">
+        <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-4 sm:px-6">
+          <Brand />
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/auth">Sign in</Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/auth">Start free</Link>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:py-12">{children}</main>
+
+      <footer className="mx-auto w-full max-w-4xl px-4 pb-12 sm:px-6">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
+          <span>IT PATH · David Boley</span>
+          <Link to="/guides" className="hover:text-foreground">
+            All study guides
+          </Link>
+          <Link
+            to="/practice-tests/$certId"
+            params={{ certId: "cert-comptia-a-plus" }}
+            className="hover:text-foreground"
+          >
+            Free Practice Tests
+          </Link>
+          <Link to="/about" className="hover:text-foreground">
+            About
+          </Link>
+          <Link to="/terms" className="hover:text-foreground">
+            Terms of Use
+          </Link>
+          <Link to="/privacy" className="hover:text-foreground">
+            Privacy Notice
+          </Link>
+        </div>
+      </footer>
+    </div>
+  );
+}
