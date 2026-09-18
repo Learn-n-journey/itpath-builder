@@ -265,7 +265,7 @@ export const cysaGapSeeds: TopicSeed[] = [
       title: "Two reports, one incident",
       situation: "An incident is contained after credential theft led to lateral movement. Leadership wants a briefing and the engineering team wants the full technical timeline.",
       decisionPrompt: "Explain how you would structure the two reports differently.",
-      expectedConcepts": ["business risk", "technical detail", "framework", "timeline", "remediation"],
+      expectedConcepts: ["business risk", "technical detail", "framework", "timeline", "remediation"],
       guidance: "For leadership, lead with business impact, what was affected, what it cost and what is being done, in plain language. For engineering, provide the technical timeline mapped to a framework such as ATT&CK, indicators, and the remediation and verification steps.",
     },
   },
