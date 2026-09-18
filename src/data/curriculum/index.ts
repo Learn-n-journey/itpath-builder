@@ -1,5 +1,7 @@
 /** Expanded 24-month curriculum: seeds plus derived entities. */
 import { fundamentalsAndAPlusSeeds } from "./phase-fundamentals-aplus";
+import { aPlusExtraSeeds } from "./phase-aplus-extra";
+import { techExtraSeeds } from "./phase-tech-extra";
 import { networkAndSecuritySeeds } from "./phase-network-security";
 import { linuxServersCloudSeeds } from "./phase-linux-servers-cloud";
 import { linuxExtraSeeds } from "./phase-linux-extra";
@@ -21,6 +23,8 @@ import {
 
 export const expansionSeeds: TopicSeed[] = [
   ...fundamentalsAndAPlusSeeds,
+  ...techExtraSeeds,
+  ...aPlusExtraSeeds,
   ...networkAndSecuritySeeds,
   ...linuxServersCloudSeeds,
   ...linuxExtraSeeds,
