@@ -17,3 +17,6 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] 10. Game accumulates infinite levels, each harder than the last (endless difficulty ramp).
 - [x] 11. After the game: confirm the app is production ready as an educational app (system-wide check).
 - [x] 12. Community chat: one room, signed in only, chosen display name, reporting plus language filter.
+
+13. [ ] Full curriculum sweep: close CompTIA objective gaps for Network+, Security+, Linux+, Server+, Cloud+, CySA+, PenTest+, SecurityX; real objective maps.
+14. [ ] Tech News sidebar page: modern scrolling feed (AI, security, hardware, networking, Windows, Linux, cloud, programming, mobile, careers, releases, outages) with image, category, headline, summary, date, source, link. Kept entirely outside the learning system.
