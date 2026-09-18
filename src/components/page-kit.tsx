@@ -16,7 +16,7 @@ export function PageHeader({
     <header className="motion-content-enter mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border/70 pb-5">
       <div className="min-w-0">
         <div className="mb-3 flex items-center gap-2" aria-hidden>
-          <span className="h-1.5 w-1.5 bg-primary" />
+          <span className="h-1.5 w-1.5 bg-emphasis" />
           <span className="h-px w-8 technical-rule" />
         </div>
         <h1 className="font-display text-2xl font-semibold sm:text-3xl">{title}</h1>
@@ -48,7 +48,7 @@ export function Panel({
 
       {title ? (
         <div className="flex items-center gap-2">
-          <span className="h-3 w-0.5 shrink-0 bg-primary/70" aria-hidden />
+          <span className="h-3 w-0.5 shrink-0 bg-emphasis/70" aria-hidden />
           <h2 className="font-display text-base font-semibold">{title}</h2>
         </div>
       ) : null}
@@ -74,7 +74,7 @@ export function StatCard({
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
         {Icon ? (
-          <span className="flex size-8 items-center justify-center rounded-lg border border-border bg-secondary/50 text-primary transition-colors duration-200 group-hover:border-primary/30">
+            <span className="flex size-8 items-center justify-center rounded-lg border border-border bg-secondary/50 text-emphasis transition-colors duration-200 group-hover:border-emphasis/40">
             <Icon className="size-4" aria-hidden />
           </span>
         ) : null}
@@ -99,7 +99,7 @@ export function EmptyState({
   return (
     <div className="panel motion-surface flex flex-col items-center px-6 py-12 text-center">
       {Icon ? (
-        <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-secondary text-primary">
+        <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-secondary text-emphasis">
           <Icon className="size-5" aria-hidden />
         </span>
       ) : null}

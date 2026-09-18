@@ -65,7 +65,7 @@ export const Route = createFileRoute("/")({
 function Meter({ value }: { value: number }) {
   return (
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary" aria-hidden>
-      <div className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out" style={{ width: `${value}%` }} />
+      <div className="h-full rounded-full bg-progress transition-[width] duration-700 ease-out" style={{ width: `${value}%` }} />
     </div>
   );
 }
@@ -90,7 +90,7 @@ function ProgressOverview({
     <section className="panel dashboard-summary motion-surface mb-4 p-5 sm:p-6">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-5">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emphasis">
             <Activity className="size-3.5" aria-hidden />
             Learning path
           </div>
@@ -107,7 +107,7 @@ function ProgressOverview({
               cy="32"
               r="26"
               fill="none"
-              stroke="var(--color-primary)"
+              stroke="var(--color-progress)"
               strokeWidth="5"
               strokeLinecap="round"
               pathLength="100"
@@ -121,14 +121,14 @@ function ProgressOverview({
         {Array.from({ length: segments }, (_, index) => (
           <span
             key={index}
-            className={index < activeSegments ? "h-1.5 bg-primary" : "h-1.5 bg-secondary"}
+            className={index < activeSegments ? "h-1.5 bg-progress" : "h-1.5 bg-secondary"}
           />
         ))}
       </div>
       <div className="mt-3 flex items-center justify-between gap-4 text-[11px] uppercase tracking-wide text-muted-foreground">
         <span>{topicsComplete} of {topicsTotal} topics mastered</span>
         <span className="flex shrink-0 items-center gap-1.5">
-          <span className="size-1.5 bg-primary" aria-hidden /> Evidence based
+          <span className="size-1.5 bg-emphasis" aria-hidden /> Evidence based
         </span>
       </div>
     </section>
