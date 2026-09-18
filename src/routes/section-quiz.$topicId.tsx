@@ -50,16 +50,16 @@ function SectionQuizPage() {
   const topic = findTopic(topicId);
   const { user } = useAppState();
   const quizId = `section-quiz-${topicId}`;
-  const takenBefore = user.quizAttempts.filter((attempt) => attempt.quizId === quizId).length;
-  // Each attempt moves through the section's material, so a retake is a new set.
-  const round = useRef(takenBefore);
-  const questions = useMemo(() => getSectionQuizQuestions(topicId, round.current), [topicId]);
+  // A fresh paper is drawn each time the page is opened, always from this section only.
+  const [paper] = useState(() => Math.random());
+  const round = useRef(0);
+  const questions = useMemo(() => drawSectionQuiz(topicId, paper), [topicId, paper]);
   // Every question this section can ask, so earlier attempts still show their review.
   const fullPool = useMemo(() => getTopicQuestionPool(topicId), [topicId]);
   const nextQuestions = useCallback(() => {
     round.current += 1;
-    return getSectionQuizQuestions(topicId, round.current);
-  }, [topicId]);
+    return drawSectionQuiz(topicId, paper + round.current);
+  }, [topicId, paper]);
   if (!topic) return null;
 
   const best = sectionQuizBest(user, topicId);
