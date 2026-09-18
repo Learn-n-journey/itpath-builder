@@ -82,6 +82,51 @@ function AiUsagePage() {
       ) : (
         <Dashboard data={state.data} />
       )}
+
+      {state.status === "ready" ? <ReportedProblems /> : null}
+    </div>
+  );
+}
+
+/** What learners have flagged as wrong in lessons, questions and AI answers. */
+function ReportedProblems() {
+  const [rows, setRows] = useState<ContentReportRow[] | null>(null);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const reply = await listContentReports();
+        setRows(reply.ok && reply.owner ? reply.reports : []);
+      } catch {
+        setRows([]);
+      }
+    })();
+  }, []);
+
+  return (
+    <div className="mt-6">
+      <Panel
+        title="Reported problems"
+        description="Flags learners raised on lessons, quiz questions and AI answers. Newest first."
+      >
+        {rows === null ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : rows.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nothing reported yet.</p>
+        ) : (
+          <ul className="divide-y divide-border text-sm">
+            {rows.map((row) => (
+              <li key={row.id} className="py-3">
+                <p className="font-medium">{row.reason}</p>
+                <p className="text-xs text-muted-foreground">
+                  {row.kind} · {row.label ?? row.refId} · {new Date(row.createdAt).toLocaleString()}
+                </p>
+                {row.note ? <p className="mt-1 text-sm text-muted-foreground">{row.note}</p> : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
     </div>
   );
 }
