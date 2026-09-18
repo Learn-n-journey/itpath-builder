@@ -25,14 +25,9 @@ import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getLearningModule, getPracticeActivities, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
 import type { TopicProgress } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
-import { topicScopeProgress } from "@/lib/scope-progress";
+import { topicMeasures } from "@/lib/mastery-summary";
 import { answerMatches, coveredConcepts } from "@/lib/fuzzy-match";
 
-
-const progressLabels: Array<[keyof Pick<TopicProgress, "understanding" | "recall" | "application" | "practicalAbility" | "troubleshooting" | "retention">, string]> = [
-  ["understanding", "Understanding"], ["recall", "Recall"], ["application", "Application"],
-  ["practicalAbility", "Practical ability"], ["troubleshooting", "Troubleshooting"], ["retention", "Retention"],
-];
 
 /**
  * Meaning-based matching, so a correct answer in the learner's own words counts.
