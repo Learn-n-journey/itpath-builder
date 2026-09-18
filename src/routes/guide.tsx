@@ -170,8 +170,8 @@ function GuidePage() {
 
         <div className="space-y-4">
           <Panel
-            title="The six skill dimensions"
-            description="Every topic is scored on six separate measures. Reading alone only moves the first one."
+            title="The two measures"
+            description="Everything you see is one of these two. Reading alone only moves the first one."
           >
             <ul className="space-y-2 text-sm">
               {DIMENSIONS.map(([term, meaning]) => (
