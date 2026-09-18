@@ -398,6 +398,183 @@ async function fetchRemoteOk(country: string): Promise<TechJob[]> {
   );
 }
 
+interface HimalayasJob {
+  title: string;
+  companyName?: string;
+  applicationLink?: string;
+  guid?: string;
+  pubDate?: number | string;
+  description?: string;
+  categories?: string[];
+  locationRestrictions?: string[];
+}
+
+/** Himalayas lists remote roles with the countries each one is open to. */
+async function fetchHimalayas(country: string): Promise<TechJob[]> {
+  const jobs: TechJob[] = [];
+  try {
+    const res = await fetch("https://himalayas.app/jobs/api?limit=100", {
+      signal: AbortSignal.timeout(12000),
+      headers: { "User-Agent": "IT PATH study app (job board links)" },
+    });
+    if (res.ok) {
+      const payload = (await res.json()) as { jobs?: HimalayasJob[] };
+      for (const job of payload.jobs ?? []) {
+        if (!job.title || !job.applicationLink) continue;
+        const text = `${job.title} ${stripHtml(job.description ?? "")}`;
+        const restriction = job.locationRestrictions?.join(", ") ?? "";
+        const posted =
+          typeof job.pubDate === "number"
+            ? new Date(job.pubDate * 1000).toISOString()
+            : (job.pubDate ?? new Date().toISOString());
+        jobs.push({
+          id: `himalayas-${job.guid ?? job.applicationLink}`,
+          title: job.title,
+          company: job.companyName ?? "Not stated",
+          location: restriction ? `Remote · ${restriction}` : "Remote",
+          remote: true,
+          source: "Himalayas",
+          url: job.applicationLink,
+          postedAt: posted,
+          tags: job.categories ?? [],
+          country: detectJobCountry(restriction),
+          certifications: detectCertifications(text),
+        });
+      }
+    }
+  } catch {
+    // One source failing must not empty the board.
+  }
+  return jobs.filter(
+    (job) => isItJob(job.title, job.tags) && jobMatchesCountry(job.country, country),
+  );
+}
+
+const WWR_FEEDS = [
+  "remote-devops-sysadmin-jobs",
+  "remote-customer-support-jobs",
+  "remote-back-end-programming-jobs",
+];
+
+/** We Work Remotely publishes each category as an RSS feed. */
+async function fetchWeWorkRemotely(country: string): Promise<TechJob[]> {
+  const jobs: TechJob[] = [];
+  for (const feed of WWR_FEEDS) {
+    try {
+      const res = await fetch(`https://weworkremotely.com/categories/${feed}.rss`, {
+        signal: AbortSignal.timeout(12000),
+        headers: { "User-Agent": "IT PATH study app (job board links)" },
+      });
+      if (!res.ok) continue;
+      const xml = await res.text();
+      for (const item of xml.split("<item>").slice(1)) {
+        const pick = (tag: string) => {
+          const match = item.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`));
+          if (!match?.[1]) return "";
+          return stripHtml(match[1].replace(/<!\[CDATA\[|\]\]>/g, ""));
+        };
+        const rawTitle = pick("title");
+        const link = pick("link");
+        if (!rawTitle || !link) continue;
+        const [companyPart, ...titleParts] = rawTitle.split(":");
+        const title = (titleParts.join(":").trim() || rawTitle).trim();
+        const region = pick("region") || "Remote";
+        const pubDate = pick("pubDate");
+        jobs.push({
+          id: `wwr-${link}`,
+          title,
+          company: titleParts.length > 0 ? (companyPart ?? "").trim() : "Not stated",
+          location: region,
+          remote: true,
+          source: "We Work Remotely",
+          url: link,
+          postedAt: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
+          tags: [pick("category")].filter(Boolean),
+          country: detectJobCountry(region),
+          certifications: detectCertifications(`${title} ${pick("description")}`),
+        });
+      }
+    } catch {
+      // One feed failing must not empty the board.
+    }
+  }
+  return jobs.filter(
+    (job) => isItJob(job.title, job.tags) && jobMatchesCountry(job.country, country),
+  );
+}
+
+/** Company career boards hosted on Greenhouse, which carry on-site roles too. */
+const GREENHOUSE_BOARDS = [
+  "datadog",
+  "stripe",
+  "cloudflare",
+  "robinhood",
+  "dropbox",
+  "reddit",
+  "coinbase",
+  "gitlab",
+  "elastic",
+  "mongodb",
+  "databricks",
+  "asana",
+  "figma",
+  "airtable",
+  "instacart",
+  "lyft",
+  "pinterest",
+  "twilio",
+];
+
+interface GreenhouseJob {
+  id: number;
+  title: string;
+  absolute_url: string;
+  updated_at?: string;
+  location?: { name?: string };
+}
+
+async function fetchGreenhouse(country: string): Promise<TechJob[]> {
+  const perBoard = await Promise.all(
+    GREENHOUSE_BOARDS.map(async (board) => {
+      const jobs: TechJob[] = [];
+      try {
+        const res = await fetch(`https://boards-api.greenhouse.io/v1/boards/${board}/jobs`, {
+          signal: AbortSignal.timeout(12000),
+          headers: { "User-Agent": "IT PATH study app (job board links)" },
+        });
+        if (!res.ok) return jobs;
+        const payload = (await res.json()) as { jobs?: GreenhouseJob[] };
+        const company = board.charAt(0).toUpperCase() + board.slice(1);
+        for (const job of payload.jobs ?? []) {
+          if (!job.title || !job.absolute_url) continue;
+          const location = job.location?.name?.trim() || "Not stated";
+          const remote = /remote/i.test(location);
+          jobs.push({
+            id: `greenhouse-${board}-${job.id}`,
+            title: job.title,
+            company,
+            location,
+            remote,
+            source: `${company} careers`,
+            url: job.absolute_url,
+            postedAt: job.updated_at ?? new Date().toISOString(),
+            tags: [],
+            country: detectJobCountry(location),
+            certifications: detectCertifications(job.title),
+          });
+        }
+      } catch {
+        // One board failing must not empty the rest.
+      }
+      return jobs;
+    }),
+  );
+  return perBoard
+    .flat()
+    .filter((job) => isItJob(job.title, job.tags) && jobMatchesCountry(job.country, country));
+}
+
+
 // ---------------------------------------------------------------- handler
 
 const cache = new Map<string, { at: number; jobs: TechJob[] }>();
