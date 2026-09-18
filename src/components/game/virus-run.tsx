@@ -638,6 +638,32 @@ export function VirusRun() {
     keysRef.current = keysRef.current.filter((k) => k !== dir);
   };
 
+  // Drag-to-steer on the play area: touch and drag, and the virus follows
+  // the direction of your finger relative to where you first touched down.
+  const dragRef = useRef<{ id: number; x: number; y: number } | null>(null);
+
+  const steerFromDrag = (dx: number, dy: number) => {
+    if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return; // dead zone
+    const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
+    keysRef.current = [dir];
+  };
+
+  const onCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e.pointerType !== "touch") return;
+    dragRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  };
+  const onCanvasPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const drag = dragRef.current;
+    if (!drag || e.pointerId !== drag.id) return;
+    steerFromDrag(e.clientX - drag.x, e.clientY - drag.y);
+  };
+  const onCanvasPointerEnd = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (dragRef.current && e.pointerId === dragRef.current.id) {
+      dragRef.current = null;
+      keysRef.current = [];
+    }
+  };
+
   const run = runRef.current;
   const overlay =
     phase === "menu" ? (
