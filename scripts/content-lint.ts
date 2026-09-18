@@ -10,7 +10,10 @@
  *
  * Exits non zero when anything is found, so a pipeline can stop on it.
  */
-import { lessons, questions, topics } from "@/data/static-content";
+import { lessons, questions as storedQuestions, topics } from "@/data/static-content";
+import { stageExams } from "@/data/stage-exams";
+import { getSectionQuizQuestions } from "@/data/topic-quizzes";
+import { getStageExamQuestions } from "@/data/stage-exams";
 import { buildReference, checkOriginality } from "@/lib/originality";
 import { checkTechnicalClaims } from "@/lib/technical-validation";
 
@@ -21,6 +24,14 @@ interface Finding {
 }
 
 const findings: Finding[] = [];
+
+// Everything a learner can actually be asked: stored items, the generated
+// section quizzes (two rotations each) and the stage exams.
+const questions = [
+  ...storedQuestions,
+  ...topics.flatMap((topic) => [...getSectionQuizQuestions(topic.id, 0), ...getSectionQuizQuestions(topic.id, 1)]),
+  ...stageExams.flatMap((exam) => getStageExamQuestions(exam.id)),
+];
 
 function lessonText(topicId: string): string {
   const lesson = lessons.find((item) => item.topicId === topicId);
