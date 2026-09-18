@@ -10,9 +10,11 @@ import { topics } from "@/data/static-content";
 import {
   SECTION_PASS_SCORE,
   SECTION_QUIZ_SIZE,
-  drawSectionQuiz,
+  buildSectionQuiz,
   getTopicQuestionPool,
+  topicConceptLookup,
 } from "@/data/topic-quizzes";
+import { conceptStats } from "@/lib/concept-mastery";
 import type { Quiz } from "@/lib/app-data/types";
 import { nextJourneyTopic, sectionQuizBest, sectionQuizPassedAt } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
@@ -53,13 +55,22 @@ function SectionQuizPage() {
   // A fresh paper is drawn each time the page is opened, always from this section only.
   const [paper] = useState(() => Math.random());
   const round = useRef(0);
-  const questions = useMemo(() => drawSectionQuiz(topicId, paper), [topicId, paper]);
+  // What this learner has already shown on each idea in the section, worked
+  // out from their own recorded answers.
+  const stats = useMemo(
+    () => conceptStats(user.quizAttempts ?? [], topicConceptLookup(topicId)),
+    [user.quizAttempts, topicId],
+  );
+  const questions = useMemo(
+    () => buildSectionQuiz(topicId, paper, stats),
+    [topicId, paper, stats],
+  );
   // Every question this section can ask, so earlier attempts still show their review.
   const fullPool = useMemo(() => getTopicQuestionPool(topicId), [topicId]);
   const nextQuestions = useCallback(() => {
     round.current += 1;
-    return drawSectionQuiz(topicId, paper + round.current);
-  }, [topicId, paper]);
+    return buildSectionQuiz(topicId, paper + round.current, stats);
+  }, [topicId, paper, stats]);
   if (!topic) return null;
 
   const best = sectionQuizBest(user, topicId);
