@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Award, Briefcase, ExternalLink, Globe, MapPin, RefreshCw, Search } from "lucide-react";
@@ -7,7 +7,7 @@ import { Award, Briefcase, ExternalLink, Globe, MapPin, RefreshCw, Search } from
 import { EmptyState, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { JOB_COUNTRIES } from "@/lib/job-countries";
+import { JOB_COUNTRIES, countryName } from "@/lib/job-countries";
 import {
   DEFAULT_JOB_COUNTRY,
   getTechJobs,
@@ -45,6 +45,23 @@ function whenLabel(iso: string): string {
   const days = Math.round(hours / 24);
   if (days < 30) return `${days} d ago`;
   return then.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+/**
+ * Indeed, Monster and ZipRecruiter block automated reading of their listings,
+ * so instead of copying their postings we hand the same search straight over to
+ * their own site.
+ */
+function bigBoardLinks(query: string, country: string) {
+  const what = encodeURIComponent(query.trim() || "IT support");
+  const where = encodeURIComponent(countryName(country));
+  return [
+    { name: "Indeed", url: `https://www.indeed.com/jobs?q=${what}&l=${where}` },
+    { name: "Monster", url: `https://www.monster.com/jobs/search?q=${what}&where=${where}` },
+    { name: "ZipRecruiter", url: `https://www.ziprecruiter.com/jobs-search?search=${what}&location=${where}` },
+    { name: "LinkedIn", url: `https://www.linkedin.com/jobs/search?keywords=${what}&location=${where}` },
+    { name: "Glassdoor", url: `https://www.glassdoor.com/Job/index.htm?keyword=${what}&locName=${where}` },
+  ];
 }
 
 function JobCard({ job }: { job: TechJob }) {
@@ -103,6 +120,11 @@ function TechJobsPage() {
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
   const [cert, setCert] = useState<string>("all");
+  const [shown, setShown] = useState(60);
+
+  useEffect(() => {
+    setShown(60);
+  }, [query, location, cert, country]);
 
   const jobs = data?.jobs ?? [];
   const activeCountry = country ?? data?.country ?? DEFAULT_JOB_COUNTRY;
@@ -236,15 +258,40 @@ function TechJobsPage() {
             {new Date(dataUpdatedAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
-            {filtered.map((job) => (
+            {filtered.slice(0, shown).map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
           </div>
+          {filtered.length > shown ? (
+            <div className="mt-6 flex justify-center">
+              <Button variant="outline" onClick={() => setShown((current) => current + 60)}>
+                Show more roles
+              </Button>
+            </div>
+          ) : null}
         </>
       )}
 
+      <section className="panel mt-8 p-5">
+        <h2 className="font-display text-sm font-semibold">Search the big job sites too</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Indeed, Monster and ZipRecruiter do not let other sites read their listings, so IT PATH
+          cannot show them here. These buttons run your search on their own site.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {bigBoardLinks(query, activeCountry).map((board) => (
+            <Button key={board.name} asChild size="sm" variant="outline">
+              <a href={board.url} target="_blank" rel="noopener noreferrer">
+                {board.name}
+                <ExternalLink className="size-3.5" aria-hidden />
+              </a>
+            </Button>
+          ))}
+        </div>
+      </section>
+
       <p className="mt-8 text-xs text-muted-foreground">
-        Listings come from Job Data API, Jobicy, Remotive, Arbeitnow, Remote OK, Himalayas, We Work Remotely and company career boards, gathered for the country you pick. IT PATH does not host or alter
+        Listings come from Job Data API, The Muse, Jobicy, Remotive, Arbeitnow, Remote OK, Himalayas, We Work Remotely and company career boards, gathered for the country you pick. IT PATH does not host or alter
         postings; applying always happens on the original site.
       </p>
     </div>
