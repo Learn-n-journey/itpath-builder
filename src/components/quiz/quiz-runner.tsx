@@ -483,6 +483,12 @@ function QuizReview({
               </p>
             ) : null}
             <p className="mt-2 text-sm text-muted-foreground">{question.explanation}</p>
+            <ContentReportButton
+              kind="question"
+              refId={question.id}
+              label={question.prompt.slice(0, 200)}
+              className="mt-2"
+            />
           </div>
         </div>
       </article>

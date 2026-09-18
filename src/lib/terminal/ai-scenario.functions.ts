@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { MachineSpec, ShellKind } from "./machine";
 import type { TerminalScenario } from "./scenarios";
 import { runAi } from "@/lib/ai/run.server";
+import { needsTechnicalReview, reviewExplanation } from "@/lib/ai-self-check.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { requirePlan } from "@/lib/entitlement.server";
 
@@ -317,6 +318,16 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
         if (!isSolvable(scenario, data.shell)) {
           if (attempt === 0) continue;
           return { ok: false, error: "Could not create a scenario you can finish here, try again." };
+        }
+        // A generated fault explanation is teaching text, so it goes through
+        // the same review as anything else a learner reads, but only when the
+        // number checks actually found something worth paying for.
+        if (needsTechnicalReview(`${scenario.brief} ${scenario.explanation}`)) {
+          scenario.explanation = await reviewExplanation({
+            context: `Troubleshooting scenario on ${data.topicTitle}. Brief: ${scenario.brief}`,
+            text: scenario.explanation,
+            userId: context.userId,
+          });
         }
         return { ok: true, scenario };
       } catch {

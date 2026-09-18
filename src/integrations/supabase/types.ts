@@ -205,6 +205,42 @@ export type Database = {
           },
         ]
       }
+      content_reports: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          label: string | null
+          note: string | null
+          reason: string
+          ref_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          label?: string | null
+          note?: string | null
+          reason: string
+          ref_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          note?: string | null
+          reason?: string
+          ref_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       knowledge_items: {
         Row: {
           cert_ids: Json

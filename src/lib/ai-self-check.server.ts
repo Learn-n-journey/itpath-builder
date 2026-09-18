@@ -6,6 +6,7 @@
 import { z } from "zod";
 
 import { runAi } from "@/lib/ai/run.server";
+import { checkTechnicalClaims, technicalIssueBrief } from "@/lib/technical-validation";
 
 /**
  * Risk-based self-checking: the review is a second paid call, so the layer only
@@ -53,19 +54,26 @@ export async function reviewTutorAnswer(input: {
   knowledge?: string | undefined;
   userId?: string | undefined;
 }): Promise<string> {
+  // Arithmetic the reviewer does not have to trust itself on.
+  const numberIssues = technicalIssueBrief(checkTechnicalClaims(input.answer));
+
   const system = [
     "You are a senior IT and cybersecurity reviewer checking another tutor's answer before a learner sees it.",
     "Look for: factual errors, commands or flags that do not exist, wrong file paths, unsafe advice, steps in an impossible order, and claims that contradict the learner's saved material.",
     "Do not rewrite for style, tone or length. Do not add padding. If the answer is correct, leave it alone.",
+    numberIssues ? "A numeric check has already found errors and is authoritative. Set ok to false and return a revised answer with those numbers corrected." : "",
     "Write plain text only, no markdown symbols such as **, ## or backticks.",
     "Reply with one JSON object and nothing else:",
     '{"ok": true|false, "issues": ["short description of each real problem"], "revised": "the full corrected answer, or an empty string when ok is true"}',
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   const user = [
     `Learner asked:\n${input.question}`,
     input.knowledge ? `Learner's own saved material:\n${input.knowledge.slice(0, 12000)}` : "",
     `Tutor answer to review:\n${input.answer}`,
+    numberIssues,
     "Return the JSON object now.",
   ]
     .filter(Boolean)
@@ -152,4 +160,52 @@ export async function reviewGrade(input: {
     correctedAnswer: d.correctedAnswer?.trim() || input.grade.correctedAnswer,
     followUp: d.followUp?.trim() || input.grade.followUp,
   };
+}
+
+const explanationReview = z.object({
+  ok: z.boolean().default(true),
+  issues: z.array(z.string()).default([]),
+  revised: z.string().default(""),
+});
+
+/**
+ * Checks generated teaching text that is not a tutor reply: scenario briefs,
+ * fault explanations, worked examples. Same contract as the tutor review, it
+ * never blocks and returns the original text whenever anything goes wrong.
+ *
+ * When the deterministic number check has already found something, the review
+ * always runs and those findings are treated as settled.
+ */
+export async function reviewExplanation(input: {
+  context: string;
+  text: string;
+  userId?: string | undefined;
+}): Promise<string> {
+  const numberIssues = technicalIssueBrief(checkTechnicalClaims(input.text));
+
+  const system = [
+    "You are a senior IT and cybersecurity reviewer checking generated teaching text before a learner reads it.",
+    "Look for: factual errors, invented commands, tools or file paths, wrong port numbers, wrong conversions, and steps that could not work in the order given.",
+    "Do not rewrite for style, tone or length, and keep the same structure and roughly the same length.",
+    numberIssues ? "A numeric check has already found errors and is authoritative. Set ok to false and correct those numbers." : "",
+    "Write plain text only, no markdown symbols.",
+    "Reply with one JSON object and nothing else:",
+    '{"ok": true|false, "issues": ["short description of each real problem"], "revised": "the full corrected text, or an empty string when ok is true"}',
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const user = [`Context:\n${input.context}`, `Text to review:\n${input.text}`, numberIssues, "Return the JSON object now."]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const parsed = explanationReview.safeParse(await askJson(system, user, input.userId));
+  if (!parsed.success || parsed.data.ok) return input.text;
+  const revised = parsed.data.revised.trim();
+  return revised.length > 30 ? revised : input.text;
+}
+
+/** True when the deterministic checks found something worth a review pass. */
+export function needsTechnicalReview(text: string): boolean {
+  return checkTechnicalClaims(text).length > 0;
 }
