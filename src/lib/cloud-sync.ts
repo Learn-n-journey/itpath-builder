@@ -21,7 +21,13 @@ export async function fetchCloudState(userId: string): Promise<CloudFetchResult>
   if (!data) return { ok: true, found: false, user: null };
 
   const payload = data.data as { user?: unknown } | null;
-  return { ok: true, found: true, user: sanitizeUser(payload?.user) };
+  const user = sanitizeUser(payload?.user);
+  // Version 16 moved the untouched default target from A+ to Tech+.
+  const cloudVersion = typeof data.version === "number" ? data.version : 0;
+  if (cloudVersion < 16 && user.settings.certificationTarget === "CompTIA A+") {
+    user.settings.certificationTarget = "CompTIA Tech+";
+  }
+  return { ok: true, found: true, user };
 }
 
 /** Writes the learner's progress to their account, replacing the stored copy. */

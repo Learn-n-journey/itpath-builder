@@ -286,6 +286,10 @@ export function loadState(): LoadResult {
     if (!parsed || typeof parsed !== "object") throw new Error("not an object");
     const version = typeof parsed.version === "number" ? parsed.version : 0;
     const user = sanitizeUser(parsed.user);
+    // Version 16 moved the untouched default target from A+ to Tech+.
+    if (version < 16 && user.settings.certificationTarget === "CompTIA A+") {
+      user.settings.certificationTarget = "CompTIA Tech+";
+    }
     return {
       state: { version: APP_DATA_VERSION, user },
       outcome: version === APP_DATA_VERSION ? "loaded" : "migrated",
