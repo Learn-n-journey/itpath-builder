@@ -1,5 +1,5 @@
 import { topics, lessons, certifications } from "@/lib/app-data/storage";
-import { buildTopicQuiz } from "@/data/topic-quizzes";
+import { getSectionQuizQuestions } from "@/data/topic-quizzes";
 const ids = new Set(topics.map(t => t.id));
 let bad = 0;
 for (const t of topics) for (const p of t.prerequisiteTopicIds) if (!ids.has(p)) { console.log("BAD PREREQ", t.id, p); bad++; }
@@ -14,8 +14,7 @@ const cert = certifications.find(c => c.id === "cert-comptia-a-plus")!;
 const news = topics.filter(t => /wireless-standards|cabling|windows-security-settings|boot-and-crash|scripting-basics|active-directory|client-virtualization|programming-and-dev|data-and-database|software-applications|security-fundamentals-cia/.test(t.id));
 console.log("new topics:", news.length);
 for (const t of news) {
-  const q = buildTopicQuiz(t.id, 1);
-  if (!q) { console.log("NO QUIZ", t.id); continue; }
+  const q = { questions: getSectionQuizQuestions(t.id, 0) };
   let issues = 0;
   for (const item of q.questions) {
     const opts = item.options ?? [];
