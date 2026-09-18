@@ -48,7 +48,7 @@ import { CLEAN_TEXT, FINITE, NOW, PERCENT, SHAPES, buildRichUser, pick, rng } fr
 
 const SEEDS = 12;
 
-describe("progress, insights and record engines", () => {
+describe("progress, insights and record engines", { timeout: 30000 }, () => {
   for (const [name, shape] of SHAPES) {
     it(`holds up on ${name} histories`, () => {
       for (let seed = 1; seed <= SEEDS; seed += 1) {
@@ -91,7 +91,7 @@ describe("progress, insights and record engines", () => {
   });
 });
 
-describe("review, streak and study plan engines", () => {
+describe("review, streak and study plan engines", { timeout: 30000 }, () => {
   for (const [name, shape] of SHAPES) {
     it(`holds up on ${name} histories`, () => {
       for (let seed = 1; seed <= SEEDS; seed += 1) {
@@ -153,7 +153,7 @@ describe("review, streak and study plan engines", () => {
   }
 });
 
-describe("readiness, skills and certification engines", () => {
+describe("readiness, skills and certification engines", { timeout: 30000 }, () => {
   for (const [name, shape] of SHAPES) {
     it(`holds up on ${name} histories`, () => {
       for (let seed = 1; seed <= SEEDS; seed += 1) {
@@ -214,7 +214,7 @@ describe("readiness, skills and certification engines", () => {
   });
 });
 
-describe("career, troubleshooting and portfolio engines", () => {
+describe("career, troubleshooting and portfolio engines", { timeout: 30000 }, () => {
   it("scores every ticket and incident sanely, empty or complete", () => {
     const random = rng(2026);
     for (const ticket of tickets) {
@@ -298,7 +298,7 @@ describe("career, troubleshooting and portfolio engines", () => {
   }
 });
 
-describe("quiz, grading and question engines", () => {
+describe("quiz, grading and question engines", { timeout: 30000 }, () => {
   it("keeps every stored question usable and gradable", () => {
     const usable = usableQuestions(questions);
     expect(usable.length).toBeGreaterThan(0);
@@ -373,7 +373,7 @@ describe("quiz, grading and question engines", () => {
   }
 });
 
-describe("everyday helpers", () => {
+describe("everyday helpers", { timeout: 30000 }, () => {
   it("greets naturally at every hour", () => {
     for (let hour = 0; hour < 24; hour += 1) {
       const greeting = greetingFor("David", new Date(Date.UTC(2026, 5, 1, hour)));

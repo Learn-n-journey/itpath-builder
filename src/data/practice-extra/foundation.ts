@@ -125,7 +125,7 @@ export const foundationPractice: PracticeSeed[] = [
     slug: "command-line-fundamentals",
     title: "Use relative paths correctly",
     prompt: "Your current working directory is /home/user/reports. You want to open a file named summary.txt that is in that same folder. Which path works?",
-    choices: ["/reports/summary.txt", "summary.txt", "C:\\summary.txt", "../../summary.txt"],
+    choices: ["/reports/summary.txt", "summary.txt", "/home/summary.txt", "/home/user/docs/summary.txt"],
     answerIndex: 1,
     explanation: "Since the file is in the current working directory, a plain relative filename like summary.txt is enough to reference it.",
   },

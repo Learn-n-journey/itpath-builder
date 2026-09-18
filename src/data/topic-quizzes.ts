@@ -628,11 +628,20 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "self-check",
-        tidy(row.question),
+        // The section name keeps a short check question anchored to its material.
+        `In {section}: ${tidy(row.question)}`,
         shortMeaning(row.answer),
-        otherDepths.flatMap((other) =>
-          (other.depth?.checkYourself ?? []).map((entry) => shortMeaning(entry.answer)),
-        ),
+        // Answers from the same section come first, so the wrong options stay on
+        // the subject the question is actually about.
+        [
+          ...depth.checkYourself
+            .filter((entry) => entry.question !== row.question)
+            .map((entry) => shortMeaning(entry.answer)),
+          ...depth.reference.rows.map((entry) => shortMeaning(entry.detail)),
+          ...otherDepths.flatMap((other) =>
+            (other.depth?.checkYourself ?? []).map((entry) => shortMeaning(entry.answer)),
+          ),
+        ],
         index,
         tidy(row.answer),
       );

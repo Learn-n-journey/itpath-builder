@@ -419,7 +419,7 @@ const seeds: Seed[] = [
     "command-line-fundamentals",
     "quiz-week-2",
     "multiple_choice",
-    "Which path is absolute?",
+    "Which of these Linux paths is an absolute path, meaning it works the same no matter which directory you are currently in?",
     ["/var/log/syslog", "../log/syslog", "logs/today.txt", "./syslog"],
     ["/var/log/syslog"],
     [],
