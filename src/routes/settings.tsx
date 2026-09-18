@@ -75,6 +75,8 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
   const { theme, resolvedTheme, setTheme } = useTheme();
+  const { email } = useAuth();
+  const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
   const s = user.settings;
 
   // Weekly study time is always derived: selected days x daily study time.
