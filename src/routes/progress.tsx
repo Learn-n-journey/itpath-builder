@@ -73,7 +73,8 @@ function ProgressPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Overall" value={`${report.overall}%`} />
+        <StatCard label="Learning progress" value={`${measures.learningProgress}%`} />
+        <StatCard label="Overall mastery" value={`${measures.overallMastery}%`} />
         <StatCard label="Topics started" value={`${startedTopics.length}/${report.byTopic.length}`} />
         <StatCard label="Mastered" value={report.masteredTopics.length} />
         <StatCard label="Study time" value={`${Math.round((report.study.totalMinutes / 60) * 10) / 10}h`} />
