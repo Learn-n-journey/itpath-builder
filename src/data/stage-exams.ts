@@ -8,8 +8,9 @@
  *
  * A score of 80% or higher is a pass.
  */
-import type { Question } from "@/lib/app-data/types";
+import type { CertificationObjective, Question } from "@/lib/app-data/types";
 import { topics } from "@/data/static-content";
+import { certifications, certificationObjectives } from "@/data/certification-content";
 import { getTopicQuestionPool } from "@/data/topic-quizzes";
 import { usableQuestions } from "@/lib/question-quality";
 
