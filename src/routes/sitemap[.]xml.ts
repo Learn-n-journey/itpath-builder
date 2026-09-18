@@ -20,6 +20,11 @@ export const Route = createFileRoute("/sitemap.xml")({
         for (const path of practiceTestPaths) {
           if (!entries.some((entry) => entry.path === path)) entries.push({ path });
         }
+        // Public study guide pages, one per curriculum section.
+        for (const topic of guideTopics()) {
+          const path = guidePath(topic.id);
+          if (!entries.some((entry) => entry.path === path)) entries.push({ path });
+        }
         if (entries.length === 0) {
           return new Response(
             'No pages are included in this sitemap. Check route decisions and ancestor exclusions. Setting "exclude-subtree" on the root excludes the entire site.',

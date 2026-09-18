@@ -1,4 +1,4 @@
-import { Link, createFileRoute, notFound } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -157,6 +157,3 @@ function GuidePage() {
     </article>
   );
 }
-
-// Keeps the unused import guard honest when the route tree changes.
-void notFound;

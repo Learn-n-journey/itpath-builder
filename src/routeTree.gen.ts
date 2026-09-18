@@ -56,6 +56,8 @@ import { Route as WeakAreasRouteImport } from './routes/weak-areas'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
 import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
+import { Route as GuidesIndexRouteImport } from './routes/guides.index'
+import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as MasteryCheckTopicIdRouteImport } from './routes/mastery-check.$topicId'
 import { Route as PracticeTestsCertIdRouteImport } from './routes/practice-tests.$certId'
 import { Route as SectionQuizTopicIdRouteImport } from './routes/section-quiz.$topicId'
@@ -299,6 +301,16 @@ const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
   path: '/checkout/success',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesIndexRoute = GuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MasteryCheckTopicIdRoute = MasteryCheckTopicIdRouteImport.update({
   id: '/mastery-check/$topicId',
   path: '/mastery-check/$topicId',
@@ -383,12 +395,14 @@ export interface FileRoutesByFullPath {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
+  '/guides/': typeof GuidesIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -439,12 +453,14 @@ export interface FileRoutesByTo {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications': typeof CertificationsIndexRoute
+  '/guides': typeof GuidesIndexRoute
   '/topics': typeof TopicsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -496,12 +512,14 @@ export interface FileRoutesById {
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
   '/checkout/success': typeof CheckoutSuccessRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
   '/certifications/': typeof CertificationsIndexRoute
+  '/guides/': typeof GuidesIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -554,12 +572,14 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/guides/$slug'
     | '/mastery-check/$topicId'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
     | '/topics/$topicId'
     | '/certifications/'
+    | '/guides/'
     | '/topics/'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -610,12 +630,14 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/guides/$slug'
     | '/mastery-check/$topicId'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
     | '/topics/$topicId'
     | '/certifications'
+    | '/guides'
     | '/topics'
     | '/api/public/payments/webhook'
   id:
@@ -666,12 +688,14 @@ export interface FileRouteTypes {
     | '/weak-areas'
     | '/certifications/$certId'
     | '/checkout/success'
+    | '/guides/$slug'
     | '/mastery-check/$topicId'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
     | '/topics/$topicId'
     | '/certifications/'
+    | '/guides/'
     | '/topics/'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -723,12 +747,14 @@ export interface RootRouteChildren {
   WeakAreasRoute: typeof WeakAreasRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
   MasteryCheckTopicIdRoute: typeof MasteryCheckTopicIdRoute
   PracticeTestsCertIdRoute: typeof PracticeTestsCertIdRoute
   SectionQuizTopicIdRoute: typeof SectionQuizTopicIdRoute
   StageExamStageIdRoute: typeof StageExamStageIdRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
   CertificationsIndexRoute: typeof CertificationsIndexRoute
+  GuidesIndexRoute: typeof GuidesIndexRoute
   TopicsIndexRoute: typeof TopicsIndexRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -1064,6 +1090,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckoutSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/': {
+      id: '/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof GuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$slug': {
+      id: '/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mastery-check/$topicId': {
       id: '/mastery-check/$topicId'
       path: '/mastery-check/$topicId'
@@ -1163,12 +1203,14 @@ const rootRouteChildren: RootRouteChildren = {
   WeakAreasRoute: WeakAreasRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
   CheckoutSuccessRoute: CheckoutSuccessRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
   MasteryCheckTopicIdRoute: MasteryCheckTopicIdRoute,
   PracticeTestsCertIdRoute: PracticeTestsCertIdRoute,
   SectionQuizTopicIdRoute: SectionQuizTopicIdRoute,
   StageExamStageIdRoute: StageExamStageIdRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,
   CertificationsIndexRoute: CertificationsIndexRoute,
+  GuidesIndexRoute: GuidesIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
