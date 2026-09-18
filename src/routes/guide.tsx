@@ -74,7 +74,7 @@ const DIMENSIONS: Array<[string, string]> = [
 const VOCABULARY: Array<[string, string]> = [
   [
     "Mastered topic",
-    "All six skill dimensions for that topic are high, backed by recorded work, not just by opening the lesson.",
+    "Every proof this section asks for is passed, backed by recorded work, not just by opening the lesson.",
   ],
   [
     "Mastered review",
