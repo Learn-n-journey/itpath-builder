@@ -37,7 +37,7 @@ function GuidesIndexPage() {
           const certTopics = topics.filter((topic) => topic.certificationId === cert.id);
           if (certTopics.length === 0) return null;
           return (
-            <Panel key={cert.id} title={cert.title} description={cert.description}>
+            <Panel key={cert.id} title={cert.title} description={cert.description ?? ""}>
               <ul className="grid gap-2 sm:grid-cols-2">
                 {certTopics.map((topic) => (
                   <li key={topic.id}>
