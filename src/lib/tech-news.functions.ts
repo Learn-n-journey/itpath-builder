@@ -44,6 +44,8 @@ interface Feed {
   url: string;
   source: string;
   fallback: NewsCategory;
+  /** How many of this feed's latest items may enter the mix, so one busy source cannot flood the page. */
+  max?: number;
 }
 
 const FEEDS: Feed[] = [
@@ -58,7 +60,7 @@ const FEEDS: Feed[] = [
   { url: "https://www.itpro.com/feeds/all", source: "ITPro", fallback: "IT Careers" },
   { url: "https://aws.amazon.com/blogs/aws/feed/", source: "AWS News", fallback: "Cloud" },
   { url: "https://blog.google/technology/ai/rss/", source: "Google AI", fallback: "AI" },
-  { url: "https://dev.to/feed", source: "DEV Community", fallback: "Programming" },
+  { url: "https://dev.to/feed", source: "DEV Community", fallback: "Programming", max: 5 },
 ];
 
 const RULES: [NewsCategory, RegExp][] = [
@@ -76,10 +78,8 @@ const RULES: [NewsCategory, RegExp][] = [
   ["IT Careers", /\b(jobs|hiring|layoff|salary|skills gap|certification|recruit|workforce)\b/i],
 ];
 
-function decode(input: string): string {
+function entities(input: string): string {
   return input
-    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-    .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
@@ -92,7 +92,13 @@ function decode(input: string): string {
     .replace(/&#8211;|&ndash;/g, "-")
     .replace(/&#8212;|&mdash;/g, ", ")
     .replace(/&hellip;|&#8230;/g, "...")
-    .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)))
+    .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)));
+}
+
+/** Feeds arrive with markup, escaped markup, or both, so entities are decoded on each side of the tag strip. */
+function decode(input: string): string {
+  const unwrapped = input.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1");
+  return entities(entities(unwrapped).replace(/<[^>]+>/g, " "))
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -141,7 +147,7 @@ function categorise(text: string, fallback: NewsCategory): NewsCategory {
 function parseFeed(xml: string, feed: Feed): NewsArticle[] {
   const blocks = xml.match(/<(item|entry)[\s>][\s\S]*?<\/\1>/gi) ?? [];
   const out: NewsArticle[] = [];
-  for (const block of blocks.slice(0, 25)) {
+  for (const block of blocks.slice(0, feed.max ?? 18)) {
     const rawTitle = tag(block, "title");
     const url = findLink(block);
     if (!rawTitle || !url) continue;
