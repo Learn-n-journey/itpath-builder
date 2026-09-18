@@ -676,7 +676,7 @@ export function VirusRun() {
         </p>
         <div className="flex flex-col items-center gap-1 font-mono text-xs text-muted-foreground">
           <span>Arrow keys or WASD to move, Esc to pause.</span>
-          <span>On touch screens, use the pad in the corner.</span>
+          <span>On touch screens, drag on the play area or use the arrow pad below it.</span>
         </div>
         <button
           onClick={startRun}
