@@ -140,7 +140,7 @@ const seeds: CertSeed[] = [
     level: "security",
     description: "Core security concepts, controls, operations and incident response.",
     objectives: [
-      ["1.1", "General Security Concepts", "Compare security control types", []],
+      ["1.1", "General Security Concepts", "Compare security control types", ["topic-security-control-types-and-categories"]],
       ["1.2", "General Security Concepts", "Explain the CIA triad and least privilege", [T.os]],
       ["2.1", "Threats and Vulnerabilities", "Recognise phishing and social engineering", [T.career]],
       ["2.2", "Threats and Vulnerabilities", "Explain malware categories and indicators", [T.os]],
@@ -207,7 +207,7 @@ const seeds: CertSeed[] = [
     objectives: [
       ["1.1", "Security Operations", "Analyse network and endpoint telemetry", [T.net]],
       ["1.2", "Security Operations", "Use log analysis to confirm suspicious activity", [T.cli]],
-      ["2.1", "Vulnerability Management", "Prioritise findings by real risk", []],
+      ["2.1", "Vulnerability Management", "Prioritise findings by real risk", ["topic-vulnerability-scanning-methods-and-output-analysis"]],
       ["3.1", "Incident Response", "Follow containment and eradication steps", [T.career]],
       ["4.1", "Reporting", "Communicate findings to technical and business readers", [T.career]],
     ],
