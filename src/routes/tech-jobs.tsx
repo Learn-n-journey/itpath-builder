@@ -87,9 +87,10 @@ function JobCard({ job }: { job: TechJob }) {
 
 function TechJobsPage() {
   const fetchJobs = useServerFn(getTechJobs);
+  const [country, setCountry] = useState<string | undefined>(undefined);
   const { data, isLoading, isFetching, isError, refetch, dataUpdatedAt } = useQuery({
-    queryKey: ["tech-jobs"],
-    queryFn: () => fetchJobs(),
+    queryKey: ["tech-jobs", country ?? "auto"],
+    queryFn: () => fetchJobs({ data: country ? { country } : {} }),
     staleTime: 10 * 60 * 1000,
   });
 
@@ -97,7 +98,8 @@ function TechJobsPage() {
   const [location, setLocation] = useState("");
   const [cert, setCert] = useState<string>("all");
 
-  const jobs = data ?? [];
+  const jobs = data?.jobs ?? [];
+  const activeCountry = country ?? data?.country ?? DEFAULT_JOB_COUNTRY;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
