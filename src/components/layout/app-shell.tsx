@@ -70,7 +70,12 @@ function Brand() {
       <span className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary">
         <ShieldCheck className="size-4.5" aria-hidden />
       </span>
-      <span className="font-display text-base font-semibold tracking-tight">IT PATH</span>
+      <span className="min-w-0">
+        <span className="block font-display text-base font-semibold tracking-tight">IT PATH</span>
+        <span className="block text-[11px] leading-tight text-muted-foreground">
+          Your Journey. Your Legacy.
+        </span>
+      </span>
     </Link>
   );
 }

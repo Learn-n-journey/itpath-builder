@@ -55,7 +55,7 @@ export function SidePanel({ className }: { className?: string }) {
           aria-label="Ask your own notes (Second Brain)"
           title="Second Brain: ask your own saved notes"
           className={cn(
-            "fixed right-4 top-20 z-40 flex size-12 items-center justify-center rounded-full border border-primary/40 bg-background/80 text-primary shadow-lg backdrop-blur-xl transition-all duration-200 hover:scale-105 hover:border-primary/70 hover:bg-primary/10 active:scale-95 lg:top-6",
+            "fixed bottom-4 right-4 z-40 flex size-12 items-center justify-center rounded-full border border-primary/40 bg-background/80 text-primary shadow-lg backdrop-blur-xl transition-all duration-200 hover:scale-105 hover:border-primary/70 hover:bg-primary/10 active:scale-95 lg:bottom-6 lg:right-6",
             className,
           )}
         >

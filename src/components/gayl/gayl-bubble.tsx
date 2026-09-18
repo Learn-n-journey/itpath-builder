@@ -1,7 +1,7 @@
 /**
  * GAYL's floating presence.
  *
- * A small mark in the bottom right corner. It only carries a message when the
+ * A small mark in the top right corner. It only carries a message when the
  * engine already has evidence that something is slipping, is still open, or is
  * worth finishing, and it stays quiet the rest of the time. Once the latest
  * message is dismissed, it does not come back until the evidence changes, but
@@ -167,14 +167,14 @@ export function GaylBubble() {
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col items-end gap-2 sm:bottom-6 sm:right-6">
+    <div className="pointer-events-none fixed right-4 top-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col-reverse items-end gap-2 sm:right-6 sm:top-6">
       <div
         aria-hidden={!open}
         className={cn(
-          "origin-bottom-right transition-all duration-200 ease-out",
+          "origin-top-right transition-all duration-200 ease-out",
           open
             ? "pointer-events-auto visible translate-y-0 scale-100 opacity-100"
-            : "pointer-events-none invisible translate-y-2 scale-95 opacity-0",
+            : "pointer-events-none invisible -translate-y-2 scale-95 opacity-0",
         )}
       >
         <div className="flex w-80 max-w-full flex-col rounded-lg border border-border bg-card shadow-lg">
