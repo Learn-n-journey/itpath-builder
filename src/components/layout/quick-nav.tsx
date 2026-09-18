@@ -3,6 +3,7 @@ import { Compass, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { navItems } from "@/config/navigation";
+import { useSidebarAttention } from "@/hooks/use-sidebar-attention";
 import { cn } from "@/lib/utils";
 
 /** The handful of places learners jump between most often. */
@@ -25,6 +26,7 @@ const quickItems = QUICK_PATHS.map((path) =>
 export function QuickNav() {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const attention = useSidebarAttention();
 
   useEffect(() => {
     setOpen(false);
@@ -45,18 +47,32 @@ export function QuickNav() {
             Jump to
           </p>
           <ul className="space-y-0.5">
-            {quickItems.map((item) => (
-              <li key={item.to}>
-                <Link
-                  to={item.to}
-                  activeOptions={{ exact: item.to === "/" }}
-                  className="flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm text-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground data-[status=active]:bg-accent data-[status=active]:font-medium data-[status=active]:text-primary"
-                >
-                  <item.icon className="size-4 shrink-0" aria-hidden />
-                  {item.label}
-                </Link>
-              </li>
-            ))}
+            {quickItems.map((item) => {
+              const needsAttention = attention.get(item.to);
+              return (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    activeOptions={{ exact: item.to === "/" }}
+                    className="flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm text-foreground/85 transition-colors hover:bg-accent hover:text-accent-foreground data-[status=active]:bg-accent data-[status=active]:font-medium data-[status=active]:text-primary"
+                  >
+                    <item.icon className="size-4 shrink-0" aria-hidden />
+                    <span className="flex flex-1 items-center justify-between gap-2">
+                      {item.label}
+                      {needsAttention ? (
+                        <span
+                          className="flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground"
+                          aria-label={needsAttention.label}
+                          role="status"
+                        >
+                          {needsAttention.count > 1 ? needsAttention.count : ""}
+                        </span>
+                      ) : null}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
