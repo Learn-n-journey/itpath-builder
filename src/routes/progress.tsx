@@ -72,7 +72,7 @@ function ProgressPage() {
         description="Correct and completed work is measured against everything available. Untouched work counts as zero."
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         <StatCard label="Learning progress" value={`${measures.learningProgress}%`} />
         <StatCard label="Overall mastery" value={`${measures.overallMastery}%`} />
         <StatCard label="Topics started" value={`${startedTopics.length}/${report.byTopic.length}`} />
