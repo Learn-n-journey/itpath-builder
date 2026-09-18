@@ -32,7 +32,9 @@ import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
+import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { formatStudyTime } from "@/lib/study-time";
+import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { useTheme } from "@/state/theme";
 import type { ExperienceLevel, WeekDay } from "@/lib/app-data/types";
@@ -73,6 +75,8 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
   const { theme, resolvedTheme, setTheme } = useTheme();
+  const { email } = useAuth();
+  const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
   const s = user.settings;
 
   // Weekly study time is always derived: selected days x daily study time.
@@ -290,13 +294,15 @@ function SettingsPage() {
         </Panel>
       </div>
 
-      <Panel
-        className="mt-4"
-        title="System diagnostics"
-        description="Runs live checks against this browser session. Results are measured, not assumed."
-      >
-        <SystemDiagnostics />
-      </Panel>
+      {isOwner ? (
+        <Panel
+          className="mt-4"
+          title="System diagnostics"
+          description="Runs live checks against this browser session. Results are measured, not assumed."
+        >
+          <SystemDiagnostics />
+        </Panel>
+      ) : null}
 
       <Panel className="mt-4" title="Your data">
         <p className="text-sm text-muted-foreground">
