@@ -137,6 +137,30 @@ function TechJobsPage() {
         }
       />
 
+      <div className="mb-3 flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2 text-sm">
+          <Globe className="size-4 text-muted-foreground" aria-hidden />
+          <span className="text-muted-foreground">Country</span>
+          <select
+            value={activeCountry}
+            onChange={(event) => setCountry(event.target.value)}
+            className="rounded-md border border-border bg-background px-2.5 py-1.5 text-sm"
+            aria-label="Country to gather jobs from"
+          >
+            {JOB_COUNTRIES.map((option) => (
+              <option key={option.code} value={option.code}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {data?.detected && !country ? (
+          <span className="text-xs text-muted-foreground">
+            Set from where you are browsing. Change it any time.
+          </span>
+        ) : null}
+      </div>
+
       <div className="mb-6 grid gap-3 sm:grid-cols-[1fr_1fr]">
         <label className="relative block">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
