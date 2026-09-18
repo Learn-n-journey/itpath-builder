@@ -599,6 +599,9 @@ export const getTechJobs = createServerFn({ method: "GET" })
       fetchRemotive(country),
       fetchArbeitnow(country),
       fetchRemoteOk(country),
+      fetchHimalayas(country),
+      fetchWeWorkRemotely(country),
+      fetchGreenhouse(country),
     ]);
 
     const seen = new Set<string>();
@@ -611,7 +614,7 @@ export const getTechJobs = createServerFn({ method: "GET" })
         return true;
       })
       .sort((a, b) => b.postedAt.localeCompare(a.postedAt))
-      .slice(0, 300);
+      .slice(0, 600);
 
     if (jobs.length > 0) cache.set(country, { at: Date.now(), jobs });
     return { country, detected, jobs: jobs.length > 0 ? jobs : (cached?.jobs ?? []) };
