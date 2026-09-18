@@ -93,11 +93,26 @@ function isItJob(title: string, tags: string[]): boolean {
 const ROLE_SEARCHES = [
   "it support",
   "help desk",
+  "service desk",
+  "desktop support",
+  "technical support",
+  "it technician",
   "network administrator",
+  "network engineer",
   "systems administrator",
+  "system engineer",
+  "information security",
   "cyber security",
+  "security analyst",
   "cloud engineer",
+  "cloud administrator",
+  "devops",
+  "data center technician",
+  "field service technician",
 ];
+
+/** How many result pages to pull from boards that paginate. */
+const PAGES_PER_SEARCH = 5;
 
 const SUPPORTED_COUNTRY_CODES = new Set(JOB_COUNTRIES.map((c) => c.code));
 
