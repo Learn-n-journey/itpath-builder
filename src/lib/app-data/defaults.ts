@@ -12,7 +12,7 @@ export const defaultSettings: UserSettings = {
   sessionLengthMinutes: 45,
   experienceLevel: "none",
   targetJob: "IT Support Specialist",
-  certificationTarget: "CompTIA A+",
+  certificationTarget: "CompTIA Tech+",
   difficulty: "standard",
 };
 
