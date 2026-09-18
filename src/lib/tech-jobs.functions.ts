@@ -503,28 +503,11 @@ async function fetchWeWorkRemotely(country: string): Promise<TechJob[]> {
   );
 }
 
-/** Company career boards hosted on Greenhouse, which carry on-site roles too. */
-const GREENHOUSE_BOARDS = [
-  "datadog",
-  "stripe",
-  "cloudflare",
-  "robinhood",
-  "dropbox",
-  "reddit",
-  "coinbase",
-  "gitlab",
-  "elastic",
-  "mongodb",
-  "databricks",
-  "asana",
-  "figma",
-  "airtable",
-  "instacart",
-  "lyft",
-  "pinterest",
-  "twilio",
-];
-
+/**
+ * Company career boards. The list is not fixed: source discovery probes a wide
+ * catalogue of boards every few hours and this reads whichever ones are live,
+ * so new sources join and dead ones drop out on their own.
+ */
 interface GreenhouseJob {
   id: number;
   title: string;
@@ -533,46 +516,116 @@ interface GreenhouseJob {
   location?: { name?: string };
 }
 
-async function fetchGreenhouse(country: string): Promise<TechJob[]> {
+interface LeverJob {
+  id: string;
+  text: string;
+  hostedUrl: string;
+  createdAt?: number;
+  categories?: { location?: string; team?: string; commitment?: string };
+  descriptionPlain?: string;
+}
+
+interface AshbyJob {
+  id: string;
+  title: string;
+  jobUrl?: string;
+  applyUrl?: string;
+  location?: string;
+  isRemote?: boolean;
+  publishedAt?: string;
+  department?: string;
+}
+
+function boardJobs(board: DiscoveredBoard, payload: unknown): TechJob[] {
+  const jobs: TechJob[] = [];
+  const company = board.name;
+  const source = `${company} careers`;
+
+  if (board.provider === "greenhouse") {
+    for (const job of ((payload as { jobs?: GreenhouseJob[] }).jobs ?? [])) {
+      if (!job.title || !job.absolute_url) continue;
+      const location = job.location?.name?.trim() || "Not stated";
+      jobs.push({
+        id: `greenhouse-${board.slug}-${job.id}`,
+        title: job.title,
+        company,
+        location,
+        remote: /remote/i.test(location),
+        source,
+        url: job.absolute_url,
+        postedAt: job.updated_at ?? new Date().toISOString(),
+        tags: [],
+        country: detectJobCountry(location),
+        certifications: detectCertifications(job.title),
+      });
+    }
+    return jobs;
+  }
+
+  if (board.provider === "lever") {
+    for (const job of (Array.isArray(payload) ? (payload as LeverJob[]) : [])) {
+      if (!job.text || !job.hostedUrl) continue;
+      const location = job.categories?.location?.trim() || "Not stated";
+      jobs.push({
+        id: `lever-${board.slug}-${job.id}`,
+        title: job.text,
+        company,
+        location,
+        remote: /remote/i.test(location),
+        source,
+        url: job.hostedUrl,
+        postedAt: job.createdAt ? new Date(job.createdAt).toISOString() : new Date().toISOString(),
+        tags: [job.categories?.team ?? ""].filter(Boolean),
+        country: detectJobCountry(location),
+        certifications: detectCertifications(`${job.text} ${job.descriptionPlain ?? ""}`),
+      });
+    }
+    return jobs;
+  }
+
+  for (const job of ((payload as { jobs?: AshbyJob[] }).jobs ?? [])) {
+    const url = job.jobUrl ?? job.applyUrl;
+    if (!job.title || !url) continue;
+    const location = job.location?.trim() || "Not stated";
+    jobs.push({
+      id: `ashby-${board.slug}-${job.id}`,
+      title: job.title.trim(),
+      company,
+      location,
+      remote: Boolean(job.isRemote) || /remote/i.test(location),
+      source,
+      url,
+      postedAt: job.publishedAt ?? new Date().toISOString(),
+      tags: [job.department ?? ""].filter(Boolean),
+      country: detectJobCountry(location),
+      certifications: detectCertifications(job.title),
+    });
+  }
+  return jobs;
+}
+
+async function fetchCompanyBoards(country: string): Promise<TechJob[]> {
+  const boards = await getLiveBoards();
   const perBoard = await Promise.all(
-    GREENHOUSE_BOARDS.map(async (board) => {
-      const jobs: TechJob[] = [];
+    boards.map(async (board) => {
       try {
-        const res = await fetch(`https://boards-api.greenhouse.io/v1/boards/${board}/jobs`, {
+        const res = await fetch(boardListUrl(board.provider, board.slug), {
           signal: AbortSignal.timeout(12000),
           headers: { "User-Agent": "IT PATH study app (job board links)" },
         });
-        if (!res.ok) return jobs;
-        const payload = (await res.json()) as { jobs?: GreenhouseJob[] };
-        const company = board.charAt(0).toUpperCase() + board.slice(1);
-        for (const job of payload.jobs ?? []) {
-          if (!job.title || !job.absolute_url) continue;
-          const location = job.location?.name?.trim() || "Not stated";
-          const remote = /remote/i.test(location);
-          jobs.push({
-            id: `greenhouse-${board}-${job.id}`,
-            title: job.title,
-            company,
-            location,
-            remote,
-            source: `${company} careers`,
-            url: job.absolute_url,
-            postedAt: job.updated_at ?? new Date().toISOString(),
-            tags: [],
-            country: detectJobCountry(location),
-            certifications: detectCertifications(job.title),
-          });
-        }
+        if (!res.ok) return [];
+        return boardJobs(board, await res.json());
       } catch {
         // One board failing must not empty the rest.
+        return [];
       }
-      return jobs;
     }),
   );
   return perBoard
     .flat()
     .filter((job) => isItJob(job.title, job.tags) && jobMatchesCountry(job.country, country));
 }
+
 
 
 // ---------------------------------------------------------------- handler
