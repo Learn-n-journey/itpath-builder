@@ -778,16 +778,18 @@ export function VirusRun() {
       </div>
 
       {/* Touch pad, visible on small screens. */}
-      <div className="mt-4 grid grid-cols-3 gap-2 md:hidden select-none" aria-label="Movement pad">
-        <span />
-        <PadButton label="Up" onPress={() => pressDir("up")} onRelease={() => releaseDir("up")} />
-        <span />
-        <PadButton label="Left" onPress={() => pressDir("left")} onRelease={() => releaseDir("left")} />
-        <span />
-        <PadButton label="Right" onPress={() => pressDir("right")} onRelease={() => releaseDir("right")} />
-        <span />
-        <PadButton label="Down" onPress={() => pressDir("down")} onRelease={() => releaseDir("down")} />
-        <span />
+      <div className="mt-4 flex justify-center md:hidden select-none" aria-label="Movement pad">
+        <div className="grid grid-cols-3 gap-2">
+          <span />
+          <PadButton label="Up" icon={<ChevronUp className="size-7" aria-hidden />} onPress={() => pressDir("up")} onRelease={() => releaseDir("up")} />
+          <span />
+          <PadButton label="Left" icon={<ChevronLeft className="size-7" aria-hidden />} onPress={() => pressDir("left")} onRelease={() => releaseDir("left")} />
+          <span />
+          <PadButton label="Right" icon={<ChevronRight className="size-7" aria-hidden />} onPress={() => pressDir("right")} onRelease={() => releaseDir("right")} />
+          <span />
+          <PadButton label="Down" icon={<ChevronDown className="size-7" aria-hidden />} onPress={() => pressDir("down")} onRelease={() => releaseDir("down")} />
+          <span />
+        </div>
       </div>
     </div>
   );
