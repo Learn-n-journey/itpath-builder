@@ -245,7 +245,13 @@ function Certifications() {
             </p>
           ) : (
             <div className="space-y-5">
-              {stages.map((stage) => (
+              {[...stages]
+                .sort((a, b) => {
+                  const min = (list: typeof a.topics) =>
+                    Math.min(...list.map((t) => unlock.orderIndex.get(t.id) ?? 0));
+                  return min(a.topics) - min(b.topics);
+                })
+                .map((stage) => (
                 <section key={stage.id}>
                   <div className="mb-1 flex items-center gap-3">
                     <span className="font-mono text-xs font-medium text-primary">{stage.label.toUpperCase()}</span>
