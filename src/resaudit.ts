@@ -1,12 +1,15 @@
-import { topics, resources } from "./data/static-content";
-import { messerTopicVideos } from "./data/messer-topic-videos";
-const byTopic = new Map<string, number>();
-for (const r of resources as any[]) {
-  const id = r.topicId ?? "";
-  byTopic.set(id, (byTopic.get(id) ?? 0) + 1);
+import { staticContent } from "./data/static-content";
+const { topics, resources } = staticContent as any;
+const counts = new Map<string, any[]>();
+for (const r of resources) for (const id of r.topicIds ?? []) {
+  const list = counts.get(id) ?? []; list.push(r); counts.set(id, list);
 }
-const noVideo = topics.filter((t: any) => !(messerTopicVideos[t.id]?.length));
-const noRes = topics.filter((t: any) => !(byTopic.get(t.id)));
-console.log("topics", topics.length, "noVideo", noVideo.length, "noResource", noRes.length);
-console.log("NOVIDEO\n" + noVideo.map((t: any) => `${t.id} :: ${t.title} :: ${t.certificationId ?? ""}`).join("\n"));
-console.log("NORES\n" + noRes.map((t: any) => t.id).join("\n"));
+let noRead = 0, noVid = 0, genericRead = 0;
+for (const t of topics) {
+  const list = counts.get(t.id) ?? [];
+  const reads = list.filter((r: any) => r.kind !== "video");
+  const vids = list.filter((r: any) => r.kind === "video");
+  if (!reads.length) { noRead += 1; console.log("NOREAD", t.id, t.certificationId); }
+  if (!vids.length) noVid += 1;
+}
+console.log("topics", topics.length, "noRead", noRead, "noVideo", noVid);
