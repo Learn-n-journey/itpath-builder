@@ -143,7 +143,7 @@ export function deckCounts(cards: Flashcard[], user: UserData, now: Date = new D
       continue;
     }
     if (isDue(record, now)) due += 1;
-    if (record.streak >= 3) known += 1;
+    if (record.lastAnswer === "known") known += 1;
     else learning += 1;
   }
   return { total: cards.length, due, learning, known, unseen };
