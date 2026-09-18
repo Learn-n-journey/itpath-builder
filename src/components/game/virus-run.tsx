@@ -795,7 +795,17 @@ export function VirusRun() {
   );
 }
 
-function PadButton({ label, onPress, onRelease }: { label: string; onPress: () => void; onRelease: () => void }) {
+function PadButton({
+  label,
+  icon,
+  onPress,
+  onRelease,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  onPress: () => void;
+  onRelease: () => void;
+}) {
   return (
     <button
       aria-label={label}
@@ -806,9 +816,10 @@ function PadButton({ label, onPress, onRelease }: { label: string; onPress: () =
       onPointerUp={onRelease}
       onPointerLeave={onRelease}
       onPointerCancel={onRelease}
-      className="flex h-12 items-center justify-center rounded-lg border border-border bg-card font-mono text-xs text-muted-foreground active:border-primary/60 active:text-primary"
+      onContextMenu={(e) => e.preventDefault()}
+      className="flex size-16 items-center justify-center rounded-2xl border border-border bg-card text-muted-foreground shadow-sm transition-colors active:border-primary active:bg-primary/15 active:text-primary"
     >
-      {label}
+      {icon}
     </button>
   );
 }
