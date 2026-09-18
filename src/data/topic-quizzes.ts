@@ -866,19 +866,33 @@ function seeded(seed: string): () => number {
   };
 }
 
+const taggedCache = new Map<string, TaggedQuestion[]>();
+
 /** The section's pool with every question tagged, ready for the quiz builder. */
 export function getTaggedTopicPool(topicId: string): TaggedQuestion[] {
-  return topicPool(topicId)
+  const cached = taggedCache.get(topicId);
+  if (cached) return cached;
+  const tagged = topicPool(topicId)
     .filter((item) => isUsableQuestion(item.question))
     .map((item) => ({
       question: item.question,
       tags: tagQuestion(item.question, item.kind, item.sourceKey),
     }));
+  taggedCache.set(topicId, tagged);
+  return tagged;
 }
 
 /** Which idea a question tests, for tracking mastery concept by concept. */
 export function conceptOfQuestion(topicId: string, questionId: string): string | undefined {
   return getTaggedTopicPool(topicId).find((item) => item.question.id === questionId)?.tags.conceptId;
+}
+
+/** A lookup from question id to concept for one section, for mastery tracking. */
+export function topicConceptLookup(topicId: string): (questionId: string) => string | undefined {
+  const map = new Map(
+    getTaggedTopicPool(topicId).map((item) => [item.question.id, item.tags.conceptId] as const),
+  );
+  return (questionId: string) => map.get(questionId);
 }
 
 /**
