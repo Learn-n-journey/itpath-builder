@@ -29,3 +29,5 @@ Done when: typecheck + build clean, features verified in browser.
 19. [x] Recategorize the "You" sidebar group: move Tech News, Tech Videos, Community into a new "Connect" group; keep personal items in "You"; Tech Jobs goes in Career.
 
 20. [x] Tech Jobs: detect visitor country and aggregate from country-appropriate job sources (add per-country boards, e.g. USAJOBS/Adzuna/Jooble style, plus country filter UI)
+
+21. [ ] Tech Jobs: try to list Indeed, Monster and ZipRecruiter postings (check what each allows)
