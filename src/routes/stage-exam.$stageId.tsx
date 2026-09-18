@@ -58,7 +58,8 @@ function StageExamPage() {
   const best = attempts.reduce((top, attempt) => Math.max(top, attempt.score ?? 0), 0);
   const passed = best >= STAGE_PASS_SCORE;
 
-  const examQuestions = getStageExamQuestions(exam.id);
+  // A fresh paper every time the exam is opened, drawn from the exam domains.
+  const examQuestions = useMemo(() => getStageExamQuestions(exam.id, paper), [exam.id, paper]);
 
   const quiz: Quiz = {
     id: exam.id,
