@@ -21,4 +21,5 @@ Done when: typecheck + build clean, features verified in browser.
 13. [ ] Full curriculum sweep: close CompTIA objective gaps for Network+, Security+, Linux+, Server+, Cloud+, CySA+, PenTest+, SecurityX; real objective maps.
 14. [ ] Tech News sidebar page: modern scrolling feed (AI, security, hardware, networking, Windows, Linux, cloud, programming, mobile, careers, releases, outages) with image, category, headline, summary, date, source, link. Kept entirely outside the learning system.
 
-15. Confirm every topic has topic-specific resources (videos/links) that match that topic only.
+15. Done: all 128 topics have curated Professor Messer videos, each URL opened and checked.
+16. Done: all 128 topics have topic-specific reading from verified primary sources (src/data/topic-reading.ts).

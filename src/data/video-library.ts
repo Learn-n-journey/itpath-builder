@@ -9,7 +9,7 @@
 import { messerTopicVideos } from "@/data/messer-topic-videos";
 import type { Certification, Resource, Topic } from "@/lib/app-data/types";
 
-const LAST_VERIFIED = "2026-09-15";
+const LAST_VERIFIED = "2026-09-18";
 
 interface MesserCourse {
   slug: string;
