@@ -99,12 +99,12 @@ function decode(input: string): string {
 
 function tag(block: string, name: string): string | null {
   const match = block.match(new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, "i"));
-  return match ? match[1] : null;
+  return match ? (match[1] ?? null) : null;
 }
 
 function attr(block: string, pattern: RegExp): string | null {
   const match = block.match(pattern);
-  return match ? match[1] : null;
+  return match ? (match[1] ?? null) : null;
 }
 
 function findLink(block: string): string | null {

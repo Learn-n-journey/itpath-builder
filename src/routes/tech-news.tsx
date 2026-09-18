@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { getTechNews, NEWS_CATEGORIES, type NewsArticle, type NewsCategory } from "@/lib/tech-news.functions";
 
 export const Route = createFileRoute("/tech-news")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Tech News | IT PATH" },
