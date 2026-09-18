@@ -163,40 +163,108 @@ interface JobDataApiJob {
  * one country at a time, so it carries on-site roles, not only remote work.
  */
 async function fetchJobDataApi(country: string): Promise<TechJob[]> {
-  const jobs: TechJob[] = [];
+  /** Each search is asked for several pages, and every request runs at once. */
+  const requests: Promise<TechJob[]>[] = [];
   for (const search of ROLE_SEARCHES) {
-    try {
-      const res = await fetch(
-        `https://jobdataapi.com/api/jobs/?country_code=${encodeURIComponent(country)}&title=${encodeURIComponent(search)}`,
-        {
-          signal: AbortSignal.timeout(12000),
-          headers: { "User-Agent": "IT PATH study app (job board links)" },
-        },
+    for (let page = 1; page <= PAGES_PER_SEARCH; page += 1) {
+      requests.push(
+        (async () => {
+          const jobs: TechJob[] = [];
+          try {
+            const res = await fetch(
+              `https://jobdataapi.com/api/jobs/?country_code=${encodeURIComponent(country)}&title=${encodeURIComponent(search)}&page=${page}`,
+              {
+                signal: AbortSignal.timeout(12000),
+                headers: { "User-Agent": "IT PATH study app (job board links)" },
+              },
+            );
+            if (!res.ok) return jobs;
+            const payload = (await res.json()) as { results?: JobDataApiJob[] };
+            for (const job of payload.results ?? []) {
+              if (!job.application_url || !job.title) continue;
+              const text = `${job.title} ${stripHtml(job.description ?? "")}`;
+              jobs.push({
+                id: `jobdata-${job.id}`,
+                title: job.title,
+                company: job.company?.name ?? "Not stated",
+                location: job.location?.trim() || (job.has_remote ? "Remote" : "Not stated"),
+                remote: Boolean(job.has_remote),
+                source: "Job Data API",
+                url: job.application_url,
+                postedAt: job.published ?? new Date().toISOString(),
+                tags: [],
+                country: normaliseCountry(job.countries?.[0]?.code) ?? country,
+                certifications: detectCertifications(text),
+              });
+            }
+          } catch {
+            // One page failing must not empty the board.
+          }
+          return jobs;
+        })(),
       );
-      if (!res.ok) continue;
-      const payload = (await res.json()) as { results?: JobDataApiJob[] };
-      for (const job of payload.results ?? []) {
-        if (!job.application_url || !job.title) continue;
-        const text = `${job.title} ${stripHtml(job.description ?? "")}`;
-        jobs.push({
-          id: `jobdata-${job.id}`,
-          title: job.title,
-          company: job.company?.name ?? "Not stated",
-          location: job.location?.trim() || (job.has_remote ? "Remote" : "Not stated"),
-          remote: Boolean(job.has_remote),
-          source: "Job Data API",
-          url: job.application_url,
-          postedAt: job.published ?? new Date().toISOString(),
-          tags: [],
-          country: normaliseCountry(job.countries?.[0]?.code) ?? country,
-          certifications: detectCertifications(text),
-        });
-      }
-    } catch {
-      // One search failing must not empty the board.
     }
   }
-  return jobs.filter((job) => isItJob(job.title, job.tags));
+  const pages = await Promise.all(requests);
+  return pages.flat().filter((job) => isItJob(job.title, job.tags));
+}
+
+interface MuseJob {
+  id: number;
+  name: string;
+  company?: { name?: string };
+  locations?: { name?: string }[];
+  refs?: { landing_page?: string };
+  publication_date?: string;
+  contents?: string;
+  categories?: { name?: string }[];
+}
+
+/**
+ * The Muse republishes postings from employer career sites, including on-site
+ * roles, and needs no key.
+ */
+async function fetchTheMuse(country: string): Promise<TechJob[]> {
+  const pages = await Promise.all(
+    Array.from({ length: 6 }, (_, index) => index + 1).map(async (page) => {
+      const jobs: TechJob[] = [];
+      try {
+        const res = await fetch(
+          `https://www.themuse.com/api/public/jobs?category=Computer%20and%20IT&page=${page}`,
+          {
+            signal: AbortSignal.timeout(12000),
+            headers: { "User-Agent": "IT PATH study app (job board links)" },
+          },
+        );
+        if (!res.ok) return jobs;
+        const payload = (await res.json()) as { results?: MuseJob[] };
+        for (const job of payload.results ?? []) {
+          const url = job.refs?.landing_page;
+          if (!job.name || !url) continue;
+          const location = job.locations?.map((l) => l.name).filter(Boolean).join(" · ") || "Not stated";
+          jobs.push({
+            id: `muse-${job.id}`,
+            title: job.name,
+            company: job.company?.name ?? "Not stated",
+            location,
+            remote: /remote|flexible/i.test(location),
+            source: "The Muse",
+            url,
+            postedAt: job.publication_date ?? new Date().toISOString(),
+            tags: (job.categories ?? []).map((c) => c.name ?? "").filter(Boolean),
+            country: detectJobCountry(location),
+            certifications: detectCertifications(`${job.name} ${stripHtml(job.contents ?? "")}`),
+          });
+        }
+      } catch {
+        // One page failing must not empty the board.
+      }
+      return jobs;
+    }),
+  );
+  return pages
+    .flat()
+    .filter((job) => isItJob(job.title, job.tags) && jobMatchesCountry(job.country, country));
 }
 
 /** Jobicy accepts a geography slug, so remote roles can be scoped to a country. */
