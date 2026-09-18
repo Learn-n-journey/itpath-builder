@@ -61,12 +61,14 @@ const STEPS: Array<{ title: string; body: string; to: string; cta: string }> = [
 ];
 
 const DIMENSIONS: Array<[string, string]> = [
-  ["Understanding", "Recorded when you work through a lesson and answer its questions."],
-  ["Recall", "From recall questions answered without the lesson in front of you."],
-  ["Application", "From practice activities and written practice tasks."],
-  ["Practical ability", "From completed labs and their checklists."],
-  ["Troubleshooting", "From incidents and career tickets you diagnose, fix and verify."],
-  ["Retention", "From passing spaced reviews at longer and longer intervals."],
+  [
+    "Learning progress",
+    "How much of the available work you have finished: lessons, recall questions, practice, labs, incidents and checks.",
+  ],
+  [
+    "Overall mastery",
+    "How well you did on the final assessments: the quiz at the end of each section and the stage exams. Anything not taken yet counts as zero.",
+  ],
 ];
 
 const VOCABULARY: Array<[string, string]> = [
