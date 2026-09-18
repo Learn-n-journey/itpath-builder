@@ -18,7 +18,10 @@ import { getLearningModule, learningModules } from "@/data/learning-content";
 import { deepLessons, getDeepLesson } from "@/data/deep-lessons";
 import { questions as authoredQuestions } from "@/data/quiz-content";
 import { generatedQuestions } from "@/data/question-bank";
-import { usableQuestions } from "@/lib/question-quality";
+import { isUsableQuestion, usableQuestions } from "@/lib/question-quality";
+import { selectQuizQuestions } from "@/lib/quiz-selection";
+import { tagQuestion, type TaggedQuestion } from "@/lib/question-tags";
+import type { ConceptStat } from "@/lib/concept-mastery";
 import type { Question } from "@/lib/app-data/types";
 
 export const SECTION_QUIZ_SIZE = 20;
@@ -722,15 +725,12 @@ function topicPool(topicId: string): PoolItem[] {
   const authored: PoolItem[] = (authoredByTopic.get(topicId) ?? []).map((item) => ({
     question: item,
     kind: "authored",
-    sourceKey: `authored:${(item.correctAnswer[0] ?? item.id).trim().toLowerCase()}`,
+    // The idea comes from what the question asks, not from the answer text.
+    // Two questions that share an answer but ask different things are two
+    // questions, so neither is thrown away as a duplicate.
+    sourceKey: `authored:${item.prompt.trim().toLowerCase().slice(0, 70)}`,
   }));
-  const generated = buildPool(topicId);
-  // Do not generate a question about something the authored bank already tests.
-  const asked = new Set(authored.map((item) => item.sourceKey.replace("authored:", "")));
-  const fresh = generated.filter(
-    (item) => !asked.has((item.question.correctAnswer[0] ?? "").trim().toLowerCase()),
-  );
-  const all = [...authored, ...fresh];
+  const all = [...authored, ...buildPool(topicId)];
   // Drop repeated prompts across the whole pool.
   const seen = new Set<string>();
   const unique = all.filter((item) => {
@@ -864,6 +864,48 @@ function seeded(seed: string): () => number {
     value ^= value + Math.imul(value ^ (value >>> 7), 61 | value);
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+/** The section's pool with every question tagged, ready for the quiz builder. */
+export function getTaggedTopicPool(topicId: string): TaggedQuestion[] {
+  return topicPool(topicId)
+    .filter((item) => isUsableQuestion(item.question))
+    .map((item) => ({
+      question: item.question,
+      tags: tagQuestion(item.question, item.kind, item.sourceKey),
+    }));
+}
+
+/** Which idea a question tests, for tracking mastery concept by concept. */
+export function conceptOfQuestion(topicId: string, questionId: string): string | undefined {
+  return getTaggedTopicPool(topicId).find((item) => item.question.id === questionId)?.tags.conceptId;
+}
+
+/**
+ * A mastery driven section quiz.
+ *
+ * Shaky ideas and ideas due for another look come first, ideas never met come
+ * next, and ideas already proven several times over take up very little room.
+ * The set is checked before it is handed over and only failing places are
+ * filled again.
+ */
+export function buildSectionQuiz(
+  topicId: string,
+  nonce: number,
+  stats: Map<string, ConceptStat> = new Map(),
+): Question[] {
+  const pool = getTaggedTopicPool(topicId);
+  if (pool.length === 0) return [];
+  const chosen = selectQuizQuestions(pool, {
+    size: SECTION_QUIZ_SIZE,
+    stats,
+    random: seeded(`${topicId}:${nonce}`),
+  });
+  return chosen.map((item, index) => ({
+    ...item.question,
+    quizId: `section-quiz-${topicId}`,
+    order: index,
+  })) as Question[];
 }
 
 /**
