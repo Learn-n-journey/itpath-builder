@@ -272,18 +272,14 @@ function Certifications() {
                               </Link>
                             ) : (
                               <div
-                                className="relative block min-w-0 rounded-lg border border-border bg-background/40 p-3 opacity-50"
+                                className="flex min-w-0 flex-col items-center gap-1 rounded-lg border border-border bg-background/40 p-3 opacity-50"
                                 aria-label={`${topic.title} (locked)`}
                                 title="Finish the section before this one to unlock it"
                               >
-                                <span className="block truncate text-sm font-medium text-muted-foreground">
+                                <Lock className="size-4 text-muted-foreground" aria-hidden />
+                                <span className="block w-full truncate text-center text-sm font-medium text-muted-foreground">
                                   {topic.title}
                                 </span>
-                                <Lock
-                                  className="absolute left-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 text-muted-foreground"
-                                  aria-hidden
-                                />
-                                <span className="invisible block truncate text-sm font-medium">{topic.title}</span>
                               </div>
                             )}
                           </li>
