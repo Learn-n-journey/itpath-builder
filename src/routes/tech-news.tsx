@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ExternalLink, Newspaper, RefreshCw } from "lucide-react";
+import { ExternalLink, RefreshCw } from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -102,7 +102,6 @@ function TechNewsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={Newspaper}
         title="Tech News"
         description="Current technology headlines from across the industry. Read anything you like, nothing here is tracked or scored."
         actions={
