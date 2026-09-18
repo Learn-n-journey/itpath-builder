@@ -7,11 +7,16 @@ import { netPlusExtraSeeds } from "./phase-netplus-extra";
 import { secPlusExtraSeeds } from "./phase-secplus-extra";
 import { linuxServersCloudSeeds } from "./phase-linux-servers-cloud";
 import { linuxExtraSeeds } from "./phase-linux-extra";
+import { linuxGapSeeds } from "./phase-linux-gap";
 import { serverExtraSeeds } from "./phase-server-extra";
+import { serverGapSeeds } from "./phase-server-gap";
 import { cloudExtraSeeds } from "./phase-cloud-extra";
+import { cloudGapSeeds } from "./phase-cloud-gap";
 import { advancedSecuritySeeds } from "./phase-advanced-security";
 import { cysaExtraSeeds } from "./phase-cysa-extra";
+import { cysaGapSeeds } from "./phase-cysa-gap";
 import { pentestExtraSeeds } from "./phase-pentest-extra";
+import { pentestGapSeeds } from "./phase-pentest-gap";
 import { securityxExtraSeeds } from "./phase-securityx-extra";
 import {
   seedLessons,
@@ -32,11 +37,16 @@ export const expansionSeeds: TopicSeed[] = [
   ...secPlusExtraSeeds,
   ...linuxServersCloudSeeds,
   ...linuxExtraSeeds,
+  ...linuxGapSeeds,
   ...serverExtraSeeds,
+  ...serverGapSeeds,
   ...cloudExtraSeeds,
+  ...cloudGapSeeds,
   ...advancedSecuritySeeds,
   ...cysaExtraSeeds,
+  ...cysaGapSeeds,
   ...pentestExtraSeeds,
+  ...pentestGapSeeds,
   ...securityxExtraSeeds,
 ];
 
