@@ -34,6 +34,7 @@ import {
   type TutorMode,
 } from "@/lib/tutor-prompts";
 import { useAppState } from "@/state/app-state";
+import { ContentReportButton } from "@/components/content-report-button";
 
 export const Route = createFileRoute("/ai-tutor")({
   staticData: { sitemap: false },
@@ -427,6 +428,12 @@ function AiTutor() {
                         Tutor
                       </p>
                       <p className="whitespace-pre-wrap text-sm leading-relaxed">{m.content}</p>
+                      <ContentReportButton
+                        kind="ai_answer"
+                        refId={`tutor-${i}`}
+                        label={m.content.slice(0, 200)}
+                        className="mt-2"
+                      />
                     </div>
                   ) : (
                     <div key={i} className="rounded-lg border border-primary/30 bg-primary/10 p-3">

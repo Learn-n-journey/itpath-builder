@@ -15,6 +15,7 @@ import { GATEWAY_CHAT_URL } from "@/lib/ai-models";
 import { allowAiCall, allowPriority, budgetKindFor } from "./budget.server";
 import { cacheBucket, cacheKey, dedupe, readExact, readSemantic, writeCache } from "./cache.server";
 import { buildPrompt } from "./compress.server";
+import { enforceVoice, withVoiceContract } from "./persona";
 import { estimateCost, estimateTokens, modelSpec, type ModelSpec } from "./pricing";
 import { escalationModel, routeModel } from "./router.server";
 import { recordAiEvent } from "./telemetry.server";
@@ -119,7 +120,9 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
     return { ok: false, error: "AI service is not configured.", outcome: "error" };
   }
 
-  const system = buildPrompt([input.system]);
+  // JSON replies are parsed, not read, so they keep their own instructions.
+  // Everything a learner reads carries the shared voice contract.
+  const system = buildPrompt([input.json ? input.system : withVoiceContract(input.system)]);
   const prompt = buildPrompt([input.prompt]);
   const route = routeModel({
     feature: input.feature,
@@ -259,7 +262,10 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
     return finish({ ok: false, error: value.failed, outcome: "error", status: value.status }, "error");
   }
 
-  const { reply, model, escalated } = value;
+  const { model, escalated } = value;
+  // Strip any formatting the voice contract forbids before the text is cached
+  // or shown, so one drifting reply cannot leak markdown into the app.
+  const reply = input.json ? value.reply : { ...value.reply, text: enforceVoice(value.reply.text) };
   const cost = estimateCost(model.id, reply.promptTokens, reply.completionTokens);
 
   if (key && reply.text.length > 0) {

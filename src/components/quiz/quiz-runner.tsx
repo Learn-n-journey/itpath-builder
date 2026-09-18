@@ -26,6 +26,7 @@ import { recommendReview } from "@/lib/mistake-engine";
 import { buildQuizDiagnostic } from "@/lib/quiz-diagnostic";
 import { createQuizAttempt, scoreQuiz } from "@/lib/quiz-engine";
 import { useAppState } from "@/state/app-state";
+import { ContentReportButton } from "@/components/content-report-button";
 
 export const questionTypeLabels: Record<QuestionType, string> = {
   multiple_choice: "Multiple Choice",
@@ -483,6 +484,12 @@ function QuizReview({
               </p>
             ) : null}
             <p className="mt-2 text-sm text-muted-foreground">{question.explanation}</p>
+            <ContentReportButton
+              kind="question"
+              refId={question.id}
+              label={question.prompt.slice(0, 200)}
+              className="mt-2"
+            />
           </div>
         </div>
       </article>
