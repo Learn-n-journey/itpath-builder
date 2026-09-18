@@ -1068,10 +1068,12 @@ export function getStageExamQuestions(examId: string, nonce: number = Math.rando
     const byDomain = new Map<string, CertificationObjective[]>();
     for (const objective of certificationObjectives) {
       if (objective.certificationId !== cert.id) continue;
-      if (!objective.topicIds.some((topicId) => stageTopicIds.has(topicId))) continue;
-      const list = byDomain.get(objective.domain) ?? [];
+      const objectiveTopics = objective.topicIds ?? [];
+      if (!objectiveTopics.some((topicId) => stageTopicIds.has(topicId))) continue;
+      const domain = objective.domain ?? "General";
+      const list = byDomain.get(domain) ?? [];
       list.push(objective);
-      byDomain.set(objective.domain, list);
+      byDomain.set(domain, list);
     }
     for (const objectives of byDomain.values()) domains.push(shuffle(objectives));
   }
@@ -1085,7 +1087,7 @@ export function getStageExamQuestions(examId: string, nonce: number = Math.rando
       if (out.length >= STAGE_EXAM_SIZE) break;
       const objective = objectives[round % Math.max(objectives.length, 1)];
       if (!objective) continue;
-      if (take(objective.topicIds)) added = true;
+      if (take(objective.topicIds ?? [])) added = true;
     }
     if (!added) break;
   }
