@@ -366,39 +366,42 @@ interface RemotiveJob {
 }
 
 async function fetchRemotive(country: string): Promise<TechJob[]> {
-  const jobs: TechJob[] = [];
-  for (const search of ["it support", "help desk", "network", "system administrator", "cyber security"]) {
-    try {
-      const res = await fetch(
-        `https://remotive.com/api/remote-jobs?search=${encodeURIComponent(search)}&limit=40`,
-        { signal: AbortSignal.timeout(10000) },
-      );
-      if (!res.ok) continue;
-      const payload = (await res.json()) as { jobs?: RemotiveJob[] };
-      for (const job of payload.jobs ?? []) {
-        const text = `${job.title} ${stripHtml(job.description ?? "")}`;
-        const location = job.candidate_required_location?.trim() || "Remote";
-        jobs.push({
-          id: `remotive-${job.id}`,
-          title: job.title,
-          company: job.company_name,
-          location,
-          remote: true,
-          source: "Remotive",
-          url: job.url,
-          postedAt: job.publication_date ?? new Date().toISOString(),
-          tags: job.tags ?? [],
-          country: detectJobCountry(location),
-          certifications: detectCertifications(text),
-        });
+  const batches = await Promise.all(
+    ROLE_SEARCHES.map(async (search) => {
+      const jobs: TechJob[] = [];
+      try {
+        const res = await fetch(
+          `https://remotive.com/api/remote-jobs?search=${encodeURIComponent(search)}&limit=50`,
+          { signal: AbortSignal.timeout(10000) },
+        );
+        if (!res.ok) return jobs;
+        const payload = (await res.json()) as { jobs?: RemotiveJob[] };
+        for (const job of payload.jobs ?? []) {
+          const text = `${job.title} ${stripHtml(job.description ?? "")}`;
+          const location = job.candidate_required_location?.trim() || "Remote";
+          jobs.push({
+            id: `remotive-${job.id}`,
+            title: job.title,
+            company: job.company_name,
+            location,
+            remote: true,
+            source: "Remotive",
+            url: job.url,
+            postedAt: job.publication_date ?? new Date().toISOString(),
+            tags: job.tags ?? [],
+            country: detectJobCountry(location),
+            certifications: detectCertifications(text),
+          });
+        }
+      } catch {
+        // One source failing must not empty the board.
       }
-    } catch {
-      // One source failing must not empty the board.
-    }
-  }
-  return jobs.filter(
-    (job) => isItJob(job.title, job.tags) && jobMatchesCountry(job.country, country),
+      return jobs;
+    }),
   );
+  return batches
+    .flat()
+    .filter((job) => isItJob(job.title, job.tags) && jobMatchesCountry(job.country, country));
 }
 
 interface ArbeitnowJob {
