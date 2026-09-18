@@ -1,3 +1,9 @@
 import { getSectionQuizQuestions } from "@/data/topic-quizzes";
-const qs = getSectionQuizQuestions("topic-wireless-standards-and-soho-networks", 0).slice(0, 5);
-for (const q of qs) console.log("\nQ:", q.prompt, "\n", (q.options ?? []).map((o, i) => `${i}. ${o}`).join("\n "), "\n ans:", (q as any).correctIndexes ?? (q as any).correctIndex);
+const qs = getSectionQuizQuestions("topic-wireless-standards-and-soho-networks", 0);
+console.log(JSON.stringify(qs.slice(0,4), null, 1));
+let bad=0;
+for (const q of qs as any[]) {
+  const ch = q.choices ?? q.options ?? [];
+  if (new Set(ch.map((c:any)=>String(c).toLowerCase().trim())).size !== ch.length) { bad++; console.log("DUP", q.prompt); }
+}
+console.log("total", qs.length, "dupOptionSets", bad);
