@@ -24,7 +24,13 @@ describe("course pack", () => {
     for (const section of pack.sections) {
       const lesson = pack.lessons.find((item) => item.topicId === section.id);
       expect(lesson, `${section.title} has no lesson`).toBeTruthy();
-      expect(lesson!.body.length, `${section.title} lesson is too thin`).toBeGreaterThan(200);
+      // The short intro sits on the lesson; the teaching itself is in the
+      // deep lesson or the module, so a section needs at least one of those.
+      expect(lesson!.body.length, `${section.title} lesson is too thin`).toBeGreaterThan(80);
+      const taught =
+        (pack.getDeepLesson(section.id)?.sections.length ?? 0) > 0 ||
+        pack.modules.some((module) => module.topicId === section.id);
+      expect(taught, `${section.title} has nothing to teach from`).toBe(true);
       expect(section.summary.length).toBeGreaterThan(20);
     }
   });
