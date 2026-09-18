@@ -23,6 +23,18 @@ export const Route = createFileRoute("/guides/")({
       { name: "twitter:card", content: "summary" },
     ],
     links: [{ rel: "canonical", href: URL }],
+    scripts: [
+      // The full list of guides, plus one course entry per certificate, so a
+      // crawler can see how the sections hang together.
+      { type: "application/ld+json", children: JSON.stringify(guideIndexJsonLd(guideTopics())) },
+      ...certifications
+        .map((cert) => guideTopics().filter((topic) => topic.certificationId === cert.id))
+        .filter((certTopics) => certTopics.length > 0)
+        .map((certTopics) => ({
+          type: "application/ld+json",
+          children: JSON.stringify(courseJsonLd(certTopics[0]!.certificationId, certTopics)),
+        })),
+    ],
   }),
   component: GuidesIndexPage,
 });
