@@ -1,4 +1,4 @@
-import { topics, lessons, certifications } from "@/lib/app-data/storage";
+import { topics, lessons, certifications } from "@/data/static-content";
 import { getSectionQuizQuestions } from "@/data/topic-quizzes";
 const ids = new Set(topics.map(t => t.id));
 let bad = 0;
