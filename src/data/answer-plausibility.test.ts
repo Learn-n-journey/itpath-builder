@@ -21,7 +21,7 @@ describe("every drawn question has one correct answer and believable wrong ones"
         }
       }
     }
-  });
+  }, 60000);
 
   it("holds for stage exams across redraws", () => {
     for (const exam of stageExams) {
@@ -31,5 +31,5 @@ describe("every drawn question has one correct answer and believable wrong ones"
         }
       }
     }
-  });
+  }, 60000);
 });

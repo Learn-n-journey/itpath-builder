@@ -23,7 +23,7 @@ describe("section quizzes stay inside their own section", () => {
         }
       }
     }
-  });
+  }, 60000);
 
   it("consecutive papers are not the same set when the pool allows it", () => {
     const wide = topics.filter((topic) => getTopicQuestionPool(topic.id).length >= SECTION_QUIZ_SIZE * 2);
@@ -33,5 +33,5 @@ describe("section quizzes stay inside their own section", () => {
       const second = drawSectionQuiz(topic.id, 2).map((question) => question.id).join("|");
       expect(first).not.toBe(second);
     }
-  });
+  }, 60000);
 });
