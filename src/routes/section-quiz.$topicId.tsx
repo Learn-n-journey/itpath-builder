@@ -1,5 +1,5 @@
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 
 import { QuizRunner } from "@/components/quiz/quiz-runner";
@@ -10,7 +10,7 @@ import { topics } from "@/data/static-content";
 import {
   SECTION_PASS_SCORE,
   SECTION_QUIZ_SIZE,
-  getSectionQuizQuestions,
+  drawSectionQuiz,
   getTopicQuestionPool,
 } from "@/data/topic-quizzes";
 import type { Quiz } from "@/lib/app-data/types";
@@ -50,16 +50,16 @@ function SectionQuizPage() {
   const topic = findTopic(topicId);
   const { user } = useAppState();
   const quizId = `section-quiz-${topicId}`;
-  const takenBefore = user.quizAttempts.filter((attempt) => attempt.quizId === quizId).length;
-  // Each attempt moves through the section's material, so a retake is a new set.
-  const round = useRef(takenBefore);
-  const questions = useMemo(() => getSectionQuizQuestions(topicId, round.current), [topicId]);
+  // A fresh paper is drawn each time the page is opened, always from this section only.
+  const [paper] = useState(() => Math.random());
+  const round = useRef(0);
+  const questions = useMemo(() => drawSectionQuiz(topicId, paper), [topicId, paper]);
   // Every question this section can ask, so earlier attempts still show their review.
   const fullPool = useMemo(() => getTopicQuestionPool(topicId), [topicId]);
   const nextQuestions = useCallback(() => {
     round.current += 1;
-    return getSectionQuizQuestions(topicId, round.current);
-  }, [topicId]);
+    return drawSectionQuiz(topicId, paper + round.current);
+  }, [topicId, paper]);
   if (!topic) return null;
 
   const best = sectionQuizBest(user, topicId);

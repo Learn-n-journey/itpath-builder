@@ -822,6 +822,56 @@ export function getSectionQuizQuestions(topicId: string, attempt = 0): Question[
   return sequence.sets[attempt] as Question[];
 }
 
+/** Small seeded generator, so one sitting keeps its paper while it is open. */
+function seeded(seed: string): () => number {
+  let hash = 2166136261;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash ^= seed.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return () => {
+    hash += 0x6d2b79f5;
+    let value = Math.imul(hash ^ (hash >>> 15), 1 | hash);
+    value ^= value + Math.imul(value ^ (value >>> 7), 61 | value);
+    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * One freshly drawn section quiz. Every question comes from this section's own
+ * pool and nothing else, and each sitting draws a different selection.
+ */
+export function drawSectionQuiz(topicId: string, nonce: number): Question[] {
+  const order = orderFor(topicId);
+  if (order.length === 0) return [];
+  const random = seeded(`${topicId}:${nonce}`);
+  const shuffled = order.slice();
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swap = Math.floor(random() * (index + 1));
+    [shuffled[index], shuffled[swap]] = [shuffled[swap] as PoolItem, shuffled[index] as PoolItem];
+  }
+
+  const chosen: Question[] = [];
+  const usedSources = new Set<string>();
+  const usedIds = new Set<string>();
+  for (let pass = 0; pass < 2 && chosen.length < SECTION_QUIZ_SIZE; pass += 1) {
+    for (const item of shuffled) {
+      if (chosen.length >= SECTION_QUIZ_SIZE) break;
+      if (usedIds.has(item.question.id)) continue;
+      if (pass === 0 && usedSources.has(item.sourceKey)) continue;
+      chosen.push(item.question);
+      usedIds.add(item.question.id);
+      usedSources.add(item.sourceKey);
+    }
+  }
+
+  return chosen.map((item, index) => ({
+    ...item,
+    quizId: `section-quiz-${topicId}`,
+    order: index,
+  })) as Question[];
+}
+
 /** Every question available for a topic, used to top up the larger stage exams. */
 export function getTopicQuestionPool(topicId: string): Question[] {
   return usableQuestions(topicPool(topicId).map((item) => item.question));
