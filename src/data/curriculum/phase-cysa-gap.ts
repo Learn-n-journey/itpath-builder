@@ -8,7 +8,7 @@ export const cysaGapSeeds: TopicSeed[] = [
     slug: "ai-assisted-threat-detection-and-indicators",
     title: "AI-Assisted Threat Detection and Indicators of Malicious Activity",
     summary: "Tools and telemetry used to spot malicious activity, and how to use AI assistance in security operations responsibly.",
-    cert: CY, month: 20, week: 1, difficulty: "advanced", minutes: 45,
+    cert: CY, month: 20, week: 1, difficulty: "demanding", minutes: 45,
     prereqs: ["threat-intelligence-and-hunting"],
     objectives: [
       "Identify indicators of malicious activity across network, endpoint and application telemetry.",
@@ -94,7 +94,7 @@ export const cysaGapSeeds: TopicSeed[] = [
     slug: "vulnerability-scanning-methods-and-output-analysis",
     title: "Vulnerability Scanning Methods and Output Analysis",
     summary: "Credentialed versus uncredentialed and agent versus network scanning, CVSS scoring, and separating real findings from false positives.",
-    cert: CY, month: 20, week: 3, difficulty: "advanced", minutes: 45,
+    cert: CY, month: 20, week: 3, difficulty: "demanding", minutes: 45,
     prereqs: ["vulnerability-management"],
     objectives: [
       "Compare credentialed, uncredentialed, agent based and network based scanning.",
@@ -186,7 +186,7 @@ export const cysaGapSeeds: TopicSeed[] = [
     slug: "attack-frameworks-and-vulnerability-reporting",
     title: "Attack Frameworks, Vulnerability Management and Incident Reporting",
     summary: "MITRE ATT&CK, the Cyber Kill Chain and the Diamond Model, plus communicating vulnerability and incident findings to technical and business audiences.",
-    cert: CY, month: 21, week: 1, difficulty: "advanced", minutes: 45,
+    cert: CY, month: 21, week: 1, difficulty: "demanding", minutes: 45,
     prereqs: ["vulnerability-scanning-methods-and-output-analysis"],
     objectives: [
       "Compare MITRE ATT&CK, the Cyber Kill Chain and the Diamond Model.",
