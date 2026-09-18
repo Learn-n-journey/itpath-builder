@@ -1,7 +1,7 @@
 /**
  * GAYL's floating presence.
  *
- * A small mark in the bottom right corner. It only carries a message when the
+ * A small mark in the top right corner. It only carries a message when the
  * engine already has evidence that something is slipping, is still open, or is
  * worth finishing, and it stays quiet the rest of the time. Once the latest
  * message is dismissed, it does not come back until the evidence changes, but
