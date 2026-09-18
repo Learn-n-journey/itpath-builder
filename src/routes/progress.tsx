@@ -93,31 +93,39 @@ function ProgressPage() {
 
       <Panel
         className="mt-6"
-        title="Learning dimensions"
-        description="Averaged across the whole curriculum, so untouched topics count as zero."
+        title="Where you stand"
+        description="Work you have not done counts as zero, and an assessment you have not taken counts as zero."
       >
         <ul className="divide-y divide-border">
-          {dimensionLabels.map((dimension) => (
-            <li key={dimension.key}>
-              <Link
-                to="/measures/$measure"
-                params={{ measure: measureSlug(dimension.key as MeasureKey) }}
-                className="block rounded-md py-3 transition-colors hover:bg-muted/40"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-medium">{dimension.label}</p>
-                    <p className="text-xs text-muted-foreground">{dimension.help}</p>
-                  </div>
-                  <span className={`text-sm tabular-nums ${scoreTone(report.dimensions[dimension.key])}`}>
-                    {report.dimensions[dimension.key]}%
-                  </span>
-                </div>
-                <ProgressBar value={report.dimensions[dimension.key]} className="mt-2 h-1.5" />
-                <p className="mt-1.5 text-xs text-primary">How to get this up</p>
-              </Link>
-            </li>
-          ))}
+          <li className="py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium">Learning progress</p>
+                <p className="text-xs text-muted-foreground">
+                  {measures.activitiesCompleted} of {measures.activitiesTotal} activities completed
+                </p>
+              </div>
+              <span className={`text-sm tabular-nums ${scoreTone(measures.learningProgress)}`}>
+                {measures.learningProgress}%
+              </span>
+            </div>
+            <ProgressBar value={measures.learningProgress} className="mt-2 h-1.5" />
+          </li>
+          <li className="py-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium">Overall mastery</p>
+                <p className="text-xs text-muted-foreground">
+                  Final section quizzes and stage exams · {measures.assessmentsTaken} of{" "}
+                  {measures.assessmentsTotal} taken
+                </p>
+              </div>
+              <span className={`text-sm tabular-nums ${scoreTone(measures.overallMastery)}`}>
+                {measures.overallMastery}%
+              </span>
+            </div>
+            <ProgressBar value={measures.overallMastery} className="mt-2 h-1.5" />
+          </li>
         </ul>
       </Panel>
 
