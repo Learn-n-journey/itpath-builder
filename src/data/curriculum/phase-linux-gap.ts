@@ -1,0 +1,442 @@
+/** Linux+ XK0-006 gap closers: device management and virtualisation, containers, AAA, firewalls and hardening, automation and scripting with monitoring and compliance. */
+import type { TopicSeed } from "./builder";
+
+const L = "cert-comptia-linux-plus";
+
+export const linuxGapSeeds: TopicSeed[] = [
+  {
+    slug: "linux-device-management-and-virtualisation",
+    title: "Linux Device Management and Virtualisation",
+    summary: "udev rules, the /dev tree, discovering hardware with lsblk, lspci and lsusb, and running virtual machines with KVM, QEMU and libvirt.",
+    cert: L, month: 14, week: 4, difficulty: "standard", minutes: 50,
+    prereqs: ["linux-package-and-service-management"],
+    objectives: [
+      "Explain how udev creates and names device nodes under /dev.",
+      "Use lsblk, lspci and lsusb to identify attached hardware.",
+      "Describe how KVM, QEMU and libvirt work together to run virtual machines.",
+    ],
+    lesson: {
+      title: "From a plugged-in cable to a working device",
+      body: "When hardware appears, the kernel notices first, then userspace has to turn that event into a usable device node with sane permissions. On a hypervisor host, the same box also has to present virtual hardware to guest machines, so device management and virtualisation sit close together on the exam and in real administration.",
+      definition: "The kernel detects hardware and emits an event; udev, the device manager, listens for these events and creates or removes entries in /dev according to rules that can set names, permissions and symlinks. Block and PCI and USB devices can be listed with lsblk, lspci and lsusb respectively. KVM is a kernel module that turns Linux into a hypervisor, QEMU emulates the virtual hardware a guest sees, and libvirt is the management layer that provides a consistent way to define, start and control virtual machines regardless of which hypervisor sits underneath.",
+      whyItMatters: "A server that will not see a new disk or network card is often a udev or driver problem rather than a hardware fault, and mistaking the two wastes time. Virtualisation questions are common because most Linux servers today are guests, and administrators are expected to know the stack that created them.",
+      keyTerms: [
+        ["udev", "The userspace device manager that creates and names entries in /dev."],
+        ["udev rule", "A file that matches a device by attributes and applies a name, permission or action."],
+        ["lsblk", "Lists block devices such as disks and partitions in tree form."],
+        ["lspci", "Lists devices on the PCI bus, including network and storage controllers."],
+        ["KVM", "A kernel module that provides hardware-assisted virtualisation on Linux."],
+        ["libvirt", "A management API and toolset for defining and controlling virtual machines."],
+      ],
+      examples: [
+        "A udev rule pins a USB serial adapter to /dev/ttyUSB-console regardless of which port it is plugged into, so scripts do not break when the enumeration order changes.",
+        "An administrator runs lspci -v to confirm which driver has bound to a new network card before troubleshooting why the interface is missing.",
+      ],
+      misconceptions: [
+        "A missing device is not always a broken cable; it can be a missing kernel module or a udev rule that never matched.",
+        "QEMU alone can emulate a machine, but KVM is what lets that emulation run at close to native speed by using the processor's virtualisation extensions.",
+      ],
+      summary: "udev turns kernel events into usable device nodes, the ls-prefixed tools let you inspect what is actually attached, and KVM, QEMU and libvirt together form the standard open source virtualisation stack on Linux.",
+      nextSteps: [
+        "Run lsblk, lspci and lsusb on a Linux system and compare the output with what you know is physically attached.",
+        "Look at an existing udev rule file under /etc/udev/rules.d and identify what it matches and what action it takes.",
+      ],
+    },
+    module: {
+      howItWorks: [
+        "The kernel raises an event through the sysfs and uevent mechanism whenever a device is added, changed or removed.",
+        "udev matches the event against rules in /etc/udev/rules.d and /usr/lib/udev/rules.d and applies naming, permissions, symlinks or scripts.",
+        "libvirt talks to the QEMU and KVM layer through libvirtd, presenting a single interface such as virsh or virt-manager to define and control guests.",
+      ],
+      whereYouSeeIt: [
+        "Servers that add storage, network cards or USB devices after initial installation.",
+        "Hypervisor hosts running many guest virtual machines defined as XML domains under libvirt.",
+        "Troubleshooting where a device is present physically but absent from /dev.",
+      ],
+      commonProblems: ["A device node that never appears because no kernel module is loaded", "Two udev rules that conflict and race for the same name", "A virtual machine with no virtualisation extensions exposed by the hypervisor", "Permissions on a device node blocking a non-root user", "libvirtd not running so virsh commands fail"],
+      howItFails: [
+        "A new disk is physically present but lsblk shows nothing because the storage controller's driver is not loaded.",
+        "A custom udev rule uses the wrong attribute and never matches, so the expected symlink is missing.",
+        "A guest fails to start with an error about missing hardware virtualisation because nested virtualisation was never enabled on the host.",
+      ],
+      troubleshooting: [
+        "Check dmesg and journalctl -k for kernel messages about the device before assuming udev is at fault.",
+        "Use udevadm test or udevadm monitor to see which rules match and in what order.",
+        "Confirm /proc/cpuinfo shows vmx or svm before blaming libvirt for a virtualisation startup failure.",
+      ],
+      practicalKnowledge: [
+        "Use udevadm info to inspect the attributes a device actually exposes before writing a rule against it.",
+        "Prefer libvirt-managed networking and storage pools over ad hoc QEMU command lines for anything long-lived.",
+        "Keep custom udev rules numbered so they are read after the vendor-supplied defaults.",
+      ],
+      examCoverage: ["udev and device nodes", "Hardware discovery commands", "KVM, QEMU and libvirt roles", "Virtual machine lifecycle management"],
+      interviewQuestions: ["How would you make a device name stable across reboots when the kernel enumerates it differently each time?", "What is the difference in role between KVM, QEMU and libvirt?"],
+    },
+    recall: [
+      ["What creates and names entries in /dev in response to kernel events?", ["udev"], "udev is the userspace device manager that listens for kernel events and manages /dev accordingly."],
+      ["What kernel module lets Linux act as a hypervisor using hardware virtualisation extensions?", ["kvm"], "KVM turns the Linux kernel into a hypervisor by using the processor's virtualisation extensions."],
+    ],
+    practice: {
+      title: "Diagnose the missing device",
+      prompt: "A newly attached disk does not appear in lsblk output, but dmesg shows the kernel detected it on the bus. What is the most likely cause?",
+      choices: ["A udev rule or missing driver is preventing the device node from being created", "The disk is defective and needs replacing", "lsblk only shows devices mounted at boot time", "The disk needs to be added to /etc/fstab before it can be listed"],
+      answerIndex: 0,
+      explanation: "If the kernel already sees the device, the block is downstream of that, typically a missing driver binding or a udev rule problem preventing the node from appearing in /dev. fstab entries are unrelated to whether a device is listed, and lsblk lists all block devices, not just mounted ones.",
+    },
+    scenario: {
+      title: "The hypervisor host that will not start guests",
+      situation: "A newly built server is meant to host several KVM virtual machines. Every attempt to start a guest through libvirt fails with an error about virtualisation not being available, even though the processor is a recent model that supports it.",
+      decisionPrompt: "Explain what you would check, in order, to find the cause.",
+      expectedConcepts: ["cpuinfo", "vmx", "svm", "bios", "kvm module", "libvirtd"],
+      guidance: "Check /proc/cpuinfo for vmx or svm flags to confirm the processor exposes virtualisation support, confirm it has not been disabled in firmware settings, verify the kvm kernel module is loaded, and confirm libvirtd itself is running before assuming a hardware fault.",
+    },
+  },
+  {
+    slug: "linux-containers-on-a-server",
+    title: "Containers on a Linux Server",
+    summary: "Container images and registries, running containers with podman or docker, persisting data with volumes, container networking, and managing containers as systemd units.",
+    cert: L, month: 15, week: 5, difficulty: "challenging", minutes: 55,
+    prereqs: ["linux-package-and-service-management", "linux-networking-and-troubleshooting"],
+    objectives: [
+      "Explain the relationship between an image, a registry and a running container.",
+      "Run and manage containers with podman or docker, including volumes and networking.",
+      "Describe how systemd units are used to run containers as managed services.",
+    ],
+    lesson: {
+      title: "A process with its own view of the world",
+      body: "A container is not a small virtual machine; it is an ordinary Linux process given its own filesystem, network namespace and resource limits so it behaves as if it were isolated. Understanding images, registries and the runtime that starts containers is now core Linux administration.",
+      definition: "An image is a read-only, layered filesystem bundle describing everything a container needs to run. A registry stores and serves images by name and tag. podman and docker are container engines that pull images, create containers from them and manage their lifecycle; podman does this without a background daemon and can run rootless, while docker traditionally relies on a privileged daemon. A volume is storage that persists beyond the container's own writable layer, and container networking connects containers to each other and to the host through bridges, port publishing or dedicated networks. systemd can manage containers as units, including through podman's generated unit files, so they start, stop and restart under the same control as any other service.",
+      whyItMatters: "Containers are now a normal way to run services on a Linux server, and the exam expects administrators to manage them with the same discipline as any other service, including persistence, networking and startup behaviour.",
+      keyTerms: [
+        ["Image", "A read-only, layered bundle of files and metadata used to create containers."],
+        ["Registry", "A service that stores and distributes container images by name and tag."],
+        ["Volume", "Storage attached to a container that persists independently of the container's own filesystem."],
+        ["Rootless container", "A container run entirely under a non-root user's namespaces and privileges."],
+        ["Bridge network", "A virtual network that lets containers on the same host communicate and reach the outside."],
+        ["Container unit", "A systemd unit that starts, stops and supervises a container as a managed service."],
+      ],
+      examples: [
+        "An administrator pulls an image from a registry, mounts a named volume for its database files, and publishes a port so the service is reachable from outside the host.",
+        "podman generate systemd is used to create a unit file so a container restarts automatically on boot and is controlled with the usual systemctl commands.",
+      ],
+      misconceptions: [
+        "A container without a mounted volume does not keep its data; removing the container discards anything written only to its own writable layer.",
+        "Rootless does not mean without any privilege at all, it means the container runs under the calling user's own namespaces rather than as root on the host.",
+      ],
+      summary: "Images are built once and run many times as containers, volumes are what make data survive beyond a container's life, networking connects containers to the world, and systemd units give containers the same operational treatment as any other service.",
+      nextSteps: [
+        "Pull an image, run it with a mounted volume, and confirm data survives after the container is removed and recreated.",
+        "Generate a systemd unit for a container and control it with systemctl start, stop and status.",
+      ],
+    },
+    module: {
+      howItWorks: [
+        "An image is pulled from a registry and cached locally, then the engine creates a container as a new process using Linux namespaces and control groups for isolation and limits.",
+        "Volumes are bind mounts or engine-managed storage that a container references so writes outside its own layer persist independently of the container's lifecycle.",
+        "Networking uses bridges and network namespaces so containers get their own interface, and ports are published to make a service reachable from outside the host.",
+      ],
+      whereYouSeeIt: [
+        "Application servers running microservices packaged as containers.",
+        "Development and test environments where images give a consistent runtime.",
+        "Servers using podman-managed systemd units so containerised services start on boot.",
+      ],
+      commonProblems: ["Data lost after a container is removed because no volume was mounted", "Port conflicts between containers publishing the same host port", "Images pulled from an untrusted or unverified registry", "A container running as root unnecessarily inside the container", "systemd unit for a container missing after a podman upgrade or user logout"],
+      howItFails: [
+        "A container is deleted during an update and all of its data disappears because it was never given a persistent volume.",
+        "Two services fail to start because they were both configured to publish the same host port.",
+        "A rootless container's systemd unit stops working after the owning user logs out because lingering was never enabled.",
+      ],
+      troubleshooting: [
+        "Check whether the container's storage is a mounted volume or only its own writable layer before assuming data loss is a bug.",
+        "Use container engine logs and port listing to find conflicting bindings.",
+        "Confirm loginctl enable-linger is set for a user whose rootless containers must keep running after logout.",
+      ],
+      practicalKnowledge: [
+        "Always mount a volume for anything the container writes that must survive its removal.",
+        "Prefer rootless containers and least privilege images where the workload allows it.",
+        "Pull images from registries whose provenance and signing you trust.",
+      ],
+      examCoverage: ["Images and registries", "Container engines and lifecycle", "Volumes and container networking", "Managing containers with systemd"],
+      interviewQuestions: ["What happens to a container's data on removal if no volume is mounted?", "How would you make a container start automatically on boot under systemd?"],
+    },
+    recall: [
+      ["What component stores and serves container images by name and tag?", ["registry"], "A registry stores and distributes images so engines can pull them by name and tag."],
+      ["What must be attached to a container for its data to survive removal of the container?", ["volume"], "A volume persists data independently of the container's own writable layer, which is discarded on removal."],
+    ],
+    practice: {
+      title: "Fix the disappearing data",
+      prompt: "A team reports that every time they update their container to a new image, the application's stored data disappears. What is the most likely cause?",
+      choices: ["The container's data was never placed on a mounted volume", "The registry deleted the old image", "The new image is a different architecture", "The container network was reconfigured"], 
+      answerIndex: 0,
+      explanation: "Data written only inside a container's own writable layer disappears when that container is removed and recreated from a new image. A mounted volume keeps the data independent of the container's lifecycle. The other options do not explain repeated data loss on update.",
+    },
+    scenario: {
+      title: "The service that stops after a reboot",
+      situation: "A container providing an internal application was started manually with a docker run command and worked fine. After the host is rebooted for maintenance, the service is gone and nobody restarted it.",
+      decisionPrompt: "Explain how you would make this service resilient to reboots and how you would verify it.",
+      expectedConcepts: ["systemd unit", "restart policy", "enable", "podman generate systemd", "volume"],
+      guidance: "Convert the manual run into a managed systemd unit, for example by generating one with podman, ensure it has an appropriate restart policy, enable it so it starts on boot, confirm any data is on a mounted volume, and verify with a test reboot or systemctl status.",
+    },
+  },
+  {
+    slug: "linux-authentication-and-aaa",
+    title: "Linux Authentication, Authorisation and Accounting",
+    summary: "PAM stacks, integrating with LDAP and Kerberos, using sssd for centralised identity, and the AAA model that ties them together.",
+    cert: L, month: 15, week: 6, difficulty: "challenging", minutes: 55,
+    prereqs: ["linux-users-groups-and-sudo"],
+    objectives: [
+      "Explain how PAM modules and control flags determine whether an authentication attempt succeeds.",
+      "Describe how LDAP and Kerberos each contribute to centralised identity and authentication.",
+      "Explain the role of sssd and the general AAA model on a Linux system.",
+    ],
+    lesson: {
+      title: "One system, one identity source",
+      body: "Local accounts do not scale past a handful of machines. Real environments centralise who a user is, what they can do, and what they did, and Linux systems plug into that through a stack of well-known pieces rather than one single tool.",
+      definition: "Authentication proves who someone is, authorisation decides what they are allowed to do, and accounting records what they did; together this is the AAA model. PAM, pluggable authentication modules, is the framework Linux services call into to authenticate, with each service having a stack of modules and control flags such as required, requisite, sufficient and optional that decide the overall result. LDAP is a directory protocol used to look up users, groups and attributes centrally. Kerberos is a ticket-based authentication protocol that proves identity without repeatedly sending a password across the network. sssd, the System Security Services Daemon, is the piece that typically ties LDAP and Kerberos together for a Linux host, caching lookups and handling the connection to the central directory.",
+      whyItMatters: "Centralised authentication is standard in any organisation with more than a few servers, and exam scenarios routinely describe a login failure, a slow login, or an offline login that only make sense once you know which piece of this chain is responsible.",
+      keyTerms: [
+        ["PAM", "The pluggable framework Linux services use to authenticate and enforce account policy."],
+        ["Control flag", "A PAM stack setting such as required or sufficient that decides how a module's result affects the outcome."],
+        ["LDAP", "A directory protocol used to store and look up users, groups and attributes."],
+        ["Kerberos", "A ticket-based protocol that authenticates without repeatedly sending a password."],
+        ["sssd", "A daemon that connects a Linux host to central identity sources and caches the results."],
+        ["AAA", "The model of authentication, authorisation and accounting."],
+      ],
+      examples: [
+        "A user's password is correct but login still fails because a required PAM module earlier in the stack, such as a time-of-day restriction, has already failed.",
+        "sssd's local cache lets a laptop user log in with their domain credentials even when the network to the directory is unreachable.",
+      ],
+      misconceptions: [
+        "LDAP by itself is a directory lookup, not an authentication protocol; binding with a password against LDAP is one option, but Kerberos is the ticket-based alternative that avoids sending the password each time.",
+        "A required PAM module that fails does not stop the stack immediately, it continues evaluating but the overall result is already a failure; requisite is the flag that stops immediately.",
+      ],
+      summary: "AAA separates proving identity, granting rights and recording activity, PAM is the framework services use to authenticate on Linux, and LDAP, Kerberos and sssd are the usual pieces that connect a Linux host to a centralised identity source.",
+      nextSteps: [
+        "Read a PAM configuration file under /etc/pam.d and identify the control flags used for each module.",
+        "Check whether sssd is running on a domain-joined Linux host and look at its cached identity data.",
+      ],
+    },
+    module: {
+      howItWorks: [
+        "A service such as login or sshd calls into PAM, which works through its configured stack of modules for authentication, account, password and session management.",
+        "sssd handles the actual connection to LDAP for identity data and to Kerberos for authentication, presenting a unified interface to PAM and NSS.",
+        "Kerberos issues a ticket after initial authentication, which is then presented to other services without the password being sent again.",
+      ],
+      whereYouSeeIt: [
+        "Domain-joined Linux servers authenticating against a central directory.",
+        "Single sign-on environments where one login grants access to several services.",
+        "Any troubleshooting of login failures, slow logins or account lockouts.",
+      ],
+      commonProblems: ["A misordered PAM stack causing unexpected login behaviour", "sssd cache being stale after a password change centrally", "Clock skew breaking Kerberos ticket validation", "LDAP lookups timing out and slowing every login", "Local accounts left active alongside centralised ones, creating inconsistent access"],
+      howItFails: [
+        "A user changes their password centrally but a stale sssd cache still accepts the old one for a period.",
+        "Kerberos authentication fails across the estate because a server's clock has drifted, since ticket validation depends on close time synchronisation.",
+        "Every login is slow because a PAM module is waiting on an LDAP server that is unreachable.",
+      ],
+      troubleshooting: [
+        "Read the PAM stack in order and check each control flag before assuming the problem is the password itself.",
+        "Check sssd logs and try clearing its cache when centrally changed data does not seem to be reflected.",
+        "Verify time synchronisation across hosts before deep diving into a Kerberos ticket failure.",
+      ],
+      practicalKnowledge: [
+        "Keep PAM stack changes minimal and test in a separate session before logging out, since a broken stack can lock out all logins.",
+        "Prefer Kerberos over plain LDAP binds where available to avoid repeatedly transmitting passwords.",
+        "Monitor sssd connectivity to the directory rather than waiting for user complaints about slow logins.",
+      ],
+      examCoverage: ["PAM stacks and control flags", "LDAP for centralised directory lookups", "Kerberos ticket-based authentication", "sssd and the AAA model"],
+      interviewQuestions: ["What is the practical difference between a required and a requisite PAM control flag?", "Why does Kerberos depend so heavily on accurate time synchronisation?"],
+    },
+    recall: [
+      ["What does the A in AAA stand for besides authentication and authorisation?", ["accounting"], "Accounting is the record of what a user did after being authenticated and authorised."],
+      ["What Linux daemon commonly connects a host to LDAP and Kerberos and caches the results?", ["sssd"], "sssd is the System Security Services Daemon that manages this connection and caching."],
+    ],
+    practice: {
+      title: "Diagnose the failed logins",
+      prompt: "Logins across an entire server estate suddenly begin failing with authentication errors, and administrators notice the servers' clocks have drifted apart by several minutes. Which authentication mechanism is most directly affected?",
+      choices: ["Kerberos, because ticket validation depends on closely synchronised time", "LDAP, because directory queries are timestamped", "PAM, because its modules run on a schedule", "sudo, because its logs are time ordered"],
+      answerIndex: 0,
+      explanation: "Kerberos tickets have a limited validity window and depend on synchronised clocks between client, service and the key distribution centre; significant drift causes tickets to be rejected. The other components are not primarily dependent on tight clock synchronisation in this way.",
+    },
+    scenario: {
+      title: "The password that still works",
+      situation: "A user changed their centrally managed password an hour ago. They report that their new password works on some servers but their old password still works on one particular server they use daily.",
+      decisionPrompt: "Explain the likely cause and how you would confirm and resolve it.",
+      expectedConcepts: ["sssd cache", "stale", "cache timeout", "clear cache", "restart sssd"],
+      guidance: "This points to a stale sssd cache on that server holding the old credential data past its normal refresh interval; confirm by checking sssd's cache and configuration on that host, then clear or refresh the cache, or restart sssd, and check the configured cache timeout so it reflects changes sooner in future.",
+    },
+  },
+  {
+    slug: "linux-firewalls-and-os-hardening",
+    title: "Linux Firewalls and OS Hardening",
+    summary: "firewalld and nftables or iptables, SELinux and AppArmor modes and contexts, minimising running services, and hardening SSH and accounts.",
+    cert: L, month: 15, week: 7, difficulty: "challenging", minutes: 55,
+    prereqs: ["linux-networking-and-troubleshooting", "linux-users-groups-and-sudo"],
+    objectives: [
+      "Configure and reason about firewalld and the underlying nftables or iptables rules it manages.",
+      "Explain the difference between SELinux and AppArmor and how each restricts a process.",
+      "Apply baseline hardening steps to services, SSH and accounts.",
+    ],
+    lesson: {
+      title: "Reducing what can go wrong before anything happens",
+      body: "Hardening is the discipline of removing options an attacker could use, long before any attack occurs. On Linux this means controlling what network traffic is allowed, confining what a process can do even if it is compromised, and cutting away anything running or configured that is not needed.",
+      definition: "firewalld is a dynamic firewall manager that organises rules into zones and typically drives nftables, or iptables on older systems, as the actual packet filtering engine. SELinux enforces mandatory access control using labelled contexts on processes and files, and runs in enforcing, permissive or disabled mode; AppArmor achieves a similar goal using named profiles tied to file paths rather than labels. Service minimisation means disabling or removing anything not required for the system's role. SSH hardening includes disabling root login, preferring key-based authentication, and restricting protocol and cipher choices. Account hardening includes password policy, disabling unused accounts and restricting sudo access to what is needed.",
+      whyItMatters: "A single open port or an overly permissive process can turn a minor compromise into full control of a system, and mandatory access control is often the difference between an exploited process reading one file and reading everything on the host.",
+      keyTerms: [
+        ["firewalld zone", "A named set of rules describing the trust level applied to interfaces or sources."],
+        ["nftables", "The modern Linux packet filtering framework that has largely replaced iptables."],
+        ["SELinux enforcing mode", "The mode where policy violations are actually blocked and logged."],
+        ["SELinux context", "A label on a process or file that SELinux policy uses to decide what is allowed."],
+        ["AppArmor profile", "A named, path-based policy restricting what a specific program can do."],
+        ["Attack surface", "Everything an attacker could potentially interact with or exploit."],
+      ],
+      examples: [
+        "A web server's SELinux context prevents it from reading files outside its expected directory, even though the operating system's ordinary file permissions would otherwise allow it.",
+        "SSH is hardened by disabling password authentication entirely and only permitting key-based logins from a known set of accounts.",
+      ],
+      misconceptions: [
+        "Setting SELinux to permissive is not the same as fixing a problem, it only stops enforcement while still logging what would have been blocked, and should not be left that way in production.",
+        "A firewall rule blocking a port is not the same as removing the service; if the service is still running, it remains part of the attack surface for anyone with another path in.",
+      ],
+      summary: "Firewalls control what traffic reaches a system, mandatory access control such as SELinux or AppArmor limits what a process can do even after it starts, and disciplined minimisation of services, SSH options and accounts removes opportunities before anyone needs them.",
+      nextSteps: [
+        "Check whether SELinux or AppArmor is active on a system and in which mode.",
+        "Review a server's running services and disable anything not required for its role.",
+      ],
+    },
+    module: {
+      howItWorks: [
+        "firewalld assigns each network interface or source to a zone with a trust level, and rules within that zone are translated into nftables or iptables rules by the underlying engine.",
+        "SELinux checks every access attempt against policy using the context of the process and the target, denying anything not explicitly allowed regardless of standard file permissions.",
+        "AppArmor achieves confinement by loading a profile for a specific executable path that lists what files, capabilities and network access it may use.",
+      ],
+      whereYouSeeIt: [
+        "Public-facing servers where firewall zones separate management access from public services.",
+        "Distributions such as Red Hat family systems defaulting to SELinux and Ubuntu defaulting to AppArmor.",
+        "Baseline hardening checklists applied before a server goes into production.",
+      ],
+      commonProblems: ["SELinux set to permissive or disabled to make a problem go away rather than fixing the context", "A firewall zone left as the more open default on a public interface", "Root login left enabled over SSH", "Unused services still running and reachable", "Accounts left active after a person or system no longer needs them"],
+      howItFails: [
+        "An application breaks in a way that looks like a permissions problem, and someone disables SELinux rather than correcting the context or writing a policy exception.",
+        "A server is placed on a public network still in the default firewalld zone meant for trusted internal networks.",
+        "An old service account with a weak password left over from testing turns out to be reachable and still active in production.",
+      ],
+      troubleshooting: [
+        "Check SELinux or AppArmor denial logs before assuming a plain permissions problem, since the audit log will usually show exactly what was blocked and why.",
+        "Confirm which zone an interface is actually assigned to rather than assuming the intended one is active.",
+        "Review sshd_config for root login and authentication settings whenever SSH access is in question.",
+      ],
+      practicalKnowledge: [
+        "Fix SELinux denials with the correct context or a targeted policy module rather than disabling enforcement.",
+        "Apply the least trusted appropriate firewalld zone to any interface facing outside the organisation.",
+        "Regularly audit running services and active accounts against what is actually needed.",
+      ],
+      examCoverage: ["firewalld zones and nftables or iptables", "SELinux and AppArmor modes and confinement", "Service minimisation", "SSH and account hardening"],
+      interviewQuestions: ["Why should a denied SELinux access usually be fixed with a context change rather than by disabling SELinux?", "What SSH settings would you change first when hardening a new server?"],
+    },
+    recall: [
+      ["What SELinux mode blocks and logs policy violations rather than only logging them?", ["enforcing"], "Enforcing mode actively blocks disallowed access, whereas permissive mode only logs it."],
+      ["What is the practice of disabling or removing services a system does not need called?", ["service minimisation", "minimisation", "reducing attack surface"], "Service minimisation reduces the attack surface by removing anything not required for the system's role."],
+    ],
+    practice: {
+      title: "Choose the correct fix",
+      prompt: "A web application on an SELinux-enabled server cannot read files it needs, even though standard Linux file permissions clearly allow it. What is the appropriate fix?",
+      choices: ["Correct the SELinux context on the files or add a targeted policy exception", "Set SELinux to disabled so the application works", "Change the files to world-writable permissions", "Disable the firewall on that server"],
+      answerIndex: 0,
+      explanation: "The behaviour described is a classic SELinux context denial, which standard file permissions do not reveal. The correct fix addresses the context or policy directly rather than disabling SELinux, loosening file permissions, or touching the firewall, none of which address a mandatory access control denial.",
+    },
+    scenario: {
+      title: "The internet-facing box in the wrong zone",
+      situation: "A new server has been placed directly on the internet to host a public website. During a review you discover its firewalld zone is still set to the default used for internal trusted networks, and SELinux was disabled during initial testing and never re-enabled.",
+      decisionPrompt: "Explain the steps you would take to bring this server to an appropriate hardened state.",
+      expectedConcepts: ["public zone", "re-enable selinux", "enforcing", "minimise services", "ssh hardening"],
+      guidance: "Move the interface to a more restrictive zone appropriate for a public-facing host, re-enable SELinux in enforcing mode and resolve any denials with correct contexts rather than leaving it off, review and disable unneeded services, and harden SSH and account access before it stays exposed any longer.",
+    },
+  },
+  {
+    slug: "linux-automation-scripting-and-monitoring",
+    title: "Linux Automation, Scripting and Monitoring",
+    summary: "Ansible basics, scheduling with cron and systemd timers, Python for everyday sysadmin tasks, a sound Git workflow with responsible AI assistance, and monitoring and compliance with journalctl, sar, auditd and a monitoring stack.",
+    cert: L, month: 15, week: 8, difficulty: "challenging", minutes: 60,
+    prereqs: ["bash-scripting-and-automation", "linux-logging-systemd-and-boot-process"],
+    objectives: [
+      "Explain how Ansible, cron and systemd timers each fit into automating routine administration.",
+      "Describe how Python and Git support repeatable, reviewable administration work, including responsible use of AI assistance.",
+      "Use monitoring and audit tools to observe system state and support compliance requirements.",
+    ],
+    lesson: {
+      title: "Doing the same thing the same way, every time",
+      body: "Automation exists because manual, repeated work is where mistakes and inconsistency creep in. Linux administration builds on a stack of tools for scheduling, configuration, scripting and version control, and pairs that with monitoring and audit so you can prove what actually happened.",
+      definition: "Ansible is an agentless configuration management tool that applies declarative playbooks over SSH to bring systems to a desired state. cron schedules recurring jobs by time using crontab entries, while systemd timers achieve the same goal integrated with the rest of systemd, offering better logging and dependency handling. Python is widely used for sysadmin scripting beyond what shell scripting handles comfortably, such as structured data or API calls. Git provides version control for scripts, playbooks and configuration, with a workflow of commits, branches and reviewed changes; AI assistance can speed up drafting scripts or playbooks but any generated code should be reviewed, tested and understood before it runs against production systems. Monitoring tools such as top, sar and journalctl show live and historical system behaviour, and auditd together with retained logs and recognised benchmarks supports compliance and after-the-fact investigation.",
+      whyItMatters: "Servers accumulate configuration over years, and without automation, version control and monitoring, nobody can reliably reproduce a system, explain a change, or answer an auditor asking what happened and when.",
+      keyTerms: [
+        ["Playbook", "A declarative Ansible file describing the desired state of one or more hosts."],
+        ["systemd timer", "A unit that triggers another unit on a schedule, integrated with systemd logging and dependencies."],
+        ["sar", "A tool that reports historical system activity such as CPU, memory and disk statistics."],
+        ["journalctl", "The command used to query the systemd journal of logs."],
+        ["auditd", "The Linux audit daemon that records security-relevant events for later review."],
+        ["Benchmark", "A published set of hardening and configuration recommendations used to assess compliance."],
+      ],
+      examples: [
+        "An Ansible playbook ensures a package is installed and a service is enabled and running the same way across fifty servers in one run.",
+        "auditd records every use of sudo on a server, giving investigators a reliable record when reviewing an incident weeks later.",
+      ],
+      misconceptions: [
+        "cron and systemd timers are not interchangeable in capability; systemd timers integrate with dependencies and journal logging in ways plain cron entries do not.",
+        "Code drafted with AI assistance is not automatically correct or safe; it still needs the same review, testing and understanding as anything a person writes by hand before it touches production.",
+      ],
+      summary: "Ansible, cron and systemd timers automate repeated work reliably, Python and Git make scripts and configuration reviewable and versioned, and monitoring and audit tools such as top, sar, journalctl and auditd give the visibility and evidence that both operations and compliance depend on.",
+      nextSteps: [
+        "Write a small Ansible playbook that installs a package and ensures a service is enabled, and run it against a test host.",
+        "Compare the same scheduled job written as a cron entry and as a systemd timer, and note the logging difference.",
+      ],
+    },
+    module: {
+      howItWorks: [
+        "Ansible connects over SSH, gathers facts about a host, and applies tasks from a playbook only where the current state does not already match the desired one.",
+        "systemd timers trigger an associated service unit, and both the timer and the service's execution are visible together in the journal.",
+        "auditd watches configured rules for file access, system calls or command execution and writes tamper-evident records used for compliance and investigation.",
+      ],
+      whereYouSeeIt: [
+        "Configuration management pipelines applying consistent settings across a fleet of servers.",
+        "Scheduled maintenance tasks such as backups, cleanup or report generation.",
+        "Compliance reviews checking log retention, audit trails and adherence to a published benchmark.",
+      ],
+      commonProblems: ["Scripts kept only on one administrator's machine with no version control", "A cron job that fails silently because output is not captured anywhere", "AI-generated scripts run against production without review", "Audit logging enabled but never retained long enough for an investigation", "Monitoring data collected but never actually reviewed"],
+      howItFails: [
+        "A critical script exists only on a former employee's laptop and is lost when they leave.",
+        "A cron job has been failing quietly for months because its output was never redirected anywhere anyone reads.",
+        "An investigation into an incident from six weeks ago finds the relevant audit logs were already rotated away.",
+      ],
+      troubleshooting: [
+        "Check journalctl for the relevant unit before assuming a scheduled job simply did not run.",
+        "Confirm log and audit retention settings match the period any investigation might realistically need.",
+        "Review Git history to understand who changed a script or playbook and why, rather than guessing.",
+      ],
+      practicalKnowledge: [
+        "Put every script, playbook and important configuration file under version control from the start.",
+        "Prefer systemd timers over cron for anything where you want dependency awareness and journal-integrated logging.",
+        "Review and test any AI-drafted script exactly as carefully as one written from scratch before it runs against production.",
+      ],
+      examCoverage: ["Ansible fundamentals", "cron and systemd timers", "Python and Git in sysadmin workflows", "Monitoring and audit for compliance"],
+      interviewQuestions: ["Why might you choose a systemd timer over a plain cron entry?", "What role does auditd play that ordinary application logs do not cover?"],
+    },
+    recall: [
+      ["What kind of tool does Ansible use to describe a system's desired state?", ["playbook"], "A playbook is the declarative file describing the tasks and desired state Ansible applies to hosts."],
+      ["What daemon records security-relevant events such as command execution for later review?", ["auditd"], "auditd is the Linux audit daemon used for this kind of compliance and investigation record."],
+    ],
+    practice: {
+      title: "Choose the right scheduling tool",
+      prompt: "An administrator wants a maintenance task to run daily, with its execution and any failure clearly visible alongside other systemd-managed service logs, and with the ability to express a dependency on another unit finishing first. Which tool best fits?",
+      choices: ["A systemd timer", "A plain crontab entry", "A shell alias run at login", "A Python script with a manual sleep loop"],
+      answerIndex: 0,
+      explanation: "A systemd timer integrates with journal logging and systemd's dependency model, meeting both requirements directly. A plain crontab entry does not integrate with journal logging or systemd dependencies in the same way, and a login alias or a manual sleep loop do not provide reliable scheduling or dependency handling at all.",
+    },
+    scenario: {
+      title: "The audit that could not be answered",
+      situation: "A compliance review asks for evidence of every use of sudo on a fileserver over the past two months. The team finds that command history was never centrally logged, and the audit daemon was installed but its logs were only kept for one week.",
+      decisionPrompt: "Explain what you would put in place going forward and what you would tell the auditor about the gap.",
+      expectedConcepts: ["auditd", "retention", "log forwarding", "honest", "gap acknowledged"],
+      guidance: "Be straightforward with the auditor that the requested evidence does not exist for that period, then fix the underlying gap: configure auditd rules to capture the relevant events, extend log retention to match compliance needs, and consider forwarding logs to a central system so a single host's rotation policy cannot erase evidence again.",
+    },
+  },
+];

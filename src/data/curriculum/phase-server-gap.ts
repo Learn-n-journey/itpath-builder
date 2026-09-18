@@ -1,0 +1,360 @@
+/** Server+ SK0-005 gap closers: storage and RAID, server roles and services, identity and physical security, decommissioning and troubleshooting. */
+import type { TopicSeed } from "./builder";
+
+const SV = "cert-comptia-server-plus";
+
+export const serverGapSeeds: TopicSeed[] = [
+  {
+    slug: "server-storage-deployment-and-raid",
+    title: "Server Storage Deployment and RAID",
+    summary: "RAID 0, 1, 5, 6 and 10 compared, hot spares, DAS versus NAS versus SAN, iSCSI, LUNs and capacity planning.",
+    cert: SV, month: 16, week: 3, difficulty: "challenging", minutes: 55,
+    prereqs: ["server-virtualization-and-capacity-planning"],
+    objectives: [
+      "Compare RAID levels by capacity, performance and fault tolerance.",
+      "Explain when a hot spare or hot swap drive is appropriate.",
+      "Distinguish DAS, NAS and SAN and describe iSCSI LUN presentation.",
+      "Plan raw and usable capacity for a given workload and RAID level.",
+    ],
+    lesson: {
+      title: "Choosing storage is choosing a trade-off",
+      body: "Every RAID level trades some mix of capacity, speed and fault tolerance for another. The exam wants you to pick the right one for a stated workload, not just recite definitions.",
+      definition: "RAID 0 stripes data across disks for speed with no redundancy, so one failed disk loses everything. RAID 1 mirrors data across two disks for full redundancy at half capacity. RAID 5 stripes data with distributed parity, tolerating one disk failure. RAID 6 adds a second parity block, tolerating two disk failures at the cost of extra capacity. RAID 10 mirrors pairs of disks and then stripes across those mirrors, giving both speed and fault tolerance at half capacity. A hot spare is an idle disk that automatically takes over when an array member fails. DAS is storage attached directly to one server, NAS is file-level storage shared over the network, and a SAN is block-level storage presented over a dedicated network, often using iSCSI to expose a LUN as if it were a local disk.",
+      whyItMatters: "Picking the wrong RAID level either wastes capacity budget or leaves a production array one failed disk away from data loss, and both are the kind of decision a server administrator is expected to defend.",
+      keyTerms: [
+        ["Striping", "Splitting data across multiple disks to improve throughput."],
+        ["Parity", "Calculated redundancy data that allows a failed disk to be rebuilt."],
+        ["Hot spare", "An idle disk that automatically replaces a failed array member."],
+        ["LUN", "A logical unit number, the block storage volume a SAN presents to a server."],
+        ["iSCSI", "A protocol that carries SCSI block commands over an ordinary IP network."],
+        ["Usable capacity", "The storage actually available to applications after redundancy overhead."],
+      ],
+      examples: [
+        "A database server needing both speed and resilience is placed on RAID 10 rather than RAID 5.",
+        "A file server with four 2 TB disks in RAID 6 gets 4 TB usable, since two disks' worth of capacity go to parity.",
+      ],
+      misconceptions: [
+        "RAID is not a backup; it protects against a disk failure, not against deletion, corruption or a whole-site event.",
+        "RAID 5 does not tolerate two simultaneous disk failures; RAID 6 or RAID 10 is needed for that.",
+      ],
+      summary: "Match the RAID level to the workload's need for speed, capacity and fault tolerance, add a hot spare where downtime is costly, and choose DAS, NAS or SAN based on how many servers need to share the storage.",
+      nextSteps: [
+        "Calculate usable capacity for RAID 5, 6 and 10 using the same four disks.",
+        "Identify whether a workload you support needs a SAN or would be fine on NAS.",
+      ],
+    },
+    module: {
+      howItWorks: [
+        "RAID controllers or software RAID write data across member disks according to the chosen level's striping and parity rules.",
+        "On disk failure, a hot spare is rebuilt into automatically, or an administrator swaps a hot-swappable drive without downtime.",
+        "iSCSI initiators on a server connect to a target on the SAN and mount the presented LUN as a local block device.",
+      ],
+      whereYouSeeIt: [
+        "Storage provisioning for new database and virtualization hosts.",
+        "Capacity planning spreadsheets before hardware purchase.",
+        "Disk failure alerts and rebuild monitoring in server management consoles.",
+      ],
+      commonProblems: ["Wrong RAID level chosen for the workload", "No hot spare configured for a critical array", "Rebuild taking so long a second failure causes data loss", "LUN sized without headroom for growth", "Confusing RAID redundancy with backup protection"],
+      howItFails: [
+        "A RAID 5 array loses a second disk during a slow rebuild and the whole volume is lost.",
+        "A SAN LUN fills unexpectedly because nobody accounted for snapshot growth.",
+        "An administrator relies on RAID 1 alone and has no separate backup when a file is accidentally deleted.",
+      ],
+      troubleshooting: [
+        "Check controller logs for predictive failure warnings before a disk actually fails.",
+        "Confirm rebuild time against the expected mean time between failures for the drive model.",
+        "Verify iSCSI network path redundancy if a LUN becomes intermittently unavailable.",
+      ],
+      practicalKnowledge: [
+        "Use RAID 6 or RAID 10 for large capacity arrays where rebuild time is long.",
+        "Keep RAID and backup as separate, deliberate layers of protection.",
+        "Document LUN mappings so a SAN change does not orphan a volume.",
+      ],
+      examCoverage: ["RAID 0, 1, 5, 6, 10", "Hot spare and hot swap", "DAS, NAS, SAN", "iSCSI and LUNs", "Capacity planning"],
+      interviewQuestions: ["Why might you choose RAID 10 over RAID 5 for a database?", "What is the difference between a NAS and a SAN?"],
+    },
+    recall: [
+      ["Which RAID level tolerates two simultaneous disk failures?", ["raid 6"], "RAID 6 uses two independent parity blocks, so it survives two disk failures at once."],
+      ["What does a LUN represent on a SAN?", ["logical unit", "block storage volume", "logical unit number"], "It is the block storage volume the SAN presents to a server, addressed as if it were a local disk."],
+    ],
+    practice: {
+      title: "Pick the array",
+      prompt: "A transactional database needs high write performance and must survive a single disk failure without a large capacity penalty being acceptable. Which RAID level fits best?",
+      choices: ["RAID 10", "RAID 0", "RAID 5", "RAID 1 with a single disk"],
+      answerIndex: 0,
+      explanation: "RAID 10 mirrors and stripes, giving strong write performance and fault tolerance. RAID 0 has no redundancy, RAID 5 has a parity write penalty that hurts heavy write workloads, and a single disk cannot be RAID 1.",
+    },
+    scenario: {
+      title: "The slow rebuild",
+      situation: "A RAID 5 array with large capacity disks loses one member. The rebuild is projected to take over a day, and the array is carrying production data with no other redundancy.",
+      decisionPrompt: "Explain the risk during the rebuild window and what you would change for the future.",
+      expectedConcepts: ["second failure", "rebuild time", "raid 6", "raid 10", "backup"],
+      guidance: "During the long rebuild the array has no further fault tolerance, so a second disk failure would lose data. For the future, move to RAID 6 or RAID 10 for large capacity arrays and ensure a genuine backup exists independent of the RAID layer.",
+    },
+  },
+  {
+    slug: "server-roles-and-services",
+    title: "Server Roles and Services",
+    summary: "DNS, DHCP, file and print roles, certificate services, clustering, load balancing and failover.",
+    cert: SV, month: 16, week: 4, difficulty: "standard", minutes: 50,
+    prereqs: ["server-storage-deployment-and-raid", "server-networking-remote-access-and-hardening"],
+    objectives: [
+      "Describe the purpose of DNS, DHCP, file, print and certificate server roles.",
+      "Explain the difference between clustering and load balancing.",
+      "Describe how failover keeps a service available when a node fails.",
+    ],
+    lesson: {
+      title: "Roles are what a server is for",
+      body: "A server's hardware and operating system are only the platform. The role decides the job, and multiple roles combined build the services a business actually depends on.",
+      definition: "DNS resolves names to addresses. DHCP assigns IP addresses and network settings automatically. File and print roles share storage and printers centrally. Certificate services issue and manage digital certificates for internal use. Clustering groups multiple servers so they act as one resource with automatic failover if a node dies. Load balancing spreads client requests across multiple servers to share demand and improve availability.",
+      whyItMatters: "Most outages trace back to one of these roles: a DNS record wrong, a DHCP scope exhausted, a certificate expired, or a cluster that failed to fail over. Knowing each role's job narrows troubleshooting fast.",
+      keyTerms: [
+        ["DNS", "The service that resolves hostnames to IP addresses."],
+        ["DHCP scope", "The configured range of addresses a DHCP server can lease."],
+        ["Certificate authority", "The server role that issues and signs digital certificates."],
+        ["Cluster", "A group of servers presenting as a single highly available resource."],
+        ["Load balancer", "A device or service distributing client traffic across multiple servers."],
+        ["Failover", "The automatic switch to a standby node when the active one stops responding."],
+      ],
+      examples: [
+        "A DHCP scope with too few addresses starts refusing new leases during a busy morning.",
+        "A two-node cluster keeps a file share available when one node reboots for patching.",
+      ],
+      misconceptions: [
+        "Clustering and load balancing are not the same thing; clustering provides failover for one workload, load balancing spreads traffic across independent servers.",
+        "An internal certificate authority still needs its root certificate trusted by clients, or every certificate it issues will show as untrusted.",
+      ],
+      summary: "Know what each role does, know that clustering is about survivability and load balancing is about distributing demand, and expect exam questions that describe a symptom and ask which role is responsible.",
+      nextSteps: [
+        "List every server role running in your own environment and what depends on it.",
+        "Check whether a DHCP scope you manage has enough free addresses for growth.",
+      ],
+    },
+    module: {
+      howItWorks: [
+        "DNS servers hold zone records and answer queries recursively or authoritatively.",
+        "DHCP servers lease addresses for a defined time and renew them before expiry.",
+        "Cluster nodes share heartbeat signals; losing the heartbeat triggers failover to a surviving node.",
+        "Load balancers use health checks to decide which backend servers should keep receiving traffic.",
+      ],
+      whereYouSeeIt: [
+        "Internal name resolution for every application in an organisation.",
+        "Print and file shares in office environments.",
+        "Web application backends behind a load balancer.",
+        "High availability database and file cluster deployments.",
+      ],
+      commonProblems: ["Exhausted DHCP scope", "Stale or incorrect DNS records", "Certificate expiry breaking authentication", "Cluster failover not tested", "Load balancer health check misconfigured, sending traffic to a dead node"],
+      howItFails: [
+        "New devices cannot get an address because the DHCP scope is full of stale leases.",
+        "A cluster fails over correctly but the application does not reconnect because the DNS record was not updated.",
+        "A load balancer marks all backends healthy despite one being unresponsive because the health check only tests the network port.",
+      ],
+      troubleshooting: [
+        "Check DHCP lease usage and shorten lease times or expand the scope if it is full.",
+        "Verify DNS records resolve to the expected address from a client's perspective.",
+        "Review cluster failover logs and confirm the last test failover actually succeeded.",
+        "Improve load balancer health checks to test the application, not just the port.",
+      ],
+      practicalKnowledge: [
+        "Test failover deliberately rather than waiting for a real failure to prove it.",
+        "Monitor certificate expiry dates for every internal certificate authority issued certificate.",
+        "Keep DNS records and DHCP reservations documented and reviewed.",
+      ],
+      examCoverage: ["DNS, DHCP, file, print roles", "Certificate services", "Clustering", "Load balancing", "Failover"],
+      interviewQuestions: ["What is the difference between clustering and load balancing?", "What can cause a DHCP server to stop issuing addresses?"],
+    },
+    recall: [
+      ["What does a DHCP scope define?", ["range of addresses", "lease pool", "available addresses"], "The range of IP addresses the server is allowed to lease to clients."],
+      ["What triggers a cluster failover?", ["loss of heartbeat", "node failure", "heartbeat lost"], "Loss of the heartbeat signal from the active node tells the cluster to promote a standby node."],
+    ],
+    practice: {
+      title: "Diagnose the outage",
+      prompt: "New laptops on a network cannot obtain an IP address, while existing devices keep working normally. What is the most likely cause?",
+      choices: ["The DHCP scope has run out of available addresses", "The DNS server is offline", "A certificate has expired", "The load balancer health check is misconfigured"],
+      answerIndex: 0,
+      explanation: "Existing devices keep their current leases, but new devices cannot get one, which points to the scope being exhausted. The other options would affect name resolution, certificates or load balanced traffic, not new address assignment.",
+    },
+    scenario: {
+      title: "Failover that did not fail over",
+      situation: "A two-node cluster's active node crashes. The standby node takes over the workload, but client applications cannot reconnect for several minutes.",
+      decisionPrompt: "Explain the likely gap in the failover design and how you would test for it.",
+      expectedConcepts: ["dns record", "cluster ip", "propagation", "test failover", "client reconnect"],
+      guidance: "The standby node likely took over the service but the DNS record or virtual cluster address clients rely on did not update quickly enough. Test failover deliberately, confirm the cluster's virtual address moves with it, and check client-side caching of the old address.",
+    },
+  },
+  {
+    slug: "server-identity-access-and-physical-security",
+    title: "Server Identity, Access and Physical Security",
+    summary: "RBAC, service accounts, privileged access management, badge readers, biometrics, access control vestibules and rack security.",
+    cert: SV, month: 17, week: 1, difficulty: "standard", minutes: 50,
+    prereqs: ["server-roles-and-services", "data-center-power-cooling-and-physical-security"],
+    objectives: [
+      "Explain role-based access control and how it differs from assigning permissions individually.",
+      "Describe why service accounts need special handling.",
+      "List physical controls that protect a data centre and a server rack.",
+    ],
+    lesson: {
+      title: "Access control has a logical layer and a physical layer",
+      body: "A server is only as secure as the weakest way into it, and that includes who can log in remotely and who can walk up to the rack.",
+      definition: "Role-based access control, RBAC, grants permissions based on a defined job role rather than to each person individually. A service account is a non-human account used by an application or scheduled task, and it needs tightly scoped permissions and a managed password rather than shared human credentials. Privileged access management controls, monitors and time-limits the use of administrative accounts. Physical controls include badge readers, biometric scanners, access control vestibules that only let one person through at a time, and locked, monitored server racks.",
+      whyItMatters: "Most breaches involve either an overprivileged account or a physical access gap. Server administrators are expected to design both layers, not just the network firewall in between.",
+      keyTerms: [
+        ["RBAC", "Access granted according to a defined role rather than to an individual."],
+        ["Service account", "A non-human account used by an application or automated process."],
+        ["Privileged access management", "Controls that limit, monitor and time-box administrative access."],
+        ["Access control vestibule", "A small interlocking space that only admits one authenticated person at a time."],
+        ["Biometric authentication", "Identity verification using a physical trait such as a fingerprint."],
+        ["Rack security", "Physical locks and monitoring that stop unauthorised access to installed servers."],
+      ],
+      examples: [
+        "A backup job runs under a service account limited to read access on the folders it backs up, nothing more.",
+        "A data centre uses an access control vestibule so a badge cannot be used to let two people in at once.",
+      ],
+      misconceptions: [
+        "A service account is not just a convenient shared login; it should have its own scoped permissions and rotated credentials.",
+        "A locked server room door is not the same as rack-level security; someone with room access should not automatically have access to every rack inside it.",
+      ],
+      summary: "Assign permissions by role, isolate and scope service accounts tightly, manage privileged access deliberately, and layer physical controls from the building down to the individual rack.",
+      nextSteps: [
+        "Check whether a service account you rely on has more permission than it actually needs.",
+        "Review who has physical access to your server room or rack and whether that list is current.",
+      ],
+    },
+    module: {
+      howItWorks: [
+        "RBAC maps job roles to permission sets, so adding someone to a role grants exactly what that role needs.",
+        "Privileged access management systems check out administrative credentials temporarily and log their use.",
+        "Access control vestibules pair two interlocking doors so only one can open at a time, preventing tailgating.",
+      ],
+      whereYouSeeIt: [
+        "Active Directory group-based permission assignment.",
+        "Scheduled backup and monitoring jobs running under dedicated accounts.",
+        "Data centre entrances and individual locked server cabinets.",
+      ],
+      commonProblems: ["Service accounts with domain administrator rights", "Standing privileged access never revoked", "Shared badges or shared physical keys", "No log of who accessed a rack and when", "RBAC roles that have grown too broad over time"],
+      howItFails: [
+        "A compromised service account with excessive rights gives an attacker a path across the whole domain.",
+        "A former contractor's badge still opens the server room months after their contract ended.",
+        "Tailgating through a single door lets an unauthorised person into a secure area.",
+      ],
+      troubleshooting: [
+        "Audit service account permissions against what the job actually requires.",
+        "Review badge and biometric access logs for accounts that should have been disabled.",
+        "Check whether entrances use a vestibule or a single door that allows tailgating.",
+      ],
+      practicalKnowledge: [
+        "Review RBAC roles periodically so they do not accumulate unnecessary permissions.",
+        "Rotate and vault service account credentials rather than leaving them static.",
+        "Log every rack access, not just building entry.",
+      ],
+      examCoverage: ["RBAC", "Service accounts", "Privileged access management", "Badge readers and biometrics", "Access control vestibules", "Rack security"],
+      interviewQuestions: ["Why should a service account not share a login with a human administrator?", "What problem does an access control vestibule solve?"],
+    },
+    recall: [
+      ["What does RBAC assign permissions based on?", ["role", "job role", "defined role"], "A defined job role, so everyone in that role gets the same consistent permission set."],
+      ["What tailgating problem does an access control vestibule prevent?", ["two people entering on one badge", "unauthorised entry behind an authorised person"], "It only allows one authenticated person through at a time, stopping someone following an authorised person in unnoticed."],
+    ],
+    practice: {
+      title: "Spot the risk",
+      prompt: "A backup application runs using the same account an administrator uses to log into every server in the environment. What is the main risk this creates?",
+      choices: ["The service account has far more access than the backup job needs", "Backups will run more slowly", "RBAC cannot be used with backup software", "The account will be locked out by biometric checks"],
+      answerIndex: 0,
+      explanation: "Sharing a high-privilege administrator account with a service means any compromise of the backup job grants domain-wide access. Speed, RBAC compatibility and biometrics are not the issue here.",
+    },
+    scenario: {
+      title: "The badge that still worked",
+      situation: "During an audit, a contractor whose engagement ended two months ago is found to still have a working badge for the server room, though there is no record of them entering since their contract ended.",
+      decisionPrompt: "Explain what process gap this reveals and how you would close it.",
+      expectedConcepts: ["offboarding", "revoke access", "review", "badge deactivation", "audit"],
+      guidance: "This points to a missing offboarding step tying badge deactivation to contract end dates. Revoke the badge immediately, and add a scheduled review that cross-checks active badges against current staff and contractor records.",
+    },
+  },
+  {
+    slug: "server-decommissioning-and-troubleshooting",
+    title: "Server Decommissioning and Troubleshooting Connectivity and Security",
+    summary: "Asset disposal, data destruction, documentation, and finding server-side network and security faults.",
+    cert: SV, month: 17, week: 3, difficulty: "challenging", minutes: 55,
+    prereqs: ["server-identity-access-and-physical-security"],
+    objectives: [
+      "Describe the steps of a compliant server decommissioning process.",
+      "Explain data destruction methods and when each is appropriate.",
+      "Apply a structured approach to server network and security troubleshooting.",
+    ],
+    lesson: {
+      title: "The last job a server does is leave safely",
+      body: "Retiring a server is a security event in its own right, and an unresolved network or security fault left behind on a still-running server is just as risky as a badly wiped disk.",
+      definition: "Decommissioning includes removing the server from monitoring, DNS, backups and asset inventory, and physically disposing of hardware. Data destruction methods include wiping with multiple overwrite passes, degaussing magnetic media, and physical destruction such as shredding, chosen based on the sensitivity of the data and the media type. Documentation records what was removed, when, by whom and how data was destroyed, often with a certificate of destruction. Server-side troubleshooting for network and security problems follows a structured approach: identify the symptom, establish a theory, test it, establish a plan, implement it, verify full functionality and document the outcome.",
+      whyItMatters: "A decommissioned server with data still recoverable on its disk, or a live server with an open fault nobody documented, both turn into the finding an auditor or an attacker eventually discovers.",
+      keyTerms: [
+        ["Data destruction", "Rendering data on storage media permanently unrecoverable."],
+        ["Degaussing", "Using a strong magnetic field to erase data from magnetic storage media."],
+        ["Certificate of destruction", "A formal record confirming media was destroyed and by what method."],
+        ["Asset inventory", "The authoritative record of hardware and where it is deployed."],
+        ["Root cause", "The underlying reason for a fault, as opposed to its visible symptom."],
+        ["Escalation", "Passing an unresolved issue to someone with more authority or expertise."],
+      ],
+      examples: [
+        "A retired database server's drives are shredded because the data classification required physical destruction, not just a wipe.",
+        "A server refusing inbound connections is traced through firewall rules, service status and certificate validity in that order.",
+      ],
+      misconceptions: [
+        "Deleting files or reformatting a disk does not securely erase data; proper destruction or verified wiping is required.",
+        "Troubleshooting is not guessing fixes at random; it follows identify, theorise, test, plan, implement, verify and document.",
+      ],
+      summary: "Treat decommissioning as a full process covering inventory, backups, DNS and destruction with evidence, and treat server faults with the same structured method every time so the fix actually holds.",
+      nextSteps: [
+        "Check whether your organisation's decommissioning checklist includes a certificate of destruction.",
+        "Walk through a recent server fault and map it against the structured troubleshooting steps.",
+      ],
+    },
+    module: {
+      howItWorks: [
+        "Decommissioning removes a server from every system that references it before hardware ever leaves the building.",
+        "Data destruction is matched to media type and data sensitivity, with SSDs often needing different handling than spinning disks.",
+        "Structured troubleshooting narrows a broad symptom to a specific, testable cause before any change is made.",
+      ],
+      whereYouSeeIt: [
+        "Hardware refresh and asset disposal projects.",
+        "Compliance audits asking for evidence of secure disposal.",
+        "Incident tickets for connectivity loss, authentication failure or unexpected access denial.",
+      ],
+      commonProblems: ["Server left in DNS or monitoring after removal", "Disk reused without proper wiping", "No certificate of destruction retained", "Troubleshooting jumping straight to a fix without confirming the cause", "Fault marked resolved without verifying full functionality"],
+      howItFails: [
+        "A decommissioned server's old IP address is reassigned and inherits stale firewall rules meant for something else.",
+        "A resold drive is later found to still hold recoverable data because it was only quick formatted.",
+        "A network fix is applied that resolves the symptom temporarily but the root cause resurfaces days later.",
+      ],
+      troubleshooting: [
+        "Confirm a server is removed from DNS, monitoring and backup jobs as part of decommissioning, not as an afterthought.",
+        "Match destruction method to media type and confirm it with documented evidence.",
+        "For a connectivity fault, check physical link, then IP configuration, then firewall and security policy, then application service status.",
+        "For a security fault, check account status, permissions, certificate validity and recent configuration changes in that order.",
+      ],
+      practicalKnowledge: [
+        "Keep a decommissioning checklist so no step depends on memory.",
+        "Retain destruction certificates for the period compliance requires.",
+        "Verify full functionality and document the fix before closing any ticket.",
+      ],
+      examCoverage: ["Decommissioning process", "Data destruction methods", "Documentation and certificates of destruction", "Structured troubleshooting methodology", "Network and security fault finding"],
+      interviewQuestions: ["What steps would you follow before physically removing a decommissioned server?", "Walk through how you would troubleshoot a server that suddenly refuses authenticated connections."],
+    },
+    recall: [
+      ["What confirms that destroyed media was properly disposed of?", ["certificate of destruction"], "A certificate of destruction is the formal record confirming the method and completion of destruction."],
+      ["What is the first step in structured troubleshooting?", ["identify the symptom", "identify the problem"], "Identifying and clearly describing the symptom before forming any theory about the cause."],
+    ],
+    practice: {
+      title: "Choose the destruction method",
+      prompt: "A retired server held highly sensitive financial records on spinning magnetic disks, and policy requires the data be unrecoverable beyond any reasonable doubt. Which method fits best?",
+      choices: ["Physical destruction or degaussing of the disks", "A quick format of each disk", "Deleting the data and emptying the recycle bin", "Reassigning the disks to a new server without changes"],
+      answerIndex: 0,
+      explanation: "Highly sensitive data on magnetic media calls for degaussing or physical destruction to guarantee it is unrecoverable. A quick format, simple deletion or reuse without wiping all leave data recoverable.",
+    },
+    scenario: {
+      title: "The server that would not authenticate",
+      situation: "A file server suddenly starts rejecting logins for every user, though the network connection is fine and the service is running.",
+      decisionPrompt: "Walk through how you would find the cause using a structured approach.",
+      expectedConcepts: ["identify symptom", "theory", "test", "certificate", "account lockout", "verify"],
+      guidance: "Identify the symptom precisely, then form a theory such as an expired certificate, a locked service account or a recent policy change, test each theory in order of likelihood, implement the fix, verify logins succeed for multiple accounts, and document the cause and resolution.",
+    },
+  },
+];

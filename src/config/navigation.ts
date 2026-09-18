@@ -28,6 +28,7 @@ import {
   CircuitBoard,
   Bug,
   MessagesSquare,
+  Newspaper,
   type LucideIcon,
 } from "lucide-react";
 
@@ -195,6 +196,13 @@ export const navItems: NavItem[] = [
     group: "You",
     description: "Save notes, links, videos and files; IT PATH reads them and connects them to your topics.",
     pro: true,
+  },
+  {
+    label: "Tech News",
+    to: "/tech-news",
+    icon: Newspaper,
+    group: "You",
+    description: "A live feed of technology headlines, kept separate from your studies.",
   },
   {
     label: "Community",

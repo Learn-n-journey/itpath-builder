@@ -214,7 +214,7 @@ const baseQuestions: Question[] = [
     topicId: "topic-it-career-overview",
     certificationId: "cert-comptia-a-plus",
     type: "multiple_response",
-    prompt: "Which details belong in a useful support ticket note?",
+    prompt: "Which two details belong in a useful support ticket note? Select all that apply.",
     choices: ["Observed symptom and evidence", "Actions taken and result", "Unverified blame about the user", "An administrator password"],
     correctAnswer: ["Observed symptom and evidence", "Actions taken and result"],
     acceptableAnswers: [],

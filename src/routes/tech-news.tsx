@@ -1,0 +1,174 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { ExternalLink, RefreshCw } from "lucide-react";
+
+import { PageHeader, Panel } from "@/components/page-kit";
+import { Button } from "@/components/ui/button";
+import { getTechNews, NEWS_CATEGORIES, type NewsArticle, type NewsCategory } from "@/lib/tech-news.functions";
+
+export const Route = createFileRoute("/tech-news")({
+  staticData: { sitemap: true },
+  head: () => ({
+    meta: [
+      { title: "Tech News | IT PATH" },
+      {
+        name: "description",
+        content:
+          "A live feed of technology news across AI, cybersecurity, hardware, networking, Windows, Linux, cloud, programming, mobile, IT careers, releases and outages.",
+      },
+      { property: "og:title", content: "Tech News | IT PATH" },
+      {
+        property: "og:description",
+        content: "Current technology headlines across AI, security, hardware, cloud and more, with a link to every original article.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: TechNewsPage,
+});
+
+function whenLabel(iso: string): string {
+  const then = new Date(iso);
+  const minutes = Math.round((Date.now() - then.getTime()) / 60000);
+  if (minutes < 60) return `${Math.max(minutes, 1)} min ago`;
+  if (minutes < 60 * 24) return `${Math.round(minutes / 60)} h ago`;
+  return then.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+}
+
+function ArticleCard({ article }: { article: NewsArticle }) {
+  return (
+    <a
+      href={article.url}
+      target="_blank"
+      rel="noreferrer noopener"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card/70 transition hover:border-primary/50 hover:bg-card"
+    >
+      {article.image ? (
+        <div className="aspect-[16/9] w-full overflow-hidden bg-muted">
+          <img
+            src={article.image}
+            alt=""
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+            onError={(event) => {
+              event.currentTarget.parentElement?.remove();
+            }}
+          />
+        </div>
+      ) : null}
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="flex items-center gap-2 text-xs">
+          <span className="rounded-full bg-primary/15 px-2 py-0.5 font-medium text-primary">{article.category}</span>
+          <span className="text-muted-foreground">{article.source}</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-muted-foreground">{whenLabel(article.publishedAt)}</span>
+        </div>
+        <h2 className="font-display text-base leading-snug text-foreground group-hover:text-primary">{article.title}</h2>
+        {article.summary ? (
+          <p className="line-clamp-3 text-sm text-muted-foreground">{article.summary}</p>
+        ) : null}
+        <span className="mt-auto inline-flex items-center gap-1 pt-2 text-xs font-medium text-primary">
+          Read at {article.source}
+          <ExternalLink className="size-3" />
+        </span>
+      </div>
+    </a>
+  );
+}
+
+function TechNewsPage() {
+  const fetchNews = useServerFn(getTechNews);
+  const [active, setActive] = useState<NewsCategory | "All">("All");
+
+  const { data, isLoading, isFetching, refetch, isError } = useQuery({
+    queryKey: ["tech-news"],
+    queryFn: () => fetchNews(),
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const articles = useMemo(() => data ?? [], [data]);
+  const available = useMemo(() => {
+    const present = new Set(articles.map((article) => article.category));
+    return NEWS_CATEGORIES.filter((category) => present.has(category));
+  }, [articles]);
+  const shown = useMemo(
+    () => (active === "All" ? articles : articles.filter((article) => article.category === active)),
+    [articles, active],
+  );
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Tech News"
+        description="Current technology headlines from across the industry. Read anything you like, nothing here is tracked or scored."
+        actions={
+          <Button variant="outline" size="sm" onClick={() => void refetch()} disabled={isFetching}>
+            <RefreshCw className={isFetching ? "size-4 animate-spin" : "size-4"} />
+            Refresh
+          </Button>
+        }
+      />
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={() => setActive("All")}
+          className={
+            active === "All"
+              ? "rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
+              : "rounded-full border border-border bg-card/70 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
+          }
+        >
+          All
+        </button>
+        {available.map((category) => (
+          <button
+            key={category}
+            type="button"
+            onClick={() => setActive(category)}
+            className={
+              active === category
+                ? "rounded-full bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground"
+                : "rounded-full border border-border bg-card/70 px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
+            }
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="h-72 animate-pulse rounded-2xl border border-border bg-card/50" />
+          ))}
+        </div>
+      ) : isError || articles.length === 0 ? (
+        <Panel title="Nothing to show right now">
+          <p className="text-sm text-muted-foreground">
+            The news sources could not be reached. Try refreshing in a moment.
+          </p>
+          <Button className="mt-3" variant="outline" size="sm" onClick={() => void refetch()}>
+            Try again
+          </Button>
+        </Panel>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {shown.map((article) => (
+              <ArticleCard key={article.id} article={article} />
+            ))}
+          </div>
+          <p className="pb-4 text-center text-xs text-muted-foreground">
+            {shown.length} articles. Headlines and summaries belong to their publishers, and every card links to the
+            original.
+          </p>
+        </>
+      )}
+    </div>
+  );
+}
