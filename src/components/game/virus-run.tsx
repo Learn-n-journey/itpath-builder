@@ -766,7 +766,14 @@ export function VirusRun() {
       </div>
 
       <div className="relative overflow-hidden rounded-xl border border-border">
-        <canvas ref={canvasRef} className="block h-auto w-full aspect-[25/17] touch-none" />
+        <canvas
+          ref={canvasRef}
+          className="block h-auto w-full aspect-[25/17] touch-none"
+          onPointerDown={onCanvasPointerDown}
+          onPointerMove={onCanvasPointerMove}
+          onPointerUp={onCanvasPointerEnd}
+          onPointerCancel={onCanvasPointerEnd}
+        />
         {overlay}
       </div>
 
