@@ -2,12 +2,18 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Award, Briefcase, ExternalLink, MapPin, RefreshCw, Search } from "lucide-react";
+import { Award, Briefcase, ExternalLink, Globe, MapPin, RefreshCw, Search } from "lucide-react";
 
 import { EmptyState, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getTechJobs, JOB_CERTIFICATIONS, type TechJob } from "@/lib/tech-jobs.functions";
+import { JOB_COUNTRIES } from "@/lib/job-countries";
+import {
+  DEFAULT_JOB_COUNTRY,
+  getTechJobs,
+  JOB_CERTIFICATIONS,
+  type TechJob,
+} from "@/lib/tech-jobs.functions";
 
 export const Route = createFileRoute("/tech-jobs")({
   staticData: { sitemap: true },
@@ -87,9 +93,10 @@ function JobCard({ job }: { job: TechJob }) {
 
 function TechJobsPage() {
   const fetchJobs = useServerFn(getTechJobs);
+  const [country, setCountry] = useState<string | undefined>(undefined);
   const { data, isLoading, isFetching, isError, refetch, dataUpdatedAt } = useQuery({
-    queryKey: ["tech-jobs"],
-    queryFn: () => fetchJobs(),
+    queryKey: ["tech-jobs", country ?? "auto"],
+    queryFn: () => fetchJobs({ data: country ? { country } : {} }),
     staleTime: 10 * 60 * 1000,
   });
 
@@ -97,7 +104,8 @@ function TechJobsPage() {
   const [location, setLocation] = useState("");
   const [cert, setCert] = useState<string>("all");
 
-  const jobs = data ?? [];
+  const jobs = data?.jobs ?? [];
+  const activeCountry = country ?? data?.country ?? DEFAULT_JOB_COUNTRY;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -120,7 +128,7 @@ function TechJobsPage() {
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
       <PageHeader
         title="Tech Jobs"
-        description="Live IT roles from public job boards. Filter by where you want to work and the certificate you are studying for. Every card links to the original posting."
+        description="Live IT roles from public job boards in your country. Filter by city or remote work and the certificate you are studying for. Every card links to the original posting."
         actions={
           <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
             <RefreshCw className={isFetching ? "size-4 animate-spin" : "size-4"} aria-hidden />
@@ -128,6 +136,30 @@ function TechJobsPage() {
           </Button>
         }
       />
+
+      <div className="mb-3 flex flex-wrap items-center gap-3">
+        <label className="flex items-center gap-2 text-sm">
+          <Globe className="size-4 text-muted-foreground" aria-hidden />
+          <span className="text-muted-foreground">Country</span>
+          <select
+            value={activeCountry}
+            onChange={(event) => setCountry(event.target.value)}
+            className="rounded-md border border-border bg-background px-2.5 py-1.5 text-sm"
+            aria-label="Country to gather jobs from"
+          >
+            {JOB_COUNTRIES.map((option) => (
+              <option key={option.code} value={option.code}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {data?.detected && !country ? (
+          <span className="text-xs text-muted-foreground">
+            Set from where you are browsing. Change it any time.
+          </span>
+        ) : null}
+      </div>
 
       <div className="mb-6 grid gap-3 sm:grid-cols-[1fr_1fr]">
         <label className="relative block">
@@ -212,7 +244,7 @@ function TechJobsPage() {
       )}
 
       <p className="mt-8 text-xs text-muted-foreground">
-        Listings come from Remotive, Arbeitnow and Remote OK. IT PATH does not host or alter
+        Listings come from Job Data API, Jobicy, Remotive, Arbeitnow and Remote OK, gathered for the country you pick. IT PATH does not host or alter
         postings; applying always happens on the original site.
       </p>
     </div>
