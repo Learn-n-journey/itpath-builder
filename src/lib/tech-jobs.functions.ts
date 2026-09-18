@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 
 import { JOB_COUNTRIES, detectJobCountry, jobMatchesCountry } from "@/lib/job-countries";
+import { boardListUrl, getLiveBoards, type DiscoveredBoard } from "@/lib/job-source-discovery";
 
 /**
  * Live IT job listings aggregated from public job-board APIs that need no
@@ -654,7 +655,7 @@ export const getTechJobs = createServerFn({ method: "GET" })
       fetchRemoteOk(country),
       fetchHimalayas(country),
       fetchWeWorkRemotely(country),
-      fetchGreenhouse(country),
+      fetchCompanyBoards(country),
     ]);
 
     const seen = new Set<string>();
