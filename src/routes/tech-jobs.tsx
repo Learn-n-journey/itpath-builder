@@ -7,7 +7,7 @@ import { Award, Briefcase, ExternalLink, Globe, MapPin, RefreshCw, Search } from
 import { EmptyState, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { JOB_COUNTRIES, countryName } from "@/lib/job-countries";
+import { JOB_COUNTRIES } from "@/lib/job-countries";
 import {
   DEFAULT_JOB_COUNTRY,
   getTechJobs,

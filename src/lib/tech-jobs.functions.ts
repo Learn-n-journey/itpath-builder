@@ -21,7 +21,7 @@ export interface TechJob {
   postedAt: string;
   tags: string[];
   /** ISO country code, or "ANY" when the posting is open worldwide. */
-  country?: string;
+  country?: string | undefined;
   /** Certifications mentioned in the posting, matched to names IT PATH teaches. */
   certifications: string[];
 }
