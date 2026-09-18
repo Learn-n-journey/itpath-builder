@@ -162,13 +162,57 @@ async function fetchArbeitnow(): Promise<TechJob[]> {
   return jobs.filter((job) => isItJob(job.title, job.tags));
 }
 
+interface RemoteOkJob {
+  id?: string | number;
+  position?: string;
+  company?: string;
+  location?: string;
+  url?: string;
+  date?: string;
+  description?: string;
+  tags?: string[];
+}
+
+async function fetchRemoteOk(): Promise<TechJob[]> {
+  const jobs: TechJob[] = [];
+  try {
+    const res = await fetch("https://remoteok.com/api", {
+      signal: AbortSignal.timeout(10000),
+      headers: { "User-Agent": "IT PATH study app (job board links)" },
+    });
+    if (res.ok) {
+      const payload = (await res.json()) as RemoteOkJob[];
+      for (const job of payload) {
+        // The first array entry is legal metadata, not a job.
+        if (!job.id || !job.position || !job.url) continue;
+        const text = `${job.position} ${stripHtml(job.description ?? "")}`;
+        jobs.push({
+          id: `remoteok-${job.id}`,
+          title: job.position,
+          company: job.company ?? "Not stated",
+          location: job.location?.trim() || "Remote",
+          remote: true,
+          source: "Remote OK",
+          url: job.url,
+          postedAt: job.date ?? new Date().toISOString(),
+          tags: job.tags ?? [],
+          certifications: detectCertifications(text),
+        });
+      }
+    }
+  } catch {
+    // One source failing must not empty the board.
+  }
+  return jobs.filter((job) => isItJob(job.title, job.tags));
+}
+
 let cache: { at: number; jobs: TechJob[] } | undefined;
 const CACHE_MS = 15 * 60 * 1000;
 
 export const getTechJobs = createServerFn({ method: "GET" }).handler(async (): Promise<TechJob[]> => {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache.jobs;
 
-  const settled = await Promise.all([fetchRemotive(), fetchArbeitnow()]);
+  const settled = await Promise.all([fetchRemotive(), fetchArbeitnow(), fetchRemoteOk()]);
   const seen = new Set<string>();
   const jobs = settled
     .flat()
