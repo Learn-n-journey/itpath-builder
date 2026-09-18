@@ -343,7 +343,7 @@ export const networkAndSecuritySeeds: TopicSeed[] = [
     lesson: {
       title: "The services that make a network usable",
       body: "Addressing, naming, and time are invisible until they break, and then everything breaks at once. Knowing their flows makes an outage explainable within minutes.",
-      definition: "DHCP leases addressing through discover, offer, request, and acknowledge. DNS resolves names to records. NTP synchronises clocks, which authentication and logging depend on. Application services include HTTP/HTTPS (80/443), SMTP (25/587), IMAP (993), SSH (22), RDP (3389), and SNMP (161) for monitoring.",
+      definition: "DHCP leases addressing through discover, offer, request, and acknowledge. DNS resolves names to records. NTP synchronises clocks, which authentication and logging depend on. Application services include HTTP/HTTPS (80/443), SMTP (25/587), IMAP (143), IMAPS (993), SSH (22), RDP (3389), and SNMP (161) for monitoring.",
       whyItMatters: "Kerberos authentication fails when clocks drift. Certificate validation fails when time is wrong. Users cannot work without DHCP or DNS. These few services explain a large share of enterprise incidents.",
       keyTerms: [
         ["DHCP relay", "Forwards client broadcasts to a server on another subnet."],

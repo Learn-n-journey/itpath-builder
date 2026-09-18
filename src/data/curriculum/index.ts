@@ -3,6 +3,8 @@ import { fundamentalsAndAPlusSeeds } from "./phase-fundamentals-aplus";
 import { aPlusExtraSeeds } from "./phase-aplus-extra";
 import { techExtraSeeds } from "./phase-tech-extra";
 import { networkAndSecuritySeeds } from "./phase-network-security";
+import { netPlusExtraSeeds } from "./phase-netplus-extra";
+import { secPlusExtraSeeds } from "./phase-secplus-extra";
 import { linuxServersCloudSeeds } from "./phase-linux-servers-cloud";
 import { linuxExtraSeeds } from "./phase-linux-extra";
 import { serverExtraSeeds } from "./phase-server-extra";
@@ -26,6 +28,8 @@ export const expansionSeeds: TopicSeed[] = [
   ...techExtraSeeds,
   ...aPlusExtraSeeds,
   ...networkAndSecuritySeeds,
+  ...netPlusExtraSeeds,
+  ...secPlusExtraSeeds,
   ...linuxServersCloudSeeds,
   ...linuxExtraSeeds,
   ...serverExtraSeeds,
