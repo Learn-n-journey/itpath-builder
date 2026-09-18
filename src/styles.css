@@ -163,87 +163,87 @@ html.light {
 @supports not (color: oklch(0 0 0)) {
   :root,
   .dark {
-    --background: #0e141c;
-    --foreground: #e8ebef;
-    --surface: #171d26;
-    --card: #171d26;
-    --card-foreground: #e8ebef;
-    --popover: #161c25;
-    --popover-foreground: #e8ebef;
-    --primary: #29bbbc;
-    --primary-foreground: #0c121a;
+    --background: #0b1017;
+    --foreground: #e4e8ed;
+    --surface: #141b25;
+    --card: #161e29;
+    --card-foreground: #e4e8ed;
+    --popover: #121923;
+    --popover-foreground: #e4e8ed;
+    --primary: #20bfc1;
+    --primary-foreground: #091017;
     --emphasis: #9ba7b6;
     --progress: #b2bac5;
-    --secondary: #222933;
-    --secondary-foreground: #e5e8ec;
-    --muted: #21272f;
-    --muted-foreground: #9299a1;
-    --accent: #242f3b;
-    --accent-foreground: #e8ebef;
+    --secondary: #202a36;
+    --secondary-foreground: #dfe4e9;
+    --muted: #1e2732;
+    --muted-foreground: #949da8;
+    --accent: #253140;
+    --accent-foreground: #e4e8ed;
     --destructive: #da4149;
     --destructive-foreground: #f3f5f8;
     --success: #3fb171;
     --success-foreground: #0c121a;
     --warning: #e3ad4b;
     --warning-foreground: #0c121a;
-    --border: #272e38;
-    --input: #2c333d;
-    --ring: #29bbbc;
-    --chart-1: #29bbbc;
+    --border: #293441;
+    --input: #303c4a;
+    --ring: #20bfc1;
+    --chart-1: #20bfc1;
     --chart-2: #3fb171;
     --chart-3: #e3ad4b;
     --chart-4: #6b8fe2;
     --chart-5: #da4149;
-    --sidebar: #090f16;
+    --sidebar: #070b10;
     --sidebar-foreground: #dadee3;
-    --sidebar-primary: #29bbbc;
-    --sidebar-primary-foreground: #0c121a;
-    --sidebar-accent: #1e252e;
+    --sidebar-primary: #20bfc1;
+    --sidebar-primary-foreground: #091017;
+    --sidebar-accent: #1b2530;
     --sidebar-accent-foreground: #ebeff2;
-    --sidebar-border: #222933;
-    --sidebar-ring: #29bbbc;
+    --sidebar-border: #222c37;
+    --sidebar-ring: #20bfc1;
   }
 
   html.light {
-    --background: #f5f7fa;
-    --foreground: #172033;
+    --background: #f1f4f8;
+    --foreground: #202833;
     --surface: #ffffff;
     --card: #ffffff;
-    --card-foreground: #172033;
+    --card-foreground: #202833;
     --popover: #ffffff;
-    --popover-foreground: #172033;
-    --primary: #008c8e;
+    --popover-foreground: #202833;
+    --primary: #008789;
     --primary-foreground: #ffffff;
     --emphasis: #5e6978;
     --progress: #5c6674;
-    --secondary: #edf1f7;
-    --secondary-foreground: #172033;
-    --muted: #edf1f7;
-    --muted-foreground: #64748b;
-    --accent: #edf1f7;
-    --accent-foreground: #172033;
+    --secondary: #e8edf3;
+    --secondary-foreground: #202833;
+    --muted: #eaf0f5;
+    --muted-foreground: #5f6976;
+    --accent: #e5ebf2;
+    --accent-foreground: #202833;
     --destructive: #dc2627;
     --destructive-foreground: #ffffff;
     --success: #18a349;
     --success-foreground: #ffffff;
     --warning: #d9770a;
     --warning-foreground: #ffffff;
-    --border: #e2e8f0;
-    --input: #cbd5e1;
-    --ring: #008c8e;
-    --chart-1: #008c8e;
+    --border: #d5dde7;
+    --input: #bcc8d5;
+    --ring: #008789;
+    --chart-1: #008789;
     --chart-2: #18a349;
     --chart-3: #d9770a;
     --chart-4: #466cc8;
     --chart-5: #dc2627;
     --sidebar: #ffffff;
-    --sidebar-foreground: #172033;
-    --sidebar-primary: #008c8e;
+    --sidebar-foreground: #202833;
+    --sidebar-primary: #008789;
     --sidebar-primary-foreground: #ffffff;
     --sidebar-accent: #edf1f7;
-    --sidebar-accent-foreground: #172033;
-    --sidebar-border: #e2e8f0;
-    --sidebar-ring: #008c8e;
+    --sidebar-accent-foreground: #202833;
+    --sidebar-border: #d5dde7;
+    --sidebar-ring: #008789;
   }
 }
 
@@ -402,7 +402,7 @@ html.light {
 
 @media (hover: hover) and (pointer: fine) {
   .motion-surface:hover {
-    border-color: color-mix(in oklab, var(--color-primary) 22%, var(--color-border));
+    border-color: color-mix(in oklab, var(--color-emphasis) 30%, var(--color-border));
     box-shadow:
       inset 0 1px 0 color-mix(in oklab, var(--color-foreground) 5%, transparent),
       0 16px 36px color-mix(in oklab, var(--color-background) 48%, transparent);
