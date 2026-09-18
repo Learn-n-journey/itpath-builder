@@ -44,6 +44,7 @@ async function probe(url: string): Promise<{ status: number | null; error: strin
 }
 
 export const Route = createFileRoute("/api/public/link-check")({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {
