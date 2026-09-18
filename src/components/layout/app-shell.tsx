@@ -100,6 +100,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const current = navItems.find((i) => i.to === pathname)?.label ?? "IT PATH";
 
+  // Public study guides sit outside the app chrome so search engines and
+  // signed-out visitors get a plain, readable page.
+  if (pathname === "/guides" || pathname.startsWith("/guides/")) {
+    return <PublicShell>{children}</PublicShell>;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <StudyReminder />
