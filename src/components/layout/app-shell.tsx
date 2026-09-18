@@ -40,7 +40,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                         <span>{item.label}</span>
                         <span className="flex items-center gap-1.5">
                           {item.pro ? (
-                            <Crown className="size-3 text-primary" aria-hidden />
+                            <Crown className="size-3 text-warning" aria-hidden />
                           ) : null}
                           {needsAttention ? (
                             <span
@@ -125,7 +125,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </SheetContent>
         </Sheet>
         <span className="flex min-w-0 items-center gap-2 truncate font-display text-sm font-semibold">
-          <span className="h-1.5 w-1.5 shrink-0 bg-primary" aria-hidden />
+          <span className="h-1.5 w-1.5 shrink-0 bg-emphasis" aria-hidden />
           {current}
         </span>
         <Button
