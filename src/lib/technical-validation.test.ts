@@ -49,10 +49,13 @@ describe("curriculum number sweep", () => {
     const problems: string[] = [];
     for (const lesson of staticContent.lessons) {
       const text = [
-        lesson.summary ?? "",
-        ...(lesson.sections?.map((section) => `${section.heading ?? ""} ${section.body ?? ""}`) ?? []),
-        ...(lesson.realWorldExamples ?? []),
-        ...(lesson.keyTerms?.map((term) => `${term.term}: ${term.meaning}`) ?? []),
+        lesson.body,
+        lesson.definition,
+        lesson.whyItMatters,
+        lesson.summary,
+        ...lesson.realWorldExamples,
+        ...lesson.commonMisconceptions,
+        ...lesson.keyTerms.map((term) => `${term.term}: ${term.meaning}`),
       ].join("\n");
       for (const issue of checkTechnicalClaims(text)) {
         problems.push(`${lesson.topicId}: ${issue.claim.trim()} -> ${issue.problem}`);
