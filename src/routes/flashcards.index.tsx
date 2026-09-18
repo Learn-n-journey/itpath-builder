@@ -65,7 +65,7 @@ function FlashcardsIndex() {
       ) : (
         <>
           <Panel
-            title="Due now"
+            title="Available"
             description={`${overall.due} card${overall.due === 1 ? "" : "s"} ready across ${decks.length} section${decks.length === 1 ? "" : "s"}.`}
             className="mb-6"
           >
@@ -82,8 +82,8 @@ function FlashcardsIndex() {
               <Panel key={topic.id} title={topic.title} description={`${counts.total} cards`}>
                 <p className="text-sm text-muted-foreground">
                   {counts.due > 0
-                    ? `${counts.due} due now, ${counts.known} known.`
-                    : `Nothing due right now. ${counts.known} known.`}
+                    ? `${counts.due} available, ${counts.known} known.`
+                    : `Nothing available right now. ${counts.known} known.`}
                 </p>
                 <Button asChild size="sm" className="mt-4">
                   <Link to="/flashcards/$topicId" params={{ topicId: topic.id }}>

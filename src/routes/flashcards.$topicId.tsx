@@ -113,7 +113,7 @@ function FlashcardRunner() {
       ) : !started ? null : !card ? (
         <Panel title="Deck finished" description="Everything in this run has been answered.">
           <p className="text-sm text-muted-foreground">
-            {counts.known} known, {counts.learning} still learning, {counts.due} due now.
+            {counts.known} known, {counts.learning} still learning, {counts.due} available.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button
