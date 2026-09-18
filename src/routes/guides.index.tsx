@@ -4,6 +4,7 @@ import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications } from "@/data/static-content";
 import { GUIDE_BASE_URL, guidePath, guideTopics } from "@/lib/public-guides";
+import { courseJsonLd, guideIndexJsonLd } from "@/lib/structured-data";
 
 const TITLE = "IT and Cybersecurity Study Guides";
 const DESCRIPTION =
