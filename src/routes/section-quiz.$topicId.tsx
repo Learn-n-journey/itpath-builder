@@ -10,7 +10,7 @@ import { topics } from "@/data/static-content";
 import {
   SECTION_PASS_SCORE,
   SECTION_QUIZ_SIZE,
-  getSectionQuizQuestions,
+  drawSectionQuiz,
   getTopicQuestionPool,
 } from "@/data/topic-quizzes";
 import type { Quiz } from "@/lib/app-data/types";
