@@ -47,6 +47,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StudyPlanRouteImport } from './routes/study-plan'
 import { Route as TechNewsRouteImport } from './routes/tech-news'
+import { Route as TechVideosRouteImport } from './routes/tech-videos'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
 import { Route as VirusRouteImport } from './routes/virus'
@@ -253,6 +254,11 @@ const TechNewsRoute = TechNewsRouteImport.update({
   path: '/tech-news',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TechVideosRoute = TechVideosRouteImport.update({
+  id: '/tech-videos',
+  path: '/tech-videos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -369,6 +375,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/study-plan': typeof StudyPlanRoute
   '/tech-news': typeof TechNewsRoute
+  '/tech-videos': typeof TechVideosRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
   '/virus': typeof VirusRoute
@@ -424,6 +431,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/study-plan': typeof StudyPlanRoute
   '/tech-news': typeof TechNewsRoute
+  '/tech-videos': typeof TechVideosRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
   '/virus': typeof VirusRoute
@@ -480,6 +488,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/study-plan': typeof StudyPlanRoute
   '/tech-news': typeof TechNewsRoute
+  '/tech-videos': typeof TechVideosRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
   '/virus': typeof VirusRoute
@@ -537,6 +546,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/study-plan'
     | '/tech-news'
+    | '/tech-videos'
     | '/terms'
     | '/troubleshoot'
     | '/virus'
@@ -592,6 +602,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/study-plan'
     | '/tech-news'
+    | '/tech-videos'
     | '/terms'
     | '/troubleshoot'
     | '/virus'
@@ -647,6 +658,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/study-plan'
     | '/tech-news'
+    | '/tech-videos'
     | '/terms'
     | '/troubleshoot'
     | '/virus'
@@ -703,6 +715,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StudyPlanRoute: typeof StudyPlanRoute
   TechNewsRoute: typeof TechNewsRoute
+  TechVideosRoute: typeof TechVideosRoute
   TermsRoute: typeof TermsRoute
   TroubleshootRoute: typeof TroubleshootRoute
   VirusRoute: typeof VirusRoute
@@ -988,6 +1001,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TechNewsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tech-videos': {
+      id: '/tech-videos'
+      path: '/tech-videos'
+      fullPath: '/tech-videos'
+      preLoaderRoute: typeof TechVideosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -1135,6 +1155,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StudyPlanRoute: StudyPlanRoute,
   TechNewsRoute: TechNewsRoute,
+  TechVideosRoute: TechVideosRoute,
   TermsRoute: TermsRoute,
   TroubleshootRoute: TroubleshootRoute,
   VirusRoute: VirusRoute,
