@@ -444,14 +444,25 @@ export const readingSources: Record<string, ReadingSource> = {
 
 /** Keyword rules, checked against the topic id and title, in order. */
 const rules: { match: RegExp; keys: string[] }[] = [
-  // Linux specifics come first so a Linux topic never matches a Windows rule.
-  { match: /linux-filesystem|permission|users-groups|sudo/, keys: ["permissions", "sudo"] },
+  // Windows subjects that share words with Linux ones are settled first.
+  { match: /windows-security|windows security/, keys: ["windowsSecurity", "windows"] },
+  // Linux specifics come next so a Linux topic never matches a Windows rule.
+  { match: /linux-filesystem|users-groups|sudo/, keys: ["permissions", "sudo"] },
   { match: /lvm|logical-volume/, keys: ["lvm", "storage"] },
   { match: /systemd|journal|syslog/, keys: ["systemd", "journal"] },
   { match: /bash|shell-script/, keys: ["linuxShell", "python"] },
   { match: /linux-network/, keys: ["networking", "linuxShell"] },
+  { match: /linux-container|container.*linux/, keys: ["containers", "docker"] },
+  { match: /linux-firewall|linux.*hardening/, keys: ["firewall", "linuxShell"] },
+  { match: /linux-authentication|linux.*accounting/, keys: ["identity", "sudo"] },
+  { match: /linux-automation|linux.*scripting/, keys: ["ansible", "linuxShell"] },
+  { match: /linux-device/, keys: ["linuxShell", "virtualization"] },
   { match: /linux/, keys: ["linuxShell", "permissions"] },
+  { match: /permission/, keys: ["permissions", "identity"] },
+  { match: /command-line|command line|terminal|\bcli\b/, keys: ["linuxShell", "powershell"] },
   // Security subjects with a named standard.
+  { match: /endpoint/, keys: ["malware", "incident"] },
+  { match: /data-protection|classification|data handling/, keys: ["securityControls", "sanitisation"] },
   { match: /security-fundamental|\bcia\b|confidential/, keys: ["securityControls", "csf"] },
   { match: /security-control|security-monitoring|siem|detection|observab/, keys: ["siem", "securityControls"] },
   { match: /forensic|evidence|chain-of-custody/, keys: ["forensics", "incident"] },
@@ -499,7 +510,7 @@ const rules: { match: RegExp; keys: string[] }[] = [
   { match: /windows/, keys: ["windows", "windowsSecurity"] },
   { match: /powershell|scripting|script/, keys: ["powershell", "python"] },
   { match: /programming|development-concept/, keys: ["python", "webDev"] },
-  { match: /database|\bsql\b|\bdata\b|classification/, keys: ["database", "sql"] },
+  { match: /database|\bsql\b|data and database/, keys: ["database", "sql"] },
   { match: /software|application|licens/, keys: ["itsm", "windows"] },
   { match: /data-cent|data-center|power-cooling|facility|\bserver\b/, keys: ["serverSecurity", "hardware"] },
   { match: /hardware|motherboard|\bcpu\b|memory|power|cooling|peripheral|component/, keys: ["hardware", "storage"] },
