@@ -197,6 +197,7 @@ function Dashboard() {
   const { user, hydrated } = useAppState();
   const { firstName } = useProfile();
   const d = useMemo(() => computeDashboard(user), [user]);
+  const measures = useMemo(() => overallMeasures(user), [user]);
 
   const path = useMemo(() => adaptivePath(user), [user]);
   const [dismissedVersion, setDismissedVersion] = useState(0);
