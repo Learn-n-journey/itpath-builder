@@ -56,6 +56,7 @@ function Row({ label, score, right }: { label: string; score: number; right?: st
 function ProgressPage() {
   const { user } = useAppState();
   const report = useMemo<ProgressReport>(() => computeProgress(user), [user]);
+  const measures = useMemo(() => overallMeasures(user), [user]);
   const [showAllTopics, setShowAllTopics] = useState(false);
 
   const startedTopics = report.byTopic.filter((row) => row.hasActivity);
