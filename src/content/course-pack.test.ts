@@ -35,9 +35,9 @@ describe("course pack", () => {
       expect(questions.length, `${section.title} has no quiz`).toBeGreaterThan(4);
       for (const question of questions) {
         expect(question.correctAnswer.length, `${question.id} has no answer`).toBeGreaterThan(0);
-        if (question.options?.length) {
+        if (question.choices.length) {
           for (const answer of question.correctAnswer) {
-            expect(question.options, `${question.id} answer is not among the choices`).toContain(answer);
+            expect(question.choices, `${question.id} answer is not among the choices`).toContain(answer);
           }
         }
       }
@@ -59,7 +59,7 @@ describe("course pack", () => {
   it("only requires prerequisites that exist", () => {
     const skillIds = new Set(pack.prerequisites.map((node) => node.id));
     for (const node of pack.prerequisites) {
-      for (const required of node.prerequisites ?? []) {
+      for (const required of node.prerequisiteSkillIds) {
         expect(skillIds.has(required), `${node.id} requires missing ${required}`).toBe(true);
       }
     }
@@ -69,8 +69,8 @@ describe("course pack", () => {
     const seen = new Set<string>();
     for (const phase of pack.phases) {
       for (const topic of phase.topics) {
-        expect(seen.has(topic.topicId), `${topic.topicId} appears in two phases`).toBe(false);
-        seen.add(topic.topicId);
+        expect(seen.has(topic.id), `${topic.id} appears in two phases`).toBe(false);
+        seen.add(topic.id);
       }
     }
     expect(seen.size).toBeGreaterThan(0);
