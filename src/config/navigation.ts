@@ -205,6 +205,13 @@ export const navItems: NavItem[] = [
     description: "A live feed of technology headlines, kept separate from your studies.",
   },
   {
+    label: "Tech Videos",
+    to: "/tech-videos",
+    icon: Video,
+    group: "You",
+    description: "A scrolling feed of technology videos, played in each platform's own player.",
+  },
+  {
     label: "Community",
     to: "/community",
     icon: MessagesSquare,
