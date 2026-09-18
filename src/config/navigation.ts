@@ -29,6 +29,7 @@ import {
   Bug,
   MessagesSquare,
   Newspaper,
+  Video,
   type LucideIcon,
 } from "lucide-react";
 
