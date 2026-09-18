@@ -7,7 +7,13 @@ import { Award, Briefcase, ExternalLink, MapPin, RefreshCw, Search } from "lucid
 import { EmptyState, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getTechJobs, JOB_CERTIFICATIONS, type TechJob } from "@/lib/tech-jobs.functions";
+import { JOB_COUNTRIES, countryName } from "@/lib/job-countries";
+import {
+  DEFAULT_JOB_COUNTRY,
+  getTechJobs,
+  JOB_CERTIFICATIONS,
+  type TechJob,
+} from "@/lib/tech-jobs.functions";
 
 export const Route = createFileRoute("/tech-jobs")({
   staticData: { sitemap: true },
