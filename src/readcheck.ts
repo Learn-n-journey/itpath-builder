@@ -1,4 +1,3 @@
 import { staticContent } from "./data/static-content";
-import { readingForTopic } from "./data/topic-reading";
 const { topics } = staticContent as any;
-for (const t of topics) console.log(t.id, "=>", readingForTopic(t).map((r: any) => r.key).join(", "));
+for (const t of topics) console.log(t.id, "|", t.title);
