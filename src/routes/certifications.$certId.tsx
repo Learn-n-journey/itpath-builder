@@ -122,6 +122,25 @@ function Certifications() {
   const stages = useMemo(() => certificationStages(certId), [certId]);
   const index = useMemo(() => certificationStudyIndex(certId), [certId]);
   const poolSize = useMemo(() => certificationQuestionPool(certId).length, [certId]);
+
+  // Unlock order for this certification: journey order, with each section
+  // open only when every earlier section is mastered (or opened by the
+  // learner's experience setting).
+  const unlock = useMemo(() => {
+    const ordered = inJourneyOrder(certificationTopics(certId));
+    const level = user.settings.experienceLevel;
+    let experienceOpens = 0;
+    if (level === "intermediate") experienceOpens = ordered.length;
+    else if (level === "some") experienceOpens = ordered.filter((t) => t.month <= 7).length;
+    let currentIndex = ordered.findIndex((topic) => !isMastered(user, topic.id));
+    if (currentIndex === -1) currentIndex = ordered.length - 1;
+    const openIds = new Set<string>();
+    ordered.forEach((topic, i) => {
+      if (i < experienceOpens || i <= currentIndex) openIds.add(topic.id);
+    });
+    const orderIndex = new Map(ordered.map((topic, i) => [topic.id, i]));
+    return { openIds, orderIndex };
+  }, [certId, user]);
   const exam = useMemo(
     () => (selected ? generateExam(selected.certification, examSeed) : null),
     [selected, examSeed],
