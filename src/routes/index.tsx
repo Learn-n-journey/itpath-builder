@@ -324,7 +324,7 @@ function Dashboard() {
       ) : null}
 
       <ProgressOverview
-        progress={d.overallProgress}
+        progress={measures.learningProgress}
         hasActivity={d.hasAnyActivity}
         topicsComplete={d.masteredTopics}
         topicsTotal={d.topicsTotal}
