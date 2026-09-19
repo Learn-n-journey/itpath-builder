@@ -183,7 +183,15 @@ function TechVideosPage() {
     staleTime: 15 * 60 * 1000,
   });
 
-  const feedVideos = useMemo(() => feed.data?.pages.flatMap((page) => page.videos) ?? [], [feed.data]);
+  const feedVideos = useMemo(() => {
+    // New uploads shift the paging window, so the same video can arrive twice.
+    const seen = new Set<string>();
+    return (feed.data?.pages.flatMap((page) => page.videos) ?? []).filter((video) => {
+      if (seen.has(video.id)) return false;
+      seen.add(video.id);
+      return true;
+    });
+  }, [feed.data]);
   const shownFeed = useMemo(
     () => (active === "All" ? feedVideos : feedVideos.filter((video) => video.category === active)),
     [feedVideos, active],
