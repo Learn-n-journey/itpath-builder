@@ -48,7 +48,7 @@ export function NextActionCard({
       title="Do this next"
       description="Chosen from your own records, due reviews, open work and the gaps between what you know and what you have proven."
     >
-      <div className="rounded-lg bg-secondary/50 p-4">
+      <div className="rounded-md border border-border/70 bg-secondary/40 p-4 shadow-inner">
         <div className="flex items-start gap-3">
           <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary">
             <Sparkles className="size-4" aria-hidden />

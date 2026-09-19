@@ -88,20 +88,20 @@ function ProgressOverview({
   const activeSegments = Math.round((progress / 100) * segments);
 
   return (
-    <section className="panel dashboard-summary motion-surface mb-4 p-5 sm:p-6">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-5">
+    <section className="panel dashboard-summary motion-surface mb-5 p-6 sm:p-8 lg:min-h-64">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-6">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emphasis">
             <Activity className="size-3.5" aria-hidden />
             Learning path
           </div>
-          <p className="mt-2 font-display text-2xl font-semibold tabular-nums sm:text-3xl">
+          <p className="mt-4 font-display text-3xl font-semibold tabular-nums sm:text-4xl">
             {progress === 0 && hasActivity ? "Under 1% complete" : `${progress}% complete`}
           </p>
-          <p className="mt-1 truncate text-sm text-muted-foreground">Next: {recommendation}</p>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">Next: {recommendation}</p>
         </div>
-        <div className="relative flex size-16 shrink-0 items-center justify-center" aria-label={`${progress}% overall progress`}>
-          <svg className="size-16 -rotate-90" viewBox="0 0 64 64" aria-hidden>
+        <div className="relative flex size-20 shrink-0 items-center justify-center sm:size-24" aria-label={`${progress}% overall progress`}>
+          <svg className="size-20 -rotate-90 sm:size-24" viewBox="0 0 64 64" aria-hidden>
             <circle cx="32" cy="32" r="26" fill="none" stroke="var(--color-secondary)" strokeWidth="5" />
             <circle
               cx="32"
@@ -115,14 +115,14 @@ function ProgressOverview({
               strokeDasharray={`${progress} 100`}
             />
           </svg>
-          <span className="absolute text-xs font-semibold tabular-nums">{progress}%</span>
+          <span className="absolute font-mono text-sm font-semibold tabular-nums">{progress}%</span>
         </div>
       </div>
-      <div className="mt-5 grid grid-cols-10 gap-1" aria-hidden>
+      <div className="mt-8 grid grid-cols-10 gap-1.5" aria-hidden>
         {Array.from({ length: segments }, (_, index) => (
           <span
             key={index}
-            className={index < activeSegments ? "h-1.5 bg-progress" : "h-1.5 bg-secondary"}
+            className={index < activeSegments ? "h-1.5 rounded-sm bg-progress" : "h-1.5 rounded-sm bg-secondary"}
           />
         ))}
       </div>
@@ -155,7 +155,7 @@ function TodayChip({
     <Link
       to={to}
       {...(params ? { params: params as never } : {})}
-      className="flex min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 py-2.5 transition-colors hover:border-primary/50"
+      className="motion-surface flex min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-md border border-border bg-card px-3.5 py-2.5 transition-colors hover:border-primary/50"
     >
       <Icon className="size-4 shrink-0 text-primary" aria-hidden />
       <span className="min-w-0">
@@ -287,14 +287,14 @@ function Dashboard() {
         <img
           src="/icons/icon-256.png"
           alt="IT PATH logo, a mountain path with circuit traces"
-          className="h-14 w-14 shrink-0 rounded-2xl sm:h-16 sm:w-16"
+          className="h-14 w-14 shrink-0 rounded-lg border border-border shadow-lg sm:h-16 sm:w-16"
         />
         <div className="min-w-0 flex-1">
           <PageHeader
             title={firstName ? greetingFor(firstName) : "Dashboard"}
             description={`Certification focus: ${user.settings.certificationTarget}.`}
             actions={
-              <Button asChild className="mt-14">
+              <Button asChild className="mt-12">
                 <Link to="/study-plan">Open study plan</Link>
               </Button>
             }
@@ -306,12 +306,12 @@ function Dashboard() {
       {d.hasAnyActivity ? <TodayStrip chips={todayChips} /> : null}
 
       {resume ? (
-        <Panel className="mb-4" title="Pick up where you left off">
+        <Panel className="mb-5" title="Pick up where you left off">
           <Link
             to={resume.to}
             {...(resume.params ? { params: resume.params as never } : {})}
             {...(resume.search ? { search: resume.search as never } : {})}
-            className="group flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4 transition-colors hover:border-primary/50"
+            className="group flex items-center gap-3 rounded-md border border-border bg-secondary/30 p-4 transition-[border-color,background-color,transform] duration-150 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-secondary/45 active:translate-y-px"
           >
             <PlayCircle className="size-8 shrink-0 text-primary" aria-hidden />
             <span className="min-w-0 flex-1">
@@ -376,14 +376,14 @@ function Dashboard() {
           </div>
         </Panel>
       ) : (
-        <div className="mb-4 grid gap-4 lg:grid-cols-2">
-          <NextActionCard actions={actions} onDismiss={dismissAction} />
+        <div className="mb-5 grid gap-4 lg:grid-cols-3">
+          <NextActionCard className="lg:col-span-2" actions={actions} onDismiss={dismissAction} />
           <ReadinessPanel report={readiness} />
           <StreakPanel />
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
         <StatCard
           label="Learning progress"
           value={`${measures.learningProgress}%`}
@@ -429,7 +429,7 @@ function Dashboard() {
         />
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 lg:grid-cols-2 lg:gap-5">
         <Panel
           title="Today's tasks"
           description={

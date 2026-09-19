@@ -17,7 +17,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useSidebarAttention();
 
   return (
-    <nav className="flex flex-col gap-6 px-3 py-4">
+    <nav className="flex flex-col gap-7 px-3 py-5">
       {navGroups.map((group) => (
         <div key={group}>
           <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
@@ -35,7 +35,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                       onClick={onNavigate}
                       title={item.description}
                       activeOptions={{ exact: item.to === "/" }}
-                      className="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-all duration-200 hover:translate-x-0.5 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:scale-[0.98] data-[status=active]:bg-sidebar-accent data-[status=active]:font-medium data-[status=active]:text-sidebar-primary"
+                      className="group flex min-h-10 items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm text-sidebar-foreground/72 transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:translate-x-0.5 hover:border-sidebar-border hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground active:scale-[0.98] data-[status=active]:border-sidebar-primary/25 data-[status=active]:bg-sidebar-accent data-[status=active]:font-semibold data-[status=active]:text-sidebar-primary data-[status=active]:shadow-[inset_3px_0_0_var(--color-sidebar-primary)]"
                     >
                       <item.icon className="size-4 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden />
                       <span className="flex flex-1 items-center justify-between gap-2">
@@ -68,8 +68,8 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 
 function Brand() {
   return (
-    <Link to="/" className="flex items-center gap-2.5 px-5 py-4">
-      <span className="flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary">
+    <Link to="/" className="group flex items-center gap-3 px-5 py-5">
+      <span className="flex size-9 items-center justify-center rounded-md border border-primary/25 bg-primary/12 text-primary shadow-sm transition-transform duration-150 group-hover:-translate-y-0.5">
         <ShieldCheck className="size-4.5" aria-hidden />
       </span>
       <span className="min-w-0">
@@ -119,7 +119,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <StudyReminder />
       <WelcomeTour />
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
-      <aside className="sidebar-glass fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-sidebar-border lg:flex">
+      <aside className="sidebar-glass fixed inset-y-0 left-0 z-30 hidden w-68 flex-col overflow-y-auto border-r border-sidebar-border lg:flex">
         <Brand />
         <CommandPaletteButton onClick={() => palette.setOpen(true)} />
         <NavList />
@@ -158,8 +158,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Button>
       </header>
 
-      <main className={cn("lg:pl-64")}>
-        <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+      <main className={cn("lg:pl-68")}>
+        <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
           <BackButton className="mb-4" />
           <StudyTabs />
           <div key={pathname} className="page-enter" data-page-content>
@@ -170,7 +170,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <GaylBubble />
         <SidePanel />
         <QuickNav />
-        <footer className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6 lg:px-10">
+        <footer className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
             <span>{domain.appName} · David Boley</span>
             <Link
