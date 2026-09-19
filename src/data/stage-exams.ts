@@ -11,7 +11,8 @@
 import type { CertificationObjective, Question } from "@/lib/app-data/types";
 import { topics } from "@/data/static-content";
 import { certifications, certificationObjectives } from "@/data/certification-content";
-import { getTopicQuestionPool } from "@/data/topic-quizzes";
+import { conceptIdFor, getTopicQuestionPool } from "@/data/topic-quizzes";
+import { finalizeQuestionSet } from "@/lib/quiz-finalize";
 import { usableQuestions } from "@/lib/question-quality";
 
 export const STAGE_PASS_SCORE = 80;
@@ -1117,7 +1118,14 @@ export function getStageExamQuestions(examId: string, nonce: number = Math.rando
     if (!take(fallback)) break;
   }
 
-  return shuffle(out).slice(0, STAGE_EXAM_SIZE);
+  // The last gate: sound questions only, nothing repeated, and the full length.
+  return finalizeQuestionSet(shuffle(out), {
+    size: STAGE_EXAM_SIZE,
+    pool: stageTopics.flatMap((topic) => pool(topic.id)),
+    conceptOf: conceptIdFor,
+    random,
+    quizId: examId,
+  });
 }
 
 /** Small deterministic generator so one sitting keeps the same paper while it is open. */

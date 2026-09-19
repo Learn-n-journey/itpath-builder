@@ -20,7 +20,8 @@ import { questions as authoredQuestions } from "@/data/quiz-content";
 import { generatedQuestions } from "@/data/question-bank";
 import { isUsableQuestion, usableQuestions } from "@/lib/question-quality";
 import { selectQuizQuestions } from "@/lib/quiz-selection";
-import { tagQuestion, type TaggedQuestion } from "@/lib/question-tags";
+import { conceptKey, tagQuestion, type TaggedQuestion } from "@/lib/question-tags";
+import { finalizeQuestionSet } from "@/lib/quiz-finalize";
 import type { ConceptStat } from "@/lib/concept-mastery";
 import type { Question } from "@/lib/app-data/types";
 
@@ -887,6 +888,18 @@ export function conceptOfQuestion(topicId: string, questionId: string): string |
   return getTaggedTopicPool(topicId).find((item) => item.question.id === questionId)?.tags.conceptId;
 }
 
+/**
+ * The stable idea behind any question, wherever it turns up.
+ *
+ * The same question carries the same conceptId in a section quiz, a stage exam,
+ * mastery tracking and review, so all four agree on what has been proven.
+ */
+export function conceptIdFor(question: Question): string {
+  return (
+    conceptOfQuestion(question.topicId, question.id) ?? conceptKey(question.topicId, question.prompt)
+  );
+}
+
 /** A lookup from question id to concept for one section, for mastery tracking. */
 export function topicConceptLookup(topicId: string): (questionId: string) => string | undefined {
   const map = new Map(
@@ -915,11 +928,16 @@ export function buildSectionQuiz(
     stats,
     random: seeded(`${topicId}:${nonce}`),
   });
-  return chosen.map((item, index) => ({
-    ...item.question,
-    quizId: `section-quiz-${topicId}`,
-    order: index,
-  })) as Question[];
+  return finalizeQuestionSet(
+    chosen.map((item) => item.question),
+    {
+      size: SECTION_QUIZ_SIZE,
+      pool: pool.map((item) => item.question),
+      conceptOf: conceptIdFor,
+      random: seeded(`${topicId}:${nonce}:fill`),
+      quizId: `section-quiz-${topicId}`,
+    },
+  );
 }
 
 /**
@@ -950,11 +968,13 @@ export function drawSectionQuiz(topicId: string, nonce: number): Question[] {
     }
   }
 
-  return chosen.map((item, index) => ({
-    ...item,
+  return finalizeQuestionSet(chosen, {
+    size: SECTION_QUIZ_SIZE,
+    pool: order.map((item) => item.question),
+    conceptOf: conceptIdFor,
+    random: seeded(`${topicId}:${nonce}:fill`),
     quizId: `section-quiz-${topicId}`,
-    order: index,
-  })) as Question[];
+  });
 }
 
 /** Every question available for a topic, used to top up the larger stage exams. */
