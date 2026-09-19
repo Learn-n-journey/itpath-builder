@@ -3372,7 +3372,7 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
       "Check what the client actually received from the DHCP server.",
       "Verify the client's NTP synchronization status.",
       "Query DNS directly with a diagnostic tool rather than trusting the browser.",
-      "Attempt to connect to the web server using Telnet on port 80."
+      "Clear the browser cache and try loading the site again."
     ],
     "answerIndex": 2,
     "explanation": "The troubleshooting section advises, 'Query DNS directly with a diagnostic tool rather than trusting the browser,' to isolate if the issue lies with DNS resolution or the browser's behavior.",

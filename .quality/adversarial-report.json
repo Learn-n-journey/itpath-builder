@@ -1,0 +1,1714 @@
+[
+  {
+    "coverage": {
+      "startedAt": "2026-09-19T04:19:11.860Z",
+      "packageKey": "auto-repair@1.0.0",
+      "total": 22,
+      "detected": 22,
+      "missed": 0,
+      "percentage": 100,
+      "byCategory": [
+        {
+          "category": "wrong-facts",
+          "total": 2,
+          "detected": 2,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "duplicate-questions",
+          "total": 1,
+          "detected": 1,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "invalid-questions",
+          "total": 3,
+          "detected": 3,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "answer-key",
+          "total": 2,
+          "detected": 2,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "prerequisites",
+          "total": 3,
+          "detected": 3,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "objective-mismatch",
+          "total": 1,
+          "detected": 1,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "untaught-assessment",
+          "total": 2,
+          "detected": 2,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "filler-content",
+          "total": 3,
+          "detected": 3,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "broken-sources",
+          "total": 3,
+          "detected": 3,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "schema-valid-poor",
+          "total": 2,
+          "detected": 2,
+          "percentage": 100,
+          "missed": []
+        }
+      ],
+      "outcomes": [
+        {
+          "injectionId": "inj-fact-arithmetic",
+          "category": "wrong-facts",
+          "description": "A lesson states arithmetic that does not hold.",
+          "detected": true,
+          "rulesFired": [
+            "content.lesson-numbers-hold-up"
+          ],
+          "subjectIds": [
+            "lesson:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.lesson-numbers-hold-up",
+              "severity": "blocking",
+              "subjectId": "lesson:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "20% of 50 is 15, -> 20% of 50 is 10, not 15,."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-fact-units",
+          "category": "wrong-facts",
+          "description": "A question explanation mixes up two families of units.",
+          "detected": true,
+          "rulesFired": [
+            "questions.numbers-hold-up"
+          ],
+          "subjectIds": [
+            "question:auto-repair:question:hydraulic-system-fundamentals-practice"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.numbers-hold-up",
+              "severity": "blocking",
+              "subjectId": "question:auto-repair:question:hydraulic-system-fundamentals-practice",
+              "detail": "1 GB = 1024 MB -> The two sides do not match. 1 GB is 1,000,000,000 bytes and 1024 MB is 1,024,000,000 bytes. Decimal units step by 1000 and binary units (KiB, MiB, GiB) step by 1024."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-duplicate-question",
+          "category": "duplicate-questions",
+          "description": "The same question is asked twice under two ids.",
+          "detected": true,
+          "rulesFired": [
+            "questions.not-repeated"
+          ],
+          "subjectIds": [
+            "question:auto-repair:question:hydraulic-system-fundamentals-practice-copy"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.not-repeated",
+              "severity": "warning",
+              "subjectId": "question:auto-repair:question:hydraulic-system-fundamentals-practice-copy",
+              "detail": "The same question is already asked as auto-repair:question:hydraulic-system-fundamentals-practice."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-question-two-options",
+          "category": "invalid-questions",
+          "description": "A multiple choice question is left with only two options.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound"
+          ],
+          "subjectIds": [
+            "question:auto-repair:question:hydraulic-system-fundamentals-practice"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:auto-repair:question:hydraulic-system-fundamentals-practice",
+              "detail": "fewer than four options"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-question-throwaway-options",
+          "category": "invalid-questions",
+          "description": "Wrong options are replaced with meaningless filler.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound"
+          ],
+          "subjectIds": [
+            "question:auto-repair:question:drum-brake-service-practice"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:auto-repair:question:drum-brake-service-practice",
+              "detail": "a wrong option carries no subject meaning"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-question-not-a-question",
+          "category": "invalid-questions",
+          "description": "A prompt is replaced with a fragment that asks nothing.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound"
+          ],
+          "subjectIds": [
+            "question:auto-repair:question:disc-brake-service-practice"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:auto-repair:question:disc-brake-service-practice",
+              "detail": "prompt is not a question"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-answer-out-of-range",
+          "category": "answer-key",
+          "description": "The marked answer points outside the list of options.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound",
+            "questions.sound"
+          ],
+          "subjectIds": [
+            "question:auto-repair:question:hydraulic-system-fundamentals-practice"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.sound",
+              "severity": "blocking",
+              "subjectId": "question:auto-repair:question:hydraulic-system-fundamentals-practice",
+              "detail": "The marked answer is not one of the options."
+            },
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:auto-repair:question:hydraulic-system-fundamentals-practice",
+              "detail": "no correct answer recorded"
+            },
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:auto-repair:question:hydraulic-system-fundamentals-practice",
+              "detail": "the number of correct answers does not match the question type"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-answer-two-correct",
+          "category": "answer-key",
+          "description": "Two options say exactly the same thing, so two answers are correct.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound",
+            "questions.sound"
+          ],
+          "subjectIds": [
+            "question:auto-repair:question:drum-brake-service-practice"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.sound",
+              "severity": "blocking",
+              "subjectId": "question:auto-repair:question:drum-brake-service-practice",
+              "detail": "Two options say the same thing."
+            },
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:auto-repair:question:drum-brake-service-practice",
+              "detail": "two options say the same thing"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-prerequisite-missing",
+          "category": "prerequisites",
+          "description": "A section requires something that is not in the subject.",
+          "detected": true,
+          "rulesFired": [
+            "structure.prerequisites-resolve"
+          ],
+          "subjectIds": [
+            "prerequisite:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "structure.prerequisites-resolve",
+              "severity": "blocking",
+              "subjectId": "prerequisite:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "A prerequisite points at a section that is not in this package."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-prerequisite-self",
+          "category": "prerequisites",
+          "description": "A section is made a prerequisite of itself.",
+          "detected": true,
+          "rulesFired": [
+            "structure.prerequisites-acyclic"
+          ],
+          "subjectIds": [
+            "prerequisite:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "structure.prerequisites-acyclic",
+              "severity": "blocking",
+              "subjectId": "prerequisite:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "A section requires itself."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-prerequisite-cycle",
+          "category": "prerequisites",
+          "description": "Two sections require each other, so neither can ever be started.",
+          "detected": true,
+          "rulesFired": [
+            "structure.prerequisites-acyclic"
+          ],
+          "subjectIds": [
+            "prerequisite:auto-repair:section:drum-brake-service"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "structure.prerequisites-acyclic",
+              "severity": "blocking",
+              "subjectId": "prerequisite:auto-repair:section:drum-brake-service",
+              "detail": "Prerequisites form a loop: auto-repair:section:drum-brake-service -> auto-repair:section:hydraulic-system-fundamentals -> auto-repair:section:drum-brake-service."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-lesson-off-objective",
+          "category": "objective-mismatch",
+          "description": "A lesson teaches something unrelated to every objective its section claims.",
+          "detected": true,
+          "rulesFired": [
+            "content.lesson-matches-objectives"
+          ],
+          "subjectIds": [
+            "lesson:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.lesson-matches-objectives",
+              "severity": "warning",
+              "subjectId": "lesson:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "The lesson shares no subject matter with any objective the section claims to teach."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-assessment-untaught-objective",
+          "category": "untaught-assessment",
+          "description": "A paper tests an objective no section teaches.",
+          "detected": true,
+          "rulesFired": [
+            "papers.covers-taught-material"
+          ],
+          "subjectIds": [
+            "assessment:auto-repair:assessment:cert-brakes-a5"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "papers.covers-taught-material",
+              "severity": "warning",
+              "subjectId": "assessment:auto-repair:assessment:cert-brakes-a5",
+              "detail": "The paper tests objective auto-repair-objective-never-taught, which no section teaches."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-assessment-wrong-size",
+          "category": "untaught-assessment",
+          "description": "A paper declares a length the subject does not allow.",
+          "detected": true,
+          "rulesFired": [
+            "papers.stage-exam-whole"
+          ],
+          "subjectIds": [
+            "assessment:auto-repair:assessment:cert-brakes-a5"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "papers.stage-exam-whole",
+              "severity": "blocking",
+              "subjectId": "assessment:auto-repair:assessment:cert-brakes-a5",
+              "detail": "The assessment declares 17 questions; this package requires exactly 10."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-lesson-empty",
+          "category": "filler-content",
+          "description": "A lesson body is emptied out.",
+          "detected": true,
+          "rulesFired": [
+            "content.no-filler"
+          ],
+          "subjectIds": [
+            "lesson:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.no-filler",
+              "severity": "warning",
+              "subjectId": "lesson:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "The lesson body is only 0 characters."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-lesson-repetitive",
+          "category": "filler-content",
+          "description": "A lesson repeats one sentence to reach a length.",
+          "detected": true,
+          "rulesFired": [
+            "content.no-filler"
+          ],
+          "subjectIds": [
+            "lesson:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.no-filler",
+              "severity": "warning",
+              "subjectId": "lesson:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "The lesson repeats the same sentences instead of teaching."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-lesson-placeholder",
+          "category": "filler-content",
+          "description": "A lesson still contains placeholder text.",
+          "detected": true,
+          "rulesFired": [
+            "content.no-filler"
+          ],
+          "subjectIds": [
+            "lesson:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.no-filler",
+              "severity": "warning",
+              "subjectId": "lesson:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "The lesson still contains placeholder text."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-source-placeholder-host",
+          "category": "broken-sources",
+          "description": "A reference points at a placeholder address.",
+          "detected": true,
+          "rulesFired": [
+            "content.sources-usable"
+          ],
+          "subjectIds": [
+            "source:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.sources-usable",
+              "severity": "blocking",
+              "subjectId": "source:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "\"https://example.com/definitive-guide\" points at a placeholder address, not a real reference."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-source-not-a-url",
+          "category": "broken-sources",
+          "description": "A reference is not a web address at all.",
+          "detected": true,
+          "rulesFired": [
+            "content.sources-usable"
+          ],
+          "subjectIds": [
+            "source:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.sources-usable",
+              "severity": "blocking",
+              "subjectId": "source:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "\"see the handbook, chapter four\" is not a plain https web address."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-source-unlabelled",
+          "category": "broken-sources",
+          "description": "A reference has no usable label.",
+          "detected": true,
+          "rulesFired": [
+            "content.sources-usable"
+          ],
+          "subjectIds": [
+            "source:auto-repair:section:hydraulic-system-fundamentals"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.sources-usable",
+              "severity": "blocking",
+              "subjectId": "source:auto-repair:section:hydraulic-system-fundamentals",
+              "detail": "A source for this section has no usable label."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-poor-but-valid-question",
+          "category": "schema-valid-poor",
+          "description": "A question is perfectly shaped but gives itself away by answer length.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound"
+          ],
+          "subjectIds": [
+            "question:auto-repair:question:hydraulic-system-fundamentals-practice"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:auto-repair:question:hydraulic-system-fundamentals-practice",
+              "detail": "the correct answer is far longer than every wrong option"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-poor-but-valid-lesson",
+          "category": "schema-valid-poor",
+          "description": "A lesson is long enough and well shaped but teaches nothing specific.",
+          "detected": true,
+          "rulesFired": [
+            "content.no-filler"
+          ],
+          "subjectIds": [
+            "lesson:auto-repair:section:drum-brake-service"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.no-filler",
+              "severity": "warning",
+              "subjectId": "lesson:auto-repair:section:drum-brake-service",
+              "detail": "The lesson repeats the same sentences instead of teaching."
+            }
+          ]
+        }
+      ],
+      "weaknesses": []
+    },
+    "loops": [
+      {
+        "injectionId": "inj-fact-arithmetic",
+        "category": "wrong-facts",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-fact-units",
+        "category": "wrong-facts",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-duplicate-question",
+        "category": "duplicate-questions",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-question-two-options",
+        "category": "invalid-questions",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-question-throwaway-options",
+        "category": "invalid-questions",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-question-not-a-question",
+        "category": "invalid-questions",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-answer-out-of-range",
+        "category": "answer-key",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-answer-two-correct",
+        "category": "answer-key",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-prerequisite-missing",
+        "category": "prerequisites",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-prerequisite-self",
+        "category": "prerequisites",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-prerequisite-cycle",
+        "category": "prerequisites",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-lesson-off-objective",
+        "category": "objective-mismatch",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-assessment-untaught-objective",
+        "category": "untaught-assessment",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-assessment-wrong-size",
+        "category": "untaught-assessment",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain.",
+          "autonomy.assessment.exact-size: an assessment does not match its declared size."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-lesson-empty",
+        "category": "filler-content",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-lesson-repetitive",
+        "category": "filler-content",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-lesson-placeholder",
+        "category": "filler-content",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-source-placeholder-host",
+        "category": "broken-sources",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-source-not-a-url",
+        "category": "broken-sources",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-source-unlabelled",
+        "category": "broken-sources",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-poor-but-valid-question",
+        "category": "schema-valid-poor",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      },
+      {
+        "injectionId": "inj-poor-but-valid-lesson",
+        "category": "schema-valid-poor",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "All deterministic blocking checks passed."
+        ],
+        "reasonsAfter": [
+          "All deterministic blocking checks passed."
+        ]
+      }
+    ]
+  },
+  {
+    "coverage": {
+      "startedAt": "2026-09-19T04:19:34.493Z",
+      "packageKey": "it-cybersecurity@1.0.0",
+      "total": 22,
+      "detected": 22,
+      "missed": 0,
+      "percentage": 100,
+      "byCategory": [
+        {
+          "category": "wrong-facts",
+          "total": 2,
+          "detected": 2,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "duplicate-questions",
+          "total": 1,
+          "detected": 1,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "invalid-questions",
+          "total": 3,
+          "detected": 3,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "answer-key",
+          "total": 2,
+          "detected": 2,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "prerequisites",
+          "total": 3,
+          "detected": 3,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "objective-mismatch",
+          "total": 1,
+          "detected": 1,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "untaught-assessment",
+          "total": 2,
+          "detected": 2,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "filler-content",
+          "total": 3,
+          "detected": 3,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "broken-sources",
+          "total": 3,
+          "detected": 3,
+          "percentage": 100,
+          "missed": []
+        },
+        {
+          "category": "schema-valid-poor",
+          "total": 2,
+          "detected": 2,
+          "percentage": 100,
+          "missed": []
+        }
+      ],
+      "outcomes": [
+        {
+          "injectionId": "inj-fact-arithmetic",
+          "category": "wrong-facts",
+          "description": "A lesson states arithmetic that does not hold.",
+          "detected": true,
+          "rulesFired": [
+            "content.lesson-numbers-hold-up"
+          ],
+          "subjectIds": [
+            "lesson:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.lesson-numbers-hold-up",
+              "severity": "blocking",
+              "subjectId": "lesson:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "20% of 50 is 15, -> 20% of 50 is 10, not 15,."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-fact-units",
+          "category": "wrong-facts",
+          "description": "A question explanation mixes up two families of units.",
+          "detected": true,
+          "rulesFired": [
+            "questions.numbers-hold-up"
+          ],
+          "subjectIds": [
+            "question:it-cybersecurity:question:question-hardware-ram-storage"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.numbers-hold-up",
+              "severity": "blocking",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-ram-storage",
+              "detail": "1 GB = 1024 MB -> The two sides do not match. 1 GB is 1,000,000,000 bytes and 1024 MB is 1,024,000,000 bytes. Decimal units step by 1000 and binary units (KiB, MiB, GiB) step by 1024."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-duplicate-question",
+          "category": "duplicate-questions",
+          "description": "The same question is asked twice under two ids.",
+          "detected": true,
+          "rulesFired": [
+            "questions.not-repeated"
+          ],
+          "subjectIds": [
+            "question:it-cybersecurity:question:question-hardware-ram-storage-copy"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.not-repeated",
+              "severity": "warning",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-ram-storage-copy",
+              "detail": "The same question is already asked as it-cybersecurity:question:question-hardware-ram-storage."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-question-two-options",
+          "category": "invalid-questions",
+          "description": "A multiple choice question is left with only two options.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound"
+          ],
+          "subjectIds": [
+            "question:it-cybersecurity:question:question-hardware-ram-storage"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-ram-storage",
+              "detail": "fewer than four options"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-question-throwaway-options",
+          "category": "invalid-questions",
+          "description": "Wrong options are replaced with meaningless filler.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound"
+          ],
+          "subjectIds": [
+            "question:it-cybersecurity:question:question-hardware-power-diagnosis"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-power-diagnosis",
+              "detail": "a wrong option carries no subject meaning"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-question-not-a-question",
+          "category": "invalid-questions",
+          "description": "A prompt is replaced with a fragment that asks nothing.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound"
+          ],
+          "subjectIds": [
+            "question:it-cybersecurity:question:question-hardware-psu-capacity"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-psu-capacity",
+              "detail": "prompt is not a question"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-answer-out-of-range",
+          "category": "answer-key",
+          "description": "The marked answer points outside the list of options.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound",
+            "questions.sound"
+          ],
+          "subjectIds": [
+            "question:it-cybersecurity:question:question-hardware-ram-storage"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.sound",
+              "severity": "blocking",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-ram-storage",
+              "detail": "The marked answer is not one of the options."
+            },
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-ram-storage",
+              "detail": "no correct answer recorded"
+            },
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-ram-storage",
+              "detail": "the number of correct answers does not match the question type"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-answer-two-correct",
+          "category": "answer-key",
+          "description": "Two options say exactly the same thing, so two answers are correct.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound",
+            "questions.sound"
+          ],
+          "subjectIds": [
+            "question:it-cybersecurity:question:question-hardware-power-diagnosis"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.sound",
+              "severity": "blocking",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-power-diagnosis",
+              "detail": "Two options say the same thing."
+            },
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-power-diagnosis",
+              "detail": "two options say the same thing"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-prerequisite-missing",
+          "category": "prerequisites",
+          "description": "A section requires something that is not in the subject.",
+          "detected": true,
+          "rulesFired": [
+            "structure.prerequisites-resolve"
+          ],
+          "subjectIds": [
+            "prerequisite:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "structure.prerequisites-resolve",
+              "severity": "blocking",
+              "subjectId": "prerequisite:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "A prerequisite points at a section that is not in this package."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-prerequisite-self",
+          "category": "prerequisites",
+          "description": "A section is made a prerequisite of itself.",
+          "detected": true,
+          "rulesFired": [
+            "structure.prerequisites-acyclic"
+          ],
+          "subjectIds": [
+            "prerequisite:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "structure.prerequisites-acyclic",
+              "severity": "blocking",
+              "subjectId": "prerequisite:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "A section requires itself."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-prerequisite-cycle",
+          "category": "prerequisites",
+          "description": "Two sections require each other, so neither can ever be started.",
+          "detected": true,
+          "rulesFired": [
+            "structure.prerequisites-acyclic"
+          ],
+          "subjectIds": [
+            "prerequisite:it-cybersecurity:section:topic-operating-systems-overview"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "structure.prerequisites-acyclic",
+              "severity": "blocking",
+              "subjectId": "prerequisite:it-cybersecurity:section:topic-operating-systems-overview",
+              "detail": "Prerequisites form a loop: it-cybersecurity:section:topic-operating-systems-overview -> it-cybersecurity:section:topic-computer-hardware-basics -> it-cybersecurity:section:topic-operating-systems-overview."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-lesson-off-objective",
+          "category": "objective-mismatch",
+          "description": "A lesson teaches something unrelated to every objective its section claims.",
+          "detected": true,
+          "rulesFired": [
+            "content.lesson-matches-objectives"
+          ],
+          "subjectIds": [
+            "lesson:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.lesson-matches-objectives",
+              "severity": "warning",
+              "subjectId": "lesson:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "The lesson shares no subject matter with any objective the section claims to teach."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-assessment-untaught-objective",
+          "category": "untaught-assessment",
+          "description": "A paper tests an objective no section teaches.",
+          "detected": true,
+          "rulesFired": [
+            "papers.covers-taught-material"
+          ],
+          "subjectIds": [
+            "assessment:it-cybersecurity:assessment:stage-exam-1"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "papers.covers-taught-material",
+              "severity": "warning",
+              "subjectId": "assessment:it-cybersecurity:assessment:stage-exam-1",
+              "detail": "The paper tests objective it-cybersecurity-objective-never-taught, which no section teaches."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-assessment-wrong-size",
+          "category": "untaught-assessment",
+          "description": "A paper declares a length the subject does not allow.",
+          "detected": true,
+          "rulesFired": [
+            "papers.stage-exam-whole"
+          ],
+          "subjectIds": [
+            "assessment:it-cybersecurity:assessment:stage-exam-1"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "papers.stage-exam-whole",
+              "severity": "blocking",
+              "subjectId": "assessment:it-cybersecurity:assessment:stage-exam-1",
+              "detail": "The assessment declares 57 questions; this package requires exactly 50."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-lesson-empty",
+          "category": "filler-content",
+          "description": "A lesson body is emptied out.",
+          "detected": true,
+          "rulesFired": [
+            "content.no-filler"
+          ],
+          "subjectIds": [
+            "lesson:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.no-filler",
+              "severity": "warning",
+              "subjectId": "lesson:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "The lesson body is only 0 characters."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-lesson-repetitive",
+          "category": "filler-content",
+          "description": "A lesson repeats one sentence to reach a length.",
+          "detected": true,
+          "rulesFired": [
+            "content.no-filler"
+          ],
+          "subjectIds": [
+            "lesson:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.no-filler",
+              "severity": "warning",
+              "subjectId": "lesson:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "The lesson repeats the same sentences instead of teaching."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-lesson-placeholder",
+          "category": "filler-content",
+          "description": "A lesson still contains placeholder text.",
+          "detected": true,
+          "rulesFired": [
+            "content.no-filler"
+          ],
+          "subjectIds": [
+            "lesson:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.no-filler",
+              "severity": "warning",
+              "subjectId": "lesson:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "The lesson still contains placeholder text."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-source-placeholder-host",
+          "category": "broken-sources",
+          "description": "A reference points at a placeholder address.",
+          "detected": true,
+          "rulesFired": [
+            "content.sources-usable"
+          ],
+          "subjectIds": [
+            "source:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.sources-usable",
+              "severity": "blocking",
+              "subjectId": "source:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "\"https://example.com/definitive-guide\" points at a placeholder address, not a real reference."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-source-not-a-url",
+          "category": "broken-sources",
+          "description": "A reference is not a web address at all.",
+          "detected": true,
+          "rulesFired": [
+            "content.sources-usable"
+          ],
+          "subjectIds": [
+            "source:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.sources-usable",
+              "severity": "blocking",
+              "subjectId": "source:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "\"see the handbook, chapter four\" is not a plain https web address."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-source-unlabelled",
+          "category": "broken-sources",
+          "description": "A reference has no usable label.",
+          "detected": true,
+          "rulesFired": [
+            "content.sources-usable"
+          ],
+          "subjectIds": [
+            "source:it-cybersecurity:section:topic-computer-hardware-basics"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.sources-usable",
+              "severity": "blocking",
+              "subjectId": "source:it-cybersecurity:section:topic-computer-hardware-basics",
+              "detail": "A source for this section has no usable label."
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-poor-but-valid-question",
+          "category": "schema-valid-poor",
+          "description": "A question is perfectly shaped but gives itself away by answer length.",
+          "detected": true,
+          "rulesFired": [
+            "questions.multiple-choice-sound"
+          ],
+          "subjectIds": [
+            "question:it-cybersecurity:question:question-hardware-ram-storage"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "questions.multiple-choice-sound",
+              "severity": "warning",
+              "subjectId": "question:it-cybersecurity:question:question-hardware-ram-storage",
+              "detail": "the correct answer is far longer than every wrong option"
+            }
+          ]
+        },
+        {
+          "injectionId": "inj-poor-but-valid-lesson",
+          "category": "schema-valid-poor",
+          "description": "A lesson is long enough and well shaped but teaches nothing specific.",
+          "detected": true,
+          "rulesFired": [
+            "content.no-filler"
+          ],
+          "subjectIds": [
+            "lesson:it-cybersecurity:section:topic-operating-systems-overview"
+          ],
+          "newFindings": [
+            {
+              "ruleId": "content.no-filler",
+              "severity": "warning",
+              "subjectId": "lesson:it-cybersecurity:section:topic-operating-systems-overview",
+              "detail": "The lesson repeats the same sentences instead of teaching."
+            }
+          ]
+        }
+      ],
+      "weaknesses": []
+    },
+    "loops": [
+      {
+        "injectionId": "inj-fact-arithmetic",
+        "category": "wrong-facts",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-fact-units",
+        "category": "wrong-facts",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-duplicate-question",
+        "category": "duplicate-questions",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-question-two-options",
+        "category": "invalid-questions",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-question-throwaway-options",
+        "category": "invalid-questions",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-question-not-a-question",
+        "category": "invalid-questions",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-answer-out-of-range",
+        "category": "answer-key",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-answer-two-correct",
+        "category": "answer-key",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-prerequisite-missing",
+        "category": "prerequisites",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-prerequisite-self",
+        "category": "prerequisites",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-prerequisite-cycle",
+        "category": "prerequisites",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-lesson-off-objective",
+        "category": "objective-mismatch",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-assessment-untaught-objective",
+        "category": "untaught-assessment",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-assessment-wrong-size",
+        "category": "untaught-assessment",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain.",
+          "autonomy.assessment.exact-size: an assessment does not match its declared size."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-lesson-empty",
+        "category": "filler-content",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-lesson-repetitive",
+        "category": "filler-content",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-lesson-placeholder",
+        "category": "filler-content",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-source-placeholder-host",
+        "category": "broken-sources",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-source-not-a-url",
+        "category": "broken-sources",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-source-unlabelled",
+        "category": "broken-sources",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "2 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-poor-but-valid-question",
+        "category": "schema-valid-poor",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      },
+      {
+        "injectionId": "inj-poor-but-valid-lesson",
+        "category": "schema-valid-poor",
+        "detectedBeforeCorrection": true,
+        "decisionBeforeCorrection": "reject",
+        "decisionAfterCorrection": "reject",
+        "cleanAfterCorrection": true,
+        "reasonsBefore": [
+          "1 blocking package findings remain."
+        ],
+        "reasonsAfter": [
+          "1 blocking package findings remain."
+        ]
+      }
+    ]
+  }
+]

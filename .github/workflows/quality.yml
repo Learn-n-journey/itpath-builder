@@ -20,6 +20,9 @@ jobs:
         run: bun run gate
       - name: Domain-neutral autonomy proof
         run: bun run autonomy
+
+      - name: Adversarial stress test
+        run: bun run stress
       - uses: actions/upload-artifact@v4
         if: always()
         with:

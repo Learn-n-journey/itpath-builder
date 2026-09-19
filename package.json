@@ -22,7 +22,8 @@
     "domain": "bun run scripts/domain-pipeline.ts",
     "domain:activate": "bun run scripts/domain-activate.ts",
     "domain:rollback": "bun run scripts/domain-activate.ts --rollback",
-    "autonomy": "bun run scripts/autonomy-core.ts"
+    "autonomy": "bun run scripts/autonomy-core.ts",
+    "stress": "bun run scripts/stress-adversarial.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
