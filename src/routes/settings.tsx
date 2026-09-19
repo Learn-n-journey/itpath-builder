@@ -82,8 +82,10 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
   const [subjectKey, setSubjectKey] = useState<string>(ACTIVE_PACKAGE_KEY);
+  const [subjectReady, setSubjectReady] = useState(false);
   useEffect(() => {
     setSubjectKey(activeDomainKey());
+    setSubjectReady(true);
   }, []);
   const { theme, resolvedTheme, setTheme } = useTheme();
   const { email } = useAuth();
