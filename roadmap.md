@@ -76,6 +76,6 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] QA finding: auto Journey Map stages now named after ASE certifications
 - [x] QA finding: subject choice mirrored to a cookie so refresh no longer serves IT first
 
-- [ ] Question-quality gate: reject generic/title-restating questions, recognition-only vocabulary checks, absolute or obviously false distractors, and near-duplicates within a section; regenerate instead of accepting. Applies to every subject.
-- [ ] Regenerate all question banks under the new quality checks once the checks are in place.
-- [ ] Drop every question that fails the quality checks instead of keeping it in the course.
+- [x] Question-quality gate: reject generic/title-restating questions, recognition-only vocabulary checks, absolute or obviously false distractors, and near-duplicates within a section; regenerate instead of accepting. Applies to every subject.
+- [x] Regenerate all question banks under the new quality checks once the checks are in place.
+- [x] Drop every question that fails the quality checks instead of keeping it in the course.
