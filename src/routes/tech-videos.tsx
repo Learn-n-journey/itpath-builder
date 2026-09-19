@@ -157,14 +157,45 @@ function ChannelCard({ channel }: { channel: ChannelInfo }) {
 
 function TechVideosPage() {
   const fetchVideos = useServerFn(getTechVideos);
+  const fetchPage = useServerFn(getVideoPage);
   const [active, setActive] = useState<VideoCategory | "All">("All");
   const [playing, setPlaying] = useState<string | null>(null);
+  const sentinel = useRef<HTMLDivElement | null>(null);
 
   const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["tech-videos"],
     queryFn: () => fetchVideos(),
     staleTime: 15 * 60 * 1000,
   });
+
+  const feed = useInfiniteQuery({
+    queryKey: ["tech-videos-feed"],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => fetchPage({ data: { page: pageParam as number } }),
+    getNextPageParam: (last) => last.nextPage,
+    staleTime: 15 * 60 * 1000,
+  });
+
+  const feedVideos = useMemo(() => feed.data?.pages.flatMap((page) => page.videos) ?? [], [feed.data]);
+  const shownFeed = useMemo(
+    () => (active === "All" ? feedVideos : feedVideos.filter((video) => video.category === active)),
+    [feedVideos, active],
+  );
+
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = feed;
+  useEffect(() => {
+    const node = sentinel.current;
+    if (!node || !hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) void fetchNextPage();
+      },
+      { rootMargin: "600px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, shownFeed.length]);
+
 
   const videos = useMemo(() => data ?? [], [data]);
   const usingChannels = !isLoading && videos.length === 0;
