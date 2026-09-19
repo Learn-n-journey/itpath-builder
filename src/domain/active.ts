@@ -1,14 +1,20 @@
 /**
  * The active domain.
  *
- * This is the single switch that says which subject the app is teaching.
- * To run another subject, write its definition next to `it.ts` and re-point
- * this export. Nothing in the engine reads any other domain file.
+ * The app reads the subject from the registry rather than importing one by
+ * name, so switching subject is a registry change and nothing else. Keep
+ * importing `domain` from here; that has not changed.
  */
-import { itDomain } from "./it";
+import { activeEntry, ACTIVE_PACKAGE } from "./registry";
 import type { DomainDefinition } from "./types";
 
-export const domain: DomainDefinition = itDomain;
+const entry = activeEntry();
+
+export const domain: DomainDefinition = entry.definition;
+
+/** Which package version the app is running, for logs and the about page. */
+export const activeDomainKey = ACTIVE_PACKAGE;
+export const activeDomainManifest = entry.manifest;
 
 export type { DomainDefinition } from "./types";
 export { capitalise } from "./types";
