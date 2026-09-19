@@ -70,7 +70,7 @@ const STEPS: Step[] = [
     title: "Meet GAYL, your study companion",
     body: "When a concept feels unclear, just ask. GAYL breaks things down in plain language, adapting directly to what you are studying and where you need clarity—always patient, supportive, and free of jargon.",
     points: [
-      "Conversational explanations that make sense",
+      "Easy to understand explanations",
       "Contextual awareness of where you need help",
       "Unwavering patience every step of the way",
     ],
@@ -180,7 +180,7 @@ export function WelcomeTour() {
                 <Icon className="size-5" aria-hidden />
               </span>
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+                <p className="tour-word-fade text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground [--tour-delay:60ms]">
                   {step.eyebrow}
                 </p>
                 <h2 className="font-display text-xl font-semibold tracking-tight">{step.title}</h2>

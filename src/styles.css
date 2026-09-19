@@ -488,6 +488,20 @@ html.light {
   animation-delay: var(--tour-delay, 0ms);
 }
 
+.tour-word-fade {
+  animation: word-fade 620ms ease-out both;
+  animation-delay: var(--tour-delay, 0ms);
+}
+
+@keyframes word-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .tour-action {
   transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   transition-duration: 160ms;
