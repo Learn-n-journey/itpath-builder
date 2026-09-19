@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { BetaAccessPanel } from "@/components/beta-access-panel";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { ProfileNamePanel } from "@/components/profile-name-panel";
+import { WelcomeSetup } from "@/components/onboarding/welcome-setup";
+import { restartTour } from "@/lib/onboarding";
 import { SiteEngagementPanel } from "@/components/site-engagement-panel";
 
 
@@ -109,6 +111,8 @@ function SettingsPage() {
         title="Settings"
         description="Your study plan. Changes save to this device the moment you make them."
       />
+
+      <WelcomeSetup />
 
       <div className="mb-4">
         <ProfileNamePanel />
@@ -337,6 +341,23 @@ function SettingsPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+      </Panel>
+
+      <Panel
+        className="mt-4"
+        title="Guided tour"
+        description="Replay the short walkthrough of the main features."
+      >
+        <Button
+          variant="secondary"
+          onClick={() => {
+            restartTour();
+            toast.success("Tour restarted.");
+            window.location.assign("/");
+          }}
+        >
+          Replay the tour
+        </Button>
       </Panel>
 
       <SiteEngagementPanel />
