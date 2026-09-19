@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -194,7 +194,7 @@ export function WelcomeTour() {
                 <li
                   key={point}
                   className="tour-content-enter flex items-center gap-2.5 rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-sm"
-                  style={{ "--tour-delay": `${220 + i * 80}ms` } as React.CSSProperties}
+                  style={{ "--tour-delay": `${220 + i * 80}ms` } as CSSProperties}
                 >
                   <Sparkles className="size-3.5 shrink-0 text-primary" aria-hidden />
                   {point}
