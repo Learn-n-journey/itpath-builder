@@ -98,4 +98,12 @@ describe("answer choices match the format requested by the question", () => {
     );
     expect(questionIssues(question)).toContain("prompt relies on negative or exception wording instead of demonstrating knowledge");
   });
+
+  it("rejects a prompt that gives away its own answer", () => {
+    const question = item(
+      "A diagnostic note explicitly identifies HTTPS as the service on port 443. Which service is configured?",
+      ["HTTPS", "SSH", "DNS", "SMTP"],
+    );
+    expect(questionIssues(question)).toContain("the prompt reveals the correct answer verbatim");
+  });
 });

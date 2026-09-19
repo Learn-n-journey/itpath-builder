@@ -217,6 +217,14 @@ export function questionIssues(question: Question): string[] {
     issues.push("the number of correct answers does not match the question type");
   }
   if (answers.length >= choices.length) issues.push("every option is marked correct");
+  if (answers.some((answer) => answer.length >= 4 && norm(prompt).includes(norm(answer)))) {
+    issues.push("the prompt reveals the correct answer verbatim");
+  }
+
+  const explanation = question.explanation?.trim() ?? "";
+  if (explanation && answers.some((answer) => norm(explanation) === norm(answer))) {
+    issues.push("the explanation only repeats the answer without teaching why");
+  }
 
   issues.push(...answerFormatIssues(question));
 
