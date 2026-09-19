@@ -18,7 +18,8 @@
     "lint:content": "bun run scripts/content-lint.ts",
     "audit": "bun run scripts/content-audit.ts",
     "gate": "bun run scripts/quality-gate.ts",
-    "lighthouse": "bunx --bun @lhci/cli@0.15.x autorun"
+    "lighthouse": "bunx --bun @lhci/cli@0.15.x autorun",
+    "domain": "bun run scripts/domain-pipeline.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
