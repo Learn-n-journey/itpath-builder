@@ -6,6 +6,19 @@ function totals(snapshot: HealthSnapshot): { graded: number; failures: number } 
 }
 
 export function decideMonitoring(baseline: HealthSnapshot, current: HealthSnapshot, thresholds: AutonomyThresholds, now: Date = new Date()): MonitoringDecision {
+  if (baseline.domainId !== current.domainId || baseline.ruleVersion !== current.ruleVersion) {
+    return {
+      id: stableId("monitor", baseline.id, current.id, "wait"),
+      packageKey: current.packageKey,
+      action: "wait",
+      reasons: ["Monitoring requires snapshots from the same domain and rule version."],
+      baselineScore: baseline.overallScore,
+      currentScore: current.overallScore,
+      baselineFailureRate: 0,
+      currentFailureRate: 0,
+      decidedAt: now.toISOString(),
+    };
+  }
   const before = totals(baseline);
   const after = totals(current);
   const baselineFailureRate = before.graded === 0 ? 0 : before.failures / before.graded;

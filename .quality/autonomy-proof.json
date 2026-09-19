@@ -4,6 +4,9 @@
   "aiAuthority": "none",
   "generatedAt": "2026-09-19T03:30:00.000Z",
   "testsPassed": true,
+  "failureMemoryApplied": "autonomy-rules@1.0.0+memory.2",
+  "learnedRuleVersion": "autonomy-rules@1.0.0+memory.2",
+  "safeguardsStrengthened": true,
   "domains": [
     {
       "packageKey": "auto-repair@1.0.0",
@@ -12,6 +15,7 @@
       "findings": 18,
       "candidates": 6,
       "approvals": 6,
+      "deploymentCount": 1,
       "monitoring": "rollback",
       "rollbackCount": 1
     },
@@ -22,6 +26,7 @@
       "findings": 37,
       "candidates": 16,
       "approvals": 16,
+      "deploymentCount": 1,
       "monitoring": "rollback",
       "rollbackCount": 1
     }

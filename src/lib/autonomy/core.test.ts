@@ -90,6 +90,16 @@ describe("domain-neutral Autonomy Core", () => {
     expect({ deployed, rolledBack }).toEqual({ deployed: 1, rolledBack: 1 });
   }, 30_000);
 
+  it("refuses to compare different domains or rule versions", async () => {
+    const loaded = await packages();
+    const first = loaded[0];
+    const second = loaded[1];
+    if (!first || !second) throw new Error("Two domain packages are required.");
+    const baseline = runAutonomyCore({ pkg: first, evidence: evidence(first, "strong"), now: NOW });
+    const current = runAutonomyCore({ pkg: second, evidence: evidence(second, "weak"), now: NOW });
+    expect(monitorDeployment(baseline.snapshot, current.snapshot, NOW).action).toBe("wait");
+  }, 30_000);
+
   it("records failures with stable ids and strengthens future prevention thresholds", () => {
     const failure = failureFromDecision("sample", "sample@1.0.1", null, "Health degraded", "Weak correction", "Rollback", "Regression passed but monitoring failed", AUTONOMY_RULES.degradation, "rolled-back", NOW);
     const repeat = failureFromDecision("sample", "sample@1.0.1", null, "Health degraded", "Weak correction", "Rollback", "Regression passed but monitoring failed", AUTONOMY_RULES.degradation, "rolled-back", NOW);

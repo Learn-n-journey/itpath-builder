@@ -59,4 +59,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Require package validation, exact assessment sizes and regression success before approval.
 - [x] Monitor protected metrics and choose keep, wait or rollback deterministically.
 - [x] Keep append-only autonomy decisions and permanent failure memory that strengthens future prevention thresholds.
-- [ ] Prove the unchanged core against IT and Auto Repair, including degradation rollback.
+- [x] Prove the unchanged core against IT and Auto Repair, including degradation rollback.
