@@ -15,6 +15,13 @@ const pack = coursePack;
 describe("course pack", () => {
   it("describes its subject", () => {
     expect(pack.subject.field.length).toBeGreaterThan(2);
+    expect(pack.domain.id.length).toBeGreaterThan(2);
+    expect(pack.domain.appName.length).toBeGreaterThan(1);
+    // The pack and the wording have to be talking about the same subject.
+    expect(pack.domain.field).toBe(pack.subject.field);
+    expect(pack.domain.vocabulary.qualification).toBe(pack.subject.qualificationWord);
+    // A new learner has to start on a qualification this pack actually holds.
+    expect(pack.qualifications.map((item) => item.title)).toContain(pack.domain.defaultQualification);
     expect(pack.subject.qualificationWord.length).toBeGreaterThan(2);
     expect(pack.qualifications.length).toBeGreaterThan(0);
     expect(pack.sections.length).toBeGreaterThan(0);
