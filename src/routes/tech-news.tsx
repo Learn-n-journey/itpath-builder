@@ -1,12 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ExternalLink, RefreshCw } from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { getTechNews, NEWS_CATEGORIES, type NewsArticle, type NewsCategory } from "@/lib/tech-news.functions";
+import {
+  getNewsPage,
+  getTechNews,
+  NEWS_CATEGORIES,
+  type NewsArticle,
+  type NewsCategory,
+} from "@/lib/tech-news.functions";
 
 export const Route = createFileRoute("/tech-news")({
   staticData: { sitemap: true },
