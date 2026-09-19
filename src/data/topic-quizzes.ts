@@ -343,7 +343,7 @@ function statementItem(
     question: question({
       id: `section-${topicId}-${kind}-${index}`,
       topicId,
-      prompt: prompt.replace("{topic}", subject).replace("{section}", topicTitle),
+      prompt: prompt.replace("{topic}", askedAbout).replace("{section}", topicTitle),
       choices: withAnswerPlaced(answer, wrong, index + 1),
       correctAnswer: [answer],
       acceptableAnswers: [answer],
