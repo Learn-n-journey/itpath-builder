@@ -5,8 +5,8 @@ import { registry } from "@/domain/registry";
 import type { DomainPackage } from "@/domain/package";
 import type { LearnerSignal } from "@/lib/app-data/types";
 import { approveCandidate, failureFromDecision, monitorDeployment, runAutonomyCore, validateCandidate } from "@/lib/autonomy/core";
-import { enforceMonitoringDecision } from "@/lib/autonomy/lifecycle";
-import { appendFailure, readFailureMemory, recordRun } from "@/lib/autonomy/ledger.server";
+import { deployApprovedCandidate, enforceMonitoringDecision } from "@/lib/autonomy/lifecycle";
+import { appendAutonomyEntry, appendFailure, readFailureMemory, recordRun } from "@/lib/autonomy/ledger.server";
 import { AUTONOMY_RULES, thresholdsFromFailureMemory } from "@/lib/autonomy/rules";
 
 const now = new Date("2026-09-19T03:30:00.000Z");
@@ -44,18 +44,26 @@ for (const entry of Object.values(registry)) {
   stage("diagnose", `${degraded.snapshot.findings.length} findings produced by versioned rules`);
   const decisions = degraded.candidates.map((candidate) => approveCandidate(candidate, validateCandidate(pkg, testsPassed), now));
   const monitoring = monitorDeployment(baseline.snapshot, degraded.snapshot, now, thresholds);
+  let deploymentCount = 0;
   let rollbackCount = 0;
-  await enforceMonitoringDecision(monitoring, {
-    deploy: async () => ({ ok: true, detail: "Proof deployment adapter accepted an approved candidate." }),
+  const proofAdapter = {
+    deploy: async () => { deploymentCount += 1; return { ok: true, detail: "Proof deployment adapter accepted an approved candidate." }; },
     rollback: async () => { rollbackCount += 1; return { ok: true, detail: "Proof deployment adapter restored the baseline version." }; },
-  });
+  };
+  const firstCandidate = degraded.candidates[0];
+  const firstDecision = decisions[0];
+  if (firstCandidate && firstDecision) {
+    const deployment = await deployApprovedCandidate(firstCandidate, firstDecision, proofAdapter);
+    appendAutonomyEntry({ at: now.toISOString(), stage: "deploy", domainId: pkg.manifest.id, packageKey: pkg.manifest.key, candidateId: firstCandidate.id, detail: deployment.detail });
+  }
+  await enforceMonitoringDecision(monitoring, proofAdapter);
   recordRun({ snapshot: degraded.snapshot, candidates: degraded.candidates, decisions, monitoring });
   if (monitoring.action === "rollback") {
     const failure = failureFromDecision(pkg.manifest.id, pkg.manifest.key, degraded.candidates[0]?.id ?? null, "Protected learner outcomes degraded after deployment.", "The candidate failed post-deployment health thresholds.", "Restore the prior active package version.", `${testsPassed ? "Regression passed" : "Regression failed"}; monitoring required rollback.`, AUTONOMY_RULES.degradation, "rolled-back", now);
     appendFailure(failure);
   }
-  report.push({ packageKey: pkg.manifest.key, baselineHealth: baseline.snapshot.overallScore, degradedHealth: degraded.snapshot.overallScore, findings: degraded.snapshot.findings.length, candidates: degraded.candidates.length, approvals: decisions.filter((item) => item.action === "approve").length, monitoring: monitoring.action, rollbackCount });
-  stage("result", `${pkg.manifest.key}: ${monitoring.action}; ${rollbackCount} rollback`);
+  report.push({ packageKey: pkg.manifest.key, baselineHealth: baseline.snapshot.overallScore, degradedHealth: degraded.snapshot.overallScore, findings: degraded.snapshot.findings.length, candidates: degraded.candidates.length, approvals: decisions.filter((item) => item.action === "approve").length, deploymentCount, monitoring: monitoring.action, rollbackCount });
+  stage("result", `${pkg.manifest.key}: ${deploymentCount} deployment; ${monitoring.action}; ${rollbackCount} rollback`);
 }
 
 mkdirSync(".quality", { recursive: true });
