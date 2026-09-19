@@ -219,7 +219,78 @@ export const getTechNews = createServerFn({ method: "GET" }).handler(async () =>
       return true;
     })
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-    .slice(0, 150);
+    .slice(0, 250);
   if (articles.length > 0) cache = { at: Date.now(), articles };
   return articles;
 });
+
+/**
+ * Deeper pages come from Hacker News' public story index, which is paged and
+ * goes back indefinitely. Every item links to the original publisher.
+ */
+interface HackerNewsHit {
+  objectID?: string;
+  title?: string;
+  url?: string | null;
+  story_text?: string | null;
+  created_at?: string;
+  points?: number | null;
+  author?: string;
+}
+
+function hostLabel(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "Hacker News";
+  }
+}
+
+export interface NewsPage {
+  articles: NewsArticle[];
+  nextPage: number | null;
+}
+
+export const getNewsPage = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => {
+    const page = Number((data as { page?: unknown } | undefined)?.page ?? 0);
+    return { page: Number.isFinite(page) && page > 0 ? Math.min(Math.floor(page), 200) : 0 };
+  })
+  .handler(async ({ data }): Promise<NewsPage> => {
+    const params = new URLSearchParams({
+      tags: "story",
+      hitsPerPage: "24",
+      page: String(data.page),
+      numericFilters: "points>15",
+    });
+    try {
+      const response = await fetch(`https://hn.algolia.com/api/v1/search_by_date?${params.toString()}`, {
+        headers: { accept: "application/json" },
+        signal: AbortSignal.timeout(9000),
+      });
+      if (!response.ok) return { articles: [], nextPage: null };
+      const body = (await response.json()) as { hits?: HackerNewsHit[]; nbPages?: number };
+      const articles: NewsArticle[] = [];
+      for (const hit of body.hits ?? []) {
+        const title = hit.title?.trim();
+        const created = hit.created_at ? Date.parse(hit.created_at) : NaN;
+        if (!title || !hit.objectID || Number.isNaN(created)) continue;
+        const url = hit.url?.trim() || `https://news.ycombinator.com/item?id=${hit.objectID}`;
+        const summary = (hit.story_text ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 320);
+        articles.push({
+          id: `hn:${hit.objectID}`,
+          title,
+          summary,
+          url,
+          image: null,
+          source: hit.url ? hostLabel(hit.url) : "Hacker News",
+          category: categorise(`${title} ${summary}`, "Programming"),
+          publishedAt: new Date(created).toISOString(),
+        });
+      }
+      const more = body.nbPages ? data.page + 1 < body.nbPages : articles.length > 0;
+      return { articles, nextPage: more ? data.page + 1 : null };
+    } catch {
+      return { articles: [], nextPage: null };
+    }
+  });
