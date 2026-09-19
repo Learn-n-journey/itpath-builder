@@ -35,6 +35,8 @@ import {
   Video,
   type LucideIcon,
 } from "lucide-react";
+import { domain } from "@/domain/active";
+import type { DomainDefinition } from "@/domain/types";
 
 export interface NavItem {
   label: string;
@@ -45,9 +47,14 @@ export interface NavItem {
   description: string;
   /** True if this route is gated behind Pro. A small crown is shown in the sidebar. */
   pro?: boolean;
+  /**
+   * An outside feed this subject may not have. The item only appears when the
+   * active subject switches that feed on.
+   */
+  feed?: keyof DomainDefinition["feeds"];
 }
 
-export const navItems: NavItem[] = [
+const allNavItems: NavItem[] = [
   {
     label: "Dashboard",
     to: "/",
@@ -187,6 +194,7 @@ export const navItems: NavItem[] = [
   },
   {
     label: "Tech Jobs",
+    feed: "jobs",
     to: "/tech-jobs",
     icon: Building2,
     group: "Career",
@@ -224,6 +232,7 @@ export const navItems: NavItem[] = [
   },
   {
     label: "Tech News",
+    feed: "news",
     to: "/tech-news",
     icon: Newspaper,
     group: "Connect",
@@ -231,6 +240,7 @@ export const navItems: NavItem[] = [
   },
   {
     label: "Tech Videos",
+    feed: "videos",
     to: "/tech-videos",
     icon: Video,
     group: "Connect",
@@ -295,3 +305,6 @@ export const navItems: NavItem[] = [
 ];
 
 export const navGroups = ["Study", "Practice", "Career", "Connect", "You"] as const;
+
+/** Only the pages that make sense for the subject the app is running. */
+export const navItems: NavItem[] = allNavItems.filter((item) => !item.feed || domain.feeds[item.feed]);
