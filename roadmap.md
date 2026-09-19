@@ -44,3 +44,10 @@ Done when: typecheck + build clean, features verified in browser.
 - Engine, AI prompts, exports, structured data and navigation read the active subject.
 - `bun run domain -- brief.json`: generate -> independent QA audit -> targeted correction -> retest -> approve -> ledger.
 - Subject-level rules in the rule book; QA covered by `src/lib/domain/validate.test.ts`.
+
+## Versioned domain packages (done)
+- `src/domain/package.ts`: the package contract (manifest, definition, qualifications, sections, lessons, concepts, skills, prerequisites, questions, assessments, sources, rules) with stable `<domain>:<kind>:<slug>` ids.
+- `src/domain/registry.ts`: every subject version by `id@version`; `ACTIVE_PACKAGE` is the only live line. `src/domain/active.ts` reads it.
+- `src/content/packs/it-package.ts`: the shipped IT subject as a package; `src/domain/package.test.ts` holds it to the package audit.
+- `src/lib/domain/package-build.ts`, `package-audit.ts`, `activation.server.ts`, `emit.server.ts`: build, independently audit, write (isolated + versioned) and activate.
+- `bun run domain` = generate -> validate -> QA -> correct -> retest -> approve -> activate -> monitor; `bun run domain:activate`, `bun run domain:rollback`. Logged in `.quality/domain-activations.json`.

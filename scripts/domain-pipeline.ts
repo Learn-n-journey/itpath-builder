@@ -16,8 +16,13 @@
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
+import { spawnSync } from "node:child_process";
+
 import { auditDomainDraft, failingSections } from "@/lib/domain/validate";
-import { emitDraft } from "@/lib/domain/emit.server";
+import { emitPackage } from "@/lib/domain/emit.server";
+import { buildPackageFromDraft } from "@/lib/domain/package-build";
+import { auditPackage } from "@/lib/domain/package-audit";
+import { activatePackage } from "@/lib/domain/activation.server";
 import {
   correctSection,
   generateDefinition,
@@ -92,39 +97,70 @@ while (!audit.passed && round < MAX_ROUNDS) {
   stage("retest", `${audit.blocking} blocking remain after round ${round}`);
 }
 
-// 5. Approve.
-const approved = audit.passed;
-stage("approve", approved ? "draft is fit to write to disk" : "held back, writing it as a draft anyway so it can be read");
+// 5. Build the versioned package and audit the package itself.
+const version = (brief as { version?: string }).version ?? "1.0.0";
+const pkg = buildPackageFromDraft(draft, { version });
+const packageAudit = auditPackage(pkg);
+stage("qa", `package audit: ${packageAudit.blocking} blocking, ${packageAudit.warnings} warnings`);
 
-const emitted = emitDraft(draft);
-stage("approve", `written to ${emitted.folder}`);
+const approved = audit.passed && packageAudit.passed;
+stage("approve", approved ? "package is fit to activate" : "held back, written as a draft so it can be read and corrected");
 
-// 6. Monitor.
+// 6. Write it, isolated and versioned. Registration does not make it live.
+const emitted = emitPackage({ ...pkg, manifest: { ...pkg.manifest, status: approved ? "approved" : "draft" } });
+stage("approve", `written to ${emitted.folder}${emitted.registered ? " and registered" : ""}`);
+
+// 7. Regression tests, then activation — only when nothing blocking is open.
+let testsPassed = false;
+let activation = { activated: false, reason: "not attempted" };
+if (approved && !process.argv.includes("--no-activate")) {
+  stage("retest", "running the regression tests");
+  testsPassed = spawnSync("bun", ["run", "test"], { stdio: "inherit" }).status === 0;
+  stage("retest", testsPassed ? "regression tests passed" : "regression tests failed");
+  activation = activatePackage({
+    key: pkg.manifest.key,
+    blocking: audit.blocking + packageAudit.blocking,
+    warnings: audit.warnings + packageAudit.warnings,
+    testsPassed,
+    note: `Activated by the domain pipeline after ${round} correction rounds.`,
+  });
+  stage("activate", activation.reason);
+}
+
+// 8. Monitor.
 mkdirSync(".quality", { recursive: true });
 const history = existsSync(LEDGER) ? (JSON.parse(readFileSync(LEDGER, "utf8")) as unknown[]) : [];
 const byRule: Record<string, number> = {};
-for (const finding of audit.findings) byRule[finding.ruleId] = (byRule[finding.ruleId] ?? 0) + 1;
+for (const finding of [...audit.findings, ...packageAudit.findings]) {
+  byRule[finding.ruleId] = (byRule[finding.ruleId] ?? 0) + 1;
+}
 
 history.push({
   at: new Date().toISOString(),
   domainId: brief.id,
+  packageKey: pkg.manifest.key,
   approved,
+  activated: activation.activated,
+  testsPassed,
   rounds: round,
-  blocking: audit.blocking,
-  warnings: audit.warnings,
-  scope: audit.scope,
+  blocking: audit.blocking + packageAudit.blocking,
+  warnings: audit.warnings + packageAudit.warnings,
+  scope: pkg.manifest.scope,
   byRule,
 });
 writeFileSync(LEDGER, `${JSON.stringify(history.slice(-100), null, 2)}\n`);
 stage("monitor", `run recorded in ${LEDGER}`);
 
-if (audit.findings.length) {
+const allFindings = [...audit.findings, ...packageAudit.findings];
+if (allFindings.length) {
   console.log("\nFindings:");
-  for (const line of summariseFindings(audit.findings)) console.log(`   ${line}`);
+  for (const line of summariseFindings(allFindings)) console.log(`   ${line}`);
 }
 
 console.log(
-  `\nNext: activate the subject by pointing src/domain/active.ts and src/content/course-pack.ts at ${emitted.folder}, then run bun run gate.`,
+  activation.activated
+    ? `\n${pkg.manifest.key} is live. Roll back with: bun run domain:rollback`
+    : `\nNot live. Fix the blocking findings, regenerate, then: bun run domain:activate -- ${pkg.manifest.key}`,
 );
 
 process.exit(approved ? 0 : 1);

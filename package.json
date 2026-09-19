@@ -19,7 +19,9 @@
     "audit": "bun run scripts/content-audit.ts",
     "gate": "bun run scripts/quality-gate.ts",
     "lighthouse": "bunx --bun @lhci/cli@0.15.x autorun",
-    "domain": "bun run scripts/domain-pipeline.ts"
+    "domain": "bun run scripts/domain-pipeline.ts",
+    "domain:activate": "bun run scripts/domain-activate.ts",
+    "domain:rollback": "bun run scripts/domain-activate.ts --rollback"
   },
   "overrides": {
     "rolldown": "1.2.1"
