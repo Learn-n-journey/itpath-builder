@@ -27,11 +27,15 @@ export const VIDEO_CATEGORIES: VideoCategory[] = [
   "Troubleshooting",
 ];
 
+export type VideoPlatform = "YouTube" | "PeerTube";
+
 export interface TechVideo {
   id: string;
   /** Platform video id used by the official embed player. */
   videoId: string;
-  platform: "YouTube";
+  platform: VideoPlatform;
+  /** Full embed URL on the platform that published the video. */
+  embedUrl: string;
   title: string;
   summary: string;
   /** Link to the video on the platform it was published on. */
