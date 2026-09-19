@@ -166,7 +166,7 @@ function SettingsPage() {
               ))}
             </SelectContent>
           </Select>
-          {subjectKey !== activeDomainKey() ? (
+          {subjectReady && subjectKey !== activeDomainKey() ? (
             <Button
               className="mt-3"
               onClick={() => {
