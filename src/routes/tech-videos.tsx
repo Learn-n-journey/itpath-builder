@@ -172,7 +172,7 @@ function TechVideosPage() {
   const [active, setActive] = useState<VideoCategory | "All">("All");
   const [playing, setPlaying] = useState<string | null>(null);
 
-  const { data, isLoading, isFetching, refetch, isError } = useQuery({
+  const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["tech-videos"],
     queryFn: () => fetchVideos(),
     staleTime: 15 * 60 * 1000,
