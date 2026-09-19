@@ -128,9 +128,12 @@ function TechNewsPage() {
 
   const articles = useMemo(() => data ?? [], [data]);
   const available = useMemo(() => {
-    const present = new Set(articles.map((article) => article.category));
+    const present = new Set<NewsCategory>([
+      ...articles.map((article) => article.category),
+      ...feedArticles.map((article) => article.category),
+    ]);
     return NEWS_CATEGORIES.filter((category) => present.has(category));
-  }, [articles]);
+  }, [articles, feedArticles]);
   const shown = useMemo(
     () => (active === "All" ? articles : articles.filter((article) => article.category === active)),
     [articles, active],
