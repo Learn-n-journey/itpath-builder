@@ -160,11 +160,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
           <BackButton className="mb-4" />
           <StudyTabs />
-          <div key={pathname} className="page-enter">
+          <div key={pathname} className="page-enter" data-page-content>
             {children}
-          </div>
-          <div className="mt-10 border-t border-border pt-4">
-            <BackButton />
           </div>
         </div>
         <MilestoneOverlay />
