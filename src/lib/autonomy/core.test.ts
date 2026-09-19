@@ -12,16 +12,18 @@ const NOW = new Date("2026-09-19T03:30:00.000Z");
 function evidence(pkg: DomainPackage, outcome: "strong" | "weak", count = 30): LearnerSignal[] {
   const section = pkg.sections.find((item) => pkg.prerequisites.some((link) => link.sectionId === item.id)) ?? pkg.sections[0];
   if (!section) throw new Error("Fixture package has no sections.");
-  return Array.from({ length: count }, (_, index) => ({
-    id: `signal-${index}`,
-    topicId: index % 2 === 0 ? section.id : section.slug,
-    kind: index % 3 === 0 ? "recall" : "quiz",
-    correct: outcome === "strong" ? true : index % 5 === 0,
-    score: outcome === "strong" ? 1 : index % 5 === 0 ? 0.8 : 0.2,
-    errorTag: outcome === "weak" ? "repeated-model-error" : undefined,
-    elapsedMs: 20_000,
-    at: new Date(NOW.getTime() - (count - index) * 60_000).toISOString(),
-  }));
+  return Array.from({ length: count }, (_, index) => {
+    const signal: LearnerSignal = {
+      id: `signal-${index}`,
+      topicId: index % 2 === 0 ? section.id : section.slug,
+      kind: index % 3 === 0 ? "recall" : "quiz",
+      correct: outcome === "strong" ? true : index % 5 === 0,
+      score: outcome === "strong" ? 1 : index % 5 === 0 ? 0.8 : 0.2,
+      elapsedMs: 20_000,
+      at: new Date(NOW.getTime() - (count - index) * 60_000).toISOString(),
+    };
+    return outcome === "weak" ? { ...signal, errorTag: "repeated-model-error" } : signal;
+  });
 }
 
 async function packages(): Promise<DomainPackage[]> {

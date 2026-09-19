@@ -1,0 +1,770 @@
+[
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "observe",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "snapshotId": "ac-c10a8d5a",
+    "detail": "30 signals; 18 findings; health 0.000."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-0633b565",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-08193c66",
+    "detail": "review-content: A misconception has repeated. Failures have repeated. Recent retained performance is below threshold. Measured mastery is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-30208214",
+    "detail": "review-content: Failures have repeated. Measured mastery is below threshold. Recent retained performance is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-3f110a90",
+    "detail": "repair-assessment: Failures have repeated. Measured mastery is below threshold. A misconception has repeated. Recent retained performance is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-8703a97c",
+    "detail": "review-content: Measured mastery is below threshold. Failures have repeated. Recent retained performance is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-f9baab8a",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-0633b565",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-08193c66",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-30208214",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-3f110a90",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-8703a97c",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-f9baab8a",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "rollback",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "snapshotId": "ac-c10a8d5a",
+    "detail": "rollback: Aggregate health degraded beyond the allowed margin. Failure rate increased beyond the allowed margin."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "observe",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "snapshotId": "ac-17682b7c",
+    "detail": "30 signals; 37 findings; health 0.000."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-065c9cea",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-14597e8a",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-1b19ee32",
+    "detail": "review-content: Measured mastery is below threshold. Failures have repeated. A misconception has repeated. Recent retained performance is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-2903351c",
+    "detail": "review-content: Measured mastery is below threshold. A misconception has repeated. Failures have repeated. Recent retained performance is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-399bd1e4",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-49663710",
+    "detail": "review-content: Measured mastery is below threshold. Recent retained performance is below threshold. A misconception has repeated. Failures have repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-56451355",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-60e6fc00",
+    "detail": "review-content: Recent retained performance is below threshold. Failures have repeated. Measured mastery is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-702bd5fa",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-92d04a77",
+    "detail": "repair-assessment: Measured mastery is below threshold. Failures have repeated. A misconception has repeated. Recent retained performance is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-98fc3724",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-a104b28a",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-bd2c2256",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-c7250bb4",
+    "detail": "review-content: Recent retained performance is below threshold. Failures have repeated. Measured mastery is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-dc819127",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-f18d0a79",
+    "detail": "review-content: Measured mastery is below threshold. Failures have repeated. Recent retained performance is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-065c9cea",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-14597e8a",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-1b19ee32",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-2903351c",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-399bd1e4",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-49663710",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-56451355",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-60e6fc00",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-702bd5fa",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-92d04a77",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-98fc3724",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-a104b28a",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-bd2c2256",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-c7250bb4",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-dc819127",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-f18d0a79",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "rollback",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "snapshotId": "ac-17682b7c",
+    "detail": "rollback: Aggregate health degraded beyond the allowed margin. Failure rate increased beyond the allowed margin."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "observe",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "snapshotId": "ac-c10a8d5a",
+    "detail": "30 signals; 18 findings; health 0.000."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-0633b565",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-08193c66",
+    "detail": "review-content: A misconception has repeated. Failures have repeated. Recent retained performance is below threshold. Measured mastery is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-30208214",
+    "detail": "review-content: Failures have repeated. Measured mastery is below threshold. Recent retained performance is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-3f110a90",
+    "detail": "repair-assessment: Failures have repeated. Measured mastery is below threshold. A misconception has repeated. Recent retained performance is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-8703a97c",
+    "detail": "review-content: Measured mastery is below threshold. Failures have repeated. Recent retained performance is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-f9baab8a",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-0633b565",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-08193c66",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-30208214",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-3f110a90",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-8703a97c",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "candidateId": "ac-f9baab8a",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "rollback",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "snapshotId": "ac-c10a8d5a",
+    "detail": "rollback: Aggregate health degraded beyond the allowed margin. Failure rate increased beyond the allowed margin."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "observe",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "snapshotId": "ac-17682b7c",
+    "detail": "30 signals; 37 findings; health 0.000."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-065c9cea",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-14597e8a",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-1b19ee32",
+    "detail": "review-content: Measured mastery is below threshold. Failures have repeated. A misconception has repeated. Recent retained performance is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-2903351c",
+    "detail": "review-content: Measured mastery is below threshold. A misconception has repeated. Failures have repeated. Recent retained performance is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-399bd1e4",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-49663710",
+    "detail": "review-content: Measured mastery is below threshold. Recent retained performance is below threshold. A misconception has repeated. Failures have repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-56451355",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-60e6fc00",
+    "detail": "review-content: Recent retained performance is below threshold. Failures have repeated. Measured mastery is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-702bd5fa",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-92d04a77",
+    "detail": "repair-assessment: Measured mastery is below threshold. Failures have repeated. A misconception has repeated. Recent retained performance is below threshold."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-98fc3724",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-a104b28a",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-bd2c2256",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-c7250bb4",
+    "detail": "review-content: Recent retained performance is below threshold. Failures have repeated. Measured mastery is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-dc819127",
+    "detail": "strengthen-prerequisite: Prerequisite evidence is weak while its dependent section is active."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "candidate",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-f18d0a79",
+    "detail": "review-content: Measured mastery is below threshold. Failures have repeated. Recent retained performance is below threshold. A misconception has repeated."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-065c9cea",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-14597e8a",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-1b19ee32",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-2903351c",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-399bd1e4",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-49663710",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-56451355",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-60e6fc00",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-702bd5fa",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-92d04a77",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-98fc3724",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-a104b28a",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-bd2c2256",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-c7250bb4",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-dc819127",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "approval",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "candidateId": "ac-f18d0a79",
+    "detail": "approve: All deterministic blocking checks passed."
+  },
+  {
+    "at": "2026-09-19T03:30:00.000Z",
+    "stage": "rollback",
+    "domainId": "it-cybersecurity",
+    "packageKey": "it-cybersecurity@1.0.0",
+    "snapshotId": "ac-17682b7c",
+    "detail": "rollback: Aggregate health degraded beyond the allowed margin. Failure rate increased beyond the allowed margin."
+  }
+]

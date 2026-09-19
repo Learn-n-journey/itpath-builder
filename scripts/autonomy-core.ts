@@ -15,15 +15,17 @@ const stage = (name: string, detail: string) => console.log(`[${name}] ${detail}
 function fixture(pkg: DomainPackage, strong: boolean): LearnerSignal[] {
   const section = pkg.sections.find((item) => pkg.prerequisites.some((link) => link.sectionId === item.id)) ?? pkg.sections[0];
   if (!section) throw new Error(`${pkg.manifest.key} has no sections.`);
-  return Array.from({ length: 30 }, (_, index) => ({
-    id: `${pkg.manifest.id}-proof-${strong ? "baseline" : "degraded"}-${index}`,
-    topicId: index % 2 === 0 ? section.id : section.slug,
-    kind: index % 3 === 0 ? "recall" : "quiz",
-    correct: strong ? true : index % 5 === 0,
-    score: strong ? 1 : index % 5 === 0 ? 0.8 : 0.2,
-    errorTag: strong ? undefined : "proof-repeated-error",
-    at: new Date(now.getTime() - (30 - index) * 60_000).toISOString(),
-  }));
+  return Array.from({ length: 30 }, (_, index) => {
+    const signal: LearnerSignal = {
+      id: `${pkg.manifest.id}-proof-${strong ? "baseline" : "degraded"}-${index}`,
+      topicId: index % 2 === 0 ? section.id : section.slug,
+      kind: index % 3 === 0 ? "recall" : "quiz",
+      correct: strong ? true : index % 5 === 0,
+      score: strong ? 1 : index % 5 === 0 ? 0.8 : 0.2,
+      at: new Date(now.getTime() - (30 - index) * 60_000).toISOString(),
+    };
+    return strong ? signal : { ...signal, errorTag: "proof-repeated-error" };
+  });
 }
 
 stage("test", "running Autonomy Core and domain package regression tests");
