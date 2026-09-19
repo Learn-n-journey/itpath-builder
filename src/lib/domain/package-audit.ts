@@ -143,6 +143,9 @@ export function auditPackage(pkg: DomainPackage): PackageAudit {
     );
   }
 
+  // Beyond shape: is the material fit to teach? Deterministic checks only.
+  findings.push(...extraPackageFindings(pkg));
+
   const counted = measure(pkg);
   for (const [name, value] of Object.entries(counted)) {
     if ((pkg.manifest.scope as Record<string, number>)[name] !== value) {
