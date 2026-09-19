@@ -119,33 +119,21 @@ function VideoCard({ video, playing, onPlay }: { video: TechVideo; playing: bool
   );
 }
 
-function ChannelCard({ channel, playing, onPlay }: { channel: ChannelInfo; playing: boolean; onPlay: () => void }) {
+function ChannelCard({ channel }: { channel: ChannelInfo }) {
+  // YouTube's own player shows the channel's latest-upload thumbnail natively,
+  // which is the only reliable image source while listing feeds are blocked.
   return (
     <article className="overflow-hidden rounded-2xl border border-border bg-card/70 transition hover:border-primary/40">
       <div className="relative aspect-video w-full bg-muted">
-        {playing ? (
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/videoseries?list=${channel.uploadsPlaylistId}&autoplay=1&rel=0&playsinline=1`}
-            title={`${channel.name} latest uploads`}
-            className="h-full w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={onPlay}
-            className="group relative flex h-full w-full flex-col items-center justify-center gap-3"
-            aria-label={`Play the latest videos from ${channel.name}`}
-          >
-            <span className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition group-hover:scale-105">
-              <Play className="size-6 translate-x-[1px]" fill="currentColor" />
-            </span>
-            <span className="text-sm text-muted-foreground">Latest uploads</span>
-          </button>
-        )}
+        <iframe
+          src={`https://www.youtube-nocookie.com/embed/videoseries?list=${channel.uploadsPlaylistId}&rel=0&playsinline=1`}
+          title={`${channel.name} latest uploads`}
+          className="h-full w-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
       </div>
       <div className="flex flex-col gap-2 p-4">
         <div className="flex flex-wrap items-center gap-2 text-xs">
