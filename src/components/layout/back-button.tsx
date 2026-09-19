@@ -11,7 +11,9 @@ interface VisitedPage {
   label: string;
 }
 
-const HISTORY_KEY = "it-path-page-history";
+type PageHistory = Record<string, VisitedPage>;
+
+const HISTORY_KEY = "it-path-page-history-v2";
 
 function pageLabel(path: string) {
   const navLabel = navItems.find((item) => item.to === path)?.label;
@@ -21,13 +23,20 @@ function pageLabel(path: string) {
   return title || "Previous page";
 }
 
-function readHistory(): VisitedPage[] {
+function readHistory(): PageHistory {
   try {
     const value = JSON.parse(sessionStorage.getItem(HISTORY_KEY) ?? "[]");
-    return Array.isArray(value) ? value : [];
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
   } catch {
-    return [];
+    return {};
   }
+}
+
+function browserHistoryIndex(): number | null {
+  const state: unknown = window.history.state;
+  if (!state || typeof state !== "object" || !("__TSR_index" in state)) return null;
+  const index = state.__TSR_index;
+  return typeof index === "number" ? index : null;
 }
 
 export function BackButton({ className }: { className?: string }) {
@@ -38,18 +47,17 @@ export function BackButton({ className }: { className?: string }) {
 
   useEffect(() => {
     const visited = readHistory();
+    const historyIndex = browserHistoryIndex();
     const current: VisitedPage = { path: pathname, label: pageLabel(pathname) };
-    const last = visited.at(-1);
 
-    if (last?.path === pathname) {
-      visited[visited.length - 1] = current;
-    } else {
-      visited.push(current);
+    if (historyIndex === null) {
+      setPreviousPage({ path: "/", label: "Dashboard" });
+      return;
     }
 
-    const trimmed = visited.slice(-30);
-    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
-    setPreviousPage(trimmed.at(-2) ?? { path: "/", label: "Dashboard" });
+    visited[String(historyIndex)] = current;
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(visited));
+    setPreviousPage(visited[String(historyIndex - 1)] ?? { path: "/", label: "Dashboard" });
   }, [pathname]);
 
   useEffect(() => {
@@ -79,8 +87,14 @@ export function BackButton({ className }: { className?: string }) {
 
   const goBack = () => {
     const visited = readHistory();
-    if (visited.at(-1)?.path === pathname) visited.pop();
-    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(visited.slice(-30)));
+    const historyIndex = browserHistoryIndex();
+    const browserPreviousPage = historyIndex === null ? undefined : visited[String(historyIndex - 1)];
+
+    if (browserPreviousPage?.path === previousPage.path) {
+      window.history.back();
+      return;
+    }
+
     void router.navigate({ href: previousPage.path });
   };
 
