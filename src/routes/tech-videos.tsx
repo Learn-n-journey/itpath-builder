@@ -54,7 +54,7 @@ function VideoCard({ video, playing, onPlay }: { video: TechVideo; playing: bool
       <div className="relative aspect-video w-full bg-muted">
         {playing ? (
           <iframe
-            src={`https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&rel=0&playsinline=1`}
+            src={video.embedUrl}
             title={video.title}
             className="h-full w-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
