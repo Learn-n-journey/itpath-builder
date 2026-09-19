@@ -1,31 +1,12 @@
 {
-  "startedAt": "2026-09-19T05:59:48.629Z",
+  "startedAt": "2026-09-19T06:07:45.353Z",
   "scope": {
     "topics": 128,
-    "papers": 396,
-    "questions": 8280
+    "papers": 264,
+    "questions": 5520
   },
-  "findings": [
-    {
-      "ruleId": "papers.section-quiz-whole",
-      "severity": "blocking",
-      "subjectId": "quiz:section-quiz-topic-network-hardening-and-physical-security#0",
-      "detail": "1 questions repeat an idea already covered"
-    },
-    {
-      "ruleId": "papers.section-quiz-whole",
-      "severity": "blocking",
-      "subjectId": "quiz:section-quiz-topic-network-hardening-and-physical-security#1",
-      "detail": "1 questions repeat an idea already covered"
-    },
-    {
-      "ruleId": "papers.section-quiz-whole",
-      "severity": "blocking",
-      "subjectId": "quiz:section-quiz-topic-network-hardening-and-physical-security#2",
-      "detail": "1 questions repeat an idea already covered"
-    }
-  ],
-  "blocking": 3,
+  "findings": [],
+  "blocking": 0,
   "warnings": 0,
-  "passed": false
+  "passed": true
 }
