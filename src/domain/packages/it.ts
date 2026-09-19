@@ -18,6 +18,7 @@ export const itManifest: DomainManifest = {
   producedBy: "authored",
   producedAt: "2026-01-01T00:00:00.000Z",
   status: "active",
+  /** Recounted from the real material by `buildItPackage`; never hand-kept. */
   scope: {
     qualifications: 0,
     sections: 0,
