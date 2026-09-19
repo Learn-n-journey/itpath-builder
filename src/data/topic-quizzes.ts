@@ -355,6 +355,8 @@ function buildPool(topicId: string): PoolItem[] {
     .filter((line) => line.length >= 25 && line.length <= 200);
 
   lesson?.keyTerms.forEach((term, index) => {
+    // A term an earlier section introduced already has its questions there.
+    if (termOwner.get(term.term.toLowerCase()) !== topicId) return;
     const correct = shortMeaning(term.meaning);
     const meaningOptions = pickThree(
       meaningPool.filter((entry) => entry.term !== term.term).map((entry) => entry.meaning),
@@ -410,6 +412,7 @@ function buildPool(topicId: string): PoolItem[] {
   });
 
   lesson?.commonMisconceptions.forEach((line, index) => {
+    if (misconceptionOwner.get(tidy(line).toLowerCase()) !== topicId) return;
     const item = statementItem(
       topicId,
       title,
@@ -425,6 +428,7 @@ function buildPool(topicId: string): PoolItem[] {
 
   if (module) {
     module.howItWorks.forEach((line, index) => {
+      if (!ownsModuleLine("howItWorks", line, topicId)) return;
       const item = statementItem(
         topicId,
         title,
@@ -439,6 +443,7 @@ function buildPool(topicId: string): PoolItem[] {
     });
 
     module.whereYouSeeIt.forEach((line, index) => {
+      if (!ownsModuleLine("whereYouSeeIt", line, topicId)) return;
       const item = statementItem(
         topicId,
         title,
@@ -454,6 +459,7 @@ function buildPool(topicId: string): PoolItem[] {
     });
 
     module.howItFails.forEach((line, index) => {
+      if (!ownsModuleLine("howItFails", line, topicId)) return;
       const item = statementItem(
         topicId,
         title,
@@ -469,6 +475,7 @@ function buildPool(topicId: string): PoolItem[] {
     });
 
     module.practicalKnowledge.forEach((line, index) => {
+      if (!ownsModuleLine("practicalKnowledge", line, topicId)) return;
       const item = statementItem(
         topicId,
         title,
