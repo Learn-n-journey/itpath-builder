@@ -220,8 +220,13 @@ export function coursePackFromDomainPackage(pkg: DomainPackage): CoursePack {
       blurb: qualification.summary,
       topics: orderedSections
         .filter((section) => section.qualificationId === qualification.id)
-        .map((section) => ({ id: section.id, title: section.title, month: section.order })),
-    })) as CoursePack["phases"],
+        .map((section) => ({
+          id: section.id,
+          title: section.title,
+          summary: section.summary,
+          minutes: 30,
+        })),
+    })),
     prerequisites: orderedSections.map((section) => ({
       id: `skill-${section.id}`,
       title: section.title,
