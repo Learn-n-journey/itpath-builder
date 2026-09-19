@@ -36,3 +36,4 @@ Done when: typecheck + build clean, features verified in browser.
 24. [ ] Document how remixing works when payments are enabled
 
 22. [x] Community study rooms per section, achievement badges page, public certification track pages, spaced repetition flashcards.
+- [x] 21 Self-correcting quality loop: stable rule and subject ids, rule book (src/lib/quality/rules.ts), independent auditor (audit.ts), `bun run audit`, `bun run gate` (generate, test, audit, correct, retest, approve, monitor, improve) with a run ledger in .quality/.
