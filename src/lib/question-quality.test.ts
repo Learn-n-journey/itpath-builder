@@ -106,4 +106,43 @@ describe("answer choices match the format requested by the question", () => {
     );
     expect(questionIssues(question)).toContain("the prompt reveals the correct answer verbatim");
   });
+
+  it("rejects an objective disguised as a question about completing a section", () => {
+    const question = item(
+      "Which of these should you be able to do after working through Computer Hardware Basics?",
+      [
+        "Trace the path data follows while a program runs.",
+        "Explain why layered network protocols are necessary.",
+        "Distinguish a command from its options and arguments.",
+        "Connect study choices to an entry-level career path.",
+      ],
+    );
+    expect(questionIssues(question)).toContain("prompt reads like a broken template");
+  });
+
+  it("rejects awkward definition roleplay", () => {
+    const question = item(
+      "A colleague uses the term Motherboard on a job and you have to act on what they mean. Which reading of it is correct here?",
+      [
+        "The main circuit board that connects and coordinates system components.",
+        "The privileged core that manages hardware and system resources.",
+        "A device that forwards frames between devices on a local network.",
+        "The physical system and base environment providing resources.",
+      ],
+    );
+    expect(questionIssues(question)).toContain("prompt reads like a broken template");
+  });
+
+  it("rejects a section title used as question context", () => {
+    const question = item(
+      "In Computer Hardware Basics: What evidence distinguishes failed memory from a storage fault?",
+      [
+        "Memory tests report repeatable address errors while drive health remains normal.",
+        "Drive diagnostics report unreadable sectors while memory tests remain clean.",
+        "Thermal logs show the processor throttling during sustained workloads.",
+        "Network captures show retransmissions only when the link is congested.",
+      ],
+    );
+    expect(questionIssues(question)).toContain("prompt reads like a broken template");
+  });
 });

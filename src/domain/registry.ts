@@ -21,6 +21,12 @@ import { autoRepairPackage as autoRepair2_0_0Package } from "@/content/packs/aut
 import { autoRepairManifest as autoRepair3_4_0Manifest } from "@/content/packs/auto-repair/3.4.0/manifest";
 import { autoRepairDomain as autoRepair3_4_0Domain } from "@/content/packs/auto-repair/3.4.0/domain";
 import { autoRepairPackage as autoRepair3_4_0Package } from "@/content/packs/auto-repair/3.4.0/package";
+import { autoRepairManifest as autoRepair3_5_0Manifest } from "@/content/packs/auto-repair/3.5.0/manifest";
+import { autoRepairDomain as autoRepair3_5_0Domain } from "@/content/packs/auto-repair/3.5.0/domain";
+import { autoRepairPackage as autoRepair3_5_0Package } from "@/content/packs/auto-repair/3.5.0/package";
+import { autoRepairManifest as autoRepair3_6_0Manifest } from "@/content/packs/auto-repair/3.6.0/manifest";
+import { autoRepairDomain as autoRepair3_6_0Domain } from "@/content/packs/auto-repair/3.6.0/domain";
+import { autoRepairPackage as autoRepair3_6_0Package } from "@/content/packs/auto-repair/3.6.0/package";
 
 export interface RegistryEntry {
   manifest: DomainManifest;
@@ -37,6 +43,18 @@ export interface RegistryEntry {
 
 /** Every subject version this build knows about. */
 export const registry: Record<string, RegistryEntry> = {
+  "auto-repair@3.6.0": {
+    manifest: autoRepair3_6_0Manifest,
+    definition: autoRepair3_6_0Domain,
+    packageSync: autoRepair3_6_0Package,
+    load: async () => autoRepair3_6_0Package,
+  },
+  "auto-repair@3.5.0": {
+    manifest: autoRepair3_5_0Manifest,
+    definition: autoRepair3_5_0Domain,
+    packageSync: autoRepair3_5_0Package,
+    load: async () => autoRepair3_5_0Package,
+  },
   "auto-repair@3.4.0": {
     manifest: autoRepair3_4_0Manifest,
     definition: autoRepair3_4_0Domain,

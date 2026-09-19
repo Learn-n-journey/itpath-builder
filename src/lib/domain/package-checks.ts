@@ -159,10 +159,21 @@ export function checkQuestions(pkg: DomainPackage): Finding[] {
 export function checkPrerequisiteCycles(pkg: DomainPackage): Finding[] {
   const findings: Finding[] = [];
   const edges = new Map<string, string[]>();
+  const order = new Map(pkg.sections.map((section) => [section.id, section.order]));
   for (const link of pkg.prerequisites) {
     if (link.sectionId === link.requiresSectionId) {
       note(findings, "structure.prerequisites-acyclic", `prerequisite:${link.sectionId}`, "A section requires itself.");
       continue;
+    }
+    const sectionOrder = order.get(link.sectionId);
+    const requiredOrder = order.get(link.requiresSectionId);
+    if (sectionOrder !== undefined && requiredOrder !== undefined && requiredOrder >= sectionOrder) {
+      note(
+        findings,
+        "structure.prerequisites-acyclic",
+        `prerequisite:${link.sectionId}`,
+        `Required section ${link.requiresSectionId} does not appear before the section that depends on it.`,
+      );
     }
     edges.set(link.sectionId, [...(edges.get(link.sectionId) ?? []), link.requiresSectionId]);
   }
@@ -210,11 +221,25 @@ export function checkAssessmentCoverage(pkg: DomainPackage): Finding[] {
       }
     }
   }
+  const assessed = new Set(pkg.assessments.flatMap((assessment) => assessment.objectiveIds));
+  for (const section of pkg.sections) {
+    for (const objectiveId of section.objectiveIds) {
+      if (!assessed.has(objectiveId)) {
+        note(
+          findings,
+          "papers.covers-taught-material",
+          `section:${section.id}`,
+          `The section teaches objective ${objectiveId}, but no assessment measures it.`,
+        );
+      }
+    }
+  }
   return findings;
 }
 
 export function checkSources(pkg: DomainPackage): Finding[] {
   const findings: Finding[] = [];
+  const seen = new Map<string, string>();
   for (const source of pkg.sources) {
     const subject = `source:${source.sectionId}`;
     if (!/^https:\/\/[^\s]+\.[a-z]{2,}(\/.*)?$/i.test(source.url)) {
@@ -227,6 +252,13 @@ export function checkSources(pkg: DomainPackage): Finding[] {
     }
     if (!source.label || source.label.trim().length < 4) {
       note(findings, "content.sources-usable", subject, `A source for this section has no usable label.`);
+    }
+    const key = source.url.trim().toLowerCase().replace(/\/$/, "");
+    const firstSection = seen.get(key);
+    if (firstSection === source.sectionId) {
+      note(findings, "content.sources-usable", subject, `The same source is listed more than once for this section.`);
+    } else if (!firstSection) {
+      seen.set(key, source.sectionId);
     }
   }
   return findings;
