@@ -186,7 +186,7 @@ function TechNewsPage() {
             <div key={index} className="h-72 animate-pulse rounded-2xl border border-border bg-card/50" />
           ))}
         </div>
-      ) : isError || articles.length === 0 ? (
+      ) : (isError || articles.length === 0) && feedArticles.length === 0 ? (
         <Panel title="Nothing to show right now">
           <p className="text-sm text-muted-foreground">
             The news sources could not be reached. Try refreshing in a moment.
@@ -202,12 +202,34 @@ function TechNewsPage() {
               <ArticleCard key={article.id} article={article} />
             ))}
           </div>
-          <p className="pb-4 text-center text-xs text-muted-foreground">
-            {shown.length} articles. Headlines and summaries belong to their publishers, and every card links to the
-            original.
+          <p className="text-center text-xs text-muted-foreground">
+            Headlines and summaries belong to their publishers, and every card links to the original.
           </p>
         </>
       )}
+
+      <section className="space-y-4 pt-2">
+        <h2 className="font-display text-lg text-foreground">More technology stories</h2>
+        <p className="text-sm text-muted-foreground">
+          Stories shared across the wider technology community. Keep scrolling for more.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {shownFeed.map((article) => (
+            <ArticleCard key={article.id} article={article} />
+          ))}
+          {feed.isFetching && shownFeed.length === 0
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="h-48 animate-pulse rounded-2xl border border-border bg-card/50" />
+              ))
+            : null}
+        </div>
+        <div ref={sentinel} className="h-10" />
+        {isFetchingNextPage ? (
+          <p className="text-center text-sm text-muted-foreground">Loading more stories…</p>
+        ) : !hasNextPage && shownFeed.length > 0 ? (
+          <p className="text-center text-sm text-muted-foreground">That's everything for now.</p>
+        ) : null}
+      </section>
     </div>
   );
 }
