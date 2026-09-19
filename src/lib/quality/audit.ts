@@ -42,7 +42,10 @@ function auditQuestion(findings: Finding[], question: Question): void {
                       issue.includes("explanation question");
     note(findings, isSemantic ? "questions.semantic-consistency" : "questions.sound", subject, issue);
   }
-  const text = `${question.prompt} ${(question.choices ?? []).join(" ")} ${question.correctAnswer.join(" ")} ${question.explanation ?? ""}`;
+  // Wrong choices are intentionally incorrect claims. Validate the prompt,
+  // marked answer and teaching feedback as facts; distractor plausibility and
+  // format are enforced separately by questionIssues().
+  const text = `${question.prompt} ${question.correctAnswer.join(" ")} ${question.explanation ?? ""}`;
   for (const issue of checkTechnicalClaims(text)) {
     note(findings, "questions.numbers-hold-up", subject, `${issue.claim.trim()} -> ${issue.problem}`);
   }
