@@ -104,3 +104,24 @@ will run it.
 `src/lib` (the engine), `src/components`, `src/routes`, the migrations, auth,
 payments and the theme. If a subject forces a change in there, something
 subject specific leaked out of the pack and belongs back here.
+
+## Domain packages (versioned subjects)
+
+A subject is a self-contained, versioned package: manifest, definition,
+qualifications and objectives, sections, lessons, concepts, skills,
+prerequisites, questions, assessments, sources and its own validation rules.
+The shape is `src/domain/package.ts`; the shipped IT subject is assembled by
+`src/content/packs/it-package.ts`.
+
+- `src/domain/registry.ts` lists every package by `id@version` and has one
+  live line: `ACTIVE_PACKAGE`. Nothing else decides which subject runs.
+- Generated packages land in `src/content/packs/<id>/<version>/` and touch
+  nothing outside that folder. A published version is never overwritten.
+- `bun run domain -- brief.json` runs the whole loop: generate, validate,
+  independent QA, correct, retest, build the package, audit the package,
+  write it, run the regression tests, and activate it only when nothing
+  blocking is open.
+- `bun run domain:activate -- <id@version>` re-runs the audit and the tests
+  before switching. `bun run domain:rollback` puts the previous subject back.
+- Every decision is written to `.quality/domain-activations.json` and every
+  run to `.quality/domain-ledger.json`.
