@@ -540,24 +540,9 @@ function buildPool(topicId: string): PoolItem[] {
       });
     }
 
-    // Later steps in the sequence, so the order of work is tested too.
-    module.troubleshooting.forEach((step, index) => {
-      if (index === 0 || index > 3) return;
-      const before = module.troubleshooting[index - 1];
-      if (!before) return;
-      const item = statementItem(
-        topicId,
-        title,
-        "next-step",
-        `You have just done this: ${tidy(before).replace(/\.$/, "")} It told you nothing conclusive. What does the evidence so far point you to next?`,
-        step,
-        [...module.troubleshooting.filter((_, at) => at !== index), ...otherStatements(topicId, "troubleshooting")],
-        index,
-        `The next step here is: ${tidy(step)}`,
-        "diagnosis",
-      );
-      if (item) items.push(item);
-    });
+    // No "what comes next" questions are generated here: without the actual
+    // symptom stated, a next-step question has no context and no defensible
+    // single answer, so the quality gate rejects that wording outright.
     module.commonProblems.forEach((line, index) => {
       const item = statementItem(
         topicId,

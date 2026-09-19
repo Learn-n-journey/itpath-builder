@@ -241,19 +241,10 @@ export function masteryCheckPool(topicId: string, kind: MasteryCheckKind): Maste
 
   if (kind === "troubleshooting") {
     const steps = learningModule.troubleshooting;
-    steps.forEach((step, index) => {
-      const next = steps[index + 1];
-      if (!next) return;
-      const item = mcq(
-        `mc-${slug}-fault-next-${index + 1}`,
-        kind,
-        `You are working a ${lower(topic.title)} fault and you have just done this: ${sentence(step)} What comes next?`,
-        next,
-        distractors(topicId, (mod) => mod.troubleshooting, `${slug}-fault-${index}`, [sentence(next), sentence(step)]),
-        `The documented order puts this next: ${sentence(next)}`,
-      );
-      if (item) out.push(item);
-    });
+    // Step-order questions are not generated: naming only the section and the
+    // last action, without the actual symptom, leaves the question with no
+    // context and no defensible single answer. The cause-fitting questions
+    // below carry the fault in the prompt, so they stay.
     learningModule.howItFails.forEach((failure, index) => {
       const cause = learningModule.commonProblems[index] ?? learningModule.commonProblems[0];
       if (!cause) return;

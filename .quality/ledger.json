@@ -63,5 +63,20 @@
     },
     "byRule": {},
     "testsPassed": true
+  },
+  {
+    "at": "2026-09-19T05:59:53.367Z",
+    "passed": false,
+    "blocking": 3,
+    "warnings": 0,
+    "scope": {
+      "topics": 128,
+      "papers": 396,
+      "questions": 8280
+    },
+    "byRule": {
+      "papers.section-quiz-whole": 3
+    },
+    "testsPassed": false
   }
 ]

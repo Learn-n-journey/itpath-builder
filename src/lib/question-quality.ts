@@ -16,6 +16,11 @@ const BROKEN_PROMPT_PATTERNS: RegExp[] = [
   /what does good practice require here/i,
   /how would you recognise this in practice/i,
   /describe what you would see/i,
+  // A step question that never states the problem being worked on has no
+  // context, so no single answer can be defended.
+  /you have just done this/i,
+  /told you nothing conclusive/i,
+  /what does the evidence so far point/i,
   /^\s*$/,
 ];
 
