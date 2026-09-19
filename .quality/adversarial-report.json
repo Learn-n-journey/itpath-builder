@@ -1,7 +1,7 @@
 [
   {
     "coverage": {
-      "startedAt": "2026-09-19T04:19:11.860Z",
+      "startedAt": "2026-09-19T04:32:04.844Z",
       "packageKey": "auto-repair@1.0.0",
       "total": 22,
       "detected": 22,
@@ -857,7 +857,7 @@
   },
   {
     "coverage": {
-      "startedAt": "2026-09-19T04:19:34.493Z",
+      "startedAt": "2026-09-19T04:32:27.778Z",
       "packageKey": "it-cybersecurity@1.0.0",
       "total": 22,
       "detected": 22,
@@ -1405,13 +1405,13 @@
         "category": "wrong-facts",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1419,69 +1419,69 @@
         "category": "wrong-facts",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-duplicate-question",
         "category": "duplicate-questions",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-question-two-options",
         "category": "invalid-questions",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-question-throwaway-options",
         "category": "invalid-questions",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-question-not-a-question",
         "category": "invalid-questions",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1489,13 +1489,13 @@
         "category": "answer-key",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1503,13 +1503,13 @@
         "category": "answer-key",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1517,13 +1517,13 @@
         "category": "prerequisites",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1531,13 +1531,13 @@
         "category": "prerequisites",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1545,41 +1545,41 @@
         "category": "prerequisites",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-lesson-off-objective",
         "category": "objective-mismatch",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-assessment-untaught-objective",
         "category": "untaught-assessment",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1587,56 +1587,56 @@
         "category": "untaught-assessment",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain.",
+          "1 blocking package findings remain.",
           "autonomy.assessment.exact-size: an assessment does not match its declared size."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-lesson-empty",
         "category": "filler-content",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-lesson-repetitive",
         "category": "filler-content",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-lesson-placeholder",
         "category": "filler-content",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1644,13 +1644,13 @@
         "category": "broken-sources",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1658,13 +1658,13 @@
         "category": "broken-sources",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
@@ -1672,41 +1672,41 @@
         "category": "broken-sources",
         "detectedBeforeCorrection": true,
         "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "2 blocking package findings remain."
+          "1 blocking package findings remain."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-poor-but-valid-question",
         "category": "schema-valid-poor",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       },
       {
         "injectionId": "inj-poor-but-valid-lesson",
         "category": "schema-valid-poor",
         "detectedBeforeCorrection": true,
-        "decisionBeforeCorrection": "reject",
-        "decisionAfterCorrection": "reject",
+        "decisionBeforeCorrection": "approve",
+        "decisionAfterCorrection": "approve",
         "cleanAfterCorrection": true,
         "reasonsBefore": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ],
         "reasonsAfter": [
-          "1 blocking package findings remain."
+          "All deterministic blocking checks passed."
         ]
       }
     ]
