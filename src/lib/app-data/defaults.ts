@@ -4,6 +4,7 @@ import {
   type UserData,
   type UserSettings,
 } from "./types";
+import { domain } from "@/domain/active";
 
 export const defaultSettings: UserSettings = {
   id: "user-settings",
@@ -11,8 +12,8 @@ export const defaultSettings: UserSettings = {
   studyDays: ["mon", "tue", "wed", "thu"],
   sessionLengthMinutes: 45,
   experienceLevel: "none",
-  targetJob: "IT Support Specialist",
-  certificationTarget: "CompTIA Tech+",
+  targetJob: domain.defaultGoal,
+  certificationTarget: domain.defaultQualification,
   difficulty: "standard",
 };
 
