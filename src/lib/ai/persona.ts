@@ -1,5 +1,4 @@
 /**
-import { domain } from "@/domain/active";
  * The one voice contract every AI answer is held to.
  *
  * Each feature used to repeat its own tone instructions, which is how drift
@@ -7,6 +6,7 @@ import { domain } from "@/domain/active";
  * `runAi`, and anything that still slips through is cleaned off the text
  * before a learner sees it.
  */
+import { domain } from "@/domain/active";
 
 /** Attached ahead of every feature's own system prompt. */
 export const VOICE_CONTRACT = [
