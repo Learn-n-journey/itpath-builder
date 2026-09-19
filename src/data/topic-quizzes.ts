@@ -70,6 +70,61 @@ function question(part: Partial<Question> & Pick<Question, "id" | "topicId" | "p
 
 const certOf = (topicId: string) => topics.find((item) => item.id === topicId)?.certificationId ?? "";
 
+/**
+ * Cross-section ownership, in curriculum order. Two sections sometimes teach
+ * the same term or repeat the same line; the first section keeps the questions
+ * about it and later sections skip them, so the same question is never asked
+ * twice anywhere in the program.
+ */
+const termOwner = new Map<string, string>();
+const misconceptionOwner = new Map<string, string>();
+for (const entry of lessons) {
+  for (const term of entry.keyTerms ?? []) {
+    const key = term.term.toLowerCase();
+    if (!termOwner.has(key)) termOwner.set(key, entry.topicId);
+  }
+  for (const line of entry.commonMisconceptions ?? []) {
+    const key = tidy(line).toLowerCase();
+    if (!misconceptionOwner.has(key)) misconceptionOwner.set(key, entry.topicId);
+  }
+}
+const moduleLineOwners = new Map<string, Map<string, string>>();
+for (const item of learningModules) {
+  for (const field of ["howItWorks", "whereYouSeeIt", "howItFails", "practicalKnowledge"] as const) {
+    let map = moduleLineOwners.get(field);
+    if (!map) moduleLineOwners.set(field, (map = new Map()));
+    for (const line of item[field]) {
+      const key = tidy(line).toLowerCase();
+      if (!map.has(key)) map.set(key, item.topicId);
+    }
+  }
+}
+const ownsModuleLine = (field: string, line: string, topicId: string): boolean =>
+  moduleLineOwners.get(field)?.get(tidy(line).toLowerCase()) === topicId;
+
+/**
+ * Prompt ownership. Different lines can still produce the same wording when
+ * they turn on the same term ("Which of these statements about RAID is
+ * correct?"). The first section to ask it keeps that wording; later sections
+ * ask about the section by name instead, so no two questions read alike.
+ */
+const promptOwner = new Map<string, string>();
+const claimPrompt = (topicId: string, kind: string, line: string): void => {
+  const topic = topics.find((item) => item.id === topicId);
+  const subject = subjectFor(topicId, tidy(line), topic?.title ?? "").toLowerCase();
+  const key = `${kind}:${subject}`;
+  if (!promptOwner.has(key)) promptOwner.set(key, topicId);
+};
+for (const entry of lessons) {
+  for (const line of entry.commonMisconceptions ?? []) claimPrompt(entry.topicId, "misconception", line);
+}
+for (const item of learningModules) {
+  for (const line of item.howItWorks) claimPrompt(item.topicId, "how-it-works", line);
+  for (const line of item.whereYouSeeIt) claimPrompt(item.topicId, "where-used", line);
+  for (const line of item.howItFails) claimPrompt(item.topicId, "how-it-fails", line);
+  for (const line of item.practicalKnowledge) claimPrompt(item.topicId, "practice-point", line);
+}
+
 /** Statements pulled from other sections in the same subject area, used as wrong options. */
 function otherStatements(topicId: string, field: keyof ReturnType<typeof moduleFields>): string[] {
   const cert = certOf(topicId);
@@ -254,6 +309,10 @@ function statementItem(
   const answer = tidy(correct);
   if (answer.length < 25 || answer.length > 200) return null;
   const subject = subjectFor(topicId, answer, topicTitle);
+  // Another section already asks about this subject in this style; ask about
+  // the section by name instead so the wording is never repeated.
+  const claimedBy = promptOwner.get(`${kind}:${subject.toLowerCase()}`);
+  const askedAbout = claimedBy && claimedBy !== topicId ? topicTitle : subject;
   // Some styles ask what is true in general, so a wrong option that shades into
   // the answer could be defended as correct. Those are held further apart.
   const openEnded = new Set([
@@ -284,7 +343,7 @@ function statementItem(
     question: question({
       id: `section-${topicId}-${kind}-${index}`,
       topicId,
-      prompt: prompt.replace("{topic}", subject).replace("{section}", topicTitle),
+      prompt: prompt.replace("{topic}", askedAbout).replace("{section}", topicTitle),
       choices: withAnswerPlaced(answer, wrong, index + 1),
       correctAnswer: [answer],
       acceptableAnswers: [answer],
@@ -323,6 +382,8 @@ function buildPool(topicId: string): PoolItem[] {
     .filter((line) => line.length >= 25 && line.length <= 200);
 
   lesson?.keyTerms.forEach((term, index) => {
+    // A term an earlier section introduced already has its questions there.
+    if (termOwner.get(term.term.toLowerCase()) !== topicId) return;
     const correct = shortMeaning(term.meaning);
     const meaningOptions = pickThree(
       meaningPool.filter((entry) => entry.term !== term.term).map((entry) => entry.meaning),
@@ -378,6 +439,7 @@ function buildPool(topicId: string): PoolItem[] {
   });
 
   lesson?.commonMisconceptions.forEach((line, index) => {
+    if (misconceptionOwner.get(tidy(line).toLowerCase()) !== topicId) return;
     const item = statementItem(
       topicId,
       title,
@@ -393,6 +455,7 @@ function buildPool(topicId: string): PoolItem[] {
 
   if (module) {
     module.howItWorks.forEach((line, index) => {
+      if (!ownsModuleLine("howItWorks", line, topicId)) return;
       const item = statementItem(
         topicId,
         title,
@@ -407,6 +470,7 @@ function buildPool(topicId: string): PoolItem[] {
     });
 
     module.whereYouSeeIt.forEach((line, index) => {
+      if (!ownsModuleLine("whereYouSeeIt", line, topicId)) return;
       const item = statementItem(
         topicId,
         title,
@@ -422,6 +486,7 @@ function buildPool(topicId: string): PoolItem[] {
     });
 
     module.howItFails.forEach((line, index) => {
+      if (!ownsModuleLine("howItFails", line, topicId)) return;
       const item = statementItem(
         topicId,
         title,
@@ -437,6 +502,7 @@ function buildPool(topicId: string): PoolItem[] {
     });
 
     module.practicalKnowledge.forEach((line, index) => {
+      if (!ownsModuleLine("practicalKnowledge", line, topicId)) return;
       const item = statementItem(
         topicId,
         title,

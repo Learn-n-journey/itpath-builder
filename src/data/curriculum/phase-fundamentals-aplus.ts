@@ -18,7 +18,7 @@ export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
     ],
     lesson: {
       title: "Counting the way computers count",
-      body: "Every address, mask, permission bit, and capacity figure in IT is a number in disguise. Reading those numbers fluently is what turns subnetting, permissions, and storage sizing from memorisation into arithmetic.",
+      body: "Every address, mask, permission bit, and capacity figure in IT is a number in disguise. Reading those numbers fluently is what turns subnetting, permissions, and storage sizing from memorisation into arithmetic. Binary, decimal, and hexadecimal are notational systems, different ways of writing the same values, and the units built on them, from bits and bytes to kilobytes and gigabytes, are how real capacity and addressing are measured.",
       definition: "Binary is a base-2 numbering system using only 0 and 1, matching the two electrical states hardware can hold reliably. Each position represents a power of two. Hexadecimal is base 16 and compresses four binary digits into one character, which is why MAC addresses, colour codes, and memory dumps use it.",
       whyItMatters: "An IPv4 octet is eight bits, so its maximum value is 255. A /26 network leaves six host bits, so it holds 64 addresses and 62 usable hosts. Linux permission mode 755 is three octal digits describing read, write, and execute bits. None of that is memorisable without the underlying number sense.",
       keyTerms: [

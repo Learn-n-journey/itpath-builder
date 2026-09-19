@@ -627,7 +627,7 @@ export const netPlusExtraSeeds: TopicSeed[] = [
     ],
     lesson: {
       title: "Questions the command line answers in seconds",
-      body: "Each tool answers one question. Knowing which question you are asking is what stops a ticket becoming an afternoon.",
+      body: "Every diagnostic command exists to answer one question: can I reach it, which path does the traffic take, what does the name resolve to, what is listening, or what does the switch believe? Knowing which question you are asking is what stops a ticket becoming an afternoon. This section pairs each symptom with the command that answers it fastest, from ping and traceroute to dig, ss, arp, and the switch show commands, and teaches you to read the output rather than just run the tool.",
       definition: "ping tests reachability and round trip time. traceroute or tracert shows the path hop by hop. nslookup and dig query DNS directly, including a specific server. netstat and ss list local sockets and listening ports. arp shows the local address to MAC mapping. ipconfig and ifconfig or ip addr show the interface configuration. Switch commands such as show interface status, show mac address-table and show vlan confirm what the switch believes.",
       whyItMatters: "The difference between a name problem, a routing problem and an application problem is usually two commands, and the exam gives you output and asks what it means.",
       keyTerms: [

@@ -537,7 +537,7 @@ export const secPlusExtraSeeds: TopicSeed[] = [
     ],
     lesson: {
       title: "Knowing what you hold",
-      body: "Protection starts with an inventory. You cannot defend data whose location, sensitivity and owner nobody can state.",
+      body: "Protection starts with an inventory: you cannot defend data whose location, sensitivity, and owner nobody can state. This section works through the three states data lives in, the classification labels that decide which controls apply, and the roles of owner, custodian, and processor that carry accountability. It then turns the labels into practice with masking, DLP, retention schedules, and secure disposal, so protection follows the data from creation to destruction.",
       definition: "Data exists in three states: at rest in storage, in transit across a network, and in use in memory. Classification labels sensitivity, for example public, internal, confidential and restricted. A data owner accepts accountability, a custodian operates the controls, and a processor handles it on the owner's behalf. Sovereignty is the legal reality that data is subject to the laws of the country it sits in.",
       whyItMatters: "Regulation, contracts and incident severity all depend on what the data was. A breach of published marketing material is not a breach of medical records.",
       keyTerms: [
