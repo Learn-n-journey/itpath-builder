@@ -26,7 +26,37 @@ import { skillNodes } from "@/data/prerequisite-graph";
 import { STAGE_EXAM_SIZE, getStageExamQuestions, stageExams } from "@/data/stage-exams";
 import { staticContent } from "@/data/static-content";
 import { readingSources } from "@/data/topic-reading";
-import { SECTION_QUIZ_SIZE, conceptIdFor, getSectionQuizQuestions, getTopicQuestionPool } from "@/data/topic-quizzes";
+import {
+  SECTION_QUIZ_SIZE,
+  buildSectionQuiz,
+  conceptIdFor,
+  getSectionQuizQuestions,
+  getTopicQuestionPool,
+} from "@/data/topic-quizzes";
+import { getLearningModule } from "@/data/learning-content";
+
+/** Everything one section teaches, as one block of text, for QA to read. */
+function itLessonText(topicId: string): string {
+  const lesson = staticContent.lessons.find((item) => item.topicId === topicId);
+  if (!lesson) return "";
+  const deep = getDeepLesson(topicId);
+  const module = getLearningModule(topicId);
+  return [
+    lesson.body,
+    lesson.definition,
+    lesson.whyItMatters,
+    lesson.summary,
+    ...(lesson.realWorldExamples ?? []),
+    ...(lesson.commonMisconceptions ?? []),
+    ...(lesson.keyTerms ?? []).map((term) => `${term.term}: ${term.meaning}`),
+    deep?.intro ?? "",
+    ...(deep?.sections ?? []).flatMap((section) => [section.heading, ...section.paragraphs]),
+    ...(module?.howItWorks ?? []),
+    ...(module?.troubleshooting ?? []),
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 import { workedExamples } from "@/data/worked-examples";
 
 
