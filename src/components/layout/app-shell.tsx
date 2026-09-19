@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { domain } from "@/domain/active";
+import { firstPracticeTestCertId } from "@/lib/tracks";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useSidebarAttention();
@@ -72,7 +73,7 @@ function Brand() {
         <ShieldCheck className="size-4.5" aria-hidden />
       </span>
       <span className="min-w-0">
-        <span className="block font-display text-base font-semibold tracking-tight">IT PATH</span>
+        <span className="block font-display text-base font-semibold tracking-tight">{domain.appName}</span>
         <span className="block text-[11px] leading-tight text-muted-foreground">
           Your Journey. Your Legacy.
         </span>
@@ -172,10 +173,10 @@ export function AppShell({ children }: { children: ReactNode }) {
         <QuickNav />
         <footer className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
-            <span>IT PATH · David Boley</span>
+            <span>{domain.appName} · David Boley</span>
             <Link
               to="/practice-tests/$certId"
-              params={{ certId: "cert-comptia-a-plus" }}
+              params={{ certId: firstPracticeTestCertId() }}
               className="hover:text-foreground"
             >
               Free Practice Tests
@@ -221,13 +222,13 @@ function PublicShell({ children }: { children: ReactNode }) {
 
       <footer className="mx-auto w-full max-w-4xl px-4 pb-12 sm:px-6">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
-          <span>IT PATH · David Boley</span>
+          <span>{domain.appName} · David Boley</span>
           <Link to="/guides" className="hover:text-foreground">
             All study guides
           </Link>
           <Link
             to="/practice-tests/$certId"
-            params={{ certId: "cert-comptia-a-plus" }}
+            params={{ certId: firstPracticeTestCertId() }}
             className="hover:text-foreground"
           >
             Free Practice Tests
