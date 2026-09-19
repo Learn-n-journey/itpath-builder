@@ -1117,7 +1117,14 @@ export function getStageExamQuestions(examId: string, nonce: number = Math.rando
     if (!take(fallback)) break;
   }
 
-  return shuffle(out).slice(0, STAGE_EXAM_SIZE);
+  // The last gate: sound questions only, nothing repeated, and the full length.
+  return finalizeQuestionSet(shuffle(out), {
+    size: STAGE_EXAM_SIZE,
+    pool: stageTopics.flatMap((topic) => pool(topic.id)),
+    conceptOf: conceptIdFor,
+    random,
+    quizId: examId,
+  });
 }
 
 /** Small deterministic generator so one sitting keeps the same paper while it is open. */
