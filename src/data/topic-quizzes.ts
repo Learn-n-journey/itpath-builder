@@ -102,6 +102,29 @@ for (const item of learningModules) {
 const ownsModuleLine = (field: string, line: string, topicId: string): boolean =>
   moduleLineOwners.get(field)?.get(tidy(line).toLowerCase()) === topicId;
 
+/**
+ * Prompt ownership. Different lines can still produce the same wording when
+ * they turn on the same term ("Which of these statements about RAID is
+ * correct?"). The first section to ask it keeps that wording; later sections
+ * ask about the section by name instead, so no two questions read alike.
+ */
+const promptOwner = new Map<string, string>();
+const claimPrompt = (topicId: string, kind: string, line: string): void => {
+  const topic = topics.find((item) => item.id === topicId);
+  const subject = subjectFor(topicId, tidy(line), topic?.title ?? "").toLowerCase();
+  const key = `${kind}:${subject}`;
+  if (!promptOwner.has(key)) promptOwner.set(key, topicId);
+};
+for (const entry of lessons) {
+  for (const line of entry.commonMisconceptions ?? []) claimPrompt(entry.topicId, "misconception", line);
+}
+for (const item of learningModules) {
+  for (const line of item.howItWorks) claimPrompt(item.topicId, "how-it-works", line);
+  for (const line of item.whereYouSeeIt) claimPrompt(item.topicId, "where-used", line);
+  for (const line of item.howItFails) claimPrompt(item.topicId, "how-it-fails", line);
+  for (const line of item.practicalKnowledge) claimPrompt(item.topicId, "practice-point", line);
+}
+
 /** Statements pulled from other sections in the same subject area, used as wrong options. */
 function otherStatements(topicId: string, field: keyof ReturnType<typeof moduleFields>): string[] {
   const cert = certOf(topicId);
@@ -286,6 +309,10 @@ function statementItem(
   const answer = tidy(correct);
   if (answer.length < 25 || answer.length > 200) return null;
   const subject = subjectFor(topicId, answer, topicTitle);
+  // Another section already asks about this subject in this style; ask about
+  // the section by name instead so the wording is never repeated.
+  const claimedBy = promptOwner.get(`${kind}:${subject.toLowerCase()}`);
+  const askedAbout = claimedBy && claimedBy !== topicId ? topicTitle : subject;
   // Some styles ask what is true in general, so a wrong option that shades into
   // the answer could be defended as correct. Those are held further apart.
   const openEnded = new Set([
