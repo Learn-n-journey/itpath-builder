@@ -315,7 +315,9 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
 
   const sectionMeasures = useMemo(() => topicMeasures(user, topic.id), [user, topic.id]);
-  if (!lesson || !module || !practice || !scenario) return null;
+  // A subject may not carry practice decisions or real-world scenarios for
+  // every section; those parts simply do not appear, the lesson still does.
+  if (!lesson || !module) return null;
   const keywords = [
     ...lesson.keyTerms.map(({ term, meaning }) => ({ term, meaning })),
     ...(deepLesson?.plain?.wordList.map(({ term, plain }) => ({ term, meaning: plain })) ?? []),
@@ -346,7 +348,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       </div>
       <Tabs value={workTab} onValueChange={setWorkTab} className="space-y-4">
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
-        <TabsTrigger value="recall">Recall</TabsTrigger><TabsTrigger value="practice">Practice</TabsTrigger><TabsTrigger value="teach-back">Teach Back</TabsTrigger><TabsTrigger value="scenario">Real-World Scenario</TabsTrigger>
+        <TabsTrigger value="recall">Recall</TabsTrigger>{practice ? <TabsTrigger value="practice">Practice</TabsTrigger> : null}<TabsTrigger value="teach-back">Teach Back</TabsTrigger>{scenario ? <TabsTrigger value="scenario">Real-World Scenario</TabsTrigger> : null}
       </TabsList>
       <TabsContent value="recall"><div className="space-y-4">{visibleRecall.map((question, index) => {
         const feedback = recallFeedback[question.id];
@@ -359,7 +361,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       })}</div></TabsContent>
 
       <TabsContent value="teach-back"><Panel title="Teach Back" description="Explain this topic in your own words. GAYL reads it back and tells you what your explanation shows.">{teachBackEditing ? <><Label htmlFor="teach-back">Your explanation</Label><Textarea id="teach-back" className="mt-2" rows={7} value={teachBack} onChange={(event) => setTeachBack(event.target.value)} /><div className="mt-3 flex flex-wrap gap-2"><Button disabled={teachBackMarking.busy} onClick={() => void saveTeachBack()}><Save />{teachBackMarking.busy ? "GAYL is reading…" : "Save"}</Button>{savedTeachBack ? <Button variant="outline" onClick={() => { setTeachBack(savedTeachBack.body); setTeachBackEditing(false); }}><FileText />Review saved response</Button> : null}</div></> : <><div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">{savedTeachBack?.body}</div><Button className="mt-3" variant="outline" onClick={() => setTeachBackEditing(true)}><Edit3 />Edit</Button></>}<AiFeedback state={teachBackMarking} /></Panel></TabsContent>
-      <TabsContent value="scenario"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}<AiFeedback state={scenarioMarking} /></Panel></TabsContent>
+      {scenario ? <TabsContent value="scenario"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}<AiFeedback state={scenarioMarking} /></Panel></TabsContent> : null}
       </Tabs>
     </section>
 
