@@ -968,11 +968,13 @@ export function drawSectionQuiz(topicId: string, nonce: number): Question[] {
     }
   }
 
-  return chosen.map((item, index) => ({
-    ...item,
+  return finalizeQuestionSet(chosen, {
+    size: SECTION_QUIZ_SIZE,
+    pool: order.map((item) => item.question),
+    conceptOf: conceptIdFor,
+    random: seeded(`${topicId}:${nonce}:fill`),
     quizId: `section-quiz-${topicId}`,
-    order: index,
-  })) as Question[];
+  });
 }
 
 /** Every question available for a topic, used to top up the larger stage exams. */
