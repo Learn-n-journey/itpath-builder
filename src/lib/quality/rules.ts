@@ -152,6 +152,12 @@ export const qualityRules: QualityRule[] = [
     says: "A lesson carries real teaching text, not placeholders or repeated sentences.",
   },
   {
+    id: "questions.semantic-consistency",
+    area: "questions",
+    severity: "blocking",
+    says: "Answer choices match the semantic and grammatical format requested by the question prompt.",
+  },
+  {
     id: "questions.multiple-choice-sound",
     area: "questions",
     severity: "warning",

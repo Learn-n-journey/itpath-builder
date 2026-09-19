@@ -47,10 +47,11 @@ Rules:
 - Use only the supplied section material. Never invent facts outside it.
 - Every question is multiple choice with exactly 4 options and exactly one correct option.
 - Wrong options must be plausible, same subject area, similar length and style. No joke or obviously silly options.
+- Every option must answer the exact kind of question asked. Action questions need four actions; why/how questions need four explanations; identification questions need four names of the same kind. Never mix response formats.
 - Questions must read as a complete, sensible question a tutor would ask. No template fragments.
 - Mix recall, applied judgement and first troubleshooting step.
 - Write one short explanation of why the answer is right.
-Return JSON only: {"questions":[{"prompt":"","choices":["","","",""],"answerIndex":0,"explanation":"","mistakeCategory":"concept|terminology|diagnosis|procedure"}]}`;
+Answer choices must match the question type: Term questions must have short term choices; Action questions must have action choices; Why/How questions must have complete explanation choices. Return JSON only: {"questions":[{"prompt":"","choices":["","","",""],"answerIndex":0,"explanation":"","mistakeCategory":"concept|terminology|diagnosis|procedure"}]}`;
 
 async function ask(topicId: string): Promise<Seed[]> {
   const topic = topics.find((item) => item.id === topicId)!;

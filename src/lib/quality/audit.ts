@@ -36,7 +36,10 @@ export function lessonText(topicId: string, pack: CoursePack = coursePack): stri
 function auditQuestion(findings: Finding[], question: Question): void {
   const subject = `question:${question.id}`;
   for (const issue of questionIssues(question)) {
-    note(findings, "questions.sound", subject, issue);
+    const isSemantic = issue.includes("terminology question") || 
+                      issue.includes("action question") || 
+                      issue.includes("explanation question");
+    note(findings, isSemantic ? "questions.semantic-consistency" : "questions.sound", subject, issue);
   }
   const text = `${question.prompt} ${question.correctAnswer.join(" ")} ${question.explanation ?? ""}`;
   for (const issue of checkTechnicalClaims(text)) {

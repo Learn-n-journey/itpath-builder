@@ -1,12 +1,481 @@
 {
-  "startedAt": "2026-09-19T21:54:59.613Z",
+  "startedAt": "2026-09-19T22:20:30.374Z",
   "scope": {
     "topics": 128,
-    "papers": 264,
-    "questions": 5520
+    "papers": 396,
+    "questions": 8133
   },
-  "findings": [],
-  "blocking": 0,
+  "findings": [
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-wireless-standards-and-soho-networks#0",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-wireless-standards-and-soho-networks#1",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-wireless-standards-and-soho-networks#2",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-windows-security-settings#0",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-windows-security-settings#1",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-windows-security-settings#2",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-windows-boot-and-crash-troubleshooting#0",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-windows-boot-and-crash-troubleshooting#1",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-windows-boot-and-crash-troubleshooting#2",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-scripting-basics-for-support#0",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-scripting-basics-for-support#1",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-scripting-basics-for-support#2",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-active-directory-and-domain-services#0",
+      "detail": "2 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-active-directory-and-domain-services#1",
+      "detail": "2 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-active-directory-and-domain-services#2",
+      "detail": "2 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-network-appliances-and-functions#0",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-network-appliances-and-functions#1",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-network-appliances-and-functions#2",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-transmission-media-and-cabling-standards#0",
+      "detail": "2 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-transmission-media-and-cabling-standards#1",
+      "detail": "2 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-transmission-media-and-cabling-standards#2",
+      "detail": "2 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-network-topologies-and-modern-architectures#0",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-network-topologies-and-modern-architectures#1",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-network-topologies-and-modern-architectures#2",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-change-management-for-security#0",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-change-management-for-security#1",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-change-management-for-security#2",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-networking-and-troubleshooting#0",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-networking-and-troubleshooting#1",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-networking-and-troubleshooting#2",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-device-management-and-virtualisation#0",
+      "detail": "2 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-device-management-and-virtualisation#1",
+      "detail": "2 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-device-management-and-virtualisation#2",
+      "detail": "2 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-authentication-and-aaa#0",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-authentication-and-aaa#1",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-authentication-and-aaa#2",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-firewalls-and-os-hardening#0",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-firewalls-and-os-hardening#1",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-firewalls-and-os-hardening#2",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-automation-scripting-and-monitoring#0",
+      "detail": "5 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-automation-scripting-and-monitoring#1",
+      "detail": "5 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-linux-automation-scripting-and-monitoring#2",
+      "detail": "5 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-server-storage-deployment-and-raid#0",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-server-storage-deployment-and-raid#1",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-server-storage-deployment-and-raid#2",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-server-identity-access-and-physical-security#0",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-server-identity-access-and-physical-security#1",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-server-identity-access-and-physical-security#2",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-server-decommissioning-and-troubleshooting#0",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-server-decommissioning-and-troubleshooting#1",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-server-decommissioning-and-troubleshooting#2",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-cloud-database-concepts-and-workload-optimisation#0",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-cloud-database-concepts-and-workload-optimisation#1",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-cloud-database-concepts-and-workload-optimisation#2",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-cloud-scaling-approaches#0",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-cloud-scaling-approaches#1",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-cloud-scaling-approaches#2",
+      "detail": "1 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-devops-fundamentals-in-the-cloud#0",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-devops-fundamentals-in-the-cloud#1",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-devops-fundamentals-in-the-cloud#2",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-ai-assisted-threat-detection-and-indicators#0",
+      "detail": "5 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-ai-assisted-threat-detection-and-indicators#1",
+      "detail": "5 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-ai-assisted-threat-detection-and-indicators#2",
+      "detail": "5 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-engagement-communication-and-reporting-findings#0",
+      "detail": "5 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-engagement-communication-and-reporting-findings#1",
+      "detail": "5 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-engagement-communication-and-reporting-findings#2",
+      "detail": "5 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-post-exploitation-persistence-and-lateral-movement#0",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-post-exploitation-persistence-and-lateral-movement#1",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-post-exploitation-persistence-and-lateral-movement#2",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-risk-analysis-compliance-and-threat-modelling#0",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-risk-analysis-compliance-and-threat-modelling#1",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-risk-analysis-compliance-and-threat-modelling#2",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-complex-troubleshooting-legacy-and-specialised-systems#0",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-complex-troubleshooting-legacy-and-specialised-systems#1",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-complex-troubleshooting-legacy-and-specialised-systems#2",
+      "detail": "3 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-automation-monitoring-and-emerging-technology-risk#0",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-automation-monitoring-and-emerging-technology-risk#1",
+      "detail": "4 questions repeat an idea already covered"
+    },
+    {
+      "ruleId": "papers.section-quiz-whole",
+      "severity": "blocking",
+      "subjectId": "quiz:section-quiz-topic-automation-monitoring-and-emerging-technology-risk#2",
+      "detail": "4 questions repeat an idea already covered"
+    }
+  ],
+  "blocking": 78,
   "warnings": 0,
-  "passed": true
+  "passed": false
 }
