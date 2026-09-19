@@ -1,0 +1,25 @@
+[
+  {
+    "at": "2026-09-19T03:00:08.278Z",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "approved": false,
+    "activated": false,
+    "testsPassed": false,
+    "rounds": 3,
+    "blocking": 1,
+    "warnings": 0,
+    "scope": {
+      "qualifications": 2,
+      "sections": 11,
+      "concepts": 33,
+      "skills": 11,
+      "questions": 31,
+      "assessments": 2,
+      "sources": 33
+    },
+    "byRule": {
+      "domain.section-has-recall": 1
+    }
+  }
+]
