@@ -156,9 +156,10 @@ export function WelcomeTour() {
       role="dialog"
       aria-modal="true"
       aria-label="Welcome tour"
-      className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 p-0 backdrop-blur-md duration-300 animate-in fade-in sm:items-center sm:p-6"
+      className="fixed inset-0 z-50 flex items-end justify-center overflow-hidden bg-background/80 p-0 backdrop-blur-md duration-300 animate-in fade-in sm:items-center sm:p-6"
     >
-      <div className="w-full max-w-lg overflow-hidden rounded-t-2xl border border-border bg-card shadow-2xl duration-500 animate-in fade-in slide-in-from-bottom-6 sm:rounded-2xl sm:zoom-in-95">
+      <div className="tour-glow pointer-events-none absolute -bottom-24 left-1/2 h-[34rem] w-[42rem] max-w-[130vw] -translate-x-1/2 sm:bottom-auto" aria-hidden />
+      <div className="tour-card relative w-full max-w-lg overflow-hidden rounded-t-2xl border border-border/80 duration-500 animate-in fade-in slide-in-from-bottom-6 sm:rounded-2xl sm:zoom-in-95">
         <div className="h-1 w-full bg-secondary">
           <div
             className="h-full bg-primary transition-[width] duration-500 ease-out"
@@ -170,11 +171,11 @@ export function WelcomeTour() {
           <div
             key={step.id}
             className={cn(
-              "duration-300 animate-in fade-in",
+              "relative z-10",
               direction === "next" ? "slide-in-from-right-4" : "slide-in-from-left-4",
             )}
           >
-            <div className="flex items-center gap-3">
+            <div className="tour-content-enter flex items-center gap-3 [--tour-delay:40ms]">
               <span className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
                 <Icon className="size-5" aria-hidden />
               </span>
@@ -186,14 +187,14 @@ export function WelcomeTour() {
               </div>
             </div>
 
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+            <p className="tour-content-enter mt-4 text-sm leading-relaxed text-muted-foreground [--tour-delay:130ms]">{step.body}</p>
 
             <ul className="mt-5 space-y-2">
               {step.points.map((point, i) => (
                 <li
                   key={point}
-                  className="flex items-center gap-2.5 rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-sm duration-500 animate-in fade-in slide-in-from-bottom-2"
-                  style={{ animationDelay: `${120 + i * 90}ms`, animationFillMode: "both" }}
+                  className="tour-content-enter flex items-center gap-2.5 rounded-lg border border-border/70 bg-muted/30 px-3 py-2 text-sm"
+                  style={{ "--tour-delay": `${220 + i * 80}ms` } as React.CSSProperties}
                 >
                   <Sparkles className="size-3.5 shrink-0 text-primary" aria-hidden />
                   {point}
@@ -216,16 +217,16 @@ export function WelcomeTour() {
             </div>
             <div className="flex items-center gap-2">
               {index > 0 ? (
-                <Button variant="ghost" size="sm" onClick={back}>
+                <Button className="tour-action" variant="ghost" size="sm" onClick={back}>
                   <ArrowLeft className="size-4" aria-hidden />
                   Back
                 </Button>
               ) : (
-                <Button variant="ghost" size="sm" onClick={() => close(false)}>
+                <Button className="tour-action" variant="ghost" size="sm" onClick={() => close(false)}>
                   Skip
                 </Button>
               )}
-              <Button size="sm" onClick={() => (last ? close(true) : next())}>
+              <Button className="tour-action" size="sm" onClick={() => (last ? close(true) : next())}>
                 {last ? "Set up my preferences" : "Next"}
                 <ArrowRight className="size-4" aria-hidden />
               </Button>
