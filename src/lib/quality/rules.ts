@@ -121,6 +121,42 @@ export const qualityRules: QualityRule[] = [
     severity: "warning",
     says: "Every section points at outside material that can be checked.",
   },
+  {
+    id: "structure.prerequisites-acyclic",
+    area: "structure",
+    severity: "blocking",
+    says: "Prerequisites never form a loop, so every section can be reached by learning in order.",
+  },
+  {
+    id: "questions.not-repeated",
+    area: "questions",
+    severity: "blocking",
+    says: "The same question is never asked twice in one subject.",
+  },
+  {
+    id: "content.lesson-matches-objectives",
+    area: "content",
+    severity: "blocking",
+    says: "A lesson teaches the objectives its section claims to cover.",
+  },
+  {
+    id: "papers.covers-taught-material",
+    area: "papers",
+    severity: "blocking",
+    says: "A paper only tests objectives that some section in the subject actually teaches.",
+  },
+  {
+    id: "content.no-filler",
+    area: "content",
+    severity: "blocking",
+    says: "A lesson carries real teaching text, not placeholders or repeated sentences.",
+  },
+  {
+    id: "content.sources-usable",
+    area: "content",
+    severity: "blocking",
+    says: "Every cited source is a labelled https address that is not a placeholder.",
+  },
 ];
 
 const byId = new Map(qualityRules.map((rule) => [rule.id, rule] as const));
