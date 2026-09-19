@@ -9,7 +9,8 @@
  * When the active subject is the authored one this returns `null`, so IT keeps
  * running on exactly the arrays it always did — no behaviour change at all.
  */
-import { activeEntry } from "@/domain/registry";
+import { activeEntry, findEntry } from "@/domain/registry";
+import { activeDomainKey } from "@/lib/active-domain";
 import type { DomainPackage } from "@/domain/package";
 import type {
   Certification,
@@ -18,6 +19,7 @@ import type {
   Lesson,
   PracticeActivity,
   RecallQuestion,
+  Resource,
   Topic,
 } from "@/lib/app-data/types";
 
@@ -36,6 +38,8 @@ export interface DomainOverlay {
   modules: LearningModule[];
   recall: RecallQuestion[];
   practice: PracticeActivity[];
+  /** Reading and watching material, one entry per source the subject declares. */
+  resources: Resource[];
   sizes: AssessmentSizes;
   /** Stage papers declared by the package, in learning order. */
   stages: Array<{ id: string; title: string; description: string; from: number; to: number }>;
@@ -162,6 +166,24 @@ function build(pkg: DomainPackage): DomainOverlay {
       explanation: question.explanation,
     }));
 
+  const resources: Resource[] = pkg.sources.map((source, index) => {
+    const slug = slugOf(source.sectionId);
+    const topicId = topicIdOf(slug);
+    return {
+      id: `resource-${pkg.definition.id}-${index + 1}`,
+      title: source.label,
+      provider: new URL(source.url).hostname.replace(/^www\./, ""),
+      url: source.url,
+      topicIds: [topicId],
+      certificationId: bySection.get(source.sectionId)?.qualificationId ?? "",
+      kind: source.kind === "video" ? "video" : "docs",
+      difficulty: "standard",
+      access: "free",
+      lastVerified: pkg.manifest.producedAt.slice(0, 10),
+      status: "verified",
+    };
+  });
+
   const months = topics.map((topic) => topic.month);
   const stages = pkg.assessments.map((assessment, index) => {
     const covered = topics.filter((topic) => assessment.coversQualificationIds.includes(topic.certificationId));
@@ -183,6 +205,7 @@ function build(pkg: DomainPackage): DomainOverlay {
     modules,
     recall,
     practice,
+    resources,
     sizes: {
       sectionQuiz: pkg.assessmentSizes?.sectionQuiz ?? 20,
       stageExam: pkg.assessmentSizes?.stageExam ?? Math.max(10, pkg.assessments[0]?.questionCount ?? 50),
@@ -191,8 +214,14 @@ function build(pkg: DomainPackage): DomainOverlay {
   };
 }
 
-/** The active subject's content, or null when the authored subject is live. */
+/**
+ * The active subject's content, or null when the authored subject is live.
+ * A subject chosen in settings on this device wins over the build default, so
+ * the curriculum on screen always matches the subject the app says it is in.
+ */
 export const domainOverlay: DomainOverlay | null = (() => {
-  const pkg = activeEntry().packageSync;
+  const entry = findEntry(activeDomainKey()) ?? activeEntry();
+  const pkg = entry.packageSync;
   return pkg ? build(pkg) : null;
 })();
+

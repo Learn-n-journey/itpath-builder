@@ -547,7 +547,7 @@ const authoredLessons: Lesson[] = [
 ];
 
 export const lessons: Lesson[] = domainOverlay?.lessons ?? authoredLessons;
-export const resources: Resource[] = [
+const authoredResources: Resource[] = [
   {
     id: "resource-comptia-a-plus-core-1",
     title: "CompTIA A+ Core 1 Certification",
@@ -703,6 +703,8 @@ export const resources: Resource[] = [
   ...buildTopicReadingResources(topics),
   ...buildMesserResources(certifications, topics),
 ];
+/** A generated subject brings its own reading and watching material. */
+export const resources: Resource[] = domainOverlay ? domainOverlay.resources : authoredResources;
 export const assignments: Assignment[] = [
   ...coreAssignments,
   ...buildTopicAssignments(topics, lessons),

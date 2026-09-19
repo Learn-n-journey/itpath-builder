@@ -23,7 +23,8 @@ export type NewsCategory =
   | "Mobile"
   | "IT Careers"
   | "Releases"
-  | "Outages";
+  | "Outages"
+  | "Automotive";
 
 export const NEWS_CATEGORIES: NewsCategory[] = [
   "AI",
@@ -38,6 +39,7 @@ export const NEWS_CATEGORIES: NewsCategory[] = [
   "IT Careers",
   "Releases",
   "Outages",
+  "Automotive",
 ];
 
 interface Feed {
@@ -73,6 +75,13 @@ const FEEDS: Feed[] = [
   { url: "https://www.wired.com/feed/category/gear/latest/rss", source: "WIRED", fallback: "Hardware" },
   { url: "https://rss.slashdot.org/Slashdot/slashdotMain", source: "Slashdot", fallback: "Programming", max: 10 },
   { url: "https://lobste.rs/rss", source: "Lobsters", fallback: "Programming", max: 10 },
+  { url: "https://www.motor1.com/rss/news/all/", source: "Motor1", fallback: "Automotive", max: 8 },
+  { url: "https://www.caranddriver.com/rss/all.xml/", source: "Car and Driver", fallback: "Automotive", max: 8 },
+  { url: "https://www.repairerdrivennews.com/feed/", source: "Repairer Driven News", fallback: "Automotive", max: 8 },
+  { url: "https://www.autoweek.com/rss/all.xml/", source: "Autoweek", fallback: "Automotive", max: 6 },
+  { url: "https://www.carscoops.com/feed/", source: "Carscoops", fallback: "Automotive", max: 6 },
+  { url: "https://www.thedrive.com/feed", source: "The Drive", fallback: "Automotive", max: 6 },
+  { url: "https://insideevs.com/rss/news/all/", source: "InsideEVs", fallback: "Automotive", max: 6 },
 ];
 
 const RULES: [NewsCategory, RegExp][] = [
@@ -179,7 +188,8 @@ function parseFeed(xml: string, feed: Feed): NewsArticle[] {
       url,
       image: findImage(block),
       source: feed.source,
-      category: categorise(`${title} ${summary}`, feed.fallback),
+      // Automotive outlets keep their own category; the IT keyword rules do not apply to them.
+      category: feed.fallback === "Automotive" ? "Automotive" : categorise(`${title} ${summary}`, feed.fallback),
       publishedAt: new Date(parsed).toISOString(),
     });
   }

@@ -8481,6 +8481,102 @@ export const autoRepairPackage: DomainPackage = {
 ],
   sources: [
   {
+    "sectionId": "auto-repair:section:electrical-ignition-inspection",
+    "label": "ScannerDanner: Ignition and Electrical Diagnostics",
+    "url": "https://www.youtube.com/@ScannerDanner",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:transmission-diagnosis-fundamentals",
+    "label": "WeberAuto: Automatic Transmission Diagnosis",
+    "url": "https://www.youtube.com/@WeberAuto",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:transmission-maintenance-and-linkage",
+    "label": "WeberAuto: Transmission Service and Adjustment",
+    "url": "https://www.youtube.com/@WeberAuto",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:in-vehicle-electronic-component-replacement",
+    "label": "ScannerDanner: In-Vehicle Electronic Component Testing",
+    "url": "https://www.youtube.com/@ScannerDanner",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:transmission-unit-final-assembly",
+    "label": "WeberAuto: Transmission Teardown and Assembly",
+    "url": "https://www.youtube.com/@WeberAuto",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:four-wheel-drive-transfer-case-service",
+    "label": "WeberAuto: Transfer Case and 4WD Systems",
+    "url": "https://www.youtube.com/@WeberAuto",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:limited-slip-differential-repair",
+    "label": "WeberAuto: Differential and Limited-Slip Operation",
+    "url": "https://www.youtube.com/@WeberAuto",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:steering-system-fundamentals",
+    "label": "Engineering Explained: Steering System Fundamentals",
+    "url": "https://www.youtube.com/@EngineeringExplained",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:advanced-wheel-alignment-and-tire-management",
+    "label": "South Main Auto Repair: Alignment and Tire Service",
+    "url": "https://www.youtube.com/@SouthMainAuto",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:steering-gear-hydraulic-repair",
+    "label": "South Main Auto Repair: Power Steering Service",
+    "url": "https://www.youtube.com/@SouthMainAuto",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:disc-brake-components-and-service",
+    "label": "South Main Auto Repair: Disc Brake Service",
+    "url": "https://www.youtube.com/@SouthMainAuto",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:battery-service-and-diagnostic-procedures",
+    "label": "ScannerDanner: Battery and Charging System Testing",
+    "url": "https://www.youtube.com/@ScannerDanner",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:epa-refrigerant-handling-protocols",
+    "label": "EricTheCarGuy: Refrigerant Recovery and Handling",
+    "url": "https://www.youtube.com/@EricTheCarGuy",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:expansion-valve-and-metering",
+    "label": "EricTheCarGuy: A/C Metering Device Diagnosis",
+    "url": "https://www.youtube.com/@EricTheCarGuy",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:refrigerant-leak-detection-methods",
+    "label": "EricTheCarGuy: A/C Leak Detection",
+    "url": "https://www.youtube.com/@EricTheCarGuy",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:system-performance-testing",
+    "label": "EricTheCarGuy: A/C Performance and Pressure Testing",
+    "url": "https://www.youtube.com/@EricTheCarGuy",
+    "kind": "video"
+  },
+  {
     "sectionId": "auto-repair:section:cylinder-head-valvetrain-diagnosis",
     "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
     "url": "https://www.ase.com",
