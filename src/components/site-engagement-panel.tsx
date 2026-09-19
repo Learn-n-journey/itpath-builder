@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { Panel } from "@/components/page-kit";
 import { getSiteEngagement, type SiteEngagement } from "@/lib/site-engagement.functions";
+import { useAuth } from "@/state/auth-state";
 import { formatStudyTime } from "@/lib/study-time";
 
 /**
@@ -9,11 +10,18 @@ import { formatStudyTime } from "@/lib/study-time";
  * double-checks the signed-in email before returning any figures.
  */
 export function SiteEngagementPanel() {
+  const { userId, ready } = useAuth();
   const [state, setState] = useState<
     { status: "loading" } | { status: "hidden" } | { status: "ready"; data: SiteEngagement }
   >({ status: "loading" });
 
   useEffect(() => {
+    // Signed out there is no bearer token, so the owner-only call would fail
+    // with an unauthorized error. Never ask in the first place.
+    if (!ready || !userId) {
+      setState({ status: "hidden" });
+      return;
+    }
     let cancelled = false;
     void getSiteEngagement().then((reply) => {
       if (cancelled) return;
@@ -25,7 +33,7 @@ export function SiteEngagementPanel() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [ready, userId]);
 
   if (state.status !== "ready") return null;
   const d = state.data;
