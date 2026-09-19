@@ -6,7 +6,14 @@ import { ExternalLink, Play, RefreshCw } from "lucide-react";
 
 import { PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { getTechVideos, VIDEO_CATEGORIES, type TechVideo, type VideoCategory } from "@/lib/tech-videos.functions";
+import {
+  CHANNEL_DIRECTORY,
+  getTechVideos,
+  VIDEO_CATEGORIES,
+  type ChannelInfo,
+  type TechVideo,
+  type VideoCategory,
+} from "@/lib/tech-videos.functions";
 
 export const Route = createFileRoute("/tech-videos")({
   staticData: { sitemap: true },
@@ -112,22 +119,77 @@ function VideoCard({ video, playing, onPlay }: { video: TechVideo; playing: bool
   );
 }
 
+function ChannelCard({ channel, playing, onPlay }: { channel: ChannelInfo; playing: boolean; onPlay: () => void }) {
+  return (
+    <article className="overflow-hidden rounded-2xl border border-border bg-card/70 transition hover:border-primary/40">
+      <div className="relative aspect-video w-full bg-muted">
+        {playing ? (
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/videoseries?list=${channel.uploadsPlaylistId}&autoplay=1&rel=0&playsinline=1`}
+            title={`${channel.name} latest uploads`}
+            className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={onPlay}
+            className="group relative flex h-full w-full flex-col items-center justify-center gap-3"
+            aria-label={`Play the latest videos from ${channel.name}`}
+          >
+            <span className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition group-hover:scale-105">
+              <Play className="size-6 translate-x-[1px]" fill="currentColor" />
+            </span>
+            <span className="text-sm text-muted-foreground">Latest uploads</span>
+          </button>
+        )}
+      </div>
+      <div className="flex flex-col gap-2 p-4">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="rounded-full bg-primary/15 px-2 py-0.5 font-medium text-primary">{channel.category}</span>
+          <span className="text-muted-foreground">YouTube</span>
+        </div>
+        <h2 className="font-display text-base leading-snug text-foreground">{channel.name}</h2>
+        <a
+          href={channel.channelUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="inline-flex items-center gap-1 pt-1 text-xs font-medium text-primary hover:underline"
+        >
+          Open the channel on YouTube
+          <ExternalLink className="size-3" />
+        </a>
+      </div>
+    </article>
+  );
+}
+
 function TechVideosPage() {
   const fetchVideos = useServerFn(getTechVideos);
   const [active, setActive] = useState<VideoCategory | "All">("All");
   const [playing, setPlaying] = useState<string | null>(null);
 
-  const { data, isLoading, isFetching, refetch, isError } = useQuery({
+  const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["tech-videos"],
     queryFn: () => fetchVideos(),
     staleTime: 15 * 60 * 1000,
   });
 
   const videos = useMemo(() => data ?? [], [data]);
+  const usingChannels = !isLoading && videos.length === 0;
   const available = useMemo(() => {
-    const present = new Set(videos.map((video) => video.category));
+    const present = new Set(
+      usingChannels ? CHANNEL_DIRECTORY.map((channel) => channel.category) : videos.map((video) => video.category),
+    );
     return VIDEO_CATEGORIES.filter((category) => present.has(category));
-  }, [videos]);
+  }, [videos, usingChannels]);
+  const shownChannels = useMemo(
+    () => (active === "All" ? CHANNEL_DIRECTORY : CHANNEL_DIRECTORY.filter((channel) => channel.category === active)),
+    [active],
+  );
   const shown = useMemo(
     () => (active === "All" ? videos : videos.filter((video) => video.category === active)),
     [videos, active],
@@ -172,9 +234,22 @@ function TechVideosPage() {
             <div key={index} className="h-72 animate-pulse rounded-2xl border border-border bg-card/50" />
           ))}
         </div>
-      ) : isError || videos.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card/60 p-6 text-sm text-muted-foreground">
-          The video feed could not be reached just now. Try Refresh in a moment.
+      ) : usingChannels ? (
+        <div className="space-y-4">
+          <p className="rounded-2xl border border-border bg-card/60 p-4 text-sm text-muted-foreground">
+            The live listing is unavailable right now, so here are the channels themselves. Each card plays that
+            creator's newest uploads.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {shownChannels.map((channel) => (
+              <ChannelCard
+                key={channel.id}
+                channel={channel}
+                playing={playing === channel.id}
+                onPlay={() => setPlaying(channel.id)}
+              />
+            ))}
+          </div>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

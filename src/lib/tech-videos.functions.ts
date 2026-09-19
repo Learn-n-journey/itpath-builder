@@ -80,6 +80,27 @@ const CHANNELS: Channel[] = [
   { id: "UC_x5XG1OV2P6uZZ5FSM9Ttw", name: "Google for Developers", fallback: "Programming" },
 ];
 
+/**
+ * Channel directory used when the public feed cannot be reached. Each channel's
+ * uploads playlist is played in YouTube's own player, so the newest videos from
+ * that creator are always available even with no feed metadata.
+ */
+export interface ChannelInfo {
+  id: string;
+  name: string;
+  category: VideoCategory;
+  uploadsPlaylistId: string;
+  channelUrl: string;
+}
+
+export const CHANNEL_DIRECTORY: ChannelInfo[] = CHANNELS.map((channel) => ({
+  id: channel.id,
+  name: channel.name,
+  category: channel.fallback,
+  uploadsPlaylistId: `UU${channel.id.slice(2)}`,
+  channelUrl: `https://www.youtube.com/channel/${channel.id}`,
+}));
+
 const RULES: [VideoCategory, RegExp][] = [
   ["Troubleshooting", /\b(fix|troubleshoot|repair|blue screen|bsod|won'?t boot|not working|error code|diagnose|slow pc)\b/i],
   ["Cybersecurity", /\b(security|hack|malware|ransomware|phish|exploit|vulnerab|pentest|cve-|firewall|soc analyst|red team|blue team)\b/i],
