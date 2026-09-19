@@ -43,7 +43,17 @@ function health(
   if (metric.retention < thresholds.weakRetention && metric.gradedEvidence >= thresholds.minimumGradedEvidence) reasons.push("Recent retention is below the declared threshold.");
   if (metric.failures >= thresholds.repeatedFailureCount) reasons.push("Failures repeated beyond the declared threshold.");
   if (Object.values(metric.misconceptionCounts).some((count) => count >= thresholds.repeatedMisconceptionCount)) reasons.push("The same misconception repeated.");
-  return { ...metric, id, kind, subjectId, parentId, score, confidence: clamp(metric.gradedEvidence / 10), status: statusOf(metric, score, thresholds), reasons };
+  return {
+    ...metric,
+    id,
+    kind,
+    subjectId,
+    ...(parentId ? { parentId } : {}),
+    score,
+    confidence: clamp(metric.gradedEvidence / 10),
+    status: statusOf(metric, score, thresholds),
+    reasons,
+  };
 }
 
 function combine(metrics: TelemetryAggregate[]): TelemetryAggregate {
