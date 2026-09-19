@@ -1,14 +1,14 @@
-# Automotive Technician Foundations 1.0.0
+# ASE FastTrack Technician 1.0.0
 
-This course provides entry-level technicians with foundational skills in braking systems and engine repair through practical, safety-focused shop exercises.
+This course provides entry-level automotive technicians with foundational knowledge in braking systems and engine mechanical diagnostics.
 
 Key: `auto-repair@1.0.0`
 
 - 2 qualifications
 - 11 sections
-- 33 concepts
+- 23 concepts
 - 11 skills
-- 31 questions
+- 33 questions
 - 2 assessments
 - 33 sources
 

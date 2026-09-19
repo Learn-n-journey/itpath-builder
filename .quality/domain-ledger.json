@@ -44,5 +44,28 @@
     "byRule": {
       "domain.section-has-recall": 1
     }
+  },
+  {
+    "at": "2026-09-19T03:03:33.296Z",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "approved": true,
+    "activated": true,
+    "testsPassed": true,
+    "rounds": 1,
+    "blocking": 0,
+    "warnings": 10,
+    "scope": {
+      "qualifications": 2,
+      "sections": 11,
+      "concepts": 23,
+      "skills": 11,
+      "questions": 33,
+      "assessments": 2,
+      "sources": 33
+    },
+    "byRule": {
+      "content.lesson-has-substance": 10
+    }
   }
 ]

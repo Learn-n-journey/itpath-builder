@@ -10,968 +10,929 @@ export const autoRepairPackage: DomainPackage = {
   {
     "id": "cert-brakes-a5",
     "title": "Brakes (A5)",
-    "summary": "The ASE A5 Brakes certification examination measures a technician's knowledge of the diagnosis and repair of hydraulic, drum, disc, and power assist brake systems, as well as electronic brake control systems.",
+    "summary": "The ASE A5 Brakes certification examination measures a technician's proficiency in diagnosing and repairing hydraulic, drum, disc, and anti-lock braking systems.",
     "objectives": [
       {
         "id": "cert-brakes-a5-obj-1",
         "domain": "Hydraulic System Diagnosis and Repair",
-        "text": "Diagnose and repair master cylinders, hydraulic lines, hoses, and proportioning valves."
+        "text": "Diagnose and repair master cylinders, fluid level sensors, proportioning valves, and hydraulic lines or hoses."
       },
       {
         "id": "cert-brakes-a5-obj-2",
         "domain": "Drum Brake Diagnosis and Repair",
-        "text": "Inspect and service wheel cylinders, brake shoes, drums, and self-adjusting hardware."
+        "text": "Inspect, diagnose, and service brake shoes, wheel cylinders, drums, and hardware components."
       },
       {
         "id": "cert-brakes-a5-obj-3",
         "domain": "Disc Brake Diagnosis and Repair",
-        "text": "Diagnose and service calipers, slide pins, brake pads, and rotors for proper operation and clearance."
+        "text": "Diagnose and service disc brake calipers, pads, rotors, and associated mounting hardware."
       },
       {
         "id": "cert-brakes-a5-obj-4",
         "domain": "Power Assist Unit Diagnosis and Repair",
-        "text": "Test and repair vacuum boosters, hydro-boost systems, and associated check valves."
+        "text": "Identify and rectify malfunctions in vacuum-operated and hydraulic brake boosters."
       },
       {
         "id": "cert-brakes-a5-obj-5",
-        "domain": "Electronic Brake Control Systems Diagnosis and Repair",
-        "text": "Identify and diagnose faults in anti-lock brake systems, electronic stability control, and traction control sensors and actuators."
+        "domain": "Anti-lock Brake System (ABS), Traction Control, and Electronic Stability Control",
+        "text": "Utilize diagnostic equipment to analyze and repair system components such as wheel speed sensors, electronic control units, and hydraulic modulator assemblies."
       },
       {
         "id": "cert-brakes-a5-obj-6",
-        "domain": "Miscellaneous Systems Diagnosis and Repair",
-        "text": "Diagnose and service parking brake cables, electric parking brakes, and brake pedal linkage assemblies."
+        "domain": "Miscellaneous Systems",
+        "text": "Diagnose and repair electric parking brake systems and related electronic control components."
       }
     ]
   },
   {
     "id": "cert-engine-repair-a1",
     "title": "Engine Repair (A1)",
-    "summary": "The ASE A1 Engine Repair certification exam assesses a technician's competency in diagnosing and repairing automotive gasoline engine mechanical systems.",
+    "summary": "The ASE A1 Engine Repair certification measures technical competency in the diagnosis, inspection, and service of automotive engine mechanical systems.",
     "objectives": [
       {
         "id": "cert-engine-repair-a1-obj-1",
         "domain": "General Engine Diagnosis",
-        "text": "Identify and interpret engine performance concerns, including oil pressure, noise, and exhaust color issues."
+        "text": "Identify and interpret engine performance concerns using manual and electronic diagnostic procedures."
       },
       {
         "id": "cert-engine-repair-a1-obj-2",
-        "domain": "Cylinder Head and Valve Train Diagnosis and Repair",
-        "text": "Inspect, measure, and service cylinder head components, including valves, guides, seats, and camshaft timing mechanisms."
+        "domain": "Cylinder Head and Valvetrain Diagnosis and Repair",
+        "text": "Inspect, measure, and service cylinder head components including valves, guides, springs, and camshafts."
       },
       {
         "id": "cert-engine-repair-a1-obj-3",
         "domain": "Engine Block Assembly Diagnosis and Repair",
-        "text": "Perform measurements and repairs on internal components such as pistons, connecting rods, crankshafts, and cylinder bores."
+        "text": "Evaluate and service the engine block, pistons, connecting rods, crankshaft, and main bearings for wear or damage."
       },
       {
         "id": "cert-engine-repair-a1-obj-4",
         "domain": "Lubrication and Cooling Systems Diagnosis and Repair",
-        "text": "Diagnose and repair cooling system leaks, thermostat failures, water pump issues, and oil pump/lubrication system faults."
+        "text": "Diagnose and repair faults in oil pumps, cooling fans, water pumps, radiators, and thermostats."
       },
       {
         "id": "cert-engine-repair-a1-obj-5",
         "domain": "Fuel, Electrical, Ignition, and Exhaust Systems Inspection",
-        "text": "Verify the operational integrity of engine-mounted components that support mechanical performance, including fuel delivery and basic ignition timing."
+        "text": "Perform inspections of engine-related support systems to ensure proper mechanical operation and performance."
       }
     ]
   }
 ],
   sections: [
   {
-    "id": "auto-repair:section:hydraulic-system-foundations",
-    "slug": "hydraulic-system-foundations",
+    "id": "auto-repair:section:hydraulic-system-fundamentals",
+    "slug": "hydraulic-system-fundamentals",
     "title": "Master Cylinders and Hydraulic Circuits",
-    "summary": "Covers the conversion of pedal force into hydraulic pressure and the distribution of fluid through lines and proportioning valves.",
+    "summary": "Covers the heart of the braking system including fluid pressure distribution, master cylinders, and lines.",
     "qualificationId": "cert-brakes-a5",
     "order": 0,
     "objectiveIds": [
-      "Diagnose master cylinder failure",
-      "Inspect lines, hoses, and proportioning valves"
+      "Diagnose and repair master cylinders",
+      "Maintain hydraulic lines and proportioning valves"
     ]
   },
   {
-    "id": "auto-repair:section:drum-brake-servicing",
-    "slug": "drum-brake-servicing",
-    "title": "Drum Brakes and Self-Adjusters",
-    "summary": "An exploration of wheel cylinders, brake shoes, drums, and the hardware required for drum brake functionality.",
+    "id": "auto-repair:section:drum-brake-service",
+    "slug": "drum-brake-service",
+    "title": "Drum Brake Diagnosis and Repair",
+    "summary": "Covers service procedures for mechanical drum brakes, including shoe replacement and wheel cylinder inspection.",
     "qualificationId": "cert-brakes-a5",
     "order": 1,
     "objectiveIds": [
-      "Inspect wheel cylinders and shoes",
-      "Service drum hardware and adjusters"
+      "Inspect and service brake shoes",
+      "Diagnose wheel cylinder leakage"
     ]
   },
   {
-    "id": "auto-repair:section:disc-brake-servicing",
-    "slug": "disc-brake-servicing",
-    "title": "Disc Brakes, Calipers, and Rotors",
-    "summary": "Covers the diagnosis and service of brake pads, calipers, slide pins, and rotors to ensure optimal stopping force.",
+    "id": "auto-repair:section:disc-brake-service",
+    "slug": "disc-brake-service",
+    "title": "Disc Brake Diagnosis and Repair",
+    "summary": "Covers the service of calipers, pads, and rotors in modern disc brake systems.",
     "qualificationId": "cert-brakes-a5",
     "order": 2,
     "objectiveIds": [
-      "Diagnose and service calipers and pads",
-      "Inspect rotors for thickness and runout"
+      "Diagnose and service disc brake calipers",
+      "Perform rotor and pad replacement"
     ]
   },
   {
-    "id": "auto-repair:section:power-assist-diagnostics",
-    "slug": "power-assist-diagnostics",
-    "title": "Power Assist Systems",
-    "summary": "Focuses on vacuum boosters and hydro-boost systems, including check valves and assist unit troubleshooting.",
+    "id": "auto-repair:section:power-assist-repair",
+    "slug": "power-assist-repair",
+    "title": "Power Assist Unit Diagnosis and Repair",
+    "summary": "Covers vacuum and hydraulic brake boosters that reduce pedal effort.",
     "qualificationId": "cert-brakes-a5",
     "order": 3,
     "objectiveIds": [
-      "Test vacuum boosters",
-      "Identify and repair hydro-boost components"
+      "Identify malfunctions in vacuum boosters",
+      "Service hydraulic brake boosters"
     ]
   },
   {
-    "id": "auto-repair:section:electronic-brake-controls",
-    "slug": "electronic-brake-controls",
-    "title": "Electronic Brake Control Systems",
-    "summary": "Introduces ABS, ESC, and traction control systems, focusing on sensor diagnosis and actuator faults.",
+    "id": "auto-repair:section:abs-stability-systems",
+    "slug": "abs-stability-systems",
+    "title": "ABS, Traction Control, and Stability Control",
+    "summary": "Covers electronic systems that manage wheel speed and vehicle stability.",
     "qualificationId": "cert-brakes-a5",
     "order": 4,
     "objectiveIds": [
-      "Identify and diagnose ABS faults",
-      "Service ESC and traction control sensors"
+      "Analyze wheel speed sensor data",
+      "Repair hydraulic modulator assemblies"
     ]
   },
   {
-    "id": "auto-repair:section:miscellaneous-brake-systems",
-    "slug": "miscellaneous-brake-systems",
-    "title": "Parking Brakes and Linkage",
-    "summary": "Covers the mechanical and electrical parking brake systems, including pedal linkages and cable maintenance.",
+    "id": "auto-repair:section:parking-brakes-and-final",
+    "slug": "parking-brakes-and-final",
+    "title": "Miscellaneous Systems and Electric Parking Brakes",
+    "summary": "Covers mechanical and electronic parking brake systems and final system verification.",
     "qualificationId": "cert-brakes-a5",
     "order": 5,
     "objectiveIds": [
-      "Service parking brake cables",
-      "Diagnose electric parking brake faults"
+      "Diagnose and repair electric parking brakes",
+      "Verify system integrity"
     ]
   },
   {
     "id": "auto-repair:section:engine-diagnostic-fundamentals",
     "slug": "engine-diagnostic-fundamentals",
-    "title": "General Engine Diagnosis",
-    "summary": "Master the systematic approach to identifying engine performance concerns through observation and analysis.",
+    "title": "Engine Performance Diagnosis",
+    "summary": "Mastering the systematic approach to identifying engine mechanical and electronic performance issues.",
     "qualificationId": "cert-engine-repair-a1",
     "order": 6,
     "objectiveIds": [
-      "Interpret diagnostic data from engine performance issues",
-      "Correlate exhaust color and noise to mechanical faults"
+      "Identify and interpret engine performance concerns",
+      "Use manual and electronic diagnostic procedures"
     ]
   },
   {
-    "id": "auto-repair:section:cylinder-head-service",
-    "slug": "cylinder-head-service",
-    "title": "Cylinder Head and Valve Train",
-    "summary": "Understanding the inspection, measurement, and refurbishment of the upper engine components.",
+    "id": "auto-repair:section:cylinder-head-valvetrain-service",
+    "slug": "cylinder-head-valvetrain-service",
+    "title": "Cylinder Head and Valvetrain",
+    "summary": "Inspecting and servicing the upper engine components to ensure proper sealing and timing.",
     "qualificationId": "cert-engine-repair-a1",
     "order": 7,
     "objectiveIds": [
-      "Measure valve guide wear",
-      "Inspect camshaft timing mechanisms"
+      "Inspect and measure cylinder head components",
+      "Service valves, guides, springs, and camshafts"
     ]
   },
   {
-    "id": "auto-repair:section:engine-block-rebuild",
-    "slug": "engine-block-rebuild",
+    "id": "auto-repair:section:engine-block-assembly-diagnosis",
+    "slug": "engine-block-assembly-diagnosis",
     "title": "Engine Block Assembly",
-    "summary": "Detailed inspection and repair of the reciprocating assembly inside the engine block.",
+    "summary": "Evaluating the core structural components of the engine including rotating assembly tolerances.",
     "qualificationId": "cert-engine-repair-a1",
     "order": 8,
     "objectiveIds": [
-      "Measure cylinder bore taper",
-      "Check bearing clearances"
+      "Evaluate the engine block",
+      "Service pistons, connecting rods, crankshaft, and main bearings"
     ]
   },
   {
-    "id": "auto-repair:section:cooling-and-lubrication",
-    "slug": "cooling-and-lubrication",
+    "id": "auto-repair:section:lubrication-cooling-systems",
+    "slug": "lubrication-cooling-systems",
     "title": "Lubrication and Cooling Systems",
-    "summary": "Diagnosis and repair of the critical support systems that prevent thermal and mechanical breakdown.",
+    "summary": "Diagnosing and repairing the support systems that manage engine heat and friction.",
     "qualificationId": "cert-engine-repair-a1",
     "order": 9,
     "objectiveIds": [
-      "Diagnose cooling system leaks",
-      "Test oil pump functionality"
+      "Diagnose and repair oil pumps",
+      "Service cooling fans, water pumps, radiators, and thermostats"
     ]
   },
   {
-    "id": "auto-repair:section:engine-peripherals",
-    "slug": "engine-peripherals",
-    "title": "Fuel, Electrical, and Ignition Systems",
-    "summary": "Verify the operational integrity of engine-mounted components to ensure optimal performance.",
+    "id": "auto-repair:section:support-systems-inspection",
+    "slug": "support-systems-inspection",
+    "title": "Engine Support Systems",
+    "summary": "Evaluating the fuel, electrical, ignition, and exhaust systems for mechanical reliability.",
     "qualificationId": "cert-engine-repair-a1",
     "order": 10,
     "objectiveIds": [
-      "Verify ignition timing",
-      "Inspect fuel delivery components"
+      "Perform inspections of fuel systems",
+      "Inspect ignition and exhaust components",
+      "Verify electrical grounds and connections"
     ]
   }
 ],
   lessons: [
   {
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
-    "title": "The Hydraulic Foundation",
-    "body": "The automotive hydraulic brake system functions on Pascal's Law, which states that pressure exerted anywhere in a confined incompressible fluid is transmitted equally in all directions throughout the fluid. In a vehicle, the driver's physical effort is multiplied by the brake pedal leverage and directed into the master cylinder. The master cylinder contains a piston that pushes fluid through steel lines and flexible rubber hoses toward the wheel units. Because modern vehicles use split-circuit systems for safety, the master cylinder is typically tandem-style, separating the front and rear circuits. If one section fails, the other remains pressurized to stop the car. Proportioning valves are critical components in these systems, as they manage the pressure balance between front and rear brakes, preventing the rear wheels from locking up prematurely during heavy braking when weight shifts forward.",
-    "definition": "A hydraulic system is a closed loop of fluid-filled lines that transfers mechanical force into pressure to actuate brake components at the wheels.",
-    "whyItMatters": "Without a functioning master cylinder or clear, leak-free lines, the mechanical energy from the driver never reaches the wheels, resulting in total brake failure.",
-    "summary": "Master cylinders convert pedal force to hydraulic pressure, while lines and valves ensure that pressure is distributed safely across all wheels."
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
+    "title": "Pressure Generation and Distribution",
+    "body": "The automotive hydraulic brake system functions on Pascal's Law, which states that pressure exerted on a confined fluid is transmitted undiminished in all directions. When a technician depresses the brake pedal, the pushrod forces a piston inside the master cylinder, pressurizing the brake fluid. This fluid travels through steel lines and flexible rubber hoses to the wheel ends. The master cylinder must maintain a precise seal; internal cup seal failure leads to pedal fade or sinking under steady pressure. Proportioning valves play a critical role by limiting pressure to the rear wheels during heavy braking to prevent premature lock-up. Proper maintenance of the hydraulic circuit involves checking for leaks, ensuring lines are free of corrosion, and replacing hoses that show signs of bulging or dry rotting. Always ensure the master cylinder reservoir is filled to the correct level and the cap seal is intact to prevent moisture ingress, which can lower the boiling point of the fluid and cause corrosion.",
+    "definition": "A closed system that uses incompressible fluid to transmit force from a pedal to the brake components at each wheel.",
+    "whyItMatters": "Loss of hydraulic integrity results in total brake system failure and loss of stopping capability.",
+    "summary": "Master cylinders and lines are the foundation of braking force; regular inspection of hoses and fluid quality is essential for safety."
   },
   {
-    "sectionId": "auto-repair:section:drum-brake-servicing",
-    "title": "Drum Brake Mechanics",
-    "body": "Drum brakes operate by forcing curved brake shoes outward against the inner surface of a rotating drum. When hydraulic fluid from the master cylinder enters the wheel cylinder, it pushes out two pistons, forcing the shoes into contact with the drum. This creates friction, which slows the vehicle. Unlike disc brakes, drum brakes are enclosed, which makes them susceptible to heat buildup but excellent for parking brake integration. A key component of the drum system is the self-adjuster mechanism. Because the brake shoes wear down over time, the gap between the shoe and the drum increases. The self-adjuster clicks a star-wheel or pawl assembly to take up this slack whenever the vehicle brakes while in reverse. Maintaining this hardware is vital for proper pedal height and stopping efficiency.",
-    "definition": "A brake system where shoes expand against the inside of a drum to create friction.",
-    "whyItMatters": "Drum brakes are common on the rear of many vehicles and serve as the parking brake mechanism; if they are improperly adjusted, the parking brake will be ineffective.",
-    "summary": "Drum brakes utilize hydraulic wheel cylinders and spring-loaded shoes, relying on self-adjusters to keep pedal travel consistent."
+    "sectionId": "auto-repair:section:drum-brake-service",
+    "title": "Servicing Drum Brake Assemblies",
+    "body": "Drum brakes rely on hydraulic pressure forcing a wheel cylinder to push brake shoes against the inside of a rotating drum. Unlike disc brakes, drum brakes are self-energizing, meaning the rotation of the drum helps pull the shoe into the friction surface, increasing stopping force. Diagnosis begins by inspecting for leaks at the wheel cylinder boots; wet or dripping fluid indicates a failed seal. Technicians must clean the backing plate and lubricate contact points with high-temperature brake grease to ensure smooth movement. When replacing shoes, it is vital to transfer the hardware correctly, including the return springs and the self-adjuster mechanism. If the drum surface shows deep scoring or blue-tinted heat spots, it must be measured for diameter; if it exceeds the maximum allowable specification, it must be replaced. Proper tensioning of the parking brake cable is often required during assembly to ensure the star-wheel adjuster functions properly.",
+    "definition": "A braking system where internal shoes expand against a cylindrical drum to create friction.",
+    "whyItMatters": "Proper assembly of springs and clips is required to prevent brake noise and uneven pad wear.",
+    "summary": "Drum brakes require attention to hardware orientation, spring tension, and hydraulic integrity of the wheel cylinder."
   },
   {
-    "sectionId": "auto-repair:section:disc-brake-servicing",
-    "title": "The Disc Brake System",
-    "body": "Disc brakes consist of a stationary caliper that squeezes pads against a rotating metal rotor. Unlike drums, disc brakes are open to the air, which allows for better heat dissipation. When the driver presses the brake pedal, hydraulic fluid enters the caliper, pushing a piston out to force the inner pad against the rotor, while the caliper housing slides on pins to pull the outer pad against the opposite side. Because of this movement, the health of the slide pins is just as important as the health of the piston. If pins are seized, the caliper will not center, causing uneven pad wear and pulling during braking. Rotors must be inspected for minimum thickness and lateral runout, which is the wobble of the rotor surface during rotation that creates the vibration felt through the steering wheel.",
-    "definition": "A system where pads are squeezed against a rotor to create friction and stop the wheel.",
-    "whyItMatters": "Disc brakes are the primary stopping force on most vehicles; neglected maintenance leads to warped rotors and reduced stopping power.",
-    "summary": "Disc brakes rely on smooth caliper sliding and healthy rotor surfaces to ensure consistent braking force."
+    "sectionId": "auto-repair:section:disc-brake-service",
+    "title": "Maintaining Disc Brake Systems",
+    "body": "Disc brakes consist of a stationary caliper and a rotating rotor. When the driver presses the pedal, the caliper piston pushes the brake pads against the rotor to create friction and heat. Modern systems often use floating calipers, which slide on pins to ensure even clamping pressure on both sides of the rotor. Regular maintenance includes cleaning and greasing the slide pins to prevent uneven pad wear or sticking. Rotors should be inspected for thickness, runout, and score marks. If the rotor thickness is below the manufacturer's discard dimension, it must be replaced. Pads should be replaced in sets per axle to ensure balanced braking performance. When compressing a caliper piston for service, technicians should open the bleeder screw to prevent pushing debris-filled fluid back into the ABS modulator, which could cause expensive internal damage.",
+    "definition": "A system where pads are clamped against a spinning rotor to slow the vehicle.",
+    "whyItMatters": "Disc brakes provide superior heat dissipation and are standard on front axles for stopping power.",
+    "summary": "Proper disc brake maintenance involves lubricating slide hardware and observing discard specifications for rotors."
   },
   {
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
-    "title": "The Power Assist Unit",
-    "body": "Power assist units make it possible to stop a heavy vehicle with reasonable pedal effort. Without assist, the driver would need to exert hundreds of pounds of force. Vacuum boosters are the most common; they use the vacuum created by the engine intake (or an electric pump) to provide a force multiplier when the pedal is pressed. A rubber diaphragm inside the booster creates a pressure differential that helps push the master cylinder piston. If the booster check valve fails, the system loses its vacuum reserve, making the pedal feel 'hard' and difficult to depress. Hydro-boost systems are used on some diesel or heavy-duty trucks, using hydraulic power steering pressure rather than vacuum to provide assist. Both systems require specific testing procedures to ensure that the assist is available when needed.",
-    "definition": "A system that multiplies the driver's pedal input force using vacuum or hydraulic pressure.",
-    "whyItMatters": "A failing booster results in a very stiff pedal, which drastically increases the distance required to bring the vehicle to a stop.",
-    "summary": "Power assist units are essential for minimizing pedal effort, relying on vacuum or hydraulic pressure to amplify braking force."
+    "sectionId": "auto-repair:section:power-assist-repair",
+    "title": "Brake Booster Operation and Diagnosis",
+    "body": "The power assist unit, or brake booster, multiplies the force applied by the driver's foot. Most modern vehicles utilize a vacuum-operated booster, which uses engine intake manifold vacuum to create a pressure differential across a large internal diaphragm. When the pedal is pushed, a valve opens to allow atmospheric pressure on one side of the diaphragm, helping to move the master cylinder piston. If the booster develops an internal leak, the pedal will feel very hard and require significant effort to stop the car. Hydraulic boosters, common in heavy-duty diesel applications, use power steering fluid pressure instead of vacuum. Diagnosing a vacuum booster involves checking for constant vacuum supply and ensuring the check valve holds vacuum. A failing check valve may result in a hard pedal immediately after the engine is shut off, indicating that vacuum is leaking back out of the booster.",
+    "definition": "A device that uses an external power source to amplify the force applied to the brake pedal.",
+    "whyItMatters": "Without power assist, the braking effort required would be unsafe and physically demanding for the average driver.",
+    "summary": "Boosters rely on pressure differentials; confirming vacuum supply is the first step in diagnosing a hard pedal complaint."
   },
   {
-    "sectionId": "auto-repair:section:electronic-brake-controls",
-    "title": "Modern Brake Electronics",
-    "body": "Electronic brake systems take control away from the driver during emergencies to ensure safety. Anti-lock Braking Systems (ABS) prevent wheel lockup during hard braking by rapidly modulating the hydraulic pressure. Electronic Stability Control (ESC) and Traction Control (TC) extend this by managing individual wheel braking and engine torque to prevent skidding or loss of control. These systems rely on sensors—usually speed sensors at each wheel—to report motion data to the Electronic Control Unit (ECU). If one sensor fails or a wire is broken, the entire system typically disables itself, and a warning light illuminates on the dash. Diagnosing these requires a scan tool to read fault codes and check live data from wheel speed sensors.",
-    "definition": "Computerized systems that monitor and regulate braking force to prevent wheel slip or loss of vehicle stability.",
-    "whyItMatters": "These systems represent the primary safety feature on modern vehicles; a fault here can mean the difference between a safe stop and a skid.",
-    "summary": "Electronic systems like ABS and ESC monitor vehicle dynamics and intervene via hydraulic actuators to maintain control."
+    "sectionId": "auto-repair:section:abs-stability-systems",
+    "title": "Electronic Brake Control Systems",
+    "body": "Modern braking systems are integrated with electronic controllers to prevent wheel lock-up (ABS), control wheel spin (Traction Control), and manage vehicle direction (Electronic Stability Control). These systems rely on wheel speed sensors (WSS) at each wheel to monitor rotational velocity. If the electronic control unit (ECU) detects one wheel slowing down faster than the others during braking, it activates the hydraulic modulator to rapidly cycle pressure to that wheel, preventing a skid. Diagnosing these systems requires a scan tool to read fault codes and monitor real-time data from the sensors. A common fault is a corrupted or signal-losing WSS caused by debris or a broken wire. If the hydraulic modulator fails or air is trapped within it, standard manual bleeding might be insufficient, requiring a scan tool to actuate the valves during the bleeding process to clear out trapped air.",
+    "definition": "Electronic systems that manage hydraulic pressure to individual wheels to maintain traction and control.",
+    "whyItMatters": "These systems allow the driver to maintain steering control even during emergency braking.",
+    "summary": "ABS systems rely on accurate sensor data and electronically controlled valve modulation to maintain vehicle stability."
   },
   {
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
-    "title": "The Parking Brake",
-    "body": "The parking brake is a critical secondary system used to hold a stationary vehicle. Traditionally, this was a manual lever or foot pedal connected to a series of cables that physically pulled on the brake shoes or pads. These cables often stretch, rust, or seize, requiring periodic adjustment or lubrication. Modern vehicles have increasingly moved toward Electric Parking Brakes (EPB), which use a computer-controlled motor to engage the rear brakes. While these are convenient, they require special service procedures; for example, you must often use a scan tool to 'retract' the motors before replacing the brake pads. Failure to follow these steps can destroy the electronic actuator. Pedal linkage assemblies, which connect the brake pedal to the master cylinder, must also be inspected for wear or binding to ensure the pedal returns to its neutral position correctly.",
-    "definition": "A system independent of the primary hydraulic brakes, designed to hold the vehicle when parked.",
-    "whyItMatters": "The parking brake is a safety requirement for preventing roll-away accidents; if the system fails, the vehicle is a safety hazard.",
-    "summary": "Parking brakes range from simple manual cables to sophisticated electric motors, all requiring careful service to remain reliable."
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
+    "title": "Electric Parking Brakes and Final Verification",
+    "body": "Modern vehicles are increasingly moving away from mechanical hand-operated parking brake levers toward electric parking brakes (EPB). These systems utilize an electric motor, often integrated directly into the rear brake caliper, to apply the pads. Service procedures for EPBs are unique because the motors must be placed into a 'service mode' using a diagnostic scan tool to retract the piston before pads can be replaced. Failure to do this can destroy the electric motor or the caliper assembly. Beyond EPB service, a comprehensive brake repair concludes with a final inspection of the entire hydraulic system. This includes ensuring all lines are secure, verifying pedal feel is firm, and conducting a test drive to ensure the vehicle tracks straight during braking and that the ABS system performs its self-test without triggering error codes.",
+    "definition": "An electronically controlled system that applies the brakes for vehicle parking.",
+    "whyItMatters": "EPBs allow for automatic features like hill-hold, but require specific service protocols to prevent damage.",
+    "summary": "EPB systems require modern diagnostic tools; safe practice dictates entering 'service mode' before any brake work."
   },
   {
     "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
-    "title": "Principles of Engine Diagnosis",
-    "body": "Before performing mechanical repairs, a technician must establish a baseline for the engine's health using observation and diagnostic tools. Engine diagnosis follows a logical flow: verification of the customer complaint, visual inspection, and component testing. You must evaluate the relationship between engine noise, oil pressure readings, and exhaust emissions to pinpoint the area of failure. For example, a low oil pressure warning requires immediate verification with a calibrated mechanical gauge to rule out electrical sensor failure. Similarly, exhaust color acts as a diagnostic indicator: blue smoke typically points to oil consumption due to worn rings or valve seals, while white smoke often signals coolant entering the combustion chamber. Understanding these fundamental correlations prevents unnecessary teardowns and ensures that the root cause, rather than just the symptom, is addressed during the repair process. By performing a cylinder leakage test, technicians can further isolate whether pressure loss is occurring at the intake valves, exhaust valves, or piston rings, ensuring a precise repair plan.",
-    "definition": "The systematic process of analyzing engine performance, sounds, and fluid conditions to identify the source of mechanical failure.",
-    "whyItMatters": "Accurate diagnosis saves time and prevents the replacement of healthy components, keeping repair costs manageable for the customer.",
-    "summary": "Systematic diagnosis begins with observation and verification using reliable mechanical instrumentation."
+    "title": "Systematic Engine Troubleshooting",
+    "body": "Engine diagnosis begins with a logical, step-by-step process to isolate the root cause of poor performance. Before reaching for internal engine tools, a technician must perform a visual inspection of external systems. This includes checking for vacuum leaks, air intake restrictions, and sensor connectivity. Following the preliminary inspection, you must utilize diagnostic scan tools to retrieve Diagnostic Trouble Codes (DTCs) and monitor live data streams for irregular PID values, such as fuel trim or misfire counts. Manual testing, such as compression testing or cylinder leak-down analysis, provides physical confirmation of internal health. By combining electronic data with physical verification, you eliminate guesswork. Effective diagnosis relies on the ability to categorize issues into fuel, ignition, or mechanical domains, ensuring that repairs are targeted rather than speculative, ultimately saving time and preventing unnecessary parts replacement.",
+    "definition": "The methodical process of identifying a vehicle's fault by gathering evidence, analyzing diagnostic data, and testing specific subsystems.",
+    "whyItMatters": "Correct diagnosis prevents 'parts swapping' and ensures the vehicle is repaired accurately on the first attempt.",
+    "summary": "Successful diagnosis integrates electronic data interpretation with hands-on mechanical verification."
   },
   {
-    "sectionId": "auto-repair:section:cylinder-head-service",
-    "title": "Servicing the Cylinder Head",
-    "body": "The cylinder head serves as the gateway for air-fuel mixture entry and exhaust exit. It houses the valves, valve springs, guides, and the camshaft. As an engine ages, valve seats can recede and valve guides can wear, leading to decreased compression and increased oil consumption. Technicians must perform precision measurements on these components to determine if they meet manufacturer specifications. Using a small hole gauge or a dial bore gauge to measure valve guide inner diameter is essential. Furthermore, the camshaft timing mechanism, whether chain or belt-driven, must be inspected for wear and proper alignment. If the timing is off by even a few degrees, the engine will suffer from poor performance or catastrophic valve-to-piston contact. Careful cleaning and checking for warpage with a straightedge and feeler gauge are standard protocols before reassembly.",
-    "definition": "The process of verifying the mechanical integrity of the valves, guides, and timing components located in the cylinder head.",
-    "whyItMatters": "Proper sealing and timing within the cylinder head are vital for generating peak compression and power.",
-    "summary": "Cylinder head service requires precision measurements to ensure valves seal properly and timing remains accurate."
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
+    "title": "Upper Engine Maintenance",
+    "body": "The cylinder head serves as the gateway for air-fuel intake and exhaust expulsion, requiring precise tolerances to maintain compression and timing. During service, the head must be checked for warpage using a precision straightedge and feeler gauge. Valves, valve guides, and seats are critical for sealing; if the valve face is pitted or the seat is recessed, compression loss will occur. Springs must be tested for free height and squareness to prevent valve float at high RPM. Camshafts, whether overhead or in the block, are inspected for lobe wear and journal damage. Proper valve lash adjustment is essential for engines that do not use hydraulic lifters, as improper clearance can lead to burnt valves or sluggish performance. Cleanliness and surface finish are paramount when installing a new head gasket to ensure the fire rings seal effectively against the block deck.",
+    "definition": "The assembly atop the engine block that houses valves, springs, and often the camshaft to control air-fuel flow.",
+    "whyItMatters": "Compromised valvetrain components result in direct loss of volumetric efficiency and combustion sealing.",
+    "summary": "Cylinder head maintenance focuses on sealing, timing, and mechanical integrity of the valve train."
   },
   {
-    "sectionId": "auto-repair:section:engine-block-rebuild",
-    "title": "Reciprocating Assembly Maintenance",
-    "body": "The engine block assembly constitutes the core mechanical structure of the engine, containing the cylinders, pistons, connecting rods, and crankshaft. For a successful rebuild, every internal measurement must be verified against service manuals. Cylinder bore taper and out-of-roundness are checked using a dial bore gauge to determine if the block requires boring or honing. Connecting rod and main bearing clearances are evaluated using plastic gauging material (Plastigage), which crushes between the bearing and the journal to provide an accurate clearance reading. Ensuring these clearances are within spec is critical for maintaining an oil film under heavy loads. If components fall outside of the specified tolerances, they must be resized or replaced to prevent engine seizure or knocking. Cleanliness during this stage cannot be overstated, as a single particle of grit can destroy a new bearing surface.",
-    "definition": "The maintenance of the block, crankshaft, and piston assemblies to ensure structural and rotational integrity.",
-    "whyItMatters": "Tight tolerances are the difference between a high-performance engine and one that experiences catastrophic failure shortly after rebuild.",
-    "summary": "The assembly phase requires strict adherence to clearance specifications to ensure longevity."
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
+    "title": "The Rotating Assembly",
+    "body": "The engine block is the foundation for the rotating assembly, which converts combustion force into rotational motion. Servicing this area requires meticulous measurement of cylinder bore taper and out-of-roundness. Pistons must be inspected for ring land wear and skirt damage, while connecting rods are checked for big-end and small-end alignment. Crankshaft health is determined by checking the main and rod journals for taper, scoring, or out-of-round conditions. Bearing clearances are measured using plastic gauge or micrometers; improper clearance leads to oil pressure loss and catastrophic engine failure. When assembling, cleanliness is critical as even microscopic debris can cause premature wear on bearing surfaces. Torque-to-yield fasteners often used for main caps and rods must be checked for stretch and replaced according to manufacturer guidelines to ensure the assembly stays securely clamped during the high-stress cycles of operation.",
+    "definition": "The internal reciprocating components of the engine, primarily the crankshaft, rods, and pistons.",
+    "whyItMatters": "The block assembly absorbs the highest mechanical loads; failure here usually results in total engine destruction.",
+    "summary": "Block integrity depends on precise clearance management and the structural health of the reciprocating assembly."
   },
   {
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
-    "title": "System Support and Maintenance",
-    "body": "No engine can survive without effective lubrication and cooling. The lubrication system, driven by the oil pump, ensures that moving parts remain separated by a hydrodynamic film of oil. Failures here lead to rapid wear and catastrophic seizure. You must be able to test oil pressure and inspect pumps for wear. Simultaneously, the cooling system regulates engine temperature to prevent component deformation or coolant boil-over. Technicians should utilize pressure testers to locate leaks in hoses, radiators, or gaskets before they become road-side failures. Thermostat operation is confirmed by monitoring engine warm-up times and checking for proper flow through the radiator. Regular maintenance of these systems—replacing coolant and oil filters—is the single most effective way to extend engine life.",
-    "definition": "The service and repair of systems responsible for thermal management and friction reduction.",
-    "whyItMatters": "Most engine failures are indirect results of neglected cooling or lubrication maintenance.",
-    "summary": "Proactive diagnosis of cooling and oil systems prevents major engine damage."
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
+    "title": "Heat and Friction Management",
+    "body": "The lubrication and cooling systems are vital for engine survival, as they counteract the intense heat and friction produced during combustion. The oil pump ensures a constant supply of pressurized oil to bearings and hydraulic components; low oil pressure often points to a pump fault or, more commonly, excessive bearing clearances. Cooling systems rely on a water pump to circulate coolant through the block and radiator, where heat is dissipated. The thermostat regulates engine temperature by controlling coolant flow. Failure of these components typically manifests as overheating or oil pressure warning lights. Technicians must perform cooling system pressure tests to locate leaks and use thermometers or scanners to verify thermostat opening temperatures. Regular maintenance, including coolant flushes and oil filter changes, prevents the buildup of debris that could damage sensitive internal seals or clog cooling passages.",
+    "definition": "Systems designed to move heat away from critical components and provide a film of oil between moving metal parts.",
+    "whyItMatters": "Neglecting these systems will cause irreversible engine heat damage or catastrophic bearing failure.",
+    "summary": "Lubrication and cooling are the primary safeguards against engine failure."
   },
   {
-    "sectionId": "auto-repair:section:engine-peripherals",
-    "title": "Peripheral Engine Systems",
-    "body": "Even with perfect mechanical internals, an engine cannot operate without precise delivery of air, fuel, and spark. Fuel system integrity involves verifying pump output and checking for leaks, while ensuring injectors function at the correct pulse width. On the electrical side, ignition timing must be verified to ensure combustion occurs at the precise moment to maximize power and prevent pre-ignition, also known as 'pinging.' In modern vehicles, this is largely handled by the Engine Control Module (ECM), but sensors such as the Crankshaft Position Sensor remain critical links. Technicians must inspect wiring harnesses for damage and verify that components like the fuel pressure regulator maintain consistent pressure throughout the load range. The Pulse Width Modulation (PWM) signal from the ECM dictates the duration of fuel injection to match air intake volume. Furthermore, the Crankshaft Position Sensor provides the reference signal necessary for the ECM to calculate precise spark advance. Ensuring these systems are synchronized with the mechanical timing of the engine is essential for smooth idling and efficient performance.",
-    "definition": "The inspection and verification of systems that manage fuel delivery, spark timing, and air intake.",
-    "whyItMatters": "Synchronization between mechanical timing and electronic management is required for efficient engine operation.",
-    "summary": "Peripheral systems control the inputs; they must be verified after all mechanical repairs are complete."
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "title": "Operational Support Systems",
+    "body": "Modern engines depend on support systems to deliver fuel, spark, and clean exhaust paths. The fuel system must be inspected for pressure stability at the rail; low pressure leads to lean mixtures, while high pressure impacts fuel trim. Ignition systems, including coils and plugs, must be inspected for carbon tracking or wear, as these cause intermittent misfires. Electrical connections must be free of corrosion to prevent high resistance, which degrades signal quality for critical sensors like the Crankshaft Position Sensor. The exhaust system must be clear of restrictions, such as a clogged catalytic converter, which would cause high backpressure and severe power loss. A comprehensive inspection includes checking fuel pump volume, testing ignition coil output, and ensuring electrical grounds provide a clean path to the chassis. By ensuring these systems are mechanically sound, you allow the engine management computer to operate the engine at peak efficiency.",
+    "definition": "Auxiliary systems including fuel delivery, high-voltage ignition, and exhaust that allow the engine to function.",
+    "whyItMatters": "Even a mechanically perfect engine will fail to run without proper fuel, spark, and exhaust flow.",
+    "summary": "Support systems are essential for maintaining combustion and emissions compliance."
   }
 ],
   concepts: [
   {
-    "id": "auto-repair:concept:hydraulic-system-foundations-pascal-s-law",
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
-    "term": "Pascal's Law",
-    "meaning": "Pressure applied to a confined fluid is transmitted undiminished in every direction."
+    "id": "auto-repair:concept:hydraulic-system-fundamentals-master-cylinder",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
+    "term": "Master Cylinder",
+    "meaning": "A hydraulic pump that converts mechanical pedal force into fluid pressure."
   },
   {
-    "id": "auto-repair:concept:hydraulic-system-foundations-proportioning-valve",
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
+    "id": "auto-repair:concept:hydraulic-system-fundamentals-proportioning-valve",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
     "term": "Proportioning Valve",
-    "meaning": "A device that limits fluid pressure to the rear brakes to prevent rear wheel lockup."
+    "meaning": "A component that regulates hydraulic pressure between front and rear brakes."
   },
   {
-    "id": "auto-repair:concept:hydraulic-system-foundations-tandem-master-cylinder",
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
-    "term": "Tandem Master Cylinder",
-    "meaning": "A cylinder with two separate pistons and reservoirs to operate split brake circuits."
+    "id": "auto-repair:concept:hydraulic-system-fundamentals-pascal-s-law",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
+    "term": "Pascal's Law",
+    "meaning": "The principle that pressure applied to a confined fluid is transmitted equally in all directions."
   },
   {
-    "id": "auto-repair:concept:drum-brake-servicing-wheel-cylinder",
-    "sectionId": "auto-repair:section:drum-brake-servicing",
+    "id": "auto-repair:concept:drum-brake-service-wheel-cylinder",
+    "sectionId": "auto-repair:section:drum-brake-service",
     "term": "Wheel Cylinder",
-    "meaning": "Hydraulic actuator that pushes shoes toward the drum."
+    "meaning": "A small hydraulic piston unit that expands the brake shoes."
   },
   {
-    "id": "auto-repair:concept:drum-brake-servicing-self-adjuster",
-    "sectionId": "auto-repair:section:drum-brake-servicing",
-    "term": "Self-Adjuster",
-    "meaning": "A mechanical link that maintains shoe clearance as linings wear."
+    "id": "auto-repair:concept:drum-brake-service-backing-plate",
+    "sectionId": "auto-repair:section:drum-brake-service",
+    "term": "Backing Plate",
+    "meaning": "The rigid metal plate that mounts the drum brake components."
   },
   {
-    "id": "auto-repair:concept:drum-brake-servicing-return-springs",
-    "sectionId": "auto-repair:section:drum-brake-servicing",
-    "term": "Return Springs",
-    "meaning": "Springs that pull shoes away from the drum when the pedal is released."
-  },
-  {
-    "id": "auto-repair:concept:disc-brake-servicing-caliper",
-    "sectionId": "auto-repair:section:disc-brake-servicing",
+    "id": "auto-repair:concept:disc-brake-service-caliper",
+    "sectionId": "auto-repair:section:disc-brake-service",
     "term": "Caliper",
-    "meaning": "A housing containing a piston that holds the brake pads."
+    "meaning": "Housing containing the piston that applies pressure to the pads."
   },
   {
-    "id": "auto-repair:concept:disc-brake-servicing-slide-pins",
-    "sectionId": "auto-repair:section:disc-brake-servicing",
-    "term": "Slide Pins",
-    "meaning": "Metal pins that allow the caliper to move as the pads wear."
+    "id": "auto-repair:concept:disc-brake-service-rotor",
+    "sectionId": "auto-repair:section:disc-brake-service",
+    "term": "Rotor",
+    "meaning": "The metal disc that rotates with the wheel and provides the surface for friction."
   },
   {
-    "id": "auto-repair:concept:disc-brake-servicing-lateral-runout",
-    "sectionId": "auto-repair:section:disc-brake-servicing",
-    "term": "Lateral Runout",
-    "meaning": "The amount of side-to-side movement of a rotor as it rotates."
-  },
-  {
-    "id": "auto-repair:concept:power-assist-diagnostics-vacuum-booster",
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
+    "id": "auto-repair:concept:power-assist-repair-vacuum-booster",
+    "sectionId": "auto-repair:section:power-assist-repair",
     "term": "Vacuum Booster",
-    "meaning": "A diaphragm-based unit using engine vacuum to multiply force."
+    "meaning": "A unit that uses engine vacuum to assist in pedal application."
   },
   {
-    "id": "auto-repair:concept:power-assist-diagnostics-check-valve",
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
+    "id": "auto-repair:concept:power-assist-repair-check-valve",
+    "sectionId": "auto-repair:section:power-assist-repair",
     "term": "Check Valve",
-    "meaning": "A one-way valve that traps vacuum inside the booster."
+    "meaning": "A one-way valve that maintains vacuum in the booster when the engine is off."
   },
   {
-    "id": "auto-repair:concept:power-assist-diagnostics-hydro-boost",
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
-    "term": "Hydro-boost",
-    "meaning": "A system using power steering fluid pressure to provide braking assist."
-  },
-  {
-    "id": "auto-repair:concept:electronic-brake-controls-abs",
-    "sectionId": "auto-repair:section:electronic-brake-controls",
-    "term": "ABS",
-    "meaning": "System that pulses the brakes to prevent tire lockup."
-  },
-  {
-    "id": "auto-repair:concept:electronic-brake-controls-wheel-speed-sensor",
-    "sectionId": "auto-repair:section:electronic-brake-controls",
+    "id": "auto-repair:concept:abs-stability-systems-wheel-speed-sensor",
+    "sectionId": "auto-repair:section:abs-stability-systems",
     "term": "Wheel Speed Sensor",
-    "meaning": "Magnetically based sensor that monitors how fast a tire is rotating."
+    "meaning": "A sensor that detects how fast each wheel is spinning."
   },
   {
-    "id": "auto-repair:concept:electronic-brake-controls-ecu",
-    "sectionId": "auto-repair:section:electronic-brake-controls",
-    "term": "ECU",
-    "meaning": "The computer module that controls the braking electronics."
+    "id": "auto-repair:concept:abs-stability-systems-hydraulic-modulator",
+    "sectionId": "auto-repair:section:abs-stability-systems",
+    "term": "Hydraulic Modulator",
+    "meaning": "A valve block that regulates pressure to individual brakes per ECU command."
   },
   {
-    "id": "auto-repair:concept:miscellaneous-brake-systems-epb",
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
-    "term": "EPB",
-    "meaning": "An electric motor-driven parking brake."
+    "id": "auto-repair:concept:parking-brakes-and-final-electric-parking-brake-epb",
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
+    "term": "Electric Parking Brake (EPB)",
+    "meaning": "A system using electronic actuators to set the parking brake."
   },
   {
-    "id": "auto-repair:concept:miscellaneous-brake-systems-cable-tensioner",
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
-    "term": "Cable Tensioner",
-    "meaning": "A component that removes slack from parking brake cables."
+    "id": "auto-repair:concept:parking-brakes-and-final-service-mode",
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
+    "term": "Service Mode",
+    "meaning": "A scan-tool function that prepares EPB systems for maintenance."
   },
   {
-    "id": "auto-repair:concept:miscellaneous-brake-systems-linkage",
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
-    "term": "Linkage",
-    "meaning": "The mechanical connection between the pedal and the master cylinder."
-  },
-  {
-    "id": "auto-repair:concept:engine-diagnostic-fundamentals-blow-by",
+    "id": "auto-repair:concept:engine-diagnostic-fundamentals-dtc",
     "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
-    "term": "Blow-by",
-    "meaning": "Gases that escape past the piston rings into the crankcase."
+    "term": "DTC",
+    "meaning": "Diagnostic Trouble Code stored by the ECU"
   },
   {
-    "id": "auto-repair:concept:engine-diagnostic-fundamentals-mechanical-oil-gauge",
+    "id": "auto-repair:concept:engine-diagnostic-fundamentals-pid",
     "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
-    "term": "Mechanical Oil Gauge",
-    "meaning": "A tool used to verify actual oil pressure independently of the vehicle's electronic sensor."
+    "term": "PID",
+    "meaning": "Parameter Identification data monitored by a scanner"
   },
   {
-    "id": "auto-repair:concept:engine-diagnostic-fundamentals-cylinder-leakage-test",
-    "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
-    "term": "Cylinder Leakage Test",
-    "meaning": "A diagnostic procedure where compressed air is introduced into a cylinder at Top Dead Center to locate the source of pressure loss."
+    "id": "auto-repair:concept:cylinder-head-valvetrain-service-valve-lash",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
+    "term": "Valve Lash",
+    "meaning": "The clearance between the valve stem and the rocker arm"
   },
   {
-    "id": "auto-repair:concept:cylinder-head-service-valve-guide",
-    "sectionId": "auto-repair:section:cylinder-head-service",
-    "term": "Valve Guide",
-    "meaning": "The sleeve that supports the valve stem and ensures correct alignment with the seat."
+    "id": "auto-repair:concept:cylinder-head-valvetrain-service-valve-float",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
+    "term": "Valve Float",
+    "meaning": "Condition where the valve spring cannot close the valve quickly enough"
   },
   {
-    "id": "auto-repair:concept:cylinder-head-service-valve-recession",
-    "sectionId": "auto-repair:section:cylinder-head-service",
-    "term": "Valve Recession",
-    "meaning": "The distance a valve sits below the cylinder head surface, often caused by seat wear."
+    "id": "auto-repair:concept:engine-block-assembly-diagnosis-main-bearings",
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
+    "term": "Main Bearings",
+    "meaning": "Shells that support the crankshaft within the block"
   },
   {
-    "id": "auto-repair:concept:cylinder-head-service-interference-engine",
-    "sectionId": "auto-repair:section:cylinder-head-service",
-    "term": "Interference Engine",
-    "meaning": "An engine design where the piston path and valve path occupy the same space at different times."
+    "id": "auto-repair:concept:engine-block-assembly-diagnosis-ring-land",
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
+    "term": "Ring Land",
+    "meaning": "The area of the piston between the ring grooves"
   },
   {
-    "id": "auto-repair:concept:engine-block-rebuild-plastigage",
-    "sectionId": "auto-repair:section:engine-block-rebuild",
-    "term": "Plastigage",
-    "meaning": "A thin plastic thread used to measure bearing oil clearance."
+    "id": "auto-repair:concept:lubrication-cooling-systems-coolant-pressure-test",
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
+    "term": "Coolant Pressure Test",
+    "meaning": "Testing for leaks by applying air pressure to the cooling system"
   },
   {
-    "id": "auto-repair:concept:engine-block-rebuild-cylinder-taper",
-    "sectionId": "auto-repair:section:engine-block-rebuild",
-    "term": "Cylinder Taper",
-    "meaning": "The difference in diameter between the top and bottom of the cylinder bore."
-  },
-  {
-    "id": "auto-repair:concept:engine-block-rebuild-out-of-round",
-    "sectionId": "auto-repair:section:engine-block-rebuild",
-    "term": "Out-of-Round",
-    "meaning": "The deviation of a cylinder bore from a perfectly circular shape."
-  },
-  {
-    "id": "auto-repair:concept:cooling-and-lubrication-pressure-tester",
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
-    "term": "Pressure Tester",
-    "meaning": "A pump tool used to pressurize a cooling system to locate leaks."
-  },
-  {
-    "id": "auto-repair:concept:cooling-and-lubrication-hydrodynamic-lubrication",
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
-    "term": "Hydrodynamic Lubrication",
-    "meaning": "A condition where oil pressure separates moving surfaces."
-  },
-  {
-    "id": "auto-repair:concept:cooling-and-lubrication-thermostat",
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
+    "id": "auto-repair:concept:lubrication-cooling-systems-thermostat",
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
     "term": "Thermostat",
-    "meaning": "A temperature-sensitive valve that regulates coolant flow between the engine and radiator."
+    "meaning": "Valve that restricts coolant flow until operating temperature is reached"
   },
   {
-    "id": "auto-repair:concept:engine-peripherals-pinging",
-    "sectionId": "auto-repair:section:engine-peripherals",
-    "term": "Pinging",
-    "meaning": "Audible pre-ignition caused by improper spark timing or fuel quality."
+    "id": "auto-repair:concept:support-systems-inspection-backpressure",
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "term": "Backpressure",
+    "meaning": "Restriction in the exhaust system"
   },
   {
-    "id": "auto-repair:concept:engine-peripherals-fuel-pressure-regulator",
-    "sectionId": "auto-repair:section:engine-peripherals",
-    "term": "Fuel Pressure Regulator",
-    "meaning": "Component that maintains the correct fuel pressure across varying engine demands."
-  },
-  {
-    "id": "auto-repair:concept:engine-peripherals-pulse-width-modulation",
-    "sectionId": "auto-repair:section:engine-peripherals",
-    "term": "Pulse Width Modulation",
-    "meaning": "A method of controlling the amount of power delivered to electrical components by varying the duration of pulses."
+    "id": "auto-repair:concept:support-systems-inspection-fuel-trim",
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "term": "Fuel Trim",
+    "meaning": "ECU adjustment to fuel delivery based on feedback"
   }
 ],
   skills: [
   {
-    "id": "auto-repair:skill:hydraulic-system-foundations-0",
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
-    "statement": "Always bench-bleed a new master cylinder before installation."
+    "id": "auto-repair:skill:hydraulic-system-fundamentals-0",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
+    "statement": "Always use the manufacturer recommended DOT fluid type to prevent seal swelling."
   },
   {
-    "id": "auto-repair:skill:drum-brake-servicing-0",
-    "sectionId": "auto-repair:section:drum-brake-servicing",
-    "statement": "Always wear a respirator when cleaning drum brakes to avoid inhaling dust."
+    "id": "auto-repair:skill:drum-brake-service-0",
+    "sectionId": "auto-repair:section:drum-brake-service",
+    "statement": "Always replace all springs and clips when replacing shoes."
   },
   {
-    "id": "auto-repair:skill:disc-brake-servicing-0",
-    "sectionId": "auto-repair:section:disc-brake-servicing",
-    "statement": "Lubricate slide pins with high-temperature brake grease."
+    "id": "auto-repair:skill:disc-brake-service-0",
+    "sectionId": "auto-repair:section:disc-brake-service",
+    "statement": "Always use a brake grease compatible with rubber boots on the pins."
   },
   {
-    "id": "auto-repair:skill:power-assist-diagnostics-0",
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
-    "statement": "Check the vacuum hose for cracks and the check valve for one-way operation."
+    "id": "auto-repair:skill:power-assist-repair-0",
+    "sectionId": "auto-repair:section:power-assist-repair",
+    "statement": "Listen for a hissing sound when the pedal is depressed."
   },
   {
-    "id": "auto-repair:skill:electronic-brake-controls-0",
-    "sectionId": "auto-repair:section:electronic-brake-controls",
-    "statement": "Use an oscilloscope or scan tool to check for clean sensor signals."
+    "id": "auto-repair:skill:abs-stability-systems-0",
+    "sectionId": "auto-repair:section:abs-stability-systems",
+    "statement": "Always check the wheel speed sensor wiring before replacing the sensor."
   },
   {
-    "id": "auto-repair:skill:miscellaneous-brake-systems-0",
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
-    "statement": "Never force an electric brake motor without using the correct diagnostic scan tool."
+    "id": "auto-repair:skill:parking-brakes-and-final-0",
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
+    "statement": "Always verify the service mode status on the scan tool before removing parts."
   },
   {
     "id": "auto-repair:skill:engine-diagnostic-fundamentals-0",
     "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
-    "statement": "Always warm the engine before testing compression or oil pressure."
+    "statement": "Understand how to navigate scan tool menus"
   },
   {
-    "id": "auto-repair:skill:cylinder-head-service-0",
-    "sectionId": "auto-repair:section:cylinder-head-service",
-    "statement": "Always check for flatness on the mating surface."
+    "id": "auto-repair:skill:cylinder-head-valvetrain-service-0",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
+    "statement": "Using a dial indicator for lift measurements"
   },
   {
-    "id": "auto-repair:skill:engine-block-rebuild-0",
-    "sectionId": "auto-repair:section:engine-block-rebuild",
-    "statement": "Use clean assembly lube on all bearings."
+    "id": "auto-repair:skill:engine-block-assembly-diagnosis-0",
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
+    "statement": "Proper use of micrometers"
   },
   {
-    "id": "auto-repair:skill:cooling-and-lubrication-0",
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
-    "statement": "Bleed air pockets after coolant changes."
+    "id": "auto-repair:skill:lubrication-cooling-systems-0",
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
+    "statement": "Refilling coolant to bleed air bubbles"
   },
   {
-    "id": "auto-repair:skill:engine-peripherals-0",
-    "sectionId": "auto-repair:section:engine-peripherals",
-    "statement": "Always release fuel pressure before opening the fuel system."
+    "id": "auto-repair:skill:support-systems-inspection-0",
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "statement": "Using a test light for electrical circuits"
   }
 ],
   prerequisites: [
   {
-    "sectionId": "auto-repair:section:drum-brake-servicing",
-    "requiresSectionId": "auto-repair:section:hydraulic-system-foundations"
+    "sectionId": "auto-repair:section:drum-brake-service",
+    "requiresSectionId": "auto-repair:section:hydraulic-system-fundamentals"
   },
   {
-    "sectionId": "auto-repair:section:disc-brake-servicing",
-    "requiresSectionId": "auto-repair:section:drum-brake-servicing"
+    "sectionId": "auto-repair:section:disc-brake-service",
+    "requiresSectionId": "auto-repair:section:drum-brake-service"
   },
   {
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
-    "requiresSectionId": "auto-repair:section:disc-brake-servicing"
+    "sectionId": "auto-repair:section:power-assist-repair",
+    "requiresSectionId": "auto-repair:section:disc-brake-service"
   },
   {
-    "sectionId": "auto-repair:section:electronic-brake-controls",
-    "requiresSectionId": "auto-repair:section:power-assist-diagnostics"
+    "sectionId": "auto-repair:section:abs-stability-systems",
+    "requiresSectionId": "auto-repair:section:power-assist-repair"
   },
   {
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
-    "requiresSectionId": "auto-repair:section:electronic-brake-controls"
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
+    "requiresSectionId": "auto-repair:section:abs-stability-systems"
   },
   {
-    "sectionId": "auto-repair:section:cylinder-head-service",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
     "requiresSectionId": "auto-repair:section:engine-diagnostic-fundamentals"
   },
   {
-    "sectionId": "auto-repair:section:engine-block-rebuild",
-    "requiresSectionId": "auto-repair:section:cylinder-head-service"
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
+    "requiresSectionId": "auto-repair:section:cylinder-head-valvetrain-service"
   },
   {
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
-    "requiresSectionId": "auto-repair:section:engine-block-rebuild"
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
+    "requiresSectionId": "auto-repair:section:engine-block-assembly-diagnosis"
   },
   {
-    "sectionId": "auto-repair:section:engine-peripherals",
-    "requiresSectionId": "auto-repair:section:cooling-and-lubrication"
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "requiresSectionId": "auto-repair:section:lubrication-cooling-systems"
   }
 ],
   questions: [
   {
-    "id": "auto-repair:question:hydraulic-system-foundations-practice",
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
+    "id": "auto-repair:question:hydraulic-system-fundamentals-practice",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
     "kind": "practice",
-    "prompt": "If a vehicle's brake pedal slowly sinks to the floor while held under steady pressure, what is the most likely cause?",
+    "prompt": "Which of the following findings necessitates the immediate replacement of a brake hose?",
     "choices": [
-      "A failing master cylinder internal primary seal",
-      "A restricted master cylinder vent port",
-      "Air in the rear hydraulic lines",
-      "Worn brake pads on the front wheels"
+      "Surface dirt on the outer rubber casing",
+      "Visible external bulging or cracking",
+      "An empty master cylinder reservoir",
+      "A worn brake pedal pad"
     ],
-    "answerIndex": 0,
-    "explanation": "A pedal that sinks under steady pressure indicates internal fluid bypass inside the master cylinder."
+    "answerIndex": 1,
+    "explanation": "Bulging indicates the internal structural reinforcement of the hose has failed, making it prone to bursting under pressure."
   },
   {
-    "id": "auto-repair:question:hydraulic-system-foundations-recall-0",
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
+    "id": "auto-repair:question:hydraulic-system-fundamentals-recall-0",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
     "kind": "recall",
-    "prompt": "What is the purpose of a proportioning valve?",
+    "prompt": "What is the primary purpose of a proportioning valve?",
     "choices": [
-      "To regulate pressure to the rear wheels"
+      "To prevent rear wheel lock-up by limiting pressure to rear brakes during hard braking"
     ],
     "answerIndex": 0,
-    "explanation": "It prevents the rear brakes from locking before the front brakes."
+    "explanation": "The proportioning valve adjusts fluid pressure to maintain balanced vehicle control."
   },
   {
-    "id": "auto-repair:question:hydraulic-system-foundations-recall-1",
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
+    "id": "auto-repair:question:hydraulic-system-fundamentals-recall-1",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
     "kind": "recall",
-    "prompt": "Why is a tandem master cylinder used in modern vehicles?",
+    "prompt": "What physical symptom indicates an internal master cylinder leak?",
     "choices": [
-      "To provide two separate circuits for safety"
+      "The brake pedal slowly sinks to the floor when held under pressure"
     ],
     "answerIndex": 0,
-    "explanation": "If one circuit develops a leak, the other retains the ability to stop the vehicle."
+    "explanation": "Internal leaks allow fluid to bypass the piston seals, resulting in pedal travel."
   },
   {
-    "id": "auto-repair:question:drum-brake-servicing-practice",
-    "sectionId": "auto-repair:section:drum-brake-servicing",
+    "id": "auto-repair:question:drum-brake-service-practice",
+    "sectionId": "auto-repair:section:drum-brake-service",
     "kind": "practice",
-    "prompt": "During a drum brake inspection, you find a damp area around the dust boot of the wheel cylinder. What should you do?",
+    "prompt": "After installing new drum brake shoes, what is the most common reason for a low brake pedal?",
     "choices": [
-      "Replace the wheel cylinder",
-      "Clean the fluid with brake cleaner and re-use",
-      "Tighten the bleeder screw",
-      "Replace the brake shoes only"
+      "The self-adjusters were not properly set",
+      "The drum was not painted",
+      "New return springs are too stiff",
+      "The wheel cylinder was not replaced"
     ],
     "answerIndex": 0,
-    "explanation": "A leaking wheel cylinder indicates seal failure; the unit must be replaced to ensure safety."
+    "explanation": "If the self-adjusters are not set, there is too much clearance between the shoes and the drum, requiring more fluid volume to make contact."
   },
   {
-    "id": "auto-repair:question:drum-brake-servicing-recall-0",
-    "sectionId": "auto-repair:section:drum-brake-servicing",
+    "id": "auto-repair:question:drum-brake-service-recall-0",
+    "sectionId": "auto-repair:section:drum-brake-service",
     "kind": "recall",
-    "prompt": "Where does the wheel cylinder push the shoes?",
+    "prompt": "What component expands the drum brake shoes?",
     "choices": [
-      "Against the inner surface of the drum"
+      "Wheel cylinder"
     ],
     "answerIndex": 0,
-    "explanation": "The cylinder forces the pistons outward, which forces the shoes against the rotating drum."
+    "explanation": "The wheel cylinder uses hydraulic pressure to move the shoes outward."
   },
   {
-    "id": "auto-repair:question:drum-brake-servicing-recall-1",
-    "sectionId": "auto-repair:section:drum-brake-servicing",
+    "id": "auto-repair:question:drum-brake-service-recall-1",
+    "sectionId": "auto-repair:section:drum-brake-service",
     "kind": "recall",
-    "prompt": "Under what vehicle condition do most drum self-adjusters activate?",
+    "prompt": "What should you check for under the wheel cylinder dust boot?",
     "choices": [
-      "When braking while moving in reverse"
+      "Hydraulic fluid leaks"
     ],
     "answerIndex": 0,
-    "explanation": "Self-adjusting mechanisms typically operate by engaging the star-wheel assembly during reverse braking maneuvers."
+    "explanation": "Fluid behind the dust boot indicates the piston seal has failed."
   },
   {
-    "id": "auto-repair:question:disc-brake-servicing-practice",
-    "sectionId": "auto-repair:section:disc-brake-servicing",
+    "id": "auto-repair:question:disc-brake-service-practice",
+    "sectionId": "auto-repair:section:disc-brake-service",
     "kind": "practice",
-    "prompt": "If you notice uneven wear on the inner versus the outer brake pad, what is the most likely culprit?",
+    "prompt": "A vehicle pulls to the left during braking. Which is the most likely cause?",
     "choices": [
-      "Seized or binding slide pins",
-      "A master cylinder with a failing seal",
-      "Air in the hydraulic lines",
-      "The rotor is too thin"
+      "The right side caliper is seized",
+      "The left side rotor is too thick",
+      "The brake pedal is too soft",
+      "The master cylinder reservoir is full"
     ],
     "answerIndex": 0,
-    "explanation": "If the caliper cannot slide, the inner pad (piston side) will do all the work, leading to uneven wear."
+    "explanation": "If the right caliper is seized, only the left brake is effectively stopping the vehicle, causing a pull toward that side."
   },
   {
-    "id": "auto-repair:question:disc-brake-servicing-recall-0",
-    "sectionId": "auto-repair:section:disc-brake-servicing",
+    "id": "auto-repair:question:disc-brake-service-recall-0",
+    "sectionId": "auto-repair:section:disc-brake-service",
     "kind": "recall",
-    "prompt": "What function do slide pins perform?",
+    "prompt": "What is the function of the caliper slide pins?",
     "choices": [
-      "Allow the caliper to center"
+      "To allow the caliper to center itself on the rotor"
     ],
     "answerIndex": 0,
-    "explanation": "They let the caliper housing slide so both inner and outer pads apply even pressure."
+    "explanation": "Slide pins enable the caliper to move, ensuring even pressure on both pads."
   },
   {
-    "id": "auto-repair:question:disc-brake-servicing-recall-1",
-    "sectionId": "auto-repair:section:disc-brake-servicing",
+    "id": "auto-repair:question:disc-brake-service-recall-1",
+    "sectionId": "auto-repair:section:disc-brake-service",
     "kind": "recall",
-    "prompt": "What does lateral runout refer to in a rotor?",
+    "prompt": "Why is it recommended to open the bleeder when compressing a piston?",
     "choices": [
-      "Side-to-side wobble during rotation"
+      "To prevent dirty fluid from flowing back into the ABS unit"
     ],
     "answerIndex": 0,
-    "explanation": "It describes the surface irregularity that causes steering wheel vibration during braking."
+    "explanation": "Contaminated fluid can damage sensitive ABS valves."
   },
   {
-    "id": "auto-repair:question:power-assist-diagnostics-practice",
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
+    "id": "auto-repair:question:power-assist-repair-practice",
+    "sectionId": "auto-repair:section:power-assist-repair",
     "kind": "practice",
-    "prompt": "With the engine off, you pump the brake pedal several times to remove stored vacuum. You then hold light pressure on the pedal and start the engine. What should happen?",
+    "prompt": "Which of the following is the correct procedure for testing a vacuum booster?",
     "choices": [
-      "The pedal should drop slightly",
-      "The pedal should become harder to push",
-      "The pedal should remain exactly at the same position",
-      "The pedal should rise to the top"
+      "Pump the pedal while the engine is running to see if it drops",
+      "Depress the pedal, start the engine, and check for the pedal to drop slightly",
+      "Check the fluid level in the reservoir",
+      "Bleed the lines while the engine is off"
     ],
-    "answerIndex": 0,
-    "explanation": "If the booster is working, the pedal will drop slightly as vacuum assist is applied when the engine starts."
+    "answerIndex": 1,
+    "explanation": "If the pedal drops after starting the engine while holding pressure, the booster is providing power assist."
   },
   {
-    "id": "auto-repair:question:power-assist-diagnostics-recall-0",
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
+    "id": "auto-repair:question:power-assist-repair-recall-0",
+    "sectionId": "auto-repair:section:power-assist-repair",
     "kind": "recall",
-    "prompt": "What is the symptom of a failed vacuum booster?",
+    "prompt": "What supplies the force for a vacuum brake booster?",
     "choices": [
-      "A very hard brake pedal"
+      "Engine intake manifold vacuum"
     ],
     "answerIndex": 0,
-    "explanation": "The loss of assist makes the pedal feel like it is made of brick."
+    "explanation": "The engine's vacuum provides the power to assist the driver's foot."
   },
   {
-    "id": "auto-repair:question:power-assist-diagnostics-recall-1",
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
+    "id": "auto-repair:question:power-assist-repair-recall-1",
+    "sectionId": "auto-repair:section:power-assist-repair",
     "kind": "recall",
-    "prompt": "What component traps vacuum inside the booster?",
+    "prompt": "What does a hard brake pedal usually indicate?",
     "choices": [
-      "The check valve"
+      "Loss of power assist"
     ],
     "answerIndex": 0,
-    "explanation": "The check valve allows air out but prevents it from returning, maintaining a vacuum reserve."
+    "explanation": "A hard pedal occurs when the booster is not providing force amplification."
   },
   {
-    "id": "auto-repair:question:electronic-brake-controls-practice",
-    "sectionId": "auto-repair:section:electronic-brake-controls",
+    "id": "auto-repair:question:abs-stability-systems-practice",
+    "sectionId": "auto-repair:section:abs-stability-systems",
     "kind": "practice",
-    "prompt": "If a vehicle has an ABS warning light on, what is the most appropriate first step in diagnosis?",
+    "prompt": "An ABS warning light is on. A scan tool shows 'No Signal' from the left front wheel speed sensor. What is your first step?",
     "choices": [
-      "Connect a scan tool to read fault codes",
-      "Bleed the entire brake system",
-      "Replace the ABS hydraulic pump",
-      "Perform a manual brake fluid pressure test"
+      "Replace the entire hydraulic modulator",
+      "Inspect the sensor wiring and connector for damage",
+      "Replace the wheel bearing",
+      "Reprogram the ECU"
     ],
-    "answerIndex": 0,
-    "explanation": "A scan tool allows the technician to pinpoint exactly which sensor or valve is triggering the code, preventing unnecessary part replacement."
+    "answerIndex": 1,
+    "explanation": "Wiring and connection issues are the most frequent causes of signal loss, and they must be ruled out before replacing expensive parts."
   },
   {
-    "id": "auto-repair:question:electronic-brake-controls-recall-0",
-    "sectionId": "auto-repair:section:electronic-brake-controls",
+    "id": "auto-repair:question:abs-stability-systems-recall-0",
+    "sectionId": "auto-repair:section:abs-stability-systems",
     "kind": "recall",
-    "prompt": "What does a wheel speed sensor provide?",
+    "prompt": "What is the function of a wheel speed sensor?",
     "choices": [
-      "Real-time rotation data",
-      "Hydraulic pressure measurement"
+      "To monitor the rotational speed of the wheel"
     ],
     "answerIndex": 0,
-    "explanation": "The sensor reports how fast the wheel is spinning so the ABS computer can detect locking."
+    "explanation": "The ECU uses this data to identify when a wheel is locking up."
   },
   {
-    "id": "auto-repair:question:electronic-brake-controls-recall-1",
-    "sectionId": "auto-repair:section:electronic-brake-controls",
+    "id": "auto-repair:question:abs-stability-systems-recall-1",
+    "sectionId": "auto-repair:section:abs-stability-systems",
     "kind": "recall",
-    "prompt": "Which component acts as the brain of the ABS system?",
+    "prompt": "What happens if an ABS valve is stuck in the modulator?",
     "choices": [
-      "The ECU",
-      "The brake booster"
+      "The system cannot properly cycle pressure to that wheel"
     ],
     "answerIndex": 0,
-    "explanation": "The Electronic Control Unit processes sensor inputs to manage hydraulic valve operation."
+    "explanation": "Stuck valves inhibit the system's ability to modulate braking force."
   },
   {
-    "id": "auto-repair:question:miscellaneous-brake-systems-practice",
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
+    "id": "auto-repair:question:parking-brakes-and-final-practice",
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
     "kind": "practice",
-    "prompt": "When performing a rear brake job on a vehicle equipped with an Electric Parking Brake (EPB), what must you do first?",
+    "prompt": "You are performing a brake pad replacement on a vehicle with an Electric Parking Brake. What is the first step?",
     "choices": [
-      "Use a scan tool to place the system in service mode",
+      "Use a C-clamp to force the piston in",
       "Disconnect the battery cables",
-      "Remove the parking brake cables",
-      "Manually force the piston back"
+      "Connect a scan tool and enter EPB service mode",
+      "Unscrew the electric motor housing"
     ],
-    "answerIndex": 0,
-    "explanation": "Modern EPB systems require an electronic command to retract the motor, or the actuator will be damaged."
+    "answerIndex": 2,
+    "explanation": "Entering service mode is critical to prevent damaging the internal electronic actuator when changing pads."
   },
   {
-    "id": "auto-repair:question:miscellaneous-brake-systems-recall-0",
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
+    "id": "auto-repair:question:parking-brakes-and-final-recall-0",
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
     "kind": "recall",
-    "prompt": "Why must you retract an EPB motor before changing pads?",
+    "prompt": "Why is a scan tool required for EPB service?",
     "choices": [
-      "To prevent damage to the motor"
+      "To place the motor in service mode and retract the piston"
     ],
     "answerIndex": 0,
-    "explanation": "The motor must be moved into a specific position to allow the piston to reset, otherwise the unit breaks."
+    "explanation": "The electric motor must be electronically commanded to retract."
   },
   {
-    "id": "auto-repair:question:miscellaneous-brake-systems-recall-1",
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
+    "id": "auto-repair:question:parking-brakes-and-final-recall-1",
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
     "kind": "recall",
-    "prompt": "What is the primary indicator that parking brake cables need adjustment?",
+    "prompt": "What is the risk of not using service mode for EPBs?",
     "choices": [
-      "Excessive lever or pedal travel"
+      "Internal gear or motor damage"
     ],
     "answerIndex": 0,
-    "explanation": "When the cables stretch, the mechanical travel required to actuate the brakes increases significantly."
+    "explanation": "Forcing the piston without retracting the motor will break the actuator."
   },
   {
     "id": "auto-repair:question:engine-diagnostic-fundamentals-practice",
     "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
     "kind": "practice",
-    "prompt": "You are testing an engine that has a low oil pressure light on the dash. What is the first step?",
+    "prompt": "You encounter an engine with a P0300 random misfire. What is the best initial step?",
     "choices": [
-      "Replace the oil pump immediately",
-      "Verify the pressure with a mechanical oil pressure gauge",
-      "Change the engine oil and filter",
-      "Replace the oil pressure sensor"
+      "Perform a visual inspection for vacuum leaks and wiring damage",
+      "Remove and replace all ignition coils immediately",
+      "Drain the fuel tank to check for contamination",
+      "Perform a complete engine teardown"
     ],
-    "answerIndex": 1,
-    "explanation": "Always verify the electrical signal with a mechanical gauge before performing invasive repairs."
+    "answerIndex": 0,
+    "explanation": "A visual inspection is non-invasive and often uncovers simple faults like cracked vacuum lines or loose connectors."
   },
   {
     "id": "auto-repair:question:engine-diagnostic-fundamentals-recall-0",
     "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
     "kind": "recall",
-    "prompt": "What does blue exhaust smoke usually indicate?",
+    "prompt": "What is the first step in a diagnostic process?",
     "choices": [
-      "Oil burning in the combustion chamber"
+      "Visual inspection"
     ],
     "answerIndex": 0,
-    "explanation": "Blue smoke indicates oil is entering the combustion chamber, usually through worn piston rings or valve guides."
+    "explanation": "A visual inspection reveals obvious external damage before electronic testing."
   },
   {
     "id": "auto-repair:question:engine-diagnostic-fundamentals-recall-1",
     "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
     "kind": "recall",
-    "prompt": "Why is a cylinder leakage test performed?",
+    "prompt": "What does a cylinder leak-down test reveal?",
     "choices": [
-      "To identify the specific location of a compression loss"
+      "Internal sealing health"
     ],
     "answerIndex": 0,
-    "explanation": "The test helps determine if pressure is escaping through the intake, exhaust, or past the rings into the crankcase."
+    "explanation": "It identifies where combustion pressure is escaping the cylinder."
   },
   {
-    "id": "auto-repair:question:cylinder-head-service-practice",
-    "sectionId": "auto-repair:section:cylinder-head-service",
+    "id": "auto-repair:question:cylinder-head-valvetrain-service-practice",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
     "kind": "practice",
-    "prompt": "When inspecting valve guides, what is the primary concern?",
+    "prompt": "During an inspection, you find that a valve spring is shorter than the manufacturer's minimum specification. What is the correct action?",
     "choices": [
-      "Excessive clearance allowing oil passage",
-      "The color of the valve head",
-      "The weight of the valve spring",
-      "The surface finish of the camshaft lobe"
+      "Replace the valve spring",
+      "Add shims to increase spring pressure",
+      "Leave it if it still holds the valve closed",
+      "Grind the valve stem down"
     ],
     "answerIndex": 0,
-    "explanation": "Excessive clearance allows oil to bypass the seal and enter the combustion chamber."
+    "explanation": "Out-of-specification springs cannot provide the force required to keep valves closed, leading to engine performance failure."
   },
   {
-    "id": "auto-repair:question:cylinder-head-service-recall-0",
-    "sectionId": "auto-repair:section:cylinder-head-service",
+    "id": "auto-repair:question:cylinder-head-valvetrain-service-recall-0",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
     "kind": "recall",
-    "prompt": "What tool is used to check a cylinder head for warpage?",
+    "prompt": "Why must a cylinder head be checked for flatness?",
     "choices": [
-      "Straightedge and feeler gauge"
+      "To prevent head gasket failure"
     ],
     "answerIndex": 0,
-    "explanation": "A straightedge spans the surface while a feeler gauge checks for gaps."
+    "explanation": "A warped head cannot provide the uniform clamping force needed for a gasket to seal."
   },
   {
-    "id": "auto-repair:question:cylinder-head-service-recall-1",
-    "sectionId": "auto-repair:section:cylinder-head-service",
+    "id": "auto-repair:question:cylinder-head-valvetrain-service-recall-1",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
     "kind": "recall",
-    "prompt": "What is the primary indicator of excessive valve guide wear?",
+    "prompt": "What tool measures valve stem-to-guide clearance?",
     "choices": [
-      "Increased oil consumption and blue exhaust smoke"
+      "A dial indicator or micrometer"
     ],
     "answerIndex": 0,
-    "explanation": "Worn guides allow oil to pass through the valve stem seals into the combustion chamber."
+    "explanation": "Precision tools are required to measure wear within factory specifications."
   },
   {
-    "id": "auto-repair:question:engine-block-rebuild-practice",
-    "sectionId": "auto-repair:section:engine-block-rebuild",
+    "id": "auto-repair:question:engine-block-assembly-diagnosis-practice",
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
     "kind": "practice",
-    "prompt": "If a cylinder bore has significant taper, what is the required repair?",
+    "prompt": "If bearing oil clearance is too large, what is the most likely engine symptom?",
     "choices": [
-      "Cleaning with a solvent",
-      "Overboring and using oversized pistons",
-      "Applying thicker engine oil",
-      "Replacing the piston rings only"
-    ],
-    "answerIndex": 1,
-    "explanation": "Tapered bores cannot be corrected by rings alone; the cylinder must be bored to restore a true surface."
-  },
-  {
-    "id": "auto-repair:question:engine-block-rebuild-recall-0",
-    "sectionId": "auto-repair:section:engine-block-rebuild",
-    "kind": "recall",
-    "prompt": "What is Plastigage used for?",
-    "choices": [
-      "Measuring bearing clearance"
+      "Low oil pressure",
+      "High oil consumption",
+      "Engine overheating",
+      "Increased intake vacuum"
     ],
     "answerIndex": 0,
-    "explanation": "Plastigage provides a measurable crush value to verify correct oil clearance."
+    "explanation": "Excessive clearance allows oil to leak out faster than the pump can supply, causing a drop in system pressure."
   },
   {
-    "id": "auto-repair:question:engine-block-rebuild-recall-1",
-    "sectionId": "auto-repair:section:engine-block-rebuild",
+    "id": "auto-repair:question:engine-block-assembly-diagnosis-recall-0",
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
     "kind": "recall",
-    "prompt": "What tool is used to measure cylinder bore taper?",
+    "prompt": "What does a plastigage measure?",
     "choices": [
-      "Dial bore gauge"
+      "Bearing oil clearance"
     ],
     "answerIndex": 0,
-    "explanation": "A dial bore gauge is required to measure the internal diameter accurately at various depths."
+    "explanation": "It flattens to a specific width to indicate the gap between the bearing and the journal."
   },
   {
-    "id": "auto-repair:question:cooling-and-lubrication-practice",
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
+    "id": "auto-repair:question:engine-block-assembly-diagnosis-recall-1",
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
+    "kind": "recall",
+    "prompt": "What is cylinder taper?",
+    "choices": [
+      "The change in bore diameter from top to bottom"
+    ],
+    "answerIndex": 0,
+    "explanation": "This indicates wear patterns caused by piston movement and combustion forces."
+  },
+  {
+    "id": "auto-repair:question:lubrication-cooling-systems-practice",
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
     "kind": "practice",
-    "prompt": "If an engine overheats quickly during idle, what is a likely culprit?",
+    "prompt": "An engine overheats but the radiator remains cool to the touch. What is the most likely cause?",
     "choices": [
-      "Stuck closed thermostat",
-      "Low fuel pressure",
-      "Dirty air filter",
-      "Weak valve springs"
+      "A stuck-closed thermostat",
+      "A faulty fuel injector",
+      "A weak alternator",
+      "A loose fan belt"
     ],
     "answerIndex": 0,
-    "explanation": "A thermostat stuck in the closed position prevents coolant flow to the radiator."
+    "explanation": "If the thermostat is stuck closed, it prevents hot coolant from reaching the radiator for cooling."
   },
   {
-    "id": "auto-repair:question:cooling-and-lubrication-recall-0",
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
+    "id": "auto-repair:question:lubrication-cooling-systems-recall-0",
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
     "kind": "recall",
-    "prompt": "What tool is used to find cooling system leaks?",
+    "prompt": "What is the function of a thermostat?",
     "choices": [
-      "Cooling system pressure tester"
+      "Regulate operating temperature"
     ],
     "answerIndex": 0,
-    "explanation": "This tool allows you to simulate high pressure without running the engine."
+    "explanation": "It restricts coolant flow to help the engine reach and maintain heat."
   },
   {
-    "id": "auto-repair:question:cooling-and-lubrication-recall-1",
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
+    "id": "auto-repair:question:lubrication-cooling-systems-recall-1",
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
     "kind": "recall",
-    "prompt": "What condition occurs when oil pressure separates moving engine parts?",
+    "prompt": "How do you diagnose a failing oil pump?",
     "choices": [
-      "Hydrodynamic lubrication"
+      "Measure oil pressure with a mechanical gauge"
     ],
     "answerIndex": 0,
-    "explanation": "This film of oil prevents direct metal-to-metal contact."
+    "explanation": "A mechanical gauge provides a true reading, bypassing electrical sensor issues."
   },
   {
-    "id": "auto-repair:question:engine-peripherals-practice",
-    "sectionId": "auto-repair:section:engine-peripherals",
+    "id": "auto-repair:question:support-systems-inspection-practice",
+    "sectionId": "auto-repair:section:support-systems-inspection",
     "kind": "practice",
-    "prompt": "What is the function of a fuel pressure regulator?",
+    "prompt": "A customer reports significant power loss at high speeds. What should you test first?",
     "choices": [
-      "To speed up the fuel pump",
-      "To maintain consistent fuel pressure during engine load",
-      "To change the fuel color for emissions",
-      "To clean the fuel injectors"
+      "Exhaust backpressure",
+      "Oil pressure",
+      "Valve clearance",
+      "Coolant level"
     ],
-    "answerIndex": 1,
-    "explanation": "The regulator keeps pressure constant regardless of changes in engine vacuum or load."
+    "answerIndex": 0,
+    "explanation": "A restricted exhaust (clogged catalytic converter) prevents the engine from expelling gases under high load, causing power loss."
+  },
+  {
+    "id": "auto-repair:question:support-systems-inspection-recall-0",
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "kind": "recall",
+    "prompt": "What does a vacuum gauge reveal about exhaust backpressure?",
+    "choices": [
+      "Low readings at high RPM"
+    ],
+    "answerIndex": 0,
+    "explanation": "Restricted exhaust prevents the engine from breathing properly under load."
+  },
+  {
+    "id": "auto-repair:question:support-systems-inspection-recall-1",
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "kind": "recall",
+    "prompt": "Why must electrical grounds be clean?",
+    "choices": [
+      "To prevent circuit resistance"
+    ],
+    "answerIndex": 0,
+    "explanation": "High resistance causes voltage drops that degrade electronic signals."
   }
 ],
   assessments: [
@@ -1011,200 +972,200 @@ export const autoRepairPackage: DomainPackage = {
 ],
   sources: [
   {
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
-    "label": "Bosch Automotive Handbook",
-    "url": "https://www.bosch-mobility-solutions.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
-    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
+    "label": "Automotive Service Excellence (ASE) Test Prep Resources",
     "url": "https://www.ase.com",
     "kind": "reading"
   },
   {
-    "sectionId": "auto-repair:section:hydraulic-system-foundations",
-    "label": "Engineering Explained Hydraulic Systems Channel",
-    "url": "https://www.youtube.com/@EngineeringExplained",
-    "kind": "video"
-  },
-  {
-    "sectionId": "auto-repair:section:drum-brake-servicing",
-    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
-    "url": "https://www.ase.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:drum-brake-servicing",
-    "label": "Motor Age Training",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
+    "label": "Motor Age Training Hydraulic Brake Systems",
     "url": "https://www.motoragetraining.com",
     "kind": "reading"
   },
   {
-    "sectionId": "auto-repair:section:drum-brake-servicing",
+    "sectionId": "auto-repair:section:hydraulic-system-fundamentals",
+    "label": "Engineering Explained - How Hydraulic Brakes Work",
+    "url": "https://www.youtube.com/@EngineeringExplained",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:drum-brake-service",
+    "label": "Motor Age Training - Drum Brake Service",
+    "url": "https://motorage.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:drum-brake-service",
+    "label": "EricTheCarGuy - Drum Brake Repair Tutorials",
+    "url": "https://www.ericthecarguy.com",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:drum-brake-service",
+    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
+    "url": "https://www.ase.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:disc-brake-service",
+    "label": "Automotive Service Excellence (ASE) Test Prep Resources",
+    "url": "https://www.ase.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:disc-brake-service",
+    "label": "Motor Age Training Disc Brake Service Modules",
+    "url": "https://www.motoragetraining.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:disc-brake-service",
+    "label": "Engineering Explained Brake System Fundamentals",
+    "url": "https://www.youtube.com/@EngineeringExplained",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:power-assist-repair",
+    "label": "Toyota Service Information (TIS)",
+    "url": "https://techinfo.toyota.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:power-assist-repair",
+    "label": "Motor Age Training",
+    "url": "https://www.motorage.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:power-assist-repair",
+    "label": "Engineering Explained (Brake Booster Mechanics)",
+    "url": "https://www.youtube.com/@EngineeringExplained",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:abs-stability-systems",
+    "label": "Bosch Mobility - ABS and Electronic Stability Control",
+    "url": "https://www.bosch-mobility.com/en/solutions/driving-safety/abs-and-esp/",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:abs-stability-systems",
+    "label": "SAE International - Brake Control Systems Standards",
+    "url": "https://www.sae.org",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:abs-stability-systems",
+    "label": "Weber Auto - ABS and Stability Control Educational Series",
+    "url": "https://www.youtube.com/@WeberAuto",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
+    "label": "Automotive Service Excellence (ASE) - Test Series and Certification Guides",
+    "url": "https://www.ase.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
+    "label": "Bosch Automotive Aftermarket - Technical Training and Diagnostics",
+    "url": "https://www.bosch-automotive-aftermarket.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:parking-brakes-and-final",
+    "label": "ScannerDanner - Automotive Diagnostic Training",
+    "url": "https://www.scannerdanner.com",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
+    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
+    "url": "https://www.ase.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
+    "label": "Toyota Technical Training - TIS (Technical Information System)",
+    "url": "https://techinfo.toyota.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
     "label": "ScannerDanner YouTube Channel",
     "url": "https://www.youtube.com/@ScannerDanner",
     "kind": "video"
   },
   {
-    "sectionId": "auto-repair:section:disc-brake-servicing",
-    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
-    "url": "https://www.ase.com",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
+    "label": "AllData Repair Information",
+    "url": "https://www.alldata.com",
     "kind": "reading"
   },
   {
-    "sectionId": "auto-repair:section:disc-brake-servicing",
-    "label": "EricTheCarGuy Brake System Repair Tutorials",
-    "url": "https://www.ericthecarguy.com",
-    "kind": "video"
-  },
-  {
-    "sectionId": "auto-repair:section:disc-brake-servicing",
-    "label": "Motor Age Training Resources",
-    "url": "https://www.motorage.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
-    "label": "ASE Education Foundation Resource Library",
-    "url": "https://aseeducationfoundation.org",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
-    "label": "Motor Age Training Power Brake Systems",
-    "url": "https://www.motorage.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:power-assist-diagnostics",
-    "label": "ScannerDanner Automotive Education",
-    "url": "https://www.youtube.com/@ScannerDanner",
-    "kind": "video"
-  },
-  {
-    "sectionId": "auto-repair:section:electronic-brake-controls",
-    "label": "Bosch Mobility Solutions - ABS and ESC Technology",
-    "url": "https://www.bosch-mobility.com/en/solutions/driving-safety/electronic-stability-control-esc/",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:electronic-brake-controls",
-    "label": "Automotive Training Center (ATC) Brake System Education",
-    "url": "https://www.autotrainingcentre.com/",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:electronic-brake-controls",
-    "label": "Engineering Explained - How Electronic Stability Control Works",
-    "url": "https://www.youtube.com/@EngineeringExplained",
-    "kind": "video"
-  },
-  {
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
-    "label": "Toyota Technical Training - Parking Brake Systems",
-    "url": "https://www.toyota-tech.eu",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
-    "label": "Motor Age Training - Brake System Fundamentals",
-    "url": "https://www.motoragetraining.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:miscellaneous-brake-systems",
-    "label": "Engineering Explained - How Electronic Parking Brakes Work",
-    "url": "https://www.youtube.com/@EngineeringExplained",
-    "kind": "video"
-  },
-  {
-    "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
-    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
-    "url": "https://www.ase.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
     "label": "Motor Age Training",
     "url": "https://www.motoragetraining.com",
     "kind": "reading"
   },
   {
-    "sectionId": "auto-repair:section:engine-diagnostic-fundamentals",
-    "label": "ScannerDanner Automotive Education",
-    "url": "https://www.scannerdanner.com",
-    "kind": "video"
-  },
-  {
-    "sectionId": "auto-repair:section:cylinder-head-service",
-    "label": "Motor Age Training",
-    "url": "https://www.motoragetraining.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:cylinder-head-service",
-    "label": "Federal-Mogul Motorparts Tech First",
-    "url": "https://www.fmtechfirst.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:cylinder-head-service",
-    "label": "Engineering Explained",
-    "url": "https://www.youtube.com/user/EngineeringExplained",
-    "kind": "video"
-  },
-  {
-    "sectionId": "auto-repair:section:engine-block-rebuild",
-    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
-    "url": "https://www.ase.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:engine-block-rebuild",
-    "label": "Motor Age Training",
-    "url": "https://www.motoragetraining.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:engine-block-rebuild",
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-service",
     "label": "Engineering Explained YouTube Channel",
     "url": "https://www.youtube.com/@EngineeringExplained",
     "kind": "video"
   },
   {
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
-    "label": "SAE International - Automotive Standards",
-    "url": "https://www.sae.org",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
-    "label": "Toyota Motor Corporation - TIS Repair Manuals",
-    "url": "https://techinfo.toyota.com",
-    "kind": "reading"
-  },
-  {
-    "sectionId": "auto-repair:section:cooling-and-lubrication",
-    "label": "Engineering Explained - Automotive Theory",
-    "url": "https://www.youtube.com/@EngineeringExplained",
-    "kind": "video"
-  },
-  {
-    "sectionId": "auto-repair:section:engine-peripherals",
-    "label": "ASE (National Institute for Automotive Service Excellence) Test Preparation Guides",
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
+    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
     "url": "https://www.ase.com",
     "kind": "reading"
   },
   {
-    "sectionId": "auto-repair:section:engine-peripherals",
-    "label": "Toyota Service Information Library (TIS)",
-    "url": "https://techinfo.toyota.com",
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
+    "label": "Motor Age Training",
+    "url": "https://www.motoragetraining.com",
     "kind": "reading"
   },
   {
-    "sectionId": "auto-repair:section:engine-peripherals",
-    "label": "ScannerDanner Automotive Diagnostics Channel",
+    "sectionId": "auto-repair:section:engine-block-assembly-diagnosis",
+    "label": "Engineering Explained YouTube Channel",
+    "url": "https://www.youtube.com/@EngineeringExplained",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
+    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
+    "url": "https://www.ase.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
+    "label": "Motor Age Training",
+    "url": "https://www.motoragetraining.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:lubrication-cooling-systems",
+    "label": "Engineering Explained (YouTube Channel)",
+    "url": "https://www.youtube.com/@EngineeringExplained",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
+    "url": "https://www.ase.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "label": "Motor Age Training",
+    "url": "https://www.motoragetraining.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:support-systems-inspection",
+    "label": "ScannerDanner Automotive Diagnostics",
     "url": "https://www.youtube.com/@ScannerDanner",
     "kind": "video"
   }

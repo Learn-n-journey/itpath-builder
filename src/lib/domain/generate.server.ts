@@ -23,6 +23,13 @@ const AUTHOR_SYSTEM = [
   "Reply with one JSON object and nothing else. No prose, no markdown fences.",
 ].join("\n");
 
+/** A short fingerprint of the prompt, so a reworded prompt never reuses an old answer. */
+function fingerprint(value: string): string {
+  let hash = 5381;
+  for (let index = 0; index < value.length; index += 1) hash = ((hash * 33) ^ value.charCodeAt(index)) >>> 0;
+  return hash.toString(36);
+}
+
 async function askJson<T>(prompt: string, cacheParts: string[]): Promise<T> {
   const result = await runAi({
     feature: "scenario",
@@ -32,7 +39,7 @@ async function askJson<T>(prompt: string, cacheParts: string[]): Promise<T> {
     priority: "background",
     json: true,
     skipBudget: true,
-    cache: { parts: cacheParts, scope: "domain-generate" },
+    cache: { parts: [...cacheParts, fingerprint(AUTHOR_SYSTEM + prompt)], scope: "domain-generate" },
   });
   if (!result.ok) throw new Error(result.error ?? "The generator could not produce this part.");
   const text = result.text.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "");

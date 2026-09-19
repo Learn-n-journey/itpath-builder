@@ -1,0 +1,14 @@
+[
+  {
+    "at": "2026-09-19T03:03:33.296Z",
+    "key": "auto-repair@1.0.0",
+    "previousKey": "it-cybersecurity@1.0.0",
+    "action": "activate",
+    "evidence": {
+      "blocking": 0,
+      "warnings": 10,
+      "testsPassed": true
+    },
+    "note": "Activated by the domain pipeline after 1 correction rounds."
+  }
+]

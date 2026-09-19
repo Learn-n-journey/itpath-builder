@@ -3,19 +3,19 @@ import type { DomainDefinition } from "@/domain/types";
 
 export const autoRepairDomain: DomainDefinition = {
   "id": "auto-repair",
-  "appName": "Automotive Technician Foundations",
+  "appName": "ASE FastTrack Technician",
   "field": "automotive repair",
   "awardingBody": "ASE",
-  "summary": "This course provides entry-level technicians with foundational skills in braking systems and engine repair through practical, safety-focused shop exercises.",
-  "sourceNote": "Industry-standard automotive service procedures and ASE certification task lists.",
+  "summary": "This course provides entry-level automotive technicians with foundational knowledge in braking systems and engine mechanical diagnostics.",
+  "sourceNote": "Material is based on current ASE task list competencies and industry-standard shop safety protocols.",
   "defaultQualification": "Brakes (A5)",
-  "defaultGoal": "Lube technician",
+  "defaultGoal": "Lube Technician",
   "vocabulary": {
     "qualification": "certification",
-    "qualifications": "certifications",
+    "qualifications": "credentials",
     "section": "module",
-    "sections": "modules",
-    "lab": "shop",
+    "sections": "curriculum",
+    "lab": "shop floor",
     "ticket": "repair order",
     "exam": "test"
   },

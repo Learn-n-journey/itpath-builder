@@ -5,16 +5,16 @@ export const autoRepairManifest: DomainManifest = {
   "id": "auto-repair",
   "version": "1.0.0",
   "key": "auto-repair@1.0.0",
-  "name": "Automotive Technician Foundations",
+  "name": "ASE FastTrack Technician",
   "producedBy": "domain-pipeline",
-  "producedAt": "2026-09-19T03:01:09.309Z",
-  "status": "draft",
+  "producedAt": "2026-09-19T03:02:43.142Z",
+  "status": "approved",
   "scope": {
     "qualifications": 2,
     "sections": 11,
-    "concepts": 33,
+    "concepts": 23,
     "skills": 11,
-    "questions": 31,
+    "questions": 33,
     "assessments": 2,
     "sources": 33
   }
