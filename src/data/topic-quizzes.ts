@@ -20,7 +20,8 @@ import { questions as authoredQuestions } from "@/data/quiz-content";
 import { generatedQuestions } from "@/data/question-bank";
 import { isUsableQuestion, usableQuestions } from "@/lib/question-quality";
 import { selectQuizQuestions } from "@/lib/quiz-selection";
-import { tagQuestion, type TaggedQuestion } from "@/lib/question-tags";
+import { conceptKey, tagQuestion, type TaggedQuestion } from "@/lib/question-tags";
+import { finalizeQuestionSet } from "@/lib/quiz-finalize";
 import type { ConceptStat } from "@/lib/concept-mastery";
 import type { Question } from "@/lib/app-data/types";
 
