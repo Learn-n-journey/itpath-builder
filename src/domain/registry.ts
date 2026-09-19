@@ -21,6 +21,12 @@ export interface RegistryEntry {
   definition: DomainDefinition;
   /** Loads the full package. Server and scripts only; heavy. */
   load?: () => Promise<DomainPackage>;
+  /**
+   * The complete package, already in the bundle. Generated subjects carry one
+   * so the app can read their content without an async load; the authored IT
+   * subject leaves it out and keeps reading its own authored data.
+   */
+  packageSync?: DomainPackage;
 }
 
 /** Every subject version this build knows about. */
