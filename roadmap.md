@@ -71,3 +71,7 @@ Done when: typecheck + build clean, features verified in browser.
 
 - [x] Ensure every topic (both subjects) has attached reading resources and video material
 - [x] Add automotive channels to Tech Videos and automotive outlets to Tech News
+
+- [x] Auto course theme: owner-specified palettes — dark navy #0F172A / slate #1E293B / cyan #38BDF8; light platinum #F8FAFC / white / royal blue #0284C7 (src/styles.css)
+- [x] QA finding: auto Journey Map stages now named after ASE certifications
+- [x] QA finding: subject choice mirrored to a cookie so refresh no longer serves IT first
