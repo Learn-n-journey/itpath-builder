@@ -8,6 +8,7 @@
  * registered key this device opens.
  */
 import { ACTIVE_PACKAGE, findEntry, registeredKeys, registry } from "@/domain/registry";
+import { writeSubjectCookie } from "@/lib/subject-cookie";
 
 const OVERRIDE_KEY = "itpath.active-domain.v1";
 
