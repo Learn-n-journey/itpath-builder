@@ -67,5 +67,52 @@
     "byRule": {
       "content.lesson-has-substance": 10
     }
+  },
+  {
+    "at": "2026-09-19T11:10:31.866Z",
+    "domainId": "auto-repair-test",
+    "packageKey": "auto-repair-test@0.0.1",
+    "approved": true,
+    "activated": false,
+    "testsPassed": false,
+    "rounds": 0,
+    "blocking": 0,
+    "warnings": 8,
+    "scope": {
+      "qualifications": 1,
+      "sections": 3,
+      "concepts": 6,
+      "skills": 4,
+      "questions": 9,
+      "assessments": 1,
+      "sources": 9
+    },
+    "byRule": {
+      "content.lesson-has-substance": 3,
+      "papers.covers-taught-material": 5
+    }
+  },
+  {
+    "at": "2026-09-19T11:25:06.489Z",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@2.0.0",
+    "approved": true,
+    "activated": false,
+    "testsPassed": false,
+    "rounds": 2,
+    "blocking": 0,
+    "warnings": 6,
+    "scope": {
+      "qualifications": 9,
+      "sections": 86,
+      "concepts": 344,
+      "skills": 172,
+      "questions": 258,
+      "assessments": 9,
+      "sources": 249
+    },
+    "byRule": {
+      "domain.section-has-sources": 6
+    }
   }
 ]

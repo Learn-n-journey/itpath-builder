@@ -3,19 +3,19 @@ import type { DomainManifest } from "@/domain/package";
 
 export const autoRepairManifest: DomainManifest = {
   "id": "auto-repair",
-  "version": "1.0.0",
-  "key": "auto-repair@1.0.0",
-  "name": "ASE FastTrack Technician",
+  "version": "2.0.0",
+  "key": "auto-repair@2.0.0",
+  "name": "ASE Mastery Pro",
   "producedBy": "domain-pipeline",
-  "producedAt": "2026-09-19T03:02:43.142Z",
+  "producedAt": "2026-09-19T11:25:06.448Z",
   "status": "approved",
   "scope": {
-    "qualifications": 2,
-    "sections": 11,
-    "concepts": 23,
-    "skills": 11,
-    "questions": 33,
-    "assessments": 2,
-    "sources": 33
+    "qualifications": 9,
+    "sections": 86,
+    "concepts": 344,
+    "skills": 172,
+    "questions": 258,
+    "assessments": 9,
+    "sources": 258
   }
 };

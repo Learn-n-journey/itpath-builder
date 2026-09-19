@@ -16,13 +16,23 @@ export interface DomainOption {
   name: string;
 }
 
-/** Every registered subject, as menu options. */
+/**
+ * One option per subject: the newest registered version of each. Older
+ * versions stay registered for rollback but do not belong in a menu.
+ */
 export function domainOptions(): DomainOption[] {
-  return registeredKeys().map((key) => ({
+  const newest = new Map<string, string>();
+  for (const key of registeredKeys()) {
+    const [id = key] = key.split("@");
+    const held = newest.get(id);
+    if (!held || key.localeCompare(held) > 0) newest.set(id, key);
+  }
+  return [...newest.values()].map((key) => ({
     key,
     name: registry[key]?.manifest.name ?? key,
   }));
 }
+
 
 /** The stored override, or null when the device follows the build default. */
 export function domainOverride(): string | null {

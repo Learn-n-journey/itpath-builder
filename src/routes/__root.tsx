@@ -17,6 +17,7 @@ import { AppShell } from "@/components/layout/app-shell";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
+import { activeDomainKey } from "@/domain/active";
 import { themeBootScript } from "@/state/theme";
 
 function NotFoundComponent() {
@@ -121,7 +122,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    // The boot script stamps the theme class and the subject onto this element
+    // before paint, so hydration must leave those attributes alone.
+    <html
+      lang="en"
+      className="dark"
+      data-subject={activeDomainKey.split("@")[0]}
+      suppressHydrationWarning
+    >
+
+
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />

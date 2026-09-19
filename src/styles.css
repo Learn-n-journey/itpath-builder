@@ -247,7 +247,164 @@ html.light {
   }
 }
 
+/*
+ * Auto repair subject palette: "Service Bay Blue".
+ *
+ * The subject the app opened with is written onto <html> as data-subject by the
+ * boot script, before first paint. IT keeps the teal obsidian palette above;
+ * the auto course reads as a clean service bay — deep shop blue, brushed steel
+ * text, hazard orange for actions only. Both light and dark are first class.
+ */
+html[data-subject="auto-repair"] {
+  --background: oklch(0.178 0.026 252);
+  --foreground: oklch(0.945 0.011 245);
+  --surface: oklch(0.252 0.033 252);
+  --card: oklch(0.252 0.033 252);
+  --card-foreground: oklch(0.945 0.011 245);
+  --popover: oklch(0.283 0.035 252);
+  --popover-foreground: oklch(0.945 0.011 245);
+  --primary: oklch(0.706 0.176 43);
+  --primary-foreground: oklch(0.178 0.026 252);
+  --emphasis: oklch(0.775 0.031 250);
+  --progress: oklch(0.706 0.176 43);
+  --secondary: oklch(0.295 0.034 252);
+  --secondary-foreground: oklch(0.92 0.012 248);
+  --muted: oklch(0.272 0.031 252);
+  --muted-foreground: oklch(0.742 0.029 252);
+  --accent: oklch(0.322 0.037 252);
+  --accent-foreground: oklch(0.945 0.011 245);
+  --destructive: oklch(0.601 0.196 24);
+  --destructive-foreground: oklch(0.97 0.005 250);
+  --success: oklch(0.7 0.14 158);
+  --success-foreground: oklch(0.18 0.026 252);
+  --warning: oklch(0.8 0.14 84);
+  --warning-foreground: oklch(0.18 0.026 252);
+  --border: oklch(0.348 0.036 252);
+  --input: oklch(0.384 0.038 252);
+  --ring: oklch(0.706 0.176 43);
+  --chart-1: oklch(0.706 0.176 43);
+  --chart-2: oklch(0.7 0.14 158);
+  --chart-3: oklch(0.8 0.14 84);
+  --chart-4: oklch(0.68 0.11 240);
+  --chart-5: oklch(0.601 0.196 24);
+  --sidebar: oklch(0.15 0.024 252);
+  --sidebar-foreground: oklch(0.905 0.013 248);
+  --sidebar-primary: oklch(0.706 0.176 43);
+  --sidebar-primary-foreground: oklch(0.178 0.026 252);
+  --sidebar-accent: oklch(0.268 0.032 252);
+  --sidebar-accent-foreground: oklch(0.95 0.01 248);
+  --sidebar-border: oklch(0.312 0.034 252);
+  --sidebar-ring: oklch(0.706 0.176 43);
+}
+
+html.light[data-subject="auto-repair"] {
+  --background: oklch(0.972 0.006 248);
+  --foreground: oklch(0.242 0.033 254);
+  --surface: oklch(1 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.242 0.033 254);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.242 0.033 254);
+  --primary: oklch(0.628 0.194 40);
+  --primary-foreground: oklch(1 0 0);
+  --emphasis: oklch(0.47 0.03 252);
+  --progress: oklch(0.628 0.194 40);
+  --secondary: oklch(0.928 0.014 248);
+  --secondary-foreground: oklch(0.262 0.032 254);
+  --muted: oklch(0.938 0.012 248);
+  --muted-foreground: oklch(0.505 0.03 252);
+  --accent: oklch(0.922 0.017 248);
+  --accent-foreground: oklch(0.262 0.032 254);
+  --destructive: oklch(0.577 0.215 27);
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.627 0.17 149);
+  --success-foreground: oklch(1 0 0);
+  --warning: oklch(0.666 0.157 58);
+  --warning-foreground: oklch(1 0 0);
+  --border: oklch(0.862 0.02 250);
+  --input: oklch(0.805 0.025 250);
+  --ring: oklch(0.628 0.194 40);
+  --chart-1: oklch(0.628 0.194 40);
+  --chart-2: oklch(0.627 0.17 149);
+  --chart-3: oklch(0.666 0.157 58);
+  --chart-4: oklch(0.52 0.12 252);
+  --chart-5: oklch(0.577 0.215 27);
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.242 0.033 254);
+  --sidebar-primary: oklch(0.628 0.194 40);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.948 0.012 248);
+  --sidebar-accent-foreground: oklch(0.242 0.033 254);
+  --sidebar-border: oklch(0.862 0.02 250);
+  --sidebar-ring: oklch(0.628 0.194 40);
+}
+
+@supports not (color: oklch(0 0 0)) {
+  html[data-subject="auto-repair"] {
+    --background: #0e1622;
+    --foreground: #e8eef4;
+    --surface: #1b2a3d;
+    --card: #1b2a3d;
+    --card-foreground: #e8eef4;
+    --popover: #223349;
+    --popover-foreground: #e8eef4;
+    --primary: #ff6b2c;
+    --primary-foreground: #0e1622;
+    --emphasis: #b6c3d2;
+    --progress: #ff6b2c;
+    --secondary: #26374c;
+    --secondary-foreground: #dde5ee;
+    --muted: #1f2f43;
+    --muted-foreground: #9fb0c4;
+    --accent: #2a3c53;
+    --accent-foreground: #e8eef4;
+    --border: #2f425a;
+    --input: #3a4e68;
+    --ring: #ff6b2c;
+    --sidebar: #0b121d;
+    --sidebar-foreground: #dbe3ec;
+    --sidebar-primary: #ff6b2c;
+    --sidebar-primary-foreground: #0e1622;
+    --sidebar-accent: #1e2e42;
+    --sidebar-accent-foreground: #eef3f8;
+    --sidebar-border: #26354a;
+    --sidebar-ring: #ff6b2c;
+  }
+
+  html.light[data-subject="auto-repair"] {
+    --background: #f6f8fb;
+    --foreground: #1e2a3a;
+    --surface: #ffffff;
+    --card: #ffffff;
+    --card-foreground: #1e2a3a;
+    --popover: #ffffff;
+    --popover-foreground: #1e2a3a;
+    --primary: #e2551a;
+    --primary-foreground: #ffffff;
+    --emphasis: #56647a;
+    --progress: #e2551a;
+    --secondary: #e7ecf3;
+    --secondary-foreground: #23303f;
+    --muted: #eaeff5;
+    --muted-foreground: #5c6a7c;
+    --accent: #e3e9f1;
+    --accent-foreground: #23303f;
+    --border: #d4dce7;
+    --input: #bcc7d6;
+    --ring: #e2551a;
+    --sidebar: #ffffff;
+    --sidebar-foreground: #1e2a3a;
+    --sidebar-primary: #e2551a;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #eef2f7;
+    --sidebar-accent-foreground: #1e2a3a;
+    --sidebar-border: #d4dce7;
+    --sidebar-ring: #e2551a;
+  }
+}
+
 @layer base {
+
   * {
     border-color: var(--color-border);
   }

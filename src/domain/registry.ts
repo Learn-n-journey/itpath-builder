@@ -15,9 +15,9 @@
 import { itDomain, itManifest } from "./packages/it";
 import type { DomainDefinition } from "./types";
 import type { DomainManifest, DomainPackage } from "./package";
-import { autoRepairManifest as autoRepair1_0_0Manifest } from "@/content/packs/auto-repair/1.0.0/manifest";
-import { autoRepairDomain as autoRepair1_0_0Domain } from "@/content/packs/auto-repair/1.0.0/domain";
-import { autoRepairPackage as autoRepair1_0_0Package } from "@/content/packs/auto-repair/1.0.0/package";
+import { autoRepairManifest as autoRepair2_0_0Manifest } from "@/content/packs/auto-repair/2.0.0/manifest";
+import { autoRepairDomain as autoRepair2_0_0Domain } from "@/content/packs/auto-repair/2.0.0/domain";
+import { autoRepairPackage as autoRepair2_0_0Package } from "@/content/packs/auto-repair/2.0.0/package";
 
 export interface RegistryEntry {
   manifest: DomainManifest;
@@ -34,11 +34,11 @@ export interface RegistryEntry {
 
 /** Every subject version this build knows about. */
 export const registry: Record<string, RegistryEntry> = {
-  "auto-repair@1.0.0": {
-    manifest: autoRepair1_0_0Manifest,
-    definition: autoRepair1_0_0Domain,
-    packageSync: autoRepair1_0_0Package,
-    load: async () => autoRepair1_0_0Package,
+  "auto-repair@2.0.0": {
+    manifest: autoRepair2_0_0Manifest,
+    definition: autoRepair2_0_0Domain,
+    packageSync: autoRepair2_0_0Package,
+    load: async () => autoRepair2_0_0Package,
   },
   [itManifest.key]: {
     manifest: itManifest,
