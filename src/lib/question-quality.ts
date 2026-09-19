@@ -233,6 +233,22 @@ export function questionIssues(question: Question): string[] {
   if (answers.some((answer) => answer.length >= 4 && new RegExp(`\\b${norm(answer).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(norm(prompt)))) {
     issues.push("the prompt reveals the correct answer verbatim");
   }
+  // The same giveaway in paraphrase: the question restates almost all of the
+  // wording of its own answer, so the answer can be matched without knowing it.
+  {
+    const promptSet = contentWords(prompt);
+    if (
+      answers.some((answer) => {
+        const set = contentWords(answer);
+        if (set.size < 3) return false;
+        let shared = 0;
+        for (const word of set) if (promptSet.has(word)) shared += 1;
+        return shared / set.size > 0.7;
+      })
+    ) {
+      issues.push("the question repeats the wording of its own correct answer");
+    }
+  }
 
   const explanation = question.explanation?.trim() ?? "";
   if (!explanation) issues.push("no explanation records why the answer is correct");
