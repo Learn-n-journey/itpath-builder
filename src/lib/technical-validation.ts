@@ -144,6 +144,9 @@ function checkSubnets(text: string): TechnicalIssue[] {
     const prefix = Number(match[1]);
     const stated = num(match[2] ?? "");
     if (prefix > 32 || prefix < 1 || !Number.isFinite(stated)) continue;
+    // "Split a /24 into subnets that each support 30 hosts" is about the pieces,
+    // not the block, so the block's own host count is not what is being stated.
+    if (/\b(into|split|divid|borrow|each|smaller|per subnet)\b/i.test(match[0])) continue;
     const total = 2 ** (32 - prefix);
     const usable = Math.max(0, total - 2);
     if (stated === total || stated === usable) continue;
