@@ -221,3 +221,102 @@ export const getTechVideos = createServerFn({ method: "GET" }).handler(async () 
   if (videos.length > 0) cache = { at: Date.now(), videos };
   return videos;
 });
+
+/**
+ * Additional public video services. These are PeerTube instances, which publish
+ * an open listing API and their own embed player, so every video keeps its
+ * original home, creator credit and player.
+ */
+const PEERTUBE_HOSTS = ["tilvids.com", "peertube.tv", "framatube.org", "makertube.net"] as const;
+
+/** Science & Technology in PeerTube's shared category list. */
+const PEERTUBE_TECH_CATEGORY = 15;
+const PER_HOST = 8;
+
+interface PeerTubeVideo {
+  uuid?: string;
+  shortUUID?: string;
+  name?: string;
+  truncatedDescription?: string | null;
+  description?: string | null;
+  thumbnailPath?: string | null;
+  embedPath?: string | null;
+  url?: string | null;
+  publishedAt?: string | null;
+  isLive?: boolean;
+  nsfw?: boolean;
+  channel?: { displayName?: string; url?: string; name?: string; host?: string } | null;
+}
+
+async function loadPeerTube(host: string, page: number): Promise<TechVideo[]> {
+  const params = new URLSearchParams({
+    categoryOneOf: String(PEERTUBE_TECH_CATEGORY),
+    languageOneOf: "en",
+    nsfw: "false",
+    sort: "-publishedAt",
+    start: String(page * PER_HOST),
+    count: String(PER_HOST),
+  });
+  try {
+    const response = await fetch(`https://${host}/api/v1/videos?${params.toString()}`, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(9000),
+    });
+    if (!response.ok) return [];
+    const body = (await response.json()) as { data?: PeerTubeVideo[] };
+    const out: TechVideo[] = [];
+    for (const item of body.data ?? []) {
+      const uuid = item.shortUUID ?? item.uuid;
+      const title = item.name?.trim();
+      const published = item.publishedAt ? Date.parse(item.publishedAt) : NaN;
+      if (!uuid || !title || Number.isNaN(published) || item.nsfw) continue;
+      const summary = (item.truncatedDescription ?? item.description ?? "").replace(/\s+/g, " ").trim().slice(0, 280);
+      const channelName = item.channel?.displayName?.trim() || host;
+      out.push({
+        id: `peertube:${host}:${uuid}`,
+        videoId: uuid,
+        platform: "PeerTube",
+        embedUrl: `https://${host}${item.embedPath ?? `/videos/embed/${uuid}`}?autoplay=1`,
+        title,
+        summary,
+        url: item.url ?? `https://${host}/w/${uuid}`,
+        channelUrl: item.channel?.url ?? `https://${host}`,
+        channel: channelName,
+        thumbnail: item.thumbnailPath ? `https://${host}${item.thumbnailPath}` : "",
+        category: categorise(`${title} ${summary}`, "Tech News"),
+        publishedAt: new Date(published).toISOString(),
+      });
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+export interface VideoPage {
+  videos: TechVideo[];
+  nextPage: number | null;
+}
+
+/**
+ * One page of the endless feed. Page 0 also includes the YouTube listing when
+ * it is reachable; every page pulls fresh videos from the other services.
+ */
+export const getVideoPage = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => {
+    const page = Number((data as { page?: unknown } | undefined)?.page ?? 0);
+    return { page: Number.isFinite(page) && page > 0 ? Math.min(Math.floor(page), 120) : 0 };
+  })
+  .handler(async ({ data }): Promise<VideoPage> => {
+    const fromPeerTube = await Promise.all(PEERTUBE_HOSTS.map((host) => loadPeerTube(host, data.page)));
+    const collected = fromPeerTube.flat();
+    const seen = new Set<string>();
+    const videos = collected
+      .filter((video) => {
+        if (seen.has(video.id)) return false;
+        seen.add(video.id);
+        return true;
+      })
+      .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt));
+    return { videos, nextPage: videos.length > 0 ? data.page + 1 : null };
+  });
