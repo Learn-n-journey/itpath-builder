@@ -234,9 +234,22 @@ function TechVideosPage() {
             <div key={index} className="h-72 animate-pulse rounded-2xl border border-border bg-card/50" />
           ))}
         </div>
-      ) : isError || videos.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card/60 p-6 text-sm text-muted-foreground">
-          The video feed could not be reached just now. Try Refresh in a moment.
+      ) : usingChannels ? (
+        <div className="space-y-4">
+          <p className="rounded-2xl border border-border bg-card/60 p-4 text-sm text-muted-foreground">
+            The live listing is unavailable right now, so here are the channels themselves. Each card plays that
+            creator's newest uploads.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {shownChannels.map((channel) => (
+              <ChannelCard
+                key={channel.id}
+                channel={channel}
+                playing={playing === channel.id}
+                onPlay={() => setPlaying(channel.id)}
+              />
+            ))}
+          </div>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
