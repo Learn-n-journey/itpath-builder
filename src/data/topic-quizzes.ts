@@ -375,30 +375,8 @@ function buildPool(topicId: string): PoolItem[] {
     .filter((line) => line.length >= 25 && line.length <= 200);
 
   lesson?.keyTerms.forEach((term, index) => {
-    const correct = shortMeaning(term.meaning);
-    const meaningOptions = pickThree(
-      meaningPool.filter((entry) => entry.term !== term.term).map((entry) => entry.meaning),
-      correct,
-      index * 2 + 1,
-      term.term,
-    );
-    if (meaningOptions) {
-      items.push({
-        kind: "term-meaning",
-        sourceKey: `term:${term.term.toLowerCase()}`,
-        question: question({
-          id: `section-${topicId}-term-${index}`,
-          topicId,
-          prompt: `A task requires ${correct.replace(/^A\s+/i, "a ").replace(/\.$/, "")}. Which item should be selected?`,
-          choices: withAnswerPlaced(correct, meaningOptions, index),
-          correctAnswer: [correct],
-          acceptableAnswers: [correct],
-          explanation: `${term.term}: ${term.meaning}`,
-          mistakeCategory: "terminology",
-        }),
-      });
-    }
-
+    // A question whose wording already contains its own answer teaches nothing,
+    // so terms are only ever asked by requirement, with the names as options.
     const description = shortMeaning(term.meaning);
     const nameCandidates = meaningPool
       .map((entry) => entry.term)
