@@ -18,6 +18,7 @@ import type {
   LearningModule,
   Lesson,
   PracticeActivity,
+  RealWorldScenario,
   RecallQuestion,
   Resource,
   Topic,
@@ -40,6 +41,8 @@ export interface DomainOverlay {
   practice: PracticeActivity[];
   /** Reading and watching material, one entry per source the subject declares. */
   resources: Resource[];
+  /** Judgement calls from real work, when the subject wrote them. */
+  scenarios: RealWorldScenario[];
   sizes: AssessmentSizes;
   /** Stage papers declared by the package, in learning order. */
   stages: Array<{ id: string; title: string; description: string; from: number; to: number }>;
@@ -89,10 +92,10 @@ function build(pkg: DomainPackage): DomainOverlay {
       keyTerms: pkg.concepts
         .filter((concept) => concept.sectionId === lesson.sectionId)
         .map((concept) => ({ term: concept.term, meaning: concept.meaning })),
-      realWorldExamples: [],
-      commonMisconceptions: [],
+      realWorldExamples: lesson.realWorldExamples ?? [],
+      commonMisconceptions: lesson.commonMisconceptions ?? [],
       summary: lesson.summary,
-      nextSteps: [],
+      nextSteps: lesson.nextSteps ?? [],
     };
   });
 
@@ -123,6 +126,9 @@ function build(pkg: DomainPackage): DomainOverlay {
     })),
   );
 
+  const detailOf = new Map((pkg.moduleDetails ?? []).map((detail) => [detail.sectionId, detail]));
+  const scenarioOf = new Map((pkg.scenarios ?? []).map((scenario) => [scenario.sectionId, scenario]));
+
   const modules: LearningModule[] = pkg.sections.map((section) => ({
     id: `module-${section.slug}`,
     lessonId: `lesson-${section.slug}`,
@@ -132,16 +138,26 @@ function build(pkg: DomainPackage): DomainOverlay {
       .map((line) => line.trim())
       .filter((line) => line.length > 30)
       .slice(0, 4),
-    whereYouSeeIt: [],
-    commonProblems: [],
-    howItFails: [],
-    troubleshooting: [],
+    whereYouSeeIt: detailOf.get(section.id)?.whereYouSeeIt ?? [],
+    commonProblems: detailOf.get(section.id)?.commonProblems ?? [],
+    howItFails: detailOf.get(section.id)?.howItFails ?? [],
+    troubleshooting: detailOf.get(section.id)?.troubleshooting ?? [],
     practicalKnowledge: pkg.skills.filter((skill) => skill.sectionId === section.id).map((skill) => skill.statement),
     examCoverage: section.objectiveIds,
-    interviewQuestions: [],
+    interviewQuestions: detailOf.get(section.id)?.interviewQuestions ?? [],
     recallQuestionIds: [],
     practiceActivityId: `practice-${section.slug}`,
-    scenarioId: "",
+    scenarioId: scenarioOf.get(section.id)?.id ?? "",
+  }));
+
+  const scenarios: RealWorldScenario[] = (pkg.scenarios ?? []).map((scenario) => ({
+    id: scenario.id,
+    topicId: topicIdOf(slugOf(scenario.sectionId)),
+    title: scenario.title,
+    situation: scenario.situation,
+    decisionPrompt: scenario.decisionPrompt,
+    expectedConcepts: scenario.expectedConcepts,
+    guidance: scenario.guidance,
   }));
 
   const recall: RecallQuestion[] = pkg.questions
@@ -206,6 +222,7 @@ function build(pkg: DomainPackage): DomainOverlay {
     recall,
     practice,
     resources,
+    scenarios,
     sizes: {
       sectionQuiz: pkg.assessmentSizes?.sectionQuiz ?? 20,
       stageExam: pkg.assessmentSizes?.stageExam ?? Math.max(10, pkg.assessments[0]?.questionCount ?? 50),

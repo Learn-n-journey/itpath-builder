@@ -126,6 +126,38 @@ export interface DomainLesson {
   definition: string;
   whyItMatters: string;
   summary: string;
+  /** Worked examples from the trade. Optional: older packages have none. */
+  realWorldExamples?: string[];
+  /** Beliefs that get learners into trouble, stated plainly. */
+  commonMisconceptions?: string[];
+  /** What to do with this once the lesson is read. */
+  nextSteps?: string[];
+}
+
+/**
+ * The working detail behind a section: where it shows up, how it fails, and how
+ * it is diagnosed. Optional, so packages written before this still load.
+ */
+export interface DomainModuleDetail {
+  sectionId: string;
+  whereYouSeeIt: string[];
+  commonProblems: string[];
+  howItFails: string[];
+  /** Ordered diagnostic steps: what to do, with what, and what the reading means. */
+  troubleshooting: string[];
+  interviewQuestions: string[];
+}
+
+/** A judgement call from real work: a job comes in, the learner decides. */
+export interface DomainScenario {
+  /** `<domainId>:scenario:<slug>` */
+  id: string;
+  sectionId: string;
+  title: string;
+  situation: string;
+  decisionPrompt: string;
+  expectedConcepts: string[];
+  guidance: string;
 }
 
 /** One unit of study. */
@@ -155,6 +187,10 @@ export interface DomainPackage {
   sources: DomainSource[];
   /** Extra standards this subject is judged by, beyond the shared rule book. */
   rules: DomainRule[];
+  /** Working detail per section: symptoms, failures, diagnostic procedure. */
+  moduleDetails?: DomainModuleDetail[];
+  /** Real jobs the learner has to reason through. */
+  scenarios?: DomainScenario[];
   /**
    * How many questions this subject's papers hold. Declared by the subject, not
    * assumed by the engine, and QA holds every paper to it exactly.

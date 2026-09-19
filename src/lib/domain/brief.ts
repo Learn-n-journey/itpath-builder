@@ -19,6 +19,8 @@ export interface DomainBrief {
   sectionsPerQualification: number;
   /** Anything else the author wants honoured, in plain words. */
   notes?: string;
+  /** How many extra practice questions to write per section. Default: none. */
+  questionsPerSection?: number;
 }
 
 /** One qualification track in a draft. */
@@ -37,4 +39,6 @@ export interface DomainDraft {
   seeds: TopicSeed[];
   /** Outside material per section slug: training videos and reading. */
   sources: Record<string, Array<{ label: string; url: string; kind: "video" | "reading" }>>;
+  /** Extra multiple-choice practice per section slug, beyond the one written with the section. */
+  banks?: Record<string, Array<{ prompt: string; choices: string[]; answerIndex: number; explanation: string }>>;
 }

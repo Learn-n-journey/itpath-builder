@@ -398,7 +398,7 @@ function buildPool(topicId: string): PoolItem[] {
         question: question({
           id: `section-${topicId}-term-${index}`,
           topicId,
-          prompt: `Which description fits ${term.term} as it is used here?`,
+          prompt: `A colleague uses the term ${term.term} on a job and you have to act on what they mean. Which reading of it is correct here?`,
           choices: withAnswerPlaced(correct, meaningOptions, index),
           correctAnswer: [correct],
           acceptableAnswers: [correct],
@@ -444,7 +444,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "misconception",
-      `Which of these statements about {topic} is correct?`,
+      `Two colleagues disagree about {topic} while working on it. Which statement holds up?`,
       line,
       otherMisconceptions(topicId),
       index,
@@ -460,7 +460,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "how-it-works",
-        `Which of these correctly describes how {topic} works?`,
+        `A new starter asks you what actually happens inside {topic} while it is running. Which account is accurate?`,
         line,
         otherStatements(topicId, "howItWorks"),
         index,
@@ -491,7 +491,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "how-it-fails",
-        `Which of these describes a way {topic} commonly goes wrong?`,
+        `You are called to a fault involving {topic}. Which of these is a failure it genuinely produces?`,
         line,
         otherStatements(topicId, "howItFails"),
         index,
@@ -567,7 +567,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "common-problem",
-        `Which of these is a problem you would expect to meet with {topic}?`,
+        `You are triaging a report against {topic} and have to decide whether it is even the right place to look. Which complaint genuinely fits it?`,
         line,
         otherStatements(topicId, "commonProblems"),
         index,
@@ -584,7 +584,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "real-example",
-        `Which of these is a real example of {section} in use?`,
+        `You want to show a new starter {section} being used on a real job rather than in theory. Which situation is genuinely that?`,
         line,
         lessons
           .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -601,7 +601,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "definition",
-      `Which of these best describes {section}?`,
+      `A colleague asks what {section} actually covers before you start a job together. Which account is accurate?`,
       definition,
       lessons
         .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)

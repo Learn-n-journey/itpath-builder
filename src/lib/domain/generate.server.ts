@@ -13,6 +13,8 @@ import { runAi } from "@/lib/ai/run.server";
 import type { Finding } from "@/lib/quality/types";
 import { getRule } from "@/lib/quality/rules";
 import type { TopicSeed } from "@/data/curriculum/builder";
+import { questionIssues } from "@/lib/question-quality";
+import type { Question } from "@/lib/app-data/types";
 import type { DomainBrief, DomainDraft, DraftQualification } from "./brief";
 import type { DomainDefinition } from "@/domain/types";
 
@@ -188,6 +190,125 @@ export async function generateSections(
   );
 }
 
+
+/** One batch of extra practice questions for a section. */
+export type BankQuestion = { prompt: string; choices: string[]; answerIndex: number; explanation: string };
+
+/**
+ * Step three and a half: a real question bank for a section.
+ *
+ * The section itself only carries one practice question, which is far too thin
+ * to examine anybody on. This asks for the rest in batches, handing back the
+ * prompts already written so a round never repeats itself.
+ */
+/** Two prompts that carry the same idea in different words. */
+function tooClose(a: string, b: string): boolean {
+  const words = (value: string) =>
+    new Set(value.toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter((word) => word.length > 3));
+  const left = words(a);
+  const right = words(b);
+  if (left.size === 0 || right.size === 0) return false;
+  let shared = 0;
+  for (const word of right) if (left.has(word)) shared += 1;
+  return shared / Math.min(left.size, right.size) > 0.8;
+}
+
+export async function generateQuestionBank(
+  brief: DomainBrief,
+  seed: TopicSeed,
+  target: number,
+  /** A top-up run passes what the section already asks, and its own cache key. */
+  options: { existing?: string[]; nonce?: string } = {},
+): Promise<BankQuestion[]> {
+  const out: BankQuestion[] = [];
+  const rejected: string[] = [];
+  const existing = options.existing ?? [];
+  const seen = new Set<string>([
+    seed.practice.prompt.toLowerCase(),
+    ...existing.map((prompt) => prompt.toLowerCase()),
+  ]);
+  const batchSize = 10;
+
+  for (let round = 0; out.length < target && round < Math.ceil(target / batchSize) + 2; round += 1) {
+    const ask = Math.min(batchSize, target - out.length);
+    let batch: BankQuestion[] = [];
+    try {
+      const raw = await askJson<{ questions?: Array<Partial<BankQuestion>> }>(
+        [
+          `Subject: ${brief.field}. Section: ${seed.title}. ${seed.summary}`,
+          `What this section teaches:\n${seed.lesson.body}`,
+          seed.module.troubleshooting.length
+            ? `Diagnostic steps taught here:\n${seed.module.troubleshooting.join("\n")}`
+            : "",
+          [...existing, ...out.map((q) => q.prompt)].length
+            ? `Already written, do not repeat:\n${[...existing, ...out.map((q) => q.prompt)].join("\n")}`
+            : "",
+          rejected.length
+            ? `These were rejected for being generic, recognition-only or too easy to eliminate. Do not write anything like them:\n${rejected.slice(-10).join("\n")}`
+            : "",
+          `Write ${ask} more multiple-choice questions on this section only.`,
+          "Never ask a question that restates the section title, tests only whether a word is recognised, or can be answered without studying this material. Each one makes the learner apply, distinguish, diagnose or reason from evidence given in the question.",
+          "No wrong option may be an absolute claim ('always', 'never', 'all'), an obviously false statement or an answer from an unrelated subject. Each wrong option is a mistake a real beginner makes here.",
+          "Every question states its own situation in full: the symptom, the reading or the setting it is about. A question that says 'what next' without describing the problem is rejected.",
+          "Exactly one choice is correct. The other three are believable mistakes a learner makes on this same material, never answers from another section.",
+          "Only test what this section teaches. Never invent a figure, code or specification you are not confident about.",
+          '{"questions":[{"prompt":"","choices":["","","",""],"answerIndex":0,"explanation":"why the right answer is right"}]}',
+          brief.notes ?? "",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+        [brief.id, "bank", seed.slug, String(round), options.nonce ?? ""],
+      );
+      batch = (raw.questions ?? []) as BankQuestion[];
+    } catch {
+      batch = [];
+    }
+
+    let added = 0;
+    for (const row of batch) {
+      const prompt = text(row?.prompt);
+      const choices = list(row?.choices);
+      const index = typeof row?.answerIndex === "number" ? row.answerIndex : -1;
+      const key = prompt.toLowerCase();
+      if (!prompt || choices.length !== 4 || index < 0 || index > 3 || seen.has(key)) continue;
+      if (new Set(choices.map((choice) => choice.toLowerCase())).size !== 4) continue;
+      // The same gate the course itself applies: a generic, recognition-only or
+      // giveaway question is thrown back to be written again rather than kept.
+      const answer = choices[index] as string;
+      const issues = questionIssues({
+        id: `draft-${seed.slug}-${out.length}`,
+        topicId: seed.slug,
+        prompt,
+        type: "multiple_choice",
+        choices,
+        correctAnswer: [answer],
+        acceptableAnswers: [answer],
+        explanation: text(row.explanation),
+        quizId: `draft-${seed.slug}`,
+        certificationId: brief.id,
+        difficulty: "standard",
+        mistakeCategory: "concept",
+        requiresReasoning: true,
+      } satisfies Question);
+      if (issues.length > 0) {
+        rejected.push(prompt);
+        continue;
+      }
+      // Nothing that only rewords a question already in this section.
+      if ([...existing, ...out.map((q) => q.prompt)].some((kept) => tooClose(kept, prompt))) {
+        rejected.push(prompt);
+        continue;
+      }
+      seen.add(key);
+      out.push({ prompt, choices, answerIndex: index, explanation: text(row.explanation) });
+      added += 1;
+      if (out.length >= target) break;
+    }
+    if (!added) break;
+  }
+
+  return out;
+}
 
 /** Step four: outside material for each section. */
 export async function generateSources(
