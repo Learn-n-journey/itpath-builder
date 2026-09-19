@@ -88,13 +88,43 @@ function ArticleCard({ article }: { article: NewsArticle }) {
 
 function TechNewsPage() {
   const fetchNews = useServerFn(getTechNews);
+  const fetchPage = useServerFn(getNewsPage);
   const [active, setActive] = useState<NewsCategory | "All">("All");
+  const sentinel = useRef<HTMLDivElement | null>(null);
 
   const { data, isLoading, isFetching, refetch, isError } = useQuery({
     queryKey: ["tech-news"],
     queryFn: () => fetchNews(),
     staleTime: 10 * 60 * 1000,
   });
+
+  const feed = useInfiniteQuery({
+    queryKey: ["tech-news-feed"],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => fetchPage({ data: { page: pageParam as number } }),
+    getNextPageParam: (last) => last.nextPage,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const feedArticles = useMemo(() => feed.data?.pages.flatMap((page) => page.articles) ?? [], [feed.data]);
+  const shownFeed = useMemo(
+    () => (active === "All" ? feedArticles : feedArticles.filter((article) => article.category === active)),
+    [feedArticles, active],
+  );
+
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = feed;
+  useEffect(() => {
+    const node = sentinel.current;
+    if (!node || !hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) void fetchNextPage();
+      },
+      { rootMargin: "600px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, shownFeed.length]);
 
   const articles = useMemo(() => data ?? [], [data]);
   const available = useMemo(() => {
