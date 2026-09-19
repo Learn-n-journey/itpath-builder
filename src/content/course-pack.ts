@@ -8,6 +8,7 @@
  * and are adapted to the same contract. See src/content/README.md.
  */
 import { ACTIVE_PACKAGE } from "@/domain/registry";
+import { domainOverride } from "@/lib/active-domain";
 import { itPack } from "@/content/packs/it-pack";
 import { autoRepairPackage as autoRepair1_0_0Package } from "@/content/packs/auto-repair/1.0.0/package";
 import { coursePackFromDomainPackage } from "@/content/packs/from-package";
@@ -20,10 +21,13 @@ const packs: Record<string, () => CoursePack> = {
 };
 
 function resolveActivePack(): CoursePack {
-  const build = packs[ACTIVE_PACKAGE];
+  // A device-level choice from Settings wins over the build default; both
+  // keys come from the same registry, so material can never disagree.
+  const key = domainOverride() ?? ACTIVE_PACKAGE;
+  const build = packs[key];
   if (!build) {
     throw new Error(
-      `The active subject "${ACTIVE_PACKAGE}" has no material registered in src/content/course-pack.ts. ` +
+      `The active subject "${key}" has no material registered in src/content/course-pack.ts. ` +
         `Registered material: ${Object.keys(packs).join(", ") || "none"}.`,
     );
   }

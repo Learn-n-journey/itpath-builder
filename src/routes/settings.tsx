@@ -39,6 +39,8 @@ import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
+import { activeDomainKey, domainOptions, setDomainOverride } from "@/lib/active-domain";
+import { ACTIVE_PACKAGE } from "@/domain/registry";
 import { useTheme } from "@/state/theme";
 import type { ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 
@@ -67,6 +69,8 @@ const DAYS: { id: WeekDay; label: string }[] = [
   { id: "sun", label: "Sun" },
 ];
 
+const ACTIVE_PACKAGE_KEY = ACTIVE_PACKAGE;
+
 const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
   { id: "none", label: "Complete beginner" },
   { id: "beginner", label: "Some basics" },
@@ -77,6 +81,12 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
+  const [subjectKey, setSubjectKey] = useState<string>(ACTIVE_PACKAGE_KEY);
+  const [subjectReady, setSubjectReady] = useState(false);
+  useEffect(() => {
+    setSubjectKey(activeDomainKey());
+    setSubjectReady(true);
+  }, []);
   const { theme, resolvedTheme, setTheme } = useTheme();
   const { email } = useAuth();
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
@@ -138,6 +148,37 @@ function SettingsPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
+
+        <Panel
+          title="Subject"
+          description="Choose what you are learning. The app reloads to switch courses. Your progress in each subject is kept separately."
+        >
+          <Label htmlFor="subject-select">Course</Label>
+          <Select value={subjectKey} onValueChange={setSubjectKey}>
+            <SelectTrigger id="subject-select" className="mt-1.5 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {domainOptions().map((option) => (
+                <SelectItem key={option.key} value={option.key}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {subjectReady && subjectKey !== activeDomainKey() ? (
+            <Button
+              className="mt-3"
+              onClick={() => {
+                setDomainOverride(subjectKey);
+                toast.success("Subject switched.");
+                window.location.assign("/");
+              }}
+            >
+              Switch course
+            </Button>
+          ) : null}
+        </Panel>
 
         <Panel
           title="Appearance"
