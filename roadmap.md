@@ -69,5 +69,5 @@ Done when: typecheck + build clean, features verified in browser.
 26. [ ] Auto repair course is owner-only: subject switcher and auto subject visible solely to the owner account.
 27. [ ] Auto practice tools (owner/auto course only): virtual OBD-II scan tool (read/clear codes, live data, freeze frame) and virtual engine simulator, in the style of the existing virtual terminal and virtual motherboard.
 
-- [ ] Ensure every topic (both subjects) has attached reading resources and video material
-- [ ] Add automotive channels to Tech Videos and automotive outlets to Tech News (auto subject)
+- [x] Ensure every topic (both subjects) has attached reading resources and video material
+- [x] Add automotive channels to Tech Videos and automotive outlets to Tech News
