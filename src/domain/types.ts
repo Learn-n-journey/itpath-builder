@@ -46,13 +46,19 @@ export interface DomainDefinition {
   appName: string;
   /** The field being taught, e.g. "IT and cybersecurity" or "auto repair". */
   field: string;
-  /** Who awards the qualifications, e.g. "CompTIA" or "ASE". Empty if none. */
-  awardingBody: string;
+  /**
+   * Who awards the qualifications, e.g. "CompTIA" or "ASE". Optional: plenty of
+   * subjects are taught without an awarding body at all.
+   */
+  awardingBody?: string;
   /** One sentence describing the subject, used in prompts and search data. */
   summary: string;
   /** Where the material comes from, shown to learners who ask. */
   sourceNote: string;
-  /** The qualification a brand new learner starts on. */
+  /**
+   * The qualification a brand new learner starts on. Empty when the subject
+   * runs without qualification tracks.
+   */
   defaultQualification: string;
   /** A sensible default career goal for a new learner. */
   defaultGoal: string;
