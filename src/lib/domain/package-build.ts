@@ -10,10 +10,12 @@ import type {
   DomainAssessment,
   DomainConcept,
   DomainLesson,
+  DomainModuleDetail,
   DomainPackage,
   DomainPrerequisite,
   DomainQuestion,
   DomainSection,
+  DomainScenario,
   DomainSkill,
   DomainSource,
 } from "@/domain/package";
@@ -46,7 +48,33 @@ export function buildPackageFromDraft(draft: DomainDraft, options: BuildOptions)
     definition: seed.lesson.definition,
     whyItMatters: seed.lesson.whyItMatters,
     summary: seed.lesson.summary,
+    realWorldExamples: seed.lesson.examples,
+    commonMisconceptions: seed.lesson.misconceptions,
+    nextSteps: seed.lesson.nextSteps,
   }));
+
+  // The working detail behind each section: the generator writes it, so the
+  // package keeps it rather than throwing it away at build time.
+  const moduleDetails: DomainModuleDetail[] = draft.seeds.map((seed) => ({
+    sectionId: sectionId(seed.slug),
+    whereYouSeeIt: seed.module.whereYouSeeIt,
+    commonProblems: seed.module.commonProblems,
+    howItFails: seed.module.howItFails,
+    troubleshooting: seed.module.troubleshooting,
+    interviewQuestions: seed.module.interviewQuestions,
+  }));
+
+  const scenarios: DomainScenario[] = draft.seeds
+    .filter((seed) => seed.scenario.situation && seed.scenario.decisionPrompt)
+    .map((seed) => ({
+      id: domainId(D, "scenario", seed.slug),
+      sectionId: sectionId(seed.slug),
+      title: seed.scenario.title || seed.title,
+      situation: seed.scenario.situation,
+      decisionPrompt: seed.scenario.decisionPrompt,
+      expectedConcepts: seed.scenario.expectedConcepts,
+      guidance: seed.scenario.guidance,
+    }));
 
   const concepts: DomainConcept[] = draft.seeds.flatMap((seed) =>
     seed.lesson.keyTerms.map(([term, meaning]) => ({
@@ -91,7 +119,16 @@ export function buildPackageFromDraft(draft: DomainDraft, options: BuildOptions)
       answerIndex: 0,
       explanation,
     }));
-    return [practice, ...recall];
+    const bank: DomainQuestion[] = (draft.banks?.[seed.slug] ?? []).map((row, index) => ({
+      id: domainId(D, "question", seed.slug, `bank-${index}`),
+      sectionId: sectionId(seed.slug),
+      kind: "practice",
+      prompt: row.prompt,
+      choices: row.choices,
+      answerIndex: row.answerIndex,
+      explanation: row.explanation,
+    }));
+    return [practice, ...bank, ...recall];
   });
 
   // Papers are sized by what the subject actually holds, and the size is
@@ -136,6 +173,8 @@ export function buildPackageFromDraft(draft: DomainDraft, options: BuildOptions)
     questions,
     assessments,
     sources,
+    moduleDetails,
+    scenarios,
     rules: [],
     assessmentSizes: { sectionQuiz: sectionQuizSize, stageExam: stageExamSize },
   };

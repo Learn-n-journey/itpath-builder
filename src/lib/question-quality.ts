@@ -21,6 +21,28 @@ const BROKEN_PROMPT_PATTERNS: RegExp[] = [
   /^\s*$/,
 ];
 
+/**
+ * Prompts that test nothing. Each of these asks the learner to recognise the
+ * section they are already sitting in, or to pick the only sentence that is not
+ * absurd, rather than to apply, distinguish, diagnose or reason from evidence.
+ */
+const GENERIC_PROMPT_PATTERNS: RegExp[] = [
+  /which of these is a problem you would expect/i,
+  /which of these is a real example of/i,
+  /which of these (best )?describes/i,
+  /which of the following best describes/i,
+  /which statement about .{0,80} is (true|correct)/i,
+  /which of these is (a|an) .{0,40}\?$/i,
+  /what is the (main |primary )?(purpose|definition|meaning) of/i,
+  /what does .{0,40} stand for/i,
+];
+
+/**
+ * An absolute claim is a giveaway: a learner who knows nothing still crosses it
+ * off. Wrong options have to be mistakes somebody would really make.
+ */
+const ABSOLUTE_OPTION = /\b(always|never|all|every|no)\b.{0,60}\b(is|are|will|means|makes|works|fixes|causes)\b/i;
+
 /** A "what next" ask is only fair when the prompt states the problem first. */
 const STEP_QUESTION = /what comes next|point you to next/i;
 const STATED_PROBLEM = /problem|report|fault|symptom|error|issue|user says|reports this/i;
@@ -80,6 +102,10 @@ export function questionIssues(question: Question): string[] {
   const prompt = question.prompt?.trim() ?? "";
   if (prompt.length < 20 || prompt.length > 600) issues.push("prompt length is out of range");
   if (BROKEN_PROMPT_PATTERNS.some((pattern) => pattern.test(prompt))) issues.push("prompt reads like a broken template");
+  if (GENERIC_PROMPT_PATTERNS.some((pattern) => pattern.test(prompt))) {
+    issues.push("prompt tests recognition of the section rather than applying it");
+  }
+  if (wordCount(prompt) < 10) issues.push("prompt gives too little to reason from");
   // A prompt that just repeats raw content with no question mark reads as a fragment.
   if (!prompt.includes("?")) issues.push("prompt is not a question");
   if (STEP_QUESTION.test(prompt) && !STATED_PROBLEM.test(prompt)) {
@@ -118,6 +144,9 @@ export function questionIssues(question: Question): string[] {
   }
   if (wrong.some((choice) => choice.replace(/[^a-z0-9]/gi, "").length < 2)) {
     issues.push("a wrong option is too short to mean anything");
+  }
+  if (wrong.some((choice) => ABSOLUTE_OPTION.test(choice))) {
+    issues.push("a wrong option is an absolute claim a learner can cross off without knowing the material");
   }
 
   // A correct answer that towers over every wrong option gives itself away.

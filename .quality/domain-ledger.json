@@ -114,5 +114,30 @@
     "byRule": {
       "domain.section-has-sources": 6
     }
+  },
+  {
+    "at": "2026-09-19T20:57:22.063Z",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@3.0.0",
+    "approved": false,
+    "activated": false,
+    "testsPassed": false,
+    "rounds": 3,
+    "blocking": 2,
+    "warnings": 263,
+    "scope": {
+      "qualifications": 9,
+      "sections": 102,
+      "concepts": 408,
+      "skills": 202,
+      "questions": 4093,
+      "assessments": 9,
+      "sources": 306
+    },
+    "byRule": {
+      "questions.sound": 2,
+      "questions.multiple-choice-sound": 262,
+      "questions.not-repeated": 1
+    }
   }
 ]

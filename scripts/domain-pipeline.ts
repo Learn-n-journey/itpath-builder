@@ -27,6 +27,7 @@ import {
   correctSection,
   generateDefinition,
   generateQualifications,
+  generateQuestionBank,
   generateSections,
   generateSources,
 } from "@/lib/domain/generate.server";
@@ -67,7 +68,27 @@ for (const qualification of qualifications) {
 }
 
 const sources = await generateSources(brief, seeds);
-let draft: DomainDraft = { definition, qualifications, seeds, sources };
+
+// Question banks: written per section, a few sections at a time so a long
+// subject does not take all day but the provider is never flooded.
+const banks: NonNullable<DomainDraft["banks"]> = {};
+const perSection = brief.questionsPerSection ?? 0;
+if (perSection > 0) {
+  const lanes = 6;
+  const queue = [...seeds];
+  await Promise.all(
+    Array.from({ length: lanes }, async () => {
+      for (;;) {
+        const seed = queue.shift();
+        if (!seed) return;
+        banks[seed.slug] = await generateQuestionBank(brief, seed, perSection);
+        stage("generate", `${seed.slug}: ${banks[seed.slug]!.length} questions`);
+      }
+    }),
+  );
+}
+
+let draft: DomainDraft = { definition, qualifications, seeds, sources, banks };
 
 // 2. Audit, 3. Correct, 4. Retest.
 let audit = auditDomainDraft(draft);

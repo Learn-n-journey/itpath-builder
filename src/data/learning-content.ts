@@ -153,6 +153,8 @@ const scenarioSeed: Array<[string, string, string, string, string[], string]> = 
 ];
 export const realWorldScenarios: RealWorldScenario[] = scenarioSeed.map(([slug, title, situation, decisionPrompt, expectedConcepts, guidance]) => ({ id: `scenario-${slug}`, topicId: `topic-${slug}`, title, situation, decisionPrompt, expectedConcepts, guidance })).concat(expansionScenarios);
 
+export const realWorldScenariosActive: RealWorldScenario[] = domainOverlay ? domainOverlay.scenarios : realWorldScenarios;
+
 export const learningModules: LearningModule[] = domainOverlay?.modules ?? authoredModules;
 export const recallQuestions: RecallQuestion[] = domainOverlay?.recall ?? authoredRecall;
 export const practiceActivities: PracticeActivity[] = domainOverlay?.practice ?? authoredPractice;
@@ -162,4 +164,4 @@ export function getRecallQuestions(topicId: string) { return recallQuestions.fil
 export function getPracticeActivity(topicId: string) { return practiceActivities.find((item) => item.topicId === topicId); }
 /** Every practice question available on a topic, in a stable order. */
 export function getPracticeActivities(topicId: string) { return practiceActivities.filter((item) => item.topicId === topicId); }
-export function getRealWorldScenario(topicId: string) { return realWorldScenarios.find((item) => item.topicId === topicId); }
+export function getRealWorldScenario(topicId: string) { return realWorldScenariosActive.find((item) => item.topicId === topicId); }
