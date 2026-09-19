@@ -8,6 +8,7 @@
  * the single source here; nothing else is merged in.
  */
 import { topics as coreTopics } from "@/data/static-content";
+import { domainOverlay } from "@/data/domain-overlay";
 
 export interface JourneyTopic {
   id: string;
