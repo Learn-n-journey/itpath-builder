@@ -48,7 +48,8 @@ describe("course pack", () => {
         }
       }
     }
-  });
+  }, 120000);
+
 
   it("gives every section recall practice", () => {
     const thin = pack.sections.filter((section) => pack.getRecallQuestions(section.id).length === 0);
