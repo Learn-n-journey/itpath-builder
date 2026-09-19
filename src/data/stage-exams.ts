@@ -11,7 +11,8 @@
 import type { CertificationObjective, Question } from "@/lib/app-data/types";
 import { topics } from "@/data/static-content";
 import { certifications, certificationObjectives } from "@/data/certification-content";
-import { getTopicQuestionPool } from "@/data/topic-quizzes";
+import { conceptIdFor, getTopicQuestionPool } from "@/data/topic-quizzes";
+import { finalizeQuestionSet } from "@/lib/quiz-finalize";
 import { usableQuestions } from "@/lib/question-quality";
 
 export const STAGE_PASS_SCORE = 80;
