@@ -76,7 +76,7 @@ export function WelcomeSetup() {
           Quick setup
         </p>
         <h2 className="mt-1 font-display text-lg font-semibold tracking-tight">
-          Three things and you're ready
+          Just a few things and you're ready to start
         </h2>
       </div>
 
