@@ -12,6 +12,7 @@ import { getRule } from "@/lib/quality/rules";
 import { measure } from "@/domain/package";
 import type { Finding } from "@/lib/quality/audit";
 import type { DomainPackage } from "@/domain/package";
+import { validateExactAssessmentSizes } from "@/lib/autonomy/validation";
 
 function note(out: Finding[], ruleId: string, subjectId: string, detail: string): void {
   const rule = getRule(ruleId);
@@ -130,6 +131,16 @@ export function auditPackage(pkg: DomainPackage): PackageAudit {
         );
       }
     }
+  }
+
+  const exactSizes = validateExactAssessmentSizes(pkg);
+  for (const failure of exactSizes.failures) {
+    note(
+      findings,
+      "papers.stage-exam-whole",
+      `assessment:${failure.assessmentId}`,
+      `The assessment declares ${failure.actual} questions; this package requires exactly ${failure.expected}.`,
+    );
   }
 
   const counted = measure(pkg);

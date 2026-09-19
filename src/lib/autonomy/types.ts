@@ -142,3 +142,8 @@ export interface DeploymentAdapter {
   deploy(candidate: ImprovementCandidate): Promise<{ ok: boolean; detail: string }>;
   rollback(packageKey: string): Promise<{ ok: boolean; detail: string }>;
 }
+
+/** AI can propose this shape, but it has no authority to validate or deploy it. */
+export interface CandidateAdvisor {
+  suggest(pkg: DomainPackage, findings: AutonomyFinding[]): Promise<Partial<ImprovementCandidate>[]>;
+}

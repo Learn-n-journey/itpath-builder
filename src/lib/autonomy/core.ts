@@ -32,5 +32,5 @@ export function failureFromDecision(domainId: string, packageKey: string, candid
 }
 
 export type { AutonomyInput, FailureRecord, HealthSnapshot, ImprovementCandidate, MonitoringDecision, PromotionDecision, ValidationEvidence } from "./types";
-export { DEFAULT_AUTONOMY_THRESHOLDS } from "./rules";
+export { DEFAULT_AUTONOMY_THRESHOLDS, thresholdsFromFailureMemory } from "./rules";
 export { validateCandidate, validateExactAssessmentSizes } from "./validation";

@@ -1,4 +1,4 @@
-import type { AutonomyThresholds } from "./types";
+import type { AutonomyThresholds, FailureRecord } from "./types";
 
 /** Versioned and domain-neutral. Package rules may add stricter checks, never bypass these. */
 export const DEFAULT_AUTONOMY_THRESHOLDS: AutonomyThresholds = Object.freeze({
@@ -27,3 +27,19 @@ export const AUTONOMY_RULES = Object.freeze({
   regression: "autonomy.promotion.regression",
   degradation: "autonomy.monitor.degradation",
 } as const);
+
+/** Repeated proven failures strengthen future safeguards in a bounded, deterministic way. */
+export function thresholdsFromFailureMemory(
+  failures: FailureRecord[],
+  base: AutonomyThresholds = DEFAULT_AUTONOMY_THRESHOLDS,
+): AutonomyThresholds {
+  const degradationFailures = failures.filter((failure) => failure.preventionRule === AUTONOMY_RULES.degradation).length;
+  const assessmentFailures = failures.filter((failure) => failure.preventionRule === AUTONOMY_RULES.assessmentSize).length;
+  return {
+    ...base,
+    version: `${base.version}+memory.${failures.length}`,
+    minimumMonitoringEvidence: Math.min(100, base.minimumMonitoringEvidence + degradationFailures * 5),
+    maximumHealthDegradation: Math.max(0.03, base.maximumHealthDegradation - degradationFailures * 0.01),
+    minimumGradedEvidence: Math.min(10, base.minimumGradedEvidence + Math.min(assessmentFailures, 2)),
+  };
+}

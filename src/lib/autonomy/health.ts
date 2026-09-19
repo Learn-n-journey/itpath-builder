@@ -92,7 +92,8 @@ export function diagnoseHealth(healthScores: MeasuredHealth, thresholds: Autonom
   });
   for (const score of [...healthScores.concepts, ...healthScores.lessons, ...healthScores.assessments]) {
     if (score.gradedEvidence < thresholds.minimumGradedEvidence) continue;
-    if (score.mastery < thresholds.weakMastery) add(score, score.kind === "assessment" ? AUTONOMY_RULES.assessmentAccuracy : AUTONOMY_RULES.weakMastery, score.mastery, score.kind === "assessment" ? thresholds.acceptableAssessmentAccuracy : thresholds.weakMastery, "Measured mastery is below threshold.");
+    const masteryThreshold = score.kind === "assessment" ? thresholds.acceptableAssessmentAccuracy : thresholds.weakMastery;
+    if (score.mastery < masteryThreshold) add(score, score.kind === "assessment" ? AUTONOMY_RULES.assessmentAccuracy : AUTONOMY_RULES.weakMastery, score.mastery, masteryThreshold, "Measured mastery is below threshold.");
     if (score.retention < thresholds.weakRetention) add(score, AUTONOMY_RULES.weakRetention, score.retention, thresholds.weakRetention, "Recent retained performance is below threshold.");
     if (score.failures >= thresholds.repeatedFailureCount) add(score, AUTONOMY_RULES.repeatedFailure, score.failures, thresholds.repeatedFailureCount, "Failures have repeated.");
     const repeated = Math.max(0, ...Object.values(score.misconceptionCounts));
