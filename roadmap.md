@@ -80,4 +80,5 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Regenerate all question banks under the new quality checks once the checks are in place.
 - [x] Drop every question that fails the quality checks instead of keeping it in the course.
 
-- [ ] Enforce answer-format alignment: every correct and wrong choice must answer the exact kind of question asked; remove all violations from active course banks.
+- [x] Enforce answer-format alignment: every correct and wrong choice must answer the exact kind of question asked; remove all violations from active course banks.
+- [ ] Broaden deterministic quality enforcement for questions and lessons; reject weak, incoherent, unsupported, repetitive, or unteachable material before publication.
