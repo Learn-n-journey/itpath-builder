@@ -7,7 +7,7 @@
  * corrector can be pointed at exactly one broken item instead of rewriting the
  * whole subject.
  */
-import type { Finding } from "@/lib/quality/audit";
+import type { Finding } from "@/lib/quality/types";
 import { getRule } from "@/lib/quality/rules";
 import { questionIssues } from "@/lib/question-quality";
 import { checkTechnicalClaims } from "@/lib/technical-validation";

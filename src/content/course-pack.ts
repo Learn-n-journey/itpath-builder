@@ -1,14 +1,35 @@
 /**
  * The active course pack.
  *
- * This file is the single switch for subject matter, the twin of
- * `src/domain/active.ts` which is the switch for subject wording. A new
- * subject means a new pack under `src/content/packs` and one changed line
- * here. Nothing else in the app needs to change; see src/content/README.md.
+ * The subject is chosen in one place only: `ACTIVE_PACKAGE` in the domain
+ * registry. This file looks that key up and hands back the matching material,
+ * so wording and material can never disagree. Authored subjects register a
+ * hand-written pack; subjects produced by the pipeline register their package
+ * and are adapted to the same contract. See src/content/README.md.
  */
+import { ACTIVE_PACKAGE } from "@/domain/registry";
 import { itPack } from "@/content/packs/it-pack";
+import { autoRepairPackage as autoRepair1_0_0Package } from "@/content/packs/auto-repair/1.0.0/package";
+import { coursePackFromDomainPackage } from "@/content/packs/from-package";
 import type { CoursePack } from "@/content/pack-contract";
 
-export const coursePack: CoursePack = itPack;
+/** Every subject's material, by the same key the registry uses. */
+const packs: Record<string, () => CoursePack> = {
+  "it-cybersecurity@1.0.0": () => itPack,
+  "auto-repair@1.0.0": () => coursePackFromDomainPackage(autoRepair1_0_0Package),
+};
+
+function resolveActivePack(): CoursePack {
+  const build = packs[ACTIVE_PACKAGE];
+  if (!build) {
+    throw new Error(
+      `The active subject "${ACTIVE_PACKAGE}" has no material registered in src/content/course-pack.ts. ` +
+        `Registered material: ${Object.keys(packs).join(", ") || "none"}.`,
+    );
+  }
+  return build();
+}
+
+export const coursePack: CoursePack = resolveActivePack();
 
 export type { CoursePack, SubjectProfile } from "@/content/pack-contract";

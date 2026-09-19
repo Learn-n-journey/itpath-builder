@@ -10,7 +10,7 @@
  */
 import { getRule } from "@/lib/quality/rules";
 import { measure } from "@/domain/package";
-import type { Finding } from "@/lib/quality/audit";
+import type { Finding } from "@/lib/quality/types";
 import type { DomainPackage } from "@/domain/package";
 import { validateExactAssessmentSizes } from "@/lib/autonomy/assessment-size";
 

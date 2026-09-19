@@ -10,7 +10,7 @@
  * the auditor produced.
  */
 import { runAi } from "@/lib/ai/run.server";
-import type { Finding } from "@/lib/quality/audit";
+import type { Finding } from "@/lib/quality/types";
 import { getRule } from "@/lib/quality/rules";
 import type { TopicSeed } from "@/data/curriculum/builder";
 import type { DomainBrief, DomainDraft, DraftQualification } from "./brief";
