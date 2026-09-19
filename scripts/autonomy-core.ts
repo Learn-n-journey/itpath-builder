@@ -6,8 +6,8 @@ import type { DomainPackage } from "@/domain/package";
 import type { LearnerSignal } from "@/lib/app-data/types";
 import { approveCandidate, failureFromDecision, monitorDeployment, runAutonomyCore, validateCandidate } from "@/lib/autonomy/core";
 import { enforceMonitoringDecision } from "@/lib/autonomy/lifecycle";
-import { appendFailure, recordRun } from "@/lib/autonomy/ledger.server";
-import { AUTONOMY_RULES } from "@/lib/autonomy/rules";
+import { appendFailure, readFailureMemory, recordRun } from "@/lib/autonomy/ledger.server";
+import { AUTONOMY_RULES, thresholdsFromFailureMemory } from "@/lib/autonomy/rules";
 
 const now = new Date("2026-09-19T03:30:00.000Z");
 const stage = (name: string, detail: string) => console.log(`[${name}] ${detail}`);
@@ -32,16 +32,18 @@ stage("test", "running Autonomy Core and domain package regression tests");
 const testsPassed = spawnSync("bunx", ["vitest", "run", "src/lib/autonomy/core.test.ts", "src/domain/package.test.ts"], { stdio: "inherit" }).status === 0;
 if (!testsPassed) process.exit(1);
 
+const failuresBefore = readFailureMemory();
+const thresholds = thresholdsFromFailureMemory(failuresBefore);
 const report = [];
 for (const entry of Object.values(registry)) {
   if (!entry.load) throw new Error(`${entry.manifest.key} has no package loader.`);
   const pkg = await entry.load();
   stage("observe", pkg.manifest.key);
-  const baseline = runAutonomyCore({ pkg, evidence: fixture(pkg, true), now: new Date(now.getTime() - 86_400_000) });
-  const degraded = runAutonomyCore({ pkg, evidence: fixture(pkg, false), now });
+  const baseline = runAutonomyCore({ pkg, evidence: fixture(pkg, true), now: new Date(now.getTime() - 86_400_000), thresholds });
+  const degraded = runAutonomyCore({ pkg, evidence: fixture(pkg, false), now, thresholds });
   stage("diagnose", `${degraded.snapshot.findings.length} findings produced by versioned rules`);
   const decisions = degraded.candidates.map((candidate) => approveCandidate(candidate, validateCandidate(pkg, testsPassed), now));
-  const monitoring = monitorDeployment(baseline.snapshot, degraded.snapshot, now);
+  const monitoring = monitorDeployment(baseline.snapshot, degraded.snapshot, now, thresholds);
   let rollbackCount = 0;
   await enforceMonitoringDecision(monitoring, {
     deploy: async () => ({ ok: true, detail: "Proof deployment adapter accepted an approved candidate." }),
@@ -57,5 +59,6 @@ for (const entry of Object.values(registry)) {
 }
 
 mkdirSync(".quality", { recursive: true });
-writeFileSync(".quality/autonomy-proof.json", `${JSON.stringify({ schemaVersion: 1, ruleAuthority: "deterministic", aiAuthority: "none", generatedAt: now.toISOString(), testsPassed, domains: report }, null, 2)}\n`);
+const learnedThresholds = thresholdsFromFailureMemory(readFailureMemory());
+writeFileSync(".quality/autonomy-proof.json", `${JSON.stringify({ schemaVersion: 1, ruleAuthority: "deterministic", aiAuthority: "none", generatedAt: now.toISOString(), testsPassed, failureMemoryApplied: thresholds.version, learnedRuleVersion: learnedThresholds.version, safeguardsStrengthened: learnedThresholds.minimumMonitoringEvidence >= thresholds.minimumMonitoringEvidence && learnedThresholds.maximumHealthDegradation <= thresholds.maximumHealthDegradation, domains: report }, null, 2)}\n`);
 stage("record", "proof written to .quality/autonomy-proof.json");

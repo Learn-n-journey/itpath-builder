@@ -1,4 +1,4 @@
-import type { AutonomyInput, FailureRecord, HealthSnapshot, ImprovementCandidate, MonitoringDecision, PromotionDecision, ValidationEvidence } from "./types";
+import type { AutonomyInput, AutonomyThresholds, FailureRecord, HealthSnapshot, ImprovementCandidate, MonitoringDecision, PromotionDecision, ValidationEvidence } from "./types";
 import { AUTONOMY_SCHEMA_VERSION } from "./types";
 import { DEFAULT_AUTONOMY_THRESHOLDS } from "./rules";
 import { observeTelemetry } from "./telemetry";
@@ -25,7 +25,7 @@ export function runAutonomyCore(input: AutonomyInput): { snapshot: HealthSnapsho
 }
 
 export const approveCandidate = (candidate: ImprovementCandidate, evidence: ValidationEvidence, now?: Date): PromotionDecision => decidePromotion(candidate, evidence, now);
-export const monitorDeployment = (baseline: HealthSnapshot, current: HealthSnapshot, now?: Date): MonitoringDecision => decideMonitoring(baseline, current, DEFAULT_AUTONOMY_THRESHOLDS, now);
+export const monitorDeployment = (baseline: HealthSnapshot, current: HealthSnapshot, now?: Date, thresholds: AutonomyThresholds = DEFAULT_AUTONOMY_THRESHOLDS): MonitoringDecision => decideMonitoring(baseline, current, thresholds, now);
 
 export function failureFromDecision(domainId: string, packageKey: string, candidateId: string | null, failure: string, rootCause: string, correction: string, testResult: string, preventionRule: string, outcome: FailureRecord["outcome"], now: Date = new Date()): FailureRecord {
   return { id: stableId("failure", domainId, packageKey, candidateId ?? "none", failure, rootCause, preventionRule), domainId, packageKey, candidateId, failure, rootCause, correction, testResult, preventionRule, outcome, recordedAt: now.toISOString() };
