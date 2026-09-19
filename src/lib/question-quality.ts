@@ -16,8 +16,14 @@ const BROKEN_PROMPT_PATTERNS: RegExp[] = [
   /what does good practice require here/i,
   /how would you recognise this in practice/i,
   /describe what you would see/i,
+  // The exact no-context step wording this rule book retired for good.
+  /you have just done this/i,
   /^\s*$/,
 ];
+
+/** A "what next" ask is only fair when the prompt states the problem first. */
+const STEP_QUESTION = /what comes next|point you to next/i;
+const STATED_PROBLEM = /problem|report|fault|symptom|error|issue|user says|reports this/i;
 
 const norm = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
 
@@ -76,6 +82,9 @@ export function questionIssues(question: Question): string[] {
   if (BROKEN_PROMPT_PATTERNS.some((pattern) => pattern.test(prompt))) issues.push("prompt reads like a broken template");
   // A prompt that just repeats raw content with no question mark reads as a fragment.
   if (!prompt.includes("?")) issues.push("prompt is not a question");
+  if (STEP_QUESTION.test(prompt) && !STATED_PROBLEM.test(prompt)) {
+    issues.push("step question never states the problem being worked on");
+  }
 
   const choices = (question.choices ?? []).map((choice) => choice?.trim() ?? "").filter(Boolean);
   if (choices.length < 4) issues.push("fewer than four options");

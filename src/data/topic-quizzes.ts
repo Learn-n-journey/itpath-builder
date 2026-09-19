@@ -540,16 +540,20 @@ function buildPool(topicId: string): PoolItem[] {
       });
     }
 
-    // Later steps in the sequence, so the order of work is tested too.
+    // Later steps in the sequence, so the order of work is tested too. The
+    // problem is always stated: a step question without the symptom in front
+    // of it has no context and no defensible answer, and the quality gate
+    // rejects that wording outright.
     module.troubleshooting.forEach((step, index) => {
       if (index === 0 || index > 3) return;
       const before = module.troubleshooting[index - 1];
-      if (!before) return;
+      if (!before || module.commonProblems.length === 0) return;
+      const problem = module.commonProblems[(index - 1) % module.commonProblems.length] as string;
       const item = statementItem(
         topicId,
         title,
         "next-step",
-        `You have just done this: ${tidy(before).replace(/\.$/, "")} It told you nothing conclusive. What does the evidence so far point you to next?`,
+        `A user reports this problem: ${tidy(problem).replace(/\.$/, "")}. Working through it, you have already done this: ${tidy(before).replace(/\.$/, "")}. It gave no conclusive answer. What does the evidence point you to next?`,
         step,
         [...module.troubleshooting.filter((_, at) => at !== index), ...otherStatements(topicId, "troubleshooting")],
         index,

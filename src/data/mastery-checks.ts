@@ -241,13 +241,17 @@ export function masteryCheckPool(topicId: string, kind: MasteryCheckKind): Maste
 
   if (kind === "troubleshooting") {
     const steps = learningModule.troubleshooting;
+    // Step order is tested with the problem stated in the prompt. Naming only
+    // the last action, without the symptom, leaves no context and no
+    // defensible answer, and the quality gate rejects that wording.
     steps.forEach((step, index) => {
       const next = steps[index + 1];
-      if (!next) return;
+      if (!next || learningModule.commonProblems.length === 0) return;
+      const problem = learningModule.commonProblems[index % learningModule.commonProblems.length] as string;
       const item = mcq(
         `mc-${slug}-fault-next-${index + 1}`,
         kind,
-        `You are working a ${lower(topic.title)} fault and you have just done this: ${sentence(step)} What comes next?`,
+        `A user reports this problem: ${sentence(problem)} You have already done this: ${sentence(step)} What comes next?`,
         next,
         distractors(topicId, (mod) => mod.troubleshooting, `${slug}-fault-${index}`, [sentence(next), sentence(step)]),
         `The documented order puts this next: ${sentence(next)}`,
