@@ -504,7 +504,7 @@ export const networkAndSecuritySeeds: TopicSeed[] = [
     ],
     lesson: {
       title: "Thinking like a defender",
-      body: "Security decisions are risk decisions. Precise vocabulary lets you argue for controls with evidence rather than fear.",
+      body: "Security decisions are risk decisions, and precise vocabulary is what lets you argue for controls with evidence rather than fear. Every security choice protects some mix of confidentiality, integrity, and availability, and every proposal lands better when it is phrased as likelihood and impact instead of doom. This section builds the shared language of threats, vulnerabilities, risk, and controls that the rest of the security material, and the Security+ exam, assumes you can use fluently.",
       definition: "Confidentiality, integrity, and availability define what security protects. A threat is an actor or event that could cause harm; a vulnerability is a weakness it could exploit; risk is the combination of likelihood and impact. Controls are preventive, detective, or corrective, and technical, administrative, or physical. Threat actors range from opportunistic criminals and insiders to organised crime and state-sponsored groups.",
       whyItMatters: "Budgets are finite. Framing a proposal as 'this control reduces the likelihood of a high-impact ransomware event' wins support where 'hackers are dangerous' does not. This vocabulary is also the backbone of Security+ questions.",
       keyTerms: [
