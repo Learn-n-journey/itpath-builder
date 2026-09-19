@@ -88,6 +88,7 @@ import { BackButton } from "@/components/layout/back-button";
 import { QuickNav } from "@/components/layout/quick-nav";
 import { SidePanel } from "@/components/layout/side-panel";
 import { StudyTabs } from "@/components/layout/study-tabs";
+import { WelcomeTour } from "@/components/onboarding/welcome-tour";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -116,6 +117,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <StudyReminder />
+      <WelcomeTour />
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
       <aside className="sidebar-glass fixed inset-y-0 left-0 z-30 hidden w-64 flex-col overflow-y-auto border-r border-sidebar-border lg:flex">
         <Brand />
