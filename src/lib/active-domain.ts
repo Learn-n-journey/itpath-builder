@@ -76,4 +76,7 @@ export function setDomainOverride(key: string): void {
   } catch {
     /* storage unavailable; the switch simply will not persist */
   }
+  // Mirrored so the server knows, on the very next page load, that this
+  // visitor is not on the default course.
+  writeSubjectCookie(key === ACTIVE_PACKAGE ? null : key);
 }
