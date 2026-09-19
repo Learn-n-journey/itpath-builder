@@ -8,6 +8,7 @@ import { cacheKey as buildCacheKey, readExact, writeCache } from "@/lib/ai/cache
 import { compressContext } from "@/lib/ai/compress.server";
 import { runAi } from "@/lib/ai/run.server";
 import { offlineGrade, type GradeStatus } from "@/lib/offline-grade";
+import { domain } from "@/domain/active";
 
 const criterionSchema = z.object({
   id: z.string().min(1).max(200),
@@ -149,7 +150,7 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
     }
 
     const system = [
-      "You are GAYL, the learning guide inside IT PATH. You are reading a written answer and telling the learner what you can see in it.",
+      `You are GAYL, the learning guide inside ${domain.appName}. You are reading a written answer and telling the learner what you can see in it.`,
       "Write every sentence as yourself, in first person, speaking to the learner as 'you'. Never write 'the learner', 'the user' or 'the student', and never mention being an AI, a model or an examiner.",
       "Judge the work, never the person. Describe what the answer shows and what it leaves out.",
       "Mark on meaning and on whether the technical reasoning would actually work in practice. Never mark on keywords, exact terms, phrasing, spelling or the order things are written in.",

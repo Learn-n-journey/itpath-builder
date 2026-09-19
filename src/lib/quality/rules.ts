@@ -79,6 +79,48 @@ export const qualityRules: QualityRule[] = [
     severity: "blocking",
     says: "A question keeps the same concept id every time it is asked, inside its own section.",
   },
+  {
+    id: "domain.definition-complete",
+    area: "structure",
+    severity: "blocking",
+    says: "A subject names its field, its starting qualification and what its parts are called.",
+  },
+  {
+    id: "domain.qualification-has-objectives",
+    area: "structure",
+    severity: "blocking",
+    says: "Every qualification lists the published objectives it is measured against.",
+  },
+  {
+    id: "domain.qualification-has-sections",
+    area: "structure",
+    severity: "blocking",
+    says: "Every qualification has sections that teach towards it.",
+  },
+  {
+    id: "domain.section-id-unique",
+    area: "structure",
+    severity: "blocking",
+    says: "Every section has an id that is used once in the subject.",
+  },
+  {
+    id: "domain.section-belongs-to-qualification",
+    area: "structure",
+    severity: "blocking",
+    says: "Every section belongs to a qualification that exists in the subject.",
+  },
+  {
+    id: "domain.section-has-recall",
+    area: "questions",
+    severity: "blocking",
+    says: "Every section carries recall practice with accepted answers.",
+  },
+  {
+    id: "domain.section-has-sources",
+    area: "content",
+    severity: "warning",
+    says: "Every section points at outside material that can be checked.",
+  },
 ];
 
 const byId = new Map(qualityRules.map((rule) => [rule.id, rule] as const));

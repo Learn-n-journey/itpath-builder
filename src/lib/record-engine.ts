@@ -10,6 +10,7 @@ import { buildAllReadinessReports, readinessBandLabels } from "@/lib/readiness-e
 import { scoreSkills } from "@/lib/skills-engine";
 import { portfolioToMarkdown } from "@/lib/portfolio-engine";
 import { APP_DATA_VERSION, type UserData } from "@/lib/app-data/types";
+import { domain } from "@/domain/active";
 
 export interface RecordTopicRow {
   title: string;
@@ -116,7 +117,7 @@ function hours(minutes: number): string {
 export function recordAsText(record: StudyRecord, name?: string): string {
   const t = record.totals;
   const lines: string[] = [
-    "IT PATH, STUDY RECORD",
+    `${domain.appName.toUpperCase()}, STUDY RECORD`,
     name ? `Learner: ${name}` : "",
     `Generated: ${record.generatedAt.toLocaleString()}`,
     "",
@@ -131,7 +132,7 @@ export function recordAsText(record: StudyRecord, name?: string): string {
     `Mistakes: ${t.mistakesResolved} resolved, ${t.mistakesOpen} open`,
     `Portfolio projects written up: ${t.portfolioProjects}`,
     "",
-    "CERTIFICATION READINESS",
+    `${domain.vocabulary.qualification.toUpperCase()} READINESS`,
     ...record.certifications.map(
       (row) =>
         `- ${row.title}: ${row.score}% (${row.band}), ${row.topicsDone}/${row.topicsTotal} topics`,
@@ -147,7 +148,7 @@ export function recordAsText(record: StudyRecord, name?: string): string {
       ? record.topics.map((row) => `- ${row.title}: ${row.score}% (${row.status.replace(/_/g, " ")})`)
       : ["- Nothing recorded yet"]),
     "",
-    "Every figure above is derived from work recorded in IT PATH.",
+    `Every figure above is derived from work recorded in ${domain.appName}.`,
   ];
   return lines.filter((line) => line !== "").join("\n");
 }
@@ -160,7 +161,7 @@ export function recordWithPortfolio(record: StudyRecord, user: UserData, name?: 
 }
 
 export interface BackupFile {
-  app: "IT PATH";
+  app: string;
   version: number;
   exportedAt: string;
   user: UserData;
@@ -168,7 +169,7 @@ export interface BackupFile {
 
 export function buildBackup(user: UserData): string {
   const payload: BackupFile = {
-    app: "IT PATH",
+    app: domain.appName,
     version: APP_DATA_VERSION,
     exportedAt: new Date().toISOString(),
     user,
@@ -181,12 +182,12 @@ export function readBackup(contents: string): { ok: true; user: UserData } | { o
   try {
     parsed = JSON.parse(contents);
   } catch {
-    return { ok: false, error: "That file is not a valid IT PATH backup." };
+    return { ok: false, error: `That file is not a valid ${domain.appName} backup.` };
   }
   const candidate = parsed as Partial<BackupFile> | null;
   const user = candidate?.user as UserData | undefined;
   if (!user || typeof user !== "object" || !user.settings || !user.topicProgress) {
-    return { ok: false, error: "That file does not contain IT PATH progress." };
+    return { ok: false, error: `That file does not contain ${domain.appName} progress.` };
   }
   return { ok: true, user };
 }

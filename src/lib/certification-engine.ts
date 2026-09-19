@@ -25,7 +25,7 @@ export const certificationStatusLabels: Record<CertificationStatus, string> = {
   exam_passed: "Exam Passed",
 };
 
-/** Overall readiness needed before IT PATH calls a certification Exam Ready. */
+/** Overall readiness needed before the app calls a qualification Exam Ready. */
 export const EXAM_READY_SCORE = 80;
 
 const pct = (value: number) => Math.max(0, Math.min(100, Math.round(value)));

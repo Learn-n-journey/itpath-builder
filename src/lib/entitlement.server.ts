@@ -9,6 +9,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import { domain } from "@/domain/active";
 
 export type PlanTier = "free" | "plus" | "pro";
 
@@ -87,6 +88,6 @@ export async function requirePlan(
   const planName = required === "plus" ? "Plus or Pro" : "Pro";
   return {
     ok: false,
-    error: `${featureName} is part of IT PATH ${planName}. Upgrade your plan to use it.`,
+    error: `${featureName} is part of ${domain.appName} ${planName}. Upgrade your plan to use it.`,
   };
 }

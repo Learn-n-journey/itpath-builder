@@ -1,5 +1,6 @@
 import { staticContent } from "@/data/static-content";
 import type { Lab, LabAttempt, PortfolioProject, UserData } from "@/lib/app-data/types";
+import { domain } from "@/domain/active";
 
 /** A lab attempt only counts as evidence when the learner actually finished it. */
 export function isCompletedLabAttempt(attempt: LabAttempt): boolean {
@@ -36,7 +37,7 @@ export function projectFromLabAttempt(
     skills: labSkills[lab.category] ?? [],
     tools: [lab.environment],
     result: `${lab.expectedResult} Scored ${attempt.score} of ${attempt.maxScore} on the lab checklist.`,
-    evidence: `IT PATH lab attempt ${attempt.id}, checklist confirmed by the learner and reflection recorded. IT PATH did not inspect an external environment.`,
+    evidence: `${domain.appName} ${domain.vocabulary.lab} attempt ${attempt.id}, checklist confirmed by the learner and reflection recorded. ${domain.appName} did not inspect an external environment.`,
     date: done.slice(0, 10),
     difficulty: lab.difficulty,
     topicIds: [lab.topicId],
@@ -107,7 +108,7 @@ export function projectToMarkdown(project: PortfolioProject): string {
 }
 
 export function portfolioToMarkdown(projects: PortfolioProject[]): string {
-  return [`# IT PATH Portfolio`, ``, ...projects.map(projectToMarkdown)].join("\n");
+  return [`# ${domain.appName} Portfolio`, ``, ...projects.map(projectToMarkdown)].join("\n");
 }
 
 export function downloadFile(filename: string, contents: string, type: string) {

@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { runAi } from "@/lib/ai/run.server";
 import { checkTechnicalClaims, technicalIssueBrief } from "@/lib/technical-validation";
+import { domain } from "@/domain/active";
 
 /**
  * Risk-based self-checking: the review is a second paid call, so the layer only
@@ -58,7 +59,7 @@ export async function reviewTutorAnswer(input: {
   const numberIssues = technicalIssueBrief(checkTechnicalClaims(input.answer));
 
   const system = [
-    "You are a senior IT and cybersecurity reviewer checking another tutor's answer before a learner sees it.",
+    `You are a senior ${domain.field} reviewer checking another tutor's answer before a learner sees it.`,
     "Look for: factual errors, commands or flags that do not exist, wrong file paths, unsafe advice, steps in an impossible order, and claims that contradict the learner's saved material.",
     "Do not rewrite for style, tone or length. Do not add padding. If the answer is correct, leave it alone.",
     numberIssues ? "A numeric check has already found errors and is authoritative. Set ok to false and return a revised answer with those numbers corrected." : "",
@@ -184,7 +185,7 @@ export async function reviewExplanation(input: {
   const numberIssues = technicalIssueBrief(checkTechnicalClaims(input.text));
 
   const system = [
-    "You are a senior IT and cybersecurity reviewer checking generated teaching text before a learner reads it.",
+    `You are a senior ${domain.field} reviewer checking generated teaching text before a learner reads it.`,
     "Look for: factual errors, invented commands, tools or file paths, wrong port numbers, wrong conversions, and steps that could not work in the order given.",
     "Do not rewrite for style, tone or length, and keep the same structure and roughly the same length.",
     numberIssues ? "A numeric check has already found errors and is authoritative. Set ok to false and correct those numbers." : "",

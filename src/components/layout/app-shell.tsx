@@ -10,6 +10,7 @@ import { useSidebarAttention } from "@/hooks/use-sidebar-attention";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { domain } from "@/domain/active";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useSidebarAttention();
@@ -98,7 +99,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     setOpen(false);
   }, [pathname]);
 
-  const current = navItems.find((i) => i.to === pathname)?.label ?? "IT PATH";
+  const current = navItems.find((i) => i.to === pathname)?.label ?? domain.appName;
 
   // Public study guides sit outside the app chrome so search engines and
   // signed-out visitors get a plain, readable page.

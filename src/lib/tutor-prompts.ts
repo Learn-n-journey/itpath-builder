@@ -6,6 +6,7 @@ import { buildIntelligence } from "@/lib/intelligence/engine";
 import { STATE_LABEL } from "@/lib/intelligence/states";
 import { DIAGNOSIS_LABEL, METHOD_LABEL } from "@/lib/intelligence/types";
 import { mistakeActivityLabels, mistakeCauseLabels, scoreAllSkills } from "@/lib/mistake-engine";
+import { domain } from "@/domain/active";
 
 export type TutorMode =
   | "ask_anything"
@@ -173,9 +174,9 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
 function instructions(mode: TutorMode, topicTitle: string, ctx: TutorContext): string {
   switch (mode) {
     case "ask_anything":
-      return `Answer my question below directly and in plain language, at my level. Draw on the IT PATH course material in my context, my own saved notes and second brain material where they apply, and your general knowledge where they do not. Say which of those an answer came from. If my question touches something my records show I am shaky on, say so briefly and point me at the next useful step. Do not turn this into a lesson unless I ask for one.\n\nMY QUESTION:\n${ctx.question?.trim() || "(type your question before sending)"}`;
+      return `Answer my question below directly and in plain language, at my level. Draw on the ${domain.appName} course material in my context, my own saved notes and second brain material where they apply, and your general knowledge where they do not. Say which of those an answer came from. If my question touches something my records show I am shaky on, say so briefly and point me at the next useful step. Do not turn this into a lesson unless I ask for one.\n\nMY QUESTION:\n${ctx.question?.trim() || "(type your question before sending)"}`;
     case "teach_me":
-      return `Teach me ${topicTitle} from the ground up at my level. Cover what it is, why it matters, how it works, where I see it in a real IT job, key terms, worked examples, common problems, how it fails and how to troubleshoot it. Use my weak areas above to decide what to slow down on. End with three questions that check whether I understood.`;
+      return `Teach me ${topicTitle} from the ground up at my level. Cover what it is, why it matters, how it works, where I see it in real ${domain.field} work, key terms, worked examples, common problems, how it fails and how to troubleshoot it. Use my weak areas above to decide what to slow down on. End with three questions that check whether I understood.`;
     case "socratic":
       return `Be a Socratic tutor for ${topicTitle}. Ask me one question at a time, starting from what my progress above suggests I already know. Never give the answer straight away: if I am wrong, ask a narrower question that exposes the gap. After five exchanges, summarise what I understand and what I do not.`;
     case "quiz_me":
@@ -205,7 +206,7 @@ export function generateTutorPrompt(user: UserData, mode: TutorMode, ctx: TutorC
   const modeLabel = tutorModes.find((m) => m.id === mode)?.label ?? mode;
 
   return [
-    `You are my IT and cybersecurity tutor. Mode: ${modeLabel}.`,
+    `You are my ${domain.field} tutor. Mode: ${modeLabel}.`,
     "",
     "TASK",
     instructions(mode, topicTitle, ctx),
