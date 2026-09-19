@@ -1,0 +1,130 @@
+/**
+ * The domain pipeline.
+ *
+ * One command takes a brief for a new subject and walks the whole loop:
+ *
+ *   Generate -> QA audit -> Correct -> Retest -> Approve -> Monitor
+ *
+ * Generate writes the draft. The audit is independent: it reads the draft as
+ * data and applies the rule book without ever asking the generator whether it
+ * did well. Correction is targeted, one failing section at a time, using only
+ * the findings against that section. The loop repeats until the draft is clean
+ * or the attempt limit is reached, and every run is written to the same ledger
+ * the quality gate uses, so a rule that keeps failing is visible over time.
+ *
+ * Run with: bun run domain -- brief.json
+ */
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+
+import { auditDomainDraft, failingSections } from "@/lib/domain/validate";
+import { emitDraft } from "@/lib/domain/emit.server";
+import {
+  correctSection,
+  generateDefinition,
+  generateQualifications,
+  generateSections,
+  generateSources,
+} from "@/lib/domain/generate.server";
+import { summariseFindings } from "@/lib/quality/audit";
+import type { DomainBrief, DomainDraft } from "@/lib/domain/brief";
+
+const LEDGER = ".quality/domain-ledger.json";
+const MAX_ROUNDS = 3;
+
+function stage(name: string, detail: string): void {
+  console.log(`[${name}] ${detail}`);
+}
+
+const briefPath = process.argv[2];
+if (!briefPath || !existsSync(briefPath)) {
+  console.error("Give me a brief file: bun run domain -- brief.json");
+  console.error(
+    'Shape: {"id":"auto-repair","field":"auto repair","awardingBody":"ASE","qualifications":["Brakes (A5)"],"sectionsPerQualification":8}',
+  );
+  process.exit(2);
+}
+
+const brief = JSON.parse(readFileSync(briefPath, "utf8")) as DomainBrief;
+
+// 1. Generate.
+stage("generate", `writing the ${brief.field} subject`);
+const definition = await generateDefinition(brief);
+const qualifications = await generateQualifications(brief);
+stage("generate", `${qualifications.length} qualifications`);
+
+const seeds = [];
+let month = 1;
+for (const qualification of qualifications) {
+  const written = await generateSections(brief, qualification, month);
+  month += Math.max(1, Math.ceil(written.length / 4));
+  seeds.push(...written);
+  stage("generate", `${qualification.title}: ${written.length} sections`);
+}
+
+const sources = await generateSources(brief, seeds);
+let draft: DomainDraft = { definition, qualifications, seeds, sources };
+
+// 2. Audit, 3. Correct, 4. Retest.
+let audit = auditDomainDraft(draft);
+stage("audit", `${audit.blocking} blocking, ${audit.warnings} warnings across ${audit.scope.sections} sections`);
+
+let round = 0;
+while (!audit.passed && round < MAX_ROUNDS) {
+  round += 1;
+  const broken = failingSections(audit.findings);
+  stage("correct", `round ${round}: rewriting ${broken.length} sections`);
+
+  const fixed = await Promise.all(
+    draft.seeds.map(async (seed) => {
+      if (!broken.includes(seed.slug)) return seed;
+      const against = audit.findings.filter((finding) => finding.subjectId.startsWith(`section:${seed.slug}`));
+      try {
+        return await correctSection(brief, seed, against, round);
+      } catch (error) {
+        stage("correct", `${seed.slug} could not be rewritten: ${(error as Error).message}`);
+        return seed;
+      }
+    }),
+  );
+
+  draft = { ...draft, seeds: fixed };
+  audit = auditDomainDraft(draft);
+  stage("retest", `${audit.blocking} blocking remain after round ${round}`);
+}
+
+// 5. Approve.
+const approved = audit.passed;
+stage("approve", approved ? "draft is fit to write to disk" : "held back, writing it as a draft anyway so it can be read");
+
+const emitted = emitDraft(draft);
+stage("approve", `written to ${emitted.folder}`);
+
+// 6. Monitor.
+mkdirSync(".quality", { recursive: true });
+const history = existsSync(LEDGER) ? (JSON.parse(readFileSync(LEDGER, "utf8")) as unknown[]) : [];
+const byRule: Record<string, number> = {};
+for (const finding of audit.findings) byRule[finding.ruleId] = (byRule[finding.ruleId] ?? 0) + 1;
+
+history.push({
+  at: new Date().toISOString(),
+  domainId: brief.id,
+  approved,
+  rounds: round,
+  blocking: audit.blocking,
+  warnings: audit.warnings,
+  scope: audit.scope,
+  byRule,
+});
+writeFileSync(LEDGER, `${JSON.stringify(history.slice(-100), null, 2)}\n`);
+stage("monitor", `run recorded in ${LEDGER}`);
+
+if (audit.findings.length) {
+  console.log("\nFindings:");
+  for (const line of summariseFindings(audit.findings)) console.log(`   ${line}`);
+}
+
+console.log(
+  `\nNext: activate the subject by pointing src/domain/active.ts and src/content/course-pack.ts at ${emitted.folder}, then run bun run gate.`,
+);
+
+process.exit(approved ? 0 : 1);
