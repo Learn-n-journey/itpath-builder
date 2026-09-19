@@ -3,7 +3,7 @@ import type { Lesson, Topic } from "@/lib/app-data/types";
 
 const PLACEHOLDER = /\b(?:lorem ipsum|todo|tbd|placeholder|insert (?:text|content)|coming soon|to be (?:added|completed|written))\b/i;
 const META_FILLER = /\b(?:in this (?:lesson|section|module) (?:we will|you will)|this section (?:covers|discusses)|it is important to note that)\b/i;
-const ACTION = /^(?:analyse|analyze|apply|build|calculate|choose|classify|communicate|compare|configure|connect|convert|create|decide|define|demonstrate|describe|design|diagnose|differentiate|distinguish|document|evaluate|explain|follow|harden|identify|implement|inspect|install|interpret|isolate|list|localise|localize|manage|map|match|measure|navigate|perform|place|plan|read|recognise|recognize|repair|replace|resolve|select|summarise|summarize|test|trace|troubleshoot|understand|use|validate|verify)\b/i;
+const VAGUE_OBJECTIVE = /^(?:learn|know|understand|be aware of|be familiar with|information about|introduction to)\b/i;
 
 const normalise = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const words = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
@@ -25,7 +25,7 @@ export function lessonQualityIssues(topic: Topic, lesson: Lesson | undefined, de
   if (META_FILLER.test(lesson.body) && words(lesson.body) < 80) issues.push("lesson introduction is mostly instructional filler");
 
   if (topic.learningObjectives.length === 0) issues.push("lesson has no learning objectives");
-  if (topic.learningObjectives.some((objective) => words(objective) < 3 || !ACTION.test(objective.trim()))) {
+  if (topic.learningObjectives.some((objective) => words(objective) < 3 || VAGUE_OBJECTIVE.test(objective.trim()))) {
     issues.push("a learning objective is not a specific observable action");
   }
   if (repeatedEntries(topic.learningObjectives)) issues.push("learning objectives repeat the same outcome");
