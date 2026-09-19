@@ -40,8 +40,14 @@ export const qualityRules: QualityRule[] = [
   {
     id: "content.lesson-has-substance",
     area: "content",
-    severity: "warning",
+    severity: "blocking",
     says: "A lesson carries enough teaching text to stand on its own.",
+  },
+  {
+    id: "content.lesson-instructionally-sound",
+    area: "content",
+    severity: "blocking",
+    says: "A lesson uses observable objectives, meaningful definitions, distinct examples and complete worked instruction.",
   },
   {
     id: "questions.sound",
@@ -150,6 +156,12 @@ export const qualityRules: QualityRule[] = [
     area: "content",
     severity: "warning",
     says: "A lesson carries real teaching text, not placeholders or repeated sentences.",
+  },
+  {
+    id: "questions.semantic-consistency",
+    area: "questions",
+    severity: "blocking",
+    says: "Answer choices match the semantic and grammatical format requested by the question prompt.",
   },
   {
     id: "questions.multiple-choice-sound",

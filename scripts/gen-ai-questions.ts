@@ -5,6 +5,8 @@
  */
 import { lessons, topics } from "@/data/static-content";
 import { getLearningModule } from "@/data/learning-content";
+import { questionIssues } from "@/lib/question-quality";
+import type { Question } from "@/lib/app-data/types";
 
 const KEY = process.env["LOVABLE_API_KEY"];
 if (!KEY) throw new Error("LOVABLE_API_KEY missing");
@@ -47,10 +49,11 @@ Rules:
 - Use only the supplied section material. Never invent facts outside it.
 - Every question is multiple choice with exactly 4 options and exactly one correct option.
 - Wrong options must be plausible, same subject area, similar length and style. No joke or obviously silly options.
+- Every option must answer the exact kind of question asked. Action questions need four actions; why/how questions need four explanations; identification questions need four names of the same kind. Never mix response formats.
 - Questions must read as a complete, sensible question a tutor would ask. No template fragments.
 - Mix recall, applied judgement and first troubleshooting step.
 - Write one short explanation of why the answer is right.
-Return JSON only: {"questions":[{"prompt":"","choices":["","","",""],"answerIndex":0,"explanation":"","mistakeCategory":"concept|terminology|diagnosis|procedure"}]}`;
+Answer choices must match the question type: Term questions must have short term choices; Action questions must have action choices; Why/How questions must have complete explanation choices. Return JSON only: {"questions":[{"prompt":"","choices":["","","",""],"answerIndex":0,"explanation":"","mistakeCategory":"concept|terminology|diagnosis|procedure"}]}`;
 
 async function ask(topicId: string): Promise<Seed[]> {
   const topic = topics.find((item) => item.id === topicId)!;
@@ -95,6 +98,23 @@ async function ask(topicId: string): Promise<Seed[]> {
     if (new Set(choices.map((c) => c.toLowerCase())).size !== 4) continue;
     if (choices.some((c) => !c || c.length > 240)) continue;
     if (!explanation) continue;
+    const answer = choices[answerIndex] ?? "";
+    const issues = questionIssues({
+      id: `generated-${topicId}-${out.length}`,
+      topicId,
+      quizId: `section-quiz-${topicId}`,
+      certificationId: topic.certificationId,
+      prompt,
+      type: "multiple_choice",
+      choices,
+      correctAnswer: [answer],
+      acceptableAnswers: [answer],
+      explanation,
+      difficulty: topic.difficulty,
+      mistakeCategory: "concept",
+      requiresReasoning: true,
+    } satisfies Question);
+    if (issues.length > 0) continue;
     out.push({
       topicId,
       certificationId: topic.certificationId,

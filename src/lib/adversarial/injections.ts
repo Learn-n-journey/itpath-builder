@@ -16,6 +16,9 @@ export function clone(pkg: DomainPackage): DomainPackage {
 const firstSection = (pkg: DomainPackage) => pkg.sections[0];
 const firstLesson = (pkg: DomainPackage) => pkg.lessons[0];
 const choiceQuestions = (pkg: DomainPackage) => pkg.questions.filter((q) => q.kind !== "recall" && q.choices.length >= 2);
+const injectableQuestion = (pkg: DomainPackage, offset = 0) =>
+  choiceQuestions(pkg).find((question, index) => index >= offset && question.choices.length >= 4)
+  ?? choiceQuestions(pkg).find((question) => question.choices.length >= 4);
 
 export const injections: Injection[] = [
   // --- Incorrect or misleading technical facts -----------------------------
@@ -36,7 +39,7 @@ export const injections: Injection[] = [
     description: "A question explanation mixes up two families of units.",
     apply: (source) => {
       const pkg = clone(source);
-      const question = choiceQuestions(pkg)[0];
+      const question = injectableQuestion(pkg);
       if (question) question.explanation = `${question.explanation} For reference, 1 GB = 1024 MB when sizing the job.`;
       return pkg;
     },
@@ -77,7 +80,7 @@ export const injections: Injection[] = [
     description: "Wrong options are replaced with meaningless filler.",
     apply: (source) => {
       const pkg = clone(source);
-      const question = choiceQuestions(pkg)[1] ?? choiceQuestions(pkg)[0];
+      const question = injectableQuestion(pkg, 1);
       if (question) {
         const answer = question.choices[question.answerIndex] ?? "";
         question.choices = [answer, "None of the above", "All of the above", "N/A"];
@@ -92,7 +95,7 @@ export const injections: Injection[] = [
     description: "A prompt is replaced with a fragment that asks nothing.",
     apply: (source) => {
       const pkg = clone(source);
-      const question = choiceQuestions(pkg)[2] ?? choiceQuestions(pkg)[0];
+      const question = injectableQuestion(pkg, 2);
       if (question) question.prompt = "General background information about the topic covered above";
       return pkg;
     },
@@ -105,7 +108,7 @@ export const injections: Injection[] = [
     description: "The marked answer points outside the list of options.",
     apply: (source) => {
       const pkg = clone(source);
-      const question = choiceQuestions(pkg)[0];
+      const question = injectableQuestion(pkg);
       if (question) question.answerIndex = question.choices.length + 3;
       return pkg;
     },
@@ -116,7 +119,7 @@ export const injections: Injection[] = [
     description: "Two options say exactly the same thing, so two answers are correct.",
     apply: (source) => {
       const pkg = clone(source);
-      const question = choiceQuestions(pkg)[1] ?? choiceQuestions(pkg)[0];
+      const question = injectableQuestion(pkg, 1);
       if (question) {
         const answer = question.choices[question.answerIndex] ?? "";
         question.choices = question.choices.map((choice, index) => (index === (question.answerIndex + 1) % question.choices.length ? answer : choice));
@@ -291,7 +294,7 @@ export const injections: Injection[] = [
     description: "A question is perfectly shaped but gives itself away by answer length.",
     apply: (source) => {
       const pkg = clone(source);
-      const question = choiceQuestions(pkg)[0];
+      const question = injectableQuestion(pkg);
       if (question) {
         question.prompt = "Which statement best describes the correct approach in this situation?";
         question.choices = [

@@ -29,13 +29,19 @@ const BROKEN_PROMPT_PATTERNS: RegExp[] = [
 const GENERIC_PROMPT_PATTERNS: RegExp[] = [
   /which of these is a problem you would expect/i,
   /which of these is a real example of/i,
+  /which of these is one of the ideas worth keeping/i,
   /which of these (best )?describes/i,
   /which of the following best describes/i,
   /which statement about .{0,80} is (true|correct)/i,
   /which of these is (a|an) .{0,40}\?$/i,
   /what is the (main |primary )?(purpose|definition|meaning) of/i,
   /what does .{0,40} stand for/i,
+  /which term matches (?:this|the) description/i,
+  /which (?:answer|option|choice) is correct/i,
 ];
+
+const TRICK_PROMPT = /\b(?:which|what) .{0,90}\b(?:not|except|least likely)\b|\ball except\b/i;
+const VAGUE_REFERENCE = /^\s*(?:in (?:this|that) (?:case|situation|scenario)|given (?:this|that)|based on (?:this|that))\b/i;
 
 /**
  * An absolute claim is a giveaway: a learner who knows nothing still crosses it
@@ -44,8 +50,15 @@ const GENERIC_PROMPT_PATTERNS: RegExp[] = [
 const ABSOLUTE_OPTION = /\b(always|never|all|every|no)\b.{0,60}\b(is|are|will|means|makes|works|fixes|causes)\b/i;
 
 /** A "what next" ask is only fair when the prompt states the problem first. */
-const STEP_QUESTION = /what comes next|point you to next/i;
+const STEP_QUESTION = /what comes next|point you to next|best first step|what should you do/i;
 const STATED_PROBLEM = /problem|report|fault|symptom|error|issue|user says|reports this/i;
+
+/** Patterns that indicate a specific grammatical response format is expected. */
+const SEMANTIC_PATTERNS = {
+  TERM: /which term|what is the name of|which name/i,
+  ACTION: /best first step|what should you do|how would you|what is the first thing/i,
+  EXPLANATION: /why does|how does|which reading|describe|explain/i,
+};
 
 const norm = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
 
@@ -93,6 +106,53 @@ const THROWAWAY_OPTIONS = [
 const wordCount = (text: string) => text.split(/\s+/).filter(Boolean).length;
 
 /**
+ * Multiple-choice options must all be answers to the same grammatical ask.
+ * This deliberately catches the high-confidence mismatch that reached the app:
+ * an action such as "Check the fan" mixed with unrelated factual statements.
+ * It does not attempt subjective semantic grading; it only compares response
+ * forms that deterministic language patterns can identify safely.
+ */
+const ACTION_VERBS = new Set([
+  "add", "adjust", "back", "boot", "calculate", "check", "clear", "close", "compare", "confirm",
+  "connect", "disable", "disconnect", "document", "enable", "inspect", "install", "isolate", "measure",
+  "monitor", "open", "power", "record", "remove", "replace", "reproduce", "reset", "restart", "restore",
+  "review", "run", "scan", "start", "stop", "swap", "test", "trace", "update", "use", "verify",
+]);
+
+const ACTION_QUESTION = /\b(what (?:should|would|do) (?:you|the technician)|what are you actually doing|which (?:action|step|check|test|command)|what (?:action|step|check|test|command)|what comes next|point you to next|comes first|do first|check first)\b/i;
+const EXPLANATION_QUESTION = /^\s*why\b|\bwhat (?:best )?(?:explains|causes|accounts for)\b/i;
+
+function beginsWithAction(value: string): boolean {
+  const clean = value.trim().toLowerCase().replace(/^["'“”‘’([{]+/, "");
+  const first = clean.match(/^[a-z]+/)?.[0] ?? "";
+  if (ACTION_VERBS.has(first)) return true;
+  if (/^(?:checking|confirming|connecting|disconnecting|documenting|inspecting|measuring|monitoring|recording|replacing|reproducing|reviewing|running|scanning|testing|tracing|verifying)\b/.test(clean)) return true;
+  return /^(?:you|a technician|the technician|an administrator|the administrator)\s+(?:should|must|needs? to|would)\s+[a-z]+\b/.test(clean)
+    || /^(?:you|a technician|the technician|an administrator|the administrator)\s+(?:checks?|confirms?|connects?|documents?|inspects?|measures?|monitors?|records?|replaces?|reproduces?|reviews?|runs?|scans?|tests?|traces?|verifies?)\b/.test(clean)
+    || /^(?:the )?(?:first|next|best) (?:step|action|check|test) (?:is|would be) to\s+[a-z]+\b/.test(clean);
+}
+
+export function answerFormatIssues(question: Question): string[] {
+  const prompt = question.prompt?.trim() ?? "";
+  const choices = (question.choices ?? []).map((choice) => choice?.trim() ?? "").filter(Boolean);
+  const answers = (question.correctAnswer ?? []).map(norm);
+  const correct = choices.find((choice) => answers.includes(norm(choice)));
+  if (!correct || choices.length < 2) return [];
+
+  const actionFlags = choices.map(beginsWithAction);
+  const expectsAction = ACTION_QUESTION.test(prompt);
+  const expectsExplanation = EXPLANATION_QUESTION.test(prompt);
+
+  if (expectsAction && !actionFlags.every(Boolean)) {
+    return ["not every option is formatted as an action requested by the question"];
+  }
+  if (expectsExplanation && actionFlags.some(Boolean)) {
+    return ["an option is formatted as an action instead of an explanation requested by the question"];
+  }
+  return [];
+}
+
+/**
  * Every problem with a question, in plain words. Empty means the question is
  * fair: exactly one option is right and every other option is a believable
  * answer to the same question.
@@ -105,6 +165,8 @@ export function questionIssues(question: Question): string[] {
   if (GENERIC_PROMPT_PATTERNS.some((pattern) => pattern.test(prompt))) {
     issues.push("prompt tests recognition of the section rather than applying it");
   }
+  if (TRICK_PROMPT.test(prompt)) issues.push("prompt relies on negative or exception wording instead of demonstrating knowledge");
+  if (VAGUE_REFERENCE.test(prompt)) issues.push("prompt refers to context that it does not state");
   if (wordCount(prompt) < 10) issues.push("prompt gives too little to reason from");
   // A prompt that just repeats raw content with no question mark reads as a fragment.
   if (!prompt.includes("?")) issues.push("prompt is not a question");
@@ -117,6 +179,34 @@ export function questionIssues(question: Question): string[] {
   if (choices.some((choice) => choice.length > 240)) issues.push("an option is too long to read");
   if (new Set(choices.map(norm)).size !== choices.length) issues.push("two options say the same thing");
   if (choices.some((choice) => norm(choice) === norm(prompt))) issues.push("an option repeats the question");
+  if (choices.some((choice) => /\b(?:obviously|clearly|definitely|certainly)\b/i.test(choice))) {
+    issues.push("an option uses giveaway certainty language");
+  }
+
+  // Semantic/Grammatical consistency checks
+  const isTermRequest = SEMANTIC_PATTERNS.TERM.test(prompt);
+  const isActionRequest = SEMANTIC_PATTERNS.ACTION.test(prompt);
+  const isExplanationRequest = SEMANTIC_PATTERNS.EXPLANATION.test(prompt);
+
+  if (isTermRequest) {
+    if (choices.some((c) => wordCount(c) > 6)) {
+      issues.push("terminology question has choices that are too long to be terms");
+    }
+  }
+
+  if (isActionRequest) {
+    // Actions should typically start with a verb or be a clear instructional step.
+    const actionVerbs = /^(check|run|verify|inspect|open|configure|restart|use|install|update|review|trace|identify|compare|distinguish|list|move|change|find|ask|report|test|look|start|stop|remove|add|enable|disable|connect|disconnect)/i;
+    if (choices.some((c) => wordCount(c) < 2)) {
+      issues.push("action question has choices that are too short to be steps");
+    }
+  }
+
+  if (isExplanationRequest) {
+    if (choices.some((c) => wordCount(c) < 5)) {
+      issues.push("explanation question has choices that are too short to explain anything");
+    }
+  }
 
   const answers = (question.correctAnswer ?? []).map((answer) => answer?.trim() ?? "").filter(Boolean);
   if (answers.length < 1) issues.push("no correct answer recorded");
@@ -127,6 +217,16 @@ export function questionIssues(question: Question): string[] {
     issues.push("the number of correct answers does not match the question type");
   }
   if (answers.length >= choices.length) issues.push("every option is marked correct");
+  if (answers.some((answer) => answer.length >= 4 && new RegExp(`\\b${norm(answer).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(norm(prompt)))) {
+    issues.push("the prompt reveals the correct answer verbatim");
+  }
+
+  const explanation = question.explanation?.trim() ?? "";
+  if (explanation && answers.some((answer) => norm(explanation) === norm(answer))) {
+    issues.push("the explanation only repeats the answer without teaching why");
+  }
+
+  issues.push(...answerFormatIssues(question));
 
   if (issues.length > 0) return issues;
 

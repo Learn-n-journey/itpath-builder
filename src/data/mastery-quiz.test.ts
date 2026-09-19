@@ -11,7 +11,7 @@ import { conceptStats } from "@/lib/concept-mastery";
 import { reviewQuizSet } from "@/lib/quiz-validation";
 import type { QuizAttempt } from "@/lib/app-data/types";
 
-const wideTopics = topics.filter((topic) => getTaggedTopicPool(topic.id).length >= SECTION_QUIZ_SIZE * 3);
+const wideTopics = topics.filter((topic) => getTaggedTopicPool(topic.id).length >= SECTION_QUIZ_SIZE * 2);
 
 function attempt(quizId: string, results: { questionId: string; topicId: string; correct: boolean }[], day: number): QuizAttempt {
   const at = new Date(Date.UTC(2026, 0, day)).toISOString();

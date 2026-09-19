@@ -671,19 +671,9 @@ function buildPool(topicId: string): PoolItem[] {
     const otherDepths = deepLessons.filter(
       (other) => other.topicId !== topicId && certOf(other.topicId) === cert,
     );
-    depth.keyIdeas.forEach((line, index) => {
-      const item = statementItem(
-        topicId,
-        title,
-        "key-idea",
-        `Which of these is one of the ideas worth keeping from {section}?`,
-        shortMeaning(line),
-        otherDepths.flatMap((other) => (other.depth?.keyIdeas ?? []).map((row) => shortMeaning(row))),
-        index,
-        `From this section: ${tidy(line)}`,
-      );
-      if (item) items.push(item);
-    });
+    // Key-idea recognition items used to ask learners to identify a sentence
+    // copied from the section among unrelated statements. They did not require
+    // evidence or application, so they are intentionally not quiz material.
     depth.examTraps.forEach((line, index) => {
       const item = statementItem(
         topicId,
@@ -753,25 +743,20 @@ function buildPool(topicId: string): PoolItem[] {
       if (item) items.push(item);
     });
     depth.walkthrough.steps.forEach((step, index) => {
-      // The other steps of the same walkthrough are the fairest wrong options:
-      // they belong to the same scenario, but only one fits the step named.
+      // Only steps from this walkthrough are valid options. Pulling fallback
+      // statements from another lesson creates grammatically mismatched answers
+      // (an action beside a claim), so a short walkthrough simply yields no item.
       const sameScenario = depth.walkthrough.steps
         .filter((entry) => entry.label !== step.label)
         .map((entry) => shortMeaning(entry.detail));
+      if (sameScenario.length < 3) return;
       const item = statementItem(
         topicId,
         title,
         "walkthrough",
         `A scenario from this section: ${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}. At the "${tidy(step.label)}" step, what are you actually doing?`,
         shortMeaning(step.detail),
-        sameScenario.length >= 3
-          ? sameScenario
-          : [
-              ...sameScenario,
-              ...otherDepths.flatMap((other) =>
-                (other.depth?.walkthrough.steps ?? []).map((entry) => shortMeaning(entry.detail)),
-              ),
-            ],
+        sameScenario,
         index,
         tidy(step.detail),
         "procedure",
@@ -801,7 +786,9 @@ function topicPool(topicId: string): PoolItem[] {
     // The idea comes from what the question asks, not from the answer text.
     // Two questions that share an answer but ask different things are two
     // questions, so neither is thrown away as a duplicate.
-    sourceKey: `authored:${item.prompt.trim().toLowerCase().slice(0, 70)}`,
+    // Put a stable full-prompt fingerprint first because concept ids retain only
+    // their opening words; several "Which term..." prompts otherwise collapse.
+    sourceKey: `authored-${stableQuestionKey(item.prompt.trim().toLowerCase())}:${item.prompt}`,
   }));
   const all = [...authored, ...buildPool(topicId)];
   // Drop repeated prompts across the whole pool.
@@ -940,6 +927,15 @@ function seeded(seed: string): () => number {
 }
 
 const taggedCache = new Map<string, TaggedQuestion[]>();
+
+function stableQuestionKey(value: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  return hash.toString(36);
+}
 
 /** The section's pool with every question tagged, ready for the quiz builder. */
 export function getTaggedTopicPool(topicId: string): TaggedQuestion[] {

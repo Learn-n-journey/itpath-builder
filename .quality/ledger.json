@@ -171,5 +171,35 @@
     },
     "byRule": {},
     "testsPassed": true
+  },
+  {
+    "at": "2026-09-19T22:20:34.355Z",
+    "passed": false,
+    "blocking": 78,
+    "warnings": 0,
+    "scope": {
+      "topics": 128,
+      "papers": 396,
+      "questions": 8133
+    },
+    "byRule": {
+      "papers.section-quiz-whole": 78
+    },
+    "testsPassed": false
+  },
+  {
+    "at": "2026-09-19T22:32:07.453Z",
+    "passed": false,
+    "blocking": 45,
+    "warnings": 0,
+    "scope": {
+      "topics": 128,
+      "papers": 396,
+      "questions": 7299
+    },
+    "byRule": {
+      "content.lesson-instructionally-sound": 45
+    },
+    "testsPassed": false
   }
 ]
