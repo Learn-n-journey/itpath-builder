@@ -315,7 +315,9 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
 
   const sectionMeasures = useMemo(() => topicMeasures(user, topic.id), [user, topic.id]);
-  if (!lesson || !module || !practice || !scenario) return null;
+  // A subject may not carry practice decisions or real-world scenarios for
+  // every section; those parts simply do not appear, the lesson still does.
+  if (!lesson || !module) return null;
   const keywords = [
     ...lesson.keyTerms.map(({ term, meaning }) => ({ term, meaning })),
     ...(deepLesson?.plain?.wordList.map(({ term, plain }) => ({ term, meaning: plain })) ?? []),
