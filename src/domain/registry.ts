@@ -36,7 +36,7 @@ export const registry: Record<string, RegistryEntry> = {
  * The live subject. One line, one key. The activation script rewrites it and
  * records the change; rollback rewrites it back.
  */
-export const ACTIVE_PACKAGE = itManifest.key;
+export const ACTIVE_PACKAGE = "it-cybersecurity@1.0.0";
 
 /** The active entry, or a clear failure if the key was pointed at nothing. */
 export function activeEntry(): RegistryEntry {

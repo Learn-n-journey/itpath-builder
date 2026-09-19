@@ -34,14 +34,9 @@ function writeLog(records: ActivationRecord[]): void {
 /** The key the registry currently points at. */
 export function currentActiveKey(): string {
   const source = readFileSync(REGISTRY, "utf8");
-  const direct = source.match(/export const ACTIVE_PACKAGE = "([^"]+)"/);
-  if (direct) return direct[1]!;
-  const viaManifest = source.match(/export const ACTIVE_PACKAGE = (\w+)\.key/);
-  if (viaManifest) {
-    const named = source.match(new RegExp(`${viaManifest[1]}: DomainManifest[\\s\\S]*?version: "([^"]+)"[\\s\\S]*?`));
-    return named ? `unknown@${named[1]}` : "authored-default";
-  }
-  throw new Error("Could not read ACTIVE_PACKAGE from the registry.");
+  const match = source.match(/export const ACTIVE_PACKAGE = "([^"]+)"/);
+  if (!match) throw new Error("Could not read ACTIVE_PACKAGE from the registry.");
+  return match[1]!;
 }
 
 /** Is this key registered in the registry file? */
