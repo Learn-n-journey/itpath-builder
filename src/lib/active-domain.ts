@@ -8,6 +8,7 @@
  * registered key this device opens.
  */
 import { ACTIVE_PACKAGE, findEntry, registeredKeys, registry } from "@/domain/registry";
+import { writeSubjectCookie } from "@/lib/subject-cookie";
 
 const OVERRIDE_KEY = "itpath.active-domain.v1";
 
@@ -75,4 +76,7 @@ export function setDomainOverride(key: string): void {
   } catch {
     /* storage unavailable; the switch simply will not persist */
   }
+  // Mirrored so the server knows, on the very next page load, that this
+  // visitor is not on the default course.
+  writeSubjectCookie(key === ACTIVE_PACKAGE ? null : key);
 }

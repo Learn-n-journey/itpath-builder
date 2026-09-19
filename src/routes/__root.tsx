@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -18,6 +18,10 @@ import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { activeDomainKey } from "@/domain/active";
+import { ACTIVE_PACKAGE } from "@/domain/registry";
+import { domainOverride } from "@/lib/active-domain";
+import { readSubjectCookie, writeSubjectCookie } from "@/lib/subject-cookie";
+import { getRequestSubject } from "@/lib/subject.functions";
 import { themeBootScript } from "@/state/theme";
 
 function NotFoundComponent() {
@@ -75,6 +79,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   staticData: { sitemap: false },
+
+  /**
+   * Whether this visitor chose a course other than the default one. The server
+   * learns it from the cookie the switch writes; the browser reads the same
+   * cookie, so both sides agree and the default course is never rendered to
+   * someone who is studying something else.
+   */
+  beforeLoad: async () => {
+    const chosen = import.meta.env.SSR ? await getRequestSubject() : readSubjectCookie();
+    return { subjectPending: Boolean(chosen) && chosen !== ACTIVE_PACKAGE };
+  },
+
 
   head: () => ({
     meta: [
@@ -145,7 +161,27 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
+  const { queryClient, subjectPending } = Route.useRouteContext();
+  // On a non-default course the page waits one beat for the browser, rather
+  // than showing the default course's material and then swapping it out.
+  const [ready, setReady] = useState(!subjectPending);
+
+  useEffect(() => {
+    // Keep the cookie in step with a choice made before the cookie existed.
+    const stored = domainOverride();
+    const cookie = readSubjectCookie();
+    const wanted = stored && stored !== ACTIVE_PACKAGE ? stored : null;
+    if (wanted !== cookie) writeSubjectCookie(wanted);
+    setReady(true);
+  }, []);
+
+  if (!ready) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+        <p className="text-sm text-muted-foreground">Loading your course…</p>
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
