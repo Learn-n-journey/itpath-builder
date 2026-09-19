@@ -51,3 +51,12 @@ Done when: typecheck + build clean, features verified in browser.
 - `src/content/packs/it-package.ts`: the shipped IT subject as a package; `src/domain/package.test.ts` holds it to the package audit.
 - `src/lib/domain/package-build.ts`, `package-audit.ts`, `activation.server.ts`, `emit.server.ts`: build, independently audit, write (isolated + versioned) and activate.
 - `bun run domain` = generate -> validate -> QA -> correct -> retest -> approve -> activate -> monitor; `bun run domain:activate`, `bun run domain:rollback`. Logged in `.quality/domain-activations.json`.
+
+## Deterministic Autonomy Core
+- [x] Observe domain-neutral learner evidence and calculate concept, lesson, assessment and prerequisite health.
+- [x] Diagnose weak mastery, retention, repeated failures, misconceptions and prerequisite gaps with versioned thresholds.
+- [x] Create stable, versioned improvement candidates without changing live content.
+- [x] Require package validation, exact assessment sizes and regression success before approval.
+- [x] Monitor protected metrics and choose keep, wait or rollback deterministically.
+- [x] Keep append-only autonomy decisions and permanent failure memory that strengthens future prevention thresholds.
+- [ ] Prove the unchanged core against IT and Auto Repair, including degradation rollback.
