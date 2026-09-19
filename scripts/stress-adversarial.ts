@@ -7,14 +7,15 @@
  * Exits non-zero if any defect slips past or the loop ever approves damage.
  */
 import { writeFileSync, mkdirSync } from "node:fs";
-import { listPackages } from "@/domain/registry";
+import { registeredKeys, findEntry } from "@/domain/registry";
 import { measureCoverage, runLoops, summariseCoverage } from "@/lib/adversarial/harness";
 
 const reports = [];
 let failed = false;
 
-for (const entry of listPackages()) {
-  const pkg = entry.pkg;
+for (const key of registeredKeys()) {
+  const entry = findEntry(key)!;
+  const pkg = entry.packageSync ?? (await entry.load!());
   const coverage = measureCoverage(pkg);
   for (const line of summariseCoverage(coverage)) console.log(line);
 
