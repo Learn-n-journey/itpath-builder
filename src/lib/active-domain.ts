@@ -34,16 +34,29 @@ export function domainOptions(): DomainOption[] {
 }
 
 
-/** The stored override, or null when the device follows the build default. */
+/** The newest registered key for a subject id, or null when it is unknown. */
+function newestKeyFor(id: string): string | null {
+  return domainOptions().find((option) => option.key.split("@")[0] === id)?.key ?? null;
+}
+
+/**
+ * The stored override, or null when the device follows the build default.
+ * A stored choice from a retired version still resolves to the same subject's
+ * newest registered version, so a saved choice never silently falls back.
+ */
 export function domainOverride(): string | null {
   if (typeof window === "undefined") return null;
   try {
     const stored = window.localStorage.getItem(OVERRIDE_KEY);
-    return stored && findEntry(stored) ? stored : null;
+    if (!stored) return null;
+    if (findEntry(stored)) return stored;
+    const [id = stored] = stored.split("@");
+    return newestKeyFor(id);
   } catch {
     return null;
   }
 }
+
 
 /** The subject key this device actually opens with. */
 export function activeDomainKey(): string {

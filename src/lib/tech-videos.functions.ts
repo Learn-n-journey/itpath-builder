@@ -11,7 +11,8 @@ export type VideoCategory =
   | "Programming"
   | "IT Careers"
   | "Tech News"
-  | "Troubleshooting";
+  | "Troubleshooting"
+  | "Automotive";
 
 export const VIDEO_CATEGORIES: VideoCategory[] = [
   "AI",
@@ -25,6 +26,7 @@ export const VIDEO_CATEGORIES: VideoCategory[] = [
   "IT Careers",
   "Tech News",
   "Troubleshooting",
+  "Automotive",
 ];
 
 export type VideoPlatform = "YouTube" | "PeerTube";
@@ -82,6 +84,13 @@ const CHANNELS: Channel[] = [
   { id: "UC8ENHE5xdFSwx71u3fDH5Xw", name: "ThePrimeagen", fallback: "Programming" },
   { id: "UC9-y-6csu5WGm29I7JiwpnA", name: "Computerphile", fallback: "Programming" },
   { id: "UC_x5XG1OV2P6uZZ5FSM9Ttw", name: "Google for Developers", fallback: "Programming" },
+  { id: "UCrf6f8hn5oy4alB2WXJCIqA", name: "ScannerDanner", fallback: "Automotive" },
+  { id: "UCa7guRnhniICnS0mJbSDmMg", name: "EricTheCarGuy", fallback: "Automotive" },
+  { id: "UCNZty_jKwN_LJ6oNBcDlWig", name: "South Main Auto Repair", fallback: "Automotive" },
+  { id: "UCxucfRWANaT8tfz97lAf8hw", name: "WeberAuto", fallback: "Automotive" },
+  { id: "UCsrY4q8xGPJQbQ8HPQZn6iA", name: "Engineering Explained", fallback: "Automotive" },
+  { id: "UChCd17oKbPA1yIfv4Cb_RSw", name: "ChrisFix", fallback: "Automotive" },
+  { id: "UClqhvGmHcvWL9w3R48t9QXQ", name: "Humble Mechanic", fallback: "Automotive" },
 ];
 
 /**
@@ -179,7 +188,8 @@ function parseChannelFeed(xml: string, channel: Channel): TechVideo[] {
       channelUrl: `https://www.youtube.com/channel/${channel.id}`,
       channel: channel.name,
       thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
-      category: categorise(`${title} ${summary}`, channel.fallback),
+      // Automotive channels keep their own category; the IT keyword rules do not apply to them.
+      category: channel.fallback === "Automotive" ? "Automotive" : categorise(`${title} ${summary}`, channel.fallback),
       publishedAt: new Date(published).toISOString(),
     });
   }
