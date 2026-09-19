@@ -80,6 +80,18 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   staticData: { sitemap: false },
 
+  /**
+   * Whether this visitor chose a course other than the default one. The server
+   * learns it from the cookie the switch writes; the browser reads the same
+   * cookie, so both sides agree and the default course is never rendered to
+   * someone who is studying something else.
+   */
+  beforeLoad: async () => {
+    const chosen = import.meta.env.SSR ? await getRequestSubject() : readSubjectCookie();
+    return { subjectPending: Boolean(chosen) && chosen !== ACTIVE_PACKAGE };
+  },
+
+
   head: () => ({
     meta: [
       { charSet: "utf-8" },
