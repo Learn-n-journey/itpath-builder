@@ -13,8 +13,8 @@ import { certificationObjectives, certifications } from "@/data/certification-co
 import { staticContent } from "@/data/static-content";
 import { messerTopicVideos } from "@/data/messer-topic-videos";
 import { readingForTopic } from "@/data/topic-reading";
-import { getTopicQuestionPool } from "@/data/topic-quizzes";
-import { stageExams } from "@/data/stage-exams";
+import { getTopicQuestionPool, SECTION_QUIZ_SIZE } from "@/data/topic-quizzes";
+import { stageExams, STAGE_EXAM_SIZE } from "@/data/stage-exams";
 import { itDomain } from "@/domain/it";
 import { itManifest } from "@/domain/packages/it";
 import { domainId, measure } from "@/domain/package";
@@ -113,7 +113,7 @@ export function buildItPackage(): DomainPackage {
       .filter((cert) => (cert.months ?? []).some((month) => month >= exam.from && month <= exam.to))
       .map((cert) => cert.id),
     title: exam.title,
-    questionCount: exam.questions.length,
+    questionCount: STAGE_EXAM_SIZE,
     passPercent: 80,
     objectiveIds: [],
   }));
@@ -150,6 +150,7 @@ export function buildItPackage(): DomainPackage {
     assessments,
     sources,
     rules: [],
+    assessmentSizes: { sectionQuiz: SECTION_QUIZ_SIZE, stageExam: STAGE_EXAM_SIZE },
   };
 
   return { ...pkg, manifest: { ...pkg.manifest, scope: measure(pkg) } };
