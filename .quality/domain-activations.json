@@ -10,5 +10,17 @@
       "testsPassed": true
     },
     "note": "Activated by the domain pipeline after 1 correction rounds."
+  },
+  {
+    "at": "2026-09-19T03:05:09.402Z",
+    "key": "it-cybersecurity@1.0.0",
+    "previousKey": "auto-repair@1.0.0",
+    "action": "rollback",
+    "evidence": {
+      "blocking": 0,
+      "warnings": 0,
+      "testsPassed": true
+    },
+    "note": "Rolled back from auto-repair@1.0.0."
   }
 ]
