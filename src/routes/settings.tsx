@@ -148,6 +148,37 @@ function SettingsPage() {
       <div className="grid gap-4 lg:grid-cols-2">
 
         <Panel
+          title="Subject"
+          description="Choose what you are learning. The app reloads to switch courses. Your progress in each subject is kept separately."
+        >
+          <Label htmlFor="subject-select">Course</Label>
+          <Select value={subjectKey} onValueChange={setSubjectKey}>
+            <SelectTrigger id="subject-select" className="mt-1.5 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {domainOptions().map((option) => (
+                <SelectItem key={option.key} value={option.key}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {subjectKey !== activeDomainKey() ? (
+            <Button
+              className="mt-3"
+              onClick={() => {
+                setDomainOverride(subjectKey);
+                toast.success("Subject switched.");
+                window.location.assign("/");
+              }}
+            >
+              Switch course
+            </Button>
+          ) : null}
+        </Panel>
+
+        <Panel
           title="Appearance"
           description="Choose how IT PATH looks. Your choice is remembered on this device."
         >
