@@ -85,3 +85,6 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Remove confusing quiz wording and reject prompts that frame questions around a section or section title.
 - [x] Enforce comprehensive lesson and assessment rejection for factual, contextual, alignment, prerequisite, source, uniqueness, completeness, and instructional-value defects.
 - [x] Make every quality finding blocking and require rewriting/regeneration when a quiz pool is too thin; use AI only as a writer, never its own approver.
+
+- [ ] Remove answer-revealing definition questions and widen question pools (repetition)
+- [ ] Align item quality rules with real-world exam item-writing standards (NBME-style guidelines)
