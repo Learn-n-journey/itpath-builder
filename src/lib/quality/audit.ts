@@ -69,8 +69,10 @@ export function lessonText(topicId: string): string {
     ...(lesson.realWorldExamples ?? []),
     ...(lesson.commonMisconceptions ?? []),
     ...(lesson.keyTerms ?? []).map((term) => `${term.term}: ${term.meaning}`),
-    ...(deep?.plain?.paragraphs ?? []),
-    ...(module?.sections ?? []).map((section) => `${section.heading}\n${section.body}`),
+    deep?.intro ?? "",
+    ...(deep?.sections ?? []).flatMap((section) => [section.heading, ...section.paragraphs]),
+    ...(module?.howItWorks ?? []),
+    ...(module?.troubleshooting ?? []),
   ]
     .filter(Boolean)
     .join("\n");
