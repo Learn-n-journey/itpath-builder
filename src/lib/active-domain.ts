@@ -8,7 +8,7 @@
  * registered key this device opens.
  */
 import { ACTIVE_PACKAGE, findEntry, registeredKeys, registry } from "@/domain/registry";
-import { writeSubjectCookie } from "@/lib/subject-cookie";
+import { readSubjectCookie, writeSubjectCookie } from "@/lib/subject-cookie";
 
 const OVERRIDE_KEY = "itpath.active-domain.v1";
 
@@ -48,7 +48,7 @@ function newestKeyFor(id: string): string | null {
 export function domainOverride(): string | null {
   if (typeof window === "undefined") return null;
   try {
-    const stored = window.localStorage.getItem(OVERRIDE_KEY);
+    const stored = window.localStorage.getItem(OVERRIDE_KEY) ?? readSubjectCookie();
     if (!stored) return null;
     if (findEntry(stored)) return stored;
     const [id = stored] = stored.split("@");
