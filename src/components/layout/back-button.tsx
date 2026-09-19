@@ -11,7 +11,9 @@ interface VisitedPage {
   label: string;
 }
 
-const HISTORY_KEY = "it-path-page-history";
+type PageHistory = Record<string, VisitedPage>;
+
+const HISTORY_KEY = "it-path-page-history-v2";
 
 function pageLabel(path: string) {
   const navLabel = navItems.find((item) => item.to === path)?.label;
@@ -21,36 +23,31 @@ function pageLabel(path: string) {
   return title || "Previous page";
 }
 
-function readHistory(): VisitedPage[] {
+function readHistory(): PageHistory {
   try {
     const value = JSON.parse(sessionStorage.getItem(HISTORY_KEY) ?? "[]");
-    return Array.isArray(value) ? value : [];
+    return value && typeof value === "object" && !Array.isArray(value) ? value : {};
   } catch {
-    return [];
+    return {};
   }
 }
 
 export function BackButton({ className }: { className?: string }) {
   const router = useRouter();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const location = useRouterState({ select: (s) => s.location });
+  const pathname = location.pathname;
+  const historyIndex = location.state.__TSR_index;
   const [previousPage, setPreviousPage] = useState<VisitedPage>({ path: "/", label: "Dashboard" });
   const [pageHasOwnBackLink, setPageHasOwnBackLink] = useState(false);
 
   useEffect(() => {
     const visited = readHistory();
     const current: VisitedPage = { path: pathname, label: pageLabel(pathname) };
-    const last = visited.at(-1);
 
-    if (last?.path === pathname) {
-      visited[visited.length - 1] = current;
-    } else {
-      visited.push(current);
-    }
-
-    const trimmed = visited.slice(-30);
-    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(trimmed));
-    setPreviousPage(trimmed.at(-2) ?? { path: "/", label: "Dashboard" });
-  }, [pathname]);
+    visited[String(historyIndex)] = current;
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(visited));
+    setPreviousPage(visited[String(historyIndex - 1)] ?? { path: "/", label: "Dashboard" });
+  }, [historyIndex, pathname]);
 
   useEffect(() => {
     const content = document.querySelector("[data-page-content]");
@@ -79,8 +76,13 @@ export function BackButton({ className }: { className?: string }) {
 
   const goBack = () => {
     const visited = readHistory();
-    if (visited.at(-1)?.path === pathname) visited.pop();
-    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(visited.slice(-30)));
+    const browserPreviousPage = visited[String(historyIndex - 1)];
+
+    if (browserPreviousPage?.path === previousPage.path) {
+      window.history.back();
+      return;
+    }
+
     void router.navigate({ href: previousPage.path });
   };
 
