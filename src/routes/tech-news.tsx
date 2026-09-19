@@ -106,7 +106,15 @@ function TechNewsPage() {
     staleTime: 10 * 60 * 1000,
   });
 
-  const feedArticles = useMemo(() => feed.data?.pages.flatMap((page) => page.articles) ?? [], [feed.data]);
+  const feedArticles = useMemo(() => {
+    // New stories shift the paging window, so the same item can arrive twice.
+    const seen = new Set<string>();
+    return (feed.data?.pages.flatMap((page) => page.articles) ?? []).filter((article) => {
+      if (seen.has(article.id)) return false;
+      seen.add(article.id);
+      return true;
+    });
+  }, [feed.data]);
   const shownFeed = useMemo(
     () => (active === "All" ? feedArticles : feedArticles.filter((article) => article.category === active)),
     [feedArticles, active],
