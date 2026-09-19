@@ -1,13 +1,13 @@
 # Deterministic autonomous learning-quality loop
 
 ## Goal
-Extend the existing learner intelligence, domain packages, quality gate, activation log, and rollback system into one auditable loop:
+Build a domain-agnostic Autonomy Core by extending the existing learner intelligence, domain packages, quality gate, activation log, and rollback system into one auditable loop:
 
 ```text
-Observe → Measure → Apply Rules → Test → Deploy → Monitor → Roll Back → Learn
+Observe → Measure → Diagnose → Create Candidate → Validate → Test → Approve → Deploy → Monitor → Roll Back if degraded → Record Result
 ```
 
-Core decisions remain deterministic. AI is never required to score health, approve a candidate, activate it, or roll it back.
+Core decisions remain deterministic. AI is never required to score health, diagnose weakness, approve a candidate, activate it, or roll it back. The core consumes only generic concepts, skills, objectives, prerequisites, lessons, assessments, evidence, and mastery; all subject knowledge stays inside each domain package.
 
 ## Build
 - Add a domain-neutral health engine that derives stable, versioned snapshots from recorded learner evidence.
@@ -32,3 +32,4 @@ Core decisions remain deterministic. AI is never required to score health, appro
 - Add focused tests for health calculations, sparse-data handling, threshold findings, stable IDs, candidate comparison, promotion refusal, degradation detection, rollback choice, and failure-ledger prevention rules.
 - Run the full existing regression suite and quality audit.
 - Exercise the complete loop against a deterministic fixture: observe, identify weakness, create candidate, approve/promote, detect degradation, roll back, and confirm the failure is learned.
+- Run the same Autonomy Core unchanged against the existing IT package and the existing Auto Repair package, proving both produce valid health snapshots, findings, candidates, and auditable decisions without domain-specific conditions.
