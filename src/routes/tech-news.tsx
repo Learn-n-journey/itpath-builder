@@ -1,12 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ExternalLink, RefreshCw } from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { getTechNews, NEWS_CATEGORIES, type NewsArticle, type NewsCategory } from "@/lib/tech-news.functions";
+import {
+  getNewsPage,
+  getTechNews,
+  NEWS_CATEGORIES,
+  type NewsArticle,
+  type NewsCategory,
+} from "@/lib/tech-news.functions";
 
 export const Route = createFileRoute("/tech-news")({
   staticData: { sitemap: true },
@@ -82,7 +88,9 @@ function ArticleCard({ article }: { article: NewsArticle }) {
 
 function TechNewsPage() {
   const fetchNews = useServerFn(getTechNews);
+  const fetchPage = useServerFn(getNewsPage);
   const [active, setActive] = useState<NewsCategory | "All">("All");
+  const sentinel = useRef<HTMLDivElement | null>(null);
 
   const { data, isLoading, isFetching, refetch, isError } = useQuery({
     queryKey: ["tech-news"],
@@ -90,11 +98,50 @@ function TechNewsPage() {
     staleTime: 10 * 60 * 1000,
   });
 
+  const feed = useInfiniteQuery({
+    queryKey: ["tech-news-feed"],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => fetchPage({ data: { page: pageParam as number } }),
+    getNextPageParam: (last) => last.nextPage,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const feedArticles = useMemo(() => {
+    // New stories shift the paging window, so the same item can arrive twice.
+    const seen = new Set<string>();
+    return (feed.data?.pages.flatMap((page) => page.articles) ?? []).filter((article) => {
+      if (seen.has(article.id)) return false;
+      seen.add(article.id);
+      return true;
+    });
+  }, [feed.data]);
+  const shownFeed = useMemo(
+    () => (active === "All" ? feedArticles : feedArticles.filter((article) => article.category === active)),
+    [feedArticles, active],
+  );
+
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = feed;
+  useEffect(() => {
+    const node = sentinel.current;
+    if (!node || !hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) void fetchNextPage();
+      },
+      { rootMargin: "600px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, shownFeed.length]);
+
   const articles = useMemo(() => data ?? [], [data]);
   const available = useMemo(() => {
-    const present = new Set(articles.map((article) => article.category));
+    const present = new Set<NewsCategory>([
+      ...articles.map((article) => article.category),
+      ...feedArticles.map((article) => article.category),
+    ]);
     return NEWS_CATEGORIES.filter((category) => present.has(category));
-  }, [articles]);
+  }, [articles, feedArticles]);
   const shown = useMemo(
     () => (active === "All" ? articles : articles.filter((article) => article.category === active)),
     [articles, active],
@@ -147,7 +194,7 @@ function TechNewsPage() {
             <div key={index} className="h-72 animate-pulse rounded-2xl border border-border bg-card/50" />
           ))}
         </div>
-      ) : isError || articles.length === 0 ? (
+      ) : (isError || articles.length === 0) && feedArticles.length === 0 ? (
         <Panel title="Nothing to show right now">
           <p className="text-sm text-muted-foreground">
             The news sources could not be reached. Try refreshing in a moment.
@@ -163,12 +210,34 @@ function TechNewsPage() {
               <ArticleCard key={article.id} article={article} />
             ))}
           </div>
-          <p className="pb-4 text-center text-xs text-muted-foreground">
-            {shown.length} articles. Headlines and summaries belong to their publishers, and every card links to the
-            original.
+          <p className="text-center text-xs text-muted-foreground">
+            Headlines and summaries belong to their publishers, and every card links to the original.
           </p>
         </>
       )}
+
+      <section className="space-y-4 pt-2">
+        <h2 className="font-display text-lg text-foreground">More technology stories</h2>
+        <p className="text-sm text-muted-foreground">
+          Stories shared across the wider technology community. Keep scrolling for more.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {shownFeed.map((article) => (
+            <ArticleCard key={article.id} article={article} />
+          ))}
+          {feed.isFetching && shownFeed.length === 0
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="h-48 animate-pulse rounded-2xl border border-border bg-card/50" />
+              ))
+            : null}
+        </div>
+        <div ref={sentinel} className="h-10" />
+        {isFetchingNextPage ? (
+          <p className="text-center text-sm text-muted-foreground">Loading more stories…</p>
+        ) : !hasNextPage && shownFeed.length > 0 ? (
+          <p className="text-center text-sm text-muted-foreground">That's everything for now.</p>
+        ) : null}
+      </section>
     </div>
   );
 }
