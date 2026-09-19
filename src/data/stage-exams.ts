@@ -9,6 +9,7 @@
  * A score of 80% or higher is a pass.
  */
 import type { CertificationObjective, Question } from "@/lib/app-data/types";
+import { domainOverlay } from "@/data/domain-overlay";
 import { topics } from "@/data/static-content";
 import { certifications, certificationObjectives } from "@/data/certification-content";
 import { conceptIdFor, getTopicQuestionPool } from "@/data/topic-quizzes";
@@ -16,7 +17,8 @@ import { finalizeQuestionSet } from "@/lib/quiz-finalize";
 import { usableQuestions } from "@/lib/question-quality";
 
 export const STAGE_PASS_SCORE = 80;
-export const STAGE_EXAM_SIZE = 50;
+/** How many questions a stage paper holds. Declared by the live subject. */
+export const STAGE_EXAM_SIZE = domainOverlay?.sizes.stageExam ?? 50;
 
 export interface StageExam {
   id: string;
@@ -956,7 +958,7 @@ const stage4: Draft[] = [
   },
 ];
 
-export const stageExams: StageExam[] = [
+const authoredStageExams: StageExam[] = [
   {
     id: "stage-exam-1",
     stage: "Stage 1",
@@ -998,6 +1000,19 @@ export const stageExams: StageExam[] = [
     questions: build("stage-exam-4", stage4),
   },
 ];
+
+/** The live subject's stage papers: the active package's when one is generated. */
+export const stageExams: StageExam[] = domainOverlay
+  ? domainOverlay.stages.map((stage) => ({
+      id: stage.id,
+      stage: stage.title,
+      title: stage.title,
+      description: stage.description,
+      from: stage.from,
+      to: stage.to,
+      questions: [],
+    }))
+  : authoredStageExams;
 
 export function getStageExam(id: string): StageExam | undefined {
   return stageExams.find((exam) => exam.id === id);
