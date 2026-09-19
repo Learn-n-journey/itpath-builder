@@ -78,6 +78,10 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
+  const [subjectKey, setSubjectKey] = useState<string>(ACTIVE_PACKAGE_KEY);
+  useEffect(() => {
+    setSubjectKey(activeDomainKey());
+  }, []);
   const { theme, resolvedTheme, setTheme } = useTheme();
   const { email } = useAuth();
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
