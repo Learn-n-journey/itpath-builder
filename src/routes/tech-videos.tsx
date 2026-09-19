@@ -6,7 +6,14 @@ import { ExternalLink, Play, RefreshCw } from "lucide-react";
 
 import { PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { getTechVideos, VIDEO_CATEGORIES, type TechVideo, type VideoCategory } from "@/lib/tech-videos.functions";
+import {
+  CHANNEL_DIRECTORY,
+  getTechVideos,
+  VIDEO_CATEGORIES,
+  type ChannelInfo,
+  type TechVideo,
+  type VideoCategory,
+} from "@/lib/tech-videos.functions";
 
 export const Route = createFileRoute("/tech-videos")({
   staticData: { sitemap: true },
