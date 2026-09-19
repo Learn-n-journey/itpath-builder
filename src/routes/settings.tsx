@@ -40,6 +40,7 @@ import { formatStudyTime } from "@/lib/study-time";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { activeDomainKey, domainOptions, setDomainOverride } from "@/lib/active-domain";
+import { ACTIVE_PACKAGE } from "@/domain/registry";
 import { useTheme } from "@/state/theme";
 import type { ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 
