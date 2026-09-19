@@ -278,6 +278,34 @@ function TechVideosPage() {
           ))}
         </div>
       )}
+
+      <section className="space-y-4 pt-2">
+        <h2 className="font-display text-lg text-foreground">More technology videos</h2>
+        <p className="text-sm text-muted-foreground">
+          Independent creators from across the open video services. Keep scrolling for more.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {shownFeed.map((video) => (
+            <VideoCard
+              key={video.id}
+              video={video}
+              playing={playing === video.id}
+              onPlay={() => setPlaying(video.id)}
+            />
+          ))}
+          {feed.isFetching && shownFeed.length === 0
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="h-72 animate-pulse rounded-2xl border border-border bg-card/50" />
+              ))
+            : null}
+        </div>
+        <div ref={sentinel} className="h-10" />
+        {isFetchingNextPage ? (
+          <p className="text-center text-sm text-muted-foreground">Loading more videos…</p>
+        ) : !hasNextPage && shownFeed.length > 0 ? (
+          <p className="text-center text-sm text-muted-foreground">That's everything for now.</p>
+        ) : null}
+      </section>
     </div>
   );
 }
