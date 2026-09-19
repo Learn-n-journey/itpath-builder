@@ -1,0 +1,12 @@
+{
+  "startedAt": "2026-09-19T01:45:58.344Z",
+  "scope": {
+    "topics": 128,
+    "papers": 264,
+    "questions": 5520
+  },
+  "findings": [],
+  "blocking": 0,
+  "warnings": 0,
+  "passed": true
+}
