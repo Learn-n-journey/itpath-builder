@@ -13,11 +13,11 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="motion-content-enter mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border/70 pb-5">
+    <header className="motion-content-enter mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border/70 pb-6">
       <div className="min-w-0">
         <div className="mb-3 flex items-center gap-2" aria-hidden>
-          <span className="h-1.5 w-1.5 bg-emphasis" />
-          <span className="h-px w-8 technical-rule" />
+          <span className="h-1.5 w-1.5 rounded-sm bg-primary shadow-sm" />
+          <span className="h-px w-10 technical-rule" />
         </div>
         <h1 className="font-display text-2xl font-semibold sm:text-3xl">{title}</h1>
         {description ? (
@@ -70,11 +70,11 @@ export function StatCard({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="panel motion-surface group p-4">
+    <div className="panel motion-surface group min-h-32 p-4 sm:p-5">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
         {Icon ? (
-            <span className="flex size-8 items-center justify-center rounded-lg border border-border bg-secondary/50 text-emphasis transition-colors duration-200 group-hover:border-emphasis/40">
+            <span className="flex size-9 items-center justify-center rounded-md border border-border bg-secondary/55 text-emphasis shadow-sm transition-colors duration-200 group-hover:border-primary/40 group-hover:text-primary">
             <Icon className="size-4" aria-hidden />
           </span>
         ) : null}
