@@ -7,10 +7,11 @@
  */
 import { GUIDE_BASE_URL, certificationTitle, guideSlug } from "@/lib/public-guides";
 import type { Topic } from "@/lib/app-data/types";
+import { domain } from "@/domain/active";
 
 const ORGANISATION = {
   "@type": "Organization",
-  name: "IT PATH",
+  name: domain.appName,
   url: GUIDE_BASE_URL,
 } as const;
 
@@ -84,8 +85,8 @@ export function guideIndexJsonLd(topics: Topic[]): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "IT and cybersecurity study guides",
-    description: `Free study guides for ${topics.length} IT and cybersecurity sections, grouped by CompTIA certificate.`,
+    name: `${domain.field} study guides`,
+    description: `Free study guides for ${topics.length} ${domain.field} ${domain.vocabulary.sections}, grouped by ${domain.vocabulary.qualification}.`,
     url: `${GUIDE_BASE_URL}/guides`,
     publisher: ORGANISATION,
     mainEntity: {
