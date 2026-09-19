@@ -103,14 +103,18 @@ export function buildPackageFromDraft(draft: DomainDraft, options: BuildOptions)
   const sectionQuizSize = 10;
   const stageExamSize = Math.max(10, Math.min(50, smallestTrack * 2));
 
+  // A paper only tests what the subject actually teaches, so its objective
+  // list is the taught intersection, never the whole published list.
+  const taught = new Set(draft.seeds.flatMap((seed) => seed.objectives));
   const assessments: DomainAssessment[] = draft.qualifications.map((qualification) => ({
     id: domainId(D, "assessment", qualification.id),
     coversQualificationIds: [qualification.id],
     title: `${qualification.title} exam`,
     questionCount: stageExamSize,
     passPercent: 80,
-    objectiveIds: qualification.objectives.map((objective) => objective.id),
+    objectiveIds: qualification.objectives.map((objective) => objective.id).filter((id) => taught.has(id)),
   }));
+
 
   const sources: DomainSource[] = Object.entries(draft.sources).flatMap(([slug, list]) =>
     list.map((source) => ({

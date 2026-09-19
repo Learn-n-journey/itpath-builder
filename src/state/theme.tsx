@@ -14,13 +14,28 @@ function resolveTheme(preference: ThemePreference | null): ResolvedTheme {
   return preference === "light" ? "light" : "dark";
 }
 
-export const themeBootScript = `(function(){try{var t=localStorage.getItem("${STORAGE_KEY}");var e=document.documentElement;if(t==="light"){e.classList.remove("dark");e.classList.add("light")}else{e.classList.add("dark");e.classList.remove("light")}}catch(_){}})();`;
+/**
+ * Runs before first paint: sets the light/dark class, and writes the subject
+ * the app is opening with onto <html> so the subject palette is already in
+ * place. The subject key is stored as `id@version`; only the id is needed.
+ */
+export const themeBootScript = `(function(){try{var e=document.documentElement;var t=localStorage.getItem("${STORAGE_KEY}");if(t==="light"){e.classList.remove("dark");e.classList.add("light")}else{e.classList.add("dark");e.classList.remove("light")}var s=localStorage.getItem("itpath.active-domain.v1");e.setAttribute("data-subject",s?String(s).split("@")[0]:"it-cybersecurity")}catch(_){}})();`;
+
 
 function applyTheme(theme: ResolvedTheme) {
   const el = document.documentElement;
   el.classList.toggle("light", theme === "light");
   el.classList.toggle("dark", theme === "dark");
+  // Hydration replaces the root element's attributes, so the subject the boot
+  // script stamped on is re-applied here to keep the subject palette.
+  try {
+    const stored = localStorage.getItem("itpath.active-domain.v1");
+    el.setAttribute("data-subject", stored ? stored.split("@")[0]! : "it-cybersecurity");
+  } catch {
+    /* storage unavailable */
+  }
 }
+
 
 export function useTheme() {
   const [preference, setPreferenceState] = useState<ThemePreference>("system");

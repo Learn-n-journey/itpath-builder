@@ -33,6 +33,8 @@ import {
   Medal,
   Newspaper,
   Video,
+  Gauge,
+  Cog,
   type LucideIcon,
 } from "lucide-react";
 import { domain } from "@/domain/active";
@@ -52,7 +54,13 @@ export interface NavItem {
    * active subject switches that feed on.
    */
   feed?: keyof DomainDefinition["feeds"];
+  /**
+   * Tools that only make sense for certain subjects, by domain id. Left out,
+   * the item shows for every subject.
+   */
+  subjects?: string[];
 }
+
 
 const allNavItems: NavItem[] = [
   {
@@ -156,6 +164,7 @@ const allNavItems: NavItem[] = [
     group: "Practice",
     description: "Practice CMD, PowerShell and Linux in safe, persistent virtual computers.",
     pro: true,
+    subjects: ["it-cybersecurity"],
   },
   {
     label: "Virus Run",
@@ -170,7 +179,25 @@ const allNavItems: NavItem[] = [
     icon: CircuitBoard,
     group: "Practice",
     description: "Tap through photos of a motherboard, RAM, GPU, drives, power supply, cooler and case to learn each part.",
+    subjects: ["it-cybersecurity"],
   },
+  {
+    label: "OBD-II Scanner",
+    to: "/obd-scanner",
+    icon: Gauge,
+    group: "Practice",
+    description: "Plug a virtual scan tool into faulty vehicles and read codes, freeze frame and live data.",
+    subjects: ["auto-repair"],
+  },
+  {
+    label: "Virtual Engine",
+    to: "/engine-simulator",
+    icon: Cog,
+    group: "Practice",
+    description: "Run a four stroke engine, change throttle, timing and mixture, and introduce faults.",
+    subjects: ["auto-repair"],
+  },
+
   {
     label: "Flashcards",
     to: "/flashcards",
@@ -307,4 +334,8 @@ const allNavItems: NavItem[] = [
 export const navGroups = ["Study", "Practice", "Career", "Connect", "You"] as const;
 
 /** Only the pages that make sense for the subject the app is running. */
-export const navItems: NavItem[] = allNavItems.filter((item) => !item.feed || domain.feeds[item.feed]);
+export const navItems: NavItem[] = allNavItems.filter(
+  (item) =>
+    (!item.feed || domain.feeds[item.feed]) &&
+    (!item.subjects || item.subjects.includes(domain.id)),
+);

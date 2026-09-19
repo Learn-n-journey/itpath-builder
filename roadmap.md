@@ -63,3 +63,8 @@ Done when: typecheck + build clean, features verified in browser.
 
 ## Open
 - [x] Premium tactile feel applied app-wide (pressable physics, smooth scroll)
+
+24. [ ] Full ASE auto repair course (A1-A8 + G1, ~10 sections per area) as a selectable subject. IT stays the active default; auto is chosen in Settings, never overriding IT.
+25. [ ] Per-subject theme: auto repair gets a Service Bay Blue light/dark palette; IT keeps its teal obsidian look.
+26. [ ] Auto repair course is owner-only: subject switcher and auto subject visible solely to the owner account.
+27. [ ] Auto practice tools (owner/auto course only): virtual OBD-II scan tool (read/clear codes, live data, freeze frame) and virtual engine simulator, in the style of the existing virtual terminal and virtual motherboard.

@@ -21,6 +21,7 @@ import { Route as CareerSkillsRouteImport } from './routes/career-skills'
 import { Route as CommandLineRouteImport } from './routes/command-line'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as DailyChallengeRouteImport } from './routes/daily-challenge'
+import { Route as EngineSimulatorRouteImport } from './routes/engine-simulator'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as ExploreHardwareRouteImport } from './routes/explore-hardware'
 import { Route as GuideRouteImport } from './routes/guide'
@@ -32,6 +33,7 @@ import { Route as LearnRouteImport } from './routes/learn'
 import { Route as LearnerRouteImport } from './routes/learner'
 import { Route as MeetGaylRouteImport } from './routes/meet-gayl'
 import { Route as MyPathRouteImport } from './routes/my-path'
+import { Route as ObdScannerRouteImport } from './routes/obd-scanner'
 import { Route as PomodoroRouteImport } from './routes/pomodoro'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PracticeRouteImport } from './routes/practice'
@@ -132,6 +134,11 @@ const DailyChallengeRoute = DailyChallengeRouteImport.update({
   path: '/daily-challenge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EngineSimulatorRoute = EngineSimulatorRouteImport.update({
+  id: '/engine-simulator',
+  path: '/engine-simulator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExamRoute = ExamRouteImport.update({
   id: '/exam',
   path: '/exam',
@@ -185,6 +192,11 @@ const MeetGaylRoute = MeetGaylRouteImport.update({
 const MyPathRoute = MyPathRouteImport.update({
   id: '/my-path',
   path: '/my-path',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ObdScannerRoute = ObdScannerRouteImport.update({
+  id: '/obd-scanner',
+  path: '/obd-scanner',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PomodoroRoute = PomodoroRouteImport.update({
@@ -397,6 +409,7 @@ export interface FileRoutesByFullPath {
   '/command-line': typeof CommandLineRoute
   '/community': typeof CommunityRoute
   '/daily-challenge': typeof DailyChallengeRoute
+  '/engine-simulator': typeof EngineSimulatorRoute
   '/exam': typeof ExamRoute
   '/explore-hardware': typeof ExploreHardwareRoute
   '/guide': typeof GuideRoute
@@ -408,6 +421,7 @@ export interface FileRoutesByFullPath {
   '/learner': typeof LearnerRoute
   '/meet-gayl': typeof MeetGaylRoute
   '/my-path': typeof MyPathRoute
+  '/obd-scanner': typeof ObdScannerRoute
   '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
@@ -461,6 +475,7 @@ export interface FileRoutesByTo {
   '/command-line': typeof CommandLineRoute
   '/community': typeof CommunityRoute
   '/daily-challenge': typeof DailyChallengeRoute
+  '/engine-simulator': typeof EngineSimulatorRoute
   '/exam': typeof ExamRoute
   '/explore-hardware': typeof ExploreHardwareRoute
   '/guide': typeof GuideRoute
@@ -472,6 +487,7 @@ export interface FileRoutesByTo {
   '/learner': typeof LearnerRoute
   '/meet-gayl': typeof MeetGaylRoute
   '/my-path': typeof MyPathRoute
+  '/obd-scanner': typeof ObdScannerRoute
   '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
@@ -526,6 +542,7 @@ export interface FileRoutesById {
   '/command-line': typeof CommandLineRoute
   '/community': typeof CommunityRoute
   '/daily-challenge': typeof DailyChallengeRoute
+  '/engine-simulator': typeof EngineSimulatorRoute
   '/exam': typeof ExamRoute
   '/explore-hardware': typeof ExploreHardwareRoute
   '/guide': typeof GuideRoute
@@ -537,6 +554,7 @@ export interface FileRoutesById {
   '/learner': typeof LearnerRoute
   '/meet-gayl': typeof MeetGaylRoute
   '/my-path': typeof MyPathRoute
+  '/obd-scanner': typeof ObdScannerRoute
   '/pomodoro': typeof PomodoroRoute
   '/portfolio': typeof PortfolioRoute
   '/practice': typeof PracticeRoute
@@ -592,6 +610,7 @@ export interface FileRouteTypes {
     | '/command-line'
     | '/community'
     | '/daily-challenge'
+    | '/engine-simulator'
     | '/exam'
     | '/explore-hardware'
     | '/guide'
@@ -603,6 +622,7 @@ export interface FileRouteTypes {
     | '/learner'
     | '/meet-gayl'
     | '/my-path'
+    | '/obd-scanner'
     | '/pomodoro'
     | '/portfolio'
     | '/practice'
@@ -656,6 +676,7 @@ export interface FileRouteTypes {
     | '/command-line'
     | '/community'
     | '/daily-challenge'
+    | '/engine-simulator'
     | '/exam'
     | '/explore-hardware'
     | '/guide'
@@ -667,6 +688,7 @@ export interface FileRouteTypes {
     | '/learner'
     | '/meet-gayl'
     | '/my-path'
+    | '/obd-scanner'
     | '/pomodoro'
     | '/portfolio'
     | '/practice'
@@ -720,6 +742,7 @@ export interface FileRouteTypes {
     | '/command-line'
     | '/community'
     | '/daily-challenge'
+    | '/engine-simulator'
     | '/exam'
     | '/explore-hardware'
     | '/guide'
@@ -731,6 +754,7 @@ export interface FileRouteTypes {
     | '/learner'
     | '/meet-gayl'
     | '/my-path'
+    | '/obd-scanner'
     | '/pomodoro'
     | '/portfolio'
     | '/practice'
@@ -785,6 +809,7 @@ export interface RootRouteChildren {
   CommandLineRoute: typeof CommandLineRoute
   CommunityRoute: typeof CommunityRoute
   DailyChallengeRoute: typeof DailyChallengeRoute
+  EngineSimulatorRoute: typeof EngineSimulatorRoute
   ExamRoute: typeof ExamRoute
   ExploreHardwareRoute: typeof ExploreHardwareRoute
   GuideRoute: typeof GuideRoute
@@ -796,6 +821,7 @@ export interface RootRouteChildren {
   LearnerRoute: typeof LearnerRoute
   MeetGaylRoute: typeof MeetGaylRoute
   MyPathRoute: typeof MyPathRoute
+  ObdScannerRoute: typeof ObdScannerRoute
   PomodoroRoute: typeof PomodoroRoute
   PortfolioRoute: typeof PortfolioRoute
   PracticeRoute: typeof PracticeRoute
@@ -923,6 +949,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DailyChallengeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/engine-simulator': {
+      id: '/engine-simulator'
+      path: '/engine-simulator'
+      fullPath: '/engine-simulator'
+      preLoaderRoute: typeof EngineSimulatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/exam': {
       id: '/exam'
       path: '/exam'
@@ -998,6 +1031,13 @@ declare module '@tanstack/react-router' {
       path: '/my-path'
       fullPath: '/my-path'
       preLoaderRoute: typeof MyPathRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/obd-scanner': {
+      id: '/obd-scanner'
+      path: '/obd-scanner'
+      fullPath: '/obd-scanner'
+      preLoaderRoute: typeof ObdScannerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pomodoro': {
@@ -1289,6 +1329,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommandLineRoute: CommandLineRoute,
   CommunityRoute: CommunityRoute,
   DailyChallengeRoute: DailyChallengeRoute,
+  EngineSimulatorRoute: EngineSimulatorRoute,
   ExamRoute: ExamRoute,
   ExploreHardwareRoute: ExploreHardwareRoute,
   GuideRoute: GuideRoute,
@@ -1300,6 +1341,7 @@ const rootRouteChildren: RootRouteChildren = {
   LearnerRoute: LearnerRoute,
   MeetGaylRoute: MeetGaylRoute,
   MyPathRoute: MyPathRoute,
+  ObdScannerRoute: ObdScannerRoute,
   PomodoroRoute: PomodoroRoute,
   PortfolioRoute: PortfolioRoute,
   PracticeRoute: PracticeRoute,

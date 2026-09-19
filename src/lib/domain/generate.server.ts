@@ -116,33 +116,78 @@ export async function generateQualifications(brief: DomainBrief): Promise<DraftQ
   return out;
 }
 
-/** Step three: the sections themselves, one qualification at a time. */
+/**
+ * Step three: the sections themselves, one qualification at a time.
+ *
+ * A single request reliably returns far fewer sections than asked for once the
+ * per-section shape is large, so the work is asked for in small batches and the
+ * titles already written are handed back each round. The loop stops when the
+ * brief's count is reached, or when a round adds nothing new.
+ */
 export async function generateSections(
   brief: DomainBrief,
   qualification: DraftQualification,
   startMonth: number,
 ): Promise<TopicSeed[]> {
-  const raw = await askJson<{ sections?: unknown[] }>(
-    [
-      `Subject: ${brief.field}. Qualification: ${qualification.title}.`,
-      `Objectives:\n${qualification.objectives.map((o) => `${o.domain}: ${o.text}`).join("\n")}`,
-      `Write ${brief.sectionsPerQualification} sections that together cover those objectives with no gaps and no overlap, in teaching order.`,
-      "Each section teaches one coherent idea and can be studied in one sitting.",
-      "Return:",
-      '{"sections":[{"slug":"lowercase-hyphenated","title":"","summary":"","objectives":["",""],"prereqs":["slug of an earlier section in this list, or nothing"],"lesson":{"title":"","body":"a real introduction of at least 120 words","definition":"","whyItMatters":"","keyTerms":[["term","meaning"]],"examples":[""],"misconceptions":[""],"summary":"","nextSteps":[""]},"module":{"howItWorks":[""],"whereYouSeeIt":[""],"commonProblems":[""],"howItFails":[""],"troubleshooting":[""],"practicalKnowledge":[""],"examCoverage":[""],"interviewQuestions":[""]},"recall":[["question",["accepted answer"],"explanation"],["second question",["accepted answer"],"explanation"]],"practice":{"title":"","prompt":"","choices":["","","",""],"answerIndex":0,"explanation":""},"scenario":{"title":"","situation":"","decisionPrompt":"","expectedConcepts":[""],"guidance":""}}]}',
-      "recall holds exactly two entries, each one [prompt, [accepted answers], explanation]. Two is the minimum and the maximum; a section with one recall question is rejected.",
-      "The practice question has exactly one correct choice, and the three wrong choices are believable answers to that same question, not answers from another section.",
-      brief.notes ?? "",
-    ]
-      .filter(Boolean)
-      .join("\n"),
-    [brief.id, "sections", qualification.id],
-  );
+  const target = Math.max(1, brief.sectionsPerQualification);
+  const batchSize = 2;
+  const rows: Array<Record<string, unknown>> = [];
+  const taken = new Set<string>();
 
-  return (raw.sections ?? []).map((row, index) =>
-    normaliseSeed(row as Record<string, unknown>, qualification.id, startMonth + Math.floor(index / 4), (index % 4) + 1),
+  for (let round = 0; rows.length < target && round < target * 2; round += 1) {
+    const remaining = target - rows.length;
+    const ask = Math.min(batchSize, remaining);
+    const written = rows.map((row) => `${String(row["slug"] ?? "")}: ${String(row["title"] ?? "")}`);
+
+    let batch: Array<Record<string, unknown>> = [];
+    try {
+      const raw = await askJson<{ sections?: unknown[] }>(
+        [
+          `Subject: ${brief.field}. Qualification: ${qualification.title}.`,
+          `Objectives, each with the id it must be cited by:\n${qualification.objectives
+            .map((o) => `${o.id} | ${o.domain} | ${o.text}`)
+            .join("\n")}`,
+          `This qualification is being written as exactly ${target} sections in teaching order, covering those objectives with no gaps and no overlap.`,
+          written.length
+            ? `Already written, do not repeat or restate any of these:\n${written.join("\n")}`
+            : "Nothing has been written yet; start at the beginning of the teaching order.",
+          `Write the next ${ask} section${ask === 1 ? "" : "s"} only. Return exactly ${ask}.`,
+          "Each section teaches one coherent idea and can be studied in one sitting.",
+          'The "objectives" array holds one or more objective ids copied exactly from the list above, and only ids this section genuinely teaches. Never invent an id and never write objective prose there.',
+          "Return:",
+          '{"sections":[{"slug":"lowercase-hyphenated","title":"","summary":"","objectives":["objective id"],"prereqs":["slug of an earlier section already written, or nothing"],"lesson":{"title":"","body":"a real introduction of at least 120 words","definition":"","whyItMatters":"","keyTerms":[["term","meaning"]],"examples":[""],"misconceptions":[""],"summary":"","nextSteps":[""]},"module":{"howItWorks":[""],"whereYouSeeIt":[""],"commonProblems":[""],"howItFails":[""],"troubleshooting":[""],"practicalKnowledge":[""],"examCoverage":[""],"interviewQuestions":[""]},"recall":[["question",["accepted answer"],"explanation"],["second question",["accepted answer"],"explanation"]],"practice":{"title":"","prompt":"","choices":["","","",""],"answerIndex":0,"explanation":""},"scenario":{"title":"","situation":"","decisionPrompt":"","expectedConcepts":[""],"guidance":""}}]}',
+          "keyTerms holds at least four real terms from this section, each with its own meaning.",
+          "examples, misconceptions, nextSteps and every module list hold at least two entries.",
+          "recall holds exactly two entries, each one [prompt, [accepted answers], explanation]. Two is the minimum and the maximum; a section with one recall question is rejected.",
+          "The practice question has exactly one correct choice, and the three wrong choices are believable answers to that same question, not answers from another section.",
+
+          brief.notes ?? "",
+        ]
+          .filter(Boolean)
+          .join("\n"),
+        [brief.id, "sections", qualification.id, String(round)],
+      );
+      batch = (raw.sections ?? []) as Array<Record<string, unknown>>;
+    } catch {
+      batch = [];
+    }
+
+    let added = 0;
+    for (const row of batch) {
+      const slug = String(row?.["slug"] ?? "").trim();
+      if (!slug || taken.has(slug) || rows.length >= target) continue;
+      taken.add(slug);
+      rows.push(row);
+      added += 1;
+    }
+    if (!added) break;
+  }
+
+  return rows.map((row, index) =>
+    normaliseSeed(row, qualification.id, startMonth + Math.floor(index / 4), (index % 4) + 1),
   );
 }
+
 
 /** Step four: outside material for each section. */
 export async function generateSources(
