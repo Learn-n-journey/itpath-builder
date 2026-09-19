@@ -1,7 +1,7 @@
 [
   {
     "coverage": {
-      "startedAt": "2026-09-19T04:36:30.836Z",
+      "startedAt": "2026-09-19T04:45:54.269Z",
       "packageKey": "auto-repair@1.0.0",
       "total": 22,
       "detected": 22,
@@ -857,7 +857,7 @@
   },
   {
     "coverage": {
-      "startedAt": "2026-09-19T04:36:48.462Z",
+      "startedAt": "2026-09-19T04:46:11.724Z",
       "packageKey": "it-cybersecurity@1.0.0",
       "total": 22,
       "detected": 22,
