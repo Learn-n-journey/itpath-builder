@@ -82,11 +82,7 @@ export function BackButton({ className }: { className?: string }) {
   if (pathname === "/" || pageHasOwnBackLink) return null;
 
   const goBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.history.back();
-      return;
-    }
-    void router.navigate({ to: "/" });
+    router.history.push(previousPage.path);
   };
 
   return (
