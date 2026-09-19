@@ -14,6 +14,7 @@ import { checkTechnicalClaims } from "@/lib/technical-validation";
 import type { Question } from "@/lib/app-data/types";
 import type { DomainDraft } from "./brief";
 import type { TopicSeed } from "@/data/curriculum/builder";
+import { lessonQualityIssues } from "@/lib/lesson-quality";
 
 function note(out: Finding[], ruleId: string, subjectId: string, detail: string): void {
   const rule = getRule(ruleId);
@@ -136,6 +137,36 @@ export function auditDomainDraft(draft: DomainDraft): DraftAudit {
     }
     if (seed.lesson.keyTerms.length < 3) {
       note(findings, "content.lesson-has-substance", id, "Fewer than three key terms.");
+    }
+    const lesson = {
+      id: `lesson-${seed.slug}`,
+      topicId: `topic-${seed.slug}`,
+      title: seed.lesson.title,
+      body: seed.lesson.body,
+      definition: seed.lesson.definition,
+      whyItMatters: seed.lesson.whyItMatters,
+      keyTerms: seed.lesson.keyTerms.map(([term, meaning]) => ({ term, meaning })),
+      realWorldExamples: seed.lesson.examples,
+      commonMisconceptions: seed.lesson.misconceptions,
+      summary: seed.lesson.summary,
+      nextSteps: seed.lesson.nextSteps,
+    };
+    const topic = {
+      id: `topic-${seed.slug}`,
+      trackId: seed.cert,
+      title: seed.title,
+      summary: seed.summary,
+      certificationId: seed.cert,
+      year: 1 as const,
+      month: seed.month,
+      week: seed.week,
+      difficulty: seed.difficulty,
+      prerequisiteTopicIds: seed.prereqs.map((slug) => `topic-${slug}`),
+      learningObjectives: seed.objectives,
+      estimatedMinutes: seed.minutes,
+    };
+    for (const issue of lessonQualityIssues(topic, lesson)) {
+      note(findings, "content.lesson-instructionally-sound", id, issue);
     }
 
     for (const issue of checkTechnicalClaims(text)) {

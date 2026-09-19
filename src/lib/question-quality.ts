@@ -36,7 +36,12 @@ const GENERIC_PROMPT_PATTERNS: RegExp[] = [
   /which of these is (a|an) .{0,40}\?$/i,
   /what is the (main |primary )?(purpose|definition|meaning) of/i,
   /what does .{0,40} stand for/i,
+  /which term matches (?:this|the) description/i,
+  /which (?:answer|option|choice) is correct/i,
 ];
+
+const TRICK_PROMPT = /\b(?:which|what) .{0,90}\b(?:not|except|least likely)\b|\ball except\b/i;
+const VAGUE_REFERENCE = /^\s*(?:in (?:this|that) (?:case|situation|scenario)|given (?:this|that)|based on (?:this|that))\b/i;
 
 /**
  * An absolute claim is a giveaway: a learner who knows nothing still crosses it
@@ -160,6 +165,8 @@ export function questionIssues(question: Question): string[] {
   if (GENERIC_PROMPT_PATTERNS.some((pattern) => pattern.test(prompt))) {
     issues.push("prompt tests recognition of the section rather than applying it");
   }
+  if (TRICK_PROMPT.test(prompt)) issues.push("prompt relies on negative or exception wording instead of demonstrating knowledge");
+  if (VAGUE_REFERENCE.test(prompt)) issues.push("prompt refers to context that it does not state");
   if (wordCount(prompt) < 10) issues.push("prompt gives too little to reason from");
   // A prompt that just repeats raw content with no question mark reads as a fragment.
   if (!prompt.includes("?")) issues.push("prompt is not a question");
@@ -172,6 +179,9 @@ export function questionIssues(question: Question): string[] {
   if (choices.some((choice) => choice.length > 240)) issues.push("an option is too long to read");
   if (new Set(choices.map(norm)).size !== choices.length) issues.push("two options say the same thing");
   if (choices.some((choice) => norm(choice) === norm(prompt))) issues.push("an option repeats the question");
+  if (choices.some((choice) => /\b(?:obviously|clearly|definitely|certainly)\b/i.test(choice))) {
+    issues.push("an option uses giveaway certainty language");
+  }
 
   // Semantic/Grammatical consistency checks
   const isTermRequest = SEMANTIC_PATTERNS.TERM.test(prompt);

@@ -77,4 +77,25 @@ describe("answer choices match the format requested by the question", () => {
     );
     expect(questionIssues(question)).toContain("prompt tests recognition of the section rather than applying it");
   });
+
+  it("rejects recognition-only term matching", () => {
+    const question = item(
+      "Which term matches this description: a named reusable block of instructions that can return a value?",
+      ["Function", "Driver", "Filesystem", "Process"],
+    );
+    expect(questionIssues(question)).toContain("prompt tests recognition of the section rather than applying it");
+  });
+
+  it("rejects negative trick wording", () => {
+    const question = item(
+      "A technician is comparing secure remote-access methods. Which option is NOT appropriate for this environment?",
+      [
+        "Use a managed VPN with multifactor authentication.",
+        "Use SSH with keys and restricted source addresses.",
+        "Use a zero-trust access proxy with device checks.",
+        "Use an approved remote-support gateway with audit logs.",
+      ],
+    );
+    expect(questionIssues(question)).toContain("prompt relies on negative or exception wording instead of demonstrating knowledge");
+  });
 });

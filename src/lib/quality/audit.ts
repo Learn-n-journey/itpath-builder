@@ -16,6 +16,7 @@ import type { CoursePack } from "@/content/pack-contract";
 import { questionIssues } from "@/lib/question-quality";
 import { checkTechnicalClaims } from "@/lib/technical-validation";
 import { validateQuestionSet } from "@/lib/quiz-finalize";
+import { lessonQualityIssues } from "@/lib/lesson-quality";
 import { getRule } from "./rules";
 import type { AuditOptions, AuditReport, Finding } from "./types";
 import type { Question } from "@/lib/app-data/types";
@@ -83,6 +84,10 @@ export function auditCoursePack(pack: CoursePack, options: AuditOptions = {}): A
     }
     for (const issue of checkTechnicalClaims(text)) {
       note(findings, "content.lesson-numbers-hold-up", subject, `${issue.claim.trim()} -> ${issue.problem}`);
+    }
+    const lesson = pack.lessons.find((item) => item.topicId === topic.id);
+    for (const issue of lessonQualityIssues(topic, lesson, pack.getDeepLesson(topic.id))) {
+      note(findings, "content.lesson-instructionally-sound", subject, issue);
     }
 
     for (const prerequisite of topic.prerequisiteTopicIds ?? []) {
