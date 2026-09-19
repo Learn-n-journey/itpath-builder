@@ -40,12 +40,8 @@ export function BackButton({ className }: { className?: string }) {
     const visited = readHistory();
     const current: VisitedPage = { path: pathname, label: pageLabel(pathname) };
     const last = visited.at(-1);
-    const beforeLast = visited.at(-2);
 
     if (last?.path === pathname) {
-      visited[visited.length - 1] = current;
-    } else if (beforeLast?.path === pathname) {
-      visited.pop();
       visited[visited.length - 1] = current;
     } else {
       visited.push(current);
@@ -82,11 +78,10 @@ export function BackButton({ className }: { className?: string }) {
   if (pathname === "/" || pageHasOwnBackLink) return null;
 
   const goBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.history.back();
-      return;
-    }
-    void router.navigate({ to: "/" });
+    const visited = readHistory();
+    if (visited.at(-1)?.path === pathname) visited.pop();
+    sessionStorage.setItem(HISTORY_KEY, JSON.stringify(visited.slice(-30)));
+    void router.navigate({ href: previousPage.path });
   };
 
   return (
