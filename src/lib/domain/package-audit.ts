@@ -13,6 +13,7 @@ import { measure } from "@/domain/package";
 import type { Finding } from "@/lib/quality/types";
 import type { DomainPackage } from "@/domain/package";
 import { validateExactAssessmentSizes } from "@/lib/autonomy/assessment-size";
+import { extraPackageFindings } from "./package-checks";
 
 function note(out: Finding[], ruleId: string, subjectId: string, detail: string): void {
   const rule = getRule(ruleId);
