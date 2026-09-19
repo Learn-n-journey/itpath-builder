@@ -95,6 +95,8 @@ export const itPack: CoursePack = {
 
   sectionQuiz: getSectionQuizQuestions,
   sectionQuestionPool: getTopicQuestionPool,
+  sectionQuizDraw: (topicId, nonce) => buildSectionQuiz(topicId, nonce),
+  lessonText: itLessonText,
   conceptId: conceptIdFor,
   assessmentSizes: { sectionQuiz: SECTION_QUIZ_SIZE, stageExam: STAGE_EXAM_SIZE },
   stageExams,
