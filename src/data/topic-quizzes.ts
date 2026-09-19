@@ -786,7 +786,9 @@ function topicPool(topicId: string): PoolItem[] {
     // The idea comes from what the question asks, not from the answer text.
     // Two questions that share an answer but ask different things are two
     // questions, so neither is thrown away as a duplicate.
-    sourceKey: `authored:${item.id}:${item.prompt.trim().toLowerCase().slice(0, 70)}`,
+    // Put a stable full-prompt fingerprint first because concept ids retain only
+    // their opening words; several "Which term..." prompts otherwise collapse.
+    sourceKey: `authored-${stableQuestionKey(item.prompt.trim().toLowerCase())}:${item.prompt}`,
   }));
   const all = [...authored, ...buildPool(topicId)];
   // Drop repeated prompts across the whole pool.
@@ -925,6 +927,15 @@ function seeded(seed: string): () => number {
 }
 
 const taggedCache = new Map<string, TaggedQuestion[]>();
+
+function stableQuestionKey(value: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  return hash.toString(36);
+}
 
 /** The section's pool with every question tagged, ready for the quiz builder. */
 export function getTaggedTopicPool(topicId: string): TaggedQuestion[] {

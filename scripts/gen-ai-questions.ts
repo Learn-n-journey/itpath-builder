@@ -5,6 +5,8 @@
  */
 import { lessons, topics } from "@/data/static-content";
 import { getLearningModule } from "@/data/learning-content";
+import { questionIssues } from "@/lib/question-quality";
+import type { Question } from "@/lib/app-data/types";
 
 const KEY = process.env["LOVABLE_API_KEY"];
 if (!KEY) throw new Error("LOVABLE_API_KEY missing");
@@ -96,6 +98,23 @@ async function ask(topicId: string): Promise<Seed[]> {
     if (new Set(choices.map((c) => c.toLowerCase())).size !== 4) continue;
     if (choices.some((c) => !c || c.length > 240)) continue;
     if (!explanation) continue;
+    const answer = choices[answerIndex] ?? "";
+    const issues = questionIssues({
+      id: `generated-${topicId}-${out.length}`,
+      topicId,
+      quizId: `section-quiz-${topicId}`,
+      certificationId: topic.certificationId,
+      prompt,
+      type: "multiple_choice",
+      choices,
+      correctAnswer: [answer],
+      acceptableAnswers: [answer],
+      explanation,
+      difficulty: topic.difficulty,
+      mistakeCategory: "concept",
+      requiresReasoning: true,
+    } satisfies Question);
+    if (issues.length > 0) continue;
     out.push({
       topicId,
       certificationId: topic.certificationId,
