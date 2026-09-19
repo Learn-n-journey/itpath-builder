@@ -254,7 +254,7 @@ function JourneyPage() {
                             to="/topics/$topicId"
                             params={{ topicId: topic.id }}
                             className={cn(
-                              "group flex min-w-0 flex-1 items-start gap-3 rounded-lg border border-transparent px-2.5 py-2 transition-all hover:border-border hover:bg-secondary/50",
+                              "group pressable flex min-w-0 flex-1 items-start gap-3 rounded-lg border border-transparent px-2.5 py-2 transition-all hover:border-border hover:bg-secondary/50",
                               status === "current" && "border-primary/50 bg-primary/5",
                             )}
                           >

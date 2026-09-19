@@ -254,6 +254,7 @@ html.light {
 
   html {
     color-scheme: dark;
+    scroll-behavior: smooth;
     transition:
       background-color 200ms ease,
       color 200ms ease;
@@ -313,6 +314,37 @@ html.light {
 
 @utility technical-rule {
   background-color: color-mix(in oklab, var(--color-emphasis) 42%, var(--color-border));
+}
+
+/*
+ * Tactile press physics, shared app-wide (selected "premium tactile" feel):
+ * a soft lift on hover, a satisfying sink-and-release on press.
+ */
+@utility pressable {
+  transition:
+    transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background-color 200ms ease;
+}
+.pressable:active {
+  transform: scale(0.98) translateY(1px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pressable:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--color-emphasis) 32%, var(--color-border));
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--color-foreground) 6%, transparent),
+      0 18px 40px -18px color-mix(in oklab, var(--color-background) 70%, transparent);
+  }
+}
+
+@utility pressable-soft {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pressable-soft:active {
+  transform: scale(0.95);
 }
 
 .dashboard-summary {

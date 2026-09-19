@@ -70,7 +70,7 @@ export function StatCard({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="panel motion-surface group min-h-32 p-4 sm:p-5">
+    <div className="panel motion-surface pressable group min-h-32 p-4 sm:p-5">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
         {Icon ? (
