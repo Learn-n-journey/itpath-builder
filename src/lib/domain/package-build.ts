@@ -96,7 +96,7 @@ export function buildPackageFromDraft(draft: DomainDraft, options: BuildOptions)
 
   const assessments: DomainAssessment[] = draft.qualifications.map((qualification) => ({
     id: domainId(D, "assessment", qualification.id),
-    qualificationId: qualification.id,
+    coversQualificationIds: [qualification.id],
     title: `${qualification.title} exam`,
     questionCount: Math.min(
       50,

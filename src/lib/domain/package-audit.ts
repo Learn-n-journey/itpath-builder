@@ -117,13 +117,18 @@ export function auditPackage(pkg: DomainPackage): PackageAudit {
   }
 
   for (const assessment of pkg.assessments) {
-    if (!qualificationIds.has(assessment.qualificationId)) {
-      note(
-        findings,
-        "domain.qualification-has-sections",
-        `assessment:${assessment.id}`,
-        `${assessment.title} is attached to a qualification that is not in this package.`,
-      );
+    if (assessment.coversQualificationIds.length === 0) {
+      note(findings, "domain.qualification-has-sections", `assessment:${assessment.id}`, `${assessment.title} proves no qualification.`);
+    }
+    for (const covered of assessment.coversQualificationIds) {
+      if (!qualificationIds.has(covered)) {
+        note(
+          findings,
+          "domain.qualification-has-sections",
+          `assessment:${assessment.id}`,
+          `${assessment.title} names qualification "${covered}", which is not in this package.`,
+        );
+      }
     }
   }
 

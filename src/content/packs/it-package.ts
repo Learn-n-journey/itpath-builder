@@ -108,7 +108,10 @@ export function buildItPackage(): DomainPackage {
 
   const assessments: DomainAssessment[] = stageExams.map((exam) => ({
     id: domainId(D, "assessment", exam.id),
-    qualificationId: exam.stage,
+    // A stage paper closes a band of the journey, which can span certifications.
+    coversQualificationIds: certifications
+      .filter((cert) => (cert.months ?? []).some((month) => month >= exam.from && month <= exam.to))
+      .map((cert) => cert.id),
     title: exam.title,
     questionCount: exam.questions.length,
     passPercent: 80,

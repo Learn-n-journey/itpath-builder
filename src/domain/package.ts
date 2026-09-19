@@ -86,7 +86,8 @@ export interface DomainQuestion {
 export interface DomainAssessment {
   /** `<domainId>:assessment:<slug>` */
   id: string;
-  qualificationId: string;
+  /** The qualifications this paper proves. A stage paper can span several. */
+  coversQualificationIds: string[];
   title: string;
   questionCount: number;
   passPercent: number;
