@@ -32,8 +32,8 @@ const STEPS: Step[] = [
     icon: ShieldCheck,
     eyebrow: "Welcome",
     title: "This is IT PATH",
-    body: "A structured route from complete beginner to working in IT and cybersecurity. Everything you see is measured from what you actually do.",
-    points: ["Every number is earned", "Learn at your own pace", "Works offline on this device"],
+    body: "A guided route from complete beginner to working in IT and cybersecurity. You always know what to learn next and why it matters.",
+    points: ["Guided from first steps to job-ready", "Learn at your own pace", "Works offline on this device"],
   },
   {
     id: "path",
@@ -62,10 +62,10 @@ const STEPS: Step[] = [
   {
     id: "progress",
     icon: LineChart,
-    eyebrow: "Honest numbers",
-    title: "Progress you can trust",
-    body: "Learning progress and overall mastery are the only two numbers. Both come straight from your answers and study time.",
-    points: ["Weak areas surfaced early", "Streaks and milestones", "Only real activity counts"],
+    eyebrow: "Progress",
+    title: "See how far you have come",
+    body: "Your progress picture is built from your own studying and answers, so it always shows where you truly are and what to strengthen next.",
+    points: ["Weak areas surfaced early", "Streaks and milestones", "Grows only as you study"],
   },
   {
     id: "setup",
