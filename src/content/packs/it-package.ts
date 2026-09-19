@@ -11,9 +11,9 @@
  */
 import { certificationObjectives, certifications } from "@/data/certification-content";
 import { staticContent } from "@/data/static-content";
-import { recallQuestions } from "@/data/learning-content";
 import { messerTopicVideos } from "@/data/messer-topic-videos";
-import { readingSources } from "@/data/topic-reading";
+import { readingForTopic } from "@/data/topic-reading";
+import { getTopicQuestionPool } from "@/data/topic-quizzes";
 import { stageExams } from "@/data/stage-exams";
 import { itDomain } from "@/domain/it";
 import { itManifest } from "@/domain/packages/it";
@@ -91,15 +91,20 @@ export function buildItPackage(): DomainPackage {
     })),
   );
 
-  const questions: DomainQuestion[] = recallQuestions.map((question, index) => ({
-    id: domainId(D, "question", question.topicId, String(index)),
-    sectionId: domainId(D, "section", question.topicId),
-    kind: "recall",
-    prompt: question.prompt,
-    choices: question.choices ?? [],
-    answerIndex: Math.max(0, (question.choices ?? []).indexOf(question.correctAnswer?.[0] ?? "")),
-    explanation: question.explanation ?? "",
-  }));
+  const questions: DomainQuestion[] = staticContent.topics.flatMap((topic) =>
+    getTopicQuestionPool(topic.id).map((question) => {
+      const choices = question.choices ?? [];
+      return {
+        id: domainId(D, "question", question.id),
+        sectionId: domainId(D, "section", topic.id),
+        kind: "practice" as const,
+        prompt: question.prompt,
+        choices,
+        answerIndex: Math.max(0, choices.indexOf(question.correctAnswer?.[0] ?? "")),
+        explanation: question.explanation ?? "",
+      };
+    }),
+  );
 
   const assessments: DomainAssessment[] = stageExams.map((exam) => ({
     id: domainId(D, "assessment", exam.id),
@@ -112,16 +117,16 @@ export function buildItPackage(): DomainPackage {
 
   const sources: DomainSource[] = [
     ...Object.entries(messerTopicVideos).flatMap(([topicId, videos]) =>
-      (videos as Array<{ title: string; url: string }>).map((video) => ({
+      videos.map((video) => ({
         sectionId: domainId(D, "section", topicId),
         label: video.title,
         url: video.url,
         kind: "video" as const,
       })),
     ),
-    ...Object.entries(readingSources).flatMap(([topicId, reading]) =>
-      (reading as Array<{ title: string; url: string }>).map((item) => ({
-        sectionId: domainId(D, "section", topicId),
+    ...staticContent.topics.flatMap((topic) =>
+      readingForTopic(topic).map((item) => ({
+        sectionId: domainId(D, "section", topic.id),
         label: item.title,
         url: item.url,
         kind: "reading" as const,
