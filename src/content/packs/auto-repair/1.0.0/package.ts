@@ -86,8 +86,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-brakes-a5",
     "order": 0,
     "objectiveIds": [
-      "Diagnose and repair master cylinders",
-      "Maintain hydraulic lines and proportioning valves"
+      "cert-brakes-a5-obj-1"
     ]
   },
   {
@@ -98,8 +97,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-brakes-a5",
     "order": 1,
     "objectiveIds": [
-      "Inspect and service brake shoes",
-      "Diagnose wheel cylinder leakage"
+      "cert-brakes-a5-obj-2"
     ]
   },
   {
@@ -110,8 +108,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-brakes-a5",
     "order": 2,
     "objectiveIds": [
-      "Diagnose and service disc brake calipers",
-      "Perform rotor and pad replacement"
+      "cert-brakes-a5-obj-3"
     ]
   },
   {
@@ -122,8 +119,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-brakes-a5",
     "order": 3,
     "objectiveIds": [
-      "Identify malfunctions in vacuum boosters",
-      "Service hydraulic brake boosters"
+      "cert-brakes-a5-obj-4"
     ]
   },
   {
@@ -134,8 +130,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-brakes-a5",
     "order": 4,
     "objectiveIds": [
-      "Analyze wheel speed sensor data",
-      "Repair hydraulic modulator assemblies"
+      "cert-brakes-a5-obj-5"
     ]
   },
   {
@@ -146,8 +141,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-brakes-a5",
     "order": 5,
     "objectiveIds": [
-      "Diagnose and repair electric parking brakes",
-      "Verify system integrity"
+      "cert-brakes-a5-obj-6"
     ]
   },
   {
@@ -158,8 +152,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-engine-repair-a1",
     "order": 6,
     "objectiveIds": [
-      "Identify and interpret engine performance concerns",
-      "Use manual and electronic diagnostic procedures"
+      "cert-engine-repair-a1-obj-1"
     ]
   },
   {
@@ -170,8 +163,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-engine-repair-a1",
     "order": 7,
     "objectiveIds": [
-      "Inspect and measure cylinder head components",
-      "Service valves, guides, springs, and camshafts"
+      "cert-engine-repair-a1-obj-2"
     ]
   },
   {
@@ -182,8 +174,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-engine-repair-a1",
     "order": 8,
     "objectiveIds": [
-      "Evaluate the engine block",
-      "Service pistons, connecting rods, crankshaft, and main bearings"
+      "cert-engine-repair-a1-obj-3"
     ]
   },
   {
@@ -194,8 +185,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-engine-repair-a1",
     "order": 9,
     "objectiveIds": [
-      "Diagnose and repair oil pumps",
-      "Service cooling fans, water pumps, radiators, and thermostats"
+      "cert-engine-repair-a1-obj-4"
     ]
   },
   {
@@ -206,9 +196,7 @@ export const autoRepairPackage: DomainPackage = {
     "qualificationId": "cert-engine-repair-a1",
     "order": 10,
     "objectiveIds": [
-      "Perform inspections of fuel systems",
-      "Inspect ignition and exhaust components",
-      "Verify electrical grounds and connections"
+      "cert-engine-repair-a1-obj-5"
     ]
   }
 ],
