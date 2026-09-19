@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ExternalLink, Play, RefreshCw } from "lucide-react";
 
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   CHANNEL_DIRECTORY,
   getTechVideos,
+  getVideoPage,
   VIDEO_CATEGORIES,
   type ChannelInfo,
   type TechVideo,
@@ -53,7 +54,7 @@ function VideoCard({ video, playing, onPlay }: { video: TechVideo; playing: bool
       <div className="relative aspect-video w-full bg-muted">
         {playing ? (
           <iframe
-            src={`https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&rel=0&playsinline=1`}
+            src={video.embedUrl}
             title={video.title}
             className="h-full w-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -68,13 +69,19 @@ function VideoCard({ video, playing, onPlay }: { video: TechVideo; playing: bool
             className="group relative block h-full w-full"
             aria-label={`Play ${video.title} on ${video.platform}`}
           >
-            <img
-              src={video.thumbnail}
-              alt=""
-              loading="lazy"
-              referrerPolicy="no-referrer"
-              className="h-full w-full object-cover"
-            />
+            {video.thumbnail ? (
+              <img
+                src={video.thumbnail}
+                alt=""
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">
+                {video.channel}
+              </span>
+            )}
             <span className="absolute inset-0 flex items-center justify-center bg-background/20 transition group-hover:bg-background/35">
               <span className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition group-hover:scale-105">
                 <Play className="size-6 translate-x-[1px]" fill="currentColor" />
@@ -157,8 +164,10 @@ function ChannelCard({ channel }: { channel: ChannelInfo }) {
 
 function TechVideosPage() {
   const fetchVideos = useServerFn(getTechVideos);
+  const fetchPage = useServerFn(getVideoPage);
   const [active, setActive] = useState<VideoCategory | "All">("All");
   const [playing, setPlaying] = useState<string | null>(null);
+  const sentinel = useRef<HTMLDivElement | null>(null);
 
   const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ["tech-videos"],
@@ -166,14 +175,44 @@ function TechVideosPage() {
     staleTime: 15 * 60 * 1000,
   });
 
+  const feed = useInfiniteQuery({
+    queryKey: ["tech-videos-feed"],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) => fetchPage({ data: { page: pageParam as number } }),
+    getNextPageParam: (last) => last.nextPage,
+    staleTime: 15 * 60 * 1000,
+  });
+
+  const feedVideos = useMemo(() => feed.data?.pages.flatMap((page) => page.videos) ?? [], [feed.data]);
+  const shownFeed = useMemo(
+    () => (active === "All" ? feedVideos : feedVideos.filter((video) => video.category === active)),
+    [feedVideos, active],
+  );
+
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = feed;
+  useEffect(() => {
+    const node = sentinel.current;
+    if (!node || !hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) void fetchNextPage();
+      },
+      { rootMargin: "600px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, shownFeed.length]);
+
+
   const videos = useMemo(() => data ?? [], [data]);
   const usingChannels = !isLoading && videos.length === 0;
   const available = useMemo(() => {
-    const present = new Set(
-      usingChannels ? CHANNEL_DIRECTORY.map((channel) => channel.category) : videos.map((video) => video.category),
-    );
+    const present = new Set<VideoCategory>([
+      ...(usingChannels ? CHANNEL_DIRECTORY.map((channel) => channel.category) : videos.map((video) => video.category)),
+      ...feedVideos.map((video) => video.category),
+    ]);
     return VIDEO_CATEGORIES.filter((category) => present.has(category));
-  }, [videos, usingChannels]);
+  }, [videos, usingChannels, feedVideos]);
   const shownChannels = useMemo(
     () => (active === "All" ? CHANNEL_DIRECTORY : CHANNEL_DIRECTORY.filter((channel) => channel.category === active)),
     [active],
@@ -246,6 +285,34 @@ function TechVideosPage() {
           ))}
         </div>
       )}
+
+      <section className="space-y-4 pt-2">
+        <h2 className="font-display text-lg text-foreground">More technology videos</h2>
+        <p className="text-sm text-muted-foreground">
+          Independent creators from across the open video services. Keep scrolling for more.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {shownFeed.map((video) => (
+            <VideoCard
+              key={video.id}
+              video={video}
+              playing={playing === video.id}
+              onPlay={() => setPlaying(video.id)}
+            />
+          ))}
+          {feed.isFetching && shownFeed.length === 0
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="h-72 animate-pulse rounded-2xl border border-border bg-card/50" />
+              ))
+            : null}
+        </div>
+        <div ref={sentinel} className="h-10" />
+        {isFetchingNextPage ? (
+          <p className="text-center text-sm text-muted-foreground">Loading more videos…</p>
+        ) : !hasNextPage && shownFeed.length > 0 ? (
+          <p className="text-center text-sm text-muted-foreground">That's everything for now.</p>
+        ) : null}
+      </section>
     </div>
   );
 }
