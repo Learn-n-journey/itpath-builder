@@ -3,7 +3,7 @@ import type { Lesson, Topic } from "@/lib/app-data/types";
 
 const PLACEHOLDER = /\b(?:lorem ipsum|todo|tbd|placeholder|insert (?:text|content)|coming soon|to be (?:added|completed|written))\b/i;
 const META_FILLER = /\b(?:in this (?:lesson|section|module) (?:we will|you will)|this section (?:covers|discusses)|it is important to note that)\b/i;
-const ACTION = /^(?:analyse|analyze|apply|build|calculate|compare|configure|create|demonstrate|describe|diagnose|differentiate|distinguish|document|evaluate|explain|identify|implement|inspect|install|interpret|isolate|measure|perform|plan|recognise|recognize|repair|replace|resolve|select|test|trace|troubleshoot|use|validate|verify)\b/i;
+const ACTION = /^(?:analyse|analyze|apply|build|calculate|choose|classify|compare|configure|create|decide|define|demonstrate|describe|diagnose|differentiate|distinguish|document|evaluate|explain|identify|implement|inspect|install|interpret|isolate|list|measure|perform|plan|recognise|recognize|repair|replace|resolve|select|summarise|summarize|test|trace|troubleshoot|understand|use|validate|verify)\b/i;
 
 const normalise = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const words = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
@@ -51,7 +51,7 @@ export function lessonQualityIssues(topic: Topic, lesson: Lesson | undefined, de
     if (walkthrough && repeatedEntries(walkthrough.steps.map((step) => `${step.label} ${step.detail}`))) {
       issues.push("worked walkthrough repeats a step");
     }
-    if (deep.depth && deep.depth.checkYourself.some((check) => words(check.question) < 5 || words(check.answer) < 3)) {
+    if (deep.depth && deep.depth.checkYourself.some((check) => words(check.question) < 4 || words(check.answer) < 2)) {
       issues.push("a lesson self-check has no meaningful question or answer");
     }
   }
