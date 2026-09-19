@@ -14,6 +14,7 @@
  */
 
 import { lessons, topics } from "@/data/static-content";
+import { domainOverlay } from "@/data/domain-overlay";
 import { getLearningModule, learningModules } from "@/data/learning-content";
 import { deepLessons, getDeepLesson } from "@/data/deep-lessons";
 import { questions as authoredQuestions } from "@/data/quiz-content";
@@ -25,7 +26,8 @@ import { finalizeQuestionSet } from "@/lib/quiz-finalize";
 import type { ConceptStat } from "@/lib/concept-mastery";
 import type { Question } from "@/lib/app-data/types";
 
-export const SECTION_QUIZ_SIZE = 20;
+/** How many questions a section quiz holds. Declared by the live subject. */
+export const SECTION_QUIZ_SIZE = domainOverlay?.sizes.sectionQuiz ?? 20;
 export const SECTION_PASS_SCORE = 80;
 
 /** A generated question plus what it came from, so a set can stay varied. */

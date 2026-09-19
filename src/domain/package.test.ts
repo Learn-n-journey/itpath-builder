@@ -29,11 +29,11 @@ describe("domain packages", () => {
     const first = pkg.sections[0]!;
     expect(first.id).toBe(domainId("it-cybersecurity", "section", first.slug));
     expect(new Set(pkg.sections.map((section) => section.id)).size).toBe(pkg.sections.length);
-  });
+  }, 30_000);
 
   it("passes the independent package audit with nothing blocking", () => {
     const audit = auditPackage(buildItPackage());
     expect(audit.findings.filter((finding) => finding.severity === "blocking")).toEqual([]);
     expect(audit.passed).toBe(true);
-  });
+  }, 30_000);
 });

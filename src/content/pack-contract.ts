@@ -6,34 +6,35 @@
  * progress, community, feeds, payments, design) is subject agnostic and can be
  * reused as is.
  *
- * To build a different subject, for example auto repair, supply a new pack
- * that satisfies CoursePack and point this file at it. Nothing else in the app
- * needs to change. src/content/README.md walks through it step by step.
+ * The contract below is written in shapes, never in a particular subject: it
+ * names no certificate, no awarding body and no field. A pack for another
+ * trade satisfies the same shapes with its own material. Qualifications and
+ * awarding bodies are optional, because plenty of subjects are taught without
+ * either.
  */
-import { certificationObjectives, certifications } from "@/data/certification-content";
-import { deepLessons, getDeepLesson } from "@/data/deep-lessons";
-import { hardwareComponents } from "@/data/hardware-explorer";
-import { buildIdentificationLabs, identificationSet, isIdentificationLab } from "@/data/identification-labs";
-import { journeyPhases } from "@/data/journey-phases";
-import {
-  getPracticeActivities,
-  getRealWorldScenario,
-  getRecallQuestions,
-  learningModules,
-  practiceActivities,
-  realWorldScenarios,
-  recallQuestions,
-} from "@/data/learning-content";
-import { hasMasteryCheck, masteryCheckPool, masteryCheckSet } from "@/data/mastery-checks";
-import { messerTopicVideos } from "@/data/messer-topic-videos";
-import { skillNodes } from "@/data/prerequisite-graph";
-import { getStageExamQuestions, stageExams } from "@/data/stage-exams";
-import { staticContent } from "@/data/static-content";
-import { readingSources } from "@/data/topic-reading";
-import { getSectionQuizQuestions, getTopicQuestionPool } from "@/data/topic-quizzes";
-import { workedExamples } from "@/data/worked-examples";
-
-import type { Question } from "@/lib/app-data/types";
+import type {
+  Assignment,
+  Certification,
+  CertificationObjective,
+  Incident,
+  Lab,
+  LearningModule,
+  Lesson,
+  PracticeActivity,
+  Question,
+  RealWorldScenario,
+  RecallQuestion,
+  Ticket,
+  Topic,
+} from "@/lib/app-data/types";
+import type { DeepLesson } from "@/data/deep-lessons/types";
+import type { HardwareComponent } from "@/data/hardware-explorer";
+import type { JourneyPhase } from "@/data/journey-phases";
+import type { MesserTopicVideo } from "@/data/messer-topic-videos";
+import type { ReadingSource } from "@/data/topic-reading";
+import type { SkillNode } from "@/data/prerequisite-graph";
+import type { StageExam } from "@/data/stage-exams";
+import type { MasteryCheckKind, MasteryItem } from "@/data/mastery-checks";
 import type { DomainDefinition } from "@/domain/types";
 
 /**
@@ -51,58 +52,71 @@ export interface SubjectProfile {
   sourceNote: string;
 }
 
+/** How many questions this subject's papers hold. Held to exactly by QA. */
+export interface PackAssessmentSizes {
+  sectionQuiz: number;
+  stageExam: number;
+}
+
 /** The full contract a subject has to satisfy to run in this app. */
 export interface CoursePack {
   /** Which subject this pack teaches, and what things are called in it. */
   domain: DomainDefinition;
   subject: SubjectProfile;
 
-  /** Qualification tracks and the objectives they are measured against. */
-  qualifications: typeof certifications;
-  objectives: typeof certificationObjectives;
+  /**
+   * Qualification tracks and the objectives they are measured against. Both are
+   * optional: a subject taught without qualifications supplies neither.
+   */
+  qualifications: Certification[];
+  objectives: CertificationObjective[];
 
   /** Sections, the teaching text behind them, and the order they unlock in. */
-  sections: typeof staticContent.topics;
-  lessons: typeof staticContent.lessons;
-  deepLessons: typeof deepLessons;
-  getDeepLesson: typeof getDeepLesson;
-  phases: typeof journeyPhases;
-  prerequisites: typeof skillNodes;
+  sections: Topic[];
+  lessons: Lesson[];
+  deepLessons: DeepLesson[];
+  getDeepLesson: (topicId: string) => DeepLesson | undefined;
+  phases: JourneyPhase[];
+  prerequisites: SkillNode[];
 
   /** Everything a learner is asked to do. */
-  modules: typeof learningModules;
-  recall: typeof recallQuestions;
-  practice: typeof practiceActivities;
-  scenarios: typeof realWorldScenarios;
-  workedExamples: typeof workedExamples;
-  getRecallQuestions: typeof getRecallQuestions;
-  getPracticeActivities: typeof getPracticeActivities;
-  getRealWorldScenario: typeof getRealWorldScenario;
+  modules: LearningModule[];
+  recall: RecallQuestion[];
+  practice: PracticeActivity[];
+  scenarios: RealWorldScenario[];
+  workedExamples: unknown[];
+  getRecallQuestions: (topicId: string) => RecallQuestion[];
+  getPracticeActivities: (topicId: string) => PracticeActivity[];
+  getRealWorldScenario: (topicId: string) => RealWorldScenario | undefined;
 
   /** Proof of mastery: section quizzes, stage exams, competency checks. */
   sectionQuiz: (topicId: string, attempt?: number) => Question[];
-  sectionQuestionPool: typeof getTopicQuestionPool;
-  stageExams: typeof stageExams;
-  stageExamQuestions: typeof getStageExamQuestions;
-  masteryCheckPool: typeof masteryCheckPool;
-  masteryCheckSet: typeof masteryCheckSet;
-  hasMasteryCheck: typeof hasMasteryCheck;
+  sectionQuestionPool: (topicId: string) => Question[];
+  /** The idea a question tests, stable wherever the question turns up. */
+  conceptId: (question: Question) => string;
+  /** The sizes every paper in this subject is held to, exactly. */
+  assessmentSizes: PackAssessmentSizes;
+  stageExams: StageExam[];
+  stageExamQuestions: (examId: string, nonce?: number) => Question[];
+  masteryCheckPool: (topicId: string, kind: MasteryCheckKind) => MasteryItem[];
+  masteryCheckSet: (...args: never[]) => unknown;
+  hasMasteryCheck: (topicId: string, kind: MasteryCheckKind) => boolean;
 
   /** Hands-on work. */
-  labs: typeof staticContent.labs;
-  incidents: typeof staticContent.incidents;
-  tickets: typeof staticContent.tickets;
-  assignments: typeof staticContent.assignments;
+  labs: Lab[];
+  incidents: Incident[];
+  tickets: Ticket[];
+  assignments: Assignment[];
   identification: {
-    parts: typeof hardwareComponents;
-    buildLabs: typeof buildIdentificationLabs;
-    set: typeof identificationSet;
-    isIdentificationLab: typeof isIdentificationLab;
+    parts: HardwareComponent[];
+    buildLabs: (topics: Topic[], lessons: Lesson[]) => Lab[];
+    set: (...args: never[]) => unknown;
+    isIdentificationLab: (labId: string) => boolean;
   };
 
   /** Outside material, checked nightly by the link crawler. */
   resources: {
-    videos: typeof messerTopicVideos;
-    reading: typeof readingSources;
+    videos: Record<string, MesserTopicVideo[]>;
+    reading: Record<string, ReadingSource>;
   };
 }

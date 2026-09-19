@@ -15,16 +15,31 @@
 import { itDomain, itManifest } from "./packages/it";
 import type { DomainDefinition } from "./types";
 import type { DomainManifest, DomainPackage } from "./package";
+import { autoRepairManifest as autoRepair1_0_0Manifest } from "@/content/packs/auto-repair/1.0.0/manifest";
+import { autoRepairDomain as autoRepair1_0_0Domain } from "@/content/packs/auto-repair/1.0.0/domain";
+import { autoRepairPackage as autoRepair1_0_0Package } from "@/content/packs/auto-repair/1.0.0/package";
 
 export interface RegistryEntry {
   manifest: DomainManifest;
   definition: DomainDefinition;
   /** Loads the full package. Server and scripts only; heavy. */
   load?: () => Promise<DomainPackage>;
+  /**
+   * The complete package, already in the bundle. Generated subjects carry one
+   * so the app can read their content without an async load; the authored IT
+   * subject leaves it out and keeps reading its own authored data.
+   */
+  packageSync?: DomainPackage;
 }
 
 /** Every subject version this build knows about. */
 export const registry: Record<string, RegistryEntry> = {
+  "auto-repair@1.0.0": {
+    manifest: autoRepair1_0_0Manifest,
+    definition: autoRepair1_0_0Domain,
+    packageSync: autoRepair1_0_0Package,
+    load: async () => autoRepair1_0_0Package,
+  },
   [itManifest.key]: {
     manifest: itManifest,
     definition: itDomain,

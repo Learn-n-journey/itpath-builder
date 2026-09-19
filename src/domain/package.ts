@@ -155,6 +155,11 @@ export interface DomainPackage {
   sources: DomainSource[];
   /** Extra standards this subject is judged by, beyond the shared rule book. */
   rules: DomainRule[];
+  /**
+   * How many questions this subject's papers hold. Declared by the subject, not
+   * assumed by the engine, and QA holds every paper to it exactly.
+   */
+  assessmentSizes?: { sectionQuiz: number; stageExam: number };
 }
 
 /** The key a package is known by everywhere: registry, ledger, activation log. */

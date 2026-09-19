@@ -23,10 +23,10 @@ import {
 import { hasMasteryCheck, masteryCheckPool, masteryCheckSet } from "@/data/mastery-checks";
 import { messerTopicVideos } from "@/data/messer-topic-videos";
 import { skillNodes } from "@/data/prerequisite-graph";
-import { getStageExamQuestions, stageExams } from "@/data/stage-exams";
+import { STAGE_EXAM_SIZE, getStageExamQuestions, stageExams } from "@/data/stage-exams";
 import { staticContent } from "@/data/static-content";
 import { readingSources } from "@/data/topic-reading";
-import { getSectionQuizQuestions, getTopicQuestionPool } from "@/data/topic-quizzes";
+import { SECTION_QUIZ_SIZE, conceptIdFor, getSectionQuizQuestions, getTopicQuestionPool } from "@/data/topic-quizzes";
 import { workedExamples } from "@/data/worked-examples";
 
 
@@ -65,6 +65,8 @@ export const itPack: CoursePack = {
 
   sectionQuiz: getSectionQuizQuestions,
   sectionQuestionPool: getTopicQuestionPool,
+  conceptId: conceptIdFor,
+  assessmentSizes: { sectionQuiz: SECTION_QUIZ_SIZE, stageExam: STAGE_EXAM_SIZE },
   stageExams,
   stageExamQuestions: getStageExamQuestions,
   masteryCheckPool,

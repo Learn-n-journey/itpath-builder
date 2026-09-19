@@ -65,13 +65,13 @@ export const qualityRules: QualityRule[] = [
     id: "papers.section-quiz-whole",
     area: "papers",
     severity: "blocking",
-    says: "A section quiz holds exactly twenty sound, unique questions from that section.",
+    says: "A section quiz holds exactly the number of sound, unique questions the subject declares, all from that section.",
   },
   {
     id: "papers.stage-exam-whole",
     area: "papers",
     severity: "blocking",
-    says: "A stage exam holds exactly fifty sound, unique questions from that stage.",
+    says: "A stage exam holds exactly the number of sound, unique questions the subject declares, all from that stage.",
   },
   {
     id: "concepts.stable-id",

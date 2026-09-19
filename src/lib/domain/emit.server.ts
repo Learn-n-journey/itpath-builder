@@ -78,6 +78,7 @@ export function emitPackage(pkg: DomainPackage, root = "src/content/packs"): Emi
             "rules",
           ] as const
         ).map((part) => `  ${part}: ${json(pkg[part])},`),
+        ...(pkg.assessmentSizes ? [`  assessmentSizes: ${json(pkg.assessmentSizes)},`] : []),
         "};",
         "",
       ].join("\n"),
@@ -118,13 +119,18 @@ export function registerPackage(pkg: DomainPackage, folder: string, registryPath
   const name = camel(id);
   const alias = `${name}${version.replace(/\./g, "_")}`;
   const importPath = folder.replace(/^src\//, "@/");
-  const importLine = `import { ${name}Manifest as ${alias}Manifest } from "${importPath}/manifest";\nimport { ${name}Domain as ${alias}Domain } from "${importPath}/domain";`;
+  const importLine = [
+    `import { ${name}Manifest as ${alias}Manifest } from "${importPath}/manifest";`,
+    `import { ${name}Domain as ${alias}Domain } from "${importPath}/domain";`,
+    `import { ${name}Package as ${alias}Package } from "${importPath}/package";`,
+  ].join("\n");
 
   const entry = [
     `  "${key}": {`,
     `    manifest: ${alias}Manifest,`,
     `    definition: ${alias}Domain,`,
-    `    load: async () => (await import("${importPath}/package")).${name}Package,`,
+    `    packageSync: ${alias}Package,`,
+    `    load: async () => ${alias}Package,`,
     "  },",
   ].join("\n");
 

@@ -1,0 +1,71 @@
+[
+  {
+    "at": "2026-09-19T03:00:08.278Z",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "approved": false,
+    "activated": false,
+    "testsPassed": false,
+    "rounds": 3,
+    "blocking": 1,
+    "warnings": 0,
+    "scope": {
+      "qualifications": 2,
+      "sections": 11,
+      "concepts": 33,
+      "skills": 11,
+      "questions": 31,
+      "assessments": 2,
+      "sources": 33
+    },
+    "byRule": {
+      "domain.section-has-recall": 1
+    }
+  },
+  {
+    "at": "2026-09-19T03:01:09.313Z",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "approved": false,
+    "activated": false,
+    "testsPassed": false,
+    "rounds": 3,
+    "blocking": 1,
+    "warnings": 0,
+    "scope": {
+      "qualifications": 2,
+      "sections": 11,
+      "concepts": 33,
+      "skills": 11,
+      "questions": 31,
+      "assessments": 2,
+      "sources": 33
+    },
+    "byRule": {
+      "domain.section-has-recall": 1
+    }
+  },
+  {
+    "at": "2026-09-19T03:03:33.296Z",
+    "domainId": "auto-repair",
+    "packageKey": "auto-repair@1.0.0",
+    "approved": true,
+    "activated": true,
+    "testsPassed": true,
+    "rounds": 1,
+    "blocking": 0,
+    "warnings": 10,
+    "scope": {
+      "qualifications": 2,
+      "sections": 11,
+      "concepts": 23,
+      "skills": 11,
+      "questions": 33,
+      "assessments": 2,
+      "sources": 33
+    },
+    "byRule": {
+      "content.lesson-has-substance": 10
+    }
+  }
+]

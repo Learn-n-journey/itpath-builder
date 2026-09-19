@@ -23,6 +23,13 @@ const AUTHOR_SYSTEM = [
   "Reply with one JSON object and nothing else. No prose, no markdown fences.",
 ].join("\n");
 
+/** A short fingerprint of the prompt, so a reworded prompt never reuses an old answer. */
+function fingerprint(value: string): string {
+  let hash = 5381;
+  for (let index = 0; index < value.length; index += 1) hash = ((hash * 33) ^ value.charCodeAt(index)) >>> 0;
+  return hash.toString(36);
+}
+
 async function askJson<T>(prompt: string, cacheParts: string[]): Promise<T> {
   const result = await runAi({
     feature: "scenario",
@@ -32,7 +39,7 @@ async function askJson<T>(prompt: string, cacheParts: string[]): Promise<T> {
     priority: "background",
     json: true,
     skipBudget: true,
-    cache: { parts: cacheParts, scope: "domain-generate" },
+    cache: { parts: [...cacheParts, fingerprint(AUTHOR_SYSTEM + prompt)], scope: "domain-generate" },
   });
   if (!result.ok) throw new Error(result.error ?? "The generator could not produce this part.");
   const text = result.text.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "");
@@ -122,8 +129,8 @@ export async function generateSections(
       `Write ${brief.sectionsPerQualification} sections that together cover those objectives with no gaps and no overlap, in teaching order.`,
       "Each section teaches one coherent idea and can be studied in one sitting.",
       "Return:",
-      '{"sections":[{"slug":"lowercase-hyphenated","title":"","summary":"","objectives":["",""],"prereqs":["slug of an earlier section in this list, or nothing"],"lesson":{"title":"","body":"a real introduction of at least 120 words","definition":"","whyItMatters":"","keyTerms":[["term","meaning"]],"examples":[""],"misconceptions":[""],"summary":"","nextSteps":[""]},"module":{"howItWorks":[""],"whereYouSeeIt":[""],"commonProblems":[""],"howItFails":[""],"troubleshooting":[""],"practicalKnowledge":[""],"examCoverage":[""],"interviewQuestions":[""]},"recall":[["question","accepted answer",...],"explanation"],"practice":{"title":"","prompt":"","choices":["","","",""],"answerIndex":0,"explanation":""},"scenario":{"title":"","situation":"","decisionPrompt":"","expectedConcepts":[""],"guidance":""}}]}',
-      "recall is a list of [prompt, [accepted answers], explanation].",
+      '{"sections":[{"slug":"lowercase-hyphenated","title":"","summary":"","objectives":["",""],"prereqs":["slug of an earlier section in this list, or nothing"],"lesson":{"title":"","body":"a real introduction of at least 120 words","definition":"","whyItMatters":"","keyTerms":[["term","meaning"]],"examples":[""],"misconceptions":[""],"summary":"","nextSteps":[""]},"module":{"howItWorks":[""],"whereYouSeeIt":[""],"commonProblems":[""],"howItFails":[""],"troubleshooting":[""],"practicalKnowledge":[""],"examCoverage":[""],"interviewQuestions":[""]},"recall":[["question",["accepted answer"],"explanation"],["second question",["accepted answer"],"explanation"]],"practice":{"title":"","prompt":"","choices":["","","",""],"answerIndex":0,"explanation":""},"scenario":{"title":"","situation":"","decisionPrompt":"","expectedConcepts":[""],"guidance":""}}]}',
+      "recall holds exactly two entries, each one [prompt, [accepted answers], explanation]. Two is the minimum and the maximum; a section with one recall question is rejected.",
       "The practice question has exactly one correct choice, and the three wrong choices are believable answers to that same question, not answers from another section.",
       brief.notes ?? "",
     ]
