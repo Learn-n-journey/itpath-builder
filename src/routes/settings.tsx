@@ -112,6 +112,18 @@ function SettingsPage() {
     });
   }
 
+  if (setupOnly) {
+    return (
+      <>
+        <PageHeader
+          title="Quick setup"
+          description="A few preferences before you begin. Everything can be changed here later."
+        />
+        <WelcomeSetup onFinished={() => setSetupOnly(false)} />
+      </>
+    );
+  }
+
   return (
     <>
       <PageHeader
