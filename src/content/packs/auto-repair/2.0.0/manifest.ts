@@ -16,6 +16,6 @@ export const autoRepairManifest: DomainManifest = {
     "skills": 172,
     "questions": 258,
     "assessments": 9,
-    "sources": 249
+    "sources": 258
   }
 };
