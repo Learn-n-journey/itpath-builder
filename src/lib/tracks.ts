@@ -49,12 +49,15 @@ export function publishedTracks(): Certification[] {
 }
 
 /** Certificates that also have a free practice test page. */
-const PRACTICE_TEST_CERTS = new Set([
-  "cert-comptia-a-plus",
-  "cert-comptia-network-plus",
-  "cert-comptia-security-plus",
-]);
-
+/**
+ * Practice tests exist for any qualification track the live subject publishes
+ * objectives for, so a new subject gets them without a code change.
+ */
 export function hasPracticeTest(certificationId: string): boolean {
-  return PRACTICE_TEST_CERTS.has(certificationId);
+  return certificationObjectives.some((objective) => objective.certificationId === certificationId);
+}
+
+/** The qualification the "free practice tests" links point at: the first one. */
+export function firstPracticeTestCertId(): string {
+  return certifications.find((item) => hasPracticeTest(item.id))?.id ?? certifications[0]?.id ?? "";
 }
