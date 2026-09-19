@@ -179,10 +179,17 @@ function TechVideosPage() {
   });
 
   const videos = useMemo(() => data ?? [], [data]);
+  const usingChannels = !isLoading && videos.length === 0;
   const available = useMemo(() => {
-    const present = new Set(videos.map((video) => video.category));
+    const present = new Set(
+      usingChannels ? CHANNEL_DIRECTORY.map((channel) => channel.category) : videos.map((video) => video.category),
+    );
     return VIDEO_CATEGORIES.filter((category) => present.has(category));
-  }, [videos]);
+  }, [videos, usingChannels]);
+  const shownChannels = useMemo(
+    () => (active === "All" ? CHANNEL_DIRECTORY : CHANNEL_DIRECTORY.filter((channel) => channel.category === active)),
+    [active],
+  );
   const shown = useMemo(
     () => (active === "All" ? videos : videos.filter((video) => video.category === active)),
     [videos, active],
