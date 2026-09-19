@@ -32,33 +32,22 @@ function readHistory(): PageHistory {
   }
 }
 
-function browserHistoryIndex(): number | null {
-  const state: unknown = window.history.state;
-  if (!state || typeof state !== "object" || !("__TSR_index" in state)) return null;
-  const index = state.__TSR_index;
-  return typeof index === "number" ? index : null;
-}
-
 export function BackButton({ className }: { className?: string }) {
   const router = useRouter();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const location = useRouterState({ select: (s) => s.location });
+  const pathname = location.pathname;
+  const historyIndex = location.state.__TSR_index;
   const [previousPage, setPreviousPage] = useState<VisitedPage>({ path: "/", label: "Dashboard" });
   const [pageHasOwnBackLink, setPageHasOwnBackLink] = useState(false);
 
   useEffect(() => {
     const visited = readHistory();
-    const historyIndex = browserHistoryIndex();
     const current: VisitedPage = { path: pathname, label: pageLabel(pathname) };
-
-    if (historyIndex === null) {
-      setPreviousPage({ path: "/", label: "Dashboard" });
-      return;
-    }
 
     visited[String(historyIndex)] = current;
     sessionStorage.setItem(HISTORY_KEY, JSON.stringify(visited));
     setPreviousPage(visited[String(historyIndex - 1)] ?? { path: "/", label: "Dashboard" });
-  }, [pathname]);
+  }, [historyIndex, pathname]);
 
   useEffect(() => {
     const content = document.querySelector("[data-page-content]");
@@ -87,8 +76,7 @@ export function BackButton({ className }: { className?: string }) {
 
   const goBack = () => {
     const visited = readHistory();
-    const historyIndex = browserHistoryIndex();
-    const browserPreviousPage = historyIndex === null ? undefined : visited[String(historyIndex - 1)];
+    const browserPreviousPage = visited[String(historyIndex - 1)];
 
     if (browserPreviousPage?.path === previousPage.path) {
       window.history.back();
