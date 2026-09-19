@@ -172,6 +172,7 @@ function parseChannelFeed(xml: string, channel: Channel): TechVideo[] {
       id: `youtube:${id}`,
       videoId: id,
       platform: "YouTube",
+      embedUrl: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&playsinline=1`,
       title,
       summary,
       url: `https://www.youtube.com/watch?v=${id}`,
