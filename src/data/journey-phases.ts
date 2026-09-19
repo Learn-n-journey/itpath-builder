@@ -88,7 +88,7 @@ function overlayPhases(overlay: NonNullable<typeof domainOverlay>): JourneyPhase
   const phases: JourneyPhase[] = groups.map((group, index) => ({
     title: group.certification.title,
     stage: `Stage ${index + 1}`,
-    blurb: group.certification.description,
+    blurb: group.certification.description ?? "The sections that make up this part of the course.",
     topics: group.topics.map(asJourneyTopic),
   }));
 
