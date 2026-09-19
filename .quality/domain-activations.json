@@ -82,5 +82,17 @@
       "testsPassed": true
     },
     "note": "Activated by domain:activate with 0 warnings."
+  },
+  {
+    "at": "2026-09-19T21:52:06.371Z",
+    "key": "it-cybersecurity@1.0.0",
+    "previousKey": "auto-repair@3.4.0",
+    "action": "rollback",
+    "evidence": {
+      "blocking": 0,
+      "warnings": 0,
+      "testsPassed": true
+    },
+    "note": "Rolled back from auto-repair@3.4.0."
   }
 ]

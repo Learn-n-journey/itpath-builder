@@ -11,6 +11,7 @@ import { ACTIVE_PACKAGE } from "@/domain/registry";
 import { domainOverride } from "@/lib/active-domain";
 import { itPack } from "@/content/packs/it-pack";
 import { autoRepairPackage as autoRepair2_0_0Package } from "@/content/packs/auto-repair/2.0.0/package";
+import { autoRepairPackage as autoRepair3_4_0Package } from "@/content/packs/auto-repair/3.4.0/package";
 import { coursePackFromDomainPackage } from "@/content/packs/from-package";
 import type { CoursePack } from "@/content/pack-contract";
 
@@ -18,6 +19,7 @@ import type { CoursePack } from "@/content/pack-contract";
 const packs: Record<string, () => CoursePack> = {
   "it-cybersecurity@1.0.0": () => itPack,
   "auto-repair@2.0.0": () => coursePackFromDomainPackage(autoRepair2_0_0Package),
+  "auto-repair@3.4.0": () => coursePackFromDomainPackage(autoRepair3_4_0Package),
 };
 
 function resolveActivePack(): CoursePack {
