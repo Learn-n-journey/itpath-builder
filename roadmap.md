@@ -60,3 +60,6 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Monitor protected metrics and choose keep, wait or rollback deterministically.
 - [x] Keep append-only autonomy decisions and permanent failure memory that strengthens future prevention thresholds.
 - [x] Prove the unchanged core against IT and Auto Repair, including degradation rollback.
+
+## Open
+- Explore premium interaction feel: button press, scroll, animation (directions pending user pick)
