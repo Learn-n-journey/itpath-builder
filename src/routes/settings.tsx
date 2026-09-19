@@ -149,6 +149,7 @@ function SettingsPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
 
+        {isOwner ? (
         <Panel
           title="Subject"
           description="Choose what you are learning. The app reloads to switch courses. Your progress in each subject is kept separately."
