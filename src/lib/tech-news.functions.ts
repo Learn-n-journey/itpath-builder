@@ -65,6 +65,14 @@ const FEEDS: Feed[] = [
   { url: "https://feeds.macrumors.com/MacRumors-All", source: "MacRumors", fallback: "Mobile" },
   { url: "https://9to5google.com/feed/", source: "9to5Google", fallback: "Mobile" },
   { url: "https://www.androidauthority.com/feed/", source: "Android Authority", fallback: "Mobile" },
+  { url: "https://www.bleepingcomputer.com/feed/", source: "BleepingComputer", fallback: "Cybersecurity" },
+  { url: "https://www.csoonline.com/feed/", source: "CSO Online", fallback: "Cybersecurity" },
+  { url: "https://www.schneier.com/feed/", source: "Schneier on Security", fallback: "Cybersecurity", max: 8 },
+  { url: "https://techcrunch.com/feed/", source: "TechCrunch", fallback: "Releases" },
+  { url: "https://www.engadget.com/rss.xml", source: "Engadget", fallback: "Hardware" },
+  { url: "https://www.wired.com/feed/category/gear/latest/rss", source: "WIRED", fallback: "Hardware" },
+  { url: "https://rss.slashdot.org/Slashdot/slashdotMain", source: "Slashdot", fallback: "Programming", max: 10 },
+  { url: "https://lobste.rs/rss", source: "Lobsters", fallback: "Programming", max: 10 },
 ];
 
 const RULES: [NewsCategory, RegExp][] = [
