@@ -69,13 +69,19 @@ function VideoCard({ video, playing, onPlay }: { video: TechVideo; playing: bool
             className="group relative block h-full w-full"
             aria-label={`Play ${video.title} on ${video.platform}`}
           >
-            <img
-              src={video.thumbnail}
-              alt=""
-              loading="lazy"
-              referrerPolicy="no-referrer"
-              className="h-full w-full object-cover"
-            />
+            {video.thumbnail ? (
+              <img
+                src={video.thumbnail}
+                alt=""
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center bg-muted text-xs text-muted-foreground">
+                {video.channel}
+              </span>
+            )}
             <span className="absolute inset-0 flex items-center justify-center bg-background/20 transition group-hover:bg-background/35">
               <span className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition group-hover:scale-105">
                 <Play className="size-6 translate-x-[1px]" fill="currentColor" />
