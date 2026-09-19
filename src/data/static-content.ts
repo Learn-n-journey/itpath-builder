@@ -1,5 +1,6 @@
 /** Read-only curriculum registry. User activity is never stored here. */
 import { weeks as curriculumWeeks } from "./week-content";
+import { domainOverlay } from "@/data/domain-overlay";
 import type {
   Assignment,
   CareerSkill,
@@ -62,7 +63,7 @@ export const tracks: Track[] = [
 ];
 
 
-export const topics: Topic[] = [
+const authoredTopics: Topic[] = [
   {
     id: "topic-computer-hardware-basics",
     trackId: "track-year-1-foundations",
@@ -218,7 +219,10 @@ export const topics: Topic[] = [
   ...expansionTopics,
 ];
 
-export const lessons: Lesson[] = [
+/** The live subject's sections: the active package when one is generated, the authored ones otherwise. */
+export const topics: Topic[] = domainOverlay?.topics ?? authoredTopics;
+
+const authoredLessons: Lesson[] = [
   {
     id: "lesson-computer-hardware-basics-core",
     topicId: "topic-computer-hardware-basics",
@@ -541,6 +545,8 @@ export const lessons: Lesson[] = [
   },
   ...expansionLessons,
 ];
+
+export const lessons: Lesson[] = domainOverlay?.lessons ?? authoredLessons;
 export const resources: Resource[] = [
   {
     id: "resource-comptia-a-plus-core-1",
