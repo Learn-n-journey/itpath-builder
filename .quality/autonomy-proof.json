@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "ruleAuthority": "deterministic",
+  "aiAuthority": "none",
+  "generatedAt": "2026-09-19T03:30:00.000Z",
+  "testsPassed": true,
+  "domains": [
+    {
+      "packageKey": "auto-repair@1.0.0",
+      "baselineHealth": 0.875,
+      "degradedHealth": 0,
+      "findings": 18,
+      "candidates": 6,
+      "approvals": 6,
+      "monitoring": "rollback",
+      "rollbackCount": 1
+    },
+    {
+      "packageKey": "it-cybersecurity@1.0.0",
+      "baselineHealth": 0.8541666666666667,
+      "degradedHealth": 0,
+      "findings": 37,
+      "candidates": 16,
+      "approvals": 16,
+      "monitoring": "rollback",
+      "rollbackCount": 1
+    }
+  ]
+}
