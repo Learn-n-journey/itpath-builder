@@ -1,16 +1,11 @@
-import { domain } from "@/domain/active";
 /**
- * The course pack: the one place the subject matter enters the app.
+ * The IT and cybersecurity course pack.
  *
- * Everything under src/content is subject material. Everything else (the
- * learning engine, mastery gates, spaced review, GAYL, tutor, labs, tickets,
- * progress, community, feeds, payments, design) is subject agnostic and can be
- * reused as is.
- *
- * To build a different subject, for example auto repair, supply a new pack
- * that satisfies CoursePack and point this file at it. Nothing else in the app
- * needs to change. src/content/README.md walks through it step by step.
+ * This is one pack among however many the project holds. It satisfies the
+ * CoursePack contract and nothing outside src/content imports it directly;
+ * the engine only ever sees the active pack.
  */
+import { domain } from "@/domain/active";
 import { certificationObjectives, certifications } from "@/data/certification-content";
 import { deepLessons, getDeepLesson } from "@/data/deep-lessons";
 import { hardwareComponents } from "@/data/hardware-explorer";
@@ -34,8 +29,7 @@ import { readingSources } from "@/data/topic-reading";
 import { getSectionQuizQuestions, getTopicQuestionPool } from "@/data/topic-quizzes";
 import { workedExamples } from "@/data/worked-examples";
 
-import type { Question } from "@/lib/app-data/types";
-import type { DomainDefinition } from "@/domain/types";
+
 
 import type { CoursePack } from "@/content/pack-contract";
 
