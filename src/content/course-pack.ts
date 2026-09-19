@@ -10,14 +10,14 @@
 import { ACTIVE_PACKAGE } from "@/domain/registry";
 import { domainOverride } from "@/lib/active-domain";
 import { itPack } from "@/content/packs/it-pack";
-import { autoRepairPackage as autoRepair1_0_0Package } from "@/content/packs/auto-repair/1.0.0/package";
+import { autoRepairPackage as autoRepair2_0_0Package } from "@/content/packs/auto-repair/2.0.0/package";
 import { coursePackFromDomainPackage } from "@/content/packs/from-package";
 import type { CoursePack } from "@/content/pack-contract";
 
 /** Every subject's material, by the same key the registry uses. */
 const packs: Record<string, () => CoursePack> = {
   "it-cybersecurity@1.0.0": () => itPack,
-  "auto-repair@1.0.0": () => coursePackFromDomainPackage(autoRepair1_0_0Package),
+  "auto-repair@2.0.0": () => coursePackFromDomainPackage(autoRepair2_0_0Package),
 };
 
 function resolveActivePack(): CoursePack {
