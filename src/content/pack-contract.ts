@@ -92,6 +92,10 @@ export interface CoursePack {
   /** Proof of mastery: section quizzes, stage exams, competency checks. */
   sectionQuiz: (topicId: string, attempt?: number) => Question[];
   sectionQuestionPool: (topicId: string) => Question[];
+  /** A fresh paper for the same section, used by QA to draw and re-draw. */
+  sectionQuizDraw: (topicId: string, nonce: number) => Question[];
+  /** Everything a section teaches, gathered into one block of text, for QA. */
+  lessonText: (topicId: string) => string;
   /** The idea a question tests, stable wherever the question turns up. */
   conceptId: (question: Question) => string;
   /** The sizes every paper in this subject is held to, exactly. */
