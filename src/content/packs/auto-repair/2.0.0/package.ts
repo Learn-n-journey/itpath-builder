@@ -8481,6 +8481,60 @@ export const autoRepairPackage: DomainPackage = {
 ],
   sources: [
   {
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-diagnosis",
+    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
+    "url": "https://www.ase.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-diagnosis",
+    "label": "Motor Age Training",
+    "url": "https://www.motoragetraining.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-diagnosis",
+    "label": "ScannerDanner Automotive Diagnostics",
+    "url": "https://www.youtube.com/@ScannerDanner",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-repair",
+    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
+    "url": "https://www.ase.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-repair",
+    "label": "Motor Age Training",
+    "url": "https://www.motoragetraining.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:cylinder-head-valvetrain-repair",
+    "label": "ScannerDanner Automotive Diagnostics",
+    "url": "https://www.youtube.com/@ScannerDanner",
+    "kind": "video"
+  },
+  {
+    "sectionId": "auto-repair:section:clutch-pack-assembly-and-clearance",
+    "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
+    "url": "https://www.ase.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:clutch-pack-assembly-and-clearance",
+    "label": "Motor Age Training",
+    "url": "https://www.motoragetraining.com",
+    "kind": "reading"
+  },
+  {
+    "sectionId": "auto-repair:section:clutch-pack-assembly-and-clearance",
+    "label": "ScannerDanner Automotive Diagnostics",
+    "url": "https://www.youtube.com/@ScannerDanner",
+    "kind": "video"
+  },
+  {
     "sectionId": "auto-repair:section:engine-performance-diagnostics",
     "label": "ASE (National Institute for Automotive Service Excellence) Study Guides",
     "url": "https://www.ase.com",
