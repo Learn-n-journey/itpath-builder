@@ -65,7 +65,7 @@ export function asRuntimeQuestion(question: DomainQuestion): Question {
     correctAnswer: [question.choices[question.answerIndex] ?? ""],
     explanation: question.explanation,
     difficulty: "core",
-  } as Question;
+  } as unknown as Question;
 }
 
 /** Everything a section teaches, as one block of text. */
