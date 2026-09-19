@@ -88,6 +88,16 @@ export function auditPackage(pkg: DomainPackage): PackageAudit {
     if (!pkg.questions.some((question) => question.sectionId === section.id)) {
       note(findings, "domain.section-has-recall", `section:${section.slug}`, `${section.title} has nothing to answer.`);
     }
+    const minimumPool = pkg.assessmentSizes?.sectionQuiz ?? 1;
+    const questionCount = pkg.questions.filter((question) => question.sectionId === section.id).length;
+    if (questionCount < minimumPool) {
+      note(
+        findings,
+        "papers.section-quiz-whole",
+        `section:${section.slug}`,
+        `${section.title} has ${questionCount} approved questions; at least ${minimumPool} are required to draw a complete quiz.`,
+      );
+    }
     if (!pkg.sources.some((source) => source.sectionId === section.id)) {
       note(findings, "domain.section-has-sources", `section:${section.slug}`, `${section.title} cites no outside source.`);
     }
