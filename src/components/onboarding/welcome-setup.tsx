@@ -76,7 +76,7 @@ export function WelcomeSetup() {
           Quick setup
         </p>
         <h2 className="mt-1 font-display text-lg font-semibold tracking-tight">
-          Three things and you're ready
+          Just a few things and you're ready to start
         </h2>
       </div>
 
@@ -175,7 +175,7 @@ export function WelcomeSetup() {
             </Select>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Your target shapes Learn, Practice, Labs and your study plan. You can change it any time below.
+            Your goal shapes what we put in front of you — lessons, practice and your study plan. You can change your mind any time.
           </p>
         </div>
 
