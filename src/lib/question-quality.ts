@@ -217,7 +217,7 @@ export function questionIssues(question: Question): string[] {
     issues.push("the number of correct answers does not match the question type");
   }
   if (answers.length >= choices.length) issues.push("every option is marked correct");
-  if (answers.some((answer) => answer.length >= 4 && norm(prompt).includes(norm(answer)))) {
+  if (answers.some((answer) => answer.length >= 4 && new RegExp(`\\b${norm(answer).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(norm(prompt)))) {
     issues.push("the prompt reveals the correct answer verbatim");
   }
 
