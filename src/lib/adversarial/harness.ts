@@ -69,7 +69,7 @@ export function measureCoverage(pkg: DomainPackage, list: Injection[] = injectio
   const detected = outcomes.filter((outcome) => outcome.detected).length;
   return {
     startedAt: new Date().toISOString(),
-    packageKey: `${pkg.manifest.domainId}@${pkg.manifest.version}`,
+    packageKey: `${pkg.manifest.id}@${pkg.manifest.version}`,
     total: outcomes.length,
     detected,
     missed: outcomes.length - detected,
@@ -85,8 +85,8 @@ export function measureCoverage(pkg: DomainPackage, list: Injection[] = injectio
 function candidateFor(pkg: DomainPackage, injectionId: string): ImprovementCandidate {
   return {
     id: `adversarial:${injectionId}`,
-    domainId: pkg.manifest.domainId,
-    packageKey: `${pkg.manifest.domainId}@${pkg.manifest.version}`,
+    domainId: pkg.manifest.id,
+    packageKey: `${pkg.manifest.id}@${pkg.manifest.version}`,
     parentVersion: pkg.manifest.version,
     candidateVersion: `${pkg.manifest.version}+stress`,
     findingIds: [],

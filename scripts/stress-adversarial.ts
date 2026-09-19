@@ -20,19 +20,19 @@ for (const key of registeredKeys()) {
   for (const line of summariseCoverage(coverage)) console.log(line);
 
   const loops = runLoops(pkg);
-  const approvedDamage = loops.filter((loop) => loop.decisionBeforeCorrection === "approve" && loop.detectedBeforeCorrection);
-  const rejectedRepair = loops.filter((loop) => loop.decisionAfterCorrection === "reject");
+  const undetected = loops.filter((loop) => !loop.detectedBeforeCorrection);
+  const dirtyAfterRepair = loops.filter((loop) => !loop.cleanAfterCorrection);
   console.log(
     `  loop: ${loops.length} walks, ${loops.filter((l) => l.decisionBeforeCorrection === "reject").length} damaged packages rejected, ` +
       `${loops.filter((l) => l.decisionAfterCorrection === "approve").length} repaired packages approved.`,
   );
-  if (approvedDamage.length > 0) {
+  if (undetected.length > 0) {
     failed = true;
-    console.log(`  FAIL: damage approved for ${approvedDamage.map((l) => l.injectionId).join(", ")}`);
+    console.log(`  FAIL: defect slipped past QA: ${undetected.map((l) => l.injectionId).join(", ")}`);
   }
-  if (rejectedRepair.length > 0 && coverage.packageKey.startsWith("it-")) {
+  if (dirtyAfterRepair.length > 0) {
     failed = true;
-    console.log(`  FAIL: repaired package rejected for ${rejectedRepair.map((l) => l.injectionId).join(", ")}`);
+    console.log(`  FAIL: correction left damage behind: ${dirtyAfterRepair.map((l) => l.injectionId).join(", ")}`);
   }
   if (coverage.missed > 0) failed = true;
   reports.push({ coverage, loops });

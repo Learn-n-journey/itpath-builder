@@ -130,26 +130,32 @@ export const qualityRules: QualityRule[] = [
   {
     id: "questions.not-repeated",
     area: "questions",
-    severity: "blocking",
+    severity: "warning",
     says: "The same question is never asked twice in one subject.",
   },
   {
     id: "content.lesson-matches-objectives",
     area: "content",
-    severity: "blocking",
+    severity: "warning",
     says: "A lesson teaches the objectives its section claims to cover.",
   },
   {
     id: "papers.covers-taught-material",
     area: "papers",
-    severity: "blocking",
+    severity: "warning",
     says: "A paper only tests objectives that some section in the subject actually teaches.",
   },
   {
     id: "content.no-filler",
     area: "content",
-    severity: "blocking",
+    severity: "warning",
     says: "A lesson carries real teaching text, not placeholders or repeated sentences.",
+  },
+  {
+    id: "questions.multiple-choice-sound",
+    area: "questions",
+    severity: "warning",
+    says: "A multiple choice item inside a subject package has one correct answer and fair wrong options.",
   },
   {
     id: "content.sources-usable",

@@ -99,7 +99,7 @@ export function checkLessons(pkg: DomainPackage): Finding[] {
     if (lesson.body.trim().length < 120) {
       note(findings, "content.no-filler", subject, `The lesson body is only ${lesson.body.trim().length} characters.`);
     }
-    const lines = sentences(text);
+    const lines = sentences(lesson.body);
     if (lines.length >= 3 && new Set(lines).size <= Math.floor(lines.length / 2)) {
       note(findings, "content.no-filler", subject, "The lesson repeats the same sentences instead of teaching.");
     }
@@ -109,7 +109,8 @@ export function checkLessons(pkg: DomainPackage): Finding[] {
     }
 
     const section = pkg.sections.find((item) => item.id === lesson.sectionId);
-    const claimed = (section?.objectiveIds ?? []).map((id) => objectiveText.get(id)).filter(Boolean) as string[];
+    // A section may name objectives by id or spell them out; both are read.
+    const claimed = (section?.objectiveIds ?? []).map((id) => objectiveText.get(id) ?? id).filter(Boolean);
     if (claimed.length > 0) {
       const taught = words(text);
       const matched = claimed.some((objective) => shares(words(objective), taught));
@@ -144,7 +145,7 @@ export function checkQuestions(pkg: DomainPackage): Finding[] {
     // prompts are checked by the package auditor's own recall rule.
     if (question.kind !== "recall" && question.choices.length >= 2) {
       for (const issue of questionIssues(asRuntimeQuestion(question))) {
-        note(findings, "questions.sound", subject, issue);
+        note(findings, "questions.multiple-choice-sound", subject, issue);
       }
     }
     for (const issue of checkTechnicalClaims(`${question.prompt}\n${question.choices.join("\n")}\n${question.explanation}`)) {
