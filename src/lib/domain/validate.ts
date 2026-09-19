@@ -139,7 +139,7 @@ export function auditDomainDraft(draft: DomainDraft): DraftAudit {
     }
 
     for (const issue of checkTechnicalClaims(text)) {
-      note(findings, "content.lesson-numbers-hold-up", id, issue.detail);
+      note(findings, "content.lesson-numbers-hold-up", id, `${issue.problem} (${issue.claim})`);
     }
 
     if (seed.recall.length < 2) {
@@ -157,7 +157,7 @@ export function auditDomainDraft(draft: DomainDraft): DraftAudit {
       note(findings, "questions.sound", `${id}#practice`, issue);
     }
     for (const issue of checkTechnicalClaims(`${question.prompt}\n${question.explanation ?? ""}`)) {
-      note(findings, "questions.numbers-hold-up", `${id}#practice`, issue.detail);
+      note(findings, "questions.numbers-hold-up", `${id}#practice`, `${issue.problem} (${issue.claim})`);
     }
     if (!seed.practice.explanation || seed.practice.explanation.length < 20) {
       note(findings, "questions.explained", `${id}#practice`, "The practice answer is not explained.");
