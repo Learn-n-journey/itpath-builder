@@ -155,7 +155,7 @@ function TodayChip({
     <Link
       to={to}
       {...(params ? { params: params as never } : {})}
-      className="motion-surface flex min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-md border border-border bg-card px-3.5 py-2.5 transition-colors hover:border-primary/50"
+      className="motion-surface pressable flex min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-md border border-border bg-card px-3.5 py-2.5 transition-colors hover:border-primary/50"
     >
       <Icon className="size-4 shrink-0 text-primary" aria-hidden />
       <span className="min-w-0">

@@ -88,7 +88,7 @@ export function NextActionCard({
               <li key={action.id} className="group relative">
                 <ActionLink
                   action={action}
-                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-secondary"
+                  className="pressable grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-secondary"
                 >
                   <span className="min-w-0">
                     <span className="block truncate">{action.label}</span>
