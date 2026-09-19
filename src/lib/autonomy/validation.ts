@@ -3,16 +3,8 @@ import { auditPackage } from "@/lib/domain/package-audit";
 import type { ImprovementCandidate, PromotionDecision, ValidationEvidence } from "./types";
 import { AUTONOMY_RULES } from "./rules";
 import { stableId } from "./health";
-
-export interface ExactSizeResult { passed: boolean; failures: Array<{ assessmentId: string; expected: number; actual: number }> }
-
-/** Every assessment blueprint must exactly match the package's declared paper size. */
-export function validateExactAssessmentSizes(pkg: DomainPackage): ExactSizeResult {
-  const expected = pkg.assessmentSizes?.stageExam;
-  if (!expected) return { passed: false, failures: pkg.assessments.map((item) => ({ assessmentId: item.id, expected: 0, actual: item.questionCount })) };
-  const failures = pkg.assessments.filter((assessment) => assessment.questionCount !== expected).map((assessment) => ({ assessmentId: assessment.id, expected, actual: assessment.questionCount }));
-  return { passed: failures.length === 0, failures };
-}
+import { validateExactAssessmentSizes } from "./assessment-size";
+export { validateExactAssessmentSizes } from "./assessment-size";
 
 export function validateCandidate(pkg: DomainPackage, regressionPassed: boolean): ValidationEvidence {
   const audit = auditPackage(pkg);
