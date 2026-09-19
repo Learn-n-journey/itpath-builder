@@ -8,6 +8,7 @@
  * and are adapted to the same contract. See src/content/README.md.
  */
 import { ACTIVE_PACKAGE } from "@/domain/registry";
+import { domainOverride } from "@/lib/active-domain";
 import { itPack } from "@/content/packs/it-pack";
 import { autoRepairPackage as autoRepair1_0_0Package } from "@/content/packs/auto-repair/1.0.0/package";
 import { coursePackFromDomainPackage } from "@/content/packs/from-package";
