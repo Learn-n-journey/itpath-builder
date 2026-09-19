@@ -70,6 +70,38 @@ function question(part: Partial<Question> & Pick<Question, "id" | "topicId" | "p
 
 const certOf = (topicId: string) => topics.find((item) => item.id === topicId)?.certificationId ?? "";
 
+/**
+ * Cross-section ownership, in curriculum order. Two sections sometimes teach
+ * the same term or repeat the same line; the first section keeps the questions
+ * about it and later sections skip them, so the same question is never asked
+ * twice anywhere in the program.
+ */
+const termOwner = new Map<string, string>();
+const misconceptionOwner = new Map<string, string>();
+for (const entry of lessons) {
+  for (const term of entry.keyTerms ?? []) {
+    const key = term.term.toLowerCase();
+    if (!termOwner.has(key)) termOwner.set(key, entry.topicId);
+  }
+  for (const line of entry.commonMisconceptions ?? []) {
+    const key = tidy(line).toLowerCase();
+    if (!misconceptionOwner.has(key)) misconceptionOwner.set(key, entry.topicId);
+  }
+}
+const moduleLineOwners = new Map<string, Map<string, string>>();
+for (const item of learningModules) {
+  for (const field of ["howItWorks", "whereYouSeeIt", "howItFails", "practicalKnowledge"] as const) {
+    let map = moduleLineOwners.get(field);
+    if (!map) moduleLineOwners.set(field, (map = new Map()));
+    for (const line of item[field]) {
+      const key = tidy(line).toLowerCase();
+      if (!map.has(key)) map.set(key, item.topicId);
+    }
+  }
+}
+const ownsModuleLine = (field: string, line: string, topicId: string): boolean =>
+  moduleLineOwners.get(field)?.get(tidy(line).toLowerCase()) === topicId;
+
 /** Statements pulled from other sections in the same subject area, used as wrong options. */
 function otherStatements(topicId: string, field: keyof ReturnType<typeof moduleFields>): string[] {
   const cert = certOf(topicId);
