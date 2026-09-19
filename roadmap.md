@@ -82,3 +82,6 @@ Done when: typecheck + build clean, features verified in browser.
 
 - [x] Enforce answer-format alignment: every correct and wrong choice must answer the exact kind of question asked; remove all violations from active course banks.
 - [x] Broaden deterministic quality enforcement for questions and lessons; reject weak, incoherent, unsupported, repetitive, or unteachable material before publication.
+- [x] Remove confusing quiz wording and reject prompts that frame questions around a section or section title.
+- [ ] Enforce comprehensive lesson and assessment rejection for factual, contextual, alignment, prerequisite, source, uniqueness, completeness, and instructional-value defects.
+- [ ] Make every quality finding blocking and require rewriting/regeneration when a quiz pool is too thin; use AI only as a writer, never its own approver.

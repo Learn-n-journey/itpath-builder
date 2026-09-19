@@ -18,6 +18,13 @@ const BROKEN_PROMPT_PATTERNS: RegExp[] = [
   /describe what you would see/i,
   // The exact no-context step wording this rule book retired for good.
   /you have just done this/i,
+  /after working through/i,
+  /a colleague uses the term/i,
+  /you have to act on what they mean/i,
+  /which reading of it is correct/i,
+  /\{(?:section|topic)\}/i,
+  /^in\s+[A-Z][^:?,]{2,100}:/i,
+  /^in\s+[A-Z][^:?,]{2,100},\s*which\b/i,
   /^\s*$/,
 ];
 
@@ -37,7 +44,13 @@ const GENERIC_PROMPT_PATTERNS: RegExp[] = [
   /what is the (main |primary )?(purpose|definition|meaning) of/i,
   /what does .{0,40} stand for/i,
   /which term matches (?:this|the) description/i,
+  /which term is being described/i,
   /which (?:answer|option|choice) is correct/i,
+  /which of these should you be able to do/i,
+  /which of these does the exam expect you to know/i,
+  /which of these is a way the exam tries to catch you out/i,
+  /what .{2,80} actually covers before you start/i,
+  /why does .{2,80} matter in day to day work/i,
 ];
 
 const TRICK_PROMPT = /\b(?:which|what) .{0,90}\b(?:not|except|least likely)\b|\ball except\b/i;
@@ -222,8 +235,12 @@ export function questionIssues(question: Question): string[] {
   }
 
   const explanation = question.explanation?.trim() ?? "";
+  if (!explanation) issues.push("no explanation records why the answer is correct");
   if (explanation && answers.some((answer) => norm(explanation) === norm(answer))) {
     issues.push("the explanation only repeats the answer without teaching why");
+  }
+  if (explanation && norm(explanation) === norm(prompt)) {
+    issues.push("the explanation repeats the question instead of teaching why");
   }
 
   issues.push(...answerFormatIssues(question));

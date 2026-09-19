@@ -64,7 +64,7 @@ export const qualityRules: QualityRule[] = [
   {
     id: "questions.explained",
     area: "questions",
-    severity: "warning",
+    severity: "blocking",
     says: "A question tells the learner why the answer is the answer.",
   },
   {
@@ -124,7 +124,7 @@ export const qualityRules: QualityRule[] = [
   {
     id: "domain.section-has-sources",
     area: "content",
-    severity: "warning",
+    severity: "blocking",
     says: "Every section points at outside material that can be checked.",
   },
   {
@@ -136,25 +136,25 @@ export const qualityRules: QualityRule[] = [
   {
     id: "questions.not-repeated",
     area: "questions",
-    severity: "warning",
+    severity: "blocking",
     says: "The same question is never asked twice in one subject.",
   },
   {
     id: "content.lesson-matches-objectives",
     area: "content",
-    severity: "warning",
+    severity: "blocking",
     says: "A lesson teaches the objectives its section claims to cover.",
   },
   {
     id: "papers.covers-taught-material",
     area: "papers",
-    severity: "warning",
+    severity: "blocking",
     says: "A paper only tests objectives that some section in the subject actually teaches.",
   },
   {
     id: "content.no-filler",
     area: "content",
-    severity: "warning",
+    severity: "blocking",
     says: "A lesson carries real teaching text, not placeholders or repeated sentences.",
   },
   {
@@ -166,7 +166,7 @@ export const qualityRules: QualityRule[] = [
   {
     id: "questions.multiple-choice-sound",
     area: "questions",
-    severity: "warning",
+    severity: "blocking",
     says: "A multiple choice item inside a subject package has one correct answer and fair wrong options.",
   },
   {

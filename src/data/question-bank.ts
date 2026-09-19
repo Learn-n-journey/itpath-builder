@@ -126,7 +126,8 @@ function build(): Question[] {
         );
       });
 
-    // Key terms become terminology multiple choice.
+    // Terms are tested through a concrete requirement, not by asking learners
+    // to match a dictionary definition or recognise a lesson heading.
     const lesson = lessons.find((item) => item.topicId === topic.id);
     lesson?.keyTerms.slice(0, 6).forEach((term, index) => {
       const wrong = distractorTerms(topic.id, term.term, 3, index * 3 + 1);
@@ -136,7 +137,7 @@ function build(): Question[] {
           `question-gen-term-${topic.id}-${index + 1}`,
           topic.id,
           cert,
-          `Which term matches this description? "${term.meaning}"`,
+          `A task has this requirement: ${term.meaning} Which item should be selected?`,
           [term.term, ...wrong],
           [term.term],
           `${term.term}: ${term.meaning}`,

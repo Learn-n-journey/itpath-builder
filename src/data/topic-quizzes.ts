@@ -76,13 +76,8 @@ const certOf = (topicId: string) => topics.find((item) => item.id === topicId)?.
  * about it and later sections skip them, so the same question is never asked
  * twice anywhere in the program.
  */
-const termOwner = new Map<string, string>();
 const misconceptionOwner = new Map<string, string>();
 for (const entry of lessons) {
-  for (const term of entry.keyTerms ?? []) {
-    const key = term.term.toLowerCase();
-    if (!termOwner.has(key)) termOwner.set(key, entry.topicId);
-  }
   for (const line of entry.commonMisconceptions ?? []) {
     const key = tidy(line).toLowerCase();
     if (!misconceptionOwner.has(key)) misconceptionOwner.set(key, entry.topicId);
@@ -104,15 +99,14 @@ const ownsModuleLine = (field: string, line: string, topicId: string): boolean =
 
 /**
  * Prompt ownership. Different lines can still produce the same wording when
- * they turn on the same term ("Which of these statements about RAID is
- * correct?"). The first section to ask it keeps that wording; later sections
- * ask about the section by name instead, so no two questions read alike.
+ * they turn on the same term. The first section keeps that idea; later
+ * duplicates are dropped rather than being reframed around a section title.
  */
 const promptOwner = new Map<string, string>();
 const claimPrompt = (topicId: string, kind: string, line: string): void => {
-  const topic = topics.find((item) => item.id === topicId);
-  const subject = subjectFor(topicId, tidy(line), topic?.title ?? "").toLowerCase();
-  const key = `${kind}:${subject}`;
+  const subject = subjectFor(topicId, tidy(line));
+  if (!subject) return;
+  const key = `${kind}:${subject.toLowerCase()}`;
   if (!promptOwner.has(key)) promptOwner.set(key, topicId);
 };
 for (const entry of lessons) {
@@ -272,9 +266,10 @@ function withAnswerPlaced(correct: string, wrong: string[], index: number): stri
 /**
  * What the question should actually name. A statement usually turns on one of
  * the section's key terms, and asking about that term reads like a real
- * question. Only when nothing matches do we fall back to the section name.
+ * question. When nothing matches, the statement is not suitable for an
+ * automatically generated question and is dropped.
  */
-function subjectFor(topicId: string, line: string, topicTitle: string): string {
+function subjectFor(topicId: string, line: string): string | null {
   const lesson = lessons.find((item) => item.topicId === topicId);
   const lower = line.toLowerCase();
   const term = (lesson?.keyTerms ?? [])
@@ -282,7 +277,7 @@ function subjectFor(topicId: string, line: string, topicTitle: string): string {
     .filter((entry) => entry.length >= 3)
     .sort((a, b) => b.length - a.length)
     .find((entry) => lower.includes(entry.toLowerCase()));
-  if (!term) return topicTitle.toLowerCase();
+  if (!term) return null;
   // Acronyms read better with an article: "how the CPU works", not "how CPU works".
   return /^[A-Z0-9.\- ]+$/.test(term) ? `the ${term}` : term;
 }
@@ -296,7 +291,7 @@ let currentMisbeliefs: string[] = [];
 
 function statementItem(
   topicId: string,
-  topicTitle: string,
+  _topicTitle: string,
   kind: string,
   prompt: string,
   correct: string,
@@ -308,11 +303,12 @@ function statementItem(
 ): PoolItem | null {
   const answer = tidy(correct);
   if (answer.length < 25 || answer.length > 200) return null;
-  const subject = subjectFor(topicId, answer, topicTitle);
-  // Another section already asks about this subject in this style; ask about
-  // the section by name instead so the wording is never repeated.
+  const subject = subjectFor(topicId, answer);
+  if (!subject) return null;
+  // Another section already asks about this subject in this style. Drop the
+  // duplicate instead of mentioning a curriculum section in the prompt.
   const claimedBy = promptOwner.get(`${kind}:${subject.toLowerCase()}`);
-  const askedAbout = claimedBy && claimedBy !== topicId ? topicTitle : subject;
+  if (claimedBy && claimedBy !== topicId) return null;
   // Some styles ask what is true in general, so a wrong option that shades into
   // the answer could be defended as correct. Those are held further apart.
   const openEnded = new Set([
@@ -343,7 +339,7 @@ function statementItem(
     question: question({
       id: `section-${topicId}-${kind}-${index}`,
       topicId,
-      prompt: prompt.replace("{topic}", askedAbout).replace("{section}", topicTitle),
+      prompt: prompt.replace("{topic}", subject),
       choices: withAnswerPlaced(answer, wrong, index + 1),
       correctAnswer: [answer],
       acceptableAnswers: [answer],
@@ -371,9 +367,6 @@ function buildPool(topicId: string): PoolItem[] {
     }
   }
 
-  // Terms taught in this same section make the closest wrong options.
-  const ownTerms = new Set((lesson?.keyTerms ?? []).map((entry) => entry.term.toLowerCase()));
-
   // The things people actually get wrong about this section. Used as wrong
   // options first, so a wrong choice is a real misunderstanding rather than
   // an unrelated statement that nobody would pick.
@@ -382,8 +375,6 @@ function buildPool(topicId: string): PoolItem[] {
     .filter((line) => line.length >= 25 && line.length <= 200);
 
   lesson?.keyTerms.forEach((term, index) => {
-    // A term an earlier section introduced already has its questions there.
-    if (termOwner.get(term.term.toLowerCase()) !== topicId) return;
     const correct = shortMeaning(term.meaning);
     const meaningOptions = pickThree(
       meaningPool.filter((entry) => entry.term !== term.term).map((entry) => entry.meaning),
@@ -398,7 +389,7 @@ function buildPool(topicId: string): PoolItem[] {
         question: question({
           id: `section-${topicId}-term-${index}`,
           topicId,
-          prompt: `A colleague uses the term ${term.term} on a job and you have to act on what they mean. Which reading of it is correct here?`,
+          prompt: `A task requires ${correct.replace(/^A\s+/i, "a ").replace(/\.$/, "")}. Which item should be selected?`,
           choices: withAnswerPlaced(correct, meaningOptions, index),
           correctAnswer: [correct],
           acceptableAnswers: [correct],
@@ -409,25 +400,19 @@ function buildPool(topicId: string): PoolItem[] {
     }
 
     const description = shortMeaning(term.meaning);
-    // A term named in the description could fairly be the answer, so leave it out.
     const nameCandidates = meaningPool
       .map((entry) => entry.term)
       .filter((entry) => entry.toLowerCase() !== term.term.toLowerCase())
       .filter((entry) => !description.toLowerCase().includes(entry.toLowerCase()));
-    const sameSection = nameCandidates.filter((entry) => ownTerms.has(entry.toLowerCase()));
-    const nameOptions = pickThree(
-      sameSection.length >= 3 ? sameSection : nameCandidates,
-      term.term,
-      index * 2 + 3,
-    );
+    const nameOptions = pickThree(nameCandidates, term.term, index * 2 + 3);
     if (nameOptions) {
       items.push({
-        kind: "term-name",
+        kind: "term-in-context",
         sourceKey: `term:${term.term.toLowerCase()}`,
         question: question({
           id: `section-${topicId}-name-${index}`,
           topicId,
-          prompt: `Which term is being described? ${description}`,
+          prompt: `A task has this requirement: ${description} Which item should be selected?`,
           choices: withAnswerPlaced(term.term, nameOptions, index + 2),
           correctAnswer: [term.term],
           acceptableAnswers: [term.term],
@@ -584,7 +569,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "real-example",
-        `You want to show a new starter {section} being used on a real job rather than in theory. Which situation is genuinely that?`,
+        `Which work situation requires {topic}?`,
         line,
         lessons
           .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -601,7 +586,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "definition",
-      `A colleague asks what {section} actually covers before you start a job together. Which account is accurate?`,
+      `Which description accurately explains {topic}?`,
       definition,
       lessons
         .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -616,7 +601,7 @@ function buildPool(topicId: string): PoolItem[] {
       topicId,
       title,
       "why-it-matters",
-      `Why does {section} matter in day to day work?`,
+      `Which practical outcome shows why {topic} matters?`,
       matters,
       lessons
         .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -635,7 +620,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "exam-point",
-        `Which of these does the exam expect you to know about {section}?`,
+        `Which technical statement about {topic} is accurate?`,
         line,
         learningModules
           .filter((other) => other.topicId !== topicId && certOf(other.topicId) === cert)
@@ -647,23 +632,6 @@ function buildPool(topicId: string): PoolItem[] {
     });
   }
 
-  topic?.learningObjectives.forEach((line, index) => {
-    const item = statementItem(
-      topicId,
-      title,
-      "objective",
-      `Which of these should you be able to do after working through {section}?`,
-      line,
-      topics
-        .filter((other) => other.id !== topicId && other.certificationId === cert)
-        .flatMap((other) => other.learningObjectives.map(tidy)),
-      index,
-      `An objective of this section: ${tidy(line)}`,
-      "procedure",
-    );
-    if (item) items.push(item);
-  });
-
   // The depth layer: key ideas, exam traps, corrections, reference rows and
   // the short self-checks, all authored per topic.
   const depth = getDeepLesson(topicId)?.depth;
@@ -674,19 +642,8 @@ function buildPool(topicId: string): PoolItem[] {
     // Key-idea recognition items used to ask learners to identify a sentence
     // copied from the section among unrelated statements. They did not require
     // evidence or application, so they are intentionally not quiz material.
-    depth.examTraps.forEach((line, index) => {
-      const item = statementItem(
-        topicId,
-        title,
-        "exam-trap",
-        `Which of these is a way the exam tries to catch you out on {section}?`,
-        shortMeaning(line),
-        otherDepths.flatMap((other) => (other.depth?.examTraps ?? []).map((row) => shortMeaning(row))),
-        index,
-        `Watch for this: ${tidy(line)}`,
-      );
-      if (item) items.push(item);
-    });
+    // Exam-trap prose often states the misconception itself. It remains lesson
+    // guidance, but is never converted into a correct quiz answer.
     depth.misconceptions.forEach((row, index) => {
       const item = statementItem(
         topicId,
@@ -707,7 +664,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "reference",
-        `In {section}, which of these describes ${tidy(row.term)}?`,
+        `A task involves ${tidy(row.term)}. Which detail should guide the technician's decision?`,
         shortMeaning(row.detail),
         otherDepths.flatMap((other) =>
           (other.depth?.reference.rows ?? []).map((entry) => shortMeaning(entry.detail)),
@@ -723,8 +680,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "self-check",
-        // The section name keeps a short check question anchored to its material.
-        `In {section}: ${tidy(row.question)}`,
+        tidy(row.question),
         shortMeaning(row.answer),
         // Answers from the same section come first, so the wrong options stay on
         // the subject the question is actually about.
@@ -754,7 +710,7 @@ function buildPool(topicId: string): PoolItem[] {
         topicId,
         title,
         "walkthrough",
-        `A scenario from this section: ${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}. At the "${tidy(step.label)}" step, what are you actually doing?`,
+        `${tidy(depth.walkthrough.scenario).replace(/\.$/, "")}. At the "${tidy(step.label)}" step, what are you actually doing?`,
         shortMeaning(step.detail),
         sameScenario,
         index,

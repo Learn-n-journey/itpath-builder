@@ -248,6 +248,8 @@ export async function generateQuestionBank(
             : "",
           `Write ${ask} more multiple-choice questions on this section only.`,
           "Never ask a question that restates the section title, tests only whether a word is recognised, or can be answered without studying this material. Each one makes the learner apply, distinguish, diagnose or reason from evidence given in the question.",
+          "Never mention the section name, lesson, module, course, learning objective or what the exam expects in a question. State the actual technical or practical situation instead.",
+          "Use direct, natural wording. Do not invent a colleague, new starter or customer merely to ask for a definition.",
           "No wrong option may be an absolute claim ('always', 'never', 'all'), an obviously false statement or an answer from an unrelated subject. Each wrong option is a mistake a real beginner makes here.",
           "Every option must answer the exact kind of question asked and use the same response form as the correct answer. If the question asks what to do, all four options must be actions. If it asks why, all four must be explanations. Never mix actions, causes, definitions, locations, measurements or factual claims in one choice list.",
           "Every question states its own situation in full: the symptom, the reading or the setting it is about. A question that says 'what next' without describing the problem is rejected.",

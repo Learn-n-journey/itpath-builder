@@ -201,5 +201,46 @@
       "content.lesson-instructionally-sound": 45
     },
     "testsPassed": false
+  },
+  {
+    "at": "2026-09-19T22:48:11.663Z",
+    "passed": false,
+    "blocking": 0,
+    "warnings": 0,
+    "scope": {
+      "topics": 128,
+      "papers": 264,
+      "questions": 4678
+    },
+    "byRule": {},
+    "testsPassed": false
+  },
+  {
+    "at": "2026-09-19T22:51:24.396Z",
+    "passed": true,
+    "blocking": 0,
+    "warnings": 0,
+    "scope": {
+      "topics": 128,
+      "papers": 264,
+      "questions": 4606
+    },
+    "byRule": {},
+    "testsPassed": true
+  },
+  {
+    "at": "2026-09-19T22:57:51.917Z",
+    "passed": false,
+    "blocking": 20,
+    "warnings": 0,
+    "scope": {
+      "topics": 128,
+      "papers": 396,
+      "questions": 6909
+    },
+    "byRule": {
+      "questions.numbers-hold-up": 20
+    },
+    "testsPassed": false
   }
 ]

@@ -42,7 +42,7 @@ function auditQuestion(findings: Finding[], question: Question): void {
                       issue.includes("explanation question");
     note(findings, isSemantic ? "questions.semantic-consistency" : "questions.sound", subject, issue);
   }
-  const text = `${question.prompt} ${question.correctAnswer.join(" ")} ${question.explanation ?? ""}`;
+  const text = `${question.prompt} ${(question.choices ?? []).join(" ")} ${question.correctAnswer.join(" ")} ${question.explanation ?? ""}`;
   for (const issue of checkTechnicalClaims(text)) {
     note(findings, "questions.numbers-hold-up", subject, `${issue.claim.trim()} -> ${issue.problem}`);
   }
@@ -97,6 +97,12 @@ export function auditCoursePack(pack: CoursePack, options: AuditOptions = {}): A
     }
 
     const available = pack.sectionQuestionPool(topic.id).length;
+    for (const question of pack.sectionQuestionPool(topic.id)) {
+      if (question.topicId !== topic.id) {
+        note(findings, "papers.section-quiz-whole", `question:${question.id}`, "Question is stored in another section's pool.");
+      }
+      auditQuestion(findings, question);
+    }
     if (available === 0) continue;
 
     for (let draw = 0; draw < papersEach; draw += 1) {

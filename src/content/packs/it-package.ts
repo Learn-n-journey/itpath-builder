@@ -91,10 +91,14 @@ export function buildItPackage(): DomainPackage {
     })),
   );
 
+  const seenPrompts = new Set<string>();
   const questions: DomainQuestion[] = staticContent.topics.flatMap((topic) =>
-    getTopicQuestionPool(topic.id).map((question) => {
+    getTopicQuestionPool(topic.id).flatMap((question) => {
+      const promptKey = question.prompt.trim().toLowerCase().replace(/\s+/g, " ");
+      if (seenPrompts.has(promptKey)) return [];
+      seenPrompts.add(promptKey);
       const choices = question.choices ?? [];
-      return {
+      return [{
         id: domainId(D, "question", question.id),
         sectionId: domainId(D, "section", topic.id),
         kind: "practice" as const,
@@ -102,21 +106,25 @@ export function buildItPackage(): DomainPackage {
         choices,
         answerIndex: Math.max(0, choices.indexOf(question.correctAnswer?.[0] ?? "")),
         explanation: question.explanation ?? "",
-      };
+      }];
     }),
   );
 
-  const assessments: DomainAssessment[] = stageExams.map((exam) => ({
-    id: domainId(D, "assessment", exam.id),
-    // A stage paper closes a band of the journey, which can span certifications.
-    coversQualificationIds: certifications
+  const assessments: DomainAssessment[] = stageExams.map((exam) => {
+    const coversQualificationIds = certifications
       .filter((cert) => (cert.months ?? []).some((month) => month >= exam.from && month <= exam.to))
-      .map((cert) => cert.id),
-    title: exam.title,
-    questionCount: STAGE_EXAM_SIZE,
-    passPercent: 80,
-    objectiveIds: [],
-  }));
+      .map((cert) => cert.id);
+    return {
+      id: domainId(D, "assessment", exam.id),
+      coversQualificationIds,
+      title: exam.title,
+      questionCount: STAGE_EXAM_SIZE,
+      passPercent: 80,
+      objectiveIds: certificationObjectives
+        .filter((objective) => coversQualificationIds.includes(objective.certificationId))
+        .map((objective) => objective.id),
+    };
+  });
 
   const sources: DomainSource[] = [
     ...Object.entries(messerTopicVideos).flatMap(([topicId, videos]) =>
