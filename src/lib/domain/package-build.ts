@@ -94,14 +94,20 @@ export function buildPackageFromDraft(draft: DomainDraft, options: BuildOptions)
     return [practice, ...recall];
   });
 
+  // Papers are sized by what the subject actually holds, and the size is
+  // declared once so QA can hold every paper to it exactly.
+  const perQualification = draft.qualifications.map(
+    (qualification) => draft.seeds.filter((seed) => seed.cert === qualification.id).length,
+  );
+  const smallestTrack = perQualification.length ? Math.min(...perQualification) : draft.seeds.length;
+  const sectionQuizSize = 10;
+  const stageExamSize = Math.max(10, Math.min(50, smallestTrack * 2));
+
   const assessments: DomainAssessment[] = draft.qualifications.map((qualification) => ({
     id: domainId(D, "assessment", qualification.id),
     coversQualificationIds: [qualification.id],
     title: `${qualification.title} exam`,
-    questionCount: Math.min(
-      50,
-      Math.max(10, draft.seeds.filter((seed) => seed.cert === qualification.id).length * 2),
-    ),
+    questionCount: stageExamSize,
     passPercent: 80,
     objectiveIds: qualification.objectives.map((objective) => objective.id),
   }));
@@ -127,6 +133,7 @@ export function buildPackageFromDraft(draft: DomainDraft, options: BuildOptions)
     assessments,
     sources,
     rules: [],
+    assessmentSizes: { sectionQuiz: sectionQuizSize, stageExam: stageExamSize },
   };
 
   const manifest = {

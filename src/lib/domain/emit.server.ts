@@ -78,6 +78,7 @@ export function emitPackage(pkg: DomainPackage, root = "src/content/packs"): Emi
             "rules",
           ] as const
         ).map((part) => `  ${part}: ${json(pkg[part])},`),
+        ...(pkg.assessmentSizes ? [`  assessmentSizes: ${json(pkg.assessmentSizes)},`] : []),
         "};",
         "",
       ].join("\n"),
