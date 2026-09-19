@@ -62,4 +62,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Prove the unchanged core against IT and Auto Repair, including degradation rollback.
 
 ## Open
-- Explore premium interaction feel: button press, scroll, animation (directions pending user pick)
+- [x] Premium tactile feel applied app-wide (pressable physics, smooth scroll)
