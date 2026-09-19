@@ -230,12 +230,7 @@ function TechVideosPage() {
           </p>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {shownChannels.map((channel) => (
-              <ChannelCard
-                key={channel.id}
-                channel={channel}
-                playing={playing === channel.id}
-                onPlay={() => setPlaying(channel.id)}
-              />
+              <ChannelCard key={channel.id} channel={channel} />
             ))}
           </div>
         </div>
