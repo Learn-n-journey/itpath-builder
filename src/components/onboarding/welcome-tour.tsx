@@ -33,7 +33,7 @@ const STEPS: Step[] = [
     eyebrow: "Welcome",
     title: "This is IT PATH",
     body: "A structured route from complete beginner to working in IT and cybersecurity. Everything you see is measured from what you actually do.",
-    points: ["No fake progress", "Learn at your own pace", "Works offline on this device"],
+    points: ["Every number is earned", "Learn at your own pace", "Works offline on this device"],
   },
   {
     id: "path",
@@ -65,7 +65,7 @@ const STEPS: Step[] = [
     eyebrow: "Honest numbers",
     title: "Progress you can trust",
     body: "Learning progress and overall mastery are the only two numbers. Both come straight from your answers and study time.",
-    points: ["Weak areas surfaced early", "Streaks and milestones", "Nothing invented"],
+    points: ["Weak areas surfaced early", "Streaks and milestones", "Only real activity counts"],
   },
   {
     id: "setup",
