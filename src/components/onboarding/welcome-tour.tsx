@@ -31,9 +31,13 @@ const STEPS: Step[] = [
     id: "welcome",
     icon: ShieldCheck,
     eyebrow: "Welcome",
-    title: "This is IT PATH",
-    body: "Think of this as your route into IT and cybersecurity — laid out for you from your very first lesson. At every point, the app tells you what to learn next and why it's worth your time.",
-    points: ["A clear route from day one to job-ready", "You set the pace — we keep the map", "Works offline, right on this device"],
+    title: "Your journey starts here",
+    body: "Stepping into IT and cybersecurity can feel overwhelming, but you don't have to figure it out alone. IT Path breaks down complex skills into bite-sized, meaningful steps so you can build real confidence from day one.",
+    points: [
+      "Zero guesswork: a guided roadmap for your learning goals",
+      "Learn on your terms: go at whatever speed fits your life",
+      "Always accessible: works right on your device, anytime",
+    ],
   },
   {
     id: "path",
