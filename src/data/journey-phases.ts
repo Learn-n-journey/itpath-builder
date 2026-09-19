@@ -55,16 +55,53 @@ const PHASE_DEFS: Array<{ from: number; to: number; title: string; stage: string
   },
 ];
 
-export const journeyPhases: JourneyPhase[] = PHASE_DEFS.map((phase) => ({
-  title: phase.title,
-  stage: phase.stage,
-  blurb: phase.blurb,
-  topics: coreTopics
-    .filter((topic) => topic.month >= phase.from && topic.month <= phase.to)
-    .map((topic) => ({
-      id: topic.id,
-      title: topic.title,
-      summary: topic.summary,
-      minutes: topic.estimatedMinutes,
-    })),
-}));
+function asJourneyTopic(topic: (typeof coreTopics)[number]): JourneyTopic {
+  return { id: topic.id, title: topic.title, summary: topic.summary, minutes: topic.estimatedMinutes };
+}
+
+/**
+ * The authored IT path keeps its four hand-written stages. Any other subject
+ * names its own stages after the qualifications its own package declares, so
+ * the journey never reads like someone else's course.
+ */
+function authoredPhases(): JourneyPhase[] {
+  return PHASE_DEFS.map((phase) => ({
+    title: phase.title,
+    stage: phase.stage,
+    blurb: phase.blurb,
+    topics: coreTopics.filter((topic) => topic.month >= phase.from && topic.month <= phase.to).map(asJourneyTopic),
+  }));
+}
+
+function overlayPhases(overlay: NonNullable<typeof domainOverlay>): JourneyPhase[] {
+  const groups = overlay.certifications
+    .map((certification) => ({
+      certification,
+      topics: coreTopics.filter((topic) => topic.certificationId === certification.id),
+    }))
+    .filter((group) => group.topics.length > 0)
+    .sort((a, b) => Math.min(...a.topics.map((t) => t.month)) - Math.min(...b.topics.map((t) => t.month)));
+
+  const grouped = new Set(groups.flatMap((group) => group.topics.map((topic) => topic.id)));
+  const remaining = coreTopics.filter((topic) => !grouped.has(topic.id));
+
+  const phases: JourneyPhase[] = groups.map((group, index) => ({
+    title: group.certification.title,
+    stage: `Stage ${index + 1}`,
+    blurb: group.certification.description,
+    topics: group.topics.map(asJourneyTopic),
+  }));
+
+  if (remaining.length > 0) {
+    phases.push({
+      title: "Further study",
+      stage: `Stage ${phases.length + 1}`,
+      blurb: "The remaining sections of this course.",
+      topics: remaining.map(asJourneyTopic),
+    });
+  }
+
+  return phases.length > 0 ? phases : authoredPhases();
+}
+
+export const journeyPhases: JourneyPhase[] = domainOverlay ? overlayPhases(domainOverlay) : authoredPhases();
