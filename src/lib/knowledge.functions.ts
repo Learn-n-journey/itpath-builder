@@ -3,7 +3,7 @@
  *
  * Stores everything a learner saves (notes, links, articles, videos,
  * screenshots, documents), extracts concepts with AI, and links each item to
- * the IT PATH curriculum topics and certifications so the rest of the app can
+ * the curriculum topics and qualifications so the rest of the app can
  * use the learner's own material.
  */
 import { createServerFn } from "@tanstack/react-start";
@@ -15,6 +15,7 @@ import { certifications, topics } from "@/data/static-content";
 import { GATEWAY_CHAT_URL, UTILITY_MODEL } from "@/lib/ai-models";
 import { allowAiCall } from "@/lib/ai-budget.server";
 import { runAi } from "@/lib/ai/run.server";
+import { domain } from "@/domain/active";
 
 export type KnowledgeKind =
   | "note"
@@ -117,14 +118,14 @@ function certCatalogue(): string {
   return certifications.map((c) => `${c.id} :: ${c.title}`).join("\n");
 }
 
-const EXTRACT_SYSTEM = `You index study material for an IT and cybersecurity certification study app.
+const EXTRACT_SYSTEM = `You index study material for a ${domain.field} study app.
 Read the learner's saved material and return strict JSON only, no prose and no markdown fences.
 
 JSON shape:
 {
   "summary": "3-5 sentence factual summary of what this material actually says",
   "extractedText": "plain readable text of the material when it came from an image or document, otherwise an empty string",
-  "concepts": ["specific IT concepts this material teaches"],
+  "concepts": ["specific ${domain.field} concepts this material teaches"],
   "keyTerms": ["exam-relevant terms and acronyms found in the material"],
   "topicIds": ["ids copied exactly from the topic catalogue that this material covers"],
   "certIds": ["ids copied exactly from the certification catalogue"],
