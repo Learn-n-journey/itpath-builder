@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { BetaAccessPanel } from "@/components/beta-access-panel";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { ProfileNamePanel } from "@/components/profile-name-panel";
 import { WelcomeSetup } from "@/components/onboarding/welcome-setup";
-import { restartTour } from "@/lib/onboarding";
+import { restartTour, setupPending } from "@/lib/onboarding";
 import { SiteEngagementPanel } from "@/components/site-engagement-panel";
 
 
@@ -81,6 +82,12 @@ function SettingsPage() {
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
   const s = user.settings;
 
+  // While onboarding setup is pending, show only the quick setup screen.
+  const [setupOnly, setSetupOnly] = useState(false);
+  useEffect(() => {
+    setSetupOnly(setupPending());
+  }, []);
+
   // Weekly study time is always derived: selected days x daily study time.
   function weeklyMinutes(dayCount: number, dailyMinutes: number): number {
     return Math.max(0, Math.round(dayCount * dailyMinutes));
@@ -103,6 +110,18 @@ function SettingsPage() {
       sessionLengthMinutes: minutes,
       studyHoursPerWeek: weeklyMinutes(s.studyDays.length, minutes) / 60,
     });
+  }
+
+  if (setupOnly) {
+    return (
+      <>
+        <PageHeader
+          title="Quick setup"
+          description="A few preferences before you begin. Everything can be changed here later."
+        />
+        <WelcomeSetup onFinished={() => setSetupOnly(false)} />
+      </>
+    );
   }
 
   return (

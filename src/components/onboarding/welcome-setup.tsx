@@ -33,7 +33,7 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
  * Quick setup shown once, straight after the welcome tour: colour mode, name
  * and goal. Every control writes to the same place the full settings do.
  */
-export function WelcomeSetup() {
+export function WelcomeSetup({ onFinished }: { onFinished?: () => void }) {
   const [show, setShow] = useState(false);
   const { user, updateSettings } = useAppState();
   const { theme, setTheme } = useTheme();
@@ -66,6 +66,7 @@ export function WelcomeSetup() {
     }
     markSetupDone();
     setShow(false);
+    onFinished?.();
     toast.success("You're all set. Everything is saved.");
   }
 
@@ -186,6 +187,7 @@ export function WelcomeSetup() {
             onClick={() => {
               markSetupDone();
               setShow(false);
+              onFinished?.();
             }}
           >
             Do this later
