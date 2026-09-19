@@ -180,6 +180,7 @@ function SettingsPage() {
             </Button>
           ) : null}
         </Panel>
+        ) : null}
 
         <Panel
           title="Appearance"
