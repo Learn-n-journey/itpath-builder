@@ -175,7 +175,7 @@ export function WelcomeSetup() {
             </Select>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Your target shapes Learn, Practice, Labs and your study plan. You can change it any time below.
+            Your goal shapes what we put in front of you — lessons, practice and your study plan. You can change your mind any time.
           </p>
         </div>
 
