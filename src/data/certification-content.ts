@@ -1,4 +1,5 @@
 import type { Certification, CertificationObjective, EntityId } from "@/lib/app-data/types";
+import { domainOverlay } from "@/data/domain-overlay";
 
 /**
  * Certification objectives are plain data. The UI never hard-codes them:
@@ -266,7 +267,7 @@ function slug(id: EntityId) {
   return id.replace(/^cert-/, "");
 }
 
-export const certifications: Certification[] = seeds.map((seed) => ({
+const authoredCertifications: Certification[] = seeds.map((seed) => ({
   id: seed.id,
   title: seed.title,
   code: seed.code,
@@ -277,12 +278,15 @@ export const certifications: Certification[] = seeds.map((seed) => ({
   objectiveIds: seed.objectives.map(([code]) => `obj-${slug(seed.id)}-${code}`),
 }));
 
+/** The live subject's qualification tracks: the generated package when one is active, the authored ones otherwise. */
+export const certifications: Certification[] = domainOverlay?.certifications ?? authoredCertifications;
+
 /** Returns the certification block a curriculum month belongs to, if any. */
 export function certificationForMonth(month: number): Certification | undefined {
   return certifications.find((certification) => (certification.months ?? []).includes(month));
 }
 
-export const certificationObjectives: CertificationObjective[] = seeds.flatMap((seed) =>
+const authoredObjectives: CertificationObjective[] = seeds.flatMap((seed) =>
   seed.objectives.map(([code, domain, title, topicIds]) => ({
     id: `obj-${slug(seed.id)}-${code}`,
     certificationId: seed.id,
@@ -292,3 +296,5 @@ export const certificationObjectives: CertificationObjective[] = seeds.flatMap((
     topicIds,
   })),
 );
+
+export const certificationObjectives: CertificationObjective[] = domainOverlay?.certificationObjectives ?? authoredObjectives;
