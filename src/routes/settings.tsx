@@ -69,6 +69,8 @@ const DAYS: { id: WeekDay; label: string }[] = [
   { id: "sun", label: "Sun" },
 ];
 
+const ACTIVE_PACKAGE_KEY = ACTIVE_PACKAGE;
+
 const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
   { id: "none", label: "Complete beginner" },
   { id: "beginner", label: "Some basics" },
