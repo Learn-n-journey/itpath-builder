@@ -216,11 +216,8 @@ export const getAutoVideoPage = createServerFn({ method: "GET" })
   })
   .handler(async ({ data }): Promise<AutoVideoPage> => {
     if (data.page >= MAX_PAGES) return { videos: [], nextPage: null };
-    const start = (data.page * PAGE_CHANNELS) % CHANNELS.length;
-    const batch: Channel[] = [];
-    for (let i = 0; i < PAGE_CHANNELS; i++) {
-      batch.push(CHANNELS[(start + i) % CHANNELS.length]!);
-    }
+    const batch = CHANNELS.slice(data.page * PAGE_CHANNELS, (data.page + 1) * PAGE_CHANNELS);
+    if (batch.length === 0) return { videos: [], nextPage: null };
     const results = await Promise.all(batch.map(loadChannel));
     const seen = new Set<string>();
     const videos = results
