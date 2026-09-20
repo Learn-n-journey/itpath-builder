@@ -4,6 +4,7 @@
  * with answers. Content lives here, never in the UI.
  */
 import type { EntityId } from "@/lib/app-data/types";
+import { ownerWorkedExamplesFor } from "@/lib/owner-lesson-store";
 
 export interface WorkedExampleStep {
   label: string;
@@ -299,7 +300,10 @@ export const workedExamples: WorkedExample[] = [
   },
 ];
 
+/** A topic the owner wrote Worked examples rows for shows only those. */
 export function getWorkedExamples(topicId: string): WorkedExample[] {
+  const owned = ownerWorkedExamplesFor(topicId);
+  if (owned.length) return owned;
   return workedExamples.filter((example) => example.topicIds.includes(topicId));
 }
 

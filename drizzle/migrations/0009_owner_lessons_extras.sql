@@ -1,0 +1,1 @@
+ALTER TABLE public.owner_lessons ADD COLUMN IF NOT EXISTS extras jsonb NOT NULL DEFAULT '{}'::jsonb;

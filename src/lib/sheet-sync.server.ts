@@ -267,6 +267,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
           lesson: result.lesson as unknown as Json,
           sources: result.sources as unknown as Json,
           practice: result.practice as unknown as Json,
+          extras: result.extras as unknown as Json,
           status: "approved",
           reject_reasons: notes,
         });

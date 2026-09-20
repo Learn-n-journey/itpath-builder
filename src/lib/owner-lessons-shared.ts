@@ -10,9 +10,23 @@
  * built-in lessons must pass decide whether an owner lesson may be published.
  */
 import type { DeepLesson, LessonCheck, LessonReferenceRow } from "@/data/deep-lessons/types";
-import type { PracticeActivity, Resource } from "@/lib/app-data/types";
+import type {
+  PracticeActivity,
+  RealWorldScenario,
+  RecallQuestion,
+  Resource,
+} from "@/lib/app-data/types";
+import type { WorkedExample } from "@/data/worked-examples";
 import { deepLessonIssues } from "@/lib/lesson-quality";
 import type { NumberedTopic } from "@/lib/owner-questions-shared";
+
+/** The rest of a topic's work, when the workbook supplies it. */
+export interface OwnerLessonExtras {
+  recall: RecallQuestion[];
+  teachBack?: { prompt: string; expectedPoints: string[] };
+  scenario?: RealWorldScenario;
+  workedExamples: WorkedExample[];
+}
 
 /** A worksheet as read from the workbook: tab name plus its rows of cells. */
 export interface SheetTab {
@@ -32,6 +46,10 @@ export const LESSON_TABS = [
   "Sources",
   "Plain words",
   "Practice",
+  "Recall",
+  "Teach back",
+  "Real world scenario",
+  "Worked examples",
 ] as const;
 
 /** Headers of each tab, in column order. The template workbook uses these. */
@@ -55,6 +73,24 @@ export const LESSON_TAB_HEADERS: Record<string, string[]> = {
     "Choice D",
     "Correct",
     "Explanation",
+  ],
+  Recall: ["Prompt", "Accepted concepts", "Explanation"],
+  "Teach back": ["Prompt", "Expected point"],
+  "Real world scenario": [
+    "Title",
+    "Situation",
+    "Decision prompt",
+    "Expected concepts",
+    "Guidance",
+  ],
+  "Worked examples": [
+    "Title",
+    "Question",
+    "Step label",
+    "Step detail",
+    "Answer",
+    "Try it prompt",
+    "Try it answer",
   ],
 };
 
@@ -93,8 +129,86 @@ export interface OwnerLessonResult {
   sources: Resource[];
   /** Practice questions written on the workbook's Practice tab. */
   practice: PracticeActivity[];
+  /** Recall, teach back, scenario and worked examples from their own tabs. */
+  extras: OwnerLessonExtras;
   rejectReasons?: string[];
   error?: string;
+}
+
+const EMPTY_EXTRAS: OwnerLessonExtras = { recall: [], workedExamples: [] };
+
+/** Recall, Teach back, Real world scenario and Worked examples tabs. */
+function extrasFromTabs(topic: NumberedTopic, tabs: SheetTab[]): OwnerLessonExtras {
+  const recall: RecallQuestion[] = [];
+  body(tabs, "Recall").forEach((row, index) => {
+    const prompt = cell(row, 0);
+    const accepted = splitList(cell(row, 1).replace(/,/g, "|"));
+    const explanation = cell(row, 2);
+    if (!prompt || accepted.length === 0) return;
+    recall.push({
+      id: `recall-owner-${topic.topicId}-${index + 1}`,
+      topicId: topic.topicId,
+      prompt,
+      acceptedConcepts: accepted,
+      explanation,
+    });
+  });
+
+  const teachRows = body(tabs, "Teach back");
+  const teachPrompt = cell(teachRows[0], 0);
+  const expectedPoints = teachRows.map((row) => cell(row, 1)).filter(Boolean);
+  const teachBack = teachPrompt || expectedPoints.length ? { prompt: teachPrompt, expectedPoints } : undefined;
+
+  const scenarioRow = body(tabs, "Real world scenario")[0];
+  const situation = cell(scenarioRow, 1);
+  const decisionPrompt = cell(scenarioRow, 2);
+  const scenario: RealWorldScenario | undefined =
+    situation && decisionPrompt
+      ? {
+          id: `scenario-owner-${topic.topicId}`,
+          topicId: topic.topicId,
+          title: cell(scenarioRow, 0) || topic.title,
+          situation,
+          decisionPrompt,
+          expectedConcepts: splitList(cell(scenarioRow, 3).replace(/,/g, "|")),
+          guidance: cell(scenarioRow, 4),
+        }
+      : undefined;
+
+  const workedExamples: WorkedExample[] = [];
+  for (const row of body(tabs, "Worked examples")) {
+    const title = cell(row, 0);
+    let current = workedExamples[workedExamples.length - 1];
+    if (title && (!current || key(current.title) !== key(title))) {
+      workedExamples.push({
+        id: `worked-owner-${topic.topicId}-${workedExamples.length + 1}`,
+        title,
+        topicIds: [topic.topicId],
+        certificationId: topic.certificationId,
+        question: "",
+        steps: [],
+        answer: "",
+        tryIt: [],
+      });
+      current = workedExamples[workedExamples.length - 1];
+    }
+    if (!current) continue;
+    if (!current.question) current.question = cell(row, 1);
+    const label = cell(row, 2);
+    const detail = cell(row, 3);
+    if (label || detail) current.steps.push({ label: label || "Step", detail });
+    if (!current.answer) current.answer = cell(row, 4);
+    const tryPrompt = cell(row, 5);
+    const tryAnswer = cell(row, 6);
+    if (tryPrompt && tryAnswer) current.tryIt.push({ prompt: tryPrompt, answer: tryAnswer });
+  }
+
+  return {
+    recall,
+    workedExamples: workedExamples.filter((example) => example.question && example.steps.length),
+    ...(teachBack ? { teachBack } : {}),
+    ...(scenario ? { scenario } : {}),
+  };
 }
 
 /** Practice tab rows -> practice activities for this topic. */
@@ -141,7 +255,13 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
   }
 
   if (!intro || sections.length === 0) {
-    return { lesson: null, sources: [], practice: [], error: "the Lesson or Sections tab is empty" };
+    return {
+      lesson: null,
+      sources: [],
+      practice: [],
+      extras: EMPTY_EXTRAS,
+      error: "the Lesson or Sections tab is empty",
+    };
   }
 
   const keyIdeas = body(tabs, "Key ideas")
@@ -228,7 +348,8 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
     .filter((item): item is Resource => item !== null);
 
   const practice = practiceFromTabs(topic, tabs);
+  const extras = extrasFromTabs(topic, tabs);
   const rejectReasons = deepLessonIssues(lesson);
-  if (rejectReasons.length) return { lesson, sources, practice, rejectReasons };
-  return { lesson, sources, practice };
+  if (rejectReasons.length) return { lesson, sources, practice, extras, rejectReasons };
+  return { lesson, sources, practice, extras };
 }

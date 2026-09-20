@@ -9,15 +9,19 @@
  */
 import {
   ownerLessons as snapshot,
+  ownerLessonExtras as snapshotExtras,
   ownerLessonPractice as snapshotPractice,
   ownerLessonSources as snapshotSources,
 } from "@/data/owner-lessons";
 import type { DeepLesson } from "@/data/deep-lessons/types";
-import type { PracticeActivity, Resource } from "@/lib/app-data/types";
+import type { PracticeActivity, RealWorldScenario, RecallQuestion, Resource } from "@/lib/app-data/types";
+import type { WorkedExample } from "@/data/worked-examples";
+import type { OwnerLessonExtras } from "@/lib/owner-lessons-shared";
 
 let liveLessons: Record<string, DeepLesson> | null = null;
 let liveSources: Record<string, Resource[]> | null = null;
 let livePractice: Record<string, PracticeActivity[]> | null = null;
+let liveExtras: Record<string, OwnerLessonExtras> | null = null;
 let version = 0;
 let loading: Promise<boolean> | null = null;
 
@@ -47,6 +51,31 @@ export function ownerPracticeFor(topicId: string): PracticeActivity[] {
   return map[topicId] ?? [];
 }
 
+function extrasFor(topicId: string): OwnerLessonExtras | undefined {
+  const map = liveExtras ? { ...snapshotExtras, ...liveExtras } : snapshotExtras;
+  return map[topicId];
+}
+
+/** Recall prompts the owner wrote on that topic's Recall tab. */
+export function ownerRecallFor(topicId: string): RecallQuestion[] {
+  return extrasFor(topicId)?.recall ?? [];
+}
+
+/** The teach-back brief the owner wrote, when the workbook has one. */
+export function ownerTeachBackFor(topicId: string): { prompt: string; expectedPoints: string[] } | undefined {
+  return extrasFor(topicId)?.teachBack;
+}
+
+/** The real-world scenario the owner wrote, when the workbook has one. */
+export function ownerScenarioFor(topicId: string): RealWorldScenario | undefined {
+  return extrasFor(topicId)?.scenario;
+}
+
+/** Worked examples the owner wrote on that topic's Worked examples tab. */
+export function ownerWorkedExamplesFor(topicId: string): WorkedExample[] {
+  return extrasFor(topicId)?.workedExamples ?? [];
+}
+
 /** Topics whose built-in lesson has been replaced by an owner lesson. */
 export function ownerLessonTopicIds(): Set<string> {
   return new Set(Object.keys(lessonMap()));
@@ -65,7 +94,7 @@ export function loadOwnerLessons(): Promise<boolean> {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data, error } = await supabase
         .from("owner_lessons")
-        .select("topic_id, lesson, sources, practice")
+        .select("topic_id, lesson, sources, practice, extras")
         .eq("status", "approved")
         .order("synced_at", { ascending: true })
         .limit(5000);
@@ -73,16 +102,27 @@ export function loadOwnerLessons(): Promise<boolean> {
       const lessons: Record<string, DeepLesson> = {};
       const sources: Record<string, Resource[]> = {};
       const practice: Record<string, PracticeActivity[]> = {};
+      const extras: Record<string, OwnerLessonExtras> = {};
       for (const row of data ?? []) {
         const topicId = row.topic_id as string;
         lessons[topicId] = row.lesson as unknown as DeepLesson;
         sources[topicId] = (row.sources as unknown as Resource[]) ?? [];
         const rows = (row.practice as unknown as PracticeActivity[]) ?? [];
         if (rows.length) practice[topicId] = rows;
+        const extra = row.extras as unknown as OwnerLessonExtras | null;
+        if (extra && (extra.recall?.length || extra.workedExamples?.length || extra.teachBack || extra.scenario)) {
+          extras[topicId] = {
+            recall: extra.recall ?? [],
+            workedExamples: extra.workedExamples ?? [],
+            ...(extra.teachBack ? { teachBack: extra.teachBack } : {}),
+            ...(extra.scenario ? { scenario: extra.scenario } : {}),
+          };
+        }
       }
       liveLessons = lessons;
       liveSources = sources;
       livePractice = practice;
+      liveExtras = extras;
       version += 1;
       return true;
     } catch {

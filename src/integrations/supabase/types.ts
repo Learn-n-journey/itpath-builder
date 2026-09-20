@@ -418,6 +418,7 @@ export type Database = {
       owner_lessons: {
         Row: {
           domain: string
+          extras: Json
           id: string
           lesson: Json
           practice: Json
@@ -430,6 +431,7 @@ export type Database = {
         }
         Insert: {
           domain: string
+          extras?: Json
           id?: string
           lesson: Json
           practice?: Json
@@ -442,6 +444,7 @@ export type Database = {
         }
         Update: {
           domain?: string
+          extras?: Json
           id?: string
           lesson?: Json
           practice?: Json

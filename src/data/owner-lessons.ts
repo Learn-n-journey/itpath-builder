@@ -7,9 +7,12 @@
  */
 import type { DeepLesson } from "@/data/deep-lessons/types";
 import type { PracticeActivity, Resource } from "@/lib/app-data/types";
+import type { OwnerLessonExtras } from "@/lib/owner-lessons-shared";
 
 export const ownerLessons: Record<string, DeepLesson> = {};
 
 export const ownerLessonSources: Record<string, Resource[]> = {};
 
 export const ownerLessonPractice: Record<string, PracticeActivity[]> = {};
+
+export const ownerLessonExtras: Record<string, OwnerLessonExtras> = {};

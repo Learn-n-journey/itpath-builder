@@ -1,7 +1,7 @@
 import { domainOverlay } from "@/data/domain-overlay";
 import { extraPracticeActivities } from "@/data/practice-extra";
 import { expansionModules, expansionPractice, expansionRecall, expansionScenarios } from "@/data/curriculum";
-import { ownerPracticeFor } from "@/lib/owner-lesson-store";
+import { ownerPracticeFor, ownerRecallFor, ownerScenarioFor } from "@/lib/owner-lesson-store";
 import type { LearningModule, PracticeActivity, RecallQuestion, RealWorldScenario } from "@/lib/app-data/types";
 
 const moduleData: Array<Omit<LearningModule, "id" | "lessonId" | "recallQuestionIds" | "practiceActivityId" | "scenarioId"> & {
@@ -161,7 +161,12 @@ export const recallQuestions: RecallQuestion[] = domainOverlay?.recall ?? author
 export const practiceActivities: PracticeActivity[] = domainOverlay?.practice ?? authoredPractice;
 
 export function getLearningModule(topicId: string) { return learningModules.find((item) => item.topicId === topicId); }
-export function getRecallQuestions(topicId: string) { return recallQuestions.filter((item) => item.topicId === topicId); }
+/** A topic the owner wrote Recall rows for shows only those. */
+export function getRecallQuestions(topicId: string) {
+  const owned = ownerRecallFor(topicId);
+  if (owned.length) return owned;
+  return recallQuestions.filter((item) => item.topicId === topicId);
+}
 export function getPracticeActivity(topicId: string) { return getPracticeActivities(topicId)[0]; }
 /**
  * Every practice question available on a topic, in a stable order. A topic the
@@ -172,4 +177,6 @@ export function getPracticeActivities(topicId: string) {
   if (owned.length) return owned;
   return practiceActivities.filter((item) => item.topicId === topicId);
 }
-export function getRealWorldScenario(topicId: string) { return realWorldScenariosActive.find((item) => item.topicId === topicId); }
+export function getRealWorldScenario(topicId: string) {
+  return ownerScenarioFor(topicId) ?? realWorldScenariosActive.find((item) => item.topicId === topicId);
+}
