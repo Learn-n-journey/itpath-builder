@@ -20,6 +20,7 @@ import type {
 import type { DomainPackage, DomainQuestion } from "@/domain/package";
 import type { CoursePack } from "@/content/pack-contract";
 import type { StageExam } from "@/data/stage-exams";
+import { ownerLessonFor } from "@/lib/owner-lesson-store";
 
 /** A stable, repeatable shuffle, so the same draw always yields the same paper. */
 function seeded(seed: string): () => number {
@@ -213,7 +214,7 @@ export function coursePackFromDomainPackage(pkg: DomainPackage): CoursePack {
     sections,
     lessons,
     deepLessons: [],
-    getDeepLesson: () => undefined,
+    getDeepLesson: (topicId: string) => ownerLessonFor(topicId),
     phases: pkg.qualifications.map((qualification, index) => ({
       title: qualification.title,
       stage: `Stage ${index + 1}`,
