@@ -106,3 +106,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Answer: can the audit results read from/write to a spreadsheet?
 - [ ] User-authored questions via spreadsheet (WAITING for owner go-ahead — do not build until asked): owner will have SEVERAL Excel sheets, one per topic; a MASTER EXCEL INDEX SHEET lists each sheet's link and the topic it feeds. Nightly pull reads the index, imports each sheet's full-format rows (question, 4 choices, correct answer, explanation) into that topic's practice (separate from built-in pools), every row passes the deterministic quality gate first, rejected rows get pass/reject reasons written back to the sheet. Workspace Excel App connector (owner account, not per-user).
 - [x] Answer: ways to store owner-authored questions the app can pull from (Excel via connector / in-app editor / file upload / pasted text)
+- [ ] Expand Virtual Engine learning content (stroke timeline, watch-fors, self-check) — owner request
