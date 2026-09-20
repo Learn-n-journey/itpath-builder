@@ -52,21 +52,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-computer-hardware-basics",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "What is the primary function of the motherboard in a computer system?",
-    "choices": [
-      "To convert incoming electricity into regulated voltages",
-      "To execute program instructions and process data",
-      "To provide temporary storage for active data",
-      "To connect and coordinate all other system components"
-    ],
-    "answerIndex": 3,
-    "explanation": "The motherboard is explicitly defined as 'The main circuit board that connects and coordinates system components.'",
-    "difficulty": "gentle",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-computer-hardware-basics",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "A technician is troubleshooting a computer that fails to power on. After confirming the wall outlet has power, what is the most logical next initial step according to good troubleshooting practice?",
     "choices": [
       "Replace the CPU with a known good one",
@@ -172,21 +157,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-operating-systems-overview",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "What is the primary purpose of a 'filesystem' within an operating system?",
-    "choices": [
-      "To execute application code and manage process resources.",
-      "To facilitate communication between the OS and hardware peripherals.",
-      "To define rules and structures for organizing and naming stored data.",
-      "To provide a graphical interface for user interaction with the system."
-    ],
-    "answerIndex": 2,
-    "explanation": "The definition explicitly states that a filesystem refers to 'The rules and structures an OS uses to name and organize stored data.'",
-    "difficulty": "gentle",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-operating-systems-overview",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "A user complains that they cannot save a document to a specific network drive, even though they can open files from it. What is the most probable cause based on common OS problems?",
     "choices": [
       "A runaway process consuming all system resources.",
@@ -198,51 +168,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The section lists 'Insufficient permissions' as a common problem and notes that permissions limit actions. If a user can read but not write, it strongly indicates a permission issue.",
     "difficulty": "gentle",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-operating-systems-overview",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following best describes the relationship between the desktop environment and the operating system?",
-    "choices": [
-      "The desktop is the operating system's kernel, providing all core functionality.",
-      "The desktop is a complete, self-contained operating system.",
-      "The desktop is an interface layered over background services of the operating system.",
-      "The desktop operates independently, separate from the operating system's core functions."
-    ],
-    "answerIndex": 2,
-    "explanation": "The misconceptions section clarifies that 'The desktop is not the entire operating system; it is one interface layered over many background services.'",
-    "difficulty": "gentle",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-operating-systems-overview",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "If an application appears to be frozen or unresponsive, but other applications are working fine, which troubleshooting step should be performed first to isolate the problem?",
-    "choices": [
-      "Check for system-wide operating system updates.",
-      "Identify whether the failure affects one application, one account, or the whole OS.",
-      "Use recovery or safe-start tools for the entire system.",
-      "Reinstall the operating system immediately."
-    ],
-    "answerIndex": 1,
-    "explanation": "The troubleshooting guide suggests, 'Identify whether the failure affects one application, one account, or the whole OS' as a primary step to narrow down the scope of the problem.",
-    "difficulty": "gentle",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-operating-systems-overview",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "What role does a 'driver' play within the operating system architecture?",
-    "choices": [
-      "It manages the allocation of CPU time to different processes.",
-      "It stores user account information and security policies.",
-      "It translates operating-system requests into commands for specific hardware devices.",
-      "It organizes and names files on storage media."
-    ],
-    "answerIndex": 2,
-    "explanation": "The definition states that a driver is 'Software that lets the OS communicate with a particular hardware device,' and 'How it works' elaborates that 'Drivers translate operating-system requests for specific devices.'",
-    "difficulty": "gentle",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-operating-systems-overview",
@@ -303,21 +228,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The troubleshooting section suggests, 'Compare a working device on the same network' as a key step, and checking 'local configuration' is mentioned early in the process. Since other devices are working, it points to a device-specific issue.",
     "difficulty": "gentle",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-basic-networking-concepts",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "Which statement accurately describes the relationship between Wi-Fi and the Internet, according to the misconceptions section?",
-    "choices": [
-      "Wi-Fi and the Internet are interchangeable terms for network connectivity.",
-      "Wi-Fi is the service that provides wide-area network access, while the Internet is the local connection method.",
-      "Wi-Fi is a local access method, whereas the Internet is the wider connection service.",
-      "Wi-Fi is a protocol for data exchange, while the Internet is a collection of interconnected local networks."
-    ],
-    "answerIndex": 2,
-    "explanation": "The misconceptions section explicitly states: 'Wi-Fi and the internet are not the same thing. Wi-Fi is one local access method; internet service is the wider connection.'",
-    "difficulty": "gentle",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-basic-networking-concepts",
@@ -393,21 +303,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "A shell acts as a command interpreter, reading commands entered by the user and passing them to the operating system for execution.",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-command-line-fundamentals",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following best describes an 'argument' in the context of a command-line instruction?",
-    "choices": [
-      "A modifier that alters how a command behaves.",
-      "The prompt displayed by the shell awaiting input.",
-      "A value or target supplied to a command.",
-      "The executable name of the command itself."
-    ],
-    "answerIndex": 2,
-    "explanation": "According to the definition, an argument is a value or target supplied to a command, indicating what the command should act upon.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-command-line-fundamentals",
@@ -532,21 +427,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-virtualization-basics",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "What is the primary difference between a virtual machine (VM) and a container, according to the provided material?",
-    "choices": [
-      "VMs offer less isolation than containers by sharing the host kernel.",
-      "Containers emulate a complete computer, while VMs isolate applications.",
-      "VMs share physical hardware, whereas containers use dedicated resources.",
-      "Containers share the host kernel and isolate applications, while VMs emulate a complete computer."
-    ],
-    "answerIndex": 3,
-    "explanation": "The summary states 'Containers instead share the host kernel and isolate applications rather than emulating a complete computer.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-virtualization-basics",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "An administrator needs to quickly revert a virtual machine to an earlier, known-good configuration. Which feature is specifically designed for this purpose?",
     "choices": [
       "Snapshot",
@@ -558,21 +438,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Key terms' section defines 'Snapshot' as 'A record of VM state used to return to an earlier point.'",
     "difficulty": "standard",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-virtualization-basics",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which statement accurately describes the relationship between a host and a guest in a virtualized environment?",
-    "choices": [
-      "The guest is the physical system, and the host is the operating system running inside a VM.",
-      "The host is the physical system providing resources, and the guest is an operating system running inside a VM.",
-      "The host is a software-defined computer, and the guest is the hypervisor managing it.",
-      "The guest is the hypervisor layer, and the host is the isolated application environment."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Definition' section states 'The physical system is the host; each installed operating system is a guest.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-virtualization-basics",
@@ -605,36 +470,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "concept"
   },
   {
-    "topicId": "topic-virtualization-basics",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following describes the role of a virtual switch in a virtualized environment?",
-    "choices": [
-      "It manages the allocation of physical CPU resources to guests.",
-      "It provides a record of the VM's state for reversion.",
-      "It connects VMs to one another or external networks.",
-      "It isolates applications by sharing the host OS kernel."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section states that 'Virtual switches connect VMs to one another or external networks.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-it-career-overview",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following best describes the primary function of Information Technology (IT) roles?",
-    "choices": [
-      "To manage financial data and business analytics.",
-      "To design, operate, support, and secure computing services.",
-      "To develop marketing strategies and customer outreach programs.",
-      "To oversee human resources and organizational development."
-    ],
-    "answerIndex": 1,
-    "explanation": "The section explicitly states that IT roles 'design, operate, support, and secure computing services.'",
-    "difficulty": "gentle",
-    "mistakeCategory": "concept"
-  },
-  {
     "topicId": "topic-it-career-overview",
     "certificationId": "cert-comptia-a-plus",
     "prompt": "According to the provided definition, what is an 'Incident' in the context of IT services?",
@@ -652,21 +487,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-it-career-overview",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "A user reports that their company laptop is unable to connect to the internet, severely impacting their work. Which of the following best describes this situation?",
-    "choices": [
-      "Service request",
-      "Change record",
-      "Incident",
-      "Escalation"
-    ],
-    "answerIndex": 2,
-    "explanation": "An 'Incident' is defined as 'An unplanned interruption or reduction in the quality of a service,' which a lack of internet connectivity clearly represents.",
-    "difficulty": "gentle",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-it-career-overview",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "Why is cybersecurity rarely considered a first step with no IT foundation?",
     "choices": [
       "Cybersecurity jobs require advanced degrees in computer science.",
@@ -678,36 +498,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Misconceptions' section states, 'Cybersecurity is rarely a first step with no IT foundation; operating systems, networking, support, and documentation are core security skills.'",
     "difficulty": "gentle",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-it-career-overview",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which common problem in IT operations is described as 'transferring an issue to the appropriate authority or specialist'?",
-    "choices": [
-      "Documentation",
-      "Service request",
-      "Escalation",
-      "SLA"
-    ],
-    "answerIndex": 2,
-    "explanation": "'Escalation' is defined as 'Transferring an issue to the appropriate authority or specialist.'",
-    "difficulty": "gentle",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-it-career-overview",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "When troubleshooting an issue, what is identified as the first recommended step?",
-    "choices": [
-      "Collect evidence and try approved low-risk steps.",
-      "Escalate with a concise record of symptoms, tests, and results.",
-      "Clarify the request, impact, scope, and urgency.",
-      "Immediately verify the user's identity."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Troubleshooting' section lists 'Clarify the request, impact, scope, and urgency' as the initial step.",
-    "difficulty": "gentle",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-it-career-overview",
@@ -753,21 +543,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The subnet mask is specifically defined as the value that separates the network portion of an address from the host portion, which in turn tells a host whether a destination is local.",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-networking-basics",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "A user reports they cannot access any websites, but they can successfully ping their default gateway. What does this outcome primarily indicate?",
-    "choices": [
-      "The local network connection to the router is functional.",
-      "The DHCP server is correctly assigning IP addresses.",
-      "All remote services are available and accessible.",
-      "The user's application ports are definitely open."
-    ],
-    "answerIndex": 0,
-    "explanation": "According to misconceptions, a successful connection to the default gateway proves only part of the path, specifically that the local network connection to the router is working, but not that every remote service is available.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-networking-basics",
@@ -845,36 +620,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "terminology"
   },
   {
-    "topicId": "topic-networking-basics",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "If two devices are connected to the same Wi-Fi network (SSID), are they guaranteed to be able to communicate directly with each other?",
-    "choices": [
-      "Yes, because they share the same wireless medium.",
-      "Yes, as long as they have valid IP addresses.",
-      "No, because segmentation or client-isolation rules might separate them.",
-      "No, only if they are also connected via Ethernet."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Misconceptions' section states that 'Devices on the same Wi-Fi name are not guaranteed to communicate; segmentation and client-isolation rules can still separate them.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-dns-fundamentals",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "Which of the following best describes the primary function of the Domain Name System (DNS)?",
-    "choices": [
-      "To host website content and deliver it to clients.",
-      "To translate human-readable domain names into IP addresses for service location.",
-      "To encrypt network traffic between clients and servers.",
-      "To manage user authentication for internet services."
-    ],
-    "answerIndex": 1,
-    "explanation": "DNS maps human-readable domain names to typed records, such as IP addresses (A/AAAA records), which computers use to locate and connect to services.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
     "topicId": "topic-dns-fundamentals",
     "certificationId": "cert-comptia-network-plus",
     "prompt": "A client is attempting to access a website. Which component is typically the first to receive the DNS query from the client?",
@@ -888,21 +633,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The section states, 'A client sends a query to a recursive resolver' as the first step in how DNS works.",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-dns-fundamentals",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "What does the 'TTL' value associated with a DNS record signify?",
-    "choices": [
-      "The total time a domain name can exist before expiring.",
-      "The maximum number of retries for a failed DNS query.",
-      "The period for which a DNS resolver may store and reuse a cached response.",
-      "The total bandwidth allocated for DNS traffic to a specific server."
-    ],
-    "answerIndex": 2,
-    "explanation": "TTL stands for Time to Live and is defined as 'The period a resolver may cache a DNS response.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-dns-fundamentals",
@@ -937,21 +667,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-dns-fundamentals",
     "certificationId": "cert-comptia-network-plus",
-    "prompt": "What is a common misconception about DNS servers, as stated in the material?",
-    "choices": [
-      "That they are responsible for encrypting all internet traffic.",
-      "That one DNS server stores every name on the internet.",
-      "That DNS is primarily used for email routing only.",
-      "That all DNS queries are processed by root servers directly."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Misconceptions' section states, 'One DNS server does not store every name. The system is distributed across resolvers and authoritative zones.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-dns-fundamentals",
-    "certificationId": "cert-comptia-network-plus",
     "prompt": "When a recursive resolver does not have a requested record in its cache, what is its next action?",
     "choices": [
       "It immediately returns an error message to the client.",
@@ -963,21 +678,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'How it works' section states: 'On a cache miss, the resolver follows referrals toward an authoritative server.'",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-dns-fundamentals",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "Which of the following record types is used to designate mail servers for a specific domain?",
-    "choices": [
-      "A",
-      "CNAME",
-      "MX",
-      "AAAA"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Key terms' section defines 'MX' as 'A record identifying mail servers for a domain.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-binary-and-number-systems",
@@ -1117,21 +817,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-troubleshooting-methodology",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "A technician is troubleshooting a network issue affecting only one user. Which of the following best describes the 'scope' in this scenario?",
-    "choices": [
-      "The specific type of network hardware involved.",
-      "The timeframe in which the problem first appeared.",
-      "The number of users, devices, or services affected by the symptom.",
-      "The underlying cause that led to the network problem."
-    ],
-    "answerIndex": 2,
-    "explanation": "The section defines 'Scope' as 'How many users, devices, or services the symptom affects.' In this case, it affects only one user.",
-    "difficulty": "gentle",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-troubleshooting-methodology",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "During troubleshooting, a technician reboots a server and the problem temporarily disappears. Why is this action considered a misconception regarding root cause identification?",
     "choices": [
       "Rebooting is an expensive action in terms of downtime.",
@@ -1147,21 +832,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-troubleshooting-methodology",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "When establishing a theory of probable cause, what should a technician prioritize when choosing which theory to test first?",
-    "choices": [
-      "The theory that is most difficult to test.",
-      "The theory that requires the most specialized tools.",
-      "The theory that is most likely and cheapest to test.",
-      "The theory that involves changing multiple variables at once."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section advises, 'Rank probable causes by likelihood and cost of testing, then test the cheapest discriminating one.'",
-    "difficulty": "gentle",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-troubleshooting-methodology",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "A critical step in the CompTIA troubleshooting methodology involves confirming with the user that normal function has been restored. What is this step specifically called?",
     "choices": [
       "Isolation",
@@ -1173,21 +843,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The key terms define 'Verification' as 'Confirming with the user that normal function is restored.'",
     "difficulty": "gentle",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-troubleshooting-methodology",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following is identified as a 'common problem' in troubleshooting if not properly executed?",
-    "choices": [
-      "Testing theories rigorously.",
-      "Documenting findings and actions.",
-      "Gathering symptom and timing information.",
-      "Establishing a plan of action before implementation."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Common problems' list includes 'Notes that record actions but not evidence', highlighting documentation as a common problem if incomplete.",
-    "difficulty": "gentle",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-troubleshooting-methodology",
@@ -1312,21 +967,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-pc-hardware-installation",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "During a PC upgrade, a technician needs to be mindful of 'ESD'. What potential issue is 'ESD' associated with?",
-    "choices": [
-      "Excessive system temperatures leading to component throttling.",
-      "Electrical short circuits caused by incorrect wiring.",
-      "Silent damage to components due to electrostatic discharge.",
-      "Firmware corruption resulting from power fluctuations."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Key terms' section defines 'ESD' as 'Electrostatic discharge that can silently damage components.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-pc-hardware-installation",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "A system powers on but displays no video and the motherboard diagnostic LED for the CPU is lit. The CPU was just upgraded. What is a common problem to consider first?",
     "choices": [
       "The CPU's integrated graphics drivers are not installed.",
@@ -1338,21 +978,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Common problems' section lists 'Unsupported CPU without a BIOS update' as a common issue.",
     "difficulty": "standard",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-storage-technologies",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which component is NOT explicitly mentioned as part of the definition of 'storage' in the provided section?",
-    "choices": [
-      "Media (e.g., magnetic platters)",
-      "An interface (e.g., SATA)",
-      "An operating system",
-      "An organization layer (e.g., filesystems)"
-    ],
-    "answerIndex": 2,
-    "explanation": "The definition of storage includes media, an interface, and an organization layer (partitions, filesystems, RAID, or a storage pool). An operating system is not listed as a component of storage itself.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-storage-technologies",
@@ -1550,36 +1175,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "concept"
   },
   {
-    "topicId": "topic-mobile-devices-and-laptops",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "What is the primary purpose of a docking station for a portable device, as described in the section?",
-    "choices": [
-      "To provide additional memory for enhanced performance.",
-      "To enable power, display, and network connectivity.",
-      "To serve as a secure physical enclosure for the device.",
-      "To cool the device and prevent thermal throttling."
-    ],
-    "answerIndex": 1,
-    "explanation": "The key terms section defines 'Docking station' as 'A hub providing power, display, and network to a portable device.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-mobile-devices-and-laptops",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "What typically occurs when an enterprise mobile device undergoes 'enrolment'?",
-    "choices": [
-      "The device's hardware components are upgraded remotely.",
-      "A full data backup is initiated and stored off-site.",
-      "Profiles and certificates are installed to grant access to managed resources.",
-      "All third-party applications are automatically uninstalled from the device."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section states: 'Enrolment installs profiles and certificates that grant access to managed resources.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
     "topicId": "topic-printers-and-peripherals",
     "certificationId": "cert-comptia-a-plus",
     "prompt": "Which component is responsible for converting a document into a page description language that a printer can understand?",
@@ -1657,21 +1252,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-printers-and-peripherals",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following describes a direct network path to a printer, commonly using port 9100?",
-    "choices": [
-      "Duplex",
-      "Print driver",
-      "Spooler",
-      "TCP/IP port"
-    ],
-    "answerIndex": 3,
-    "explanation": "A TCP/IP port is defined as a direct network path to a printer, commonly using port 9100.",
-    "difficulty": "gentle",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-printers-and-peripherals",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "A shared network printer is experiencing a stuck print queue, and reinstalling the driver on the user's workstation did not resolve the problem. What is a possible reason for this persistent issue, according to common misconceptions?",
     "choices": [
       "The print driver was corrupted during installation on the workstation.",
@@ -1732,21 +1312,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-windows-installation-and-configuration",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "After a fresh installation of Windows, a user reports that the system immediately starts encrypting the C: drive without explicit user interaction. Which Windows feature is most likely responsible for this behavior, as described in the section?",
-    "choices": [
-      "GPT partitioning",
-      "Servicing channel management",
-      "BitLocker encryption",
-      "UEFI Secure Boot"
-    ],
-    "answerIndex": 2,
-    "explanation": "BitLocker is defined as 'Windows full-disk encryption with recoverable keys' and is mentioned as part of post-install policy, making it the most plausible feature for drive encryption.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-windows-installation-and-configuration",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "During a Windows installation, an IT technician cannot see any available disks to select for the installation, even though the physical disk is present and connected. What is the most common first troubleshooting step the technician should take based on the provided material?",
     "choices": [
       "Check the activation status of the Windows license.",
@@ -1773,21 +1338,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Misconceptions' section states: 'A reinstall does not fix hardware faults; failing storage will corrupt the new installation too.'",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-windows-installation-and-configuration",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following is not considered a distinct type of account that a Windows client can be configured with, according to the provided material?",
-    "choices": [
-      "Local account",
-      "Domain-joined account",
-      "Guest account",
-      "Microsoft account"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Definition' section lists 'account type (local, Microsoft, or domain and Entra-joined)' but does not mention 'Guest account' as a primary type for configuration.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-windows-installation-and-configuration",
@@ -1912,21 +1462,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-macos-and-linux-clients",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "What is the primary function of a 'package manager' on Linux systems like apt or dnf?",
-    "choices": [
-      "To manage user accounts and passwords",
-      "To monitor network traffic for security threats",
-      "To install and update software with dependencies",
-      "To create system backups and restore points"
-    ],
-    "answerIndex": 2,
-    "explanation": "A package manager is defined as tooling such as apt or dnf that installs and updates software with dependencies, and also resolves dependencies and records what is installed.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-macos-and-linux-clients",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "Both macOS and Linux share which of the following characteristics regarding file systems and command-line access?",
     "choices": [
       "They both use FAT32 as their primary filesystem.",
@@ -2032,21 +1567,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-software-troubleshooting",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "According to the section, what is a primary limitation of consistently running applications as an administrator to resolve faults?",
-    "choices": [
-      "It can lead to system instability and crashes.",
-      "It hides permission problems rather than fixing them.",
-      "It slows down application performance significantly.",
-      "It prevents the application from accessing network resources."
-    ],
-    "answerIndex": 1,
-    "explanation": "Under 'Misconceptions', it states: 'Running everything as administrator hides permission problems rather than fixing them.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-software-troubleshooting",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "An application update has been applied, and now users are reporting new issues that did not exist before. What is this scenario commonly referred to in troubleshooting?",
     "choices": [
       "Profile corruption",
@@ -2073,36 +1593,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The definition of endpoint security specifically includes 'configuration hardening (patching, secure boot, disk encryption, firewall)' as a key component.",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-endpoint-security-fundamentals",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "According to the provided material, what is the primary purpose of 'Least privilege' in endpoint security?",
-    "choices": [
-      "To ensure all users can perform their job functions without hindrance.",
-      "To grant users only the necessary access required for their role, nothing more.",
-      "To restrict access to sensitive data based on geographic location.",
-      "To automatically revoke access for inactive user accounts after a set period."
-    ],
-    "answerIndex": 1,
-    "explanation": "The key term definition states: 'Least privilege = Granting only the access a role requires, nothing more.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-endpoint-security-fundamentals",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "A security analyst discovers suspicious activity on a workstation. Following the first troubleshooting step, what action should they take regarding the host?",
-    "choices": [
-      "Immediately reimage the host to eliminate any threats.",
-      "Completely power off the device to prevent further damage.",
-      "Isolate the host from the network but leave it powered as policy requires.",
-      "Initiate a full system scan with antivirus and await results before any further action."
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting section advises: 'Isolate the host from the network but leave it powered as policy requires.' Reimaging removes evidence, and powering off might hinder investigation.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-endpoint-security-fundamentals",
@@ -2165,51 +1655,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "terminology"
   },
   {
-    "topicId": "topic-endpoint-security-fundamentals",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "When troubleshooting a reported security incident, what is the initial crucial step before declaring it an incident, according to the provided material?",
-    "choices": [
-      "Gather all user credentials involved.",
-      "Confirm the report with concrete indicators.",
-      "Immediately block all network traffic from the suspected host.",
-      "Begin the process of reimaging the compromised device."
-    ],
-    "answerIndex": 1,
-    "explanation": "The troubleshooting section explicitly states: 'Confirm the report with concrete indicators before declaring an incident.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-operational-procedures-and-safety",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "According to operational procedures, what is a primary purpose of a 'rollback plan' within change management?",
-    "choices": [
-      "To ensure all system changes are thoroughly documented for audit purposes.",
-      "To provide a clear method for reverting system modifications if they cause issues.",
-      "To automatically back up all affected data before any change is implemented.",
-      "To assign responsibility for system changes to the correct technical team."
-    ],
-    "answerIndex": 1,
-    "explanation": "A rollback plan is specifically defined as a way to reverse a change if it fails, which is crucial for minimizing downtime and impact.",
-    "difficulty": "gentle",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-operational-procedures-and-safety",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following best describes the function of an 'asset register' in operational procedures?",
-    "choices": [
-      "A document detailing all software licenses purchased by the organization.",
-      "A record of all security incidents and their resolutions.",
-      "The authoritative record of owned devices, their status, owner, and location.",
-      "A log of all system changes and their approval status."
-    ],
-    "answerIndex": 2,
-    "explanation": "The section defines an asset register as 'The authoritative record of owned devices and their status,' which also implicitly includes ownership, location, and lifecycle information.",
-    "difficulty": "gentle",
-    "mistakeCategory": "terminology"
-  },
-  {
     "topicId": "topic-operational-procedures-and-safety",
     "certificationId": "cert-comptia-a-plus",
     "prompt": "A technician has just performed a quick format on a hard drive before sending a computer for disposal. Based on the provided information, what is a critical misconception regarding this action?",
@@ -2257,21 +1702,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-operational-procedures-and-safety",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "An IT department is consistently having difficulty tracking its inventory of devices and their warranty information. Which operational procedure, if properly maintained, would directly resolve this common problem?",
-    "choices": [
-      "Implementing a robust incident documentation process.",
-      "Regularly updating the asset register.",
-      "Establishing clear chain of custody protocols.",
-      "Developing comprehensive MSDS/SDS documentation."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section notes that 'Asset records tie a device to an owner, location, warranty, and lifecycle state,' directly addressing the issue of tracking inventory and warranty information.",
-    "difficulty": "gentle",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-operational-procedures-and-safety",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "What is the primary concern associated with 'undocumented changes' within an IT environment?",
     "choices": [
       "They typically consume more system resources than documented changes.",
@@ -2283,21 +1713,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Misconceptions' section states: 'Small changes still need records; 'quick' undocumented edits cause the hardest outages to diagnose.'",
     "difficulty": "gentle",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-operational-procedures-and-safety",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Before disposing of equipment that may contain sensitive data, what action should be verified?",
-    "choices": [
-      "That the equipment has been properly packed for shipping.",
-      "That all software licenses have been deactivated.",
-      "That physical sanitization or destruction has occurred and been evidenced.",
-      "That the asset register reflects the equipment's removal."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Troubleshooting' section advises: 'Verify sanitisation evidence before equipment leaves the site,' to ensure sensitive data is not recoverable.",
-    "difficulty": "gentle",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-mobile-hardware-and-components",
@@ -2313,21 +1728,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The digitizer is the touch-sensing layer; a cracked digitizer can cause phantom touches while the image still looks fine. The display panel handles the image, not touch input.",
     "difficulty": "standard",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-mobile-hardware-and-components",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following best describes the function of a mobile device's digitizer?",
-    "choices": [
-      "It provides the visual output for the device's operating system.",
-      "It converts analog audio signals into digital data.",
-      "It detects touch input and sends coordinates to the operating system.",
-      "It encrypts data before transmission over wireless networks."
-    ],
-    "answerIndex": 2,
-    "explanation": "The digitizer is defined as the touch-sensing layer bonded to the display glass, reporting touch coordinates independently to the operating system.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-mobile-hardware-and-components",
@@ -2358,21 +1758,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The accelerometer and gyroscope measure linear movement and rotation, driving features like auto-rotate and step counting, according to the section material.",
     "difficulty": "standard",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-mobile-hardware-and-components",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of these statements about USB-C is accurate according to the provided information?",
-    "choices": [
-      "All USB-C ports inherently support Thunderbolt and fast charging.",
-      "USB-C is a reversible connector shape that may carry various underlying standards.",
-      "USB-C guarantees USB 3.x data speeds regardless of the cable.",
-      "USB-C ports only support charging, not data transfer."
-    ],
-    "answerIndex": 1,
-    "explanation": "The text states that USB-C is a reversible connector shape that may carry USB 2.0, USB 3.x, Thunderbolt, DisplayPort, or USB Power Delivery, depending on what the device implements. It also explicitly mentions the misconception that USB-C does not guarantee fast charging or fast data.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-mobile-hardware-and-components",
@@ -2497,21 +1882,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-mobile-connectivity",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "What is a distinguishing characteristic of 5G cellular networks compared to previous generations?",
-    "choices": [
-      "It exclusively uses satellite communication for data.",
-      "It provides higher speeds and lower latency where coverage exists.",
-      "Its primary purpose is short-range peripheral connectivity.",
-      "It functions without requiring a carrier-provided data plan."
-    ],
-    "answerIndex": 1,
-    "explanation": "5G adds higher speeds and lower latency where coverage exists, distinguishing it from earlier cellular generations.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-mobile-connectivity",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "A user's phone indicates a full cellular signal, but they are experiencing very slow data speeds. What factor, according to the provided text, could explain this discrepancy?",
     "choices": [
       "The phone's GPS receiver is malfunctioning.",
@@ -2523,21 +1893,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Full cellular bars do not guarantee fast data; congestion and the band in use matter as much as signal strength.",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-mobile-connectivity",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "You are troubleshooting a mobile device where GPS seems to be inaccurate or slow to get a fix. What is a crucial initial step to take before blaming the receiver hardware?",
-    "choices": [
-      "Check if Bluetooth is paired correctly.",
-      "Ensure NFC is disabled to avoid interference.",
-      "Test the GPS outdoors with a clear sky view.",
-      "Verify that Wi-Fi is connected to a local access point."
-    ],
-    "answerIndex": 2,
-    "explanation": "For inaccurate or slow GPS fixes, the troubleshooting step is to test GPS outdoors with a clear sky view before blaming the receiver.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-mobile-security-and-mdm",
@@ -2572,36 +1927,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-mobile-security-and-mdm",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "What is the primary purpose of 'containerisation' in a Bring Your Own Device (BYOD) model?",
-    "choices": [
-      "To allow IT full administrative control over the entire personal device.",
-      "To enable IT to remotely install any app on the user's personal device.",
-      "To separate corporate data and applications from personal data, allowing IT to manage only the work profile.",
-      "To encrypt all data on the personal device, including personal photos and messages, for corporate compliance."
-    ],
-    "answerIndex": 2,
-    "explanation": "The definition of BYOD states it 'uses containerisation to separate corporate data from personal data on the same phone.' The 'Key terms' section elaborates, 'BYOD containerisation = Separating corporate apps and data into a managed work profile that IT can wipe without touching personal photos and messages.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-mobile-security-and-mdm",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "A company has implemented an MDM solution. Which of the following is a capability typically enforced by MDM platforms?",
-    "choices": [
-      "Granting IT access to a user's personal social media accounts.",
-      "Monitoring a user's web browsing history on personal apps.",
-      "Enforcing policies such as PIN length, encryption, and app allowlists.",
-      "Remotely installing software on the device without user consent for personal use."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Key terms' section defines MDM as 'Mobile device management software that enforces policies such as PIN length, encryption, app allowlists, and wipe capability.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-mobile-security-and-mdm",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "If a remote wipe command is showing as 'pending' for a lost device, what is the most appropriate first troubleshooting step or action?",
     "choices": [
       "Attempt to re-send the remote wipe command repeatedly.",
@@ -2617,21 +1942,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-mobile-security-and-mdm",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "According to the provided material, what happens to encrypted storage on a mobile device if the screen lock credential is not provided?",
-    "choices": [
-      "The device automatically initiates a factory reset to prevent data access.",
-      "The encryption keys are compromised, allowing access to the data.",
-      "The encrypted storage remains unreadable even if the storage chip is physically removed.",
-      "Only personal data remains encrypted, while corporate data becomes accessible."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section explains: 'The screen lock gates the encryption keys; without the credential, encrypted storage is unreadable even with the chip removed.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-mobile-security-and-mdm",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "A user reports forgetting their PIN after having used only biometrics for an extended period. What is the recommended troubleshooting path for a forgotten PIN?",
     "choices": [
       "Guess the PIN repeatedly until the device unlocks.",
@@ -2643,21 +1953,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Troubleshooting' section advises: 'For forgotten PINs, use the platform account recovery or MDM reset path; repeated guesses trigger escalating lockouts.'",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-mobile-security-and-mdm",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "When correctly deployed, what control does BYOD containerisation give IT over a user's personal data?",
-    "choices": [
-      "Full access and management rights over all personal data.",
-      "The ability to wipe a user's personal photos and messages alongside corporate data.",
-      "No rights over personal data, with management applying only to the work profile.",
-      "Limited read-only access to personal files for auditing purposes."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Misconceptions' section explicitly states: 'BYOD does not give IT rights over personal data; properly deployed, management applies only to the work profile.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-mobile-troubleshooting",
@@ -2750,51 +2045,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "procedure"
   },
   {
-    "topicId": "topic-mobile-troubleshooting",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "What does the 'Known-good swap' troubleshooting method primarily help to isolate?",
-    "choices": [
-      "Whether a specific application is causing a system-level problem.",
-      "The failing component in a chain, such as a cable or charger.",
-      "If the device's operating system has corrupted files.",
-      "Whether a network connection is stable or intermittent."
-    ],
-    "answerIndex": 1,
-    "explanation": "The definition for 'Known-good swap' is 'Testing with a cable, charger, or accessory confirmed to work, isolating the failing link in the chain.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-mobile-troubleshooting",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of these is NOT considered a first troubleshooting step for common mobile device issues according to the provided material?",
-    "choices": [
-      "Checking battery usage stats for rapid drain.",
-      "Toggling Airplane mode for connectivity problems.",
-      "Performing a factory reset for app crashes.",
-      "Inspecting the charging port for debris when charging fails."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Misconceptions' section states, 'A factory reset is not a first step; it is the last step after software causes are isolated and data is backed up.' The other options are explicitly listed as initial troubleshooting steps.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-osi-model-and-encapsulation",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "Which of the following best describes the process where each layer in the sending stack adds its own header to the data?",
-    "choices": [
-      "Decapsulation",
-      "Segmentation",
-      "Encapsulation",
-      "Defragmentation"
-    ],
-    "answerIndex": 2,
-    "explanation": "Encapsulation is the process where each layer adds its own header as data moves down the sending stack.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
     "topicId": "topic-osi-model-and-encapsulation",
     "certificationId": "cert-comptia-network-plus",
     "prompt": "According to the OSI model, which layer is responsible for routing data between different networks?",
@@ -2838,21 +2088,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "A successful ping proves layers 1 to 3 only; it says nothing about the application port or higher layers.",
     "difficulty": "standard",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-osi-model-and-encapsulation",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "When troubleshooting a network issue, which of the following steps should be performed first, according to best practice for proving the lowest layer?",
-    "choices": [
-      "Verify addressing, routing, and reachability.",
-      "Test the specific port and application response.",
-      "Check link lights, interface counters, and speed/duplex settings.",
-      "Inspect higher-level protocols like TLS or certificates."
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting guide suggests proving the lowest layer first by checking link light, interface counters, and speed or duplex.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-osi-model-and-encapsulation",
@@ -2902,36 +2137,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-ethernet-switching-and-vlans",
     "certificationId": "cert-comptia-network-plus",
-    "prompt": "Which of the following best describes how an Ethernet switch initially forwards a frame destined for a MAC address not present in its MAC address table?",
-    "choices": [
-      "It floods the frame to all ports within the same VLAN.",
-      "It sends an ARP request to determine the destination port.",
-      "It forwards the frame only to the port from which the source MAC was learned.",
-      "It drops the frame and sends an ICMP error message to the source."
-    ],
-    "answerIndex": 0,
-    "explanation": "When a switch doesn't know the destination MAC address, it floods the frame to all ports within the same VLAN, except the incoming port, to discover where the destination resides.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-ethernet-switching-and-vlans",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "What is the primary purpose of a VLAN (Virtual Local Area Network) in a switched network?",
-    "choices": [
-      "To increase the overall network bandwidth by aggregating multiple physical links.",
-      "To provide routing services between different IP subnets.",
-      "To partition a single physical switch into multiple separate broadcast domains.",
-      "To encrypt network traffic for enhanced security between endpoints."
-    ],
-    "answerIndex": 2,
-    "explanation": "VLANs are used to partition a physical switch into separate broadcast domains, meaning devices in different VLANs do not receive each other's broadcasts.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-ethernet-switching-and-vlans",
-    "certificationId": "cert-comptia-network-plus",
     "prompt": "A network administrator is configuring a link between two switches that needs to carry traffic for multiple VLANs. Which type of port and associated standard is required for this setup?",
     "choices": [
       "Access port using 802.1D",
@@ -2977,21 +2182,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-ethernet-switching-and-vlans",
     "certificationId": "cert-comptia-network-plus",
-    "prompt": "When troubleshooting a trunk link between two switches, a network administrator should primarily verify which two settings on both ends of the link?",
-    "choices": [
-      "The MAC address table size and the buffer allocation.",
-      "The allowed VLAN list and the native VLAN.",
-      "The routing protocol advertisements and OSPF area ID.",
-      "The port security violation mode and maximum MAC addresses."
-    ],
-    "answerIndex": 1,
-    "explanation": "Troubleshooting steps for trunks include verifying the trunk's allowed VLAN list and native VLAN on both ends, as mismatches can cause connectivity issues.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-ethernet-switching-and-vlans",
-    "certificationId": "cert-comptia-network-plus",
     "prompt": "What does the term 'broadcast domain' refer to in the context of Ethernet switching?",
     "choices": [
       "The physical area covered by a single wireless access point.",
@@ -3018,21 +2208,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "MAC flapping and broadcast storms, which often accompany high broadcast rates, are common symptoms when a switching loop is present in the network.",
     "difficulty": "standard",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-ip-addressing-and-subnetting",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "Which of the following best defines a broadcast address within an IPv4 subnet?",
-    "choices": [
-      "The address where all network bits are set to one.",
-      "The address where all host bits are set to one.",
-      "The address that identifies the router for the subnet.",
-      "The address used to identify the subnet itself."
-    ],
-    "answerIndex": 1,
-    "explanation": "According to the definition, the broadcast address has all host bits set to one, allowing a message to reach all devices on that local network segment.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-ip-addressing-and-subnetting",
@@ -3142,21 +2317,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-routing-fundamentals",
     "certificationId": "cert-comptia-network-plus",
-    "prompt": "When a router has multiple possible routes for a destination, which criterion is evaluated first to determine the best path?",
-    "choices": [
-      "The administrative distance (AD) of the route source",
-      "The longest matching prefix for the destination",
-      "The metric value associated with the route",
-      "Whether the route is static or dynamically learned"
-    ],
-    "answerIndex": 1,
-    "explanation": "The router first prefers the longest matching prefix, meaning the most specific route, before considering administrative distance or metric.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-routing-fundamentals",
-    "certificationId": "cert-comptia-network-plus",
     "prompt": "A network administrator configures a router to use OSPF, EIGRP, and BGP simultaneously to learn routes. If the router learns two different paths to the same destination network from both OSPF and EIGRP, which value will it use to decide which route to install in the routing table?",
     "choices": [
       "The longest matching prefix for the destination, as this is primary",
@@ -3168,21 +2328,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "After the longest prefix match, administrative distance is used to compare routes learned from different sources (like OSPF and EIGRP) to determine trustworthiness.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-routing-fundamentals",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "Which of the following best describes the primary function of Port Address Translation (PAT)?",
-    "choices": [
-      "To provide a security layer by hiding internal network topology",
-      "To assign unique public IP addresses to every internal host",
-      "To allow multiple private internal hosts to share a single public IP address using port numbers",
-      "To ensure all network traffic is encrypted before leaving the private network"
-    ],
-    "answerIndex": 2,
-    "explanation": "PAT maps many private hosts to one public IP address by differentiating sessions based on unique port numbers.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-routing-fundamentals",
@@ -3397,36 +2542,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-wireless-and-network-troubleshooting",
     "certificationId": "cert-comptia-network-plus",
-    "prompt": "When troubleshooting a reported network issue, what is the recommended first step to determine if the problem is specific to the wireless network?",
-    "choices": [
-      "Perform a spectrum analysis to identify interference sources.",
-      "Collect signal, noise, retry, and utilization figures.",
-      "Test connectivity using a wired connection on the same VLAN.",
-      "Immediately perform a packet capture to identify anomalies."
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting section explicitly states: 'Establish whether the problem is wireless-specific by testing wired on the same VLAN.' This helps isolate the problem domain.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-wireless-and-network-troubleshooting",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "Which of the following best describes the term 'channel width' in wireless networking?",
-    "choices": [
-      "The number of available channels in a specific frequency band.",
-      "The power output of a wireless access point.",
-      "Bandwidth per channel, trading throughput for interference.",
-      "The maximum distance a wireless signal can travel."
-    ],
-    "answerIndex": 2,
-    "explanation": "The key terms define 'Channel width' as 'Bandwidth per channel, trading throughput for interference.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-wireless-and-network-troubleshooting",
-    "certificationId": "cert-comptia-network-plus",
     "prompt": "A user reports intermittent connectivity on their laptop while moving between different areas of a large building with multiple access points. The client often remains connected to a distant AP even when a closer one is available. What is this common problem referred to as?",
     "choices": [
       "Co-channel interference",
@@ -3438,21 +2553,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The problem described, where a client fails to transition to a closer, stronger access point, is explicitly listed under 'Common problems' as 'Sticky clients not roaming'.",
     "difficulty": "standard",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-wireless-and-network-troubleshooting",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "According to the provided material, which statement about adding more access points is a common misconception?",
-    "choices": [
-      "It can improve signal strength in dead zones.",
-      "It always increases overall network throughput.",
-      "Adding access points does not fix interference and often makes contention worse.",
-      "It is necessary for supporting newer wireless standards."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Misconceptions' section clearly states: 'Adding access points does not fix interference and often makes contention worse.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-wireless-and-network-troubleshooting",
@@ -3487,36 +2587,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-security-principles-and-threats",
     "certificationId": "cert-comptia-security-plus",
-    "prompt": "Which of the following best describes the 'Integrity' principle of the CIA triad?",
-    "choices": [
-      "Ensuring that information is accessible to authorized users when needed.",
-      "Protecting information from unauthorized access and disclosure.",
-      "Maintaining the accuracy and completeness of information and its processing methods.",
-      "Implementing redundant systems to prevent service outages."
-    ],
-    "answerIndex": 2,
-    "explanation": "Integrity focuses on safeguarding the accuracy and completeness of data and ensuring that any changes are authorized and proper.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-security-principles-and-threats",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "According to the provided section, what is the definition of 'Risk' in a security context?",
-    "choices": [
-      "A weakness that an attacker can exploit.",
-      "An actor or event that could cause harm.",
-      "The combination of likelihood and impact for a given scenario.",
-      "A safeguard designed to reduce vulnerabilities."
-    ],
-    "answerIndex": 2,
-    "explanation": "The section explicitly defines Risk as 'The combination of likelihood and impact for a given scenario.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-security-principles-and-threats",
-    "certificationId": "cert-comptia-security-plus",
     "prompt": "A company implements an Intrusion Detection System (IDS) that alerts security personnel when suspicious activity is detected. Which type of control does this best represent?",
     "choices": [
       "Preventive and physical.",
@@ -3543,21 +2613,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The troubleshooting section advises to 'Ask which CIA property was harmed to focus an investigation,' providing a structured approach to initial incident assessment.",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-security-principles-and-threats",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "Which of the following accurately describes the relationship between 'Compliance' and 'Security' according to the provided text?",
-    "choices": [
-      "Compliance is a subset of security, ensuring all security measures are met.",
-      "Security is a subset of compliance, providing the technical means to meet regulations.",
-      "Compliance is not security; passing an audit can coexist with serious exposure.",
-      "Compliance and security are interchangeable terms in a robust defense strategy."
-    ],
-    "answerIndex": 2,
-    "explanation": "The misconceptions section states: 'Compliance is not security; passing an audit can coexist with serious exposure,' highlighting that meeting regulatory requirements does not inherently guarantee security.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-security-principles-and-threats",
@@ -3637,21 +2692,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cryptography-fundamentals",
     "certificationId": "cert-comptia-security-plus",
-    "prompt": "What is the primary purpose of adding 'salt' during the hashing process?",
-    "choices": [
-      "To increase the speed of the hashing algorithm for bulk data",
-      "To ensure the hashed output is always a fixed length",
-      "To make the hash reversible for decryption purposes",
-      "To defeat precomputed tables used in attacks"
-    ],
-    "answerIndex": 3,
-    "explanation": "The definition for 'Salt' explicitly states its purpose is 'Random data added before hashing to defeat precomputed tables'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cryptography-fundamentals",
-    "certificationId": "cert-comptia-security-plus",
     "prompt": "Which of the following is a key characteristic that distinguishes asymmetric cryptography from symmetric cryptography?",
     "choices": [
       "Asymmetric cryptography uses a single shared key for both encryption and decryption.",
@@ -3693,21 +2733,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Common problems' section lists 'Name mismatch', which occurs when the name in the certificate does not match the name of the server being accessed.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cryptography-fundamentals",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "Which of these concepts is explicitly stated as *not* providing confidentiality, despite sometimes being confused with encryption?",
-    "choices": [
-      "Hashing with SHA-256",
-      "Encoding such as Base64",
-      "Generating a digital signature",
-      "Establishing a certificate chain"
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Misconceptions' section explicitly states: 'Encoding such as Base64 is not encryption and provides no confidentiality.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-incident-response-fundamentals",
@@ -3772,21 +2797,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-incident-response-fundamentals",
     "certificationId": "cert-comptia-security-plus",
-    "prompt": "What is the primary purpose of a 'Post-incident review'?",
-    "choices": [
-      "To produce improvements and lessons learned, not to assign blame",
-      "To discipline employees responsible for the incident",
-      "To determine the financial cost of the incident only",
-      "To ensure all evidence is permanently deleted"
-    ],
-    "answerIndex": 0,
-    "explanation": "The definition of 'Post-incident review' explicitly states it is 'Structured analysis producing improvements, not blame,' and the misconceptions section reinforces that blame suppresses reporting.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-incident-response-fundamentals",
-    "certificationId": "cert-comptia-security-plus",
     "prompt": "Before drawing conclusions during incident troubleshooting, what is recommended to establish?",
     "choices": [
       "A timeline from authoritative logs",
@@ -3798,36 +2808,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Troubleshooting' section advises to 'Establish a timeline from authoritative logs before drawing conclusions' to ensure accurate understanding of events.",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-incident-response-fundamentals",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "What is an 'Indicator of Compromise (IOC)'?",
-    "choices": [
-      "An observable artefact of attacker activity",
-      "A formal document for regulatory notification",
-      "The process of isolating an infected host",
-      "A strategy for restoring systems from backups"
-    ],
-    "answerIndex": 0,
-    "explanation": "The key terms define 'IOC' as 'Indicator of compromise, an observable artefact of attacker activity,' which helps in detection and analysis.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-package-and-service-management",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which of the following describes the primary function of a package manager like `apt` or `dnf`?",
-    "choices": [
-      "To manage network interfaces and firewall rules across the system.",
-      "To install, update, and remove software while resolving dependencies.",
-      "To monitor system performance and allocate resources to running applications.",
-      "To configure bootloader settings and kernel modules for hardware compatibility."
-    ],
-    "answerIndex": 1,
-    "explanation": "Package managers such as `apt` and `dnf` are specifically designed to handle the lifecycle of software packages, including their installation, updates, and removal, with a key feature being automatic dependency resolution.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-linux-package-and-service-management",
@@ -3873,21 +2853,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The definition for 'Target' states it is 'A systemd grouping roughly equivalent to a runlevel,' which precisely matches the question.",
     "difficulty": "standard",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-package-and-service-management",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "A service is failing to start correctly after a system reboot. What is the most effective first troubleshooting step using systemd tools?",
-    "choices": [
-      "Check the global syslog for general system errors.",
-      "Reinstall the service package to ensure all files are present.",
-      "Use `systemctl status` for the service to check its exit code and last log lines.",
-      "Modify the service's unit file to increase its restart attempts."
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting section explicitly lists 'Read systemctl status for exit code and the last log lines' as a primary step for diagnosing service issues.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-linux-package-and-service-management",
@@ -3952,21 +2917,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-bash-scripting-and-automation",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the primary purpose of 'quoting' variables in a Bash script?",
-    "choices": [
-      "To make the script run faster by pre-compiling variable values.",
-      "To protect variable contents from word splitting and globbing.",
-      "To encrypt sensitive variable data for security.",
-      "To define the data type of the variable for strict checking."
-    ],
-    "answerIndex": 1,
-    "explanation": "Quoting variables, typically with double quotes, prevents the shell from interpreting spaces as delimiters (word splitting) or special characters like `*` as wildcards (globbing).",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-bash-scripting-and-automation",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "You have a scheduled Bash script that runs daily via `cron`, but it consistently fails without any clear error message in your logs. Which of the following is a critical first troubleshooting step?",
     "choices": [
       "Reinstalling `cron` to ensure it's functioning correctly.",
@@ -3978,21 +2928,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Running the script with `bash -x` is a key troubleshooting technique that provides a detailed trace of commands and their expansions, helping to pinpoint where a script is failing, especially in a non-interactive environment.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-bash-scripting-and-automation",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "According to the provided material, which statement about exit codes in a pipeline is a common misconception?",
-    "choices": [
-      "A zero exit code from the *last* command in a pipeline always means every stage succeeded.",
-      "A non-zero exit code indicates an error in at least one stage of the pipeline.",
-      "`set -o pipefail` ensures that the pipeline's exit status reflects the first command to fail.",
-      "Exit codes are irrelevant for commands executed within a pipeline."
-    ],
-    "answerIndex": 0,
-    "explanation": "The material explicitly states, 'A zero exit code in a pipeline does not always mean every stage succeeded without pipefail.' By default, only the last command's exit code is returned.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-bash-scripting-and-automation",
@@ -4025,36 +2960,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "concept"
   },
   {
-    "topicId": "topic-bash-scripting-and-automation",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the numerical value of an 'exit code' that typically signifies successful execution of a command or script?",
-    "choices": [
-      "1",
-      "255",
-      "0",
-      "-1"
-    ],
-    "answerIndex": 2,
-    "explanation": "The definition for 'Exit code' states: 'Numeric status where zero means success.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-networking-and-troubleshooting",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which command is primarily used to display network interfaces and their assigned IP addresses on a Linux system?",
-    "choices": [
-      "ip addr",
-      "netstat -rn",
-      "ifconfig -a",
-      "route -n"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'ip addr' command is explicitly defined as displaying interfaces and their assigned addresses, making it the primary tool for this task.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
     "topicId": "topic-linux-networking-and-troubleshooting",
     "certificationId": "cert-comptia-linux-plus",
     "prompt": "After configuring a new network service on a Linux server, a remote client reports it cannot connect. What is the most crucial first troubleshooting step on the server side to confirm the service's availability?",
@@ -4083,21 +2988,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Misconceptions' section states, 'Editing resolv.conf directly is often overwritten by the network manager in use,' with systemd-resolved being a common example of such a manager.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-networking-and-troubleshooting",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which command would you use to list all listening TCP and UDP sockets along with the processes that own them?",
-    "choices": [
-      "netstat -lntp",
-      "ss -tulpn",
-      "lsof -i",
-      "sockstat -a"
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'ss -tulpn' command is specifically listed under 'Key terms' as listing 'listening TCP and UDP sockets with owning processes.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-linux-networking-and-troubleshooting",
@@ -4252,21 +3142,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-server-hardware-and-storage-arrays",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "A server has multiple redundant power supplies. What common problem might still occur despite this redundancy, if not properly monitored?",
-    "choices": [
-      "Predictive drive failures causing data loss.",
-      "An unnoticed failure of one of the redundant power supplies.",
-      "Firmware mismatch across clustered servers.",
-      "The management interface becoming unreachable."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Common problems' list includes 'Unnoticed failed PSU', highlighting that redundancy doesn't prevent failure, but rather ensures continued operation, provided the failure is eventually addressed.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-hardware-and-storage-arrays",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "Why does hardware redundancy, such as redundant power supplies and RAID arrays, not eliminate the need for backups?",
     "choices": [
       "Backups are only for restoring operating system configurations.",
@@ -4342,36 +3217,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-windows-server-and-active-directory",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of the following best describes the function of a Domain Controller?",
-    "choices": [
-      "A server that applies Group Policy Objects to users and computers.",
-      "A server that primarily manages DNS SRV records for service location.",
-      "A server hosting the directory and authentication services.",
-      "A server responsible for synchronizing directory data with external domains."
-    ],
-    "answerIndex": 2,
-    "explanation": "The key terms define 'Domain controller' as 'A server hosting the directory and authentication services.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-windows-server-and-active-directory",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "In the standard Group Policy processing order, which scope's settings typically win by default if there are conflicting configurations?",
-    "choices": [
-      "Local policy settings",
-      "Site-linked policy settings",
-      "Domain-linked policy settings",
-      "Organizational Unit (OU)-linked policy settings"
-    ],
-    "answerIndex": 3,
-    "explanation": "The 'How it works' section states: 'Group Policy is processed by scope: local, site, domain, then OU, with later settings winning by default.' This implies OU settings win over earlier scopes.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-windows-server-and-active-directory",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A common problem in Active Directory environments that can lead to authentication failures is related to time discrepancies. What is this specific issue called?",
     "choices": [
       "Group Policy inheritance conflict",
@@ -4417,21 +3262,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-backup-and-disaster-recovery",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "An organization is designing a backup strategy to specifically protect against ransomware attacks that encrypt data. Which of the following backup characteristics is most crucial for surviving such an attack?",
-    "choices": [
-      "Ensuring all backups are stored on local, high-speed storage.",
-      "Implementing an air-gapped or immutable backup copy.",
-      "Replicating all data in real-time to a secondary data center.",
-      "Having a comprehensive runbook for all recovery procedures."
-    ],
-    "answerIndex": 1,
-    "explanation": "Immutable or air-gapped copies are specifically mentioned as resisting encryption and deletion, which is key for ransomware resilience. Replication is explicitly stated as 'not backup' for this purpose as it copies encryption.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-backup-and-disaster-recovery",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A system administrator observes that while backup jobs report success, actual data restores are consistently exceeding the documented Recovery Time Objective (RTO). What is the most immediate troubleshooting step they should take?",
     "choices": [
       "Redesign the entire backup strategy using a different backup type.",
@@ -4462,21 +3292,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-backup-and-disaster-recovery",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "An IT team is documenting their disaster recovery plan. Which key term describes the maximum acceptable time to restore service after an outage?",
-    "choices": [
-      "Recovery Point Objective (RPO)",
-      "Recovery Time Objective (RTO)",
-      "Retention Policy Duration",
-      "Backup Window Limit"
-    ],
-    "answerIndex": 1,
-    "explanation": "RTO is defined as 'Maximum acceptable time to restore service,' making it the direct answer to maximum tolerable downtime.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-backup-and-disaster-recovery",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A critical server's data was encrypted by ransomware. The organization has backup copies, but they were accessible using the same credentials as the production network. Why is this a 'common problem' in disaster recovery?",
     "choices": [
       "It leads to excessive storage consumption for backups.",
@@ -4492,21 +3307,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-backup-and-disaster-recovery",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "In the context of disaster recovery, what is the primary purpose of a 'Runbook'?",
-    "choices": [
-      "To define the data retention policies for all backup types.",
-      "To specify the allowable data loss (RPO) for each system.",
-      "To document the step-by-step recovery procedure and the order of operations.",
-      "To establish the maximum acceptable downtime (RTO) for critical services."
-    ],
-    "answerIndex": 2,
-    "explanation": "A 'Runbook' is defined as 'The documented recovery procedure and order,' which is crucial for executing a recovery plan systematically.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-backup-and-disaster-recovery",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "During a disaster recovery exercise, the team finds that several critical workloads were not protected by any backup jobs. What troubleshooting step should be taken to prevent this from happening again?",
     "choices": [
       "Implement a stricter retention policy for existing backups.",
@@ -4518,21 +3318,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The troubleshooting section suggests to 'Reconcile protected systems against the current asset inventory' to address issues like 'Missed workloads'.",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-monitoring-and-patch-management",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of the following is a primary purpose of monitoring, as described in the section?",
-    "choices": [
-      "To inventory all systems for compliance reporting.",
-      "To collect metrics such as CPU, memory, and error rates.",
-      "To centralize all security incidents for legal review.",
-      "To enforce strict access controls on system resources."
-    ],
-    "answerIndex": 1,
-    "explanation": "The definition states that 'Monitoring collects metrics such as CPU, memory, disk, latency, and error rates, plus synthetic checks of user journeys.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-monitoring-and-patch-management",
@@ -4567,21 +3352,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-monitoring-and-patch-management",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "When troubleshooting an incident, what is a recommended first step related to logging and patching?",
-    "choices": [
-      "Immediately restart all affected services to clear potential issues.",
-      "Review the last 24 hours of user login attempts for anomalies.",
-      "Correlate the incident timeline with change and patch records.",
-      "Perform a full vulnerability scan on all impacted systems."
-    ],
-    "answerIndex": 2,
-    "explanation": "Under Troubleshooting, it states: 'Correlate the incident timeline with change and patch records.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-monitoring-and-patch-management",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "What is the primary function of a 'deployment ring' in patch management?",
     "choices": [
       "To isolate sensitive data during patch installation.",
@@ -4593,21 +3363,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The key terms define 'Deployment ring' as 'A staged group receiving updates before wider release.'",
     "difficulty": "standard",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-monitoring-and-patch-management",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of the following is identified as a common problem in logging practices?",
-    "choices": [
-      "Log shippers forwarding events too slowly.",
-      "Log retention periods being too short.",
-      "Overly complex search queries in log platforms.",
-      "Lack of standardized log formats across different systems."
-    ],
-    "answerIndex": 1,
-    "explanation": "Under Common problems, 'Log retention too short' is listed.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-monitoring-and-patch-management",
@@ -4683,21 +3438,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Egress cost refers specifically to charges for data leaving the provider network, which directly relates to unexpected data transfer charges.",
     "difficulty": "standard",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-service-models-and-deployment",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A user reports that a Software as a Service (SaaS) application they rely on has lost some recent data. What is a common misconception highlighted in the material regarding data retention in SaaS?",
-    "choices": [
-      "SaaS applications are inherently immutable and data cannot be lost.",
-      "The SaaS provider is solely responsible for all data backup and recovery.",
-      "Data in SaaS is not automatically backed up to your specific retention requirements.",
-      "All SaaS data is automatically replicated across multiple geographic regions."
-    ],
-    "answerIndex": 2,
-    "explanation": "The material explicitly states that a misconception is 'Data in SaaS is not automatically backed up to your retention requirements', indicating customers often have a role in data management or specific retention policies.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-cloud-service-models-and-deployment",
@@ -4792,21 +3532,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-compute-and-networking",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of the following statements accurately describes the fundamental difference between Security Groups and Network ACLs in a cloud environment?",
-    "choices": [
-      "Security Groups filter per subnet, while Network ACLs filter per resource.",
-      "Security Groups apply stateless filtering, while Network ACLs apply stateful filtering.",
-      "Security Groups filter statefully per resource, while Network ACLs filter statelessly per subnet.",
-      "Security Groups only allow inbound traffic, while Network ACLs only allow outbound traffic."
-    ],
-    "answerIndex": 2,
-    "explanation": "The section clearly states: 'Security groups filter statefully per resource, while network ACLs filter statelessly per subnet.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-compute-and-networking",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "An administrator observes that traffic is not being distributed to a specific instance behind a load balancer, even though the instance itself is running. What is the most likely immediate cause to investigate first?",
     "choices": [
       "The instance has been removed from the Auto Scaling Group.",
@@ -4846,81 +3571,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 3,
     "explanation": "The definition for 'Auto scaling group' explicitly states it is 'A managed set of instances scaled by policy,' which directly addresses the requirement for automatic capacity adjustment based on demand.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-compute-and-networking",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "When troubleshooting connectivity issues to a cloud instance, if the initial checks of the application itself reveal no problems, what is the recommended order of network components to inspect?",
-    "choices": [
-      "Network ACL, Route Table, Security Group",
-      "Security Group, Network ACL, Route Table",
-      "Route Table, Security Group, Network ACL",
-      "Security Group, Route Table, Network ACL"
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting section explicitly advises: 'Trace the path: route table, security group, ACL, then the application itself.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cloud-compute-and-networking",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which statement about security groups is a key misconception that could lead to connectivity issues if not understood correctly?",
-    "choices": [
-      "Security groups only apply to outbound traffic.",
-      "Security groups require explicit rules for both inbound and return outbound traffic.",
-      "Security groups are stateless, so return traffic needs an explicit rule.",
-      "Security groups are stateful, so return traffic does not need an explicit rule."
-    ],
-    "answerIndex": 3,
-    "explanation": "The 'Misconceptions' section states: 'Security groups are stateful, so return traffic does not need an explicit rule.' Incorrectly believing they are stateless would lead to unnecessary or incorrect rule configurations.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-identity-and-security",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of the following best describes the primary purpose of a 'least privilege policy' in a cloud environment?",
-    "choices": [
-      "To grant permissions that are limited to only the required actions and resources.",
-      "To ensure all users have administrator access for maximum flexibility.",
-      "To assign temporary credentials with a limited lifetime to all identities.",
-      "To allow any action within a specified resource boundary for a short period."
-    ],
-    "answerIndex": 0,
-    "explanation": "According to the definition, a 'least privilege policy' means permissions are scoped to required actions and resources, minimizing potential harm if an identity is compromised.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-identity-and-security",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A security auditor discovers that a development team is using static, long-lived access keys embedded directly in their application code. Which common problem does this scenario represent?",
-    "choices": [
-      "Wildcard permissions.",
-      "Disabled or short-retention audit logs.",
-      "Unencrypted or public resources.",
-      "Long-lived access keys in code."
-    ],
-    "answerIndex": 3,
-    "explanation": "The section explicitly lists 'Long-lived access keys in code' as a common problem, contrasting it with the best practice of using short-lived role assumption.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-identity-and-security",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which security measure is described as providing an immutable record of control-plane API activity?",
-    "choices": [
-      "Role assumption.",
-      "Secrets manager.",
-      "Audit log.",
-      "Least privilege policy."
-    ],
-    "answerIndex": 2,
-    "explanation": "The definition states that an 'Audit log' is an 'Immutable record of control-plane API activity', which is crucial for accountability and security investigations.",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
   },
@@ -4972,21 +3622,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-identity-and-security",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which statement accurately describes a misconception regarding cloud security?",
-    "choices": [
-      "Encryption at rest protects against a permission that allows reading the data.",
-      "Wildcard permissions granted 'temporarily during setup' often become permanent.",
-      "Audit logs are optional for compliance in most regulated industries.",
-      "Least privilege policies are primarily for user convenience, not security."
-    ],
-    "answerIndex": 1,
-    "explanation": "The section specifically lists 'Wildcard permissions granted 'temporarily during setup' almost always become permanent' as a key misconception.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-identity-and-security",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "How does 'role assumption' contribute to cloud security best practices?",
     "choices": [
       "It grants permanent administrative access to specific services.",
@@ -5017,21 +3652,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-containers-and-infrastructure-as-code",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "In Infrastructure as Code, what term describes the difference between the declared configuration and the actual state of resources?",
-    "choices": [
-      "Drift",
-      "Divergence",
-      "Anomaly",
-      "Inconsistency"
-    ],
-    "answerIndex": 0,
-    "explanation": "The key terms define 'Drift' as 'Difference between declared configuration and actual resources.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-containers-and-infrastructure-as-code",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "Which of the following is considered a significant security risk, even with container isolation in place?",
     "choices": [
       "Running the container with a mutable 'latest' tag",
@@ -5043,21 +3663,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Common problems' section lists 'Secrets baked into images' as an issue, and 'Misconceptions' notes 'Running as root inside a container is still a meaningful risk despite isolation,' implying that security risks within containers are still pertinent.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-containers-and-infrastructure-as-code",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "You suspect that an unexpected change in your infrastructure environment is causing application issues. What is the recommended first troubleshooting step according to Infrastructure as Code principles?",
-    "choices": [
-      "Compare the declared configuration to actual resources to identify drift.",
-      "Restart all containers and services immediately.",
-      "Rebuild all container images from scratch.",
-      "Check the host kernel version for recent updates."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Troubleshooting' section advises to 'Compare declared configuration to actual resources to identify drift' when behavior changes unexpectedly.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-containers-and-infrastructure-as-code",
@@ -5092,21 +3697,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-containers-and-infrastructure-as-code",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "When troubleshooting a crashing container, what action is recommended before attempting a restart?",
-    "choices": [
-      "Read container logs and events.",
-      "Inspect the host kernel namespaces.",
-      "Modify the container's cgroup limits.",
-      "Check the state file for resource drift."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Troubleshooting' section suggests to 'Read container logs and events before restarting; restarts hide crash causes.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-containers-and-infrastructure-as-code",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "Which statement accurately describes a key difference between containers and traditional virtual machines?",
     "choices": [
       "Containers share the host kernel, while virtual machines do not.",
@@ -5118,36 +3708,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Misconceptions' section states, 'Containers are not virtual machines; they share the host kernel and isolation is weaker.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-security-monitoring-and-siem",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which of the following best describes the primary function of a Security Information and Event Management (SIEM) platform?",
-    "choices": [
-      "To prevent all malicious network traffic from entering an organization's systems.",
-      "To centralize logs, normalize data, and apply correlation rules to raise security alerts.",
-      "To manage and enforce user access permissions across all IT resources.",
-      "To encrypt all sensitive data at rest and in transit to prevent unauthorized access."
-    ],
-    "answerIndex": 1,
-    "explanation": "The definition states SIEM platforms centralise logs, normalise them, and apply correlation rules to raise alerts, which is their primary function.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-security-monitoring-and-siem",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "An analyst receives an alert from the SIEM. What is the immediate next step in the triage workflow after the alert is generated?",
-    "choices": [
-      "Escalate the alert directly to the incident response team for investigation.",
-      "Validate the signal and enrich it with context.",
-      "Immediately block the source IP address identified in the alert.",
-      "Close the alert if no immediate threat is apparent in the summary."
-    ],
-    "answerIndex": 1,
-    "explanation": "The triage workflow involves analysts validating the signal, enriching it with context, and then determining if it's a true or false positive.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-security-monitoring-and-siem",
@@ -5242,21 +3802,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-log-analysis-and-detection-engineering",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which of the following best describes the primary goal of log analysis in cybersecurity?",
-    "choices": [
-      "To block malicious executables by their filename.",
-      "To reconstruct attacker behavior from raw telemetry data.",
-      "To generate automated reports for compliance auditing.",
-      "To encrypt sensitive log files for secure storage."
-    ],
-    "answerIndex": 1,
-    "explanation": "Log analysis aims to reconstruct behavior from various log events like process creation, command lines, and network connections, providing insights into potential attacker activities.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-log-analysis-and-detection-engineering",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "What does 'Living off the land' refer to in the context of cybersecurity attacks?",
     "choices": [
       "Attackers using custom-built malware to compromise systems.",
@@ -5345,51 +3890,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "diagnosis"
   },
   {
-    "topicId": "topic-log-analysis-and-detection-engineering",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What is the primary purpose of 'baseline' in the context of log analysis and detection engineering?",
-    "choices": [
-      "To establish minimum security requirements for systems.",
-      "To define the normal behavior from which anomalies can be distinguished.",
-      "To store encrypted copies of log files for auditing purposes.",
-      "To categorize attacker techniques based on their severity."
-    ],
-    "answerIndex": 1,
-    "explanation": "Baseline is defined as 'Normal behaviour used to distinguish anomalies,' which is crucial for identifying suspicious activities.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-threat-intelligence-and-hunting",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which of the following best defines Threat Intelligence?",
-    "choices": [
-      "Proactive searches based on hypotheses against telemetry.",
-      "Contextual information about adversaries, their techniques, and observable indicators.",
-      "A collection of Indicators of Compromise (IOCs) used for enrichment.",
-      "Documented findings that hypothesised activity was not present."
-    ],
-    "answerIndex": 1,
-    "explanation": "Threat intelligence provides context about adversaries, their techniques, and observable indicators, at strategic, operational, and tactical levels, as stated in the definition.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-threat-intelligence-and-hunting",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "According to the provided text, what is a key characteristic of Threat Hunting?",
-    "choices": [
-      "It primarily involves consuming IOC feeds for network enrichment.",
-      "It is a reactive process triggered by existing security alerts.",
-      "It is a proactive search guided by a specific hypothesis.",
-      "It focuses solely on identifying benign administrative activities."
-    ],
-    "answerIndex": 2,
-    "explanation": "Threat hunting is defined as a 'proactive search based on a hypothesis such as 'an adversary is using scheduled tasks for persistence here', executed against telemetry'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
     "topicId": "topic-threat-intelligence-and-hunting",
     "certificationId": "cert-comptia-cysa-plus",
     "prompt": "A security analyst discovers that a hunt for a specific adversary technique yielded no evidence of its use. This outcome, when properly documented and repeatable, is referred to as what?",
@@ -5422,51 +3922,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-threat-intelligence-and-hunting",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "When preparing for a threat hunt, which crucial step must be confirmed before proceeding, according to the troubleshooting section?",
-    "choices": [
-      "That all potential IOC feeds are integrated.",
-      "That the telemetry required by the hypothesis exists.",
-      "That all security alerts are currently inactive.",
-      "That the threat intelligence is at the strategic level."
-    ],
-    "answerIndex": 1,
-    "explanation": "The troubleshooting section advises: 'Confirm the telemetry required by the hypothesis exists before hunting.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-threat-intelligence-and-hunting",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What is the primary purpose of a 'Hypothesis' in the context of threat hunting?",
-    "choices": [
-      "To provide a broad overview of adversary capabilities.",
-      "To document previous incident response findings.",
-      "To generate a list of all known Indicators of Compromise.",
-      "To offer a specific, testable statement guiding the search."
-    ],
-    "answerIndex": 3,
-    "explanation": "The key terms define 'Hypothesis' as 'A specific, testable statement guiding a hunt'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-threat-intelligence-and-hunting",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Upon completing a threat hunt, the findings should ideally feed into which subsequent activities?",
-    "choices": [
-      "Solely the procurement of new intelligence feeds.",
-      "Detection engineering, hardening, or incident response.",
-      "Directly updating the company's compliance policies.",
-      "Eliminating all existing security alerts permanently."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section states: 'Findings feed detection engineering, hardening, or incident response.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-threat-intelligence-and-hunting",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "A common problem in threat hunting identified in the material is 'Hunts without hypotheses'. What issue does this directly address?",
     "choices": [
       "The evaluation of intelligence reliability.",
@@ -5478,21 +3933,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Common problems' list includes 'Hunts without hypotheses'. A hypothesis is defined as 'A specific, testable statement guiding a hunt,' meaning its absence would lead to a lack of scope and focus.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-vulnerability-management",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which of the following best describes the continuous cycle of vulnerability management?",
-    "choices": [
-      "Scanning, remediation, asset discovery, validation, prioritization, verification",
-      "Asset discovery, scanning, validation, prioritization, remediation, verification",
-      "Prioritization, scanning, asset discovery, remediation, validation, verification",
-      "Validation, asset discovery, scanning, prioritization, remediation, verification"
-    ],
-    "answerIndex": 1,
-    "explanation": "The text defines vulnerability management as a continuous cycle starting with asset discovery, then scanning, validation, prioritization, remediation, and finally verification.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-vulnerability-management",
@@ -5527,21 +3967,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-vulnerability-management",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "According to the provided text, why are raw scan counts considered a poor metric for measuring vulnerability program effectiveness?",
-    "choices": [
-      "They do not differentiate between high and low severity findings.",
-      "They only reflect vulnerabilities found, not those fixed.",
-      "They fluctuate based on scanner coverage rather than actual risk.",
-      "They are easily manipulated by security teams to show better results."
-    ],
-    "answerIndex": 2,
-    "explanation": "The misconceptions section states: 'Scan counts are a poor metric; they change with scanner coverage rather than actual risk.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-vulnerability-management",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "A security analyst discovers that their vulnerability scanner results appear 'implausibly clean' for a critical server. What troubleshooting step should be performed first?",
     "choices": [
       "Immediately mark all findings as false positives and close them.",
@@ -5557,21 +3982,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-vulnerability-management",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What does KEV stand for in the context of vulnerability prioritization?",
-    "choices": [
-      "Key Exploitation Vector",
-      "Known Exploited Vulnerability",
-      "Kernel Emergency Vetting",
-      "Critical Exposure Value"
-    ],
-    "answerIndex": 1,
-    "explanation": "The key terms define KEV as 'Known exploited vulnerability catalogue used for prioritisation.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-vulnerability-management",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "When patching is not possible for a high-risk vulnerability, what is identified as a control that can reduce the associated risk?",
     "choices": [
       "Implementing a strict Remediation SLA.",
@@ -5583,21 +3993,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The key terms define 'Compensating control' as 'A control reducing risk when patching is not possible.'",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-vulnerability-management",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "How should remediation typically be tracked and verified according to the section material?",
-    "choices": [
-      "By the closure of the associated help desk ticket.",
-      "By an email confirmation from the asset owner.",
-      "By a verified rescan after the fix is applied.",
-      "By updating the asset inventory database record."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section states: 'Remediation is tracked to a verified rescan rather than a closed ticket.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-penetration-testing-methodology",
@@ -5617,21 +4012,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-penetration-testing-methodology",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "During the reconnaissance phase of a penetration test, what distinguishes 'passive' reconnaissance from 'active' reconnaissance?",
-    "choices": [
-      "Passive reconnaissance involves direct interaction with the target, while active reconnaissance uses public sources.",
-      "Passive reconnaissance focuses on network scans, while active reconnaissance uses social engineering techniques.",
-      "Passive reconnaissance gathers information without direct interaction with the target, often from public sources, while active reconnaissance involves direct interaction.",
-      "Passive reconnaissance aims to identify vulnerabilities, while active reconnaissance focuses on enumerating services."
-    ],
-    "answerIndex": 2,
-    "explanation": "The section states that 'Reconnaissance may be passive (public sources) or active (direct interaction),' clearly defining the difference.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-penetration-testing-methodology",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "A client observes unusual network traffic during a penetration test and contacts the testing team. What is the immediate first step the penetration testing team should take?",
     "choices": [
       "Immediately cease all testing activities to avoid further impact.",
@@ -5643,21 +4023,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Troubleshooting' section advises to 'Contact the deconfliction channel if the client reports unexpected impact,' which is essential for confirming the nature of the activity.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-penetration-testing-methodology",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is a key difference between a vulnerability scan and a penetration test, according to the provided material?",
-    "choices": [
-      "A penetration test identifies vulnerabilities, while a vulnerability scan demonstrates their impact.",
-      "A vulnerability scan provides legal authorization, while a penetration test relies on verbal consent.",
-      "A vulnerability scan identifies potential weaknesses, while a penetration test actively demonstrates the impact of those weaknesses.",
-      "A penetration test covers only network devices, while a vulnerability scan includes applications."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Misconceptions' section explicitly states: 'A vulnerability scan is not a penetration test; scanning identifies, testing demonstrates impact.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-penetration-testing-methodology",
@@ -5690,66 +4055,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "procedure"
   },
   {
-    "topicId": "topic-penetration-testing-methodology",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the primary purpose of 'deconfliction' in penetration testing?",
-    "choices": [
-      "To resolve technical issues encountered during the test.",
-      "To ensure all findings are correctly documented for reporting.",
-      "To confirm whether observed activity is part of the penetration test or a real security incident.",
-      "To agree upon the legal terms and conditions before the test begins."
-    ],
-    "answerIndex": 2,
-    "explanation": "Deconfliction is defined as 'Confirming whether observed activity is the test or a real attack,' which is crucial for distinguishing test activities from actual threats.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-penetration-testing-methodology",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "According to the provided information, which of the following is considered insufficient authorization for a penetration test?",
-    "choices": [
-      "A signed statement of work detailing the scope.",
-      "Verbal permission granted by a single manager.",
-      "A formal legal agreement outlining rules of engagement.",
-      "Written consent from the IT director and legal counsel."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Misconceptions' section clearly states: 'Verbal permission from one manager is not sufficient authorisation,' highlighting the need for formal, written agreements.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-security-architecture-and-zero-trust",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "According to Zero Trust principles, what is assumed regarding network location?",
-    "choices": [
-      "Network location automatically confers a baseline level of trust.",
-      "No network location confers implicit trust.",
-      "Internal networks inherently offer more trust than external networks.",
-      "Trust is granted based on the geographical location of the network."
-    ],
-    "answerIndex": 1,
-    "explanation": "The definition states, 'Zero trust assumes no network location confers trust.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-security-architecture-and-zero-trust",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "Which of the following best describes a 'Policy enforcement point' in a Zero Trust architecture?",
-    "choices": [
-      "A central server that manages all security policies.",
-      "The specific location where an access decision is applied.",
-      "The network perimeter where initial authentication occurs.",
-      "A device that monitors network traffic for policy violations."
-    ],
-    "answerIndex": 1,
-    "explanation": "The key terms define 'Policy enforcement point' as 'Where an access decision is applied.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
     "topicId": "topic-security-architecture-and-zero-trust",
     "certificationId": "cert-comptia-securityx",
     "prompt": "When evaluating an access request in a Zero Trust model, what signals are typically used by policy engines?",
@@ -5761,21 +4066,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "The 'How it works' section states: 'Access requests are evaluated by policy engines using identity, device, and context signals.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-security-architecture-and-zero-trust",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the primary purpose of segmentation and tiering within a Zero Trust architecture?",
-    "choices": [
-      "To increase network performance by distributing traffic.",
-      "To allow faster recovery from network outages.",
-      "To restrict what a single compromised identity can access.",
-      "To reduce the number of required authentication steps."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section explains that 'Segmentation and tiering restrict what any single compromised identity can reach.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -5808,21 +4098,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The key terms define 'Blast radius' as 'The extent of damage a single compromise can cause.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-security-architecture-and-zero-trust",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "When troubleshooting a Zero Trust implementation, what is a recommended first step to identify issues?",
-    "choices": [
-      "Immediately upgrade all network infrastructure.",
-      "Implement MFA across all legacy applications.",
-      "Trace an access path end to end and identify where trust is assumed rather than verified.",
-      "Purchase new ZTNA products to replace existing ones."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Troubleshooting' section suggests: 'Trace an access path end to end and identify where trust is assumed rather than verified.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-security-architecture-and-zero-trust",
@@ -5872,36 +4147,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-and-identity-attack-defense",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "A security analyst is investigating a suspected identity-centric attack. What is identified as a common problem that could facilitate such an attack?",
-    "choices": [
-      "Phishing-resistant authentication configured",
-      "Conditional access policies strictly enforced",
-      "Over-permissioned service principals",
-      "Continuous access evaluation enabled"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Common problems' list includes 'Over-permissioned service principals' as a factor that can contribute to identity attacks.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-and-identity-attack-defense",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "Which security measure is described as evaluating device, location, and risk both before and, with continuous evaluation, after token issuance?",
-    "choices": [
-      "Consent governance",
-      "Conditional access",
-      "Key protection",
-      "Identity-focused monitoring"
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section states: 'Conditional access evaluates device, location, and risk before and, with continuous evaluation, after issuance.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-and-identity-attack-defense",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "During an incident response to an identity compromise, what is a recommended troubleshooting step related to application permissions?",
     "choices": [
       "Enable legacy authentication protocols for all users.",
@@ -5913,21 +4158,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'Troubleshooting', it advises to 'Enumerate and revoke application consents and refresh tokens during response.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cloud-and-identity-attack-defense",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the primary role of an identity provider as described in the section?",
-    "choices": [
-      "To enforce conditional access for all cloud resources.",
-      "To issue tokens whose lifetime and scope determine attacker persistence.",
-      "To continuously evaluate risk signals for active sessions.",
-      "To audit all cloud administrative activity in a usable, retained form."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section states: 'Identity providers issue tokens whose lifetime and scope determine attacker persistence.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-cloud-and-identity-attack-defense",
@@ -5945,21 +4175,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "terminology"
   },
   {
-    "topicId": "topic-cloud-and-identity-attack-defense",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "A critical cloud administrative activity occurred, but its details are missing from the long-term logs. Based on the provided material, what common misconception does this highlight?",
-    "choices": [
-      "All user consents are automatically revoked after a password reset.",
-      "Identity-focused monitoring automatically detects all anomalies.",
-      "Cloud administrative activity is not automatically logged in a usable, retained form.",
-      "Conditional access policies prevent all illicit OAuth consent grants."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Misconceptions' section states: 'Cloud administrative activity is not automatically logged in a usable, retained form.' This directly addresses the scenario described.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
     "topicId": "topic-enterprise-risk-and-security-program",
     "certificationId": "cert-comptia-securityx",
     "prompt": "Which of the following best defines the primary objective of a security programme?",
@@ -5973,21 +4188,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "A security programme sets strategy aligned to business risk, defines a target maturity, sequences initiatives, assigns ownership, and reports measurable outcomes.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-enterprise-risk-and-security-program",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the primary purpose of a 'maturity model' within an enterprise security programme?",
-    "choices": [
-      "To dictate the exact security controls that must be implemented.",
-      "To provide a scale for describing an organization's capability against defined security practices.",
-      "To measure the financial cost of security incidents over time.",
-      "To assign individual accountability for security breaches."
-    ],
-    "answerIndex": 1,
-    "explanation": "A maturity model is defined as a scale describing capability against defined practices, helping to assess the current state and target future improvements.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-enterprise-risk-and-security-program",
@@ -6016,21 +4216,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "The section clarifies a misconception: 'Executives are not uninterested in security; they are uninterested in undecidable technical detail.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-enterprise-risk-and-security-program",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "Which metric would be most indicative of risk reduction as an outcome, rather than just activity?",
-    "choices": [
-      "Number of security awareness training sessions conducted.",
-      "Number of firewall rules implemented per month.",
-      "Percentage of systems with up-to-date patch compliance.",
-      "Number of vulnerability scans performed."
-    ],
-    "answerIndex": 2,
-    "explanation": "Patch compliance directly reduces known vulnerabilities and thus risk, whereas the other options measure activity or scans rather than an outcome of reduced exposure.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -6078,36 +4263,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The troubleshooting section advises: 'Re-baseline metrics that improve without any real change in exposure.' This addresses the scenario where a metric appears better without an actual security improvement.",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-advanced-incident-response-and-forensics",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "Which of the following best describes a 'forensic image' in advanced incident response?",
-    "choices": [
-      "A verified bit-level copy of storage with hash validation.",
-      "A logical copy of relevant files from an affected system.",
-      "A snapshot of an active system's memory and running processes.",
-      "A compressed archive of log files from various sources."
-    ],
-    "answerIndex": 0,
-    "explanation": "The section defines a 'Forensic image' as 'A verified bit-level copy of storage with hash validation,' ensuring data integrity for investigations.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-advanced-incident-response-and-forensics",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "During a complex incident response, what is the primary purpose of 'timeline reconstruction'?",
-    "choices": [
-      "To establish a chronological sequence of events from multiple evidence sources.",
-      "To identify the specific malicious payload used in the attack.",
-      "To calculate the total financial cost of the incident.",
-      "To determine the organizational hierarchy of the threat actor."
-    ],
-    "answerIndex": 0,
-    "explanation": "The section defines 'Timeline' as an 'Ordered reconstruction of events from multiple evidence sources,' which is crucial for understanding incident progression.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-advanced-incident-response-and-forensics",
@@ -6172,21 +4327,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-advanced-incident-response-and-forensics",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "When should an incident NOT be declared closed, according to the provided misconceptions?",
-    "choices": [
-      "Before hunting the same indicators fleet-wide to ensure full eradication.",
-      "After the initial malware payload has been successfully removed from one system.",
-      "Once a preliminary report has been drafted for internal review.",
-      "When the initial access vector has been identified but not yet patched."
-    ],
-    "answerIndex": 0,
-    "explanation": "The misconceptions state: 'Declaring an incident closed before hunting the same indicators fleet-wide is premature,' indicating that comprehensive hunting is necessary before closure.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-advanced-incident-response-and-forensics",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "Which of the following is a critical first troubleshooting step before planning an investigation in advanced incident response?",
     "choices": [
       "Identify which evidence sources exist and their retention.",
@@ -6217,21 +4357,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-windows-administration-tools",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "A user reports an application repeatedly crashing. What is the most effective initial step to investigate this issue?",
-    "choices": [
-      "Edit the application's entry in the Registry Editor.",
-      "Check the Services console to ensure all dependencies are running.",
-      "Use Event Viewer to filter logs to the time of the crash for correlation.",
-      "Restart the system and monitor for the crash in Task Manager."
-    ],
-    "answerIndex": 2,
-    "explanation": "To troubleshoot repeated application crashes, it's essential to 'Establish the exact time of the symptom, then filter logs to that window' in Event Viewer to 'Correlate a crash with recent update, driver, or configuration events.'",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-windows-administration-tools",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "What role does PowerShell play in Windows administration according to the provided material?",
     "choices": [
       "It exclusively manages network configurations.",
@@ -6258,21 +4383,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Event Viewer stores 'structured events with source, ID, level, and timestamp,' making it the correct tool to correlate system instability with recent driver or configuration events.",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-windows-administration-tools",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following is described as 'A top-level branch of the Windows configuration database'?",
-    "choices": [
-      "Service",
-      "Event ID",
-      "Registry hive",
-      "Scheduled task"
-    ],
-    "answerIndex": 2,
-    "explanation": "The key terms define 'Registry hive' as 'A top-level branch of the Windows configuration database.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-windows-administration-tools",
@@ -6337,21 +4447,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-mobile-configuration-and-apps",
     "certificationId": "cert-comptia-a-plus",
-    "prompt": "Which of the following best describes the security advantage of obtaining applications solely from official app stores like Google Play or the Apple App Store?",
-    "choices": [
-      "Official app stores guarantee that all apps are compatible with every device model.",
-      "Apps from official stores are typically signed by the store and scanned for malware.",
-      "Official app stores provide direct communication channels to the app developers.",
-      "They ensure faster download speeds and more efficient app updates than other sources."
-    ],
-    "answerIndex": 1,
-    "explanation": "The section 'How it works' states: 'Apps from official stores are signed and scanned; sideloaded apps skip those checks and are the main mobile malware route.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-mobile-configuration-and-apps",
-    "certificationId": "cert-comptia-a-plus",
     "prompt": "A user frequently travels internationally and requires the ability to quickly switch between local carrier plans without physically swapping cards. Which technology is best suited for this need?",
     "choices": [
       "SIM (Subscriber Identity Module)",
@@ -6363,21 +4458,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The key term definition for eSIM states: 'An embedded, reprogrammable SIM activated by downloading a carrier profile, common for travel plans and dual-line phones.'",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-mobile-configuration-and-apps",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "After setting up a new corporate email account on a BYOD (Bring Your Own Device) phone, the user is prompted to set a device PIN, which they previously did not have. What is the most likely reason for this requirement?",
-    "choices": [
-      "The corporate email system is enforcing a security policy that requires a device PIN.",
-      "The phone's operating system automatically enables a PIN when a new email account is added.",
-      "The email protocol selected (e.g., POP3) inherently demands a device PIN for encryption.",
-      "A glitch in the email app is incorrectly prompting for a PIN during setup."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section mentions: 'Email profiles for work typically enforce security policy and can wipe only the corporate partition on BYOD devices.' This implies security requirements like a PIN.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-identity-and-access-management",
@@ -6393,66 +4473,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Permanent admin rights violate the principle of least privilege, which dictates that users should only have the minimum access necessary to perform their job functions.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-identity-and-access-management",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "What is the primary function of an identity provider in the context of federation?",
-    "choices": [
-      "To manage application data storage",
-      "To authenticate the user and issue a signed assertion or token",
-      "To enforce network perimeter security",
-      "To define internal application roles and permissions"
-    ],
-    "answerIndex": 1,
-    "explanation": "According to the 'How it works' section, an identity provider authenticates the user and issues a signed assertion or token to the application.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-identity-and-access-management",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "When troubleshooting an access failure, what is the recommended first step?",
-    "choices": [
-      "Check the application's database permissions",
-      "Verify network connectivity to the application server",
-      "Trace an access failure through identity provider logs",
-      "Reboot the user's device and try again"
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting advice states: 'Trace an access failure through identity provider logs before touching the application.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-identity-and-access-management",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "What common problem can lead to excessive access accumulation for users over time if not managed?",
-    "choices": [
-      "MFA fatigue attacks",
-      "Shared service credentials",
-      "Group nesting sprawl",
-      "Orphaned accounts after leavers"
-    ],
-    "answerIndex": 2,
-    "explanation": "Group nesting sprawl is a common problem listed, and it can lead to users having more access than needed due to complex and unmanaged group memberships.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-identity-and-access-management",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "Which protocol is described as 'An identity layer built on OAuth 2.0 used by modern applications'?",
-    "choices": [
-      "SAML",
-      "SSO",
-      "OIDC",
-      "PAM"
-    ],
-    "answerIndex": 2,
-    "explanation": "OIDC is defined as 'An identity layer built on OAuth 2.0 used by modern applications.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-identity-and-access-management",
@@ -6481,36 +4501,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 2,
     "explanation": "The troubleshooting section advises: 'Verify token lifetime and session revocation when access persists after a change.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-network-security-controls",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "What is the primary function of a stateful firewall in managing network traffic?",
-    "choices": [
-      "It tracks active network sessions to permit return traffic automatically.",
-      "It applies strict default-deny rules to all incoming connections.",
-      "It encrypts all data packets passing between internal networks.",
-      "It inspects packet payloads for known malicious signatures."
-    ],
-    "answerIndex": 0,
-    "explanation": "Stateful firewalls track sessions, which allows return traffic to be permitted without requiring a separate rule, simplifying rule sets and improving security.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-network-security-controls",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "A company wants to ensure that different departments' networks cannot directly communicate with each other without going through specific security controls. Which network security control is best suited for this requirement?",
-    "choices": [
-      "Segmentation using VLANs or security groups.",
-      "Deployment of a single, centralized firewall.",
-      "Implementing a comprehensive VPN solution for all internal users.",
-      "Configuring an Intrusion Detection System (IDS) to alert on unusual traffic."
-    ],
-    "answerIndex": 0,
-    "explanation": "Segmentation, whether using VLANs, VRFs, or cloud security groups, is used to enforce policy between different network segments and prevent direct communication where not explicitly allowed.",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
   },
@@ -6575,66 +4565,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "diagnosis"
   },
   {
-    "topicId": "topic-network-security-controls",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "What does ZTNA primarily focus on regarding user access to applications?",
-    "choices": [
-      "Granting per-application, verified access based on zero trust principles.",
-      "Creating encrypted tunnels for all user traffic to the corporate network.",
-      "Ensuring all internal network traffic is unmonitored for privacy.",
-      "Allowing broad access to network resources once a user is authenticated."
-    ],
-    "answerIndex": 0,
-    "explanation": "ZTNA (Zero-Trust Network Access) is defined as 'Zero-trust network access granting per-application, verified access,' emphasizing granular, verified access.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-risk-governance-and-compliance",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "According to the provided section, what is the primary purpose of a 'Policy'?",
-    "choices": [
-      "To detail the specific technical steps for a task.",
-      "To record identified risks and their owners.",
-      "A management statement of required intent.",
-      "A committed service level between provider and consumer."
-    ],
-    "answerIndex": 2,
-    "explanation": "The section defines 'Policy' as 'A management statement of required intent.' The other options describe procedures, risk registers, or SLAs.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-risk-governance-and-compliance",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "Which of the following best describes the function of a 'Control objective'?",
-    "choices": [
-      "To document the findings of a security audit.",
-      "The outcome a control is meant to achieve.",
-      "A record of all identified security vulnerabilities.",
-      "The technical standard that implements a policy."
-    ],
-    "answerIndex": 1,
-    "explanation": "The section defines 'Control objective' as 'The outcome a control is meant to achieve.' This refers to the desired end state of a control measure.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-risk-governance-and-compliance",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "In the context of the provided material, what role do 'Standards' play in relation to 'Policies'?",
-    "choices": [
-      "Standards replace policies when policies are too vague.",
-      "Standards are used to make policies measurable.",
-      "Standards define the 'what' while policies define the 'how'.",
-      "Standards are primarily concerned with risk identification, not policy implementation."
-    ],
-    "answerIndex": 1,
-    "explanation": "The section states: 'Standards make policy measurable, and procedures make standards repeatable.' This indicates that standards provide the quantifiable aspects for policies.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
     "topicId": "topic-risk-governance-and-compliance",
     "certificationId": "cert-comptia-security-plus",
     "prompt": "A security analyst discovers that a critical risk identified during an assessment does not have a designated owner. According to the section, what is this situation categorized as?",
@@ -6665,66 +4595,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "procedure"
   },
   {
-    "topicId": "topic-risk-governance-and-compliance",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "An auditor is reviewing a company's security practices and finds that the documented procedure for data backup differs significantly from what the operators actually perform. What troubleshooting step is most relevant here?",
-    "choices": [
-      "Trace an audit finding to the missing evidence.",
-      "Check if the control objective is still valid.",
-      "Compare documented procedure with what operators actually do.",
-      "Review the SLA commitments for backup services."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Troubleshooting' section directly addresses this by stating: 'Compare documented procedure with what operators actually do.' This helps identify discrepancies between policy and practice.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-risk-governance-and-compliance",
-    "certificationId": "cert-comptia-security-plus",
-    "prompt": "What kind of information is contained within a 'Risk register'?",
-    "choices": [
-      "A list of all security policies and standards.",
-      "The outcome a control is meant to achieve.",
-      "The recorded set of identified risks, owners, and treatments.",
-      "Evidence proving a control operated as described."
-    ],
-    "answerIndex": 2,
-    "explanation": "The section defines 'Risk register' as 'The recorded set of identified risks, owners, and treatments.' This captures the comprehensive view of risks.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-exploitation-and-reporting",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the primary goal of an exploit in the context of an IT and cybersecurity course?",
-    "choices": [
-      "To execute code, bypass authentication, or access data.",
-      "To remove test artifacts and clean up configuration changes.",
-      "To recheck risk ratings against the client's actual exposure.",
-      "To provide a business-level explanation of risk and priority."
-    ],
-    "answerIndex": 0,
-    "explanation": "According to the section, 'Exploits abuse a flaw to execute code, bypass authentication, or access data.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-exploitation-and-reporting",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of the following best describes 'Privilege escalation' as defined in the provided material?",
-    "choices": [
-      "Gaining higher rights than initially obtained.",
-      "Using access on one system to reach another.",
-      "Minimal evidence demonstrating an issue without excess risk.",
-      "The potential impact of an action taken during testing."
-    ],
-    "answerIndex": 0,
-    "explanation": "The key term definition states: 'Privilege escalation = Gaining higher rights than initially obtained.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
     "topicId": "topic-exploitation-and-reporting",
     "certificationId": "cert-comptia-pentest-plus",
     "prompt": "What is the primary characteristic of 'Lateral movement' in cybersecurity operations?",
@@ -6738,21 +4608,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The key term definition states: 'Lateral movement = Using access on one system to reach another.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-exploitation-and-reporting",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the purpose of a 'Proof of concept' in penetration testing?",
-    "choices": [
-      "To provide a comprehensive list of all accessible data.",
-      "To establish minimal evidence of an issue without excess risk.",
-      "To outline all potential remediation actions for a vulnerability.",
-      "To ensure all test artifacts are removed post-testing."
-    ],
-    "answerIndex": 1,
-    "explanation": "The key term definition states: 'Proof of concept = Minimal evidence demonstrating the issue without excess risk.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-exploitation-and-reporting",
@@ -6783,51 +4638,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The key term definition states: 'Blast radius = The potential impact of an action taken during testing.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-exploitation-and-reporting",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of the following is a common problem identified in penetration testing processes?",
-    "choices": [
-      "Minimal evidence demonstrating an issue.",
-      "Findings with clear reproduction steps.",
-      "Risk ratings ignoring context.",
-      "Regular confirmation of cleanup procedures."
-    ],
-    "answerIndex": 2,
-    "explanation": "Under 'Common problems', it lists: 'Risk ratings ignoring context'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-exploitation-and-reporting",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the primary characteristic of an 'Executive summary' in a penetration test report?",
-    "choices": [
-      "Detailed technical steps for vulnerability reproduction.",
-      "A comprehensive list of all exploited systems.",
-      "Business-level explanation of risk and priority.",
-      "Evidence handling and cleanup procedures."
-    ],
-    "answerIndex": 2,
-    "explanation": "The key term definition states: 'Executive summary = Business-level explanation of risk and priority.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-exploitation-and-reporting",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Before reporting a finding, what is a crucial troubleshooting step to perform?",
-    "choices": [
-      "Ensure the 'blast radius' is fully documented.",
-      "Verify each finding is reproducible.",
-      "Confirm all test artifacts have been removed.",
-      "Establish an 'executive summary' for the client."
-    ],
-    "answerIndex": 1,
-    "explanation": "Under 'Troubleshooting', it states: 'Verify each finding is reproducible before reporting it.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-linux-filesystem-and-permissions",
@@ -6937,36 +4747,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-users-groups-and-sudo",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which command is primarily used to create new user accounts and their home directories on a Linux system?",
-    "choices": [
-      "useradd",
-      "mkuser",
-      "newuser",
-      "createuser"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'useradd' command is explicitly mentioned as the tool that 'creates the account and home directory'.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "After creating a new user account with `useradd`, which command would you use to set their initial password?",
-    "choices": [
-      "setpass",
-      "passwd",
-      "chgpass",
-      "cryptpass"
-    ],
-    "answerIndex": 1,
-    "explanation": "The section states 'passwd sets the password hash in /etc/shadow.', indicating it's used for password management.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "When evaluating file access permissions, what identifier does the Linux kernel primarily use?",
     "choices": [
       "username",
@@ -7027,51 +4807,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-users-groups-and-sudo",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the primary purpose of the `sudoers.d` directory?",
-    "choices": [
-      "To store user home directories.",
-      "To hold hashed passwords for all users.",
-      "To allow separate configuration files to be included in the sudo configuration.",
-      "To manage kernel modules and drivers."
-    ],
-    "answerIndex": 2,
-    "explanation": "sudoers.d is described as 'A directory of separate drop-in files merged into the sudo configuration.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "When troubleshooting a `sudo` denial, which log file should you check first for messages indicating why the action was not permitted?",
-    "choices": [
-      "/var/log/syslog",
-      "/var/log/messages",
-      "/var/log/auth.log",
-      "/var/log/kern.log"
-    ],
-    "answerIndex": 2,
-    "explanation": "Under 'Troubleshooting', it advises: 'Read /var/log/auth.log or the journal for sudo denial messages, which state exactly which rule was missing.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "A user tries to run a command with `sudo` and receives the error 'alice is not in the sudoers file. This incident will be reported.' What does this indicate?",
-    "choices": [
-      "The user 'alice' has an expired password.",
-      "The user 'alice' is not configured to use sudo.",
-      "The command being run is not allowed for 'alice'.",
-      "The system's `sudo` service is not running."
-    ],
-    "answerIndex": 1,
-    "explanation": "The error message 'alice is not in the sudoers file' directly implies that the user 'alice' does not have any sudo privileges configured for them.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "Which of these is a known common problem related to user accounts on Linux, as described in the section?",
     "choices": [
       "Hard drive failure preventing account access.",
@@ -7128,51 +4863,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Primary group is defined as 'The default group assigned to files a user creates.'",
     "difficulty": "standard",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the purpose of password aging policy, as configured in `/etc/shadow`?",
-    "choices": [
-      "To log all password changes.",
-      "To encrypt the password file.",
-      "To force users to change their passwords periodically.",
-      "To restrict password complexity requirements."
-    ],
-    "answerIndex": 2,
-    "explanation": "`/etc/shadow` holds 'hashed passwords and aging policy'. Password aging policy typically dictates how often users must change their passwords to enhance security.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which of these scenarios best describes why group membership not applying until re-login is a common problem?",
-    "choices": [
-      "The system's kernel needs to be recompiled for new groups.",
-      "User sessions cache group information and only update upon new login.",
-      "Network latency prevents immediate group propagation across servers.",
-      "Admin tools require a system reboot to apply group changes."
-    ],
-    "answerIndex": 1,
-    "explanation": "This is an applied judgement question based on the 'Group membership not applied until re-login' common problem. The underlying reason is that user processes and shells inherit group information at login and do not dynamically update during a session.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which command is typically used to create a new user account and simultaneously set up their home directory on a Linux system?",
-    "choices": [
-      "useradd",
-      "mkuser",
-      "newuser",
-      "adduser"
-    ],
-    "answerIndex": 0,
-    "explanation": "The `useradd` command is specified in the 'How it works' section as the command that creates the account and home directory. While `adduser` often links to `useradd` on many systems, `useradd` is the core command mentioned.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-linux-users-groups-and-sudo",
@@ -7263,21 +4953,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "One of the 'Common problems' listed is 'Group membership not applied until re-login', which directly addresses this scenario.",
     "difficulty": "standard",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the primary purpose of the `sudoers.d` directory?",
-    "choices": [
-      "To allow separate, modular sudo configuration files to be merged into the main setup.",
-      "To store encrypted versions of the main `/etc/sudoers` file.",
-      "To provide a backup location for `sudo` configuration files.",
-      "To log all `sudo` attempts and outcomes for auditing."
-    ],
-    "answerIndex": 0,
-    "explanation": "`sudoers.d` is defined as 'A directory of separate drop-in files merged into the sudo configuration.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-linux-users-groups-and-sudo",
@@ -7447,21 +5122,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-users-groups-and-sudo",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which command is used to set the initial password for a newly created user account, updating the password hash in `/etc/shadow`?",
-    "choices": [
-      "useradd",
-      "usermod",
-      "passwd",
-      "chpasswd"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section states: 'passwd sets the password hash in /etc/shadow.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "A user reports they are 'Locked out after a group change removed existing access'. What category of problem does this fall under according to the section?",
     "choices": [
       "Sudo configuration error",
@@ -7507,21 +5167,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-users-groups-and-sudo",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the purpose of the `sudoers.d` directory?",
-    "choices": [
-      "To store backup copies of the sudoers file.",
-      "To provide a location for custom sudo scripts.",
-      "To hold separate drop-in files that merge into the sudo configuration.",
-      "To log all successful sudo commands."
-    ],
-    "answerIndex": 2,
-    "explanation": "The key terms define 'sudoers.d' as 'A directory of separate drop-in files merged into the sudo configuration'.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "According to the 'How it works' section, what does `sudo` consult before permitting an action?",
     "choices": [
       "The user's home directory permissions",
@@ -7531,21 +5176,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 2,
     "explanation": "The 'How it works' section states: 'sudo consults /etc/sudoers and sudoers.d, matching user or group, host, and allowed command before permitting an action.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-users-groups-and-sudo",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which common problem is described as occurring when a user's new group memberships do not immediately take effect?",
-    "choices": [
-      "Duplicate UID after manual account creation",
-      "Password expired unexpectedly",
-      "New user cannot sudo at all",
-      "Group membership not applied until re-login"
-    ],
-    "answerIndex": 3,
-    "explanation": "'Group membership not applied until re-login' is listed under 'Common problems'.",
     "difficulty": "standard",
     "mistakeCategory": "concept"
   },
@@ -7627,51 +5257,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which of these is a described function of the Logical Volume Manager's device mapper layer?",
-    "choices": [
-      "Presenting logical volumes to the kernel as ordinary block devices",
-      "Writing partition tables (MBR or GPT) to disks",
-      "Creating filesystem metadata structures on partitions",
-      "Managing persistent mounts via fstab entries"
-    ],
-    "answerIndex": 0,
-    "explanation": "The section states: 'LVM's device mapper layer presents logical volumes to the kernel as if they were ordinary block devices, hiding the underlying physical layout.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the purpose of partitioning tools in Linux storage management?",
-    "choices": [
-      "To write a partition table (MBR or GPT) describing where partitions start and end",
-      "To create a pool of storage from one or more physical volumes",
-      "To grow a filesystem after its underlying logical volume is extended",
-      "To initialize a disk or partition for use by LVM"
-    ],
-    "answerIndex": 0,
-    "explanation": "The section states: 'Partitioning tools write a partition table (MBR or GPT) describing where partitions start and end on the disk.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which of the following describes a 'Volume group (VG)'?",
-    "choices": [
-      "A pool of storage formed from one or more physical volumes",
-      "A disk or partition initialized for use by LVM",
-      "A resizable virtual partition carved out of a volume group",
-      "A unique filesystem identifier used in fstab"
-    ],
-    "answerIndex": 0,
-    "explanation": "The definition provided is: 'Volume group (VG) = A pool of storage formed from one or more physical volumes.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "You are trying to extend a logical volume, but the command fails, reporting 'Volume group has no free physical extents to extend into'. What is the most likely cause?",
     "choices": [
       "The volume group simply does not have enough free space from its constituent physical volumes.",
@@ -7681,36 +5266,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "The problem 'Volume group has no free physical extents to extend into' directly implies a lack of available space within the VG.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "After successfully extending an LV, you need to resize the filesystem. Which command pair would be relevant for this task?",
-    "choices": [
-      "xfs_growfs / resize2fs",
-      "pvcreate / vgcreate",
-      "mkfs / mount",
-      "lvs / df -h"
-    ],
-    "answerIndex": 0,
-    "explanation": "The terms define 'xfs_growfs / resize2fs' as 'Commands that grow a filesystem after its underlying logical volume is extended.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which common problem is directly related to using device names instead of UUIDs in /etc/fstab?",
-    "choices": [
-      "fstab entry referencing a device name that changed",
-      "Filesystem full despite LV having free space",
-      "Volume group has no free physical extents to extend into",
-      "Filesystem type mismatch between mkfs and mount options"
-    ],
-    "answerIndex": 0,
-    "explanation": "The problem 'fstab entry referencing a device name that changed' is a direct consequence of not using persistent identifiers like UUIDs.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
   },
@@ -7762,51 +5317,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which of these is a common problem encountered with filesystems and LVM according to the provided material?",
-    "choices": [
-      "Unmounted or busy device preventing resize",
-      "Kernel panic during filesystem creation",
-      "Network latency affecting LVM operations",
-      "Incorrect user permissions on mount points"
-    ],
-    "answerIndex": 0,
-    "explanation": "The section lists 'Unmounted or busy device preventing resize' under 'Common problems'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What does 'UUID' stand for in the context of persistent mounts?",
-    "choices": [
-      "A unique filesystem identifier used in fstab so mounts survive device renaming",
-      "An update utility for device drivers in the kernel",
-      "A universal user ID for file permissions",
-      "An urgent upgrade indicator for disk firmware"
-    ],
-    "answerIndex": 0,
-    "explanation": "The terms define 'UUID' as 'A unique filesystem identifier used in fstab so mounts survive device renaming.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Before attempting to extend a logical volume, which command should you use to check for free physical extents?",
-    "choices": [
-      "vgs",
-      "lvs",
-      "df -h",
-      "mkfs"
-    ],
-    "answerIndex": 0,
-    "explanation": "The troubleshooting section advises: 'Check vgs for free physical extents before attempting to extend a logical volume.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "Which LVM concept represents a 'resizable virtual partition carved out of a volume group'?",
     "choices": [
       "Logical volume (LV)",
@@ -7818,21 +5328,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The definition provided is: 'Logical volume (LV) = A resizable virtual partition carved out of a volume group.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What does the 'Exam coverage' specify about LVM?",
-    "choices": [
-      "LVM concepts: PV, VG, LV, and resizing",
-      "Advanced LVM snapshots and mirroring",
-      "Performance tuning of LVM volumes",
-      "Integrating LVM with cloud storage"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Exam coverage' section explicitly states: 'LVM concepts: PV, VG, LV, and resizing'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
@@ -7863,36 +5358,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Partitioning tools write a partition table (MBR or GPT) describing where partitions start and end on the disk.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "You are creating a new filesystem on a partition. Which command family would you use to prepare the partition for storing files?",
-    "choices": [
-      "lvs",
-      "mkfs",
-      "vgcreate",
-      "pvcreate"
-    ],
-    "answerIndex": 1,
-    "explanation": "mkfs writes filesystem metadata structures onto a partition or logical volume so the kernel can store files on it.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is a common problem encountered when extending a logical volume, related to available storage?",
-    "choices": [
-      "Filesystem type mismatch between mkfs and mount options.",
-      "fstab entry referencing a device name that changed.",
-      "Volume group has no free physical extents to extend into.",
-      "Unmounted or busy device preventing resize."
-    ],
-    "answerIndex": 2,
-    "explanation": "A common problem listed is 'Volume group has no free physical extents to extend into'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
@@ -7942,21 +5407,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which of the following describes a 'Volume group (VG)'?",
-    "choices": [
-      "A disk or partition initialized for use by LVM.",
-      "A resizable virtual partition carved out of a volume group.",
-      "A unique filesystem identifier used in fstab.",
-      "A pool of storage formed from one or more physical volumes."
-    ],
-    "answerIndex": 3,
-    "explanation": "Volume group (VG) = A pool of storage formed from one or more physical volumes.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "What does the term 'Physical volume (PV)' refer to in LVM?",
     "choices": [
       "A resizable virtual partition.",
@@ -7998,21 +5448,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "A common problem is 'Filesystem full despite LV having free space', which implies the filesystem hasn't been resized, as confirmed by the troubleshooting step 'a mismatch between LV size and filesystem size means the filesystem resize step was skipped'.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the primary purpose of a UUID in the context of mounting filesystems?",
-    "choices": [
-      "To define the size of a logical volume.",
-      "To ensure mounts survive device renaming.",
-      "To create a new filesystem on a partition.",
-      "To display free physical extents in a volume group."
-    ],
-    "answerIndex": 1,
-    "explanation": "UUID = A unique filesystem identifier used in fstab so mounts survive device renaming.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
@@ -8062,36 +5497,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which of these components is described as 'A disk or partition initialized for use by LVM'?",
-    "choices": [
-      "Physical volume (PV)",
-      "Logical volume (LV)",
-      "Volume group (VG)",
-      "Device mapper"
-    ],
-    "answerIndex": 0,
-    "explanation": "A Physical volume (PV) is defined as 'A disk or partition initialized for use by LVM'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the primary function of the `mkfs` command family in Linux storage management?",
-    "choices": [
-      "To extend a logical volume",
-      "To write filesystem metadata structures onto a partition or logical volume",
-      "To create a volume group from physical volumes",
-      "To manage persistent mount points in /etc/fstab"
-    ],
-    "answerIndex": 1,
-    "explanation": "`mkfs` is used to 'write filesystem metadata structures onto a partition or logical volume'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "Which LVM concept is defined as 'A pool of storage formed from one or more physical volumes'?",
     "choices": [
       "Logical volume (LV)",
@@ -8118,21 +5523,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "LVM's device mapper layer 'presents logical volumes to the kernel as if they were ordinary block devices, hiding the underlying physical layout'.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which command is used to grow an XFS filesystem after its underlying logical volume has been extended?",
-    "choices": [
-      "resize2fs",
-      "mkfs.xfs",
-      "xfs_growfs",
-      "lvresize"
-    ],
-    "answerIndex": 2,
-    "explanation": "`xfs_growfs` is the command listed for growing an XFS filesystem. `resize2fs` is for ext2/3/4 filesystems.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
@@ -8182,21 +5572,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What is the purpose of using UUIDs in `/etc/fstab` for mounting filesystems?",
-    "choices": [
-      "To specify the filesystem type for `mkfs`",
-      "To ensure persistent mounts that survive device renaming",
-      "To identify physical volumes within a volume group",
-      "To display logical volume information using `lvs`"
-    ],
-    "answerIndex": 1,
-    "explanation": "UUID is defined as 'A unique filesystem identifier used in fstab so mounts survive device renaming'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "Which type of filesystem command is typically paired with `lvresize` when extending a logical volume containing an ext4 filesystem?",
     "choices": [
       "xfs_growfs",
@@ -8238,36 +5613,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "'Unmounted or busy device preventing resize' is explicitly listed under 'Common problems'.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "According to the exam coverage, what is a key area of knowledge expected regarding LVM?",
-    "choices": [
-      "Network-attached storage (NAS) configuration",
-      "Detailed kernel module development for device mapper",
-      "LVM concepts: PV, VG, LV, and resizing",
-      "Advanced filesystem encryption techniques"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section specifically states 'LVM concepts: PV, VG, LV, and resizing'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-storage-filesystems-and-lvm",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which command would you use to verify that the UUIDs in `/etc/fstab` are correct for ensuring persistent mounts after a storage change?",
-    "choices": [
-      "df -h",
-      "lvs",
-      "blkid or lsblk",
-      "fdisk"
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting step advises: 'Use blkid or lsblk to confirm UUIDs match what is in /etc/fstab before rebooting after any storage change.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-linux-storage-filesystems-and-lvm",
@@ -8332,21 +5677,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-logging-systemd-and-boot-process",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which systemd unit type represents a specific boot state, such as 'multi-user.target'?",
-    "choices": [
-      "Target",
-      "Service",
-      "Device",
-      "Mount"
-    ],
-    "answerIndex": 0,
-    "explanation": "A Target is a systemd unit representing a boot state, such as multi-user.target or rescue.target.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "Which service is responsible for structured, indexed logging in systemd, allowing queries with 'journalctl'?",
     "choices": [
       "journald",
@@ -8371,21 +5701,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "One troubleshooting step mentioned is: Use journalctl -b -1 to inspect the previous boot's log when investigating an unexpected reboot.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "If a server boots but no services start, what should an administrator check first?",
-    "choices": [
-      "The default systemd target configuration.",
-      "The firmware boot order for GRUB.",
-      "The contents of the initramfs image.",
-      "The storage driver versions."
-    ],
-    "answerIndex": 0,
-    "explanation": "If a server boots but no services started, you should 'Check systemctl get-default and systemctl list-dependencies to confirm the system is aiming for the intended target.'",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
   },
@@ -8497,21 +5812,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-logging-systemd-and-boot-process",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What would be the likely result if the bootloader failed to pass boot parameters to the Linux kernel?",
-    "choices": [
-      "The kernel might start with incorrect or missing configurations, leading to boot failure or unexpected behavior.",
-      "The initramfs would fail to load, preventing access to temporary drivers.",
-      "systemd would immediately transition to multi-user.target without issues.",
-      "journald would be unable to record any system events."
-    ],
-    "answerIndex": 0,
-    "explanation": "GRUB is the bootloader that loads the Linux kernel and passes it boot parameters. Without correct parameters, the kernel's initialization could be compromised.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "What is the primary function of GRUB in the Linux boot process?",
     "choices": [
       "To load the Linux kernel and pass it boot parameters.",
@@ -8583,21 +5883,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "journald is defined as 'The systemd logging service that stores structured, indexed logs queried with journalctl.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "After the firmware completes its power-on self-test, what is the next stage in the boot process described?",
-    "choices": [
-      "The kernel immediately mounts the real root filesystem.",
-      "The bootloader recorded in the boot order takes over.",
-      "systemd begins resolving unit dependencies.",
-      "The `initramfs` is created for temporary storage."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section states: 'Firmware runs power-on self test then hands off to the bootloader recorded in its boot order.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-linux-logging-systemd-and-boot-process",
@@ -8677,21 +5962,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-logging-systemd-and-boot-process",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "A 'Target' in systemd serves what primary purpose?",
-    "choices": [
-      "To execute a specific script during system shutdown.",
-      "To define a desired boot state or set of services.",
-      "To identify the location of kernel modules.",
-      "To manage user authentication at login."
-    ],
-    "answerIndex": 1,
-    "explanation": "Target is defined as 'A systemd unit representing a boot state, such as multi-user.target or rescue.target.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "To confirm if the system is aiming for the intended systemd target, which tool and command combination is recommended?",
     "choices": [
       "`journalctl -b` and `systemctl status`",
@@ -8703,21 +5973,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The troubleshooting section suggests: 'Check systemctl get-default and systemctl list-dependencies to confirm the system is aiming for the intended target.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which area is explicitly covered by the exam regarding Linux boot processes?",
-    "choices": [
-      "Detailed kernel module development.",
-      "Advanced network stack configuration.",
-      "Boot sequence stages and their failure modes.",
-      "Cross-platform bootloader compatibility."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section lists: 'Boot sequence stages and their failure modes.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-linux-logging-systemd-and-boot-process",
@@ -8776,21 +6031,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "PID 1 is defined as 'The first process started by the kernel, normally systemd, which starts everything else.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which systemd unit type represents a specific boot state, such as 'multi-user.target' or 'rescue.target'?",
-    "choices": [
-      "Target",
-      "Service",
-      "Mount",
-      "Socket"
-    ],
-    "answerIndex": 0,
-    "explanation": "A Target is defined as 'A systemd unit representing a boot state, such as multi-user.target or rescue.target.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
   },
@@ -8872,51 +6112,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-linux-logging-systemd-and-boot-process",
     "certificationId": "cert-comptia-linux-plus",
-    "prompt": "If an administrator suspects the system is not aiming for the intended systemd target, what is a recommended troubleshooting step?",
-    "choices": [
-      "Check `systemctl get-default` and `systemctl list-dependencies`",
-      "Reinstall GRUB and update its configuration",
-      "Modify the initramfs image to include more drivers",
-      "Examine the output of `lsmod` for missing kernel modules"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Troubleshooting' section states: 'Check systemctl get-default and systemctl list-dependencies to confirm the system is aiming for the intended target.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "Which of these is explicitly listed as a 'Common problem' during the Linux boot process?",
-    "choices": [
-      "Boot hangs waiting for a device",
-      "Kernel panic due to memory corruption",
-      "User account locked after multiple failed logins",
-      "Network interface not obtaining an IP address"
-    ],
-    "answerIndex": 0,
-    "explanation": "'Boot hangs waiting for a device' is directly listed under 'Common problems'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
-    "prompt": "What does the exam 'Boot sequence stages and their failure modes' cover?",
-    "choices": [
-      "One of the explicit areas of exam coverage for Linux boot processes",
-      "An advanced topic beyond the scope of this course",
-      "A practical exercise for developing custom bootloaders",
-      "A method for improving system performance during runtime"
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Exam coverage', 'Boot sequence stages and their failure modes' is explicitly listed.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-linux-logging-systemd-and-boot-process",
-    "certificationId": "cert-comptia-linux-plus",
     "prompt": "If a server boots but 'no services started', what category of issue is this considered based on the provided material?",
     "choices": [
       "A common problem",
@@ -8962,21 +6157,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the primary goal of Server Virtualization and Capacity Planning?",
-    "choices": [
-      "Balancing consolidation ratios against performance headroom and failover capacity.",
-      "Ensuring all virtual machines run on dedicated physical hardware.",
-      "Maximizing the number of physical servers in a data center.",
-      "Eliminating the need for any form of resource overcommitment."
-    ],
-    "answerIndex": 0,
-    "explanation": "The summary states, 'Design and size virtualization hosts and clusters, balancing consolidation ratios against performance headroom and failover capacity.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "Which component is responsible for allocating physical CPU cycles and memory pages to guest virtual machines?",
     "choices": [
       "The hypervisor scheduler.",
@@ -9007,21 +6187,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which statement best describes the function of capacity planning tools?",
-    "choices": [
-      "They trend historical utilization and project when a cluster will exhaust available headroom.",
-      "They manually assign resource reservations for individual virtual machines.",
-      "They automatically reconfigure network settings for new hosts.",
-      "They monitor real-time security threats within the virtual environment."
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'How it works', it states: 'Capacity planning tools trend historical utilization and project when a cluster will exhaust available headroom.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A common problem in virtualized environments is 'Noisy neighbor virtual machines starving others on the same host'. What does this imply?",
     "choices": [
       "One virtual machine is consuming an excessive amount of shared resources, negatively impacting others.",
@@ -9031,21 +6196,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "'Noisy neighbor virtual machines starving others on the same host' is listed as a common problem. This implies one VM is monopolizing resources.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of these is explicitly identified as a common problem in server virtualization and capacity planning?",
-    "choices": [
-      "Storage latency spikes from over-provisioned shared storage.",
-      "Excessive power consumption by individual virtual machines.",
-      "Inability to install new operating systems on guest VMs.",
-      "Security vulnerabilities due to outdated hypervisor software."
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Common problems', it lists: 'Storage latency spikes from over-provisioned shared storage.'",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
   },
@@ -9127,21 +6277,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is an important aspect of planning for high availability in virtualized environments, according to the exam coverage?",
-    "choices": [
-      "Failover capacity planning.",
-      "Manual host power cycling.",
-      "Daily full system backups of all guests.",
-      "Implementation of physical security guards."
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Exam coverage', it lists: 'High availability and failover capacity planning'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "When discussing resource allocation within a hypervisor, what factors determine how physical CPU cycles and memory pages are assigned to guests?",
     "choices": [
       "Shares, reservations, and limits.",
@@ -9153,21 +6288,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'How it works', it states: 'The hypervisor scheduler allocates physical CPU cycles and memory pages to guests based on shares, reservations, and limits.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which common problem directly relates to the efficient utilization of shared storage in a virtualized cluster?",
-    "choices": [
-      "Storage latency spikes from over-provisioned shared storage.",
-      "Inability to connect to the internet from guest VMs.",
-      "Outdated firmware on physical host network cards.",
-      "High temperatures within the data center rack."
-    ],
-    "answerIndex": 0,
-    "explanation": "'Storage latency spikes from over-provisioned shared storage' is listed as a common problem, directly addressing shared storage efficiency.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
@@ -9211,36 +6331,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 3,
     "explanation": "Cluster-aware features monitor host health and automatically migrate or restart virtual machines when a host fails or becomes overloaded.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the main purpose of capacity planning tools in server virtualization?",
-    "choices": [
-      "To ensure all virtual machines are utilizing 100% of their allocated resources.",
-      "To trend historical utilization and predict when a cluster will run out of resources.",
-      "To manually adjust resource allocations for individual virtual machines.",
-      "To isolate 'noisy neighbor' virtual machines from others."
-    ],
-    "answerIndex": 1,
-    "explanation": "Capacity planning tools trend historical utilization and project when a cluster will exhaust available headroom.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of these is explicitly identified as a 'common problem' in server virtualization and capacity planning?",
-    "choices": [
-      "Excessive network bandwidth usage by non-critical applications.",
-      "Storage latency spikes from over-provisioned shared storage.",
-      "Incompatible hypervisor versions across a cluster.",
-      "Lack of proper firewall rules for virtual machine security."
-    ],
-    "answerIndex": 1,
-    "explanation": "One of the common problems listed is 'Storage latency spikes from over-provisioned shared storage'.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -9292,51 +6382,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of the following topics is explicitly covered under 'Exam coverage' related to Server Virtualization and Capacity Planning?",
-    "choices": [
-      "Detailed networking configurations for virtual switches.",
-      "Advanced security hardening techniques for hypervisors.",
-      "Virtualization host and cluster sizing.",
-      "Database optimization within virtual machines."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section specifically mentions 'Virtualization host and cluster sizing'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "What aspect of resource management is highlighted in the exam coverage for Server Virtualization and Capacity Planning?",
-    "choices": [
-      "Hardware vendor selection and procurement.",
-      "Resource allocation, overcommitment, and ballooning.",
-      "Application-level performance monitoring.",
-      "Operating system patching schedules."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Exam coverage' section specifically includes 'Resource allocation, overcommitment, and ballooning'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "When planning for high availability in virtualized environments, what key aspect is highlighted for exam coverage?",
-    "choices": [
-      "User account management and authentication.",
-      "Data backup and disaster recovery strategies.",
-      "High availability and failover capacity planning.",
-      "Virtual desktop infrastructure deployment."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section includes 'High availability and failover capacity planning'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "Which common problem in virtualized environments occurs when one virtual machine excessively uses shared resources, negatively impacting others on the same host?",
     "choices": [
       "Network loop",
@@ -9367,21 +6412,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "What does balancing consolidation ratios against performance headroom and failover capacity contribute to?",
-    "choices": [
-      "Simplifying network configuration for virtual machines.",
-      "Reducing the overall power consumption of the data center.",
-      "Optimal design and sizing of virtualization hosts and clusters.",
-      "Enhancing the security posture of virtual environments."
-    ],
-    "answerIndex": 2,
-    "explanation": "The summary states: 'Design and size virtualization hosts and clusters, balancing consolidation ratios against performance headroom and failover capacity.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A cluster is experiencing 'Memory or CPU contention during peak hours.' What category of problem does this fall under?",
     "choices": [
       "Security vulnerability.",
@@ -9393,21 +6423,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "This is listed directly under 'Common problems' in the provided text.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which aspect is NOT a direct responsibility of cluster-aware features?",
-    "choices": [
-      "Monitoring host health.",
-      "Automatically migrating virtual machines.",
-      "Restarting virtual machines after a host failure.",
-      "Manually configuring individual virtual machine resource limits."
-    ],
-    "answerIndex": 3,
-    "explanation": "Cluster-aware features handle host health, migration, and restarts, but not manual configuration of individual VM resource limits, which is typically done by an administrator.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
@@ -9427,21 +6442,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of the following best describes 'overcommitment' in a virtualized environment?",
-    "choices": [
-      "Allocating more virtual CPU or memory than the host physically possesses.",
-      "Assigning all available physical resources to a single virtual machine.",
-      "Committing to a specific service level agreement for virtual machine performance.",
-      "Using excessive storage space beyond what is needed by virtual machines."
-    ],
-    "answerIndex": 0,
-    "explanation": "Overcommitment is defined as 'Allocating more virtual CPU or memory than the host physically has.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A virtual machine host is experiencing high memory pressure. What technique might the hypervisor use to reclaim memory from guest operating systems?",
     "choices": [
       "Memory swapping to disk.",
@@ -9453,51 +6453,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Ballooning is described as 'A hypervisor technique that reclaims memory from guests under host memory pressure.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the primary function of a 'resource pool' in a virtualized environment?",
-    "choices": [
-      "To group physical storage devices for easier management.",
-      "To provide a logical grouping of CPU and memory reservations and limits for VMs.",
-      "To create a network segment for specific virtual machines.",
-      "To consolidate multiple virtual disk files into a single volume."
-    ],
-    "answerIndex": 1,
-    "explanation": "A 'Resource pool' is defined as 'A logical grouping of CPU and memory reservations and limits applied to a set of virtual machines.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "When is a cluster considered 'too full to complete failover after a host failure'?",
-    "choices": [
-      "When it lacks sufficient N+1 redundancy.",
-      "When the consolidation ratio is below 1:1.",
-      "When all virtual machines are configured with reservations.",
-      "When storage latency spikes occur due to shared storage."
-    ],
-    "answerIndex": 0,
-    "explanation": "This is a common problem, and 'N+1 redundancy' is directly related to having enough spare capacity for failover.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "What does a 'consolidation ratio' measure in server virtualization?",
-    "choices": [
-      "The amount of data compressed within a virtual disk.",
-      "The number of virtual machines running per physical host.",
-      "The efficiency of network traffic aggregation.",
-      "The proportion of physical CPU allocated to a single virtual machine."
-    ],
-    "answerIndex": 1,
-    "explanation": "Consolidation ratio is defined as 'The number of virtual machines running per physical host.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
@@ -9526,21 +6481,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "Cluster-aware features are described as monitoring 'host health and automatically migrate or restart virtual machines when a host fails or becomes overloaded.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the main purpose of capacity planning tools in server virtualization?",
-    "choices": [
-      "To manage virtual machine snapshots and backups.",
-      "To monitor real-time network traffic between virtual machines.",
-      "To trend historical utilization and project when a cluster will exhaust available headroom.",
-      "To configure individual virtual machine resource settings."
-    ],
-    "answerIndex": 2,
-    "explanation": "Capacity planning tools are explained as trending 'historical utilization and project when a cluster will exhaust available headroom.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -9577,36 +6517,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-server-virtualization-and-capacity-planning",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "To effectively ensure that failover capacity within a cluster is working as intended, what specific setting should an administrator review?",
-    "choices": [
-      "Individual virtual machine CPU core counts.",
-      "The total amount of installed RAM on each host.",
-      "Cluster admission control settings.",
-      "The speed of the network interface cards."
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting section advises to 'Review cluster admission control settings to confirm failover capacity is actually enforced, not just configured.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of these topics is explicitly covered under 'Exam coverage' related to Server Virtualization and Capacity Planning?",
-    "choices": [
-      "Database administration for virtualized applications.",
-      "Network security policies for hypervisors.",
-      "High availability and failover capacity planning.",
-      "Developing custom hypervisor extensions."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section lists 'High availability and failover capacity planning.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "What key aspect is highlighted for 'Exam coverage' regarding resource management in Server Virtualization and Capacity Planning?",
     "choices": [
       "Physical server power consumption.",
@@ -9616,51 +6526,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "The 'Exam coverage' section includes 'Resource allocation, overcommitment, and ballooning.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-virtualization-and-capacity-planning",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Designing and sizing virtualization hosts and clusters involves balancing which three key factors?",
-    "choices": [
-      "Network latency, storage IOPS, and power consumption.",
-      "Consolidation ratios, performance headroom, and failover capacity.",
-      "Operating system versions, application compatibility, and user count.",
-      "Security patching, license management, and backup frequency."
-    ],
-    "answerIndex": 1,
-    "explanation": "The summary states: 'Design and size virtualization hosts and clusters, balancing consolidation ratios against performance headroom and failover capacity.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-server-networking-remote-access-and-hardening",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which configuration best describes combining multiple physical network adapters into a single logical interface for improved fault tolerance or bandwidth?",
-    "choices": [
-      "NIC teaming",
-      "VLAN tagging",
-      "Port mirroring",
-      "Link aggregation control protocol"
-    ],
-    "answerIndex": 0,
-    "explanation": "NIC teaming is defined as 'Combining multiple network interfaces for redundancy or increased throughput,' which aligns with combining physical adapters into a single logical interface for fault tolerance or bandwidth.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-server-networking-remote-access-and-hardening",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the primary purpose of using a Jump host in a server environment?",
-    "choices": [
-      "To provide direct administrative access to all internal servers from the internet.",
-      "To serve as a hardened intermediary server, reducing direct exposure of other systems.",
-      "To aggregate network traffic for increased throughput to core applications.",
-      "To implement VLAN tagging for separating different types of network traffic."
-    ],
-    "answerIndex": 1,
-    "explanation": "A Jump host is defined as 'A hardened intermediary server used to reach other systems, reducing direct exposure.' Its primary purpose is to act as a secure gateway.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -9723,21 +6588,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The section lists 'Management interfaces reachable from the general network' as a 'Common problem'.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-server-networking-remote-access-and-hardening",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "A security audit reveals that default credentials were not changed after server deployment. What is the best initial action to address this common problem?",
-    "choices": [
-      "Implement multifactor authentication for all accounts.",
-      "Rotate all existing user passwords immediately.",
-      "Change all default credentials and enforce a strong password policy.",
-      "Block external access to all management ports."
-    ],
-    "answerIndex": 2,
-    "explanation": "The text lists 'Default credentials left unchanged after deployment' as a common problem. The most direct and comprehensive first step is to change them and prevent recurrence with a strong policy.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-server-networking-remote-access-and-hardening",
@@ -9811,21 +6661,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "The 'Troubleshooting' section recommends: 'Review firewall logs for repeated connection attempts to remote access services from unexpected source addresses.' This directly addresses security verification for remote access.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-server-networking-remote-access-and-hardening",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "When troubleshooting NIC teaming, what is specifically recommended to ensure its failover capability is functioning correctly?",
-    "choices": [
-      "Confirming the configuration exists in the operating system.",
-      "Checking network cable connectivity for all teamed interfaces.",
-      "Testing a link failure to see if failover actually works.",
-      "Monitoring network throughput during peak hours."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Troubleshooting' section explicitly states: 'Check whether NIC teaming failover actually works by testing a link failure, not just confirming the configuration exists.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
   },
@@ -9967,36 +6802,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-server-networking-remote-access-and-hardening",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "You discover that 'Overly permissive firewall rules copied from a template and never trimmed' are in place. What is the immediate security risk this presents?",
-    "choices": [
-      "Increased network latency due to excessive rule processing.",
-      "Difficulty in auditing network traffic effectively.",
-      "Potential for unauthorized access to services that should be restricted.",
-      "Failure of NIC teaming to provide redundancy."
-    ],
-    "answerIndex": 2,
-    "explanation": "Overly permissive firewall rules mean that services that should be restricted might be exposed, creating an opening for unauthorized access.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-server-networking-remote-access-and-hardening",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "After configuring a server, you need to ensure the hardening efforts are effective in reducing the 'Attack surface'. Which action would be most beneficial for verifying this?",
-    "choices": [
-      "Reviewing the server's event logs for suspicious activity.",
-      "Running a port scan from both inside and outside the network.",
-      "Confirming that all necessary services are running without errors.",
-      "Checking the server's CPU and memory utilization."
-    ],
-    "answerIndex": 1,
-    "explanation": "The troubleshooting section suggests 'Run a port scan from both inside and outside the network to compare what is actually reachable versus what documentation claims' to verify configurations and reduce the attack surface.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-server-networking-remote-access-and-hardening",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A user reports intermittent network connectivity issues with a server configured for NIC teaming. Which troubleshooting step is specifically recommended to test the teaming's failover capability?",
     "choices": [
       "Verify the IP configuration on each teamed adapter.",
@@ -10117,21 +6922,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-data-center-power-cooling-and-physical-security",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the purpose of a 'dual power feed' in a data center rack?",
-    "choices": [
-      "To provide two independent electrical paths, ensuring uptime if one feed fails",
-      "To allow equipment to draw power from both AC and DC sources simultaneously",
-      "To distribute power efficiently from a single circuit to multiple devices",
-      "To switch to battery power during a utility outage"
-    ],
-    "answerIndex": 0,
-    "explanation": "Dual power feed is described as 'Two independent electrical paths supplying a rack so a single feed failure does not cause an outage.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "An administrator notices that a data center's generator only starts after a significant delay during a power outage. According to the section, what is the expected behavior of generators?",
     "choices": [
       "Generators start automatically on extended outages and take over the electrical load once at stable output.",
@@ -10158,21 +6948,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Common problems' section lists 'Tailgating through badge-controlled doors' as a physical security issue.",
     "difficulty": "standard",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "When troubleshooting a data center rack that is experiencing intermittent power loss, what is the recommended first step to confirm true power redundancy?",
-    "choices": [
-      "Trace both power feeds to a rack back to their source to confirm true independence.",
-      "Check the PDU's status lights for any error indicators.",
-      "Review the last utility bill to ensure payments are current.",
-      "Verify that all equipment in the rack is turned on and operational."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Troubleshooting' section advises: 'Trace both power feeds to a rack back to their source to confirm true independence before calling it redundant.'",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-data-center-power-cooling-and-physical-security",
@@ -10216,51 +6991,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "The 'Common problems' section lists: 'Single utility feed serving equipment believed to be dually fed'.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is a 'mantrap' primarily designed to prevent?",
-    "choices": [
-      "Unauthorized physical access by ensuring only one person enters at a time",
-      "Uncontrolled fluctuations in power supply to sensitive equipment",
-      "Overheating by creating a barrier for hot air exhaust",
-      "Data exfiltration through network cables"
-    ],
-    "answerIndex": 0,
-    "explanation": "A mantrap is defined as: 'A physical security chamber with two interlocked doors that only allows one door open at a time,' primarily for access control.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "What critical aspect of UPS maintenance should be reviewed to prevent unexpected battery failure?",
-    "choices": [
-      "UPS battery test logs and replacement schedules",
-      "The current draw of all devices connected to the UPS",
-      "The ambient temperature of the data center floor",
-      "The voltage output of the main utility grid"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Troubleshooting' section suggests: 'Review UPS battery test logs and replacement schedules rather than assuming a green status light means full capacity.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of the following would be considered a 'cooling design' element for a data center?",
-    "choices": [
-      "Containment systems physically separating hot and cold airflow",
-      "Dual power feeds providing redundant electricity",
-      "Generators that activate during extended outages",
-      "Mantrap installations for secure access control"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section states: 'Containment systems physically separate hot exhaust airflow from cold supply airflow to improve cooling efficiency and reduce energy use.' This falls under cooling design.",
     "difficulty": "standard",
     "mistakeCategory": "concept"
   },
@@ -10432,36 +7162,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-storage-backup-and-migration",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A user reports that stored data is missing encryption. What type of policy or feature, if missing, could be responsible for this common problem?",
-    "choices": [
-      "An improperly configured access control list.",
-      "An expired data retention policy.",
-      "A missing encryption or lifecycle policy.",
-      "An incorrect object storage key."
-    ],
-    "answerIndex": 2,
-    "explanation": "'Missing encryption or lifecycle policy on stored data' is listed under 'Common problems'.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What action is crucial to perform before committing to a migration cutover time to avoid exceeding the planned downtime window?",
-    "choices": [
-      "Increase the storage capacity of the destination environment.",
-      "Monitor the replication lag between source and destination.",
-      "Deactivate all network connections to the source system.",
-      "Conduct a full security audit of the target environment."
-    ],
-    "answerIndex": 1,
-    "explanation": "'Monitor replication lag before committing to a migration cutover time' is listed under 'Troubleshooting'.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "Which storage mechanism organizes data into storage classes that have different retrieval costs and latency?",
     "choices": [
       "Object storage",
@@ -10507,21 +7207,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-storage-backup-and-migration",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is the definition of Recovery Time Objective (RTO)?",
-    "choices": [
-      "The total duration a system can operate without maintenance.",
-      "The maximum acceptable time to restore service after an outage.",
-      "The amount of time required to perform a full system backup.",
-      "The frequency at which data is replicated between regions."
-    ],
-    "answerIndex": 1,
-    "explanation": "Recovery time objective is defined as 'The maximum acceptable time to restore service after an outage.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "A company is planning to migrate a legacy application to the cloud. Which aspect listed under 'Exam coverage' is directly relevant to understanding the various strategies for this process?",
     "choices": [
       "Database query optimization.",
@@ -10548,21 +7233,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Object storage is defined as 'Storage for unstructured data accessed by key over HTTP, such as S3 or Blob Storage.'",
     "difficulty": "standard",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is the purpose of 'Storage tiering' in cloud storage?",
-    "choices": [
-      "To increase data encryption levels for sensitive information.",
-      "To distribute data across different geographical regions for disaster recovery.",
-      "To move data between different storage classes based on access frequency to optimize cost and performance.",
-      "To create redundant copies of data within a single storage class for high availability."
-    ],
-    "answerIndex": 2,
-    "explanation": "Storage tiering is defined as 'Moving data between hot, cool, and archive classes based on access frequency.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-cloud-storage-backup-and-migration",
@@ -10627,21 +7297,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-storage-backup-and-migration",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "During a data migration cutover, what action do migration tools perform continuously to minimize downtime?",
-    "choices": [
-      "They encrypt all data at rest and in transit.",
-      "They compress all data to reduce transfer times.",
-      "They replicate data from the source to the destination.",
-      "They automatically reconfigure network routes."
-    ],
-    "answerIndex": 2,
-    "explanation": "Migration tools replicate data continuously during a cutover window, allowing a final low-downtime switch once source and destination are in sync.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "Which of the following is explicitly listed as a common problem with cloud storage and migration processes?",
     "choices": [
       "Lack of developer training on cloud APIs.",
@@ -10651,21 +7306,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 2,
     "explanation": "Common problems: Migration cutover exceeding the planned downtime window.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A user reports that their cloud-stored data is not encrypted. Which missing item could be responsible for this issue?",
-    "choices": [
-      "A proper tagging strategy.",
-      "A robust network firewall.",
-      "An appropriate lifecycle policy.",
-      "A missing encryption or lifecycle policy on stored data."
-    ],
-    "answerIndex": 3,
-    "explanation": "Common problems: Missing encryption or lifecycle policy on stored data.",
     "difficulty": "standard",
     "mistakeCategory": "diagnosis"
   },
@@ -10717,66 +7357,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-storage-backup-and-migration",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "The material states that you should 'plan migrations with minimal downtime and data loss.' What does 'minimal data loss' directly relate to?",
-    "choices": [
-      "Recovery Time Objective (RTO)",
-      "Recovery Point Objective (RPO)",
-      "Service Level Agreement (SLA)",
-      "Total Cost of Ownership (TCO)"
-    ],
-    "answerIndex": 1,
-    "explanation": "Minimal data loss directly relates to the Recovery Point Objective (RPO), which is 'The maximum acceptable amount of data loss measured in time.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of the following describes a scenario where checking 'storage class and lifecycle policy' would be a best first step?",
-    "choices": [
-      "A database server is experiencing slow query performance.",
-      "A virtual machine is failing to boot up.",
-      "Unexpectedly high costs or slow retrieval times for stored data.",
-      "Network connectivity issues to a cloud resource."
-    ],
-    "answerIndex": 2,
-    "explanation": "Troubleshooting: Check storage class and lifecycle policy when costs or retrieval times are unexpected.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which term describes the process of moving an existing server or application from an on-premises environment to a cloud provider with the least amount of modification?",
-    "choices": [
-      "Re-platforming",
-      "Re-architecting",
-      "Lift-and-shift",
-      "Hybrid deployment"
-    ],
-    "answerIndex": 2,
-    "explanation": "Lift-and-shift is defined as 'Migrating a workload to cloud with minimal architectural change.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of the following is a key characteristic of object storage, according to the provided material?",
-    "choices": [
-      "It stores data as immutable objects with associated metadata.",
-      "It primarily uses file systems with hierarchical directories.",
-      "It is accessed via block-level protocols like iSCSI.",
-      "It guarantees transactional consistency across distributed databases."
-    ],
-    "answerIndex": 0,
-    "explanation": "The material states: 'Object storage stores data as immutable objects with metadata, replicated across zones and organized into storage classes with different retrieval costs and latency.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "What is the primary method for accessing data stored in object storage?",
     "choices": [
       "Through a key over HTTP.",
@@ -10803,36 +7383,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'How it works' section states: 'Backup jobs...are validated by periodic restore tests rather than assumed to work.' The troubleshooting section reiterates: 'Verify a backup by performing an actual restore, not just checking that the job reports success.'",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is the primary purpose of 'Storage tiering' in cloud storage?",
-    "choices": [
-      "Moving data between hot, cool, and archive classes based on access frequency.",
-      "Encrypting data at rest and in transit.",
-      "Providing high-speed caching for frequently accessed data.",
-      "Replicating data across multiple geographical regions for disaster recovery."
-    ],
-    "answerIndex": 0,
-    "explanation": "The key term definition states: 'Storage tiering = Moving data between hot, cool, and archive classes based on access frequency.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What does a 'Recovery point objective' (RPO) measure?",
-    "choices": [
-      "The maximum acceptable amount of data loss measured in time.",
-      "The maximum acceptable time to restore service after an outage.",
-      "The total capacity of backup storage required.",
-      "The frequency of data backups."
-    ],
-    "answerIndex": 0,
-    "explanation": "The key term definition states: 'Recovery point objective = The maximum acceptable amount of data loss measured in time.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-cloud-storage-backup-and-migration",
@@ -10867,21 +7417,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-storage-backup-and-migration",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is the definition of 'Recovery time objective' (RTO)?",
-    "choices": [
-      "The maximum acceptable time to restore service after an outage.",
-      "The maximum acceptable amount of data loss measured in time.",
-      "The total duration of a backup operation.",
-      "The interval between two consecutive backups."
-    ],
-    "answerIndex": 0,
-    "explanation": "The key term definition states: 'Recovery time objective = The maximum acceptable time to restore service after an outage.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "During a migration cutover, what do migration tools continuously replicate to minimize downtime?",
     "choices": [
       "Data.",
@@ -10893,36 +7428,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'How it works', it states: 'Migration tools replicate data continuously during a cutover window...' The section focuses on data replication.",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of the following describes 'Lift-and-shift' migration?",
-    "choices": [
-      "Migrating a workload to cloud with minimal architectural change.",
-      "Re-architecting an application to be cloud-native during migration.",
-      "Decommissioning an application and replacing it with a SaaS solution.",
-      "Developing a new application directly in the cloud from scratch."
-    ],
-    "answerIndex": 0,
-    "explanation": "The key term definition states: 'Lift-and-shift = Migrating a workload to cloud with minimal architectural change.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-storage-backup-and-migration",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Before committing to a migration cutover time, what is a critical troubleshooting step to perform?",
-    "choices": [
-      "Monitor replication lag.",
-      "Increase the network bandwidth provisioned.",
-      "Verify all applications are fully shut down.",
-      "Generate a complete inventory of all data."
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Troubleshooting', it states: 'Monitor replication lag before committing to a migration cutover time.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-cloud-storage-backup-and-migration",
@@ -11032,21 +7537,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-automation-orchestration-and-cost-management",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A long-term commitment to using cloud resources in exchange for a reduced price is best described by which term?",
-    "choices": [
-      "Tagging",
-      "Rightsizing",
-      "Configuration drift",
-      "Reserved instance"
-    ],
-    "answerIndex": 3,
-    "explanation": "Reserved instance is defined as 'A discounted pricing commitment in exchange for a fixed term of usage.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "What practice involves adding metadata like 'owner' or 'cost center' to cloud resources for tracking and management purposes?",
     "choices": [
       "Rightsizing",
@@ -11092,21 +7582,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-automation-orchestration-and-cost-management",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "How do cloud cost tools assist in managing expenditure?",
-    "choices": [
-      "By enforcing strict quotas on resource usage across all accounts.",
-      "By automatically terminating resources that exceed their defined budget.",
-      "By aggregating usage by tag and account, comparing it against budgets and forecasted trends to trigger alerts.",
-      "By providing a single, unified invoice for all cloud providers monthly."
-    ],
-    "answerIndex": 2,
-    "explanation": "The section states: 'Cost tools aggregate usage by tag and account, comparing it against budgets and forecasted trends to trigger alerts.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "Which of the following is identified as a 'common problem' in Cloud Automation, Orchestration, and Cost Management?",
     "choices": [
       "Predictable cloud expenditure due to consistent usage.",
@@ -11122,21 +7597,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-automation-orchestration-and-cost-management",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "When dealing with unnoticed overspend, what is the recommended first troubleshooting step?",
-    "choices": [
-      "Immediately terminate all running cloud resources.",
-      "Review historical invoices from the past year.",
-      "Check budget alert configuration and notification recipients.",
-      "Increase all resource capacities to handle potential spikes."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Troubleshooting' section suggests: 'Check budget alert configuration and notification recipients when overspend goes unnoticed.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "A recurring issue in cloud cost management is when budget alerts are not received until the invoice arrives. What is the most probable cause for this problem?",
     "choices": [
       "The cloud provider's billing system is delayed.",
@@ -11148,21 +7608,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Common problems' list includes 'No budget alerts until the invoice arrives', and the 'Troubleshooting' section advises to 'Check budget alert configuration and notification recipients when overspend goes unnoticed.'",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of these concepts is explicitly covered by the exam for Cloud Automation, Orchestration and Cost Management?",
-    "choices": [
-      "Advanced kernel-level operating system tuning.",
-      "Physical data center rack unit planning.",
-      "Cost management and optimization strategies.",
-      "On-premise network topology design."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section lists 'Cost management and optimization strategies'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-cloud-automation-orchestration-and-cost-management",
@@ -11227,21 +7672,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-automation-orchestration-and-cost-management",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is the primary purpose of orchestration platforms in a cloud environment?",
-    "choices": [
-      "To sequence dependent resources for deployment",
-      "To identify unused or oversized resources",
-      "To apply metadata to resources for tracking",
-      "To compare deployed state against a budget"
-    ],
-    "answerIndex": 0,
-    "explanation": "Orchestration platforms 'sequence dependent resources, for example creating a network before the instances that live inside it.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "How do cost tools primarily help with cloud expenditure management?",
     "choices": [
       "By aggregating usage data by tag and account and comparing against budgets",
@@ -11253,21 +7683,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Cost tools 'aggregate usage by tag and account, comparing it against budgets and forecasted trends to trigger alerts.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A cloud environment is exhibiting 'configuration drift'. What does this specifically refer to?",
-    "choices": [
-      "A discrepancy between the actual deployed environment and its defined configuration",
-      "The process of adjusting resource capacity to match usage",
-      "A pricing model for discounted, fixed-term resource usage",
-      "The metadata attached to resources for tracking purposes"
-    ],
-    "answerIndex": 0,
-    "explanation": "Configuration drift is defined as 'A mismatch between the deployed environment and its defined configuration.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-cloud-automation-orchestration-and-cost-management",
@@ -11302,36 +7717,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-automation-orchestration-and-cost-management",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A common problem in cloud management is 'no budget alerts until the invoice arrives'. What is the recommended first step to address this?",
-    "choices": [
-      "Check budget alert configuration and notification recipients",
-      "Review usage reports by tag to find untagged resources",
-      "Compare deployed resource state against the code to detect drift",
-      "Implement rightsizing policies for oversized resources"
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Troubleshooting', for 'no budget alerts until the invoice arrives', the step is 'Check budget alert configuration and notification recipients'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "To deal with the common problem of 'unused or oversized resources left running', what is the recommended first troubleshooting step?",
-    "choices": [
-      "Review usage reports by tag to find untagged or oversized resources",
-      "Check budget alert configuration and notification recipients",
-      "Compare deployed resource state against the code to detect drift",
-      "Implement a reserved instance purchasing strategy"
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Troubleshooting', for 'Unused or oversized resources left running', the step is 'Review usage reports by tag to find untagged or oversized resources'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "Which of these is explicitly identified as a 'common problem' in Cloud Automation, Orchestration and Cost Management?",
     "choices": [
       "Configuration drift from manual console changes outside the code",
@@ -11356,36 +7741,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "The 'How it works' section states: 'Infrastructure as code tools compare a desired state defined in configuration to the current deployed state and apply only the differences.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "The exam expects understanding of which type of concepts regarding Cloud Automation, Orchestration and Cost Management?",
-    "choices": [
-      "Infrastructure as code and orchestration concepts",
-      "Advanced network security protocols and firewall rules",
-      "Database administration and query optimization",
-      "Operating system internals and kernel programming"
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Exam coverage', it explicitly states: 'Infrastructure as code and orchestration concepts'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of the following is a key aspect of 'Cost management and optimization strategies' covered by the exam?",
-    "choices": [
-      "Rightsizing and Reserved instance usage",
-      "Incident response and disaster recovery planning",
-      "Application development frameworks and languages",
-      "Physical data center security measures"
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Exam coverage', it lists 'Cost management and optimization strategies', which includes concepts like Rightsizing and Reserved Instances from the key terms.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -11542,21 +7897,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-automation-orchestration-and-cost-management",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "How do cloud cost tools primarily assist in managing expenditure?",
-    "choices": [
-      "By directly reducing resource consumption.",
-      "By automating resource provisioning without oversight.",
-      "By aggregating usage by tag and account, comparing against budgets and triggering alerts.",
-      "By enforcing strict manual approval for all resource deployments."
-    ],
-    "answerIndex": 2,
-    "explanation": "The section states: 'Cost tools aggregate usage by tag and account, comparing it against budgets and forecasted trends to trigger alerts.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "Which of these is explicitly identified as a 'common problem' in Cloud Automation, Orchestration, and Cost Management?",
     "choices": [
       "Over-provisioning security features.",
@@ -11596,36 +7936,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "Under 'Troubleshooting', for 'Unused or oversized resources left running', the recommendation is 'Review usage reports by tag to find untagged or oversized resources.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What types of concepts does the exam expect you to understand regarding Cloud Automation, Orchestration and Cost Management?",
-    "choices": [
-      "Only the advanced details of specific vendor tools.",
-      "Infrastructure as code and orchestration concepts, along with cost management and optimization strategies and automation and scaling policies.",
-      "Primarily manual configuration techniques and incident response.",
-      "Network topology design and penetration testing methodologies."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Exam coverage' section explicitly lists: 'Infrastructure as code and orchestration concepts | Cost management and optimization strategies | Automation and scaling policies'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-automation-orchestration-and-cost-management",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A recurring issue is 'missing or inconsistent resource tags'. What is the direct consequence of this problem, especially for cost management?",
-    "choices": [
-      "Increased network latency across the cloud environment.",
-      "Difficulty in accurately attributing costs to owners, projects, or cost centers.",
-      "Automatic scaling policies may fail to trigger correctly.",
-      "Security vulnerabilities become more prevalent."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Key terms' section defines Tagging as 'Attaching metadata to resources to track owner, project, or cost center.' Missing or inconsistent tags would therefore hinder this tracking for cost management.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
   },
@@ -11677,21 +7987,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is the primary role of an alerting engine in a cloud monitoring setup?",
-    "choices": [
-      "To collect logs from various sources into a central system.",
-      "To compare live metrics against defined thresholds or anomaly baselines and notify on-call staff.",
-      "To track a single request as it moves across multiple services.",
-      "To establish the expected normal range of a metric."
-    ],
-    "answerIndex": 1,
-    "explanation": "Alerting engines compare live metrics against defined thresholds or anomaly baselines and notify on-call staff when conditions are met.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "How do tracing systems primarily enable the reconstruction of a request's full path across multiple services?",
     "choices": [
       "By collecting logs from each service and correlating them by timestamp.",
@@ -11703,36 +7998,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Tracing systems tag each request with a unique identifier that is passed between services so its full path can be reconstructed.",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which common problem in cloud observability arises when there's no clear understanding of normal system behavior?",
-    "choices": [
-      "Alert fatigue from poorly tuned thresholds.",
-      "Logs scattered across services with no central search.",
-      "Missing correlation between metrics, logs, and traces during an incident.",
-      "No defined baseline, so nobody can say what normal looks like."
-    ],
-    "answerIndex": 3,
-    "explanation": "A common problem is having no defined baseline, which makes it difficult to determine what constitutes normal system behavior.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "During a troubleshooting process, after confirming a reported symptom with a metric or log, what is the recommended next step?",
-    "choices": [
-      "Immediately investigate hardware or network issues.",
-      "Check what changed recently, including deployments and configuration.",
-      "Define a new service level objective for the affected service.",
-      "Tune alerting thresholds to reduce false positives."
-    ],
-    "answerIndex": 1,
-    "explanation": "After confirming the symptom, the next recommended step in troubleshooting is to check what changed recently, such as deployments and configuration.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
@@ -11752,36 +8017,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of the following is explicitly mentioned as a common problem that hinders effective troubleshooting and incident resolution?",
-    "choices": [
-      "Insufficient budget for premium monitoring tools.",
-      "Lack of developer training in cloud-native technologies.",
-      "Missing correlation between metrics, logs, and traces during an incident.",
-      "Over-reliance on manual data analysis."
-    ],
-    "answerIndex": 2,
-    "explanation": "A common problem is 'Missing correlation between metrics, logs, and traces during an incident,' which impedes effective troubleshooting.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which concept describes the process of building cloud observability using various data types and applying a systematic approach to resolve cloud-specific failures?",
-    "choices": [
-      "Cloud Infrastructure Automation",
-      "Cloud Governance and Compliance",
-      "Cloud Monitoring, Logging and Troubleshooting",
-      "Cloud Data Migration Strategies"
-    ],
-    "answerIndex": 2,
-    "explanation": "The section title 'Cloud Monitoring, Logging and Troubleshooting' directly describes building observability with metrics, logs, and alerts, and applying a structured troubleshooting process to cloud-specific failures.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "When is the use of 'Baseline' particularly important in cloud monitoring?",
     "choices": [
       "When defining the target reliability for a Service Level Objective.",
@@ -11793,51 +8028,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "A Baseline is 'the expected normal range of a metric used to judge whether current behavior is abnormal.'",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A team is suffering from 'Alert fatigue'. What is the most likely root cause of this issue based on the provided material?",
-    "choices": [
-      "Insufficient number of monitoring agents deployed.",
-      "Poorly tuned thresholds leading to excessive or low-value notifications.",
-      "Lack of distributed tracing implementation.",
-      "Inability to aggregate logs centrally."
-    ],
-    "answerIndex": 1,
-    "explanation": "Alert fatigue is defined as 'Desensitization to alerts caused by excessive or low-value notifications,' and the common problem states 'Alert fatigue from poorly tuned thresholds.'",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is the primary objective of 'Log aggregation'?",
-    "choices": [
-      "To define specific targets for system performance.",
-      "To track individual requests across services.",
-      "To collect logs from many sources into a searchable central system.",
-      "To establish baselines for metric analysis."
-    ],
-    "answerIndex": 2,
-    "explanation": "Log aggregation is defined as 'Collecting logs from many sources into a searchable central system.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of these is a key component of 'structured troubleshooting' specifically mentioned in the provided material?",
-    "choices": [
-      "Always escalating to senior management immediately.",
-      "Prioritizing hardware replacements over software fixes.",
-      "Starting from the specific reported symptom and confirming it with a metric or log.",
-      "Focusing solely on network latency metrics."
-    ],
-    "answerIndex": 2,
-    "explanation": "One of the steps in structured troubleshooting is to 'Start from the specific reported symptom and confirm it with a metric or log before assuming a cause.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
@@ -11872,21 +8062,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "When troubleshooting a cloud-native application, what is the purpose of correlating metrics, logs, and traces by timestamp and request identifier?",
-    "choices": [
-      "To aggregate all data into a single, centralized database for long-term storage.",
-      "To isolate the specific failing component within a distributed system.",
-      "To generate automated reports for compliance auditing.",
-      "To predict future system failures based on historical trends."
-    ],
-    "answerIndex": 1,
-    "explanation": "The troubleshooting section states: 'Correlate metrics, logs, and traces by timestamp and request identifier to isolate the failing component.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "Which type of data is defined as a numeric measurement collected over time, often used for latency or error rates?",
     "choices": [
       "Metric",
@@ -11911,21 +8086,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "Monitoring agents and cloud-native services 'collect metrics and logs continuously and forward them to a central platform.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is a key function of an alerting engine in cloud monitoring?",
-    "choices": [
-      "To aggregate logs from various sources into a central system.",
-      "To track a single request across multiple services using unique identifiers.",
-      "To compare live metrics against defined thresholds or anomaly baselines and notify on-call staff.",
-      "To establish the expected normal range of a metric for future comparison."
-    ],
-    "answerIndex": 2,
-    "explanation": "Alerting engines 'compare live metrics against defined thresholds or anomaly baselines and notify on-call staff when conditions are met.'",
     "difficulty": "standard",
     "mistakeCategory": "concept"
   },
@@ -11977,36 +8137,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A team is experiencing 'Alert fatigue'. Which of the following is identified as a common cause of this problem?",
-    "choices": [
-      "Lack of a centralized logging platform.",
-      "Poorly tuned thresholds leading to excessive or low-value notifications.",
-      "Insufficient capacity planning for peak loads.",
-      "Absence of distributed tracing capabilities."
-    ],
-    "answerIndex": 1,
-    "explanation": "Alert fatigue is defined as 'Desensitization to alerts caused by excessive or low-value notifications,' and 'Alert fatigue from poorly tuned thresholds' is listed as a common problem.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is the primary purpose of 'Log aggregation'?",
-    "choices": [
-      "To establish performance baselines for services.",
-      "To collect logs from many sources into a searchable central system.",
-      "To define service level objectives for system reliability.",
-      "To identify unique requests across microservices."
-    ],
-    "answerIndex": 1,
-    "explanation": "Log aggregation is defined as 'Collecting logs from many sources into a searchable central system.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "In the context of cloud monitoring, what does a 'Baseline' represent?",
     "choices": [
       "The minimum acceptable error rate for a service.",
@@ -12018,36 +8148,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "A Baseline is defined as 'The expected normal range of a metric used to judge whether current behavior is abnormal.'",
     "difficulty": "standard",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What key information is crucial for correlating metrics, logs, and traces to isolate a failing component during troubleshooting?",
-    "choices": [
-      "Deployment manifest and rollback plans.",
-      "Network topology diagrams and security group rules.",
-      "User access roles and permissions.",
-      "Timestamp and request identifier."
-    ],
-    "answerIndex": 3,
-    "explanation": "The troubleshooting section states: 'Correlate metrics, logs, and traces by timestamp and request identifier to isolate the failing component.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which problem arises when 'nobody can say what normal looks like' in cloud observability?",
-    "choices": [
-      "Logs scattered across services.",
-      "Alert fatigue from poorly tuned thresholds.",
-      "Missing correlation between data types.",
-      "No defined baseline."
-    ],
-    "answerIndex": 3,
-    "explanation": "One of the 'Common problems' listed is 'No defined baseline, so nobody can say what normal looks like.'",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
@@ -12067,81 +8167,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is a 'Service level objective' designed to establish?",
-    "choices": [
-      "A target level of reliability or performance a service commits to.",
-      "The maximum allowed cost for operating a service.",
-      "A detailed plan for disaster recovery and business continuity.",
-      "The minimum number of instances a service must maintain."
-    ],
-    "answerIndex": 0,
-    "explanation": "A Service level objective is defined as 'A target level of reliability or performance a service commits to.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What does the exam cover regarding 'Cloud Monitoring, Logging and Troubleshooting'?",
-    "choices": [
-      "Advanced CI/CD pipeline optimization and deployment strategies.",
-      "Detailed networking protocols and firewall configurations.",
-      "Monitoring and alerting concepts, log management and analysis, and structured troubleshooting methodology.",
-      "Specific vendor-locked solutions for data warehousing and analytics."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' states: 'Monitoring and alerting concepts | Log management and analysis | Structured troubleshooting methodology'.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which scenario would directly benefit from using 'Distributed tracing'?",
-    "choices": [
-      "Aggregating all system logs into one searchable database.",
-      "Receiving an alert when CPU usage exceeds a threshold.",
-      "Determining the exact path a user's request took through multiple microservices.",
-      "Establishing the normal operating range for network latency."
-    ],
-    "answerIndex": 2,
-    "explanation": "Distributed tracing is defined as 'Tracking a single request as it moves across multiple services.' This directly helps in determining the path a request took through microservices.",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of the following data types is described as a numeric measurement collected over time, useful for tracking latency or error rates?",
-    "choices": [
-      "Metric",
-      "Log entry",
-      "Trace segment",
-      "Alert notification"
-    ],
-    "answerIndex": 0,
-    "explanation": "The section defines a Metric as 'A numeric measurement collected over time, such as latency or error rate.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is the primary purpose of 'Log aggregation' in cloud observability?",
-    "choices": [
-      "To filter out irrelevant log entries before storage",
-      "To collect logs from various sources into a centralized, searchable system",
-      "To convert log data into visual graphs and dashboards",
-      "To encrypt log data for compliance purposes"
-    ],
-    "answerIndex": 1,
-    "explanation": "Log aggregation is defined as 'Collecting logs from many sources into a searchable central system.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "How do 'Distributed tracing' systems primarily reconstruct the full path of a request across multiple services?",
     "choices": [
       "By analyzing network packet headers between services",
@@ -12153,36 +8178,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The section states: 'Tracing systems tag each request with a unique identifier that is passed between services so its full path can be reconstructed.'",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What is 'Alert fatigue' and what causes it?",
-    "choices": [
-      "A system slowdown caused by too many monitoring agents, leading to slow alerts",
-      "A desensitization to alerts due to an excessive number of low-value notifications",
-      "A state where the alerting system fails to send notifications for critical issues",
-      "A feeling of exhaustion from constantly tuning alert thresholds in a complex environment"
-    ],
-    "answerIndex": 1,
-    "explanation": "Alert fatigue is defined as 'Desensitization to alerts caused by excessive or low-value notifications.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "What does a 'Service level objective' (SLO) primarily aim to define?",
-    "choices": [
-      "The maximum budget allocated for cloud resources",
-      "A target level of reliability or performance a service commits to",
-      "The minimum number of monitoring agents required for full coverage",
-      "The acceptable deviation from a metric's baseline"
-    ],
-    "answerIndex": 1,
-    "explanation": "A Service level objective is defined as 'A target level of reliability or performance a service commits to.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
@@ -12228,21 +8223,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Alerting engines 'compare live metrics against defined thresholds or anomaly baselines and notify on-call staff when conditions are met.'",
     "difficulty": "standard",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "A common problem in cloud observability is 'no defined baseline'. What issue does this primarily lead to?",
-    "choices": [
-      "Difficulty in archiving historical metric data effectively",
-      "An inability to determine what constitutes normal system behavior",
-      "Increased cost due to excessive data storage requirements",
-      "Delays in transmitting monitoring data to the central platform"
-    ],
-    "answerIndex": 1,
-    "explanation": "One of the common problems listed is 'No defined baseline, so nobody can say what normal looks like'.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
@@ -12307,21 +8287,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
     "certificationId": "cert-comptia-cloud-plus",
-    "prompt": "Which of the following best describes the overall goal of 'Cloud Monitoring, Logging and Troubleshooting' as presented?",
-    "choices": [
-      "To automate all manual intervention in cloud operations",
-      "To reduce cloud infrastructure costs through optimized resource usage",
-      "To build cloud observability using various data types and apply a structured troubleshooting process",
-      "To develop new security protocols for cloud-native applications"
-    ],
-    "answerIndex": 2,
-    "explanation": "The summary states: 'Build cloud observability with metrics, logs, and alerts, and apply a structured troubleshooting process to cloud-specific failures.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cloud-monitoring-logging-and-troubleshooting",
-    "certificationId": "cert-comptia-cloud-plus",
     "prompt": "A team is experiencing a common problem where 'Logs are scattered across services with no central search'. What is this an example of?",
     "choices": [
       "An issue with metric collection agents",
@@ -12361,21 +8326,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "Static analysis is defined as 'Examining a file's properties and code without executing it.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "When static analysis proves inconclusive due to malware packing or obfuscation, what is the recommended next step according to troubleshooting best practices?",
-    "choices": [
-      "Move to dynamic analysis in an isolated sandbox.",
-      "Conclude the host is clean if no immediate threats are found.",
-      "Perform a full system re-installation to eliminate the threat.",
-      "Delete the suspicious file immediately without further analysis."
-    ],
-    "answerIndex": 0,
-    "explanation": "The troubleshooting section states: 'If static analysis is inconclusive due to packing, move to dynamic analysis in an isolated sandbox.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
   },
@@ -12427,21 +8377,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-endpoint-detection-and-malware-analysis",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What is the primary purpose of telemetry collected by EDR agents?",
-    "choices": [
-      "To allow analysts to query and reconstruct what a suspicious file or process did on the host.",
-      "To automatically block all network traffic from unknown sources.",
-      "To perform real-time data backups of critical system files.",
-      "To manage software updates and patches across all endpoints."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section states: 'Analysts query this telemetry to reconstruct what a suspicious file or process did on the host.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "A malware variant is found to modify a specific registry key to ensure it re-launches every time the system starts. What type of mechanism is this?",
     "choices": [
       "Persistence mechanism",
@@ -12453,21 +8388,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "A Persistence mechanism is defined as 'A technique malware uses to survive reboot, such as a registry run key or scheduled task.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which scenario represents a common problem encountered with Endpoint Detection and Response (EDR) systems?",
-    "choices": [
-      "An EDR agent is missing from a critical endpoint.",
-      "All network traffic is being successfully logged and analyzed.",
-      "The central console provides overwhelming but clear data.",
-      "Endpoint security policies are uniformly applied across the organization."
-    ],
-    "answerIndex": 0,
-    "explanation": "One of the 'Common problems' listed is: 'EDR agent missing from a critical endpoint.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-endpoint-detection-and-malware-analysis",
@@ -12513,36 +8433,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Dynamic analysis involves 'Executing a file in a controlled environment and observing its behaviour.' Observing registry modifications and network connections are examples of live behavior.",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What does Endpoint Detection and Response (EDR) tooling fundamentally enable analysts to do?",
-    "choices": [
-      "Query telemetry to reconstruct what a suspicious file or process did on a host.",
-      "Automatically deploy security patches across an entire network.",
-      "Perform deep packet inspection on all inbound and outbound traffic.",
-      "Provide direct access to user desktop environments for troubleshooting."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section states: 'Analysts query this telemetry to reconstruct what a suspicious file or process did on the host.' This is a core capability.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which of the following is an example of a 'Persistence mechanism' used by malware?",
-    "choices": [
-      "Creating a new entry in the Windows Registry's 'Run' key.",
-      "Changing the file extension of a malicious executable.",
-      "Encrypting a file on disk to avoid detection.",
-      "Using a polymorphic engine to alter its code signature."
-    ],
-    "answerIndex": 0,
-    "explanation": "A Persistence mechanism is defined as 'A technique malware uses to survive reboot, such as a registry run key or scheduled task.' A registry 'Run' key entry directly fits this definition.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-endpoint-detection-and-malware-analysis",
@@ -12682,21 +8572,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-endpoint-detection-and-malware-analysis",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What is a potential common problem when attempting to extract all relevant information from a malware sample, leading to a risk of missing threats?",
-    "choices": [
-      "Incomplete indicator extraction that misses secondary payloads.",
-      "Over-reporting of benign activities as malicious.",
-      "Excessive network bandwidth consumption by EDR agents.",
-      "Failure of EDR agents to update their signature databases."
-    ],
-    "answerIndex": 0,
-    "explanation": "One of the 'Common problems' listed is 'Incomplete indicator extraction that misses secondary payloads.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "An analyst suspects a file might be malicious but wants to inspect its internal structure and properties without triggering any of its functions. Which analysis method is appropriate?",
     "choices": [
       "Static analysis",
@@ -12708,36 +8583,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Static analysis is defined as 'Examining a file's properties and code without executing it.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "When investigating suspicious activity, why is it crucial to trace the full process tree and network connections rather than stopping at the first suspicious artifact?",
-    "choices": [
-      "To avoid missing related malicious actions or secondary payloads.",
-      "To comply with regulatory requirements for incident response.",
-      "To conserve system resources on the endpoint.",
-      "To reduce the amount of telemetry collected by EDR agents."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Troubleshooting' section states: 'Trace the full process tree and network connections rather than stopping at the first suspicious artifact.' This is to ensure all related malicious activity is found.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What is the purpose of an isolated 'Sandbox' environment in malware analysis?",
-    "choices": [
-      "To safely execute and observe suspicious files without affecting the production environment.",
-      "To store Indicators of Compromise (IoCs) for future reference.",
-      "To serve as a central console for EDR agent telemetry.",
-      "To perform static analysis on file properties and code."
-    ],
-    "answerIndex": 0,
-    "explanation": "A 'Sandbox' is defined as 'An isolated environment used to safely execute and observe suspicious files.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-endpoint-detection-and-malware-analysis",
@@ -12772,51 +8617,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-endpoint-detection-and-malware-analysis",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which fundamental aspect of cybersecurity is covered by 'Endpoint detection and response fundamentals' in the exam coverage?",
-    "choices": [
-      "How EDR tooling allows analysts to gain visibility into endpoint activity and respond to threats.",
-      "The principles of secure network perimeter defense and firewall configuration.",
-      "Techniques for database security and data integrity protection.",
-      "Methods for physical security and access control to data centers."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Exam coverage' lists 'Endpoint detection and response fundamentals', which directly refers to the use of EDR tooling to detect and respond to threats on endpoints.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What kind of data do lightweight EDR agents primarily collect and stream to a central console?",
-    "choices": [
-      "Process, file, registry, and network events",
-      "User login credentials and password hashes",
-      "Operating system kernel panic reports",
-      "Hardware inventory and software licensing information"
-    ],
-    "answerIndex": 0,
-    "explanation": "According to the section, lightweight agents on endpoints record 'process, file, registry, and network events' and stream them to a central console.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "An analyst uses EDR tooling to investigate an alert. What is the primary purpose of querying the telemetry collected by EDR agents?",
-    "choices": [
-      "To reconstruct the actions a suspicious file or process performed on the host",
-      "To remotely patch vulnerabilities on affected endpoints",
-      "To block all network traffic from the suspected host",
-      "To automatically generate compliance reports for auditors"
-    ],
-    "answerIndex": 0,
-    "explanation": "The section states that analysts 'query this telemetry to reconstruct what a suspicious file or process did on the host'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "A suspicious file is analyzed without being executed, focusing on its properties and code. What type of analysis is this?",
     "choices": [
       "Static analysis",
@@ -12826,21 +8626,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "The definition provided states: 'Static analysis = Examining a file's properties and code without executing it.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which of the following best describes the function of a 'Sandbox' in malware analysis?",
-    "choices": [
-      "An isolated environment used to safely execute and observe suspicious files",
-      "A secure storage location for encrypted malware samples",
-      "A tool for disassembling executable code into human-readable assembly",
-      "A network segment designed to trap and contain malicious network traffic"
-    ],
-    "answerIndex": 0,
-    "explanation": "The key term definition states: 'Sandbox = An isolated environment used to safely execute and observe suspicious files.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
   },
@@ -12858,21 +8643,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The key term definition states: 'Persistence mechanism = A technique malware uses to survive reboot, such as a registry run key or scheduled task.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which of the following is a common problem encountered with EDR systems, particularly concerning malware analysis?",
-    "choices": [
-      "Malware that detects virtualisation and alters its behavior",
-      "EDR agents consuming excessive network bandwidth",
-      "Difficulty integrating EDR with existing firewall rules",
-      "Lack of reporting capabilities for historical data"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Common problems' section lists: 'Sandbox evasion by malware that detects virtualisation'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-endpoint-detection-and-malware-analysis",
@@ -12952,21 +8722,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-endpoint-detection-and-malware-analysis",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What does the 'Endpoint detection and response fundamentals' exam coverage entail?",
-    "choices": [
-      "Understanding how lightweight agents stream telemetry to a central console for analysis.",
-      "The complete process of developing new EDR solutions.",
-      "Advanced reverse engineering techniques for sophisticated malware.",
-      "Global threat intelligence sharing agreements and frameworks."
-    ],
-    "answerIndex": 0,
-    "explanation": "The summary and 'How it works' sections describe EDR fundamentals as using agents to record and stream events, which aligns with 'Understanding how lightweight agents stream telemetry to a central console for analysis.' The other options are outside the scope of the provided material for 'fundamentals'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-endpoint-detection-and-malware-analysis",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "An analyst notices that a file hash, identified as malicious, is present on several endpoints. What does this hash represent in the context of security investigations?",
     "choices": [
       "An Indicator of Compromise (IoC)",
@@ -13027,21 +8782,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-reconnaissance-and-enumeration",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "When performing active reconnaissance, what is a typical method used to identify live systems within a target's network?",
-    "choices": [
-      "Analyzing public social media profiles.",
-      "Performing ping sweeps and port scans.",
-      "Reviewing corporate press releases.",
-      "Searching for DNS records on public registries."
-    ],
-    "answerIndex": 1,
-    "explanation": "Active reconnaissance 'sends crafted traffic such as ping sweeps and port scans directly to in-scope systems' to identify live systems.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "Which of the following is a primary characteristic of passive reconnaissance?",
     "choices": [
       "It involves direct network probes and connection attempts.",
@@ -13072,21 +8812,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-reconnaissance-and-enumeration",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the primary purpose of enumeration in the context of penetration testing?",
-    "choices": [
-      "To establish a secure backdoor into the target system.",
-      "To expand discovered open ports into service names, versions, and configuration details.",
-      "To disrupt target services and assess their resilience.",
-      "To gather legal documentation regarding target ownership."
-    ],
-    "answerIndex": 1,
-    "explanation": "Enumeration 'expands each discovered open port into service name, version, and where possible configuration detail.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "A penetration tester wants to discover potential subdomains and mail servers associated with a target domain. Which technique is most appropriate?",
     "choices": [
       "Banner grabbing.",
@@ -13098,51 +8823,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "DNS enumeration is defined as 'Querying DNS records to discover subdomains, mail servers, and infrastructure hints.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "During reconnaissance, which of the following falls under the category of OSINT?",
-    "choices": [
-      "Executing a SQL injection attack on a web application.",
-      "Scanning internal network segments after gaining access.",
-      "Analyzing public registries and social media for information.",
-      "Directly querying a server for its operating system type."
-    ],
-    "answerIndex": 2,
-    "explanation": "OSINT is 'Open-source intelligence gathered from publicly available material,' which includes public registries and social media.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is a key difference between passive and active reconnaissance?",
-    "choices": [
-      "Passive reconnaissance involves direct interaction, while active does not.",
-      "Active reconnaissance is always illegal, while passive is not.",
-      "Passive reconnaissance uses public sources, while active directly interacts with target systems.",
-      "Active reconnaissance primarily focuses on human intelligence gathering."
-    ],
-    "answerIndex": 2,
-    "explanation": "Passive reconnaissance uses 'public or third-party sources with no direct contact,' while active reconnaissance involves 'Direct interaction with target systems.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of these is a common problem encountered during the reconnaissance and enumeration phase?",
-    "choices": [
-      "Successfully exploiting zero-day vulnerabilities.",
-      "Failing to log which source produced which finding.",
-      "Achieving full administrative control over target systems.",
-      "Developing advanced custom malware."
-    ],
-    "answerIndex": 1,
-    "explanation": "'Failing to log which source produced which finding' is listed as a 'Common problem'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-reconnaissance-and-enumeration",
@@ -13177,66 +8857,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-reconnaissance-and-enumeration",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What does the term 'Attack surface' refer to in the context of an external penetration test?",
-    "choices": [
-      "The specific type of operating system used by the target.",
-      "The full set of exposed hosts, ports, services, and entry points available to test.",
-      "The number of known vulnerabilities affecting the target.",
-      "The physical location of the target's primary data center."
-    ],
-    "answerIndex": 1,
-    "explanation": "Attack surface is defined as 'The full set of exposed hosts, ports, services, and entry points available to test.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "During a port scan, a host becomes unresponsive. What action should be taken immediately?",
-    "choices": [
-      "Continue scanning other hosts to not lose time.",
-      "Increase scan intensity to force a response.",
-      "Stop immediately and follow the agreed incident and deconfliction process.",
-      "Attempt to restart the unresponsive host remotely."
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting advice states: 'If a host becomes unresponsive during scanning, stop immediately and follow the agreed incident and deconfliction process.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of the following is a potential risk of 'overly aggressive scan timing' during active reconnaissance?",
-    "choices": [
-      "Missing subtle vulnerability indicators.",
-      "Receiving too much data to analyze effectively.",
-      "Disrupting a fragile host or service.",
-      "Being detected by standard antivirus software."
-    ],
-    "answerIndex": 2,
-    "explanation": "'Using overly aggressive scan timing that disrupts a fragile host' is listed as a 'Common problem'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "According to the section material, what is a crucial aspect of how enumeration works?",
-    "choices": [
-      "It always involves social engineering techniques.",
-      "It directly exploits vulnerabilities to gain access.",
-      "It expands discovered open ports into specific service details.",
-      "It exclusively relies on public registries for information."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section states that enumeration 'expands each discovered open port into service name, version, and where possible configuration detail.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "Which of the following activities is a characteristic of 'passive reconnaissance' as defined in the section material?",
     "choices": [
       "Sending crafted traffic directly to in-scope systems.",
@@ -13267,21 +8887,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-reconnaissance-and-enumeration",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "According to the section material, what happens during the 'enumeration' phase of reconnaissance?",
-    "choices": [
-      "Initial identification of publicly available information.",
-      "Expansion of discovered open ports into service name, version, and configuration details.",
-      "Direct contact with target systems to determine their live status.",
-      "Cross-checking OSINT findings against multiple sources."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section states that 'Enumeration expands each discovered open port into service name, version, and where possible configuration detail.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "A common problem encountered during reconnaissance is 'relying on stale or cached OSINT'. What is the recommended troubleshooting step for this issue?",
     "choices": [
       "Increase the aggression level of active scanning.",
@@ -13293,51 +8898,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'Troubleshooting', it states: 'Cross-check OSINT findings against a second source before treating them as reliable for later phases.' This directly addresses the problem of stale OSINT.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which technique is described as 'Capturing service responses that reveal software names and version numbers'?",
-    "choices": [
-      "DNS enumeration",
-      "Passive reconnaissance",
-      "Banner grabbing",
-      "OSINT collection"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Key terms' section defines 'Banner grabbing' as 'Capturing service responses that reveal software names and version numbers.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "When performing active reconnaissance, what action is considered 'overly aggressive scan timing' and can disrupt a fragile host?",
-    "choices": [
-      "Gathering information from public search engines.",
-      "Conducting port scans with very high frequency or concurrency.",
-      "Querying DNS records for subdomains.",
-      "Analyzing social media profiles for employee information."
-    ],
-    "answerIndex": 1,
-    "explanation": "'Using overly aggressive scan timing that disrupts a fragile host' is listed under 'Common problems'. While the specific action isn't detailed, aggressive timing during 'active reconnaissance' typically refers to the speed and intensity of direct network interactions like port scans.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What does the section material state is a component of 'active reconnaissance'?",
-    "choices": [
-      "Analyzing public social media posts.",
-      "Pulling information from public registries.",
-      "Sending crafted traffic such as ping sweeps and port scans.",
-      "Reviewing archived website content."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section states: 'Active reconnaissance sends crafted traffic such as ping sweeps and port scans directly to in-scope systems.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-reconnaissance-and-enumeration",
@@ -13366,21 +8926,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 2,
     "explanation": "Under 'Troubleshooting', it states: 'If a scan produces no responses, confirm the target range, firewall rules, and that the testing source is not being filtered.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of the following is listed as a 'common problem' during reconnaissance and enumeration?",
-    "choices": [
-      "Insufficient time allocated for reporting.",
-      "Failing to log which source produced which finding.",
-      "Over-reliance on automated tools without manual verification.",
-      "Lack of executive summary in the final report."
-    ],
-    "answerIndex": 1,
-    "explanation": "Under 'Common problems', it explicitly lists: 'Failing to log which source produced which finding.'",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
   },
@@ -13432,36 +8977,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-reconnaissance-and-enumeration",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of these is a risk associated with 'scanning addresses outside the authorised range'?",
-    "choices": [
-      "It leads to more accurate OSINT data.",
-      "It can cause legal or contractual violations.",
-      "It improves the efficiency of banner grabbing.",
-      "It enhances passive reconnaissance capabilities."
-    ],
-    "answerIndex": 1,
-    "explanation": "'Scanning addresses outside the authorised range' is listed as a 'Common problem'. This action, in the context of security testing, inherently carries the risk of legal or contractual violations because it exceeds the agreed scope of work.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which statement best describes the overall 'Summary' of the Reconnaissance and Enumeration section?",
-    "choices": [
-      "To perform vulnerability exploitation on identified targets.",
-      "To gather intelligence and enumerate services on an authorized target without exceeding scope.",
-      "To configure firewalls and intrusion detection systems.",
-      "To conduct forensic analysis of compromised systems."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Summary' section states: 'Gather passive and active intelligence on an authorised target and enumerate live hosts, ports, and services without exceeding scope.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "Which of these activities primarily defines the 'scope' of an external penetration test during the reconnaissance phase?",
     "choices": [
       "Gathering passive and active intelligence on an authorised target and enumerating live hosts, ports, and services without exceeding scope.",
@@ -13507,36 +9022,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-reconnaissance-and-enumeration",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What specific action is described as 'Banner grabbing' in the key terms?",
-    "choices": [
-      "Querying DNS records to find subdomains.",
-      "Capturing service responses that reveal software names and version numbers.",
-      "Collecting information from public registries.",
-      "Sending ping sweeps to identify live hosts."
-    ],
-    "answerIndex": 1,
-    "explanation": "The key term 'Banner grabbing' is defined as 'Capturing service responses that reveal software names and version numbers.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What does the section material identify as a common problem related to the accuracy of collected intelligence?",
-    "choices": [
-      "Failing to log which source produced which finding.",
-      "Using overly aggressive scan timing that disrupts a fragile host.",
-      "Scanning addresses outside the authorised range.",
-      "Relying on stale or cached OSINT that no longer reflects the environment."
-    ],
-    "answerIndex": 3,
-    "explanation": "Under 'Common problems', one item listed is 'Relying on stale or cached OSINT that no longer reflects the environment.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "You are performing reconnaissance and find some OSINT. What is the recommended troubleshooting step to ensure its reliability?",
     "choices": [
       "Immediately use the OSINT as factual for later phases.",
@@ -13548,36 +9033,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'Troubleshooting', it states: 'Cross-check OSINT findings against a second source before treating them as reliable for later phases.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "According to the section, what is the 'Attack surface'?",
-    "choices": [
-      "The specific tools used for active reconnaissance.",
-      "The full set of exposed hosts, ports, services, and entry points available to test.",
-      "The publicly available information gathered via OSINT.",
-      "The list of authorized IP ranges for a penetration test."
-    ],
-    "answerIndex": 1,
-    "explanation": "The key term 'Attack surface' is defined as 'The full set of exposed hosts, ports, services, and entry points available to test.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What distinguishes 'Enumeration' from basic active reconnaissance?",
-    "choices": [
-      "Enumeration is solely focused on gathering data from public registries.",
-      "Enumeration expands each discovered open port into service name, version, and where possible configuration detail.",
-      "Enumeration only involves sending crafted traffic like ping sweeps.",
-      "Enumeration is a type of passive reconnaissance that avoids direct contact."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section states: 'Enumeration expands each discovered open port into service name, version, and where possible configuration detail.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-reconnaissance-and-enumeration",
@@ -13597,21 +9052,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-reconnaissance-and-enumeration",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is a potential negative consequence of 'overly aggressive scan timing' during active reconnaissance?",
-    "choices": [
-      "It can lead to inaccurate OSINT findings.",
-      "It might cause the testing source to be filtered.",
-      "It could disrupt a fragile host.",
-      "It may result in scanning addresses outside the authorised range."
-    ],
-    "answerIndex": 2,
-    "explanation": "Under 'Common problems', it mentions 'Using overly aggressive scan timing that disrupts a fragile host.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "When troubleshooting a scan that produces no responses, what is the first step suggested by the material?",
     "choices": [
       "Stop immediately and follow the incident process.",
@@ -13623,51 +9063,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'Troubleshooting', it states: 'If a scan produces no responses, confirm the target range, firewall rules, and that the testing source is not being filtered.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of these is a characteristic of 'DNS enumeration'?",
-    "choices": [
-      "Capturing service responses to identify software.",
-      "Directly interacting with target systems through port scanning.",
-      "Querying DNS records to discover subdomains, mail servers, and infrastructure hints.",
-      "Collecting information from public registries without direct contact."
-    ],
-    "answerIndex": 2,
-    "explanation": "The key term 'DNS enumeration' is defined as 'Querying DNS records to discover subdomains, mail servers, and infrastructure hints.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "According to the section material, what happens during the 'enumeration' phase of reconnaissance?",
-    "choices": [
-      "Public registries and search engines are primarily consulted.",
-      "Crafted traffic like ping sweeps are sent to systems.",
-      "Discovered open ports are expanded into service name, version, and configuration details.",
-      "Information is gathered from third-party sources without direct target contact."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section details: 'Enumeration expands each discovered open port into service name, version, and where possible configuration detail.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-reconnaissance-and-enumeration",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of the following describes a 'common problem' during reconnaissance and enumeration related to logging?",
-    "choices": [
-      "Failing to log which source produced which finding.",
-      "Overly aggressive scan timing.",
-      "Scanning addresses outside the authorised range.",
-      "Relying on stale or cached OSINT."
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Common problems', one item listed is 'Failing to log which source produced which finding.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-reconnaissance-and-enumeration",
@@ -13702,36 +9097,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-web-application-testing-fundamentals",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the primary purpose of mapping in web application testing fundamentals?",
-    "choices": [
-      "To identify every page, parameter, form, and API endpoint that accepts input",
-      "To create a visual representation of the application's user interface",
-      "To document the application's overall architecture and server configurations",
-      "To analyze network traffic and identify potential denial-of-service vectors"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section states that 'Mapping identifies every page, parameter, form, and API endpoint that accepts input'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of these is explicitly mentioned as a common problem in web application testing?",
-    "choices": [
-      "Overlooking API endpoints used by mobile apps",
-      "Focusing too much on server-side logging",
-      "Ignoring the impact of content delivery networks",
-      "Underestimating the complexity of frontend frameworks"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Common problems' list includes 'Overlooking API endpoints used by mobile apps'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "When testing for potential injection flaws, what is the recommended approach for confirming an issue?",
     "choices": [
       "Use the least intrusive technique available to confirm it",
@@ -13758,21 +9123,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Session management is defined as 'How an application tracks an authenticated user across requests, typically via tokens or cookies.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "According to the section, what does web application testing fundamentally aim to do?",
-    "choices": [
-      "Test web applications for common flaws such as injection and broken access control",
-      "Optimize web server performance and scalability",
-      "Develop new security protocols for internet communication",
-      "Monitor user behavior for compliance and auditing purposes"
-    ],
-    "answerIndex": 0,
-    "explanation": "The Summary states: 'Test web applications for common flaws such as injection and broken access control, using a structured methodology and safe proof-of-concept techniques.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-web-application-testing-fundamentals",
@@ -13837,36 +9187,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-web-application-testing-fundamentals",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which term describes a failure to enforce that users can only access data or actions they are authorised for?",
-    "choices": [
-      "Broken access control",
-      "Denial of service",
-      "Information leakage",
-      "Session fixation"
-    ],
-    "answerIndex": 0,
-    "explanation": "Broken access control is defined as 'A failure to enforce that users can only access data or actions they are authorised for.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What action is recommended if an input point behaves unexpectedly during testing?",
-    "choices": [
-      "Isolate the exact parameter causing the change before drawing conclusions",
-      "Immediately report it as a critical vulnerability",
-      "Restart the application server to clear the state",
-      "Revert to previous test cases without further investigation"
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Troubleshooting', it states: 'If an input point behaves unexpectedly, isolate the exact parameter causing the change before drawing conclusions.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "Which of these is a key area of exam coverage for Web Application Testing Fundamentals?",
     "choices": [
       "Injection and authentication testing",
@@ -13878,21 +9198,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Exam coverage' section lists 'Injection and authentication testing'.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of the following describes SQL injection?",
-    "choices": [
-      "Inserting crafted input so a database executes unintended commands",
-      "Manipulating HTTP headers to bypass firewalls",
-      "Exploiting buffer overflows in web server software",
-      "Encrypting database communications without authorization"
-    ],
-    "answerIndex": 0,
-    "explanation": "SQL injection is defined as 'Inserting crafted input so a database executes unintended commands.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
   },
   {
     "topicId": "topic-web-application-testing-fundamentals",
@@ -13942,66 +9247,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-web-application-testing-fundamentals",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "When testing authentication and session tokens, what characteristic should be examined according to the provided material?",
-    "choices": [
-      "Their aesthetic design and user-friendliness.",
-      "Their integration with third-party advertising services.",
-      "Their predictability, expiry, and reuse across accounts.",
-      "Their impact on search engine optimization."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section states: 'Authentication and session tokens are examined for predictability, expiry, and reuse across accounts.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of these is explicitly mentioned as a 'Common problem' in web application testing?",
-    "choices": [
-      "Over-reporting minor cosmetic bugs.",
-      "Failure to document every test case in detail.",
-      "Overlooking API endpoints used by mobile apps.",
-      "Spending too much time on security awareness training."
-    ],
-    "answerIndex": 2,
-    "explanation": "One of the 'Common problems' listed is: 'Overlooking API endpoints used by mobile apps.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the recommended troubleshooting step if an input point behaves unexpectedly during testing?",
-    "choices": [
-      "Immediately report it as a critical vulnerability.",
-      "Isolate the exact parameter causing the change before drawing conclusions.",
-      "Restart the application server to clear any errors.",
-      "Assume it's a false positive and move to the next test."
-    ],
-    "answerIndex": 1,
-    "explanation": "Under 'Troubleshooting', it states: 'If an input point behaves unexpectedly, isolate the exact parameter causing the change before drawing conclusions.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the recommended approach for confirming a potential injection flaw?",
-    "choices": [
-      "Attempt full data extraction to prove the impact.",
-      "Use the least intrusive technique available to confirm it.",
-      "Delete the vulnerable input point to prevent further issues.",
-      "Immediately inform law enforcement about the finding."
-    ],
-    "answerIndex": 1,
-    "explanation": "Under 'Troubleshooting', it states: 'If a potential injection is found, use the least intrusive technique available to confirm it rather than attempting full data extraction.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "To confirm a broken access control boundary, what troubleshooting technique is recommended?",
     "choices": [
       "Using a single high-privilege account to verify all access rights.",
@@ -14043,21 +9288,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'How it works' section states: 'Each input point is tested with crafted values to see how the application responds, looking for signs of injection or logic flaws.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "According to the 'Exam coverage' section, which area is explicitly covered for Web Application Testing Fundamentals?",
-    "choices": [
-      "Network infrastructure security protocols.",
-      "Physical security measures for data centers.",
-      "Web application vulnerability categories.",
-      "Operating system hardening techniques."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section lists: 'Web application vulnerability categories'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-web-application-testing-fundamentals",
@@ -14122,66 +9352,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-web-application-testing-fundamentals",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Why is it important to test 'authenticated functionality' and not just the login page?",
-    "choices": [
-      "Authenticated functionality rarely contains security flaws.",
-      "The login page is the only point of entry for attackers.",
-      "Many vulnerabilities arise once a user is logged in, affecting data access and business logic.",
-      "Testing authenticated functionality is an optional step that adds little value."
-    ],
-    "answerIndex": 2,
-    "explanation": "A 'Common problem' is 'Testing only the login page and ignoring authenticated functionality,' implying that critical issues often exist within the authenticated user experience, affecting data and logic.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of these is a key characteristic of the 'structured methodology' used in Web Application Testing Fundamentals?",
-    "choices": [
-      "It involves mapping all input points before testing.",
-      "It focuses solely on client-side vulnerabilities.",
-      "It prioritizes automated scanning over manual analysis.",
-      "It avoids using any proof-of-concept techniques."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section details mapping every page, parameter, form, and API endpoint as a structured first step.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "According to the provided text, what is the definition of 'Broken access control'?",
-    "choices": [
-      "A failure to properly encrypt user data at rest.",
-      "A system that allows unauthorized users to modify database schemas.",
-      "A failure to enforce that users can only access data or actions they are authorised for.",
-      "An application crash caused by malformed input values."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Key terms' section defines 'Broken access control' as 'A failure to enforce that users can only access data or actions they are authorised for.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "When examining authentication and session tokens, which of the following characteristics should be a focus of testing?",
-    "choices": [
-      "Their aesthetic design and user interface integration.",
-      "Their predictability, expiry, and reuse across accounts.",
-      "Their cryptographic strength for password hashing.",
-      "Their size in bytes for network optimization."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section states that 'Authentication and session tokens are examined for predictability, expiry, and reuse across accounts.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "Which of these is explicitly identified as a 'Common problem' in web application testing related to proof-of-concept exploits?",
     "choices": [
       "Failing to document proof-of-concept steps adequately.",
@@ -14242,21 +9412,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-web-application-testing-fundamentals",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What does 'Insecure direct object reference' describe?",
-    "choices": [
-      "An application's failure to encrypt sensitive data transmissions.",
-      "Exposure of another user's data by manipulating an identifier in a request.",
-      "A flaw allowing a user to execute system commands directly on the server.",
-      "Lack of proper session token invalidation upon logout."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Key terms' section defines 'Insecure direct object reference' as 'Exposure of another user's data by manipulating an identifier in a request.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "What is a characteristic of testing input points as described in 'How it works'?",
     "choices": [
       "Input points are only tested for expected valid data formats.",
@@ -14287,36 +9442,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-web-application-testing-fundamentals",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Why is it considered a 'Common problem' to test only the login page and ignore authenticated functionality?",
-    "choices": [
-      "Login pages are generally more secure than other parts of the application.",
-      "Authenticated sections often expose more complex logic and data access vulnerabilities.",
-      "Testing login pages is less time-consuming than testing authenticated functionality.",
-      "Users typically spend less time on authenticated parts of an application."
-    ],
-    "answerIndex": 1,
-    "explanation": "One of the 'Common problems' listed is 'Testing only the login page and ignoring authenticated functionality', implying that authenticated functionality is critical to test.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What does 'Session management' primarily concern itself with?",
-    "choices": [
-      "The way an application handles user preferences and settings.",
-      "How an application encrypts all communications with the client.",
-      "How an application tracks an authenticated user across requests.",
-      "The storage and retrieval of historical user activity logs."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Key terms' section defines 'Session management' as 'How an application tracks an authenticated user across requests, typically via tokens or cookies.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "According to the section, what kind of security control is client-side validation often mistakenly assumed to be?",
     "choices": [
       "A real security control.",
@@ -14328,36 +9453,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'Common problems', it mentions 'Assuming client-side validation is a real security control'.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What type of vulnerability is 'Cross-site scripting'?",
-    "choices": [
-      "A flaw allowing attackers to bypass network firewalls.",
-      "Injecting script into a page so it runs in another user's browser session.",
-      "Manipulating file upload functionalities to compromise server integrity.",
-      "Exploiting weak encryption in client-server communication."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Key terms' section defines 'Cross-site scripting' as 'Injecting script into a page so it runs in another user's browser session.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-web-application-testing-fundamentals",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "When a potential injection is found, what is the recommended approach for confirming it?",
-    "choices": [
-      "Immediately attempting full data extraction to assess impact.",
-      "Using the least intrusive technique available to confirm the issue.",
-      "Reporting it directly without further confirmation to avoid system disruption.",
-      "Performing a full denial-of-service attack to prove vulnerability."
-    ],
-    "answerIndex": 1,
-    "explanation": "Under 'Troubleshooting', it states: 'If a potential injection is found, use the least intrusive technique available to confirm it rather than attempting full data extraction.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-wireless-social-engineering-and-physical-testing",
@@ -14407,96 +9502,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-wireless-social-engineering-and-physical-testing",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of these is a common problem encountered during social engineering campaigns?",
-    "choices": [
-      "Unclear wireless signal ownership",
-      "Attempting physical entry without an authorisation letter",
-      "Phishing content that misleads employees about a genuine emergency",
-      "Reporting individual employee names in a way that invites blame"
-    ],
-    "answerIndex": 2,
-    "explanation": "One of the common problems listed is 'Phishing content that misleads employees about a genuine emergency'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the primary purpose of social engineering campaigns in security testing?",
-    "choices": [
-      "To intercept client traffic through unauthorised access points",
-      "To assess encryption and key strength of wireless networks",
-      "To evaluate human vulnerabilities to manipulation and persuasion",
-      "To bypass entry controls using authorised techniques"
-    ],
-    "answerIndex": 2,
-    "explanation": "Social engineering campaigns aim to assess human vulnerabilities, often measured by response metrics like click or report rates.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Your client requests a social engineering assessment. What must be established in advance for this type of campaign?",
-    "choices": [
-      "The BSSID and physical location of all access points",
-      "Specific authorised bypass techniques for entry controls",
-      "A defined target list and response metrics",
-      "Emergency contact information for physical confrontations"
-    ],
-    "answerIndex": 2,
-    "explanation": "Social engineering campaigns are scoped in advance, run against a defined target list, and measured by response metrics such as click or report rates.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "A user reports an unknown wireless network appearing in their office. What might this indicate if it's not an authorized access point?",
-    "choices": [
-      "Vishing activity",
-      "Tailgating attempt",
-      "Rogue access point",
-      "Pretexting scenario"
-    ],
-    "answerIndex": 2,
-    "explanation": "A Rogue access point is defined as 'An unauthorised wireless access point that can intercept or redirect client traffic.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "When does the exam expect you to be familiar with 'Wireless attacks and testing techniques'?",
-    "choices": [
-      "Under the 'How it works' section",
-      "Under the 'Common problems' section",
-      "Under the 'Troubleshooting' section",
-      "Under the 'Exam coverage' section"
-    ],
-    "answerIndex": 3,
-    "explanation": "The 'Exam coverage' section explicitly states 'Wireless attacks and testing techniques' are covered.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which of the following describes a key aspect of physical testing according to the section material?",
-    "choices": [
-      "It involves capturing wireless handshakes for offline analysis.",
-      "It measures click rates for malicious links.",
-      "It attempts specific authorised bypass techniques against entry controls.",
-      "It creates false scenarios to gather information over the phone."
-    ],
-    "answerIndex": 2,
-    "explanation": "Physical testing attempts specific authorised bypass techniques against entry controls while carrying signed proof of authorisation.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "A client calls requesting sensitive information, claiming to be an IT manager verifying a 'critical system update'. What social engineering method is being used?",
     "choices": [
       "Tailgating",
@@ -14523,21 +9528,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The troubleshooting step for this situation is: 'If a social engineering campaign risks causing real alarm, revise the pretext with the client before sending it.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "Which ethical guideline is paramount for social engineering campaigns, as per the section material?",
-    "choices": [
-      "The use of advanced wireless sniffing tools.",
-      "Strict adherence to ethical and legal boundaries.",
-      "Unrestricted access to all network segments.",
-      "Deployment of malicious software to test defenses."
-    ],
-    "answerIndex": 1,
-    "explanation": "The summary states: 'Assess wireless network security, run authorised social engineering campaigns, and test physical access controls within strict ethical and legal boundaries.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-wireless-social-engineering-and-physical-testing",
@@ -14587,36 +9577,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-wireless-social-engineering-and-physical-testing",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "How are social engineering campaigns typically measured according to the section material?",
-    "choices": [
-      "By response metrics such as click or report rates.",
-      "By the total number of employees who failed to identify the attack.",
-      "By the amount of sensitive data successfully exfiltrated.",
-      "By the number of system vulnerabilities identified through employee actions."
-    ],
-    "answerIndex": 0,
-    "explanation": "The section states: 'Social engineering campaigns are scoped in advance, run against a defined target list, and measured by response metrics such as click or report rates.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "When performing physical testing, what specific action is attempted against entry controls?",
-    "choices": [
-      "Specific authorised bypass techniques.",
-      "Unauthorised network cable disconnection.",
-      "Installation of covert surveillance equipment.",
-      "Social engineering to trick guards into opening doors."
-    ],
-    "answerIndex": 0,
-    "explanation": "The section states: 'Physical testing attempts specific authorised bypass techniques against entry controls while carrying signed proof of authorisation.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "Which of the following is identified as a common problem in wireless testing?",
     "choices": [
       "Testing wireless networks that overlap with a neighboring business by accident.",
@@ -14641,21 +9601,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "The section lists 'Phishing content that misleads employees about a genuine emergency' under 'Common problems'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "A penetration tester attempting physical entry forgets their authorisation letter. What common problem does this represent?",
-    "choices": [
-      "Attempting physical entry without the authorisation letter on hand.",
-      "Encountering unexpected biometric security measures.",
-      "Being recognized by employees before gaining access.",
-      "Failure to breach the outer perimeter of the facility."
-    ],
-    "answerIndex": 0,
-    "explanation": "The section lists 'Attempting physical entry without the authorisation letter on hand' under 'Common problems'.",
     "difficulty": "challenging",
     "mistakeCategory": "diagnosis"
   },
@@ -14812,21 +9757,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-wireless-social-engineering-and-physical-testing",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is the definition of a 'Rogue access point' as per the section material?",
-    "choices": [
-      "An unauthorised wireless access point that can intercept or redirect client traffic.",
-      "A legitimate access point that has been misconfigured by an administrator.",
-      "A wireless device used for authorized penetration testing activities.",
-      "An access point that offers guest Wi-Fi access to visitors."
-    ],
-    "answerIndex": 0,
-    "explanation": "The key terms define 'Rogue access point' as: 'An unauthorised wireless access point that can intercept or redirect client traffic.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "Before a social engineering campaign is run, what specific parameters must be established?",
     "choices": [
       "The campaign must be scoped in advance and run against a defined target list.",
@@ -14853,21 +9783,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The key terms define 'Vishing' as: 'Social engineering conducted over a phone call.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "During physical testing, what must a tester carry to prove the engagement is sanctioned?",
-    "choices": [
-      "A signed proof of authorisation, also known as an authorisation letter.",
-      "A valid government-issued identification card.",
-      "A badge that grants universal access to all areas.",
-      "A list of emergency contacts for the facility."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section states physical testing involves 'carrying signed proof of authorisation'. Key terms define 'Authorisation letter' as 'A document a physical tester carries proving the engagement is sanctioned by the organisation.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-wireless-social-engineering-and-physical-testing",
@@ -14962,36 +9877,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-wireless-social-engineering-and-physical-testing",
     "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "How are social engineering campaigns typically measured?",
-    "choices": [
-      "By response metrics such as click or report rates.",
-      "By the number of employees who verbally confirm the pretext.",
-      "By the total financial loss incurred by the target organization.",
-      "By comparing the campaign to industry benchmarks for similar attacks."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section states: 'Social engineering campaigns are ... measured by response metrics such as click or report rates.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
-    "prompt": "What is a key component of physical security testing that the exam expects familiarity with?",
-    "choices": [
-      "Physical security testing and authorisation requirements.",
-      "The use of advanced lock-picking tools.",
-      "Designing secure building layouts.",
-      "Implementing motion sensors and surveillance cameras."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Exam coverage' section states: 'Physical security testing and authorisation requirements.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-wireless-social-engineering-and-physical-testing",
-    "certificationId": "cert-comptia-pentest-plus",
     "prompt": "What is the overarching purpose of Wireless, Social Engineering and Physical Testing as summarized in the material?",
     "choices": [
       "To assess wireless network security, run authorized social engineering campaigns, and test physical access controls within strict ethical and legal boundaries.",
@@ -15016,66 +9901,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "According to the section material, a Hardware Security Module is 'A tamper-resistant device that generates and protects private keys, never exposing them in plaintext.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "Which of the following best describes a 'Key encryption key'?",
-    "choices": [
-      "A key used exclusively for encrypting other cryptographic keys.",
-      "A key embedded directly within application code or configuration files.",
-      "A key that is rotated frequently to enhance security.",
-      "A key used for encrypting data at the application level."
-    ],
-    "answerIndex": 0,
-    "explanation": "The material defines a Key encryption key as 'A key used only to encrypt other keys, reducing exposure of data-encrypting keys.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What does 'Cryptographic agility' primarily enable within a system?",
-    "choices": [
-      "The ability to change cryptographic algorithms or key lengths without system redesign.",
-      "The process of recovering lost cryptographic keys.",
-      "The capability to store keys securely in a tamper-resistant device.",
-      "The mechanism for automatically rotating cryptographic keys."
-    ],
-    "answerIndex": 0,
-    "explanation": "Cryptographic agility is defined as 'The ability to swap algorithms or key lengths without redesigning the systems that use them.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the purpose of 'Key escrow'?",
-    "choices": [
-      "To provide a controlled storage mechanism for a copy of a key, enabling authorized recovery.",
-      "To ensure that cryptographic keys are always stored in plaintext for easy access.",
-      "To prevent any form of key recovery, enhancing security.",
-      "To generate new keys when existing ones expire."
-    ],
-    "answerIndex": 0,
-    "explanation": "Key escrow is described as 'Controlled storage of a copy of a key to allow authorised recovery.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the primary trade-off associated with 'Certificate pinning'?",
-    "choices": [
-      "Increased update friction due to hardcoding expected certificates or keys.",
-      "Reduced security due to reliance on external certificate authorities.",
-      "Higher cost of key management services.",
-      "The necessity of storing keys in plaintext."
-    ],
-    "answerIndex": 0,
-    "explanation": "Certificate pinning is defined as 'Hardcoding an expected certificate or key so only it is trusted, at the cost of update friction.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -15187,21 +10012,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cryptography-and-key-management-at-scale",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "What is a primary goal of 'Cryptography and Key Management at Scale'?",
-    "choices": [
-      "To design, operate, and recover cryptographic key management across large distributed enterprises without breaking availability.",
-      "To ensure all cryptographic keys are managed by a single, central administrator.",
-      "To eliminate the need for cryptographic agility in large systems.",
-      "To prioritize plaintext key storage for easier recovery."
-    ],
-    "answerIndex": 0,
-    "explanation": "The summary states its purpose is to 'Design, operate, and recover cryptographic key management across large distributed enterprises without breaking availability.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "Which topic is explicitly mentioned as part of 'Exam coverage' for this section?",
     "choices": [
       "Key management lifecycle and secure storage options.",
@@ -15262,21 +10072,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cryptography-and-key-management-at-scale",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "What capability does 'Cryptographic agility' provide within a system's design?",
-    "choices": [
-      "The ability to securely store keys in multiple locations.",
-      "The capacity to quickly revoke compromised certificates.",
-      "The flexibility to change cryptographic algorithms or key lengths without system redesign.",
-      "The mechanism for recovering lost or corrupted keys."
-    ],
-    "answerIndex": 2,
-    "explanation": "The text states: 'Cryptographic agility = The ability to swap algorithms or key lengths without redesigning the systems that use them.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "Which practice involves the controlled storage of a key copy to facilitate authorized recovery?",
     "choices": [
       "Certificate pinning",
@@ -15303,21 +10098,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The text defines 'Certificate pinning = Hardcoding an expected certificate or key so only it is trusted, at the cost of update friction.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "How are root and signing keys typically stored and protected in a scaled cryptographic environment?",
-    "choices": [
-      "Encrypted within application configuration files.",
-      "Inside hardware security modules that prevent plaintext export.",
-      "On cloud storage services with multi-factor authentication.",
-      "Directly in operating system key stores."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section states: 'Root and signing keys are generated and stored inside hardware security modules that never export plaintext key material.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-cryptography-and-key-management-at-scale",
@@ -15397,36 +10177,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cryptography-and-key-management-at-scale",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "After ensuring every root or signing key has a documented custodian and a tested rotation procedure, what is the next logical troubleshooting step?",
-    "choices": [
-      "Implement certificate pinning for all services.",
-      "Search for new application-level keys.",
-      "Verify that revoking one key does not silently break dependent systems.",
-      "Install additional hardware security modules."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Troubleshooting' section lists the steps: 'Confirm that every root or signing key has a documented custodian and a tested rotation procedure.' followed by 'Verify that revoking one key does not silently break dependent systems that were never inventoried.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is a primary objective when designing and operating cryptographic key management across large distributed enterprises?",
-    "choices": [
-      "To maximize the number of long-lived keys.",
-      "To eliminate the need for any key rotation.",
-      "To manage keys without compromising system availability.",
-      "To ensure all keys are exposed in plaintext for auditing."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Summary' states: 'Design, operate, and recover cryptographic key management across large distributed enterprises without breaking availability.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "Which topic is explicitly mentioned as part of the 'Exam coverage' for Cryptography and Key Management at Scale?",
     "choices": [
       "Detailed cryptographic algorithm implementations.",
@@ -15436,36 +10186,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 2,
     "explanation": "The 'Exam coverage' section lists: 'Key management lifecycle and secure storage options'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "When considering 'Hardware security modules versus cloud key management services', which aspect is highlighted for exam coverage?",
-    "choices": [
-      "The financial cost comparison of both solutions.",
-      "Their architectural differences and use cases.",
-      "Their impact on end-user privacy regulations.",
-      "The specific vendor products available for each."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Exam coverage' lists 'Hardware security modules versus cloud key management services', implying an understanding of their comparison and application.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the primary objective when designing and operating cryptographic key management across large distributed enterprises?",
-    "choices": [
-      "To ensure all keys are stored in a single, centralized cloud vault for easy access.",
-      "To achieve key management without compromising system availability.",
-      "To grant every administrator unrestricted access to all cryptographic assets.",
-      "To exclusively use software-based key generation for maximum flexibility."
-    ],
-    "answerIndex": 1,
-    "explanation": "The summary states the goal is to 'Design, operate, and recover cryptographic key management across large distributed enterprises without breaking availability.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -15487,21 +10207,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cryptography-and-key-management-at-scale",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "A 'Key encryption key' serves what specific purpose?",
-    "choices": [
-      "It is used for direct encryption of sensitive user data.",
-      "It exclusively generates new private keys for applications.",
-      "It encrypts other keys, thereby limiting the exposure of data-encrypting keys.",
-      "It acts as a primary root of trust for certificate authorities."
-    ],
-    "answerIndex": 2,
-    "explanation": "The definition of Key encryption key states it is 'A key used only to encrypt other keys, reducing exposure of data-encrypting keys.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "Which capability does 'Cryptographic agility' primarily provide within a system's design?",
     "choices": [
       "The ability to securely destroy compromised keys immediately.",
@@ -15511,36 +10216,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "The definition of Cryptographic agility states it is 'The ability to swap algorithms or key lengths without redesigning the systems that use them.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the primary function of 'Key escrow'?",
-    "choices": [
-      "To prevent unauthorized access to cryptographic keys by storing them offline.",
-      "To enable the controlled storage of a key copy for authorized recovery purposes.",
-      "To distribute cryptographic keys securely across a distributed system.",
-      "To ensure keys are automatically rotated after a set period."
-    ],
-    "answerIndex": 1,
-    "explanation": "The definition of Key escrow states it is 'Controlled storage of a copy of a key to allow authorised recovery.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is a significant consequence of implementing 'Certificate pinning'?",
-    "choices": [
-      "It allows for dynamic updates to trusted certificates without any downtime.",
-      "It ensures that all communication is encrypted with the strongest available algorithm.",
-      "It reduces the update friction by trusting any valid certificate from a known CA.",
-      "It hardcodes an expected certificate or key, increasing update friction."
-    ],
-    "answerIndex": 3,
-    "explanation": "The definition of Certificate pinning states it involves 'Hardcoding an expected certificate or key so only it is trusted, at the cost of update friction.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
   },
@@ -15592,21 +10267,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-cryptography-and-key-management-at-scale",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "What is identified as a common problem where migration was never planned?",
-    "choices": [
-      "Excessive use of Hardware Security Modules (HSMs).",
-      "Overly aggressive key rotation schedules.",
-      "Deprecated algorithms left in place.",
-      "Too many administrators having limited access to keys."
-    ],
-    "answerIndex": 2,
-    "explanation": "Under 'Common problems', it lists 'Deprecated algorithms left in place because migration was never planned.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "What is the initial recommended action for addressing potential embedded key material when troubleshooting key management issues?",
     "choices": [
       "Immediately revoke all root and signing keys.",
@@ -15616,21 +10276,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "Under 'Troubleshooting', the first step listed is 'Search source repositories and configuration management systems for embedded key material.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-cryptography-and-key-management-at-scale",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "After confirming that every root or signing key has a documented custodian and a tested rotation procedure, what is the next logical troubleshooting step?",
-    "choices": [
-      "Disable all cryptographic operations across the enterprise.",
-      "Verify that revoking one key does not silently break dependent systems.",
-      "Encrypt all remaining plaintext keys with a new master key.",
-      "Grant a single administrator unrestricted access to all keys for oversight."
-    ],
-    "answerIndex": 1,
-    "explanation": "Under 'Troubleshooting', after confirming custodians and rotation, the next step is 'Verify that revoking one key does not silently break dependent systems that were never inventoried.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
   },
@@ -15697,21 +10342,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the primary purpose of 'Software bill of materials' within a secure software supply chain?",
-    "choices": [
-      "To define the cryptographic keys used for artefact signing.",
-      "To list every component and dependency to track exposure to known vulnerabilities.",
-      "To document the steps for deploying an application to production.",
-      "To provide verifiable evidence of an artefact's origin and build process."
-    ],
-    "answerIndex": 1,
-    "explanation": "The definition states: 'A list of every component and dependency in an application, used to track exposure to known vulnerabilities.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "Which of these is a direct outcome of effective 'Shift left' implementation?",
     "choices": [
       "Security testing occurs only at the final release stage.",
@@ -15723,81 +10353,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Shift left means 'Moving security testing earlier in the development process rather than only at release,' which leads to identifying and addressing security concerns earlier.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What risk does 'Dependency confusion' specifically exploit?",
-    "choices": [
-      "Lack of cryptographic signatures on build artefacts.",
-      "A build system's preference for pulling internal packages over external ones.",
-      "A build system being tricked into pulling a malicious package instead of an intended internal one.",
-      "Failure to verify the provenance of deployed software."
-    ],
-    "answerIndex": 2,
-    "explanation": "The definition states: 'An attack that tricks a build system into pulling a malicious package instead of the intended internal one.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "A developer wants to ensure that a malicious actor cannot alter a compiled application after it leaves the build pipeline without detection. Which key term describes the technique used for this?",
-    "choices": [
-      "Software bill of materials",
-      "Shift left",
-      "Dependency confusion",
-      "Artefact signing"
-    ],
-    "answerIndex": 3,
-    "explanation": "Artefact signing is defined as 'Cryptographically signing a build output so tampering after the build can be detected.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What information does 'Provenance' provide regarding a software artefact?",
-    "choices": [
-      "A detailed list of all software vulnerabilities.",
-      "The current version of all installed dependencies.",
-      "Verifiable evidence of where the artefact came from and how it was built.",
-      "Instructions for deploying the artefact to a cloud environment."
-    ],
-    "answerIndex": 2,
-    "explanation": "The definition states: 'Verifiable evidence of where an artefact came from and how it was built.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "Which mechanism is used by dependency scanning tools to identify vulnerabilities *before* code is merged?",
-    "choices": [
-      "Producing signed artefacts with provenance metadata.",
-      "Comparing a software bill of materials against known vulnerability databases.",
-      "Auditing pipeline service account permissions.",
-      "Performing a hash comparison of deployed artefacts."
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section states: 'Dependency scanning tools compare a software bill of materials against known vulnerability databases before code is merged.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "According to the 'How it works' section, what must later stages verify before deployment when build systems produce signed artefacts with provenance metadata?",
-    "choices": [
-      "The current network configuration.",
-      "The latest vulnerability database updates.",
-      "The signed artefacts and their provenance metadata.",
-      "The number of security tests passed in previous stages."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section states: 'Build systems produce signed artefacts with provenance metadata that later stages verify before deployment.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
   },
   {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
@@ -15832,21 +10387,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the recommended first step when faced with the problem of 'Shared long-lived credentials used by multiple pipeline stages'?",
-    "choices": [
-      "Compare the hash of a deployed artefact.",
-      "Implement dependency confusion prevention.",
-      "Audit pipeline service account permissions for scope beyond what each stage actually requires.",
-      "Produce a Software bill of materials."
-    ],
-    "answerIndex": 2,
-    "explanation": "Under 'Troubleshooting', it lists: 'Audit pipeline service account permissions for scope beyond what each stage actually requires' as a step to address credential problems.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "To enhance pipeline security, the section recommends 'separate credentials for build, test, and deployment.' What specific risk does this primarily mitigate?",
     "choices": [
       "Dependency confusion attacks.",
@@ -15856,21 +10396,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "The 'How it works' section mentions 'separate credentials for build, test, and deployment,' which directly mitigates the problem of 'Shared long-lived credentials used by multiple pipeline stages,' thereby limiting the blast radius of a credential compromise.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "Which aspect of software development is *not* explicitly covered by the Secure Software Supply Chain and DevSecOps exam coverage outline?",
-    "choices": [
-      "Software supply chain risks and dependency management.",
-      "Artefact integrity, signing, and provenance verification.",
-      "Operating system hardening and network segmentation.",
-      "DevSecOps pipeline integration and gating."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section lists: 'Software supply chain risks and dependency management', 'DevSecOps pipeline integration and gating', and 'Artefact integrity, signing, and provenance verification'. Operating system hardening and network segmentation are not mentioned.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -15967,21 +10492,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-data-center-power-cooling-and-physical-security",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the primary purpose of a 'mantrap' in a data center environment?",
-    "choices": [
-      "To prevent power surges from reaching sensitive equipment.",
-      "To ensure two independent electrical paths supply a rack.",
-      "To physically secure an area by controlling entry with interlocked doors.",
-      "To provide short-term battery power during an outage."
-    ],
-    "answerIndex": 2,
-    "explanation": "A mantrap is a physical security chamber with two interlocked doors that only allows one door open at a time, preventing unauthorized access or tailgating.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A data center experiences a complete utility power failure. Which system is expected to provide immediate, short-term power to critical equipment?",
     "choices": [
       "The PDU (Power Distribution Unit)",
@@ -16027,36 +10537,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-data-center-power-cooling-and-physical-security",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "To confirm true independence of redundant power feeds, what troubleshooting step is recommended?",
-    "choices": [
-      "Verify the green status light on the UPS.",
-      "Use a thermal camera to check for hot spots.",
-      "Trace both power feeds to a rack back to their source.",
-      "Review generator start-up logs for delays."
-    ],
-    "answerIndex": 2,
-    "explanation": "The troubleshooting section recommends: 'Trace both power feeds to a rack back to their source to confirm true independence before calling it redundant.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of the following is a primary goal when planning data center power, cooling, and physical security?",
-    "choices": [
-      "To maximize equipment uptime and prevent unauthorized physical access.",
-      "To reduce the number of PDUs required per rack.",
-      "To eliminate the need for any UPS units entirely.",
-      "To standardize on a single vendor for all infrastructure components."
-    ],
-    "answerIndex": 0,
-    "explanation": "The summary states: 'Plan data center power redundancy, cooling capacity, and physical access controls that keep servers running and protected from unauthorized access.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A data center manager is told that the facility's UPS batteries passed their last load test, but they want to ensure reliability. What is the recommended best practice for this situation?",
     "choices": [
       "Trust the green status light on the UPS as sufficient proof of capacity.",
@@ -16072,36 +10552,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-data-center-power-cooling-and-physical-security",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the primary purpose of 'dual power feed' in a data center rack?",
-    "choices": [
-      "To provide immediate battery power during an outage.",
-      "To separate hot and cold air streams for cooling.",
-      "To ensure continuous power by having two independent electrical paths.",
-      "To distribute power from a single circuit to multiple devices."
-    ],
-    "answerIndex": 2,
-    "explanation": "Dual power feed is defined as 'Two independent electrical paths supplying a rack so a single feed failure does not cause an outage.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of the following describes a 'cooling design' element for a data center as mentioned in the section?",
-    "choices": [
-      "Uninterruptible power supply (UPS)",
-      "Power Distribution Unit (PDU)",
-      "Hot aisle containment",
-      "Mantrap"
-    ],
-    "answerIndex": 2,
-    "explanation": "Hot aisle containment is explicitly defined as 'A cooling design that separates hot exhaust air from cold intake air to improve cooling efficiency.'",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "When troubleshooting persistent 'hot spots' in a data center despite adequate overall cooling capacity, what is the most appropriate first step?",
     "choices": [
       "Order a full replacement of the entire cooling system.",
@@ -16113,21 +10563,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The troubleshooting section states: 'Use a thermal camera or intake thermometer to find hot spots rather than relying on the room's general temperature reading.'",
     "difficulty": "standard",
     "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the role of 'airflow management' in a data center, according to the section?",
-    "choices": [
-      "It refers to the process of maintaining battery charge in UPS units.",
-      "It's a component of cooling design, often involving containment systems.",
-      "It describes the path electricity takes from generators to PDUs.",
-      "It's a physical security control for access to the server racks."
-    ],
-    "answerIndex": 1,
-    "explanation": "The exam coverage explicitly mentions 'Cooling design including containment and airflow management,' linking airflow management directly to cooling.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-data-center-power-cooling-and-physical-security",
@@ -16192,36 +10627,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-data-center-power-cooling-and-physical-security",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "What is the main benefit of implementing 'Hot aisle containment' in a data center's cooling design?",
-    "choices": [
-      "To improve cooling efficiency and reduce energy use",
-      "To provide immediate power during a utility outage",
-      "To secure physical access to server racks",
-      "To distribute electrical power evenly across equipment"
-    ],
-    "answerIndex": 0,
-    "explanation": "Hot aisle containment is defined as 'A cooling design that separates hot exhaust air from cold intake air to improve cooling efficiency.' The 'How it works' section adds 'and reduce energy use'.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "Which of the following describes a common problem where equipment is mistakenly believed to be redundant?",
-    "choices": [
-      "Single utility feed serving equipment believed to be dually fed",
-      "UPS batteries failing load testing without warning",
-      "Hot spots caused by mixed airflow in poorly arranged racks",
-      "Tailgating through badge-controlled doors"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Common problems' section lists 'Single utility feed serving equipment believed to be dually fed'.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "A data center technician observes that hot exhaust air is mixing with cold intake air, reducing cooling efficiency. Which design principle, if implemented, would address this issue?",
     "choices": [
       "Hot aisle containment",
@@ -16252,21 +10657,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-data-center-power-cooling-and-physical-security",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "To confirm the true independence of power redundancy for a rack, what troubleshooting step is recommended?",
-    "choices": [
-      "Trace both power feeds to a rack back to their source",
-      "Review UPS battery test logs and replacement schedules",
-      "Use a thermal camera to find hot spots",
-      "Check the green status light on the UPS unit"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Troubleshooting' section states: 'Trace both power feeds to a rack back to their source to confirm true independence before calling it redundant.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "What is the recommended best practice for ensuring the reliability of UPS batteries, beyond just assuming a green status light means full capacity?",
     "choices": [
       "Review UPS battery test logs and replacement schedules",
@@ -16276,21 +10666,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "The 'Troubleshooting' section states: 'Review UPS battery test logs and replacement schedules rather than assuming a green status light means full capacity.'",
-    "difficulty": "standard",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
-    "prompt": "A data center manager is troubleshooting persistent 'hot spots' in a data center despite the overall room temperature being within acceptable limits. What is the most appropriate first step according to the section?",
-    "choices": [
-      "Use a thermal camera or intake thermometer to find hot spots",
-      "Increase the frequency of UPS battery testing",
-      "Trace power feeds to identify single points of failure",
-      "Implement stricter physical access controls"
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Troubleshooting' section states: 'Use a thermal camera or intake thermometer to find hot spots rather than relying on the room's general temperature reading.'",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
   },
@@ -16327,21 +10702,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-data-center-power-cooling-and-physical-security",
     "certificationId": "cert-comptia-server-plus",
-    "prompt": "The summary states the goal is to 'Plan data center power redundancy, cooling capacity, and physical access controls'. What is the overarching purpose of these plans?",
-    "choices": [
-      "To keep servers running and protected from unauthorized access",
-      "To reduce the overall energy consumption of the facility",
-      "To simplify the maintenance schedule for IT staff",
-      "To ensure compliance with local building codes"
-    ],
-    "answerIndex": 0,
-    "explanation": "The section's summary states: 'Plan data center power redundancy, cooling capacity, and physical access controls that keep servers running and protected from unauthorized access.'",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-data-center-power-cooling-and-physical-security",
-    "certificationId": "cert-comptia-server-plus",
     "prompt": "Which of the following is a component specifically covered under 'Power redundancy' in the exam material?",
     "choices": [
       "Generators",
@@ -16366,21 +10726,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "The 'How it works' section states, 'Preparation defines roles, communication channels, tooling access, and playbooks before an incident occurs.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "According to the provided material, what is the purpose of 'Recovery' in the incident response process?",
-    "choices": [
-      "To remove the attacker's presence from systems",
-      "To document evidence for legal proceedings",
-      "To restore normal operations with monitoring for reinfection",
-      "To stop the incident from spreading further"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section explains that 'recovery restores normal operation with monitoring for reinfection.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -16447,21 +10792,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-incident-response-and-containment-playbooks",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "During a data breach, the security team needs to ensure all information collected about the incident can be used reliably in future investigations or legal proceedings. Which key term describes the documented process for handling this evidence?",
-    "choices": [
-      "Playbook",
-      "Eradication",
-      "Chain of custody",
-      "Lessons learned review"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Key terms' section defines 'Chain of custody' as 'Documented handling of evidence so it remains admissible and trustworthy.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "After an incident, the team meets to discuss the response process, identifying successful actions and areas for improvement. What is this meeting referred to as?",
     "choices": [
       "Containment strategy session",
@@ -16471,36 +10801,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 3,
     "explanation": "The 'Key terms' section defines 'Lessons learned review' as 'A post-incident meeting that captures what worked and what to change.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "An incident response team is using a set of predefined, repeatable steps to handle a specific type of malware infection. Which key term describes this structured approach?",
-    "choices": [
-      "Chain of custody",
-      "Playbook",
-      "Eradication",
-      "Containment"
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Key terms' section defines 'Playbook' as 'A predefined, repeatable set of response steps for a specific incident type.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "A compromised system needs to have all malware, backdoors, and rogue accounts removed. Which incident response phase is described by these actions?",
-    "choices": [
-      "Containment",
-      "Eradication",
-      "Recovery",
-      "Detection and analysis"
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Key terms' section defines 'Eradication' as 'Removing the attacker's foothold, such as malware, backdoors, or rogue accounts.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
   },
@@ -16552,21 +10852,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-incident-response-and-containment-playbooks",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "An incident responder is concerned about potential lateral movement within the network. Which troubleshooting step is recommended for this concern?",
-    "choices": [
-      "Verify backups are clean and predate the compromise",
-      "Preserve logs and memory captures",
-      "Confirm full scope before declaring containment complete; check for lateral movement indicators",
-      "Restore systems from snapshots immediately"
-    ],
-    "answerIndex": 2,
-    "explanation": "Under 'Troubleshooting', it states: 'Confirm full scope before declaring containment complete; check for lateral movement indicators.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "What does the provided material indicate should happen regarding communication and reporting during incidents?",
     "choices": [
       "It should be strictly limited to technical staff only.",
@@ -16608,36 +10893,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'How it works' section states that 'recovery restores normal operation with monitoring for reinfection.'",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What is a critical action mentioned for the Detection and Analysis phase of incident response?",
-    "choices": [
-      "Defining roles and communication channels",
-      "Confirming scope and severity using evidence discipline",
-      "Restoring normal operations with monitoring",
-      "Removing attacker's foothold and backdoors"
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'How it works' section specifies that 'Detection and analysis confirm scope and severity using the same evidence discipline as triage.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which of the following is listed as a 'Common problem' if not handled correctly during incident response?",
-    "choices": [
-      "Lack of an executive sponsor for the IR team",
-      "Containment that alerts the attacker before eradication is ready",
-      "Insufficient budget for security tools",
-      "Over-reliance on automated response systems"
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Common problems' section explicitly lists: 'Containment that alerts the attacker before eradication is ready.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-incident-response-and-containment-playbooks",
@@ -16702,21 +10957,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-incident-response-and-containment-playbooks",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "The exam expects knowledge about which aspects of incident response?",
-    "choices": [
-      "Budget allocation for security teams",
-      "Vendor selection for security tools",
-      "Incident response process and lifecycle",
-      "Advanced persistent threat (APT) attribution"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section includes 'Incident response process and lifecycle'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "What is the primary objective of 'Containment' in the incident response process?",
     "choices": [
       "To gather evidence for legal proceedings",
@@ -16726,36 +10966,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 1,
     "explanation": "The 'Key terms' define 'Containment' as 'Actions that stop an incident from spreading further while preserving evidence.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What does 'Eradication' primarily focus on in incident response?",
-    "choices": [
-      "Documenting evidence for admissibility",
-      "Restoring normal business functions",
-      "Removing the attacker's foothold, such as malware or backdoors",
-      "Establishing communication channels for stakeholders"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Key terms' define 'Eradication' as 'Removing the attacker's foothold, such as malware, backdoors, or rogue accounts.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which key term describes a predefined, repeatable set of response steps for a specific type of security incident?",
-    "choices": [
-      "Incident Report",
-      "Playbook",
-      "Post-mortem Analysis",
-      "Forensic Checklist"
-    ],
-    "answerIndex": 1,
-    "explanation": "The 'Key terms' define 'Playbook' as 'A predefined, repeatable set of response steps for a specific incident type.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
   },
@@ -16773,36 +10983,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Key terms' define 'Lessons learned review' as 'A post-incident meeting that captures what worked and what to change.'",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What action is recommended to address the common problem of 'no predefined roles during a live incident'?",
-    "choices": [
-      "Conducting regular vulnerability scans",
-      "Implementing stronger authentication mechanisms",
-      "Defining roles and responsibilities during the Preparation phase",
-      "Investing in advanced threat intelligence feeds"
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'How it works' section states that 'Preparation defines roles, communication channels, tooling access, and playbooks before an incident occurs,' directly addressing the 'no predefined roles' common problem.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What is the primary purpose of 'Communication and reporting during incidents' as covered in the exam?",
-    "choices": [
-      "To assign blame for the incident",
-      "To ensure stakeholders are informed and actions are coordinated",
-      "To generate evidence for legal prosecution",
-      "To automatically resolve incident tickets"
-    ],
-    "answerIndex": 1,
-    "explanation": "While the material lists 'Communication and reporting during incidents' under exam coverage, its implied purpose is to keep relevant parties informed and facilitate coordinated response, preventing miscommunication or uncoordinated efforts.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-incident-response-and-containment-playbooks",
@@ -16852,21 +11032,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-incident-response-and-containment-playbooks",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What is the purpose of 'Chain of custody' in incident response?",
-    "choices": [
-      "To document the handling of evidence so it remains admissible and trustworthy.",
-      "To define the sequential steps for containing a security incident.",
-      "To ensure all incident responders have access to necessary tools.",
-      "To track the communication flow during a security event."
-    ],
-    "answerIndex": 0,
-    "explanation": "The key term definition for Chain of custody is 'Documented handling of evidence so it remains admissible and trustworthy.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "Before an incident even occurs, what is a crucial activity performed during the 'Preparation' phase?",
     "choices": [
       "Confirming the scope and severity of an active incident.",
@@ -16893,21 +11058,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'How it works' section states: 'Detection and analysis confirm scope and severity using the same evidence discipline as triage.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "According to the provided material, what is a key action during the 'Recovery' phase of incident response?",
-    "choices": [
-      "Restoring normal operation with monitoring for reinfection.",
-      "Isolating affected systems to prevent further spread.",
-      "Removing all traces of the attacker from the network.",
-      "Defining communication channels for future incidents."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section states: 'Containment isolates affected systems, eradication removes the attacker's foothold, and recovery restores normal operation with monitoring for reinfection.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-incident-response-and-containment-playbooks",
@@ -16942,21 +11092,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-incident-response-and-containment-playbooks",
     "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Before any remediation action that might overwrite them, what crucial troubleshooting step is recommended?",
-    "choices": [
-      "Preserve logs and memory captures.",
-      "Immediately format and reinstall the compromised system.",
-      "Alert all users about the ongoing incident.",
-      "Begin recovery from the latest backup."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Troubleshooting' section states: 'Preserve logs and memory captures before any remediation action that could overwrite them.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
     "prompt": "When using backups for system recovery after a compromise, what critical verification step is advised?",
     "choices": [
       "Verify backups are clean and predate the compromise.",
@@ -16968,21 +11103,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'Troubleshooting' section states: 'Verify backups are clean and predate the compromise before using them for recovery.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "What aspect of incident response does the exam explicitly cover regarding 'strategies'?",
-    "choices": [
-      "Containment, eradication, and recovery strategies.",
-      "Budget allocation for security tools.",
-      "Advanced malware analysis techniques.",
-      "Legal framework for international cybersecurity."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'Exam coverage' section lists: 'Containment, eradication, and recovery strategies.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-incident-response-and-containment-playbooks",
@@ -17000,36 +11120,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "diagnosis"
   },
   {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "A security team has just finished isolating affected systems. What incident response phase is described by this action?",
-    "choices": [
-      "Containment.",
-      "Eradication.",
-      "Recovery.",
-      "Detection and analysis."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section states: 'Containment isolates affected systems...'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-incident-response-and-containment-playbooks",
-    "certificationId": "cert-comptia-cysa-plus",
-    "prompt": "Which of the following is a potential consequence of 'Evidence lost through premature shutdown' as a common problem?",
-    "choices": [
-      "Inability to conduct a thorough forensic investigation.",
-      "The attacker being alerted before full eradication.",
-      "Restoring systems from compromised backups.",
-      "Delay in defining roles for incident responders."
-    ],
-    "answerIndex": 0,
-    "explanation": "Losing evidence, especially through premature shutdown, directly impacts the ability to investigate the incident thoroughly.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
     "certificationId": "cert-comptia-securityx",
     "prompt": "What is the primary goal of securing the software supply chain, as stated in the summary?",
@@ -17041,21 +11131,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 2,
     "explanation": "The summary explicitly states the goal: 'Secure the path from source code to production, covering dependency risk, build integrity, and security integrated into the delivery pipeline.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "Which of the following is a core area covered by securing the software supply chain, according to the summary?",
-    "choices": [
-      "End-user training on phishing awareness.",
-      "Physical security of data centers.",
-      "Dependency risk management.",
-      "Network perimeter intrusion detection."
-    ],
-    "answerIndex": 2,
-    "explanation": "The summary lists 'dependency risk, build integrity, and security integrated into the delivery pipeline' as key areas. Dependency risk is directly mentioned.",
     "difficulty": "challenging",
     "mistakeCategory": "concept"
   },
@@ -17152,21 +11227,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "Which specific area is covered under 'Exam coverage' related to secure software supply chain?",
-    "choices": [
-      "Marketing strategies for security products.",
-      "Database administration and performance tuning.",
-      "Software supply chain risks and dependency management.",
-      "Operating system kernel development."
-    ],
-    "answerIndex": 2,
-    "explanation": "The 'Exam coverage' section lists 'Software supply chain risks and dependency management' as a topic.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "What does 'DevSecOps pipeline integration and gating' refer to in the context of exam coverage?",
     "choices": [
       "Integrating security tools only at the very end of the DevOps pipeline.",
@@ -17227,21 +11287,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the consequence of 'Shared long-lived credentials used by multiple pipeline stages' in terms of security?",
-    "choices": [
-      "It leads to faster build times due to simplified authentication.",
-      "It improves auditability by centralizing credential management.",
-      "It increases the blast radius if credentials are compromised, affecting multiple stages.",
-      "It simplifies compliance requirements by reducing the number of secrets."
-    ],
-    "answerIndex": 2,
-    "explanation": "Shared, long-lived credentials mean that if they are compromised, an attacker gains access to all stages using them, increasing the potential impact (blast radius). The 'How it works' section suggests 'separate credentials for build, test, and deployment' to counter this.",
-    "difficulty": "challenging",
-    "mistakeCategory": "diagnosis"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "According to the 'How it works' section, what security practice is applied to credentials for build, test, and deployment stages?",
     "choices": [
       "Using a single, highly privileged account for all stages.",
@@ -17253,21 +11298,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'How it works' section states: 'Pipeline stages gate progression on passing security tests, with separate credentials for build, test, and deployment.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "According to the summary, what is the primary focus of securing the software supply chain?",
-    "choices": [
-      "Securing the entire path from source code to production.",
-      "Managing endpoint security and user authentication protocols.",
-      "Optimizing network infrastructure for performance and availability.",
-      "Ensuring data privacy compliance across all systems."
-    ],
-    "answerIndex": 0,
-    "explanation": "The summary states: 'Secure the path from source code to production, covering dependency risk, build integrity, and security integrated into the delivery pipeline.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
@@ -17287,21 +11317,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
     "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the purpose of a Software bill of materials (SBOM) in the context of securing the supply chain?",
-    "choices": [
-      "To track exposure to known vulnerabilities by listing application components and dependencies.",
-      "To provide verifiable evidence of where an artefact came from and how it was built.",
-      "To cryptographically sign a build output for tamper detection.",
-      "To move security testing earlier in the development process."
-    ],
-    "answerIndex": 0,
-    "explanation": "Software bill of materials = A list of every component and dependency in an application, used to track exposure to known vulnerabilities.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
     "prompt": "What does 'Shift left' primarily aim to achieve in software security?",
     "choices": [
       "Integrating security testing earlier in the development process.",
@@ -17311,21 +11326,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 0,
     "explanation": "Shift left = Moving security testing earlier in the development process rather than only at release.",
-    "difficulty": "challenging",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What is the main function of 'Artefact signing'?",
-    "choices": [
-      "To detect tampering with a build output after it has been created.",
-      "To create a list of all components and dependencies in an application.",
-      "To provide verifiable evidence of an artefact's origin.",
-      "To integrate security checks into the delivery pipeline at later stages."
-    ],
-    "answerIndex": 0,
-    "explanation": "Artefact signing = Cryptographically signing a build output so tampering after the build can be detected.",
     "difficulty": "challenging",
     "mistakeCategory": "terminology"
   },
@@ -17343,21 +11343,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "The 'How it works' section states: 'Dependency scanning tools compare a software bill of materials against known vulnerability databases before code is merged.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "According to the 'How it works' section, what security mechanism do pipeline stages use to control progression?",
-    "choices": [
-      "Gating progression on passing security tests.",
-      "Manual approval from senior management.",
-      "Automated alerts based on runtime errors.",
-      "Compliance with open-source licensing requirements."
-    ],
-    "answerIndex": 0,
-    "explanation": "The 'How it works' section states: 'Pipeline stages gate progression on passing security tests, with separate credentials for build, test, and deployment.'",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
@@ -17433,21 +11418,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Under 'Troubleshooting': 'Compare the hash of a deployed artefact against the one produced and signed by the build pipeline.'",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-secure-software-supply-chain-and-devsecops",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "What specific area is covered under 'Exam coverage' related to securing the software supply chain?",
-    "choices": [
-      "Software supply chain risks and dependency management.",
-      "Hardware security module (HSM) implementation details.",
-      "Advanced persistent threat (APT) detection strategies.",
-      "International data privacy regulations."
-    ],
-    "answerIndex": 0,
-    "explanation": "Under 'Exam coverage': 'Software supply chain risks and dependency management'.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-secure-software-supply-chain-and-devsecops",
@@ -17752,21 +11722,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-basic-networking-concepts",
     "certificationId": "cert-comptia-tech-plus",
-    "prompt": "A proposed redesign replaces the equipment carrying traffic out of an office network with equipment intended only for frame delivery inside that office. What is the main flaw in this proposal?",
-    "choices": [
-      "It treats the requester and provider as the same role",
-      "It treats a remote outage as an endpoint problem",
-      "It treats wireless access as the wider connection",
-      "It treats switching and routing as interchangeable"
-    ],
-    "answerIndex": 3,
-    "explanation": "Local frame forwarding and packet forwarding between networks solve different delivery problems.",
-    "difficulty": "gentle",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-basic-networking-concepts",
-    "certificationId": "cert-comptia-tech-plus",
     "prompt": "A troubleshooting plan separates endpoint attachment, local settings, the exit path, and the destination application into distinct checks. Why is this approach useful?",
     "choices": [
       "It isolates the delivery responsibility that may be failing",
@@ -17896,21 +11851,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     ],
     "answerIndex": 3,
     "explanation": "Storage capacity and processing performance describe different capabilities.",
-    "difficulty": "gentle",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-computer-hardware-basics",
-    "certificationId": "cert-comptia-tech-plus",
-    "prompt": "A repair report claims that adequate regulated voltages prove a computer's heat-management needs are being met. Which assessment is accurate?",
-    "choices": [
-      "Electrical delivery and heat removal perform separate roles.",
-      "Electrical delivery and instruction execution perform equivalent roles.",
-      "Heat removal and file retention perform equivalent roles.",
-      "Heat removal and working memory perform interchangeable roles."
-    ],
-    "answerIndex": 0,
-    "explanation": "The PSU supplies power, while cooling carries heat away from components; evidence about one does not establish the condition of the other.",
     "difficulty": "gentle",
     "mistakeCategory": "concept"
   },
@@ -26122,21 +20062,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-software-applications-and-licensing",
     "certificationId": "cert-comptia-tech-plus",
-    "prompt": "A technician has a valid activation code and assumes this proves the application will operate on an older workstation. What additional evidence is needed?",
-    "choices": [
-      "Confirmation that the device meets the published technical specifications",
-      "Confirmation that the program creates a desktop shortcut",
-      "Confirmation that the publisher offers a free download",
-      "Confirmation that another employee holds the same job role"
-    ],
-    "answerIndex": 0,
-    "explanation": "Activation information establishes neither hardware suitability nor operating-system compatibility.",
-    "difficulty": "gentle",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-software-applications-and-licensing",
-    "certificationId": "cert-comptia-tech-plus",
     "prompt": "After a large software rollout, an administrator must identify which workstations completed setup successfully. Which evidence is most relevant?",
     "choices": [
       "The publisher's commercial-use conditions",
@@ -28578,21 +22503,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Lost BitLocker recovery keys are a common problem, so their availability should be verified.",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-windows-security-settings",
-    "certificationId": "cert-comptia-a-plus",
-    "prompt": "A technician expects changing folder grants to replace missing information needed for BitLocker recovery. Which distinction explains why that plan is misplaced?",
-    "choices": [
-      "Object access rights and encryption recovery serve different purposes",
-      "Group assignments and inherited grants serve identical purposes",
-      "Approval prompts and recovery keys serve identical purposes",
-      "Network permissions and volume encryption serve identical purposes"
-    ],
-    "answerIndex": 0,
-    "explanation": "Changing NTFS permissions manages access rights; it does not supply a lost encryption recovery key.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-windows-security-settings",
@@ -50718,21 +44628,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "Tracing a vulnerability to its expected detection phase helps identify the relevant lifecycle control gap.",
     "difficulty": "challenging",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-secure-sdlc-and-access-design",
-    "certificationId": "cert-comptia-securityx",
-    "prompt": "Two users hold the same job role, but their requests should receive different outcomes because the circumstances differ. An architect argues that role membership alone is sufficient. Which assessment is most appropriate?",
-    "choices": [
-      "The proposed design needs a way to account for contextual differences.",
-      "The proposed design needs a way to replace permissions with sign-in results.",
-      "The proposed design needs a way to defer decisions until an access audit.",
-      "The proposed design needs a way to substitute build checks for permissions."
-    ],
-    "answerIndex": 0,
-    "explanation": "Role membership alone may be insufficient when access decisions depend on changing context.",
-    "difficulty": "challenging",
-    "mistakeCategory": "concept"
   },
   {
     "topicId": "topic-secure-sdlc-and-access-design",
