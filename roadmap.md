@@ -104,3 +104,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Filter blended-subsystem questions at runtime before they reach the user (usableQuestions gate)
 - [x] Nightly scheduled content audit: /api/public/content-audit runs the full rule book over both courses nightly (04:45 UTC), findings recorded in content_audit_runs
 - [ ] Answer: can the audit results read from/write to a spreadsheet?
+- [ ] User-authored questions via spreadsheet: app reads a sheet the owner edits, imports questions through the deterministic quality gate, syncs automatically; needs connector choice, sheet format, sync cadence
