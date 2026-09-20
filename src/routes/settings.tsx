@@ -39,6 +39,7 @@ import { certifications } from "@/data/static-content";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { syncNow } from "@/lib/sheet-sync.functions";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
+import { loadOwnerLessons } from "@/lib/owner-lesson-store";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
@@ -84,13 +85,13 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 
 function SpreadsheetSyncPanel() {
   const runSyncNow = useServerFn(syncNow);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
   const [lastRun, setLastRun] = useState<string | null>(null);
 
-  async function handleSync() {
-    setBusy(true);
+  async function handleSync(scope: "it-cybersecurity" | "auto-repair" | "all", label: string) {
+    setBusy(scope);
     try {
-      const result = await runSyncNow();
+      const result = await runSyncNow({ data: { scope } });
       if (!result.ok) {
         toast.error(result.error);
         setLastRun(`Failed: ${result.error}`);
@@ -99,27 +100,40 @@ function SpreadsheetSyncPanel() {
       if (result.skipped) {
         setLastRun("A sync is already running — try again in a few minutes.");
       } else {
-        await loadOwnerQuestions();
-        const summary = `${result.topics} topic${result.topics === 1 ? "" : "s"} · ${result.approved} approved · ${result.rejected} rejected`;
-        toast.success(`Spreadsheets synced: ${summary}`);
-        setLastRun(`Last sync: ${new Date().toLocaleTimeString()} — ${summary}`);
+        await Promise.all([loadOwnerQuestions(), loadOwnerLessons()]);
+        const summary =
+          `${result.topics} topic${result.topics === 1 ? "" : "s"} · ` +
+          `${result.approved} questions in, ${result.rejected} rejected · ` +
+          `${result.lessonsApproved} lesson${result.lessonsApproved === 1 ? "" : "s"} published, ` +
+          `${result.lessonsRejected} rejected`;
+        toast.success(`${label} synced: ${summary}`);
+        setLastRun(`Last sync: ${new Date().toLocaleTimeString()} — ${label}: ${summary}`);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "The sync failed.";
       toast.error(message);
       setLastRun(`Failed: ${message}`);
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   }
 
   return (
     <div>
-      <Button onClick={handleSync} disabled={busy}>
-        {busy ? "Syncing…" : "Sync now"}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => handleSync("it-cybersecurity", "IT PATH")} disabled={busy !== null}>
+          {busy === "it-cybersecurity" ? "Syncing…" : "Sync IT PATH"}
+        </Button>
+        <Button onClick={() => handleSync("auto-repair", "AUTO PATH")} disabled={busy !== null}>
+          {busy === "auto-repair" ? "Syncing…" : "Sync AUTO PATH"}
+        </Button>
+        <Button variant="secondary" onClick={() => handleSync("all", "Both courses")} disabled={busy !== null}>
+          {busy === "all" ? "Syncing…" : "Sync everything"}
+        </Button>
+      </div>
       <p className="mt-3 text-sm text-muted-foreground">
-        {lastRun ?? "Runs against the itpath and autopath folders in OneDrive. The nightly pull happens on its own."}
+        {lastRun ??
+          "Reads the itpath, itpath lessons, autopath and autopath lessons folders in OneDrive. The nightly pull happens on its own."}
       </p>
     </div>
   );
@@ -409,8 +423,8 @@ function SettingsPage() {
       {isOwner ? (
         <Panel
           className="mt-4"
-          title="Spreadsheet questions"
-          description="Your numbered spreadsheets are pulled in automatically every night. Use this to bring in changes right away."
+          title="Spreadsheet content"
+          description="Your numbered question and lesson spreadsheets are pulled in automatically every night. Use these to bring in changes right away."
         >
           <SpreadsheetSyncPanel />
         </Panel>

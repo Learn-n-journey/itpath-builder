@@ -78,27 +78,57 @@ export function lessonQualityIssues(topic: Topic, lesson: Lesson | undefined, de
     issues.push("lesson has no usable real-world example");
   }
 
-  if (deep) {
-    if (deep.sections.length < 2 || deep.sections.some((section) => section.paragraphs.length === 0)) {
-      issues.push("deep lesson lacks a complete teaching sequence");
-    }
-    const walkthrough = deep.depth?.walkthrough;
-    if (walkthrough && (words(walkthrough.scenario) < 8 || words(walkthrough.outcome) < 5 || walkthrough.steps.length < 3)) {
-      issues.push("worked walkthrough lacks a scenario, enough steps, or a verified outcome");
-    }
-    if (walkthrough && repeatedEntries(walkthrough.steps.map((step) => `${step.label} ${step.detail}`))) {
-      issues.push("worked walkthrough repeats a step");
-    }
-    if (deep.sections.some((section) => section.paragraphs.some((paragraph) => words(paragraph) > MAX_PARAGRAPH_WORDS))) {
-      issues.push("a teaching paragraph is too long to hold in working memory");
-    }
-    if (deep.depth && deep.depth.checkYourself.length < MIN_SELF_CHECKS) {
-      issues.push("lesson does not ask the learner to retrieve what it just taught");
-    }
-    if (deep.depth && deep.depth.checkYourself.some((check) => words(check.question) < 4 || !check.answer.trim())) {
-      issues.push("a lesson self-check has no meaningful question or answer");
-    }
-  }
+  if (deep) issues.push(...deepBaseIssues(deep));
 
+  return [...new Set(issues)];
+}
+
+/**
+ * The same deterministic checks applied to the deep teaching layer on its own,
+ * so an owner-written spreadsheet lesson is held to the built-in standard.
+ */
+export function deepLessonIssues(deep: DeepLesson): string[] {
+  const issues = deepBaseIssues(deep);
+  const allText = [deep.intro, deep.whereYouMeetIt, ...deep.sections.flatMap((section) => section.paragraphs)].join("\n");
+  if (PLACEHOLDER.test(allText)) issues.push("lesson contains placeholder text");
+  if (words(deep.intro) < 15) issues.push("lesson introduction is too short to orient a reader");
+  if (words(deep.whereYouMeetIt) < 6) issues.push("lesson does not say where this material is met in real work");
+  if (repeatedEntries(deep.sections.map((section) => section.heading))) {
+    issues.push("lesson repeats the same section heading");
+  }
+  if (deep.sections.some((section) => section.paragraphs.some((paragraph) => words(paragraph) < 15))) {
+    issues.push("a teaching paragraph is too short to teach anything");
+  }
+  if (sentences(allText).some((sentence) => words(sentence) > MAX_SENTENCE_WORDS)) {
+    issues.push("a sentence is too long to follow in one pass");
+  }
+  if (deep.depth && deep.depth.misconceptions.some((row) => words(row.correction) < 5)) {
+    issues.push("a misconception has no real correction");
+  }
+  return [...new Set(issues)];
+}
+
+/** The deep-layer checks the built-in lessons have always been held to. */
+function deepBaseIssues(deep: DeepLesson): string[] {
+  const issues: string[] = [];
+  if (deep.sections.length < 2 || deep.sections.some((section) => section.paragraphs.length === 0)) {
+    issues.push("deep lesson lacks a complete teaching sequence");
+  }
+  if (deep.sections.some((section) => section.paragraphs.some((paragraph) => words(paragraph) > MAX_PARAGRAPH_WORDS))) {
+    issues.push("a teaching paragraph is too long to hold in working memory");
+  }
+  const walkthrough = deep.depth?.walkthrough;
+  if (walkthrough && (words(walkthrough.scenario) < 8 || words(walkthrough.outcome) < 5 || walkthrough.steps.length < 3)) {
+    issues.push("worked walkthrough lacks a scenario, enough steps, or a verified outcome");
+  }
+  if (walkthrough && repeatedEntries(walkthrough.steps.map((step) => `${step.label} ${step.detail}`))) {
+    issues.push("worked walkthrough repeats a step");
+  }
+  if (deep.depth && deep.depth.checkYourself.length < MIN_SELF_CHECKS) {
+    issues.push("lesson does not ask the learner to retrieve what it just taught");
+  }
+  if (deep.depth && deep.depth.checkYourself.some((check) => words(check.question) < 4 || !check.answer.trim())) {
+    issues.push("a lesson self-check has no meaningful question or answer");
+  }
   return [...new Set(issues)];
 }

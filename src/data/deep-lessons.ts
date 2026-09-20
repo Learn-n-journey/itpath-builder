@@ -21,6 +21,7 @@ import { mobileDevicesPlainLanguage } from "./deep-lessons/plain-mobile-devices"
 import { networkSecurityPlainLanguage } from "./deep-lessons/plain-network-security";
 import { linuxServersCloudPlainLanguage } from "./deep-lessons/plain-linux-servers-cloud";
 import { advancedSecurityPlainLanguage } from "./deep-lessons/plain-advanced-security";
+import { ownerLessonFor } from "@/lib/owner-lesson-store";
 import type {
   DeepLesson,
   DeepLessonSection,
@@ -742,6 +743,10 @@ export const deepLessons: DeepLesson[] = [
   };
 });
 
+/**
+ * An owner-written spreadsheet lesson replaces the built-in one outright:
+ * when one exists for this topic, the built-in lesson is never returned.
+ */
 export function getDeepLesson(topicId: string): DeepLesson | undefined {
-  return deepLessons.find((lesson) => lesson.topicId === topicId);
+  return ownerLessonFor(topicId) ?? deepLessons.find((lesson) => lesson.topicId === topicId);
 }

@@ -397,6 +397,42 @@ export type Database = {
         }
         Relationships: []
       }
+      owner_lessons: {
+        Row: {
+          domain: string
+          id: string
+          lesson: Json
+          reject_reasons: Json
+          source_file: string
+          sources: Json
+          status: string
+          synced_at: string
+          topic_id: string
+        }
+        Insert: {
+          domain: string
+          id?: string
+          lesson: Json
+          reject_reasons?: Json
+          source_file?: string
+          sources?: Json
+          status?: string
+          synced_at?: string
+          topic_id: string
+        }
+        Update: {
+          domain?: string
+          id?: string
+          lesson?: Json
+          reject_reasons?: Json
+          source_file?: string
+          sources?: Json
+          status?: string
+          synced_at?: string
+          topic_id?: string
+        }
+        Relationships: []
+      }
       owner_questions: {
         Row: {
           domain: string

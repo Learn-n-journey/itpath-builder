@@ -126,3 +126,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Answer/plan: owner-authored LESSONS from spreadsheets (same numbered-folder model as questions) — waiting on owner go-ahead.
 
 - [ ] Spreadsheet-written lessons: "itpath lessons" / "autopath lessons" folders, numbered per topic, quality-gated, override AI lessons; per-course sync buttons
+- [x] Spreadsheet-written lessons: itpath lessons / autopath lessons folders, quality-gated, override built-in lessons; per-course sync buttons

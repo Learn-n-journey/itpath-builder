@@ -11,6 +11,7 @@
  * owner-only "Sync now" server function. Server-only: imported dynamically.
  */
 import type { Json } from "@/integrations/supabase/types";
+import { ownerLessonFromTabs, type SheetTab } from "@/lib/owner-lessons-shared";
 import {
   fileNumber,
   ownerQuestionFromRow,
@@ -23,9 +24,9 @@ const JOB = "sheet-sync";
 const LOCK_MINUTES = 15;
 const INSERT_CHUNK = 500;
 
-const FOLDERS: Array<{ domain: OwnerDomain; folder: string }> = [
-  { domain: "it-cybersecurity", folder: "itpath" },
-  { domain: "auto-repair", folder: "autopath" },
+const FOLDERS: Array<{ domain: OwnerDomain; folder: string; lessonFolder: string }> = [
+  { domain: "it-cybersecurity", folder: "itpath", lessonFolder: "itpath lessons" },
+  { domain: "auto-repair", folder: "autopath", lessonFolder: "autopath lessons" },
 ];
 
 async function graph(path: string): Promise<any> {
@@ -57,6 +58,8 @@ function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string
 
 export interface SheetSyncResult {
   ok: boolean;
+  lessonsApproved?: number;
+  lessonsRejected?: number;
   skipped?: string;
   syncedAt?: string;
   topics?: number;
@@ -66,7 +69,7 @@ export interface SheetSyncResult {
   error?: string;
 }
 
-export async function runSheetSync(): Promise<SheetSyncResult> {
+export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Promise<SheetSyncResult> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const now = new Date();
   const until = new Date(now.getTime() + LOCK_MINUTES * 60_000).toISOString();
@@ -90,9 +93,12 @@ export async function runSheetSync(): Promise<SheetSyncResult> {
   let rejectedTotal = 0;
   const topicsSynced = new Set<string>();
   const report: Record<string, unknown>[] = [];
+  let lessonsApproved = 0;
+  let lessonsRejected = 0;
 
   try {
-    for (const { domain, folder } of FOLDERS) {
+    for (const { domain, folder, lessonFolder } of FOLDERS) {
+      if (options.domain && options.domain !== domain) continue;
       let listing: { value?: Array<{ id?: string; name: string; file?: unknown }> };
       try {
         listing = await graph(`/me/drive/root:/${folder}:/children`);
@@ -187,6 +193,93 @@ export async function runSheetSync(): Promise<SheetSyncResult> {
           unreadable: failed.length,
         });
       }
+
+      // Lesson workbooks: one per topic, in the matching "<course> lessons" folder.
+      let lessonListing: { value?: Array<{ id?: string; name: string; file?: unknown }> };
+      try {
+        lessonListing = await graph(`/me/drive/root:/${lessonFolder}:/children`);
+      } catch (error) {
+        report.push({
+          domain,
+          folder: lessonFolder,
+          skipped: String(error instanceof Error ? error.message : error),
+        });
+        continue;
+      }
+
+      const lessonFiles: SheetFile[] = (lessonListing.value ?? [])
+        .filter((item) => item.file && item.name.endsWith(".xlsx") && item.id)
+        .map((item) => ({ id: item.id!, name: item.name }))
+        .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
+
+      for (const file of lessonFiles) {
+        const number = fileNumber(file.name);
+        const topic = number ? topicForNumber(domain, number) : undefined;
+        if (!topic) {
+          report.push({ domain, folder: lessonFolder, file: file.name, skipped: "filename number has no matching topic" });
+          continue;
+        }
+
+        const sheets = await graph(`/me/drive/items/${file.id}/workbook/worksheets`);
+        const tabs: SheetTab[] = [];
+        for (const sheet of sheets.value ?? []) {
+          const used = await graph(
+            `/me/drive/items/${file.id}/workbook/worksheets/${encodeURIComponent(sheet.id)}` +
+              `/usedRange(valuesOnly=true)?$select=values`,
+          );
+          tabs.push({
+            name: String(sheet.name ?? ""),
+            rows: (used.values ?? []).map((row: unknown[]) => row.map((value) => String(value ?? ""))),
+          });
+        }
+
+        const result = ownerLessonFromTabs(topic, tabs);
+        if (!result.lesson) {
+          report.push({ domain, folder: lessonFolder, file: file.name, topic: topic.title, skipped: result.error });
+          continue;
+        }
+
+        const rejected = Boolean(result.rejectReasons?.length);
+        // A rejected lesson never replaces a published one: only the rejection
+        // is stored, with its reasons, so the last good lesson stays live.
+        if (!rejected) {
+          await supabaseAdmin
+            .from("owner_lessons")
+            .delete()
+            .eq("domain", domain)
+            .eq("topic_id", topic.topicId);
+        } else {
+          await supabaseAdmin
+            .from("owner_lessons")
+            .delete()
+            .eq("domain", domain)
+            .eq("topic_id", topic.topicId)
+            .eq("status", "rejected");
+        }
+
+        const { error } = await supabaseAdmin.from("owner_lessons").insert({
+          domain,
+          topic_id: topic.topicId,
+          source_file: file.name,
+          lesson: result.lesson as unknown as Json,
+          sources: result.sources as unknown as Json,
+          status: rejected ? "rejected" : "approved",
+          reject_reasons: result.rejectReasons ?? [],
+        });
+        if (error) throw new Error(`storing lesson ${file.name}: ${error.message}`);
+
+        if (rejected) lessonsRejected += 1;
+        else lessonsApproved += 1;
+        topicsSynced.add(topic.topicId);
+        report.push({
+          domain,
+          folder: lessonFolder,
+          file: file.name,
+          topic: topic.title,
+          lesson: rejected ? "rejected" : "published",
+          reasons: result.rejectReasons ?? [],
+        });
+      }
     }
 
     await supabaseAdmin
@@ -194,7 +287,7 @@ export async function runSheetSync(): Promise<SheetSyncResult> {
       .update({
         locked_until: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected`,
+        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected, ${lessonsApproved} lesson(s) published, ${lessonsRejected} rejected`,
       })
       .eq("job", JOB);
 
@@ -204,6 +297,8 @@ export async function runSheetSync(): Promise<SheetSyncResult> {
       topics: topicsSynced.size,
       approved: approvedTotal,
       rejected: rejectedTotal,
+      lessonsApproved,
+      lessonsRejected,
       report,
     };
   } catch (error) {
