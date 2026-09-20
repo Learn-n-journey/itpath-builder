@@ -9,6 +9,7 @@ import { buildItPackage } from "@/content/packs/it-package";
 import { auditPackage } from "@/lib/domain/package-audit";
 import { ACTIVE_PACKAGE, activeEntry, registry } from "@/domain/registry";
 import { domainId, packageKey } from "@/domain/package";
+import { autoRepairPackage } from "@/content/packs/auto-repair/3.7.0/package";
 
 describe("domain packages", () => {
   it("resolves the active package from the registry", () => {
@@ -35,5 +36,15 @@ describe("domain packages", () => {
     const audit = auditPackage(buildItPackage());
     expect(audit.findings.filter((finding) => finding.severity === "blocking")).toEqual([]);
     expect(audit.passed).toBe(true);
+  }, 30_000);
+
+  it("gives every active lesson at least one written source", () => {
+    for (const pkg of [buildItPackage(), autoRepairPackage]) {
+      const sourcedSections = new Set(
+        pkg.sources.filter((source) => source.kind === "reading").map((source) => source.sectionId),
+      );
+      const missing = pkg.lessons.filter((lesson) => !sourcedSections.has(lesson.sectionId));
+      expect(missing.map((lesson) => lesson.title), `${pkg.manifest.name} has lessons without sources`).toEqual([]);
+    }
   }, 30_000);
 });
