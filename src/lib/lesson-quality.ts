@@ -5,6 +5,25 @@ const PLACEHOLDER = /\b(?:lorem ipsum|todo|tbd|placeholder|insert (?:text|conten
 const META_FILLER = /\b(?:in this (?:lesson|section|module) (?:we will|you will)|this section (?:covers|discusses)|it is important to note that)\b/i;
 const VAGUE_OBJECTIVE = /^(?:learn|know|understand|be aware of|be familiar with|information about|introduction to)\b/i;
 
+/**
+ * Instructional-design limits, expressed in our own words from long-standing
+ * teaching practice: objectives state an observable performance; the reason to
+ * care names a real consequence; explanations stay inside a readable sentence
+ * length so working memory is not overloaded; a worked example is followed by
+ * practice the learner answers themselves.
+ */
+const MAX_SENTENCE_WORDS = 45;
+const MAX_AVERAGE_SENTENCE_WORDS = 28;
+const MAX_PARAGRAPH_WORDS = 220;
+const MIN_SELF_CHECKS = 2;
+
+function sentences(value: string): string[] {
+  return value
+    .split(/(?<=[.!?])\s+/)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+}
+
 const normalise = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const words = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
 
@@ -40,6 +59,24 @@ export function lessonQualityIssues(topic: Topic, lesson: Lesson | undefined, de
     issues.push("lesson repeats the same example, misconception, or next step");
   }
 
+  // Readability and cognitive load: long sentences bury the point.
+  const bodySentences = sentences(allText);
+  if (bodySentences.some((sentence) => words(sentence) > MAX_SENTENCE_WORDS)) {
+    issues.push("a sentence is too long to follow in one pass");
+  }
+  if (bodySentences.length >= 3) {
+    const average = bodySentences.reduce((sum, sentence) => sum + words(sentence), 0) / bodySentences.length;
+    if (average > MAX_AVERAGE_SENTENCE_WORDS) issues.push("lesson sentences average too long to read comfortably");
+  }
+  // Relevance: the reason to care has to name a consequence, not restate the title.
+  if (words(lesson.whyItMatters) < 12 || normalise(lesson.whyItMatters).includes(normalise(topic.title)) && words(lesson.whyItMatters) < 20) {
+    issues.push("the reason this matters does not name a real consequence");
+  }
+  // Transfer: at least one concrete example the learner could meet at work.
+  if (lesson.realWorldExamples.length < 1 || lesson.realWorldExamples.some((example) => words(example) < 6)) {
+    issues.push("lesson has no usable real-world example");
+  }
+
   if (deep) {
     if (deep.sections.length < 2 || deep.sections.some((section) => section.paragraphs.length === 0)) {
       issues.push("deep lesson lacks a complete teaching sequence");
@@ -50,6 +87,12 @@ export function lessonQualityIssues(topic: Topic, lesson: Lesson | undefined, de
     }
     if (walkthrough && repeatedEntries(walkthrough.steps.map((step) => `${step.label} ${step.detail}`))) {
       issues.push("worked walkthrough repeats a step");
+    }
+    if (deep.sections.some((section) => section.paragraphs.some((paragraph) => words(paragraph) > MAX_PARAGRAPH_WORDS))) {
+      issues.push("a teaching paragraph is too long to hold in working memory");
+    }
+    if (deep.depth && deep.depth.checkYourself.length < MIN_SELF_CHECKS) {
+      issues.push("lesson does not ask the learner to retrieve what it just taught");
     }
     if (deep.depth && deep.depth.checkYourself.some((check) => words(check.question) < 4 || !check.answer.trim())) {
       issues.push("a lesson self-check has no meaningful question or answer");
