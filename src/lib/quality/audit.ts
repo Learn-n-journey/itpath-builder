@@ -17,6 +17,7 @@ import { questionIssues } from "@/lib/question-quality";
 import { checkTechnicalClaims } from "@/lib/technical-validation";
 import { validateQuestionSet } from "@/lib/quiz-finalize";
 import { lessonQualityIssues } from "@/lib/lesson-quality";
+import { buildReference, checkOriginality } from "@/lib/originality";
 import { getRule } from "./rules";
 import type { AuditOptions, AuditReport, Finding } from "./types";
 import type { Question } from "@/lib/app-data/types";
@@ -91,6 +92,21 @@ export function auditCoursePack(pack: CoursePack, options: AuditOptions = {}): A
     const lesson = pack.lessons.find((item) => item.topicId === topic.id);
     for (const issue of lessonQualityIssues(topic, lesson, pack.getDeepLesson(topic.id))) {
       note(findings, "content.lesson-instructionally-sound", subject, issue);
+    }
+    // Copied wording: no lesson may reuse long runs of another lesson's text.
+    if (text.trim().length > 0) {
+      const others = buildReference(
+        wanted.filter((other) => other.id !== topic.id).map((other) => pack.lessonText(other.id)),
+      );
+      const copied = checkOriginality(text, others, { threshold: 0.12 });
+      if (copied.flagged) {
+        note(
+          findings,
+          "content.lesson-instructionally-sound",
+          subject,
+          `Lesson reuses wording from other sections (${Math.round(copied.overlap * 100)}% overlap): "${(copied.matches[0] ?? "").slice(0, 120)}"`,
+        );
+      }
     }
 
     for (const prerequisite of topic.prerequisiteTopicIds ?? []) {
