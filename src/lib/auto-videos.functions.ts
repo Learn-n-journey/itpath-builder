@@ -198,12 +198,11 @@ export const getAutoVideos = createServerFn({ method: "GET" }).handler(async () 
 
 /**
  * One page of the endless feed. YouTube channel feeds are not paged, so each
- * page asks a rotating window of channels for their latest uploads; deeper
- * pages revisit channels and the client deduplicates, while the IntersectionObserver
- * keeps the feed moving. A page that comes back empty ends the feed.
+ * page asks a fresh batch of channels for their latest uploads and the client
+ * deduplicates as it scrolls. The feed ends when every channel has been served.
  */
-const PAGE_CHANNELS = 4;
-const MAX_PAGES = 24;
+const PAGE_CHANNELS = 3;
+const MAX_PAGES = Math.ceil(CHANNELS.length / PAGE_CHANNELS);
 
 export interface AutoVideoPage {
   videos: AutoVideo[];
