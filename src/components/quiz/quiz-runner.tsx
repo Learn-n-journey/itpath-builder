@@ -298,7 +298,7 @@ function QuizWorkspace({
   }
 
   const response = attempt.responses[question.id] ?? [];
-  const choices = attempt.choiceOrder[question.id] ?? question.choices;
+  const choices = safeChoiceOrder(question, attempt.choiceOrder[question.id]);
   return (
     <div className="space-y-5">
       <Panel>
