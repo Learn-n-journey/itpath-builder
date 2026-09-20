@@ -778,7 +778,7 @@ function interleavedPool(topicId: string): PoolItem[] {
   return out;
 }
 
-const orderCache = new Map<string, PoolItem[]>();
+const orderCache = new Map<string, { version: number; items: PoolItem[] }>();
 
 interface Sequence {
   sets: Question[][];
@@ -791,11 +791,14 @@ interface Sequence {
 const sequenceCache = new Map<string, Sequence>();
 
 function orderFor(topicId: string): PoolItem[] {
-  let order = orderCache.get(topicId);
-  if (!order) {
-    order = interleavedPool(topicId);
-    orderCache.set(topicId, order);
-  }
+  // New spreadsheet questions landing mid-session rebuild the running order,
+  // and the sitting's sequence restarts so it cannot keep serving old questions.
+  const version = ownerPoolVersion();
+  const cached = orderCache.get(topicId);
+  if (cached && cached.version === version) return cached.items;
+  const order = interleavedPool(topicId);
+  orderCache.set(topicId, { version, items: order });
+  sequenceCache.delete(topicId);
   return order;
 }
 
@@ -871,7 +874,7 @@ function seeded(seed: string): () => number {
   };
 }
 
-const taggedCache = new Map<string, TaggedQuestion[]>();
+const taggedCache = new Map<string, { version: number; items: TaggedQuestion[] }>();
 
 function stableQuestionKey(value: string): string {
   let hash = 2166136261;
@@ -884,15 +887,16 @@ function stableQuestionKey(value: string): string {
 
 /** The section's pool with every question tagged, ready for the quiz builder. */
 export function getTaggedTopicPool(topicId: string): TaggedQuestion[] {
+  const version = ownerPoolVersion();
   const cached = taggedCache.get(topicId);
-  if (cached) return cached;
+  if (cached && cached.version === version) return cached.items;
   const tagged = topicPool(topicId)
     .filter((item) => isUsableQuestion(item.question))
     .map((item) => ({
       question: item.question,
       tags: tagQuestion(item.question, item.kind, item.sourceKey),
     }));
-  taggedCache.set(topicId, tagged);
+  taggedCache.set(topicId, { version, items: tagged });
   return tagged;
 }
 
