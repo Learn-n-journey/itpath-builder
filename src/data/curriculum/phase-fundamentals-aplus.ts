@@ -586,7 +586,7 @@ export const fundamentalsAndAPlusSeeds: TopicSeed[] = [
     lesson: {
       title: "Seeing what Windows is actually doing",
       body: "Most Windows problems are answerable with evidence the system already records. The skill is knowing which console holds the answer and how to read it without guessing.",
-      definition: "The core toolset includes Task Manager and Resource Monitor for live resource use, Event Viewer for system, application, and security logs, Services and Task Scheduler for background execution, Device Manager for hardware and drivers, Disk Management for volumes, the Registry Editor for configuration data, and PowerShell for scripted inspection and change.",
+      definition: "Task Manager and Resource Monitor show live resource use. Event Viewer holds system, application, and security logs. Services and Task Scheduler control background execution. Device Manager covers hardware and drivers, and Disk Management covers volumes. The Registry Editor holds configuration data, and PowerShell inspects and changes settings from a script.",
       whyItMatters: "A technician who reads an event log can distinguish a failing disk from a bad update in minutes. One who cannot will reimage the machine and lose both the data and the diagnosis.",
       keyTerms: [
         ["Event ID", "A numeric identifier for a specific logged condition."],
