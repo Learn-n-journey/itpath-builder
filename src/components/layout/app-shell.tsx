@@ -102,6 +102,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const current = navItems.find((i) => i.to === pathname)?.label ?? domain.appName;
 
+  // The course chooser is the neutral front door, before either subject loads.
+  if (pathname === "/") return <>{children}</>;
+
   // Public study guides sit outside the app chrome so search engines and
   // signed-out visitors get a plain, readable page.
   if (

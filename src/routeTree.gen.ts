@@ -23,6 +23,7 @@ import { Route as CareerSkillsRouteImport } from './routes/career-skills'
 import { Route as CommandLineRouteImport } from './routes/command-line'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as DailyChallengeRouteImport } from './routes/daily-challenge'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EngineSimulatorRouteImport } from './routes/engine-simulator'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as ExploreEngineRouteImport } from './routes/explore-engine'
@@ -146,6 +147,11 @@ const CommunityRoute = CommunityRouteImport.update({
 const DailyChallengeRoute = DailyChallengeRouteImport.update({
   id: '/daily-challenge',
   path: '/daily-challenge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EngineSimulatorRoute = EngineSimulatorRouteImport.update({
@@ -435,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/command-line': typeof CommandLineRoute
   '/community': typeof CommunityRoute
   '/daily-challenge': typeof DailyChallengeRoute
+  '/dashboard': typeof DashboardRoute
   '/engine-simulator': typeof EngineSimulatorRoute
   '/exam': typeof ExamRoute
   '/explore-engine': typeof ExploreEngineRoute
@@ -505,6 +512,7 @@ export interface FileRoutesByTo {
   '/command-line': typeof CommandLineRoute
   '/community': typeof CommunityRoute
   '/daily-challenge': typeof DailyChallengeRoute
+  '/dashboard': typeof DashboardRoute
   '/engine-simulator': typeof EngineSimulatorRoute
   '/exam': typeof ExamRoute
   '/explore-engine': typeof ExploreEngineRoute
@@ -576,6 +584,7 @@ export interface FileRoutesById {
   '/command-line': typeof CommandLineRoute
   '/community': typeof CommunityRoute
   '/daily-challenge': typeof DailyChallengeRoute
+  '/dashboard': typeof DashboardRoute
   '/engine-simulator': typeof EngineSimulatorRoute
   '/exam': typeof ExamRoute
   '/explore-engine': typeof ExploreEngineRoute
@@ -648,6 +657,7 @@ export interface FileRouteTypes {
     | '/command-line'
     | '/community'
     | '/daily-challenge'
+    | '/dashboard'
     | '/engine-simulator'
     | '/exam'
     | '/explore-engine'
@@ -718,6 +728,7 @@ export interface FileRouteTypes {
     | '/command-line'
     | '/community'
     | '/daily-challenge'
+    | '/dashboard'
     | '/engine-simulator'
     | '/exam'
     | '/explore-engine'
@@ -788,6 +799,7 @@ export interface FileRouteTypes {
     | '/command-line'
     | '/community'
     | '/daily-challenge'
+    | '/dashboard'
     | '/engine-simulator'
     | '/exam'
     | '/explore-engine'
@@ -859,6 +871,7 @@ export interface RootRouteChildren {
   CommandLineRoute: typeof CommandLineRoute
   CommunityRoute: typeof CommunityRoute
   DailyChallengeRoute: typeof DailyChallengeRoute
+  DashboardRoute: typeof DashboardRoute
   EngineSimulatorRoute: typeof EngineSimulatorRoute
   ExamRoute: typeof ExamRoute
   ExploreEngineRoute: typeof ExploreEngineRoute
@@ -1013,6 +1026,13 @@ declare module '@tanstack/react-router' {
       path: '/daily-challenge'
       fullPath: '/daily-challenge'
       preLoaderRoute: typeof DailyChallengeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/engine-simulator': {
@@ -1411,6 +1431,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommandLineRoute: CommandLineRoute,
   CommunityRoute: CommunityRoute,
   DailyChallengeRoute: DailyChallengeRoute,
+  DashboardRoute: DashboardRoute,
   EngineSimulatorRoute: EngineSimulatorRoute,
   ExamRoute: ExamRoute,
   ExploreEngineRoute: ExploreEngineRoute,

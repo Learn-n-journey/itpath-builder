@@ -69,6 +69,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-path-it: var(--path-it);
+  --color-path-auto: var(--path-auto);
+  --color-path-steel: var(--path-steel);
 }
 
 /* IT PATH ships dark-first: the same palette powers :root and .dark. */
@@ -114,6 +117,9 @@
   --sidebar-accent-foreground: oklch(0.95 0.006 250);
   --sidebar-border: oklch(0.275 0.022 250);
   --sidebar-ring: oklch(0.686 0.126 215);
+  --path-it: oklch(0.72 0.13 205);
+  --path-auto: oklch(0.72 0.12 245);
+  --path-steel: oklch(0.69 0.025 245);
 }
 
 /* Light theme: same structure, different color treatment only. */
@@ -157,6 +163,36 @@ html.light {
   --sidebar-accent-foreground: oklch(0.207682 0.039824 265.755);
   --sidebar-border: oklch(0.875 0.018 255);
   --sidebar-ring: oklch(0.684687 0.147869 237.323);
+  --path-it: oklch(0.58 0.15 210);
+  --path-auto: oklch(0.56 0.16 250);
+  --path-steel: oklch(0.48 0.03 245);
+}
+
+.path-chooser {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  background-color: oklch(0.15 0.025 250);
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--path-steel) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--path-steel) 6%, transparent) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.path-choice {
+  animation: path-choice-enter 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.path-choice:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+@keyframes path-choice-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .path-choice { animation: none; }
 }
 
 /* Fallback for browsers without oklch support (older mobile Chrome). */

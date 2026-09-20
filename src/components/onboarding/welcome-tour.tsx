@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { activeDomainKey } from "@/domain/active";
 import { markSetupPending, markTourSeen, tourSeen } from "@/lib/onboarding";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +27,7 @@ type Step = {
   points: string[];
 };
 
-const STEPS: Step[] = [
+const IT_STEPS: Step[] = [
   {
     id: "welcome",
     icon: ShieldCheck,
@@ -101,8 +102,62 @@ const STEPS: Step[] = [
   },
 ];
 
+function autoStep(index: number, changes: Partial<Step>): Step {
+  const base = IT_STEPS[index];
+  if (!base) throw new Error(`Missing onboarding step ${index}.`);
+  return { ...base, ...changes };
+}
+
+const AUTO_STEPS: Step[] = [
+  autoStep(0, {
+    body: "Stepping into automotive technology and repair can feel overwhelming, but you don't have to figure it out alone. AUTO PATH breaks vehicle systems and diagnostic skills into bite-sized, meaningful steps so you can build real confidence from day one.",
+  }),
+  autoStep(1, {
+    eyebrow: "Your repair path",
+    body: "AUTO PATH keeps each system focused, from fundamentals through diagnosis and repair. Complete the work in front of you, step away when needed, and return to the same point in your training.",
+    points: [
+      "A focused path through vehicle systems and repair skills",
+      "Unlock the next system by proving what you understand",
+      "Resume from the exact place you stopped",
+    ],
+  }),
+  autoStep(2, {
+    body: "Turn automotive knowledge into workshop decisions. Use focused quizzes, diagnostic scenarios, flashcards, and practical checks to separate symptoms from causes and revisit systems that need more work.",
+    points: [
+      "Diagnostic decisions grounded in realistic vehicle symptoms",
+      "Recall practice for components, tests, and procedures",
+      "Targeted review for systems that need extra attention",
+    ],
+  }),
+  autoStep(3, {
+    body: "When a vehicle system or diagnostic step feels unclear, ask GAYL. Your study companion explains the idea in plain language and keeps the answer connected to the automotive material you are learning.",
+    points: [
+      "Plain-language explanations of vehicle systems",
+      "Help connected to the repair topic in front of you",
+      "Patient support as you build diagnostic confidence",
+    ],
+  }),
+  autoStep(4, {
+    body: "Every AUTO PATH milestone reflects work you actually completed. Your records show which systems you have practised, where evidence is still thin, and what repair skill deserves attention next.",
+    points: [
+      "Review signals based on your real answers and activity",
+      "Milestones that reflect completed automotive work",
+      "A next step shaped by your own learning evidence",
+    ],
+  }),
+  autoStep(5, {
+    body: "Set up AUTO PATH around the way you want to learn. Choose your display theme, preferred name, automotive qualification goal, and current experience so the course starts in the right place.",
+    points: [
+      "Light or dark workshop theme",
+      "Your preferred name throughout AUTO PATH",
+      "An automotive goal matched to your experience",
+    ],
+  }),
+];
+
 export function WelcomeTour() {
   const navigate = useNavigate();
+  const steps = activeDomainKey.split("@")[0] === "auto-repair" ? AUTO_STEPS : IT_STEPS;
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<"next" | "back">("next");
@@ -123,13 +178,13 @@ export function WelcomeTour() {
     [navigate],
   );
 
-  const step = STEPS[index]!;
-  const last = index === STEPS.length - 1;
+  const step = steps[index]!;
+  const last = index === steps.length - 1;
 
   const next = useCallback(() => {
     setDirection("next");
-    setIndex((i) => Math.min(STEPS.length - 1, i + 1));
-  }, []);
+    setIndex((i) => Math.min(steps.length - 1, i + 1));
+  }, [steps.length]);
   const back = useCallback(() => {
     setDirection("back");
     setIndex((i) => Math.max(0, i - 1));
@@ -149,7 +204,7 @@ export function WelcomeTour() {
   if (!open) return null;
 
   const Icon = step.icon;
-  const percent = Math.round(((index + 1) / STEPS.length) * 100);
+  const percent = Math.round(((index + 1) / steps.length) * 100);
 
   return (
     <div
@@ -205,7 +260,7 @@ export function WelcomeTour() {
 
           <div className="mt-7 flex items-center justify-between gap-3">
             <div className="flex items-center gap-1.5" aria-hidden>
-              {STEPS.map((s, i) => (
+              {steps.map((s, i) => (
                 <span
                   key={s.id}
                   className={cn(

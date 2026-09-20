@@ -7,7 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -122,7 +122,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap",
       },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", href: "/favicon.png", type: "image/png" },
@@ -161,10 +161,7 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient, subjectPending } = Route.useRouteContext();
-  // On a non-default course the page waits one beat for the browser, rather
-  // than showing the default course's material and then swapping it out.
-  const [ready, setReady] = useState(!subjectPending);
+  const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
     // Keep the cookie in step with a choice made before the cookie existed.
@@ -172,16 +169,7 @@ function RootComponent() {
     const cookie = readSubjectCookie();
     const wanted = stored && stored !== ACTIVE_PACKAGE ? stored : null;
     if (wanted !== cookie) writeSubjectCookie(wanted);
-    setReady(true);
   }, []);
-
-  if (!ready) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <p className="text-sm text-muted-foreground">Loading your course…</p>
-      </div>
-    );
-  }
 
   return (
     <QueryClientProvider client={queryClient}>
