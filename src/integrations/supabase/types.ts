@@ -208,6 +208,39 @@ export type Database = {
           },
         ]
       }
+      content_audit_runs: {
+        Row: {
+          blocking: number
+          created_at: string
+          duration_ms: number | null
+          findings: Json
+          id: string
+          pack: string
+          started_at: string
+          warnings: number
+        }
+        Insert: {
+          blocking?: number
+          created_at?: string
+          duration_ms?: number | null
+          findings?: Json
+          id?: string
+          pack: string
+          started_at?: string
+          warnings?: number
+        }
+        Update: {
+          blocking?: number
+          created_at?: string
+          duration_ms?: number | null
+          findings?: Json
+          id?: string
+          pack?: string
+          started_at?: string
+          warnings?: number
+        }
+        Relationships: []
+      }
       content_reports: {
         Row: {
           created_at: string
