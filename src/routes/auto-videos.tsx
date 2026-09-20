@@ -20,13 +20,13 @@ export const Route = createFileRoute("/auto-videos")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Auto Videos | ASE Master Mechanic Simulator" },
+      { title: "Auto Videos | AUTO PATH Master Mechanic Simulator" },
       {
         name: "description",
         content:
           "A scrolling feed of automotive videos on diagnostics, repair how-tos, electrical work, engines, EVs and tool reviews, played in each creator's own player.",
       },
-      { property: "og:title", content: "Auto Videos | ASE Master Mechanic Simulator" },
+      { property: "og:title", content: "Auto Videos | AUTO PATH Master Mechanic Simulator" },
       {
         property: "og:description",
         content: "Watch the latest automotive repair and diagnostic videos from trusted creators, with a link to every original.",
