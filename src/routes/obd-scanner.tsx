@@ -59,7 +59,8 @@ function reading(pid: LivePid, revving: boolean, tick: number): number {
 }
 
 function ObdScannerPage() {
-  const [scenarioId, setScenarioId] = useState(obdScenarios[0]!.id);
+  const { scenario: requestedScenario } = Route.useSearch();
+  const [scenarioId, setScenarioId] = useState(requestedScenario ?? obdScenarios[0]!.id);
   const [connected, setConnected] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [codesRead, setCodesRead] = useState(false);
