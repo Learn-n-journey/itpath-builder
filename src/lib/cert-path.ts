@@ -6,7 +6,7 @@
  * work. Nothing here depends on calendar months, weeks or years.
  */
 import { assignments, certificationObjectives, certifications, resources, topics } from "@/data/static-content";
-import { generatedQuestions } from "@/data/question-bank";
+import { bankQuestions } from "@/data/question-bank";
 import { newSeed, shuffleWithSeed } from "@/lib/shuffle";
 import { EXAM_PREP_MINUTES, totalStudyMinutes } from "@/lib/study-time";
 import type { Assignment, Certification, Difficulty, Question, Quiz, Resource, Topic } from "@/lib/app-data/types";
@@ -114,10 +114,11 @@ export function certificationStudyIndex(certificationId: string): StudyIndex {
 
 /** Every question available to a certification's exam generator. */
 export function certificationQuestionPool(certificationId: string): Question[] {
-  const direct = generatedQuestions.filter((question) => question.certificationId === certificationId);
+  const bank = bankQuestions();
+  const direct = bank.filter((question) => question.certificationId === certificationId);
   if (direct.length > 0) return direct;
   const topicIds = new Set(certificationTopics(certificationId).map((topic) => topic.id));
-  return generatedQuestions.filter((question) => topicIds.has(question.topicId));
+  return bank.filter((question) => topicIds.has(question.topicId));
 }
 
 export interface GeneratedExam {

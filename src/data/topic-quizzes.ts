@@ -19,7 +19,7 @@ import { getLearningModule, learningModules } from "@/data/learning-content";
 import { deepLessons, getDeepLesson } from "@/data/deep-lessons";
 import { questions as authoredQuestions } from "@/data/quiz-content";
 import { generatedQuestions } from "@/data/question-bank";
-import { ownerQuestions } from "@/data/owner-questions";
+import { ownerQuestionsFor, ownerPoolVersion } from "@/lib/owner-question-store";
 import { isUsableQuestion, usableQuestions } from "@/lib/question-quality";
 import { selectQuizQuestions } from "@/lib/quiz-selection";
 import { conceptKey, tagQuestion, type TaggedQuestion } from "@/lib/question-tags";
@@ -710,11 +710,12 @@ for (const item of usableQuestions([...authoredQuestions, ...generatedQuestions]
   authoredByTopic.set(item.topicId, list);
 }
 
-const poolCache = new Map<string, PoolItem[]>();
+const poolCache = new Map<string, { version: number; items: PoolItem[] }>();
 
 function topicPool(topicId: string): PoolItem[] {
+  const version = ownerPoolVersion();
   const cached = poolCache.get(topicId);
-  if (cached) return cached;
+  if (cached && cached.version === version) return cached.items;
   const authored: PoolItem[] = (authoredByTopic.get(topicId) ?? []).map((item) => ({
     question: item,
     kind: "authored",
@@ -727,7 +728,7 @@ function topicPool(topicId: string): PoolItem[] {
   }));
   // A section the owner has written a spreadsheet for uses those questions and
   // nothing else. They still pass the same gate as every other question.
-  const owner = ownerQuestions[topicId] ?? [];
+  const owner = ownerQuestionsFor(topicId) ?? [];
   const all = owner.length
     ? owner.map((item) => ({
         question: item,
@@ -743,7 +744,7 @@ function topicPool(topicId: string): PoolItem[] {
     seen.add(key);
     return true;
   });
-  poolCache.set(topicId, unique);
+  poolCache.set(topicId, { version, items: unique });
   return unique;
 }
 

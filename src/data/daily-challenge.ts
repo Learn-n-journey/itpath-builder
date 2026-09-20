@@ -5,7 +5,7 @@
  * deterministically from the calendar date, so no storage is needed to know
  * which questions belong to today: the date is the seed.
  */
-import { generatedQuestions } from "@/data/question-bank";
+import { bankQuestions } from "@/data/question-bank";
 import { shuffleWithSeed } from "@/lib/shuffle";
 import type { Difficulty, Question } from "@/lib/app-data/types";
 
@@ -97,7 +97,7 @@ export function parseDailyQuizId(quizId: string): { dateKey: string; tier: Chall
 /** The one challenge set for a given day and tier. Same day, same set, everywhere. */
 export function dailyChallenge(dateKey: string, tier: ChallengeTier = "beginner"): DailyChallenge {
   const info = tierInfo(tier);
-  const pool = generatedQuestions.filter((question) => question.choices.length > 0);
+  const pool = bankQuestions().filter((question) => question.choices.length > 0);
   // The tier is part of the seed so the three sets never overlap on the same day.
   const ordered = shuffleWithSeed(pool, seedFromDateKey(`${dateKey}:${tier}`));
 

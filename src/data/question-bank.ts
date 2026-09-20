@@ -10,7 +10,7 @@
 import { lessons, topics } from "@/data/static-content";
 import { learningModules, practiceActivities } from "@/data/learning-content";
 import { aiQuestions } from "@/data/ai-question-bank";
-import { ownerQuestions } from "@/data/owner-questions";
+import { ownerTopicIds, ownerQuestionMap } from "@/lib/owner-question-store";
 import { usableQuestions } from "@/lib/question-quality";
 import type { Difficulty, MistakeCategory, Question } from "@/lib/app-data/types";
 
@@ -178,16 +178,26 @@ function build(): Question[] {
   // nothing else — everywhere, not just in the topic's own quizzes. Anything
   // generated for that topic is dropped here so certification quizzes, the
   // daily challenge and review screens cannot serve the old questions either.
-  const ownerTopics = new Set(
-    Object.entries(ownerQuestions)
-      .filter(([, list]) => list.length > 0)
-      .map(([topicId]) => topicId),
-  );
+  const ownerTopics = ownerTopicIds();
   return usableQuestions([...out, ...aiQuestions].filter((q) => !ownerTopics.has(q.topicId)));
 }
 
 export const generatedQuestions: Question[] = build();
 
+/**
+ * The question bank as it stands right now: the build-time generated bank
+ * minus every topic that has owner questions, plus those topics' live
+ * spreadsheet questions. Read fresh at each call so new spreadsheet rows
+ * appear as soon as the store loads.
+ */
+export function bankQuestions(): Question[] {
+  const ownerTopics = ownerTopicIds();
+  const ownerLists = Object.entries(ownerQuestionMap())
+    .filter(([topicId]) => ownerTopics.has(topicId))
+    .flatMap(([, list]) => list);
+  return [...usableQuestions(ownerLists), ...generatedQuestions.filter((q) => !ownerTopics.has(q.topicId))];
+}
+
 export function questionsForCertification(certificationId: string): Question[] {
-  return generatedQuestions.filter((question) => question.certificationId === certificationId);
+  return bankQuestions().filter((question) => question.certificationId === certificationId);
 }

@@ -7,7 +7,7 @@ import { PageHeader, StatCard } from "@/components/page-kit";
 import { QuizRunner, quizQuestions } from "@/components/quiz/quiz-runner";
 import { Button } from "@/components/ui/button";
 import { quizzes, topics } from "@/data/static-content";
-import { certQuizQuestions, certQuizzes } from "@/data/cert-quizzes";
+import { getCertQuizQuestions, getCertQuizzes } from "@/data/cert-quizzes";
 import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import { selectedCertification } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
@@ -38,18 +38,18 @@ function QuizMe() {
   const focus = selectedCertification(user.settings);
   const focusTopicIds = useMemo(() => new Set(topics.filter((topic) => topic.certificationId === focus.id).map((topic) => topic.id)), [focus.id]);
   const available = useMemo(() => {
-    const general = [...quizzes, ...certQuizzes].filter((item) => item.kind !== "assessment");
+    const general = [...quizzes, ...getCertQuizzes()].filter((item) => item.kind !== "assessment");
     const focused = general.filter((quiz) => quiz.topicIds.some((id) => focusTopicIds.has(id)));
     return focused.length > 0 ? focused : general;
   }, [focusTopicIds]);
   const { quiz: requestedQuizId } = Route.useSearch();
   const quiz = useMemo(() => {
     const requested = requestedQuizId
-      ? [...quizzes, ...certQuizzes].find((item) => item.id === requestedQuizId)
+      ? [...quizzes, ...getCertQuizzes()].find((item) => item.id === requestedQuizId)
       : undefined;
     return requested ?? shuffleWithSeed(available, seed)[0];
   }, [available, seed, requestedQuizId]);
-  const pool = useMemo(() => (quiz ? quizQuestions(quiz, certQuizQuestions) : []), [quiz]);
+  const pool = useMemo(() => (quiz ? quizQuestions(quiz, getCertQuizQuestions()) : []), [quiz]);
 
   if (!quiz) return null;
 

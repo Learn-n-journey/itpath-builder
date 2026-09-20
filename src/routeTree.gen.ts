@@ -78,6 +78,7 @@ import { Route as TracksIndexRouteImport } from './routes/tracks.index'
 import { Route as TracksSlugRouteImport } from './routes/tracks.$slug'
 import { Route as ApiPublicContentAuditRouteImport } from './routes/api/public/content-audit'
 import { Route as ApiPublicLinkCheckRouteImport } from './routes/api/public/link-check'
+import { Route as ApiPublicSheetSyncRouteImport } from './routes/api/public/sheet-sync'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -425,6 +426,11 @@ const ApiPublicLinkCheckRoute = ApiPublicLinkCheckRouteImport.update({
   path: '/api/public/link-check',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSheetSyncRoute = ApiPublicSheetSyncRouteImport.update({
+  id: '/api/public/sheet-sync',
+  path: '/api/public/sheet-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -502,6 +508,7 @@ export interface FileRoutesByFullPath {
   '/tracks/': typeof TracksIndexRoute
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
+  '/api/public/sheet-sync': typeof ApiPublicSheetSyncRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -574,6 +581,7 @@ export interface FileRoutesByTo {
   '/tracks': typeof TracksIndexRoute
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
+  '/api/public/sheet-sync': typeof ApiPublicSheetSyncRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -647,6 +655,7 @@ export interface FileRoutesById {
   '/tracks/': typeof TracksIndexRoute
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
+  '/api/public/sheet-sync': typeof ApiPublicSheetSyncRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -721,6 +730,7 @@ export interface FileRouteTypes {
     | '/tracks/'
     | '/api/public/content-audit'
     | '/api/public/link-check'
+    | '/api/public/sheet-sync'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -793,6 +803,7 @@ export interface FileRouteTypes {
     | '/tracks'
     | '/api/public/content-audit'
     | '/api/public/link-check'
+    | '/api/public/sheet-sync'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -865,6 +876,7 @@ export interface FileRouteTypes {
     | '/tracks/'
     | '/api/public/content-audit'
     | '/api/public/link-check'
+    | '/api/public/sheet-sync'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -938,6 +950,7 @@ export interface RootRouteChildren {
   TracksIndexRoute: typeof TracksIndexRoute
   ApiPublicContentAuditRoute: typeof ApiPublicContentAuditRoute
   ApiPublicLinkCheckRoute: typeof ApiPublicLinkCheckRoute
+  ApiPublicSheetSyncRoute: typeof ApiPublicSheetSyncRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -1426,6 +1439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicLinkCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/sheet-sync': {
+      id: '/api/public/sheet-sync'
+      path: '/api/public/sheet-sync'
+      fullPath: '/api/public/sheet-sync'
+      preLoaderRoute: typeof ApiPublicSheetSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -1506,6 +1526,7 @@ const rootRouteChildren: RootRouteChildren = {
   TracksIndexRoute: TracksIndexRoute,
   ApiPublicContentAuditRoute: ApiPublicContentAuditRoute,
   ApiPublicLinkCheckRoute: ApiPublicLinkCheckRoute,
+  ApiPublicSheetSyncRoute: ApiPublicSheetSyncRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport

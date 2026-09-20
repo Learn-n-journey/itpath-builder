@@ -397,6 +397,42 @@ export type Database = {
         }
         Relationships: []
       }
+      owner_questions: {
+        Row: {
+          domain: string
+          id: string
+          question: Json
+          reject_reasons: Json
+          row_number: number
+          source_file: string
+          status: string
+          synced_at: string
+          topic_id: string
+        }
+        Insert: {
+          domain: string
+          id?: string
+          question: Json
+          reject_reasons?: Json
+          row_number?: number
+          source_file?: string
+          status?: string
+          synced_at?: string
+          topic_id: string
+        }
+        Update: {
+          domain?: string
+          id?: string
+          question?: Json
+          reject_reasons?: Json
+          row_number?: number
+          source_file?: string
+          status?: string
+          synced_at?: string
+          topic_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
