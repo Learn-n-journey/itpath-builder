@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Layers, Lock, MessagesSquare } from "l
 import { blockingTopic } from "@/lib/journey-order";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
+import { ObdPracticePanel } from "@/components/auto/obd-practice-panel";
 import { TopicKnowledgePanel } from "@/components/knowledge/topic-knowledge-panel";
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -182,6 +183,8 @@ function TopicPage() {
 
       <div className="mt-4">
         <ObdPracticePanel topicId={topic.id} topicTitle={topic.title} />
+      </div>
+
 
       <div className="mt-4">
         <Panel
