@@ -141,7 +141,7 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
   }
 
   if (!intro || sections.length === 0) {
-    return { lesson: null, sources: [], error: "the Lesson or Sections tab is empty" };
+    return { lesson: null, sources: [], practice: [], error: "the Lesson or Sections tab is empty" };
   }
 
   const keyIdeas = body(tabs, "Key ideas")
@@ -227,7 +227,8 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
     })
     .filter((item): item is Resource => item !== null);
 
+  const practice = practiceFromTabs(topic, tabs);
   const rejectReasons = deepLessonIssues(lesson);
-  if (rejectReasons.length) return { lesson, sources, rejectReasons };
-  return { lesson, sources };
+  if (rejectReasons.length) return { lesson, sources, practice, rejectReasons };
+  return { lesson, sources, practice };
 }
