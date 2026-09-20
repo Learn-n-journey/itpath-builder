@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Activity,
@@ -39,6 +39,8 @@ import { masteryGate } from "@/lib/mastery-gate";
 import { overallMeasures } from "@/lib/mastery-summary";
 import { useProfile } from "@/hooks/use-profile";
 import { useAppState } from "@/state/app-state";
+import autopathLogo from "@/assets/autopath-logo.png.asset.json";
+import { activeDomainKey } from "@/domain/active";
 
 
 export const Route = createFileRoute("/")({
@@ -196,6 +198,19 @@ function MeterRow({ label, value, suffix = "%" }: { label: string; value: number
 function Dashboard() {
   const { user, hydrated } = useAppState();
   const { firstName } = useProfile();
+
+  // The subject choice lives in browser storage, so the server always paints
+  // the default logo first; this swaps it before the user can notice.
+  const [logo, setLogo] = useState({ src: "/icons/icon-256.png", alt: "IT PATH logo, a mountain path with circuit traces" });
+  useEffect(() => {
+    if (activeDomainKey.split("@")[0] === "auto-repair") {
+      setLogo({
+        src: autopathLogo.url,
+        alt: "AUTO PATH logo, a dark navy app icon with a chrome piston, blue wrench and circuit traces",
+      });
+    }
+  }, []);
+
   const d = useMemo(() => computeDashboard(user), [user]);
   const measures = useMemo(() => overallMeasures(user), [user]);
 
@@ -285,8 +300,8 @@ function Dashboard() {
     <>
       <div className="flex items-start gap-4">
         <img
-          src="/icons/icon-256.png"
-          alt="IT PATH logo, a mountain path with circuit traces"
+          src={logo.src}
+          alt={logo.alt}
           className="h-14 w-14 shrink-0 rounded-lg border border-border shadow-lg sm:h-16 sm:w-16"
         />
         <div className="min-w-0 flex-1">

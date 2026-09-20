@@ -1,4 +1,5 @@
 import {
+  Car,
   Brain,
   LayoutDashboard,
   Route as RouteIcon,
@@ -195,6 +196,14 @@ const allNavItems: NavItem[] = [
     icon: Cog,
     group: "Practice",
     description: "Run a four stroke engine, change throttle, timing and mixture, and introduce faults.",
+    subjects: ["auto-repair"],
+  },
+  {
+    label: "Garage Match",
+    to: "/garage-match",
+    icon: Car,
+    group: "Practice",
+    description: "A match-3 restoration game: clear parts, fix cars and grow your garage.",
     subjects: ["auto-repair"],
   },
 
