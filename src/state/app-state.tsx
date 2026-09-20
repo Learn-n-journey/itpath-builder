@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { createDefaultUserData } from "@/lib/app-data/defaults";
+import { reconcileSettingsToDomain } from "@/lib/app-data/settings-domain";
 import { useAuth } from "@/state/auth-state";
 import { activityCount, fetchCloudState, pushCloudState } from "@/lib/cloud-sync";
 import { buildMistake, type MistakeInput } from "@/lib/mistake-engine";
