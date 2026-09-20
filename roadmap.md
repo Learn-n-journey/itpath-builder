@@ -108,3 +108,12 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Answer: ways to store owner-authored questions the app can pull from (Excel via connector / in-app editor / file upload / pasted text)
 - [x] Virtual Engine rebuilt: animated SVG cutaway (piston, rod, crank, valves, spark, flow arrows, exhaust puffs), 720° stroke timeline, per-stroke watch-fors, ungraded self-check; Virus Run removed from auto entirely; auto pack brand renamed to AUTO PATH
 - [x] Spreadsheet import test: OneDrive itpath/1.xlsx -> topic-computer-hardware-basics. scripts/import-owner-questions.ts reads the numbered sheets via the Excel connector, gates every row, writes src/data/owner-questions.ts; topicPool uses owner questions in place of the generated pool for that topic. 22 of 30 rows accepted.
+
+## Automatic spreadsheet question sync (in progress)
+- [x] Topic 1 practice pool uses owner spreadsheet questions only.
+- [ ] Purge every old question for spreadsheet-covered topics from all surfaces (topic quizzes, cert quizzes, daily challenge, weak areas, missed questions, exams).
+- [ ] Stable numbering: IT PATH topics 1..N and AUTO PATH topics 1..M in curriculum order; spreadsheet N feeds topic N.
+- [ ] owner_questions table (Lovable Cloud) so new spreadsheets go live without a rebuild.
+- [ ] /api/public/sheet-sync route: reads OneDrive "itpath" and "autopath" folders, maps numbered files to topics, runs the quality gate, stores approved/rejected rows.
+- [ ] Nightly schedule (pg_cron) so uploads populate quizzes automatically.
+- [ ] App reads live owner questions from the database, with the build-time file as offline fallback.

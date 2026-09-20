@@ -4,7 +4,7 @@
  * the runner is given the generated bank as its question source.
  */
 import { certifications, topics } from "@/data/static-content";
-import { generatedQuestions } from "@/data/question-bank";
+import { bankQuestions } from "@/data/question-bank";
 import type { Question, Quiz } from "@/lib/app-data/types";
 
 const CHUNK = 12;
@@ -23,7 +23,7 @@ function build(): Quiz[] {
     if (certTopics.length === 0) continue;
 
     for (const topic of certTopics) {
-      const topicQuestions = generatedQuestions.filter((question) => question.topicId === topic.id);
+      const topicQuestions = bankQuestions().filter((question) => question.topicId === topic.id);
       chunk(topicQuestions, CHUNK).forEach((set, index) => {
         if (set.length < 4) return;
         out.push({
@@ -37,7 +37,7 @@ function build(): Quiz[] {
       });
     }
 
-    const certQuestions = generatedQuestions.filter((question) => question.certificationId === certification.id);
+    const certQuestions = bankQuestions().filter((question) => question.certificationId === certification.id);
     if (certQuestions.length >= 10) {
       chunk(certQuestions, 20).forEach((set, index) => {
         if (set.length < 10) return;
@@ -56,7 +56,12 @@ function build(): Quiz[] {
   return out;
 }
 
-export const certQuizzes: Quiz[] = build();
+/** Certification and topic quizzes as they stand right now (owner questions included). */
+export function getCertQuizzes(): Quiz[] {
+  return build();
+}
 
-/** Question source the runner needs for these quizzes. */
-export const certQuizQuestions: Question[] = generatedQuestions;
+/** Question source the runner needs for these quizzes, read fresh on each call. */
+export function getCertQuizQuestions(): Question[] {
+  return bankQuestions();
+}

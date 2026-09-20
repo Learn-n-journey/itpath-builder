@@ -1,4 +1,4 @@
-import { generatedQuestions } from "@/data/question-bank";
+import { bankQuestions } from "@/data/question-bank";
 import { assignments } from "@/data/static-content";
 import { recallQuestions } from "@/data/learning-content";
 import { questions as staticQuestions } from "@/data/static-content";
@@ -30,7 +30,7 @@ export function missedQuestionAnchor(item: MissedQuestion): string {
 function findQuizQuestion(id: string): Question | undefined {
   return (
     staticQuestions.find((question) => question.id === id) ??
-    generatedQuestions.find((question) => question.id === id)
+    bankQuestions().find((question) => question.id === id)
   );
 }
 

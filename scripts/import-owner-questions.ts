@@ -1,26 +1,30 @@
 /**
  * Owner authored questions: pulls the numbered spreadsheets out of the owner's
- * OneDrive "itpath" folder and writes them into src/data/owner-questions.ts.
+ * OneDrive folders and writes them into src/data/owner-questions.ts.
  *
- * One sheet per topic. The sheet tab is named after the topic it feeds, and the
- * rows are the full format: id, course, topic, question, four choices, correct
- * letter, explanation, source name, source url, objective, difficulty, type.
+ * The file's leading number picks the topic: "1.xlsx" feeds topic number 1 of
+ * that course, in curriculum order. Folders named for auto feed AUTO PATH;
+ * anything else feeds IT PATH. This is the offline snapshot used before
+ * sign-in and by tests — the app itself now syncs nightly from the same
+ * spreadsheets through /api/public/sheet-sync.
  *
- * Nothing here decides whether a question is good enough to be asked. Every row
- * still passes the deterministic gate in src/lib/question-quality.ts at draw
- * time, exactly like generated questions do; this script only reports what
- * would be rejected so the owner can fix the row.
+ * Nothing here decides whether a question is good enough to be asked. Every
+ * row still passes the deterministic gate in src/lib/question-quality.ts at
+ * draw time, exactly like generated questions do; this script only reports
+ * what would be rejected so the owner can fix the row.
  *
  * Run: bun run scripts/import-owner-questions.ts [folder]
  */
 import { writeFileSync } from "node:fs";
 
-import { topics } from "../src/data/static-content";
 import { questionIssues } from "../src/lib/question-quality";
+import { fileNumber, ownerQuestionFromRow, topicForNumber, type OwnerDomain } from "../src/lib/owner-questions-shared";
 import type { Question } from "../src/lib/app-data/types";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/microsoft_excel";
-const FOLDER = process.argv[2] ?? "itpath";
+const folderArg = process.argv[2] ?? "itpath";
+const FOLDER = folderArg;
+const domain: OwnerDomain = /auto/i.test(folderArg) ? "auto-repair" : "it-cybersecurity";
 
 async function graph(path: string): Promise<any> {
   const response = await fetch(`${GATEWAY}${path}`, {
@@ -33,38 +37,8 @@ async function graph(path: string): Promise<any> {
   return response.json();
 }
 
-const norm = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-
-function topicIdFor(sheetName: string, rowTopic: string): string | undefined {
-  const wanted = [norm(sheetName), norm(rowTopic)];
-  return topics.find((topic) => wanted.includes(norm(topic.title)))?.id;
-}
-
-function toQuestion(topicId: string, row: string[]): Question | undefined {
-  const [id, , , prompt, a, b, c, d, correct, explanation, , , , difficulty] = row.map((cell) =>
-    String(cell ?? "").trim(),
-  );
-  const choices = [a, b, c, d].filter(Boolean);
-  if (!prompt || choices.length !== 4 || !correct) return undefined;
-  const answer = choices[["A", "B", "C", "D"].indexOf(correct.toUpperCase())];
-  if (!answer) return undefined;
-  const topic = topics.find((item) => item.id === topicId);
-  return {
-    id: `question-owner-${(id || prompt).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-    topicId,
-    quizId: `section-quiz-${topicId}`,
-    certificationId: topic?.certificationId ?? "",
-    type: "multiple_choice",
-    prompt,
-    choices,
-    correctAnswer: [answer],
-    acceptableAnswers: [answer],
-    explanation,
-    difficulty: /intermediate|advanced/i.test(difficulty) ? "challenging" : "standard",
-    mistakeCategory: "concept",
-    requiresReasoning: false,
-  };
-}
+const banks: Record<string, Question[]> = {};
+const report: string[] = [];
 
 const folder = await graph(`/me/drive/root:/${FOLDER}:/children`);
 const files: Array<{ id: string; name: string }> = (folder.value ?? [])
@@ -73,42 +47,40 @@ const files: Array<{ id: string; name: string }> = (folder.value ?? [])
     left.name.localeCompare(right.name, undefined, { numeric: true }),
   );
 
-const banks: Record<string, Question[]> = {};
-const report: string[] = [];
-
 for (const file of files) {
+  const number = fileNumber(file.name);
+  const topic = number ? topicForNumber(domain, number) : undefined;
+  if (!topic) {
+    report.push(`${file.name}: filename number has no matching topic, skipped`);
+    continue;
+  }
   const sheets = await graph(`/me/drive/items/${file.id}/workbook/worksheets`);
+  const parsed: Question[] = [];
   for (const sheet of sheets.value ?? []) {
     const used = await graph(
       `/me/drive/items/${file.id}/workbook/worksheets/${encodeURIComponent(sheet.id)}` +
         `/usedRange(valuesOnly=true)?$select=values`,
     );
-    const rows: string[][] = (used.values ?? []).slice(1);
-    const topicId = topicIdFor(sheet.name, String(rows[0]?.[2] ?? ""));
-    if (!topicId) {
-      report.push(`${file.name} / ${sheet.name}: no matching topic, skipped`);
-      continue;
-    }
-    const parsed = rows.map((row) => toQuestion(topicId, row)).filter(Boolean) as Question[];
-    const kept: Question[] = [];
-    for (const item of parsed) {
-      const issues = questionIssues(item);
-      if (issues.length === 0) kept.push(item);
-      else report.push(`${file.name} row ${item.id}: rejected (${issues.join("; ")})`);
-    }
-    banks[topicId] = [...(banks[topicId] ?? []), ...kept];
-    report.push(
-      `${file.name} / ${sheet.name} -> ${topicId}: ${kept.length} accepted of ${parsed.length}`,
-    );
+    const rows: unknown[][] = used.values ?? [];
+    rows.slice(1).forEach((row, index) => {
+      const cells = row.map((cell) => String(cell ?? "").trim());
+      if (!cells.some(Boolean)) return;
+      const result = ownerQuestionFromRow(topic!, cells, file.name, index + 2);
+      if (result.question && !result.rejectReasons) parsed.push(result.question);
+      else if (result.question) report.push(`${file.name} row ${index + 2}: rejected (${result.rejectReasons!.join("; ")})`);
+      else report.push(`${file.name} row ${index + 2}: unreadable (${result.error})`);
+    });
   }
+  banks[topic.topicId] = [...(banks[topic.topicId] ?? []), ...parsed];
+  report.push(`${file.name} -> ${topic.title}: ${parsed.length} accepted`);
 }
 
 const body = `/**
  * Questions written by the owner in OneDrive spreadsheets.
  *
  * Generated by scripts/import-owner-questions.ts. Do not edit by hand: edit the
- * spreadsheet and run the importer again. A topic listed here uses these
- * questions in place of the generated pool.
+ * spreadsheet and the nightly sync (or this script) brings the rows in. A topic
+ * listed here uses these questions in place of the generated pool.
  */
 import type { Question } from "@/lib/app-data/types";
 

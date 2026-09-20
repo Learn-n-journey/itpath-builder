@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { domain } from "@/domain/active";
+import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { firstPracticeTestCertId } from "@/lib/tracks";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
@@ -99,6 +100,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
+
+  // Owner spreadsheet questions: load once so pools refresh from the database.
+  useEffect(() => {
+    void loadOwnerQuestions();
+  }, []);
 
   const current = navItems.find((i) => i.to === pathname)?.label ?? domain.appName;
 

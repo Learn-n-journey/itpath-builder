@@ -6,7 +6,8 @@ import { PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { generatedQuestions } from "@/data/question-bank";
+import { bankQuestions } from "@/data/question-bank";
+import { ownerTopicIds } from "@/lib/owner-question-store";
 import { questions as staticQuestions, topics } from "@/data/static-content";
 import {
   missedQuestionPrompt,
@@ -83,8 +84,11 @@ function WeakAreas() {
     const chosenIds = new Set(chosen.map((question) => question.id));
 
     if (chosen.length < TARGET && weakTopicIds.length > 0) {
-      const bank = [...staticQuestions, ...generatedQuestions].filter(
-        (question) => weakTopicIds.includes(question.topicId) && !chosenIds.has(question.id),
+      const bank = [...staticQuestions, ...bankQuestions()].filter(
+        (question) =>
+          !ownerTopicIds().has(question.topicId) &&
+          weakTopicIds.includes(question.topicId) &&
+          !chosenIds.has(question.id),
       );
       for (const question of shuffleWithSeed(bank, seed)) {
         if (chosen.length >= TARGET) break;
