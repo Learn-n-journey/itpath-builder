@@ -10,7 +10,7 @@
  * built-in lessons must pass decide whether an owner lesson may be published.
  */
 import type { DeepLesson, LessonCheck, LessonReferenceRow } from "@/data/deep-lessons/types";
-import type { Resource } from "@/lib/app-data/types";
+import type { PracticeActivity, Resource } from "@/lib/app-data/types";
 import { deepLessonIssues } from "@/lib/lesson-quality";
 import type { NumberedTopic } from "@/lib/owner-questions-shared";
 
@@ -31,6 +31,7 @@ export const LESSON_TABS = [
   "Check yourself",
   "Sources",
   "Plain words",
+  "Practice",
 ] as const;
 
 /** Headers of each tab, in column order. The template workbook uses these. */
@@ -45,7 +46,19 @@ export const LESSON_TAB_HEADERS: Record<string, string[]> = {
   "Check yourself": ["Question", "Answer"],
   Sources: ["Label", "URL", "Kind"],
   "Plain words": ["Plain intro", "Term", "In plain words"],
+  Practice: [
+    "Title",
+    "Prompt",
+    "Choice A",
+    "Choice B",
+    "Choice C",
+    "Choice D",
+    "Correct",
+    "Explanation",
+  ],
 };
+
+const CORRECT_LETTERS = ["A", "B", "C", "D"];
 
 const key = (value: string) => value.trim().toLowerCase();
 
