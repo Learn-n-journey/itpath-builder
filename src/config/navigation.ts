@@ -173,6 +173,7 @@ const allNavItems: NavItem[] = [
     icon: Bug,
     group: "Practice",
     description: "A quick arcade game: play as the virus and breach endlessly harder systems.",
+    subjects: ["it-cybersecurity"],
   },
   {
     label: "Explore Hardware",
