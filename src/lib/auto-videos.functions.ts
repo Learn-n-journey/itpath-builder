@@ -59,7 +59,6 @@ const CHANNELS: Channel[] = [
   { id: "UCxucfRWANaT8tfz97lAf8hw", name: "WeberAuto", fallback: "EV & Hybrid" },
   { id: "UCuxpxCCevIlF-k-K5YU8XPA", name: "Scotty Kilmer", fallback: "Repair How-To" },
   { id: "UCL6JmiMXKoXS6bpP1D3bk8g", name: "Donut Media", fallback: "Builds & Restoration" },
-  { id: "UCt9IKGnSVz5T-cVpwOnicqQ", name: "Pine Hollow Auto Diagnostics", fallback: "Diagnostics" },
 ];
 
 /**
