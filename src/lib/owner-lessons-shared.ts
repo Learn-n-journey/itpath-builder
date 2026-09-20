@@ -91,8 +91,32 @@ function hostOf(url: string): string {
 export interface OwnerLessonResult {
   lesson: DeepLesson | null;
   sources: Resource[];
+  /** Practice questions written on the workbook's Practice tab. */
+  practice: PracticeActivity[];
   rejectReasons?: string[];
   error?: string;
+}
+
+/** Practice tab rows -> practice activities for this topic. */
+function practiceFromTabs(topic: NumberedTopic, tabs: SheetTab[]): PracticeActivity[] {
+  const items: PracticeActivity[] = [];
+  body(tabs, "Practice").forEach((row, index) => {
+    const title = cell(row, 0);
+    const prompt = cell(row, 1);
+    const choices = [cell(row, 2), cell(row, 3), cell(row, 4), cell(row, 5)].filter(Boolean);
+    const answerIndex = CORRECT_LETTERS.indexOf(cell(row, 6).toUpperCase());
+    if (!prompt || choices.length < 2 || answerIndex < 0 || answerIndex >= choices.length) return;
+    items.push({
+      id: `practice-owner-${topic.topicId}-${index + 1}`,
+      topicId: topic.topicId,
+      title: title || "Practice",
+      prompt,
+      choices,
+      answerIndex,
+      explanation: cell(row, 7),
+    });
+  });
+  return items;
 }
 
 /** Builds one topic's lesson from its workbook tabs, then gates it. */
