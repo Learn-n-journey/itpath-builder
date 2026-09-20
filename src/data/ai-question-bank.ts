@@ -11840,21 +11840,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "procedure"
   },
   {
-    "topicId": "topic-computer-hardware-basics",
-    "certificationId": "cert-comptia-tech-plus",
-    "prompt": "Two computers have equal drive capacities, but one completes instruction-heavy work sooner. Which interpretation is justified?",
-    "choices": [
-      "Equal file space establishes equal instruction-processing capability.",
-      "Greater instruction-processing capability establishes greater file space.",
-      "Equal file space establishes equal cooling effectiveness.",
-      "Equal file space can coexist with different processor performance."
-    ],
-    "answerIndex": 3,
-    "explanation": "Storage capacity and processing performance describe different capabilities.",
-    "difficulty": "gentle",
-    "mistakeCategory": "concept"
-  },
-  {
     "topicId": "topic-command-line-fundamentals",
     "certificationId": "cert-comptia-tech-plus",
     "prompt": "A technician copies an instruction from a Bash session into PowerShell, where it is rejected. The target exists and the spelling matches the original. Which explanation best fits the evidence?",
