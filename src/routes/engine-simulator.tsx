@@ -463,6 +463,31 @@ function EngineSimulatorPage() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="space-y-4">
           <Panel title="Cylinder" description={`${current.name} stroke, piston ${current.piston}`}>
+            {/* 720° cycle timeline */}
+            <div className="mb-3" aria-hidden>
+              <div className="grid grid-cols-4 overflow-hidden rounded-md border border-border text-center text-[11px] font-medium">
+                {STROKES.map((s, i) => (
+                  <div
+                    key={s.name}
+                    className={cn(
+                      "border-l border-border px-1 py-1.5 first:border-l-0",
+                      i === strokeIndex ? "bg-primary/15 text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    {s.name}
+                  </div>
+                ))}
+              </div>
+              <div className="mt-1 h-1 rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-[width] duration-100"
+                  style={{ width: `${(cycle / 720) * 100}%` }}
+                />
+              </div>
+              <p className="mt-1 text-right font-mono text-[10px] text-muted-foreground">
+                {Math.round(cycle)}&deg; of 720&deg; crank rotation
+              </p>
+            </div>
             <EngineCutaway angle={angle} firing={firing} mixture={mixture} faultId={faultId} />
             <div className="mt-2 flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm">
               <p className="font-display text-lg font-semibold">{current.name}</p>
