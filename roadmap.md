@@ -118,3 +118,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Nightly schedule (04:30 UTC, pg_cron) so uploads populate quizzes automatically; link-check 04:15, content audit 04:45.
 - [x] App reads live owner questions from the database, with the build-time file as offline fallback.
 - [x] Verified live: topics 1 and 2 serve only spreadsheet questions; 44 approved, 16 rejected stored with reasons; tests pass, build OK.
+- [x] "Sync now" button on Settings (owner-only): runs the same sync immediately without waiting for the nightly pull or opening Lovable.
