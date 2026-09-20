@@ -69,7 +69,8 @@ export function lessonQualityIssues(topic: Topic, lesson: Lesson | undefined, de
     if (average > MAX_AVERAGE_SENTENCE_WORDS) issues.push("lesson sentences average too long to read comfortably");
   }
   // Relevance: the reason to care has to name a consequence, not restate the title.
-  if (words(lesson.whyItMatters) < 12 || normalise(lesson.whyItMatters).includes(normalise(topic.title)) && words(lesson.whyItMatters) < 20) {
+  const whyWords = words(lesson.whyItMatters);
+  if (whyWords < 8 || (whyWords < 14 && normalise(lesson.whyItMatters).includes(normalise(topic.title)))) {
     issues.push("the reason this matters does not name a real consequence");
   }
   // Transfer: at least one concrete example the learner could meet at work.
