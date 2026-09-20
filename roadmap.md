@@ -127,3 +127,4 @@ Done when: typecheck + build clean, features verified in browser.
 
 - [ ] Spreadsheet-written lessons: "itpath lessons" / "autopath lessons" folders, numbered per topic, quality-gated, override AI lessons; per-course sync buttons
 - [x] Spreadsheet-written lessons: itpath lessons / autopath lessons folders, quality-gated, override built-in lessons; per-course sync buttons
+- [x] Remove the “Master Mechanic Simulator” wording from AUTO PATH text and metadata; keep all features unchanged.

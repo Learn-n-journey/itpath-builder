@@ -5,7 +5,7 @@ export const autoRepairManifest: DomainManifest = {
   "id": "auto-repair",
   "version": "3.5.0",
   "key": "auto-repair@3.5.0",
-  "name": "ASE Master Mechanic Simulator",
+  "name": "AUTO PATH",
   "producedBy": "domain-pipeline",
   "producedAt": "2026-09-19T22:59:33.322Z",
   "status": "approved",

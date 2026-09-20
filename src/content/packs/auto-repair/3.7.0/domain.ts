@@ -3,7 +3,7 @@ import type { DomainDefinition } from "@/domain/types";
 
 export const autoRepairDomain: DomainDefinition = {
   "id": "auto-repair",
-  "appName": "AUTO PATH Master Mechanic Simulator",
+  "appName": "AUTO PATH",
   "field": "automotive repair and diagnosis",
   "awardingBody": "ASE",
   "summary": "An interactive diagnostic training platform designed to teach practical, hands-on automotive repair through simulated real-world service orders.",
