@@ -3322,21 +3322,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-network-services-and-protocols",
     "certificationId": "cert-comptia-network-plus",
-    "prompt": "A network engineer needs to configure a firewall rule to allow secure remote access to a Linux server. Which port and protocol combination should be allowed?",
-    "choices": [
-      "Port 80, HTTP",
-      "Port 22, SSH",
-      "Port 3389, RDP",
-      "Port 161, SNMP"
-    ],
-    "answerIndex": 1,
-    "explanation": "SSH (Secure Shell) on port 22 is the standard protocol for secure remote access to Linux servers. HTTP is for web traffic, RDP for Windows remote desktop, and SNMP for monitoring.",
-    "difficulty": "standard",
-    "mistakeCategory": "terminology"
-  },
-  {
-    "topicId": "topic-network-services-and-protocols",
-    "certificationId": "cert-comptia-network-plus",
     "prompt": "What is the primary function of a DHCP server's 'reservation' feature?",
     "choices": [
       "To allow clients to receive any available IP address from the pool.",
@@ -37702,21 +37687,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   {
     "topicId": "topic-network-command-line-diagnostics",
     "certificationId": "cert-comptia-network-plus",
-    "prompt": "A switch records a workstation's hardware address against port 7 after receiving traffic there. What does that entry support?",
-    "choices": [
-      "The switch observed frames from that address arriving on port 7.",
-      "The workstation received its DNS response through port 7.",
-      "The workstation's application is listening through port 7.",
-      "The destination's authoritative record identifies port 7."
-    ],
-    "answerIndex": 0,
-    "explanation": "A switch builds its learned address table from incoming frames and the ports on which they arrive.",
-    "difficulty": "standard",
-    "mistakeCategory": "concept"
-  },
-  {
-    "topicId": "topic-network-command-line-diagnostics",
-    "certificationId": "cert-comptia-network-plus",
     "prompt": "A technician finds a service's expected port in an ss listing. Which conclusion is directly supported by this type of evidence?",
     "choices": [
       "The hostname has the correct authoritative record.",
@@ -37998,21 +37968,6 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "explanation": "A useful peer comparison requires examining the relevant interfaces on both clients.",
     "difficulty": "standard",
     "mistakeCategory": "procedure"
-  },
-  {
-    "topicId": "topic-network-command-line-diagnostics",
-    "certificationId": "cert-comptia-network-plus",
-    "prompt": "A local mapping associates IP address X with hardware address M. The switch associates M with port 6. Which combined conclusion is supported?",
-    "choices": [
-      "The hardware address mapped to X was learned on port 6.",
-      "The authoritative DNS record for X was obtained on port 6.",
-      "The application at X has a listening socket on port 6.",
-      "The selected resolver for X is configured on port 6."
-    ],
-    "answerIndex": 0,
-    "explanation": "The hardware address links the local IP mapping to the switch's learned port information.",
-    "difficulty": "standard",
-    "mistakeCategory": "diagnosis"
   },
   {
     "topicId": "topic-network-command-line-diagnostics",
@@ -40429,7 +40384,7 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "difficulty": "standard",
     "mistakeCategory": "procedure"
   }
-] as AiQuestionSeed[];
+];
 
 export const aiQuestions: Question[] = aiQuestionSeeds.map((seed, index) => ({
   id: `question-ai-${index + 1}`,
@@ -40446,3 +40401,4 @@ export const aiQuestions: Question[] = aiQuestionSeeds.map((seed, index) => ({
   mistakeCategory: seed.mistakeCategory,
   requiresReasoning: seed.mistakeCategory === "diagnosis" || seed.mistakeCategory === "procedure",
 }));
+
