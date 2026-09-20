@@ -796,8 +796,12 @@ export function GarageMatch() {
                     type="button"
                     aria-label={tile ? `${PARTS[tile.kind]?.name ?? "Part"}${tile.special ? ` ${tile.special === "surge" ? "battery surge" : "engine"}` : ""}` : "empty"}
                     onClick={() => onCellClick(r, c)}
+                    onPointerDown={(e) => onTilePointerDown(r, c, e)}
+                    onPointerMove={onTilePointerMove}
+                    onPointerUp={onTilePointerUp}
+                    onPointerCancel={onTilePointerUp}
                     className={[
-                      "relative flex aspect-square items-center justify-center rounded-lg border text-2xl transition-transform duration-100 sm:text-3xl",
+                      "relative flex aspect-square cursor-grab touch-none items-center justify-center rounded-lg border text-2xl transition-transform duration-100 active:cursor-grabbing sm:text-3xl",
                       clearing ? "gm-pop border-transparent" : "border-border/60 bg-card hover:bg-secondary/60",
                       tile?.id != null && view.fresh.has(tile.id) ? "gm-drop" : "",
                       shaking ? "gm-shake" : "",
