@@ -15,6 +15,7 @@ import { Route as AchievementsRouteImport } from './routes/achievements'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AiUsageRouteImport } from './routes/ai-usage'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AutoNewsRouteImport } from './routes/auto-news'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
 import { Route as CareerSkillsRouteImport } from './routes/career-skills'
@@ -102,6 +103,11 @@ const AiUsageRoute = AiUsageRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AutoNewsRoute = AutoNewsRouteImport.update({
+  id: '/auto-news',
+  path: '/auto-news',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookmarksRoute = BookmarksRouteImport.update({
@@ -403,6 +409,7 @@ export interface FileRoutesByFullPath {
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
+  '/auto-news': typeof AutoNewsRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
@@ -469,6 +476,7 @@ export interface FileRoutesByTo {
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
+  '/auto-news': typeof AutoNewsRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
@@ -536,6 +544,7 @@ export interface FileRoutesById {
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
+  '/auto-news': typeof AutoNewsRoute
   '/bookmarks': typeof BookmarksRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
@@ -604,6 +613,7 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
+    | '/auto-news'
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
@@ -670,6 +680,7 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
+    | '/auto-news'
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
@@ -736,6 +747,7 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
+    | '/auto-news'
     | '/bookmarks'
     | '/career-mode'
     | '/career-skills'
@@ -803,6 +815,7 @@ export interface RootRouteChildren {
   AiTutorRoute: typeof AiTutorRoute
   AiUsageRoute: typeof AiUsageRoute
   AuthRoute: typeof AuthRoute
+  AutoNewsRoute: typeof AutoNewsRoute
   BookmarksRoute: typeof BookmarksRoute
   CareerModeRoute: typeof CareerModeRoute
   CareerSkillsRoute: typeof CareerSkillsRoute
@@ -905,6 +918,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auto-news': {
+      id: '/auto-news'
+      path: '/auto-news'
+      fullPath: '/auto-news'
+      preLoaderRoute: typeof AutoNewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookmarks': {
@@ -1323,6 +1343,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiTutorRoute: AiTutorRoute,
   AiUsageRoute: AiUsageRoute,
   AuthRoute: AuthRoute,
+  AutoNewsRoute: AutoNewsRoute,
   BookmarksRoute: BookmarksRoute,
   CareerModeRoute: CareerModeRoute,
   CareerSkillsRoute: CareerSkillsRoute,
