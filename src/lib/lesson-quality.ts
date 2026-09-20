@@ -24,6 +24,12 @@ function sentences(value: string): string[] {
     .filter((part) => part.length > 0);
 }
 
+/** Quotes the opening of an offending sentence so it can be found and fixed. */
+function snippet(value: string): string {
+  const opening = value.trim().split(/\s+/).slice(0, 12).join(" ");
+  return `"${opening}…"`;
+}
+
 const normalise = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const words = (value: string) => value.trim().split(/\s+/).filter(Boolean).length;
 
@@ -61,8 +67,11 @@ export function lessonQualityIssues(topic: Topic, lesson: Lesson | undefined, de
 
   // Readability and cognitive load: long sentences bury the point.
   const bodySentences = sentences(allText);
-  if (bodySentences.some((sentence) => words(sentence) > MAX_SENTENCE_WORDS)) {
-    issues.push("a sentence is too long to follow in one pass");
+  const longBody = bodySentences.find((sentence) => words(sentence) > MAX_SENTENCE_WORDS);
+  if (longBody) {
+    issues.push(
+      `a sentence runs past ${MAX_SENTENCE_WORDS} words, so it is too long to follow in one pass — split it: ${snippet(longBody)}`,
+    );
   }
   if (bodySentences.length >= 3) {
     const average = bodySentences.reduce((sum, sentence) => sum + words(sentence), 0) / bodySentences.length;
@@ -99,8 +108,11 @@ export function deepLessonIssues(deep: DeepLesson): string[] {
   if (deep.sections.some((section) => section.paragraphs.some((paragraph) => words(paragraph) < 15))) {
     issues.push("a teaching paragraph is too short to teach anything");
   }
-  if (sentences(allText).some((sentence) => words(sentence) > MAX_SENTENCE_WORDS)) {
-    issues.push("a sentence is too long to follow in one pass");
+  const longSentence = sentences(allText).find((sentence) => words(sentence) > MAX_SENTENCE_WORDS);
+  if (longSentence) {
+    issues.push(
+      `a sentence runs past ${MAX_SENTENCE_WORDS} words, so it is too long to follow in one pass — split it: ${snippet(longSentence)}`,
+    );
   }
   if (deep.depth && deep.depth.misconceptions.some((row) => words(row.correction) < 5)) {
     issues.push("a misconception has no real correction");

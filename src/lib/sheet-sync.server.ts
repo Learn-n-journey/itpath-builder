@@ -60,6 +60,8 @@ export interface SheetSyncResult {
   ok: boolean;
   lessonsApproved?: number;
   lessonsRejected?: number;
+  /** Why each rejected lesson was held back, so it can be fixed in the sheet. */
+  lessonIssues?: Array<{ file: string; topic: string; reasons: string[] }>;
   skipped?: string;
   syncedAt?: string;
   topics?: number;
@@ -95,6 +97,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
   const report: Record<string, unknown>[] = [];
   let lessonsApproved = 0;
   let lessonsRejected = 0;
+  const lessonIssues: Array<{ file: string; topic: string; reasons: string[] }> = [];
 
   try {
     for (const { domain, folder, lessonFolder } of FOLDERS) {
@@ -236,10 +239,18 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
         const result = ownerLessonFromTabs(topic, tabs);
         if (!result.lesson) {
           report.push({ domain, folder: lessonFolder, file: file.name, topic: topic.title, skipped: result.error });
+          lessonIssues.push({
+            file: file.name,
+            topic: topic.title,
+            reasons: [result.error ?? "the workbook could not be read"],
+          });
           continue;
         }
 
         const rejected = Boolean(result.rejectReasons?.length);
+        if (rejected) {
+          lessonIssues.push({ file: file.name, topic: topic.title, reasons: result.rejectReasons ?? [] });
+        }
         // A rejected lesson never replaces a published one: only the rejection
         // is stored, with its reasons, so the last good lesson stays live.
         if (!rejected) {
@@ -299,6 +310,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
       rejected: rejectedTotal,
       lessonsApproved,
       lessonsRejected,
+      lessonIssues,
       report,
     };
   } catch (error) {
