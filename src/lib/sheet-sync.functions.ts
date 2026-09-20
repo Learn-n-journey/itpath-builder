@@ -12,19 +12,32 @@ import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type SyncNowReply =
-  | { ok: true; skipped?: string | undefined; topics: number; approved: number; rejected: number }
+  | {
+      ok: true;
+      skipped?: string | undefined;
+      topics: number;
+      approved: number;
+      rejected: number;
+      lessonsApproved: number;
+      lessonsRejected: number;
+    }
   | { ok: false; error: string };
+
+type SyncScope = "it-cybersecurity" | "auto-repair" | "all";
 
 export const syncNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<SyncNowReply> => {
+  .inputValidator((input: { scope?: SyncScope } | undefined) => ({
+    scope: (input?.scope ?? "all") as SyncScope,
+  }))
+  .handler(async ({ context, data }): Promise<SyncNowReply> => {
     const email = (context.claims as { email?: string } | null)?.email;
     if (!OWNER_EMAILS.includes((email ?? "").trim().toLowerCase())) {
       return { ok: false, error: "Not allowed." };
     }
 
     const { runSheetSync } = await import("@/lib/sheet-sync.server");
-    const result = await runSheetSync();
+    const result = await runSheetSync(data.scope === "all" ? {} : { domain: data.scope });
     if (!result.ok) return { ok: false, error: result.error ?? "The sync failed." };
     return {
       ok: true,
@@ -32,5 +45,7 @@ export const syncNow = createServerFn({ method: "POST" })
       topics: result.topics ?? 0,
       approved: result.approved ?? 0,
       rejected: result.rejected ?? 0,
+      lessonsApproved: result.lessonsApproved ?? 0,
+      lessonsRejected: result.lessonsRejected ?? 0,
     };
   });
