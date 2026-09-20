@@ -11,7 +11,7 @@
  * Env: TARGET (default 40), ROUNDS (default 2), CONCURRENCY (default 4)
  */
 import { aiQuestionSeeds, type AiQuestionSeed } from "@/data/ai-question-bank";
-import { getSectionQuizQuestions } from "@/data/topic-quizzes";
+import { getTopicQuestionPool } from "@/data/topic-quizzes";
 import { lessons, topics } from "@/data/static-content";
 import { getLearningModule } from "@/data/learning-content";
 import { questionIssues } from "@/lib/question-quality";
@@ -141,11 +141,13 @@ function tooSimilar(prompt: string, seen: Set<string>[]): boolean {
 
 async function topUp(topicId: string): Promise<AiQuestionSeed[]> {
   const topic = topics.find((item) => item.id === topicId)!;
-  const existing = getSectionQuizQuestions(topicId).map((question) => question.prompt);
+  const existing = getTopicQuestionPool(topicId).map((question) => question.prompt);
   if (existing.length >= TARGET) return [];
   const seenPrompts = new Set(existing.map(norm));
   const seenWords = existing.map(words);
   const accepted: AiQuestionSeed[] = [];
+  const rejected = new Map<string, number>();
+  const reject = (reason: string) => rejected.set(reason, (rejected.get(reason) ?? 0) + 1);
 
   for (let round = 0; round < ROUNDS && existing.length + accepted.length < TARGET; round += 1) {
     const need = TARGET - existing.length - accepted.length + 4;
@@ -173,12 +175,12 @@ async function topUp(topicId: string): Promise<AiQuestionSeed[]> {
       const answerIndex = Number(item["answerIndex"]);
       const explanation = String(item["explanation"] ?? "").trim();
       const category = String(item["mistakeCategory"] ?? "concept");
-      if (choices.length !== 4) continue;
-      if (!Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex > 3) continue;
+      if (choices.length !== 4) { reject("not four options"); continue; }
+      if (!Number.isInteger(answerIndex) || answerIndex < 0 || answerIndex > 3) { reject("bad answer index"); continue; }
       const answer = choices[answerIndex];
-      if (!answer) continue;
-      if (seenPrompts.has(norm(prompt))) continue;
-      if (tooSimilar(prompt, seenWords)) continue;
+      if (!answer) { reject("bad answer index"); continue; }
+      if (seenPrompts.has(norm(prompt))) { reject("duplicate"); continue; }
+      if (tooSimilar(prompt, seenWords)) { reject("too similar to an existing question"); continue; }
 
       const candidate: Question = {
         id: `question-ai-topup-${topicId}-${accepted.length}`,
@@ -195,7 +197,8 @@ async function topUp(topicId: string): Promise<AiQuestionSeed[]> {
         mistakeCategory: "concept",
         requiresReasoning: true,
       };
-      if (questionIssues(candidate).length > 0) continue;
+      const issues = questionIssues(candidate);
+      if (issues.length > 0) { for (const issue of issues) reject(issue); continue; }
 
       seenPrompts.add(norm(prompt));
       seenWords.push(words(prompt));
@@ -213,11 +216,13 @@ async function topUp(topicId: string): Promise<AiQuestionSeed[]> {
       });
     }
   }
-  console.log(`${topicId}: had ${existing.length}, added ${accepted.length}`);
+  const why = [...rejected].sort((a, b) => b[1] - a[1]).slice(0, 3).map(([reason, n]) => `${reason} x${n}`).join(", ");
+  console.log(`${topicId}: had ${existing.length}, added ${accepted.length}${why ? ` | rejected: ${why}` : ""}`);
   return accepted;
 }
 
-const queue = topics.map((topic) => topic.id);
+const only = (process.env["ONLY"] ?? "").split(",").map((value) => value.trim()).filter(Boolean);
+const queue = topics.map((topic) => topic.id).filter((id) => only.length === 0 || only.includes(id));
 const all: AiQuestionSeed[] = [...aiQuestionSeeds];
 
 async function worker(): Promise<void> {

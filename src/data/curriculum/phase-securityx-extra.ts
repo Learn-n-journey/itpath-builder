@@ -20,7 +20,7 @@ export const securityxExtraSeeds: TopicSeed[] = [
     lesson: {
       title: "The keys matter more than the algorithm",
       body: "A strong cipher protects nothing if the keys that unlock it are poorly generated, copied into a script, or never rotated. At enterprise scale, cryptography fails through key management, not through broken mathematics.",
-      definition: "Key management at scale is the set of processes and systems that generate, store, distribute, rotate, escrow, and destroy cryptographic keys across many applications, teams, and environments. It includes hardware security modules for root key protection, cloud key management services for application-level keys, defined key lifecycles with rotation and expiry, separation of duties between key custodians, and cryptographic agility so algorithms and key lengths can be replaced without rebuilding systems.",
+      definition: "Key management at scale is the set of processes and systems that generate, store, distribute, rotate, escrow, and destroy cryptographic keys across many applications, teams, and environments. It covers hardware security modules for root key protection and cloud key management services for application-level keys. Key lifecycles define rotation and expiry, and separation of duties splits control between key custodians. Cryptographic agility lets algorithms and key lengths be replaced without rebuilding systems.",
       whyItMatters: "A leaked signing key, a certificate authority private key stored on a shared drive, or an algorithm quietly deprecated years ago can undermine every system that trusted it. Recovering from a key compromise touches every application that used the key, so the blast radius of a key management failure is far larger than the blast radius of a single application bug.",
       keyTerms: [
         ["Hardware security module", "A tamper-resistant device that generates and protects private keys, never exposing them in plaintext."],
@@ -37,7 +37,7 @@ export const securityxExtraSeeds: TopicSeed[] = [
         "Encrypting data does not protect it if the key sits next to the ciphertext or is checked into source control.",
         "A longer key length does not fix a system that never rotates keys or has no plan for revocation.",
       ],
-      summary: "Protect keys with hardware or managed services rather than application code, define a full lifecycle with rotation and destruction, separate duties over who can access which keys, and build cryptographic agility so a compromised or deprecated algorithm can be replaced without a rebuild.",
+      summary: "Protect keys with hardware or managed services rather than application code. Define a full lifecycle with rotation and destruction, and separate duties over who can reach which keys. Build in cryptographic agility, so a compromised or deprecated algorithm can be replaced without a rebuild.",
       nextSteps: [
         "List every private key in your environment and where it is stored today.",
         "Write the exact steps to rotate a compromised code-signing key across every dependent system.",
