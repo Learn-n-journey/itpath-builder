@@ -277,6 +277,24 @@ export type Database = {
         }
         Relationships: []
       }
+      course_maintenance: {
+        Row: {
+          domain: string
+          enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          domain: string
+          enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          domain?: string
+          enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       job_locks: {
         Row: {
           job: string
