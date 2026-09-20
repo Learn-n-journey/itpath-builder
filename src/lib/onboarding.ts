@@ -2,8 +2,22 @@
  * First-launch onboarding state. Kept on the device only: it decides whether a
  * learner still needs the guided tour and the quick setup panel in Settings.
  */
-const TOUR_KEY = "itpath.onboarding.tour.v1";
-const SETUP_KEY = "itpath.onboarding.setup.v1";
+import { activeDomainKey } from "@/domain/active";
+
+const LEGACY_TOUR_KEY = "itpath.onboarding.tour.v1";
+const LEGACY_SETUP_KEY = "itpath.onboarding.setup.v1";
+
+function subjectId(): string {
+  return activeDomainKey.split("@")[0] ?? "it-cybersecurity";
+}
+
+function tourKey(): string {
+  return `itpath.onboarding.${subjectId()}.tour.v2`;
+}
+
+function setupKey(): string {
+  return `itpath.onboarding.${subjectId()}.setup.v2`;
+}
 
 function read(key: string): string | null {
   try {
@@ -22,30 +36,36 @@ function write(key: string, value: string) {
 }
 
 export function tourSeen(): boolean {
-  return read(TOUR_KEY) === "done";
+  const current = read(tourKey());
+  if (current === "done") return true;
+  return subjectId() === "it-cybersecurity" && read(LEGACY_TOUR_KEY) === "done";
 }
 
 export function markTourSeen() {
-  write(TOUR_KEY, "done");
+  write(tourKey(), "done");
 }
 
 export function restartTour() {
   try {
-    localStorage.removeItem(TOUR_KEY);
+    localStorage.removeItem(tourKey());
+    if (subjectId() === "it-cybersecurity") localStorage.removeItem(LEGACY_TOUR_KEY);
   } catch {
     /* storage unavailable */
   }
-  write(SETUP_KEY, "pending");
+  write(setupKey(), "pending");
 }
 
 export function setupPending(): boolean {
-  return read(SETUP_KEY) === "pending";
+  const current = read(setupKey());
+  if (current === "pending") return true;
+  return subjectId() === "it-cybersecurity" && read(LEGACY_SETUP_KEY) === "pending";
 }
 
 export function markSetupPending() {
-  write(SETUP_KEY, "pending");
+  write(setupKey(), "pending");
 }
 
 export function markSetupDone() {
-  write(SETUP_KEY, "done");
+  write(setupKey(), "done");
+  if (subjectId() === "it-cybersecurity") write(LEGACY_SETUP_KEY, "done");
 }

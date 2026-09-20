@@ -1,5 +1,8 @@
 # Roadmap
 
+- [x] Neutral main entrance for choosing IT PATH or AUTO PATH; neither course dashboard is the home page.
+- [x] Separate first-launch onboarding state and AUTO PATH wording for the automotive course.
+
 Confirmed by user ("Confirm" = all eight functionality improvements):
 
 - [x] 1. Resume card on the dashboard (one tap back into last activity)

@@ -66,7 +66,7 @@ export interface NavItem {
 const allNavItems: NavItem[] = [
   {
     label: "Dashboard",
-    to: "/",
+    to: "/dashboard",
     icon: LayoutDashboard,
     group: "Study",
     description: "Your progress at a glance and what to do today.",
