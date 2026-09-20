@@ -36,6 +36,7 @@ Rules:
 - No "all of the above", "none of the above", no negative or "except" wording, no absolutes (always, never, all, no).
 - Never mention the section, lesson, module, course, objective or exam. Ask about the technical evidence or the decision.
 - Test application, distinction, diagnosis or evidence based reasoning, not recognition of a heading.
+- Keep subsystems distinct. Never claim that evidence about one subsystem (power delivery, cooling, processing, memory, storage, networking) proves, establishes or guarantees the condition of another, and never write options declaring two subsystems equivalent or interchangeable. Relate subsystems only through real cause and effect stated in the supplied material.
 - Give one short explanation of why the answer is right, teaching the reason rather than repeating the answer.`;
 
 const SCHEMA = {

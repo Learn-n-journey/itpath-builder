@@ -17,6 +17,7 @@ Rules:
 - Wrong options must be plausible, same subject area, similar length and style. No joke or obviously silly options.
 - Questions must read as a complete, sensible question a tutor would ask.
 - Mix recall, applied judgement and first troubleshooting step.
+- Keep subsystems distinct. Never claim that evidence about one subsystem (power delivery, cooling, processing, memory, storage, networking) proves, establishes or guarantees the condition of another, and never write options declaring two subsystems equivalent or interchangeable.
 Return JSON only: {"questions":[{"prompt":"","choices":["","","",""],"answerIndex":0,"explanation":"","mistakeCategory":"concept|terminology|diagnosis|procedure"}]}`;
 
 function context(topicId: string): string {

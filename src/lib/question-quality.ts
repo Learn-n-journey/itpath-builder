@@ -53,6 +53,30 @@ const GENERIC_PROMPT_PATTERNS: RegExp[] = [
   /why does .{2,80} matter in day to day work/i,
 ];
 
+/**
+ * Distinct subsystems a machine is made of. A fair question can describe real
+ * cause and effect between two of them ("a failed fan lets the CPU overheat"),
+ * but it never declares two subsystems equivalent or interchangeable, and it
+ * never claims that evidence about one proves the condition of another
+ * ("adequate voltages prove heat-management needs are met"). That wording is
+ * the signature of generated nonsense, so it is retired for good.
+ */
+const SUBSYSTEM_TERMS: RegExp[] = [
+  /\b(?:power|voltage|voltages|vrm|psu|wattage|electrical|electricity)\b/i,
+  /\b(?:heat|thermal|cooling|cooler|heatsink|heat sink|fan)\b/i,
+  /\b(?:cpu|processor|processing|instruction|instructions|execution|clock speed)\b/i,
+  /\b(?:ram|memory|dimm|working memory)\b/i,
+  /\b(?:storage|drive|disk|ssd|hdd|file retention|file space|file storage|drive space|capacity|capacities)\b/i,
+  /\b(?:network|bandwidth|latency|packet|packets|throughput)\b/i,
+];
+
+const EQUIVALENT_ROLES = /\b(?:equivalent|interchangeable|identical|the same)\s+(?:roles?|purposes?|functions?|jobs?)\b/i;
+const PROVES_OTHER = /\b(?:prove|proves|proven|establish|establishes|guarantee|guarantees)\b/i;
+
+function subsystemCount(text: string): number {
+  return SUBSYSTEM_TERMS.filter((pattern) => pattern.test(text)).length;
+}
+
 const TRICK_PROMPT = /\b(?:which|what) .{0,90}\b(?:not|except|least likely)\b|\ball except\b/i;
 const VAGUE_REFERENCE = /^\s*(?:in (?:this|that) (?:case|situation|scenario)|given (?:this|that)|based on (?:this|that))\b/i;
 
@@ -194,6 +218,15 @@ export function questionIssues(question: Question): string[] {
   if (choices.some((choice) => norm(choice) === norm(prompt))) issues.push("an option repeats the question");
   if (choices.some((choice) => /\b(?:obviously|clearly|definitely|certainly)\b/i.test(choice))) {
     issues.push("an option uses giveaway certainty language");
+  }
+  if (EQUIVALENT_ROLES.test(prompt) || choices.some((choice) => EQUIVALENT_ROLES.test(choice))) {
+    issues.push("declares distinct subsystems equivalent or interchangeable instead of testing a real relationship");
+  }
+  if (subsystemCount(prompt) >= 2 && PROVES_OTHER.test(prompt)) {
+    issues.push("claims evidence about one subsystem proves the condition of another");
+  }
+  if (choices.some((choice) => subsystemCount(choice) >= 2 && PROVES_OTHER.test(choice))) {
+    issues.push("an option claims one subsystem establishes the condition of another");
   }
 
   // Semantic/Grammatical consistency checks

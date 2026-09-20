@@ -54,6 +54,7 @@ Rules:
 - Never mention the section name, lesson, module, course, learning objective or what the exam expects. Ask about the actual technical evidence or decision.
 - Do not invent a colleague, new starter or customer merely to ask for a definition.
 - Mix recall, applied judgement and first troubleshooting step.
+- Keep subsystems distinct. Never claim that evidence about one subsystem (power delivery, cooling, processing, memory, storage, networking) proves, establishes or guarantees the condition of another, and never write options declaring two subsystems equivalent or interchangeable. Relate subsystems only through real cause and effect stated in the supplied material.
 - Write one short explanation of why the answer is right.
 Answer choices must match the question type: Term questions must have short term choices; Action questions must have action choices; Why/How questions must have complete explanation choices. Return JSON only: {"questions":[{"prompt":"","choices":["","","",""],"answerIndex":0,"explanation":"","mistakeCategory":"concept|terminology|diagnosis|procedure"}]}`;
 

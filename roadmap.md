@@ -99,3 +99,6 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Replace the AUTO PATH logo everywhere with the owner's uploaded version (About page asset + dashboard logo when the auto course is active)
 - [x] Car-themed match-3 puzzle game (Garage Match): automotive part tiles, repair-job levels, vehicle restoration, special combos (battery surge, engine blast), knowledge challenges, car/garage unlocks and customization, unlimited procedurally generated levels
 - [x] Add small-print verified sources to every IT PATH and AUTO PATH lesson, with automated coverage protection.
+- [x] Retire blended-subsystem AI questions ("voltages prove heat needs are met" family): deterministic guard in question-quality, generator prompts updated, bank pruned
+- [x] Answer: can we use an AI trained in quiz question creation?
+- [x] Filter blended-subsystem questions at runtime before they reach the user (usableQuestions gate)
