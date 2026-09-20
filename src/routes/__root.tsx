@@ -161,10 +161,7 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient, subjectPending } = Route.useRouteContext();
-  // On a non-default course the page waits one beat for the browser, rather
-  // than showing the default course's material and then swapping it out.
-  const [ready, setReady] = useState(!subjectPending);
+  const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
     // Keep the cookie in step with a choice made before the cookie existed.
@@ -172,16 +169,7 @@ function RootComponent() {
     const cookie = readSubjectCookie();
     const wanted = stored && stored !== ACTIVE_PACKAGE ? stored : null;
     if (wanted !== cookie) writeSubjectCookie(wanted);
-    setReady(true);
   }, []);
-
-  if (!ready) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <p className="text-sm text-muted-foreground">Loading your course…</p>
-      </div>
-    );
-  }
 
   return (
     <QueryClientProvider client={queryClient}>

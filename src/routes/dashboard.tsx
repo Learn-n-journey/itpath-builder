@@ -53,7 +53,7 @@ export const Route = createFileRoute("/dashboard")({
       {
         name: "description",
         content:
-          "Your IT PATH dashboard: overall progress, today's tasks, study time, streak and readiness.",
+          "Your learning dashboard: overall progress, today's tasks, study time, streak and readiness.",
       },
       { property: "og:title", content: "Dashboard | Your Learning Path" },
       {
@@ -199,8 +199,8 @@ function Dashboard() {
   const { user, hydrated } = useAppState();
   const { firstName } = useProfile();
 
-  // The subject choice lives in browser storage, so the server always paints
-  // the default logo first; this swaps it before the user can notice.
+  // The subject choice lives in browser storage, so the matching course logo
+  // is selected as soon as the dashboard hydrates.
   const [logo, setLogo] = useState({ src: "/icons/icon-256.png", alt: "IT PATH logo, a mountain path with circuit traces" });
   useEffect(() => {
     if (activeDomainKey.split("@")[0] === "auto-repair") {
