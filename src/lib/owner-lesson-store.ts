@@ -7,12 +7,17 @@
  * A topic the live load has nothing for keeps its snapshot lesson, so a lesson
  * never silently disappears.
  */
-import { ownerLessons as snapshot, ownerLessonSources as snapshotSources } from "@/data/owner-lessons";
+import {
+  ownerLessons as snapshot,
+  ownerLessonPractice as snapshotPractice,
+  ownerLessonSources as snapshotSources,
+} from "@/data/owner-lessons";
 import type { DeepLesson } from "@/data/deep-lessons/types";
-import type { Resource } from "@/lib/app-data/types";
+import type { PracticeActivity, Resource } from "@/lib/app-data/types";
 
 let liveLessons: Record<string, DeepLesson> | null = null;
 let liveSources: Record<string, Resource[]> | null = null;
+let livePractice: Record<string, PracticeActivity[]> | null = null;
 let version = 0;
 let loading: Promise<boolean> | null = null;
 

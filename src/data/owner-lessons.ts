@@ -6,8 +6,10 @@
  * rewritten by the sync tooling and is empty until the first export.
  */
 import type { DeepLesson } from "@/data/deep-lessons/types";
-import type { Resource } from "@/lib/app-data/types";
+import type { PracticeActivity, Resource } from "@/lib/app-data/types";
 
 export const ownerLessons: Record<string, DeepLesson> = {};
 
 export const ownerLessonSources: Record<string, Resource[]> = {};
+
+export const ownerLessonPractice: Record<string, PracticeActivity[]> = {};
