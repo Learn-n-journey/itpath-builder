@@ -274,6 +274,22 @@ const allNavItems: NavItem[] = [
     description: "A scrolling feed of technology videos, played in each platform's own player.",
   },
   {
+    label: "Auto News",
+    to: "/auto-news",
+    icon: Newspaper,
+    group: "Connect",
+    description: "A live feed of automotive headlines for working and future technicians.",
+    subjects: ["auto-repair"],
+  },
+  {
+    label: "Auto Videos",
+    to: "/auto-videos",
+    icon: Video,
+    group: "Connect",
+    description: "A scrolling feed of repair and diagnostic videos, played in each creator's own player.",
+    subjects: ["auto-repair"],
+  },
+  {
     label: "Community",
     to: "/community",
     icon: MessagesSquare,

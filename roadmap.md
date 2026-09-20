@@ -91,3 +91,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Apply real-world lesson-writing standards to lessons, in original wording only (no copied text)
 - [x] Confirm no lesson or question text matches other written work before publishing
 - [x] Finish widening thin question pools (every section now 26+ questions, median 36)
+- [x] Auto News and Auto Videos endless-scrolling feeds for the auto repair course (auto-only nav items, automotive outlets + technician communities, automotive creator channels)
