@@ -14,9 +14,20 @@ let live: Record<string, Question[]> | null = null;
 let version = 0;
 let loading: Promise<boolean> | null = null;
 
-/** Live owner questions when loaded, otherwise the build-time snapshot. */
+/**
+ * Live owner questions when loaded, otherwise the build-time snapshot.
+ *
+ * A topic the snapshot covers never falls back to generated questions just
+ * because the live load returned nothing for it: the snapshot rows stand in
+ * until a live load actually brings questions for that topic.
+ */
 export function ownerQuestionMap(): Record<string, Question[]> {
-  return live ?? snapshot;
+  if (!live) return snapshot;
+  const merged: Record<string, Question[]> = { ...live };
+  for (const [topicId, list] of Object.entries(snapshot)) {
+    if (!merged[topicId]?.length && list.length) merged[topicId] = list;
+  }
+  return merged;
 }
 
 /** The owner questions for one topic, when that topic has any. */
