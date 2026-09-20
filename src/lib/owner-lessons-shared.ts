@@ -169,10 +169,10 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
   };
 
   const sources: Resource[] = body(tabs, "Sources")
-    .map((row, index) => {
+    .map((row, index): Resource | null => {
       const label = cell(row, 0);
       const url = cell(row, 1);
-      const kind = key(cell(row, 2)) === "video" ? "video" : "article";
+      const kind: Resource["kind"] = key(cell(row, 2)) === "video" ? "video" : "article";
       if (!url || !/^https?:\/\//i.test(url)) return null;
       return {
         id: `resource-owner-${topic.topicId}-${index + 1}`,
@@ -182,11 +182,11 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
         topicIds: [topic.topicId],
         certificationId: topic.certificationId,
         kind,
-        difficulty: "intermediate",
+        difficulty: "standard",
         access: "free",
         lastVerified: new Date().toISOString().slice(0, 10),
         status: "verified",
-      } satisfies Resource;
+      };
     })
     .filter((item): item is Resource => item !== null);
 
