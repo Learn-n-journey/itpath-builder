@@ -181,6 +181,9 @@ function TopicPage() {
       <TopicLearningExperience topic={topic} />
 
       <div className="mt-4">
+        <ObdPracticePanel topicId={topic.id} topicTitle={topic.title} />
+
+      <div className="mt-4">
         <Panel
           title="Section quiz"
           description="Twenty questions on this section alone, part multiple choice and part written in your own words. Eighty percent is a pass."

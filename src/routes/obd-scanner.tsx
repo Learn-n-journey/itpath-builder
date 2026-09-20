@@ -23,6 +23,10 @@ export const Route = createFileRoute("/obd-scanner")({
     ],
   }),
   staticData: { sitemap: false },
+  validateSearch: (search: Record<string, unknown>) => {
+    const scenario = typeof search["scenario"] === "string" ? search["scenario"] : undefined;
+    return scenario && obdScenarios.some((item) => item.id === scenario) ? { scenario } : {};
+  },
   component: ObdScannerPage,
 });
 
