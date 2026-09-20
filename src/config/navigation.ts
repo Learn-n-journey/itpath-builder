@@ -191,6 +191,14 @@ const allNavItems: NavItem[] = [
     subjects: ["auto-repair"],
   },
   {
+    label: "Explore the Engine",
+    to: "/explore-engine",
+    icon: Wrench,
+    group: "Practice",
+    description: "Tap through photos of an engine bay, a sectioned engine, alternator, starter, radiator, battery, brakes and spark plug.",
+    subjects: ["auto-repair"],
+  },
+  {
     label: "Virtual Engine",
     to: "/engine-simulator",
     icon: Cog,
