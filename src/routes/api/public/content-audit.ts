@@ -71,7 +71,7 @@ export const Route = createFileRoute("/api/public/content-audit")({
           warnings += packWarnings.length;
 
           await supabaseAdmin.from("content_audit_runs").insert({
-            pack: `${label}@${packageKey(pkg as never) ?? "unknown"}`,
+            pack: pkg.manifest.key,
             duration_ms: Date.now() - startedAt,
             blocking: packBlocking.length,
             warnings: packWarnings.length,
@@ -79,7 +79,7 @@ export const Route = createFileRoute("/api/public/content-audit")({
           });
 
           results.push({
-            pack: label,
+            pack: pkg.manifest.key,
             blocking: packBlocking.length,
             warnings: packWarnings.length,
             durationMs: Date.now() - startedAt,
