@@ -51426,8 +51426,36 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
   }
 ] as AiQuestionSeed[];
 
-export const aiQuestions: Question[] = aiQuestionSeeds.map((seed, index) => ({
-  id: `question-ai-${index + 1}`,
+/**
+ * Stable id derived from the question text itself.
+ *
+ * Index based ids shifted every time this file was regenerated, so a saved
+ * attempt could show one question's prompt above another question's answers.
+ */
+function stableId(seed: AiQuestionSeed): string {
+  const text = `${seed.topicId}|${seed.prompt}|${seed.choices.join("|")}`;
+  let hash = 2166136261;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+const usedIds = new Set<string>();
+
+export const aiQuestions: Question[] = aiQuestionSeeds.map((seed) => ({
+  id: (() => {
+    const base = `question-ai-${stableId(seed)}`;
+    let id = base;
+    let suffix = 2;
+    while (usedIds.has(id)) {
+      id = `${base}-${suffix}`;
+      suffix += 1;
+    }
+    usedIds.add(id);
+    return id;
+  })(),
   topicId: seed.topicId,
   quizId: "quiz-generated-bank",
   certificationId: seed.certificationId,
