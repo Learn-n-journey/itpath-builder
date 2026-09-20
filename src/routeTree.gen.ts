@@ -76,6 +76,7 @@ import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
 import { Route as TracksIndexRouteImport } from './routes/tracks.index'
 import { Route as TracksSlugRouteImport } from './routes/tracks.$slug'
+import { Route as ApiPublicContentAuditRouteImport } from './routes/api/public/content-audit'
 import { Route as ApiPublicLinkCheckRouteImport } from './routes/api/public/link-check'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
@@ -414,6 +415,11 @@ const TracksSlugRoute = TracksSlugRouteImport.update({
   path: '/tracks/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicContentAuditRoute = ApiPublicContentAuditRouteImport.update({
+  id: '/api/public/content-audit',
+  path: '/api/public/content-audit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicLinkCheckRoute = ApiPublicLinkCheckRouteImport.update({
   id: '/api/public/link-check',
   path: '/api/public/link-check',
@@ -494,6 +500,7 @@ export interface FileRoutesByFullPath {
   '/guides/': typeof GuidesIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/tracks/': typeof TracksIndexRoute
+  '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -565,6 +572,7 @@ export interface FileRoutesByTo {
   '/guides': typeof GuidesIndexRoute
   '/topics': typeof TopicsIndexRoute
   '/tracks': typeof TracksIndexRoute
+  '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -637,6 +645,7 @@ export interface FileRoutesById {
   '/guides/': typeof GuidesIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/tracks/': typeof TracksIndexRoute
+  '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
@@ -710,6 +719,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/topics/'
     | '/tracks/'
+    | '/api/public/content-audit'
     | '/api/public/link-check'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -781,6 +791,7 @@ export interface FileRouteTypes {
     | '/guides'
     | '/topics'
     | '/tracks'
+    | '/api/public/content-audit'
     | '/api/public/link-check'
     | '/api/public/payments/webhook'
   id:
@@ -852,6 +863,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/topics/'
     | '/tracks/'
+    | '/api/public/content-audit'
     | '/api/public/link-check'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
@@ -924,6 +936,7 @@ export interface RootRouteChildren {
   GuidesIndexRoute: typeof GuidesIndexRoute
   TopicsIndexRoute: typeof TopicsIndexRoute
   TracksIndexRoute: typeof TracksIndexRoute
+  ApiPublicContentAuditRoute: typeof ApiPublicContentAuditRoute
   ApiPublicLinkCheckRoute: typeof ApiPublicLinkCheckRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
@@ -1399,6 +1412,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TracksSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/content-audit': {
+      id: '/api/public/content-audit'
+      path: '/api/public/content-audit'
+      fullPath: '/api/public/content-audit'
+      preLoaderRoute: typeof ApiPublicContentAuditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/link-check': {
       id: '/api/public/link-check'
       path: '/api/public/link-check'
@@ -1484,6 +1504,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesIndexRoute: GuidesIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
   TracksIndexRoute: TracksIndexRoute,
+  ApiPublicContentAuditRoute: ApiPublicContentAuditRoute,
   ApiPublicLinkCheckRoute: ApiPublicLinkCheckRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
