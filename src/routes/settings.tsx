@@ -485,6 +485,16 @@ function SettingsPage() {
       {isOwner ? (
         <Panel
           className="mt-4"
+          title="Maintenance screen"
+          description="Close a course while you work on it. Visitors see a short maintenance notice instead; you always keep full access."
+        >
+          <MaintenancePanel />
+        </Panel>
+      ) : null}
+
+      {isOwner ? (
+        <Panel
+          className="mt-4"
           title="System diagnostics"
           description="Runs live checks against this browser session. Results are measured, not assumed."
         >
