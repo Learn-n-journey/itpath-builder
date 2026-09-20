@@ -107,9 +107,15 @@ function SpreadsheetSyncPanel() {
           `${result.topics} topic${result.topics === 1 ? "" : "s"} · ` +
           `${result.approved} questions in, ${result.rejected} rejected · ` +
           `${result.lessonsApproved} lesson${result.lessonsApproved === 1 ? "" : "s"} published, ` +
-          `${result.lessonsRejected} rejected`;
+          `${result.lessonsRejected} with notes`;
+        const held = (result.lessonIssues ?? [])
+          .map((item) => `${item.file} (${item.topic}): ${item.reasons.join("; ")}`)
+          .join("\n");
         toast.success(`${label} synced: ${summary}`);
-        setLastRun(`Last sync: ${new Date().toLocaleTimeString()} — ${label}: ${summary}`);
+        setLastRun(
+          `Last sync: ${new Date().toLocaleTimeString()} — ${label}: ${summary}` +
+            (held ? `\nPublished with notes:\n${held}` : ""),
+        );
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "The sync failed.";
@@ -133,7 +139,7 @@ function SpreadsheetSyncPanel() {
           {busy === "all" ? "Syncing…" : "Sync everything"}
         </Button>
       </div>
-      <p className="mt-3 text-sm text-muted-foreground">
+      <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
         {lastRun ??
           "Reads the itpath, itpath lessons, autopath and autopath lessons folders in OneDrive. The nightly pull happens on its own."}
       </p>

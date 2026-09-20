@@ -703,11 +703,19 @@ function buildPool(topicId: string): PoolItem[] {
   return items.filter((item) => usableQuestions([item.question]).length === 1);
 }
 
-const authoredByTopic = new Map<string, Question[]>();
-for (const item of usableQuestions([...authoredQuestions, ...generatedQuestions])) {
-  const list = authoredByTopic.get(item.topicId) ?? [];
-  list.push(item);
-  authoredByTopic.set(item.topicId, list);
+let authoredByTopicCache: Map<string, Question[]> | null = null;
+
+/** Grouped on first use, not at import: nothing pays for it until a quiz opens. */
+function authoredByTopic(): Map<string, Question[]> {
+  if (authoredByTopicCache) return authoredByTopicCache;
+  const map = new Map<string, Question[]>();
+  for (const item of usableQuestions([...authoredQuestions, ...generatedQuestions()])) {
+    const list = map.get(item.topicId) ?? [];
+    list.push(item);
+    map.set(item.topicId, list);
+  }
+  authoredByTopicCache = map;
+  return map;
 }
 
 const poolCache = new Map<string, { version: number; items: PoolItem[] }>();
@@ -716,7 +724,7 @@ function topicPool(topicId: string): PoolItem[] {
   const version = ownerPoolVersion();
   const cached = poolCache.get(topicId);
   if (cached && cached.version === version) return cached.items;
-  const authored: PoolItem[] = (authoredByTopic.get(topicId) ?? []).map((item) => ({
+  const authored: PoolItem[] = (authoredByTopic().get(topicId) ?? []).map((item) => ({
     question: item,
     kind: "authored",
     // The idea comes from what the question asks, not from the answer text.

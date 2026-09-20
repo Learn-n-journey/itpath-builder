@@ -10,7 +10,7 @@
 import { lessons, topics } from "@/data/static-content";
 import { learningModules, practiceActivities } from "@/data/learning-content";
 import { aiQuestions } from "@/data/ai-question-bank";
-import { ownerTopicIds, ownerQuestionMap } from "@/lib/owner-question-store";
+import { ownerTopicIds, ownerQuestionMap, ownerPoolVersion } from "@/lib/owner-question-store";
 import { usableQuestions } from "@/lib/question-quality";
 import type { Difficulty, MistakeCategory, Question } from "@/lib/app-data/types";
 
@@ -174,15 +174,25 @@ function build(): Question[] {
     }
   }
 
-  // A topic the owner has written a spreadsheet for uses those questions and
-  // nothing else — everywhere, not just in the topic's own quizzes. Anything
-  // generated for that topic is dropped here so certification quizzes, the
-  // daily challenge and review screens cannot serve the old questions either.
-  const ownerTopics = ownerTopicIds();
-  return usableQuestions([...out, ...aiQuestions].filter((q) => !ownerTopics.has(q.topicId)));
+  return usableQuestions([...out, ...aiQuestions]);
 }
 
-export const generatedQuestions: Question[] = build();
+let generatedCache: Question[] | null = null;
+
+/**
+ * The generated bank, built once on first read rather than at import time:
+ * screens that never ask for questions no longer pay for filtering the whole
+ * bank while the page is loading.
+ *
+ * A topic the owner has written a spreadsheet for uses those questions and
+ * nothing else — everywhere, not just in the topic's own quizzes. Anything
+ * generated for that topic is dropped by the readers below, so certification
+ * quizzes, the daily challenge and review screens cannot serve old questions.
+ */
+export function generatedQuestions(): Question[] {
+  if (!generatedCache) generatedCache = build();
+  return generatedCache;
+}
 
 /**
  * The question bank as it stands right now: the build-time generated bank
@@ -190,12 +200,23 @@ export const generatedQuestions: Question[] = build();
  * spreadsheet questions. Read fresh at each call so new spreadsheet rows
  * appear as soon as the store loads.
  */
+let bankCache: { version: number; items: Question[] } | null = null;
+
 export function bankQuestions(): Question[] {
+  // Held between calls and thrown away the moment new spreadsheet rows land,
+  // so repeated screen reads do not re-filter thousands of questions.
+  const version = ownerPoolVersion();
+  if (bankCache && bankCache.version === version) return bankCache.items;
   const ownerTopics = ownerTopicIds();
   const ownerLists = Object.entries(ownerQuestionMap())
     .filter(([topicId]) => ownerTopics.has(topicId))
     .flatMap(([, list]) => list);
-  return [...usableQuestions(ownerLists), ...generatedQuestions.filter((q) => !ownerTopics.has(q.topicId))];
+  const items = [
+    ...usableQuestions(ownerLists),
+    ...generatedQuestions().filter((q) => !ownerTopics.has(q.topicId)),
+  ];
+  bankCache = { version, items };
+  return items;
 }
 
 export function questionsForCertification(certificationId: string): Question[] {

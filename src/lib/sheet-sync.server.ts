@@ -60,6 +60,8 @@ export interface SheetSyncResult {
   ok: boolean;
   lessonsApproved?: number;
   lessonsRejected?: number;
+  /** Why each rejected lesson was held back, so it can be fixed in the sheet. */
+  lessonIssues?: Array<{ file: string; topic: string; reasons: string[] }>;
   skipped?: string;
   syncedAt?: string;
   topics?: number;
@@ -95,6 +97,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
   const report: Record<string, unknown>[] = [];
   let lessonsApproved = 0;
   let lessonsRejected = 0;
+  const lessonIssues: Array<{ file: string; topic: string; reasons: string[] }> = [];
 
   try {
     for (const { domain, folder, lessonFolder } of FOLDERS) {
@@ -236,26 +239,26 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
         const result = ownerLessonFromTabs(topic, tabs);
         if (!result.lesson) {
           report.push({ domain, folder: lessonFolder, file: file.name, topic: topic.title, skipped: result.error });
+          lessonIssues.push({
+            file: file.name,
+            topic: topic.title,
+            reasons: [result.error ?? "the workbook could not be read"],
+          });
           continue;
         }
 
-        const rejected = Boolean(result.rejectReasons?.length);
-        // A rejected lesson never replaces a published one: only the rejection
-        // is stored, with its reasons, so the last good lesson stays live.
-        if (!rejected) {
-          await supabaseAdmin
-            .from("owner_lessons")
-            .delete()
-            .eq("domain", domain)
-            .eq("topic_id", topic.topicId);
-        } else {
-          await supabaseAdmin
-            .from("owner_lessons")
-            .delete()
-            .eq("domain", domain)
-            .eq("topic_id", topic.topicId)
-            .eq("status", "rejected");
+        // The owner verifies their own lessons, so a lesson the workbook can
+        // be read from always goes live. Anything the automatic checks flag is
+        // kept as a note beside it, never as a block.
+        const notes = result.rejectReasons ?? [];
+        if (notes.length) {
+          lessonIssues.push({ file: file.name, topic: topic.title, reasons: notes });
         }
+        await supabaseAdmin
+          .from("owner_lessons")
+          .delete()
+          .eq("domain", domain)
+          .eq("topic_id", topic.topicId);
 
         const { error } = await supabaseAdmin.from("owner_lessons").insert({
           domain,
@@ -263,21 +266,20 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
           source_file: file.name,
           lesson: result.lesson as unknown as Json,
           sources: result.sources as unknown as Json,
-          status: rejected ? "rejected" : "approved",
-          reject_reasons: result.rejectReasons ?? [],
+          status: "approved",
+          reject_reasons: notes,
         });
         if (error) throw new Error(`storing lesson ${file.name}: ${error.message}`);
 
-        if (rejected) lessonsRejected += 1;
-        else lessonsApproved += 1;
+        lessonsApproved += 1;
         topicsSynced.add(topic.topicId);
         report.push({
           domain,
           folder: lessonFolder,
           file: file.name,
           topic: topic.title,
-          lesson: rejected ? "rejected" : "published",
-          reasons: result.rejectReasons ?? [],
+          lesson: "published",
+          notes,
         });
       }
     }
@@ -299,6 +301,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
       rejected: rejectedTotal,
       lessonsApproved,
       lessonsRejected,
+      lessonIssues,
       report,
     };
   } catch (error) {
