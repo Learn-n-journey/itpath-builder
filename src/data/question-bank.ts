@@ -10,6 +10,7 @@
 import { lessons, topics } from "@/data/static-content";
 import { learningModules, practiceActivities } from "@/data/learning-content";
 import { aiQuestions } from "@/data/ai-question-bank";
+import { ownerQuestions } from "@/data/owner-questions";
 import { usableQuestions } from "@/lib/question-quality";
 import type { Difficulty, MistakeCategory, Question } from "@/lib/app-data/types";
 
