@@ -127,3 +127,4 @@ Done when: typecheck + build clean, features verified in browser.
 
 - [ ] Spreadsheet-written lessons: "itpath lessons" / "autopath lessons" folders, numbered per topic, quality-gated, override AI lessons; per-course sync buttons
 - [x] Spreadsheet-written lessons: itpath lessons / autopath lessons folders, quality-gated, override built-in lessons; per-course sync buttons
+- [x] Shorten all AUTO PATH branding text and metadata to the course name only; keep all features unchanged.

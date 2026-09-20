@@ -1,4 +1,4 @@
-# ASE Master Mechanic Simulator 3.4.0
+# AUTO PATH 3.4.0
 
 An interactive diagnostic training platform designed to teach practical, hands-on automotive repair through simulated real-world service orders.
 
