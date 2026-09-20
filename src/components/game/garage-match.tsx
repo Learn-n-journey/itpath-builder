@@ -652,6 +652,38 @@ export function GarageMatch() {
     [handleSwap, sync],
   );
 
+  // Drag / swipe: press a tile and push toward a neighbour to swap. Works with
+  // mouse and touch; tap-tap selection above still works alongside it.
+  const dragRef = useRef<{ r: number; c: number; x: number; y: number; fired: boolean } | null>(null);
+
+  const onTilePointerDown = useCallback((r: number, c: number, e: React.PointerEvent) => {
+    if (busyRef.current || finishedRef.current) return;
+    dragRef.current = { r, c, x: e.clientX, y: e.clientY, fired: false };
+  }, []);
+
+  const onTilePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      const drag = dragRef.current;
+      if (!drag || drag.fired || busyRef.current || finishedRef.current) return;
+      const dx = e.clientX - drag.x;
+      const dy = e.clientY - drag.y;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 22) return;
+      drag.fired = true;
+      const [dr, dc] = Math.abs(dx) > Math.abs(dy) ? [0, Math.sign(dx)] : [Math.sign(dy), 0];
+      const tr = drag.r + dr;
+      const tc = drag.c + dc;
+      if (tr >= 0 && tr < ROWS && tc >= 0 && tc < COLS) {
+        stateRef.current.selected = null;
+        void handleSwap(drag.r, drag.c, tr, tc);
+      }
+    },
+    [handleSwap],
+  );
+
+  const onTilePointerUp = useCallback(() => {
+    dragRef.current = null;
+  }, []);
+
   const answerQuiz = useCallback(
     (index: number) => {
       if (!quiz) return;
@@ -764,8 +796,12 @@ export function GarageMatch() {
                     type="button"
                     aria-label={tile ? `${PARTS[tile.kind]?.name ?? "Part"}${tile.special ? ` ${tile.special === "surge" ? "battery surge" : "engine"}` : ""}` : "empty"}
                     onClick={() => onCellClick(r, c)}
+                    onPointerDown={(e) => onTilePointerDown(r, c, e)}
+                    onPointerMove={onTilePointerMove}
+                    onPointerUp={onTilePointerUp}
+                    onPointerCancel={onTilePointerUp}
                     className={[
-                      "relative flex aspect-square items-center justify-center rounded-lg border text-2xl transition-transform duration-100 sm:text-3xl",
+                      "relative flex aspect-square cursor-grab touch-none items-center justify-center rounded-lg border text-2xl transition-transform duration-100 active:cursor-grabbing sm:text-3xl",
                       clearing ? "gm-pop border-transparent" : "border-border/60 bg-card hover:bg-secondary/60",
                       tile?.id != null && view.fresh.has(tile.id) ? "gm-drop" : "",
                       shaking ? "gm-shake" : "",
