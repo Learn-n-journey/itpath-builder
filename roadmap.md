@@ -101,3 +101,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Add small-print verified sources to every IT PATH and AUTO PATH lesson, with automated coverage protection.
 - [x] Retire blended-subsystem AI questions ("voltages prove heat needs are met" family): deterministic guard in question-quality, generator prompts updated, bank pruned
 - [x] Answer: can we use an AI trained in quiz question creation?
+- [x] Filter blended-subsystem questions at runtime before they reach the user (usableQuestions gate)
