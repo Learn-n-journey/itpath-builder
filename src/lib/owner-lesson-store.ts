@@ -41,6 +41,12 @@ export function ownerLessonSourcesFor(topicId: string): Resource[] {
   return sourceMap()[topicId] ?? [];
 }
 
+/** The practice questions the owner wrote on that topic's Practice tab. */
+export function ownerPracticeFor(topicId: string): PracticeActivity[] {
+  const map = livePractice ? { ...snapshotPractice, ...livePractice } : snapshotPractice;
+  return map[topicId] ?? [];
+}
+
 /** Topics whose built-in lesson has been replaced by an owner lesson. */
 export function ownerLessonTopicIds(): Set<string> {
   return new Set(Object.keys(lessonMap()));
