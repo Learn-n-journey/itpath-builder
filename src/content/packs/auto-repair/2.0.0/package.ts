@@ -10,7 +10,7 @@ export const autoRepairPackage: DomainPackage = {
   {
     "id": "cert-engine-repair-a1",
     "title": "Engine Repair (A1)",
-    "summary": "The ASE A1 Engine Repair certification measures technical competency in the diagnosis, inspection, and service of automotive engine mechanical systems.",
+    "summary": "The AUTO PATH A1 Engine Repair certification measures technical competency in the diagnosis, inspection, and service of automotive engine mechanical systems.",
     "objectives": [
       {
         "id": "cert-engine-repair-a1-obj-1",
@@ -42,7 +42,7 @@ export const autoRepairPackage: DomainPackage = {
   {
     "id": "cert-automatic-transmission-and-transaxle-a2",
     "title": "Automatic Transmission and Transaxle (A2)",
-    "summary": "The ASE A2 Automatic Transmission and Transaxle certification measures technical proficiency in the diagnosis, service, and repair of various automatic transmission systems.",
+    "summary": "The AUTO PATH A2 Automatic Transmission and Transaxle certification measures technical proficiency in the diagnosis, service, and repair of various automatic transmission systems.",
     "objectives": [
       {
         "id": "cert-automatic-transmission-and-transaxle-a2-obj-1",
@@ -106,7 +106,7 @@ export const autoRepairPackage: DomainPackage = {
   {
     "id": "cert-suspension-and-steering-a4",
     "title": "Suspension and Steering (A4)",
-    "summary": "The ASE A4 Suspension and Steering certification measures a technician's knowledge of diagnosing and repairing steering systems, suspension systems, wheel alignment, and wheel and tire assemblies.",
+    "summary": "The AUTO PATH A4 Suspension and Steering certification measures a technician's knowledge of diagnosing and repairing steering systems, suspension systems, wheel alignment, and wheel and tire assemblies.",
     "objectives": [
       {
         "id": "cert-suspension-and-steering-a4-obj-1",
@@ -133,7 +133,7 @@ export const autoRepairPackage: DomainPackage = {
   {
     "id": "cert-brakes-a5",
     "title": "Brakes (A5)",
-    "summary": "The ASE A5 Brakes certification examination measures a technician's proficiency in diagnosing and repairing hydraulic, drum, disc, and anti-lock braking systems.",
+    "summary": "The AUTO PATH A5 Brakes certification examination measures a technician's proficiency in diagnosing and repairing hydraulic, drum, disc, and anti-lock braking systems.",
     "objectives": [
       {
         "id": "cert-brakes-a5-obj-1",
@@ -170,7 +170,7 @@ export const autoRepairPackage: DomainPackage = {
   {
     "id": "cert-electrical-electronic-systems-a6",
     "title": "Electrical/Electronic Systems (A6)",
-    "summary": "The ASE A6 Electrical/Electronic Systems certification evaluates a technician's competency in diagnosing and repairing automotive charging, starting, lighting, and accessory systems.",
+    "summary": "The AUTO PATH A6 Electrical/Electronic Systems certification evaluates a technician's competency in diagnosing and repairing automotive charging, starting, lighting, and accessory systems.",
     "objectives": [
       {
         "id": "cert-electrical-electronic-systems-a6-obj-1",
@@ -217,7 +217,7 @@ export const autoRepairPackage: DomainPackage = {
   {
     "id": "cert-heating-and-air-conditioning-a7",
     "title": "Heating and Air Conditioning (A7)",
-    "summary": "The ASE A7 Heating and Air Conditioning certification evaluates a technician's proficiency in diagnosing and repairing automotive climate control systems and their related components.",
+    "summary": "The AUTO PATH A7 Heating and Air Conditioning certification evaluates a technician's proficiency in diagnosing and repairing automotive climate control systems and their related components.",
     "objectives": [
       {
         "id": "cert-heating-and-air-conditioning-a7-obj-1",
@@ -249,7 +249,7 @@ export const autoRepairPackage: DomainPackage = {
   {
     "id": "cert-engine-performance-a8",
     "title": "Engine Performance (A8)",
-    "summary": "The ASE A8 Engine Performance certification evaluates a technician's expertise in diagnosing and repairing ignition, fuel, exhaust, and computerized engine control systems.",
+    "summary": "The AUTO PATH A8 Engine Performance certification evaluates a technician's expertise in diagnosing and repairing ignition, fuel, exhaust, and computerized engine control systems.",
     "objectives": [
       {
         "id": "cert-engine-performance-a8-obj-1",
@@ -281,7 +281,7 @@ export const autoRepairPackage: DomainPackage = {
   {
     "id": "cert-auto-maintenance-and-light-repair-g1",
     "title": "Auto Maintenance and Light Repair (G1)",
-    "summary": "The ASE G1 Auto Maintenance and Light Repair certification measures a technician's competency in foundational automotive service tasks across major vehicle systems.",
+    "summary": "The AUTO PATH G1 Auto Maintenance and Light Repair certification measures a technician's competency in foundational automotive service tasks across major vehicle systems.",
     "objectives": [
       {
         "id": "cert-auto-maintenance-and-light-repair-g1-obj-1",

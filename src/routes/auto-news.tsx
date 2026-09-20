@@ -18,13 +18,13 @@ export const Route = createFileRoute("/auto-news")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Auto News | ASE Master Mechanic Simulator" },
+      { title: "Auto News | AUTO PATH Master Mechanic Simulator" },
       {
         name: "description",
         content:
           "A live feed of automotive news across repair and maintenance, diagnostics, shop business, new cars, electric vehicles, recalls, tools and car culture.",
       },
-      { property: "og:title", content: "Auto News | ASE Master Mechanic Simulator" },
+      { property: "og:title", content: "Auto News | AUTO PATH Master Mechanic Simulator" },
       {
         property: "og:description",
         content: "Current automotive headlines for working and future technicians, with a link to every original article.",
