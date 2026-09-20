@@ -82,6 +82,49 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 ];
 
 
+function SpreadsheetSyncPanel() {
+  const runSyncNow = useServerFn(syncNow);
+  const [busy, setBusy] = useState(false);
+  const [lastRun, setLastRun] = useState<string | null>(null);
+
+  async function handleSync() {
+    setBusy(true);
+    try {
+      const result = await runSyncNow();
+      if (!result.ok) {
+        toast.error(result.error);
+        setLastRun(`Failed: ${result.error}`);
+        return;
+      }
+      if (result.skipped) {
+        setLastRun("A sync is already running — try again in a few minutes.");
+      } else {
+        await loadOwnerQuestions();
+        const summary = `${result.topics} topic${result.topics === 1 ? "" : "s"} · ${result.approved} approved · ${result.rejected} rejected`;
+        toast.success(`Spreadsheets synced: ${summary}`);
+        setLastRun(`Last sync: ${new Date().toLocaleTimeString()} — ${summary}`);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "The sync failed.";
+      toast.error(message);
+      setLastRun(`Failed: ${message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <Button onClick={handleSync} disabled={busy}>
+        {busy ? "Syncing…" : "Sync now"}
+      </Button>
+      <p className="mt-3 text-sm text-muted-foreground">
+        {lastRun ?? "Runs against the itpath and autopath folders in OneDrive. The nightly pull happens on its own."}
+      </p>
+    </div>
+  );
+}
+
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
   const [subjectKey, setSubjectKey] = useState<string>(ACTIVE_PACKAGE_KEY);
