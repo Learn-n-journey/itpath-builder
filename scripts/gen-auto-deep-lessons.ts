@@ -180,7 +180,12 @@ async function verify(url: string): Promise<boolean> {
   try {
     const host = new URL(url).hostname;
     if (BAD_HOST.test(host)) return false;
-    const res = await fetch(url, { method: "GET", redirect: "follow", headers: { "User-Agent": "Mozilla/5.0 IT-PATH link check" } });
+    const res = await fetch(url, {
+      method: "GET",
+      redirect: "follow",
+      headers: { "User-Agent": "Mozilla/5.0 IT-PATH link check" },
+      signal: AbortSignal.timeout(15000),
+    });
     return res.status >= 200 && res.status < 300;
   } catch {
     return false;
