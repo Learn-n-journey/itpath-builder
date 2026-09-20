@@ -161,7 +161,14 @@ export const practiceActivities: PracticeActivity[] = domainOverlay?.practice ??
 
 export function getLearningModule(topicId: string) { return learningModules.find((item) => item.topicId === topicId); }
 export function getRecallQuestions(topicId: string) { return recallQuestions.filter((item) => item.topicId === topicId); }
-export function getPracticeActivity(topicId: string) { return practiceActivities.find((item) => item.topicId === topicId); }
-/** Every practice question available on a topic, in a stable order. */
-export function getPracticeActivities(topicId: string) { return practiceActivities.filter((item) => item.topicId === topicId); }
+export function getPracticeActivity(topicId: string) { return getPracticeActivities(topicId)[0]; }
+/**
+ * Every practice question available on a topic, in a stable order. A topic the
+ * owner wrote practice rows for in its lesson spreadsheet shows only those.
+ */
+export function getPracticeActivities(topicId: string) {
+  const owned = ownerPracticeFor(topicId);
+  if (owned.length) return owned;
+  return practiceActivities.filter((item) => item.topicId === topicId);
+}
 export function getRealWorldScenario(topicId: string) { return realWorldScenariosActive.find((item) => item.topicId === topicId); }
