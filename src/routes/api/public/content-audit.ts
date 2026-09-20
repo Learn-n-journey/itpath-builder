@@ -72,7 +72,7 @@ export const Route = createFileRoute("/api/public/content-audit")({
             duration_ms: Date.now() - startedAt,
             blocking: packBlocking.length,
             warnings: packWarnings.length,
-            findings: report.findings.slice(0, MAX_FINDINGS),
+            findings: JSON.parse(JSON.stringify(report.findings.slice(0, MAX_FINDINGS))),
           });
 
           results.push({
