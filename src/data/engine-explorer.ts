@@ -37,7 +37,7 @@ export const autoAssemblies: AutoAssembly[] = [
       {
         id: "oil-filler",
         x: 55,
-        y: 29,
+        y: 39,
         name: "Oil filler cap",
         whatItIs:
           "The screw or quarter-turn cap on the valve cover, normally marked with an oil can symbol.",
@@ -188,8 +188,8 @@ export const autoAssemblies: AutoAssembly[] = [
       },
       {
         id: "con-rod",
-        x: 47,
-        y: 47,
+        x: 37,
+        y: 49,
         name: "Connecting rod",
         whatItIs: "The forged link between the piston pin and a crankshaft journal.",
         whatItDoes: "It passes the force of combustion down to the crankshaft.",
@@ -690,8 +690,8 @@ export const autoAssemblies: AutoAssembly[] = [
       },
       {
         id: "ground-electrode",
-        x: 93,
-        y: 38,
+        x: 95,
+        y: 33,
         name: "Ground electrode",
         whatItIs: "The metal strap bent over the end of the plug.",
         whatItDoes: "It provides the surface the spark jumps to from the centre electrode.",
@@ -700,8 +700,8 @@ export const autoAssemblies: AutoAssembly[] = [
       },
       {
         id: "centre-electrode",
-        x: 88,
-        y: 60,
+        x: 91,
+        y: 53,
         name: "Centre electrode",
         whatItIs:
           "The fine pin in the middle of the tip, made of iridium or platinum on long-life plugs.",
