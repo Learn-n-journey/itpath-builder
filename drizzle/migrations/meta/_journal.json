@@ -57,6 +57,13 @@
       "when": 1789940476219,
       "tag": "0007_create_course_maintenance",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789944586295,
+      "tag": "0008_owner_lessons_practice",
+      "breakpoints": true
     }
   ]
 }

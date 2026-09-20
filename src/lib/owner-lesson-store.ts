@@ -7,12 +7,17 @@
  * A topic the live load has nothing for keeps its snapshot lesson, so a lesson
  * never silently disappears.
  */
-import { ownerLessons as snapshot, ownerLessonSources as snapshotSources } from "@/data/owner-lessons";
+import {
+  ownerLessons as snapshot,
+  ownerLessonPractice as snapshotPractice,
+  ownerLessonSources as snapshotSources,
+} from "@/data/owner-lessons";
 import type { DeepLesson } from "@/data/deep-lessons/types";
-import type { Resource } from "@/lib/app-data/types";
+import type { PracticeActivity, Resource } from "@/lib/app-data/types";
 
 let liveLessons: Record<string, DeepLesson> | null = null;
 let liveSources: Record<string, Resource[]> | null = null;
+let livePractice: Record<string, PracticeActivity[]> | null = null;
 let version = 0;
 let loading: Promise<boolean> | null = null;
 
@@ -36,6 +41,12 @@ export function ownerLessonSourcesFor(topicId: string): Resource[] {
   return sourceMap()[topicId] ?? [];
 }
 
+/** The practice questions the owner wrote on that topic's Practice tab. */
+export function ownerPracticeFor(topicId: string): PracticeActivity[] {
+  const map = livePractice ? { ...snapshotPractice, ...livePractice } : snapshotPractice;
+  return map[topicId] ?? [];
+}
+
 /** Topics whose built-in lesson has been replaced by an owner lesson. */
 export function ownerLessonTopicIds(): Set<string> {
   return new Set(Object.keys(lessonMap()));
@@ -54,20 +65,24 @@ export function loadOwnerLessons(): Promise<boolean> {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data, error } = await supabase
         .from("owner_lessons")
-        .select("topic_id, lesson, sources")
+        .select("topic_id, lesson, sources, practice")
         .eq("status", "approved")
         .order("synced_at", { ascending: true })
         .limit(5000);
       if (error) return false;
       const lessons: Record<string, DeepLesson> = {};
       const sources: Record<string, Resource[]> = {};
+      const practice: Record<string, PracticeActivity[]> = {};
       for (const row of data ?? []) {
         const topicId = row.topic_id as string;
         lessons[topicId] = row.lesson as unknown as DeepLesson;
         sources[topicId] = (row.sources as unknown as Resource[]) ?? [];
+        const rows = (row.practice as unknown as PracticeActivity[]) ?? [];
+        if (rows.length) practice[topicId] = rows;
       }
       liveLessons = lessons;
       liveSources = sources;
+      livePractice = practice;
       version += 1;
       return true;
     } catch {

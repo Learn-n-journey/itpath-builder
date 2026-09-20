@@ -10,7 +10,7 @@
  * built-in lessons must pass decide whether an owner lesson may be published.
  */
 import type { DeepLesson, LessonCheck, LessonReferenceRow } from "@/data/deep-lessons/types";
-import type { Resource } from "@/lib/app-data/types";
+import type { PracticeActivity, Resource } from "@/lib/app-data/types";
 import { deepLessonIssues } from "@/lib/lesson-quality";
 import type { NumberedTopic } from "@/lib/owner-questions-shared";
 
@@ -31,6 +31,7 @@ export const LESSON_TABS = [
   "Check yourself",
   "Sources",
   "Plain words",
+  "Practice",
 ] as const;
 
 /** Headers of each tab, in column order. The template workbook uses these. */
@@ -45,7 +46,19 @@ export const LESSON_TAB_HEADERS: Record<string, string[]> = {
   "Check yourself": ["Question", "Answer"],
   Sources: ["Label", "URL", "Kind"],
   "Plain words": ["Plain intro", "Term", "In plain words"],
+  Practice: [
+    "Title",
+    "Prompt",
+    "Choice A",
+    "Choice B",
+    "Choice C",
+    "Choice D",
+    "Correct",
+    "Explanation",
+  ],
 };
+
+const CORRECT_LETTERS = ["A", "B", "C", "D"];
 
 const key = (value: string) => value.trim().toLowerCase();
 
@@ -78,8 +91,32 @@ function hostOf(url: string): string {
 export interface OwnerLessonResult {
   lesson: DeepLesson | null;
   sources: Resource[];
+  /** Practice questions written on the workbook's Practice tab. */
+  practice: PracticeActivity[];
   rejectReasons?: string[];
   error?: string;
+}
+
+/** Practice tab rows -> practice activities for this topic. */
+function practiceFromTabs(topic: NumberedTopic, tabs: SheetTab[]): PracticeActivity[] {
+  const items: PracticeActivity[] = [];
+  body(tabs, "Practice").forEach((row, index) => {
+    const title = cell(row, 0);
+    const prompt = cell(row, 1);
+    const choices = [cell(row, 2), cell(row, 3), cell(row, 4), cell(row, 5)].filter(Boolean);
+    const answerIndex = CORRECT_LETTERS.indexOf(cell(row, 6).toUpperCase());
+    if (!prompt || choices.length < 2 || answerIndex < 0 || answerIndex >= choices.length) return;
+    items.push({
+      id: `practice-owner-${topic.topicId}-${index + 1}`,
+      topicId: topic.topicId,
+      title: title || "Practice",
+      prompt,
+      choices,
+      answerIndex,
+      explanation: cell(row, 7),
+    });
+  });
+  return items;
 }
 
 /** Builds one topic's lesson from its workbook tabs, then gates it. */
@@ -104,7 +141,7 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
   }
 
   if (!intro || sections.length === 0) {
-    return { lesson: null, sources: [], error: "the Lesson or Sections tab is empty" };
+    return { lesson: null, sources: [], practice: [], error: "the Lesson or Sections tab is empty" };
   }
 
   const keyIdeas = body(tabs, "Key ideas")
@@ -190,7 +227,8 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
     })
     .filter((item): item is Resource => item !== null);
 
+  const practice = practiceFromTabs(topic, tabs);
   const rejectReasons = deepLessonIssues(lesson);
-  if (rejectReasons.length) return { lesson, sources, rejectReasons };
-  return { lesson, sources };
+  if (rejectReasons.length) return { lesson, sources, practice, rejectReasons };
+  return { lesson, sources, practice };
 }
