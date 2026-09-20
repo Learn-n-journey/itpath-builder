@@ -10,6 +10,7 @@
 import { lessons, topics } from "@/data/static-content";
 import { learningModules, practiceActivities } from "@/data/learning-content";
 import { aiQuestions } from "@/data/ai-question-bank";
+import { ownerQuestions } from "@/data/owner-questions";
 import { usableQuestions } from "@/lib/question-quality";
 import type { Difficulty, MistakeCategory, Question } from "@/lib/app-data/types";
 
@@ -173,7 +174,16 @@ function build(): Question[] {
     }
   }
 
-  return usableQuestions([...out, ...aiQuestions]);
+  // A topic the owner has written a spreadsheet for uses those questions and
+  // nothing else — everywhere, not just in the topic's own quizzes. Anything
+  // generated for that topic is dropped here so certification quizzes, the
+  // daily challenge and review screens cannot serve the old questions either.
+  const ownerTopics = new Set(
+    Object.entries(ownerQuestions)
+      .filter(([, list]) => list.length > 0)
+      .map(([topicId]) => topicId),
+  );
+  return usableQuestions([...out, ...aiQuestions].filter((q) => !ownerTopics.has(q.topicId)));
 }
 
 export const generatedQuestions: Question[] = build();
