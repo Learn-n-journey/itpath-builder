@@ -219,6 +219,15 @@ export function questionIssues(question: Question): string[] {
   if (choices.some((choice) => /\b(?:obviously|clearly|definitely|certainly)\b/i.test(choice))) {
     issues.push("an option uses giveaway certainty language");
   }
+  if (EQUIVALENT_ROLES.test(prompt) || choices.some((choice) => EQUIVALENT_ROLES.test(choice))) {
+    issues.push("declares distinct subsystems equivalent or interchangeable instead of testing a real relationship");
+  }
+  if (subsystemCount(prompt) >= 2 && PROVES_OTHER.test(prompt)) {
+    issues.push("claims evidence about one subsystem proves the condition of another");
+  }
+  if (choices.some((choice) => subsystemCount(choice) >= 2 && PROVES_OTHER.test(choice))) {
+    issues.push("an option claims one subsystem establishes the condition of another");
+  }
 
   // Semantic/Grammatical consistency checks
   const isTermRequest = SEMANTIC_PATTERNS.TERM.test(prompt);
