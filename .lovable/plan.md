@@ -6,18 +6,18 @@ AI-written lesson for that topic completely.
 
 ## How the folders work
 
-In OneDrive, inside your existing folders, add a `lessons` subfolder:
+Two new folders alongside your existing ones, in the same root:
 
 ```text
-itpath/            1.xlsx, 2.xlsx …      quiz questions (already working)
-itpath/lessons/    1.xlsx, 2.xlsx …      lesson text (new)
-autopath/          1.xlsx, 2.xlsx …      quiz questions
-autopath/lessons/  1.xlsx, 2.xlsx …      lesson text (new)
+itpath             1.xlsx, 2.xlsx …   quiz questions (already working)
+itpath lessons     1.xlsx, 2.xlsx …   lesson text (new)
+autopath           1.xlsx, 2.xlsx …   quiz questions
+autopath lessons   1.xlsx, 2.xlsx …   lesson text (new)
 ```
 
 Numbering is the same list as the quizzes: 1 is the first topic of that course, in curriculum
-order. The file number decides which topic the lesson lands on, so `lessons/1.xlsx` and `1.xlsx`
-always refer to the same topic.
+order. The file number decides which topic the lesson lands on, so `1.xlsx` in "itpath lessons"
+and `1.xlsx` in "itpath" always refer to the same topic.
 
 ## The lesson workbook format
 
