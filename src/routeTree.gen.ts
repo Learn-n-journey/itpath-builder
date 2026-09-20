@@ -26,6 +26,7 @@ import { Route as DailyChallengeRouteImport } from './routes/daily-challenge'
 import { Route as EngineSimulatorRouteImport } from './routes/engine-simulator'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as ExploreHardwareRouteImport } from './routes/explore-hardware'
+import { Route as GarageMatchRouteImport } from './routes/garage-match'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as JourneyRouteImport } from './routes/journey'
@@ -159,6 +160,11 @@ const ExamRoute = ExamRouteImport.update({
 const ExploreHardwareRoute = ExploreHardwareRouteImport.update({
   id: '/explore-hardware',
   path: '/explore-hardware',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GarageMatchRoute = GarageMatchRouteImport.update({
+  id: '/garage-match',
+  path: '/garage-match',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuideRoute = GuideRouteImport.update({
@@ -426,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/engine-simulator': typeof EngineSimulatorRoute
   '/exam': typeof ExamRoute
   '/explore-hardware': typeof ExploreHardwareRoute
+  '/garage-match': typeof GarageMatchRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
   '/journey': typeof JourneyRoute
@@ -494,6 +501,7 @@ export interface FileRoutesByTo {
   '/engine-simulator': typeof EngineSimulatorRoute
   '/exam': typeof ExamRoute
   '/explore-hardware': typeof ExploreHardwareRoute
+  '/garage-match': typeof GarageMatchRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
   '/journey': typeof JourneyRoute
@@ -563,6 +571,7 @@ export interface FileRoutesById {
   '/engine-simulator': typeof EngineSimulatorRoute
   '/exam': typeof ExamRoute
   '/explore-hardware': typeof ExploreHardwareRoute
+  '/garage-match': typeof GarageMatchRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
   '/journey': typeof JourneyRoute
@@ -633,6 +642,7 @@ export interface FileRouteTypes {
     | '/engine-simulator'
     | '/exam'
     | '/explore-hardware'
+    | '/garage-match'
     | '/guide'
     | '/insights'
     | '/journey'
@@ -701,6 +711,7 @@ export interface FileRouteTypes {
     | '/engine-simulator'
     | '/exam'
     | '/explore-hardware'
+    | '/garage-match'
     | '/guide'
     | '/insights'
     | '/journey'
@@ -769,6 +780,7 @@ export interface FileRouteTypes {
     | '/engine-simulator'
     | '/exam'
     | '/explore-hardware'
+    | '/garage-match'
     | '/guide'
     | '/insights'
     | '/journey'
@@ -838,6 +850,7 @@ export interface RootRouteChildren {
   EngineSimulatorRoute: typeof EngineSimulatorRoute
   ExamRoute: typeof ExamRoute
   ExploreHardwareRoute: typeof ExploreHardwareRoute
+  GarageMatchRoute: typeof GarageMatchRoute
   GuideRoute: typeof GuideRoute
   InsightsRoute: typeof InsightsRoute
   JourneyRoute: typeof JourneyRoute
@@ -1008,6 +1021,13 @@ declare module '@tanstack/react-router' {
       path: '/explore-hardware'
       fullPath: '/explore-hardware'
       preLoaderRoute: typeof ExploreHardwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/garage-match': {
+      id: '/garage-match'
+      path: '/garage-match'
+      fullPath: '/garage-match'
+      preLoaderRoute: typeof GarageMatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guide': {
@@ -1374,6 +1394,7 @@ const rootRouteChildren: RootRouteChildren = {
   EngineSimulatorRoute: EngineSimulatorRoute,
   ExamRoute: ExamRoute,
   ExploreHardwareRoute: ExploreHardwareRoute,
+  GarageMatchRoute: GarageMatchRoute,
   GuideRoute: GuideRoute,
   InsightsRoute: InsightsRoute,
   JourneyRoute: JourneyRoute,

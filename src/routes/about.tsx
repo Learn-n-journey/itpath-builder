@@ -112,7 +112,7 @@ function AboutPage() {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
             <img
               src={autopathLogo.url}
-              alt="AUTO PATH logo, a dark navy app icon with an orange wrench and piston"
+              alt="AUTO PATH logo, a dark navy app icon with a chrome piston, blue wrench and circuit traces"
               className="size-32 shrink-0 rounded-2xl"
               loading="lazy"
             />

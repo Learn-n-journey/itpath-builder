@@ -92,3 +92,6 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Confirm no lesson or question text matches other written work before publishing
 - [x] Finish widening thin question pools (every section now 26+ questions, median 36)
 - [x] Auto News and Auto Videos endless-scrolling feeds for the auto repair course (auto-only nav items, automotive outlets + technician communities, automotive creator channels)
+
+- [x] Replace the AUTO PATH logo everywhere with the owner's uploaded version (About page asset + dashboard logo when the auto course is active)
+- [x] Car-themed match-3 puzzle game (Garage Match): automotive part tiles, repair-job levels, vehicle restoration, special combos (battery surge, engine blast), knowledge challenges, car/garage unlocks and customization, unlimited procedurally generated levels
