@@ -130,3 +130,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Shorten all AUTO PATH branding text and metadata to the course name only; keep all features unchanged.
 
 - Owner lesson spreadsheets always publish; automatic checks are advisory notes only (owner verifies manually). Done.
+- Lesson spreadsheets carry a Practice tab; owner practice rows replace a topic\'s built-in practice. Done.
