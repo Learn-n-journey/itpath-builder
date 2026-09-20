@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Flame, Play, Pause, RotateCcw, Wrench } from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
+import { VirusRun } from "@/components/game/virus-run";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -353,6 +354,17 @@ function EngineSimulatorPage() {
               <p className="text-muted-foreground">{fault.explanation}</p>
             </div>
           </Panel>
+        </div>
+      </div>
+
+      <div className="mt-10">
+        <h2 className="font-display text-lg font-semibold">Take a break: Virus Run</h2>
+        <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+          A short arcade game between practice runs. Play as the virus, harvest data packets and
+          dodge antivirus daemons.
+        </p>
+        <div className="mt-4">
+          <VirusRun />
         </div>
       </div>
     </div>
