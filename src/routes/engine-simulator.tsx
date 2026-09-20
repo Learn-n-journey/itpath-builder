@@ -122,6 +122,117 @@ const FAULTS: Fault[] = [
   },
 ];
 
+/** Learning points shown per stroke, under the animation. */
+const WATCH_FOR: Record<number, string[]> = {
+  0: [
+    "The intake valve is open and the exhaust valve is shut.",
+    "The falling piston is what pulls the charge in; nothing pushes it.",
+    "More throttle means a wider intake path and a fuller cylinder.",
+  ],
+  1: [
+    "Both valves are shut, so the charge has nowhere to escape.",
+    "Squeezing the charge heats it, which is why it burns so quickly later.",
+    "A cylinder that cannot seal here will never make proper power.",
+  ],
+  2: [
+    "The spark fires just before the piston reaches the top.",
+    "Only this stroke puts energy into the crankshaft; the other three cost energy.",
+    "Late timing wastes heat out of the exhaust instead of pushing the piston.",
+  ],
+  3: [
+    "The exhaust valve opens and the rising piston sweeps the burned gases out.",
+    "Smoke colour here is a clue: black is rich, blue is oil, white can be coolant.",
+    "A restricted exhaust shows up as a loss of power at higher speed.",
+  ],
+};
+
+/** Ungraded self-check; purely a learning aid, never recorded. */
+const SELF_CHECK = [
+  {
+    question: "During which stroke are both valves closed while the piston rises?",
+    choices: ["Intake", "Compression", "Power", "Exhaust"],
+    answer: 1,
+    why: "Compression needs a sealed cylinder, so both valves are shut while the piston squeezes the charge.",
+  },
+  {
+    question: "An engine fires far too late in the cycle. Which symptom fits best?",
+    choices: [
+      "Sluggish, hot running with poor economy",
+      "A steady miss on one cylinder only",
+      "Black smoke and a fuel smell",
+      "No change at all, timing does not matter",
+    ],
+    answer: 0,
+    why: "Firing late lets the burn finish as the exhaust valve opens, so heat leaves through the exhaust instead of doing work.",
+  },
+  {
+    question: "Which stroke is the only one that adds energy to the crankshaft?",
+    choices: ["Intake", "Compression", "Power", "Exhaust"],
+    answer: 2,
+    why: "Intake, compression and exhaust all cost energy. Only the expanding gases of the power stroke push the piston down.",
+  },
+  {
+    question: "A fouled plug causes a shake that eases as speed rises. Why?",
+    choices: [
+      "The plug cleans itself permanently at high speed",
+      "That cylinder fires late or not at all, so the engine loses one power stroke in the cycle",
+      "The mixture always goes lean at idle",
+      "The exhaust valve sticks open at idle",
+    ],
+    answer: 1,
+    why: "Deposits bleed spark energy away, so the cylinder contributes little; at speed the miss is a smaller part of each second of running.",
+  },
+] as const;
+
+function SelfCheck() {
+  const [picked, setPicked] = useState<(number | null)[]>(SELF_CHECK.map(() => null));
+  return (
+    <div className="space-y-5">
+      {SELF_CHECK.map((item, qi) => {
+        const choice = picked[qi]!;
+        return (
+          <div key={qi}>
+            <p className="text-sm font-medium">
+              {qi + 1}. {item.question}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {item.choices.map((label, ci) => {
+                const chosen = choice === ci;
+                const reveal = choice !== null;
+                return (
+                  <button
+                    key={ci}
+                    onClick={() =>
+                      setPicked((p) => p.map((v, i) => (i === qi ? ci : v)))
+                    }
+                    aria-pressed={chosen}
+                    className={cn(
+                      "pressable-soft rounded-full border px-3 py-1.5 text-xs font-medium",
+                      reveal && ci === item.answer
+                        ? "border-success bg-success/10 text-success"
+                        : chosen
+                          ? "border-destructive bg-destructive/10 text-destructive"
+                          : "border-border text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+            {choice !== null && (
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{item.why}</p>
+            )}
+          </div>
+        );
+      })}
+      <p className="text-xs text-muted-foreground">
+        This check is only for you. It is never graded and never counted anywhere.
+      </p>
+    </div>
+  );
+}
+
 /**
  * Animated single-cylinder four-stroke cutaway.
  * angle is crank angle in degrees over the full 720° cycle.
