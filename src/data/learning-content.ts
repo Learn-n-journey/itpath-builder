@@ -1,6 +1,7 @@
 import { domainOverlay } from "@/data/domain-overlay";
 import { extraPracticeActivities } from "@/data/practice-extra";
 import { expansionModules, expansionPractice, expansionRecall, expansionScenarios } from "@/data/curriculum";
+import { ownerPracticeFor } from "@/lib/owner-lesson-store";
 import type { LearningModule, PracticeActivity, RecallQuestion, RealWorldScenario } from "@/lib/app-data/types";
 
 const moduleData: Array<Omit<LearningModule, "id" | "lessonId" | "recallQuestionIds" | "practiceActivityId" | "scenarioId"> & {
