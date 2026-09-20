@@ -78,7 +78,7 @@ export function lessonQualityIssues(topic: Topic, lesson: Lesson | undefined, de
     issues.push("lesson has no usable real-world example");
   }
 
-  if (deep) issues.push(...deepLessonIssues(deep));
+  if (deep) issues.push(...deepBaseIssues(deep));
 
   return [...new Set(issues)];
 }
@@ -88,25 +88,31 @@ export function lessonQualityIssues(topic: Topic, lesson: Lesson | undefined, de
  * so an owner-written spreadsheet lesson is held to the built-in standard.
  */
 export function deepLessonIssues(deep: DeepLesson): string[] {
-  const issues: string[] = [];
+  const issues = deepBaseIssues(deep);
   const allText = [deep.intro, deep.whereYouMeetIt, ...deep.sections.flatMap((section) => section.paragraphs)].join("\n");
   if (PLACEHOLDER.test(allText)) issues.push("lesson contains placeholder text");
   if (words(deep.intro) < 15) issues.push("lesson introduction is too short to orient a reader");
   if (words(deep.whereYouMeetIt) < 6) issues.push("lesson does not say where this material is met in real work");
-  if (deep.sections.length < 2 || deep.sections.some((section) => section.paragraphs.length === 0)) {
-    issues.push("deep lesson lacks a complete teaching sequence");
-  }
   if (repeatedEntries(deep.sections.map((section) => section.heading))) {
     issues.push("lesson repeats the same section heading");
   }
   if (deep.sections.some((section) => section.paragraphs.some((paragraph) => words(paragraph) < 15))) {
     issues.push("a teaching paragraph is too short to teach anything");
   }
-  if (deep.sections.some((section) => section.paragraphs.some((paragraph) => words(paragraph) > MAX_PARAGRAPH_WORDS))) {
-    issues.push("a teaching paragraph is too long to hold in working memory");
-  }
   if (sentences(allText).some((sentence) => words(sentence) > MAX_SENTENCE_WORDS)) {
     issues.push("a sentence is too long to follow in one pass");
+  }
+  return issues;
+}
+
+/** The deep-layer checks the built-in lessons have always been held to. */
+function deepBaseIssues(deep: DeepLesson): string[] {
+  const issues: string[] = [];
+  if (deep.sections.length < 2 || deep.sections.some((section) => section.paragraphs.length === 0)) {
+    issues.push("deep lesson lacks a complete teaching sequence");
+  }
+  if (deep.sections.some((section) => section.paragraphs.some((paragraph) => words(paragraph) > MAX_PARAGRAPH_WORDS))) {
+    issues.push("a teaching paragraph is too long to hold in working memory");
   }
   const walkthrough = deep.depth?.walkthrough;
   if (walkthrough && (words(walkthrough.scenario) < 8 || words(walkthrough.outcome) < 5 || walkthrough.steps.length < 3)) {
