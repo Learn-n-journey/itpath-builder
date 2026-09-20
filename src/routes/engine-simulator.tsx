@@ -649,6 +649,15 @@ function EngineSimulatorPage() {
           </Panel>
         </div>
       </div>
+
+      <div className="mt-10">
+        <Panel
+          title="Check your understanding"
+          description="Four quick questions about what you just watched. Answers explain themselves."
+        >
+          <SelfCheck />
+        </Panel>
+      </div>
     </div>
   );
 }
