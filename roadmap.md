@@ -89,3 +89,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Remove answer-revealing definition questions and widen question pools (repetition)
 - [ ] Align item quality rules with real-world exam item-writing standards (NBME-style guidelines)
 - [ ] Apply real-world lesson-writing standards to lessons, in original wording only (no copied text)
+- [ ] Confirm no lesson or question text matches other written work before publishing
