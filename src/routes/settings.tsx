@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -36,6 +37,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
+import { syncNow } from "@/lib/sheet-sync.functions";
+import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
