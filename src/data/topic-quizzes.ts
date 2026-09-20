@@ -19,6 +19,7 @@ import { getLearningModule, learningModules } from "@/data/learning-content";
 import { deepLessons, getDeepLesson } from "@/data/deep-lessons";
 import { questions as authoredQuestions } from "@/data/quiz-content";
 import { generatedQuestions } from "@/data/question-bank";
+import { ownerQuestions } from "@/data/owner-questions";
 import { isUsableQuestion, usableQuestions } from "@/lib/question-quality";
 import { selectQuizQuestions } from "@/lib/quiz-selection";
 import { conceptKey, tagQuestion, type TaggedQuestion } from "@/lib/question-tags";
@@ -724,7 +725,16 @@ function topicPool(topicId: string): PoolItem[] {
     // their opening words; several "Which term..." prompts otherwise collapse.
     sourceKey: `authored-${stableQuestionKey(item.prompt.trim().toLowerCase())}:${item.prompt}`,
   }));
-  const all = [...authored, ...buildPool(topicId)];
+  // A section the owner has written a spreadsheet for uses those questions and
+  // nothing else. They still pass the same gate as every other question.
+  const owner = ownerQuestions[topicId] ?? [];
+  const all = owner.length
+    ? owner.map((item) => ({
+        question: item,
+        kind: "owner",
+        sourceKey: `owner-${stableQuestionKey(item.prompt.trim().toLowerCase())}:${item.prompt}`,
+      }))
+    : [...authored, ...buildPool(topicId)];
   // Drop repeated prompts across the whole pool.
   const seen = new Set<string>();
   const unique = all.filter((item) => {
