@@ -105,3 +105,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Nightly scheduled content audit: /api/public/content-audit runs the full rule book over both courses nightly (04:45 UTC), findings recorded in content_audit_runs
 - [ ] Answer: can the audit results read from/write to a spreadsheet?
 - [ ] User-authored questions via spreadsheet (WAITING for owner go-ahead — do not build until asked): owner-authored Excel sheet, full format (question, 4 choices, correct answer, explanation, lesson), owner-only practice set (separate mode, not mixed into pools), nightly sync, workspace Excel App connector (owner account, not per-user), every row passes the deterministic quality gate before users see it
+- [x] Answer: ways to store owner-authored questions the app can pull from (Excel via connector / in-app editor / file upload / pasted text)
