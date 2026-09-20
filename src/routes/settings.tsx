@@ -366,6 +366,16 @@ function SettingsPage() {
       {isOwner ? (
         <Panel
           className="mt-4"
+          title="Spreadsheet questions"
+          description="Your numbered spreadsheets are pulled in automatically every night. Use this to bring in changes right away."
+        >
+          <SpreadsheetSyncPanel />
+        </Panel>
+      ) : null}
+
+      {isOwner ? (
+        <Panel
+          className="mt-4"
           title="System diagnostics"
           description="Runs live checks against this browser session. Results are measured, not assumed."
         >
