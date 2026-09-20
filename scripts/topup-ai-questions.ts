@@ -11,7 +11,7 @@
  * Env: TARGET (default 40), ROUNDS (default 2), CONCURRENCY (default 4)
  */
 import { aiQuestionSeeds, type AiQuestionSeed } from "@/data/ai-question-bank";
-import { getSectionQuizQuestions } from "@/data/topic-quizzes";
+import { getTopicQuestionPool } from "@/data/topic-quizzes";
 import { lessons, topics } from "@/data/static-content";
 import { getLearningModule } from "@/data/learning-content";
 import { questionIssues } from "@/lib/question-quality";
@@ -141,7 +141,7 @@ function tooSimilar(prompt: string, seen: Set<string>[]): boolean {
 
 async function topUp(topicId: string): Promise<AiQuestionSeed[]> {
   const topic = topics.find((item) => item.id === topicId)!;
-  const existing = getSectionQuizQuestions(topicId).map((question) => question.prompt);
+  const existing = getTopicQuestionPool(topicId).map((question) => question.prompt);
   if (existing.length >= TARGET) return [];
   const seenPrompts = new Set(existing.map(norm));
   const seenWords = existing.map(words);
