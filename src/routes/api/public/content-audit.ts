@@ -53,16 +53,13 @@ export const Route = createFileRoute("/api/public/content-audit")({
           }
         }
 
-        const packs = [
-          { label: "it-cybersecurity", pkg: buildItPackage() },
-          { label: "auto-repair", pkg: autoRepairPackage },
-        ] as const;
+        const packs = [buildItPackage(), autoRepairPackage] as const;
 
         const results: Array<Record<string, unknown>> = [];
         let blocking = 0;
         let warnings = 0;
 
-        for (const { label, pkg } of packs) {
+        for (const pkg of packs) {
           const startedAt = Date.now();
           const report = auditPackage(pkg as never);
           const packBlocking = report.findings.filter((f) => f.severity === "blocking");

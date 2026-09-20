@@ -102,3 +102,5 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Retire blended-subsystem AI questions ("voltages prove heat needs are met" family): deterministic guard in question-quality, generator prompts updated, bank pruned
 - [x] Answer: can we use an AI trained in quiz question creation?
 - [x] Filter blended-subsystem questions at runtime before they reach the user (usableQuestions gate)
+- [ ] Nightly scheduled content audit: new /api/public/content-audit route runs the full deterministic rule book over both courses and records findings in content_audit_runs; pg_cron schedule to add
+- [ ] Answer: can the audit results read from/write to a spreadsheet?
