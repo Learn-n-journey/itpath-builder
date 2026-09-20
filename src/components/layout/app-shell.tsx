@@ -14,6 +14,7 @@ import { domain } from "@/domain/active";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { loadOwnerLessons } from "@/lib/owner-lesson-store";
 import { firstPracticeTestCertId } from "@/lib/tracks";
+import { MaintenanceGate } from "@/components/maintenance-screen";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useSidebarAttention();
@@ -125,6 +126,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
+    <MaintenanceGate pathname={pathname}>
     <div className="min-h-screen bg-background">
       <StudyReminder />
       <WelcomeTour />
@@ -205,6 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </footer>
       </main>
     </div>
+    </MaintenanceGate>
   );
 }
 

@@ -50,6 +50,13 @@
       "when": 1789938981110,
       "tag": "0006_create_owner_lessons",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789940476219,
+      "tag": "0007_create_course_maintenance",
+      "breakpoints": true
     }
   ]
 }

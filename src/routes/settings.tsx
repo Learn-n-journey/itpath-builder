@@ -38,6 +38,8 @@ import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { syncNow } from "@/lib/sheet-sync.functions";
+import { setMaintenance } from "@/lib/maintenance.functions";
+import { loadMaintenanceState } from "@/lib/maintenance-state";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { loadOwnerLessons } from "@/lib/owner-lesson-store";
 import { formatStudyTime } from "@/lib/study-time";
@@ -135,6 +137,56 @@ function SpreadsheetSyncPanel() {
         {lastRun ??
           "Reads the itpath, itpath lessons, autopath and autopath lessons folders in OneDrive. The nightly pull happens on its own."}
       </p>
+    </div>
+  );
+}
+
+function MaintenancePanel() {
+  const toggle = useServerFn(setMaintenance);
+  const [state, setState] = useState<Record<string, boolean>>({});
+  const [busy, setBusy] = useState<string | null>(null);
+
+  useEffect(() => {
+    void loadMaintenanceState().then(setState);
+  }, []);
+
+  async function flip(domainId: "it-cybersecurity" | "auto-repair", label: string) {
+    const next = !state[domainId];
+    setBusy(domainId);
+    try {
+      const result = await toggle({ data: { domain: domainId, enabled: next } });
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setState(result.state);
+      toast.success(next ? `${label} is now under maintenance.` : `${label} is open again.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "That did not save.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const courses: { id: "it-cybersecurity" | "auto-repair"; label: string }[] = [
+    { id: "it-cybersecurity", label: "IT PATH" },
+    { id: "auto-repair", label: "AUTO PATH" },
+  ];
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {courses.map((course) => (
+        <Button
+          key={course.id}
+          variant={state[course.id] ? "destructive" : "secondary"}
+          disabled={busy !== null}
+          onClick={() => flip(course.id, course.label)}
+        >
+          {state[course.id]
+            ? `${course.label}: maintenance on`
+            : `${course.label}: maintenance off`}
+        </Button>
+      ))}
     </div>
   );
 }
@@ -427,6 +479,16 @@ function SettingsPage() {
           description="Your numbered question and lesson spreadsheets are pulled in automatically every night. Use these to bring in changes right away."
         >
           <SpreadsheetSyncPanel />
+        </Panel>
+      ) : null}
+
+      {isOwner ? (
+        <Panel
+          className="mt-4"
+          title="Maintenance screen"
+          description="Close a course while you work on it. Visitors see a short maintenance notice instead; you always keep full access."
+        >
+          <MaintenancePanel />
         </Panel>
       ) : null}
 
