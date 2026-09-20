@@ -102,7 +102,10 @@ export function deepLessonIssues(deep: DeepLesson): string[] {
   if (sentences(allText).some((sentence) => words(sentence) > MAX_SENTENCE_WORDS)) {
     issues.push("a sentence is too long to follow in one pass");
   }
-  return issues;
+  if (deep.depth && deep.depth.misconceptions.some((row) => words(row.correction) < 5)) {
+    issues.push("a misconception has no real correction");
+  }
+  return [...new Set(issues)];
 }
 
 /** The deep-layer checks the built-in lessons have always been held to. */
@@ -126,9 +129,6 @@ function deepBaseIssues(deep: DeepLesson): string[] {
   }
   if (deep.depth && deep.depth.checkYourself.some((check) => words(check.question) < 4 || !check.answer.trim())) {
     issues.push("a lesson self-check has no meaningful question or answer");
-  }
-  if (deep.depth && deep.depth.misconceptions.some((row) => words(row.correction) < 5)) {
-    issues.push("a misconception has no real correction");
   }
   return [...new Set(issues)];
 }
