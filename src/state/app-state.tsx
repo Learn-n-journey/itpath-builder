@@ -150,7 +150,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   // Hydrate after mount so server and client render the same initial markup.
   useEffect(() => {
     const { state, outcome } = loadState();
-    setUser(state.user);
+    setUser(reconcileSettingsToDomain(state.user));
     setLoadOutcome(outcome);
     setStorageAvailable(isStorageAvailable());
     setHydrated(true);
@@ -223,9 +223,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         if (!foreignCache) candidates.push(local);
         if (candidates.length === 0) return local;
         // Whichever copy holds the most recorded work wins.
-        return candidates.reduce((best, item) =>
+        const chosen = candidates.reduce((best, item) =>
           activityCount(item) > activityCount(best) ? item : best,
         );
+        return reconcileSettingsToDomain(chosen);
       });
       writeStateOwner(userId);
       pushedSnapshot.current = "";
