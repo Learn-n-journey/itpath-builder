@@ -501,6 +501,16 @@ function EngineSimulatorPage() {
               </p>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{current.detail}</p>
+            <div className="mt-3 rounded-md border border-border bg-muted/30 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                What to watch in this stroke
+              </p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-relaxed text-muted-foreground">
+                {WATCH_FOR[strokeIndex]!.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <Button onClick={() => setRunning((r) => !r)}>
                 {running ? <Pause className="h-4 w-4" aria-hidden /> : <Play className="h-4 w-4" aria-hidden />}
