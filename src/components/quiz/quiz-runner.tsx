@@ -24,7 +24,7 @@ import { questions as allQuestions, topics } from "@/data/static-content";
 import type { AnswerConfidence, Question, QuestionType, Quiz, QuizAttempt } from "@/lib/app-data/types";
 import { recommendReview } from "@/lib/mistake-engine";
 import { buildQuizDiagnostic } from "@/lib/quiz-diagnostic";
-import { createQuizAttempt, scoreQuiz } from "@/lib/quiz-engine";
+import { createQuizAttempt, safeChoiceOrder, scoreQuiz } from "@/lib/quiz-engine";
 import { useAppState } from "@/state/app-state";
 import { ContentReportButton } from "@/components/content-report-button";
 
