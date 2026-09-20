@@ -102,12 +102,58 @@ const IT_STEPS: Step[] = [
   },
 ];
 
-const AUTO_STEPS: Step[] = IT_STEPS.map((step) => ({
-  ...step,
-  body: step.body
-    .replaceAll("IT and cybersecurity", "automotive technology and repair")
-    .replaceAll("IT Path", "AUTO PATH"),
-}));
+const AUTO_STEPS: Step[] = [
+  {
+    ...IT_STEPS[0],
+    body: "Stepping into automotive technology and repair can feel overwhelming, but you don't have to figure it out alone. AUTO PATH breaks vehicle systems and diagnostic skills into bite-sized, meaningful steps so you can build real confidence from day one.",
+  },
+  {
+    ...IT_STEPS[1],
+    eyebrow: "Your repair path",
+    body: "AUTO PATH keeps each system focused, from fundamentals through diagnosis and repair. Complete the work in front of you, step away when needed, and return to the same point in your training.",
+    points: [
+      "A focused path through vehicle systems and repair skills",
+      "Unlock the next system by proving what you understand",
+      "Resume from the exact place you stopped",
+    ],
+  },
+  {
+    ...IT_STEPS[2],
+    body: "Turn automotive knowledge into workshop decisions. Use focused quizzes, diagnostic scenarios, flashcards, and practical checks to separate symptoms from causes and revisit systems that need more work.",
+    points: [
+      "Diagnostic decisions grounded in realistic vehicle symptoms",
+      "Recall practice for components, tests, and procedures",
+      "Targeted review for systems that need extra attention",
+    ],
+  },
+  {
+    ...IT_STEPS[3],
+    body: "When a vehicle system or diagnostic step feels unclear, ask GAYL. Your study companion explains the idea in plain language and keeps the answer connected to the automotive material you are learning.",
+    points: [
+      "Plain-language explanations of vehicle systems",
+      "Help connected to the repair topic in front of you",
+      "Patient support as you build diagnostic confidence",
+    ],
+  },
+  {
+    ...IT_STEPS[4],
+    body: "Every AUTO PATH milestone reflects work you actually completed. Your records show which systems you have practised, where evidence is still thin, and what repair skill deserves attention next.",
+    points: [
+      "Review signals based on your real answers and activity",
+      "Milestones that reflect completed automotive work",
+      "A next step shaped by your own learning evidence",
+    ],
+  },
+  {
+    ...IT_STEPS[5],
+    body: "Set up AUTO PATH around the way you want to learn. Choose your display theme, preferred name, automotive qualification goal, and current experience so the course starts in the right place.",
+    points: [
+      "Light or dark workshop theme",
+      "Your preferred name throughout AUTO PATH",
+      "An automotive goal matched to your experience",
+    ],
+  },
+];
 
 export function WelcomeTour() {
   const navigate = useNavigate();
