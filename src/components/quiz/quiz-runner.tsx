@@ -24,7 +24,7 @@ import { questions as allQuestions, topics } from "@/data/static-content";
 import type { AnswerConfidence, Question, QuestionType, Quiz, QuizAttempt } from "@/lib/app-data/types";
 import { recommendReview } from "@/lib/mistake-engine";
 import { buildQuizDiagnostic } from "@/lib/quiz-diagnostic";
-import { createQuizAttempt, scoreQuiz } from "@/lib/quiz-engine";
+import { createQuizAttempt, safeChoiceOrder, scoreQuiz } from "@/lib/quiz-engine";
 import { useAppState } from "@/state/app-state";
 import { ContentReportButton } from "@/components/content-report-button";
 
@@ -298,7 +298,7 @@ function QuizWorkspace({
   }
 
   const response = attempt.responses[question.id] ?? [];
-  const choices = attempt.choiceOrder[question.id] ?? question.choices;
+  const choices = safeChoiceOrder(question, attempt.choiceOrder[question.id]);
   return (
     <div className="space-y-5">
       <Panel>

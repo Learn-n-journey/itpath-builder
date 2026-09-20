@@ -11,6 +11,19 @@ export function shuffle<T>(items: T[]): T[] {
 }
 
 /**
+ * Only trust a saved answer order that still belongs to this question.
+ *
+ * A stored attempt can outlive the question it was built from. If the saved
+ * order is not exactly this question's own choices, fall back to the question
+ * so a learner never sees one question's prompt above another's answers.
+ */
+export function safeChoiceOrder(question: Question, saved: string[] | undefined): string[] {
+  if (!saved || saved.length !== question.choices.length) return question.choices;
+  const own = new Set(question.choices);
+  return saved.every((choice) => own.has(choice)) ? saved : question.choices;
+}
+
+/**
  * Mix the set instead of just shuffling it.
  *
  * A plain shuffle can still deal out five recall questions on one topic in a
