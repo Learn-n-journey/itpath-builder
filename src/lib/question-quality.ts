@@ -66,7 +66,7 @@ const SUBSYSTEM_TERMS: RegExp[] = [
   /\b(?:heat|thermal|cooling|cooler|heatsink|heat sink|fan)\b/i,
   /\b(?:cpu|processor|processing|instruction|instructions|execution|clock speed)\b/i,
   /\b(?:ram|memory|dimm|working memory)\b/i,
-  /\b(?:storage|drive|disk|ssd|hdd|file retention|capacity|capacities)\b/i,
+  /\b(?:storage|drive|disk|ssd|hdd|file retention|file space|file storage|drive space|capacity|capacities)\b/i,
   /\b(?:network|bandwidth|latency|packet|packets|throughput)\b/i,
 ];
 
