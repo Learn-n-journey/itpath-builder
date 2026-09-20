@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -36,6 +37,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
+import { syncNow } from "@/lib/sheet-sync.functions";
+import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
@@ -78,6 +81,49 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
   { id: "intermediate", label: "Working in IT already" },
 ];
 
+
+function SpreadsheetSyncPanel() {
+  const runSyncNow = useServerFn(syncNow);
+  const [busy, setBusy] = useState(false);
+  const [lastRun, setLastRun] = useState<string | null>(null);
+
+  async function handleSync() {
+    setBusy(true);
+    try {
+      const result = await runSyncNow();
+      if (!result.ok) {
+        toast.error(result.error);
+        setLastRun(`Failed: ${result.error}`);
+        return;
+      }
+      if (result.skipped) {
+        setLastRun("A sync is already running — try again in a few minutes.");
+      } else {
+        await loadOwnerQuestions();
+        const summary = `${result.topics} topic${result.topics === 1 ? "" : "s"} · ${result.approved} approved · ${result.rejected} rejected`;
+        toast.success(`Spreadsheets synced: ${summary}`);
+        setLastRun(`Last sync: ${new Date().toLocaleTimeString()} — ${summary}`);
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "The sync failed.";
+      toast.error(message);
+      setLastRun(`Failed: ${message}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <Button onClick={handleSync} disabled={busy}>
+        {busy ? "Syncing…" : "Sync now"}
+      </Button>
+      <p className="mt-3 text-sm text-muted-foreground">
+        {lastRun ?? "Runs against the itpath and autopath folders in OneDrive. The nightly pull happens on its own."}
+      </p>
+    </div>
+  );
+}
 
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
@@ -359,6 +405,16 @@ function SettingsPage() {
           </div>
         </Panel>
       </div>
+
+      {isOwner ? (
+        <Panel
+          className="mt-4"
+          title="Spreadsheet questions"
+          description="Your numbered spreadsheets are pulled in automatically every night. Use this to bring in changes right away."
+        >
+          <SpreadsheetSyncPanel />
+        </Panel>
+      ) : null}
 
       {isOwner ? (
         <Panel
