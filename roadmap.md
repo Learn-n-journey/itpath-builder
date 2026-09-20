@@ -86,8 +86,8 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Enforce comprehensive lesson and assessment rejection for factual, contextual, alignment, prerequisite, source, uniqueness, completeness, and instructional-value defects.
 - [x] Make every quality finding blocking and require rewriting/regeneration when a quiz pool is too thin; use AI only as a writer, never its own approver.
 
-- [ ] Remove answer-revealing definition questions and widen question pools (repetition)
+- [x] Remove answer-revealing definition questions and widen question pools (repetition)
 - [ ] Align item quality rules with real-world exam item-writing standards (NBME-style guidelines)
 - [x] Apply real-world lesson-writing standards to lessons, in original wording only (no copied text)
 - [x] Confirm no lesson or question text matches other written work before publishing
-- [ ] Finish widening thin question pools (~50 sections under 20) once AI credits are topped up
+- [x] Finish widening thin question pools (every section now 26+ questions, median 36)
