@@ -1,0 +1,1 @@
+ALTER TABLE public.owner_lessons ADD COLUMN IF NOT EXISTS practice jsonb NOT NULL DEFAULT '[]'::jsonb;

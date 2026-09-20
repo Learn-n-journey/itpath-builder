@@ -420,6 +420,7 @@ export type Database = {
           domain: string
           id: string
           lesson: Json
+          practice: Json
           reject_reasons: Json
           source_file: string
           sources: Json
@@ -431,6 +432,7 @@ export type Database = {
           domain: string
           id?: string
           lesson: Json
+          practice?: Json
           reject_reasons?: Json
           source_file?: string
           sources?: Json
@@ -442,6 +444,7 @@ export type Database = {
           domain?: string
           id?: string
           lesson?: Json
+          practice?: Json
           reject_reasons?: Json
           source_file?: string
           sources?: Json
