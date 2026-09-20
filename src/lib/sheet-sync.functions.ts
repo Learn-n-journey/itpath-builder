@@ -12,7 +12,7 @@ import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type SyncNowReply =
-  | { ok: true; skipped?: string; topics: number; approved: number; rejected: number }
+  | { ok: true; skipped?: string | undefined; topics: number; approved: number; rejected: number }
   | { ok: false; error: string };
 
 export const syncNow = createServerFn({ method: "POST" })
