@@ -65,20 +65,24 @@ export function loadOwnerLessons(): Promise<boolean> {
       const { supabase } = await import("@/integrations/supabase/client");
       const { data, error } = await supabase
         .from("owner_lessons")
-        .select("topic_id, lesson, sources")
+        .select("topic_id, lesson, sources, practice")
         .eq("status", "approved")
         .order("synced_at", { ascending: true })
         .limit(5000);
       if (error) return false;
       const lessons: Record<string, DeepLesson> = {};
       const sources: Record<string, Resource[]> = {};
+      const practice: Record<string, PracticeActivity[]> = {};
       for (const row of data ?? []) {
         const topicId = row.topic_id as string;
         lessons[topicId] = row.lesson as unknown as DeepLesson;
         sources[topicId] = (row.sources as unknown as Resource[]) ?? [];
+        const rows = (row.practice as unknown as PracticeActivity[]) ?? [];
+        if (rows.length) practice[topicId] = rows;
       }
       liveLessons = lessons;
       liveSources = sources;
+      livePractice = practice;
       version += 1;
       return true;
     } catch {
