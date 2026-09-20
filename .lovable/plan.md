@@ -101,8 +101,8 @@ type the headers yourself.
 The Settings page "Spreadsheet questions" panel becomes **Spreadsheet content**, with three
 buttons:
 
-- **Sync IT PATH** — pulls `itpath` and `itpath/lessons`
-- **Sync AUTO PATH** — pulls `autopath` and `autopath/lessons`
+- **Sync IT PATH** — pulls "itpath" and "itpath lessons"
+- **Sync AUTO PATH** — pulls "autopath" and "autopath lessons"
 - **Sync everything** — both courses, same as the nightly run
 
 Each shows what came in: topics touched, questions approved/rejected, lessons accepted/rejected

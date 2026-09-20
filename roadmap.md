@@ -124,3 +124,5 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Expand every AUTO PATH topic into full "how it works" + "how to diagnose and repair it" reading (deep lesson layer, original wording, deterministic quality gate).
 - [ ] Find outside material specific to each topic, verify each link responds, and attach it as that lesson's small-print sources.
 - [ ] Answer/plan: owner-authored LESSONS from spreadsheets (same numbered-folder model as questions) — waiting on owner go-ahead.
+
+- [ ] Spreadsheet-written lessons: "itpath lessons" / "autopath lessons" folders, numbered per topic, quality-gated, override AI lessons; per-course sync buttons
