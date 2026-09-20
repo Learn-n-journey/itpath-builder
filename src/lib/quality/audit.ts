@@ -17,7 +17,7 @@ import { questionIssues } from "@/lib/question-quality";
 import { checkTechnicalClaims } from "@/lib/technical-validation";
 import { validateQuestionSet } from "@/lib/quiz-finalize";
 import { lessonQualityIssues } from "@/lib/lesson-quality";
-import { buildReference, checkOriginality } from "@/lib/originality";
+import { shingles } from "@/lib/originality";
 import { getRule } from "./rules";
 import type { AuditOptions, AuditReport, Finding } from "./types";
 import type { Question } from "@/lib/app-data/types";
@@ -74,6 +74,14 @@ export function auditCoursePack(pack: CoursePack, options: AuditOptions = {}): A
   const examSize = pack.assessmentSizes.stageExam;
   const conceptOf = pack.conceptId;
 
+  // One pass over every lesson, so repeated wording can be spotted cheaply.
+  const shingleCounts = new Map<string, number>();
+  for (const topic of wanted) {
+    for (const run of shingles(pack.lessonText(topic.id))) {
+      shingleCounts.set(run, (shingleCounts.get(run) ?? 0) + 1);
+    }
+  }
+
   let papers = 0;
   let questionCount = 0;
 
@@ -95,17 +103,18 @@ export function auditCoursePack(pack: CoursePack, options: AuditOptions = {}): A
     }
     // Copied wording: no lesson may reuse long runs of another lesson's text.
     if (text.trim().length > 0) {
-      const others = buildReference(
-        wanted.filter((other) => other.id !== topic.id).map((other) => pack.lessonText(other.id)),
-      );
-      const copied = checkOriginality(text, others, { threshold: 0.12 });
-      if (copied.flagged) {
-        note(
-          findings,
-          "content.lesson-instructionally-sound",
-          subject,
-          `Lesson reuses wording from other sections (${Math.round(copied.overlap * 100)}% overlap): "${(copied.matches[0] ?? "").slice(0, 120)}"`,
-        );
+      const own = [...shingles(text)];
+      if (own.length > 0) {
+        const shared = own.filter((run) => (shingleCounts.get(run) ?? 0) > 1);
+        const overlap = shared.length / own.length;
+        if (overlap > 0.12) {
+          note(
+            findings,
+            "content.lesson-instructionally-sound",
+            subject,
+            `Lesson reuses wording from other sections (${Math.round(overlap * 100)}% overlap): "${(shared[0] ?? "").slice(0, 120)}"`,
+          );
+        }
       }
     }
 
