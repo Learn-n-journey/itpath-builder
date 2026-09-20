@@ -40385,3 +40385,20 @@ export const aiQuestionSeeds: AiQuestionSeed[] = [
     "mistakeCategory": "procedure"
   }
 ];
+
+export const aiQuestions: Question[] = aiQuestionSeeds.map((seed, index) => ({
+  id: `question-ai-${index + 1}`,
+  topicId: seed.topicId,
+  quizId: "quiz-generated-bank",
+  certificationId: seed.certificationId,
+  type: "multiple_choice",
+  prompt: seed.prompt,
+  choices: seed.choices,
+  correctAnswer: [seed.choices[seed.answerIndex] ?? ""],
+  acceptableAnswers: [],
+  explanation: seed.explanation,
+  difficulty: seed.difficulty,
+  mistakeCategory: seed.mistakeCategory,
+  requiresReasoning: seed.mistakeCategory === "diagnosis" || seed.mistakeCategory === "procedure",
+}));
+
