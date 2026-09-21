@@ -593,9 +593,11 @@ export function GarageMatch() {
       put(nb, r2, c2, a);
       const dr = r2 - r1;
       const dc = c2 - c1;
+      const towardSecond = `translate(calc(${dc * 100}% + ${dc * 0.375}rem), calc(${dr * 100}% + ${dr * 0.375}rem))`;
+      const towardFirst = `translate(calc(${-dc * 100}% + ${-dc * 0.375}rem), calc(${-dr * 100}% + ${-dr * 0.375}rem))`;
       stateRef.current.swapping = {
-        [key(r1, c1)]: `translate(${dc * 100}%, ${dr * 100}%)`,
-        [key(r2, c2)]: `translate(${-dc * 100}%, ${-dr * 100}%)`,
+        [key(r1, c1)]: towardSecond,
+        [key(r2, c2)]: towardFirst,
       };
       sync();
       await wait(WAIT_SWAP);
@@ -634,12 +636,19 @@ export function GarageMatch() {
         sync();
         finishIfOver();
       } else {
-        // No match: revert with a shake.
+        // No match: glide both pieces back to their original cells, then shake.
+        stateRef.current.swapping = {
+          [key(r1, c1)]: towardSecond,
+          [key(r2, c2)]: towardFirst,
+        };
+        sync();
+        await wait(WAIT_SWAP);
         const rb = cloneBoard(nb);
         put(rb, r1, c1, a);
         put(rb, r2, c2, b);
         boardRef.current = rb;
         stateRef.current.board = rb;
+        stateRef.current.swapping = {};
         stateRef.current.shake = [key(r1, c1), key(r2, c2)];
         sync();
         await wait(260);
