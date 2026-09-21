@@ -511,8 +511,14 @@ export function VirusRun() {
       ctx2.fillStyle = t.bg;
       ctx2.fillRect(0, 0, rect.width, rect.height);
 
-      // Fine system grid: technical depth without the old scanline effect.
-      ctx2.strokeStyle = "rgba(148,163,184,0.055)";
+      // Layered system substrate: faint traces and moving data current.
+      const field = ctx2.createRadialGradient(rect.width * 0.5, rect.height * 0.45, 0, rect.width * 0.5, rect.height * 0.45, rect.width * 0.7);
+      field.addColorStop(0, "rgba(45,212,191,0.08)");
+      field.addColorStop(0.55, "rgba(20,184,166,0.025)");
+      field.addColorStop(1, "rgba(0,0,0,0.3)");
+      ctx2.fillStyle = field;
+      ctx2.fillRect(0, 0, rect.width, rect.height);
+      ctx2.strokeStyle = "rgba(148,163,184,0.045)";
       ctx2.lineWidth = 1;
       for (let x = offX; x <= offX + cell * COLS; x += cell) {
         ctx2.beginPath();
@@ -527,12 +533,18 @@ export function VirusRun() {
         ctx2.stroke();
       }
 
-      // Walls as precision-machined circuitry blocks.
+      // Walls as dimensional security architecture with illuminated traces.
       const pad = cell * 0.08;
       for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
           if (run.grid[y]![x] === 1) {
-            ctx2.fillStyle = t.wall;
+            const bx = offX + x * cell + pad;
+            const by = offY + y * cell + pad;
+            const block = ctx2.createLinearGradient(bx, by, bx, by + cell);
+            block.addColorStop(0, t.wallEdge);
+            block.addColorStop(0.18, t.wall);
+            block.addColorStop(1, t.bg);
+            ctx2.fillStyle = block;
             roundRect(ctx2, offX + x * cell + pad, offY + y * cell + pad, cell - pad * 2, cell - pad * 2, cell * 0.18);
             ctx2.fill();
             ctx2.strokeStyle = t.wallEdge;
@@ -541,6 +553,15 @@ export function VirusRun() {
             ctx2.fillStyle = "rgba(255,255,255,0.025)";
             roundRect(ctx2, offX + x * cell + pad * 1.7, offY + y * cell + pad * 1.7, cell - pad * 3.4, Math.max(1, cell * 0.08), cell * 0.04);
             ctx2.fill();
+            if ((x + y) % 3 === 0) {
+              ctx2.strokeStyle = "rgba(45,212,191,0.16)";
+              ctx2.lineWidth = Math.max(0.6, cell * 0.035);
+              ctx2.beginPath();
+              ctx2.moveTo(bx + cell * 0.22, by + cell * 0.62);
+              ctx2.lineTo(bx + cell * 0.48, by + cell * 0.62);
+              ctx2.lineTo(bx + cell * 0.63, by + cell * 0.78);
+              ctx2.stroke();
+            }
           }
         }
       }
@@ -549,7 +570,13 @@ export function VirusRun() {
       const pulse = 0.6 + 0.4 * Math.sin(time / 220);
       ctx2.save();
       ctx2.globalAlpha = run.portOpen ? pulse : 0.28;
-      ctx2.fillStyle = "#2dd4bf";
+      ctx2.shadowColor = "rgba(45,212,191,0.85)";
+      ctx2.shadowBlur = run.portOpen ? cell * 1.2 : 0;
+      const portGradient = ctx2.createRadialGradient(offX + (run.port.x + 0.5) * cell, offY + (run.port.y + 0.5) * cell, 0, offX + (run.port.x + 0.5) * cell, offY + (run.port.y + 0.5) * cell, cell * 0.65);
+      portGradient.addColorStop(0, "#ccfbf1");
+      portGradient.addColorStop(0.35, "#2dd4bf");
+      portGradient.addColorStop(1, "rgba(13,148,136,0.2)");
+      ctx2.fillStyle = portGradient;
       roundRect(ctx2, offX + run.port.x * cell + pad, offY + run.port.y * cell + pad, cell - pad * 2, cell - pad * 2, cell * 0.3);
       ctx2.fill();
       ctx2.restore();
@@ -559,62 +586,74 @@ export function VirusRun() {
       ctx2.textBaseline = "middle";
       ctx2.fillText(">", offX + (run.port.x + 0.5) * cell, offY + (run.port.y + 0.55) * cell);
 
-      // Packets as small data chips.
+      // Data packets: faceted luminous cores with orbital rings.
       for (const packet of run.packets) {
         if (packet.taken) continue;
         ctx2.save();
         ctx2.translate(offX + (packet.x + 0.5) * cell, offY + (packet.y + 0.5) * cell);
-        ctx2.rotate(Math.PI / 4);
-        ctx2.fillStyle = "#7dd3fc";
-        const s = cell * 0.3;
-        ctx2.fillRect(-s / 2, -s / 2, s, s);
-        ctx2.strokeStyle = "rgba(125,211,252,0.5)";
-        ctx2.strokeRect(-s * 0.75, -s * 0.75, s * 1.5, s * 1.5);
+        ctx2.rotate(time / 850 + packet.x);
+        const s = cell * 0.28;
+        ctx2.shadowColor = "#7dd3fc";
+        ctx2.shadowBlur = cell * 0.85;
+        ctx2.fillStyle = "#e0f2fe";
+        ctx2.beginPath();
+        ctx2.moveTo(0, -s); ctx2.lineTo(s, 0); ctx2.lineTo(0, s); ctx2.lineTo(-s, 0); ctx2.closePath(); ctx2.fill();
+        ctx2.shadowBlur = 0;
+        ctx2.strokeStyle = "rgba(125,211,252,0.72)";
+        ctx2.lineWidth = Math.max(1, cell * 0.07);
+        ctx2.beginPath(); ctx2.arc(0, 0, s * 1.65, 0.25, Math.PI * 1.55); ctx2.stroke();
         ctx2.restore();
       }
 
-      // Guards: antivirus, red rotated squares with a core.
+      // Antivirus sentinels: shield-like drones with scanning lenses.
       for (const g of run.guards) {
         const cx = offX + (g.x + 0.5) * cell;
         const cy = offY + (g.y + 0.5) * cell;
         ctx2.save();
         ctx2.translate(cx, cy);
-        ctx2.rotate(time / 500);
-        const s = cell * 0.62;
-        ctx2.fillStyle = "#ef4444";
-        roundRect(ctx2, -s / 2, -s / 2, s, s, s * 0.22);
-        ctx2.fill();
-        ctx2.fillStyle = "#7f1d1d";
-        ctx2.fillRect(-s * 0.18, -s * 0.18, s * 0.36, s * 0.36);
+        const aim = Math.atan2(run.player.y - g.y, run.player.x - g.x);
+        ctx2.rotate(aim + Math.PI / 2);
+        const s = cell * 0.82;
+        ctx2.shadowColor = "rgba(248,113,113,0.75)";
+        ctx2.shadowBlur = cell * 0.72;
+        const guardGradient = ctx2.createLinearGradient(0, -s / 2, 0, s / 2);
+        guardGradient.addColorStop(0, "#fecaca"); guardGradient.addColorStop(0.22, "#ef4444"); guardGradient.addColorStop(1, "#7f1d1d");
+        ctx2.fillStyle = guardGradient;
+        ctx2.beginPath();
+        ctx2.moveTo(0, -s * 0.52); ctx2.lineTo(s * 0.42, -s * 0.22); ctx2.lineTo(s * 0.34, s * 0.3); ctx2.lineTo(0, s * 0.54); ctx2.lineTo(-s * 0.34, s * 0.3); ctx2.lineTo(-s * 0.42, -s * 0.22); ctx2.closePath(); ctx2.fill();
+        ctx2.shadowBlur = 0;
+        ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.06, s * 0.16, 0, Math.PI * 2); ctx2.fill();
+        ctx2.fillStyle = "#fee2e2"; ctx2.beginPath(); ctx2.arc(0, -s * 0.08, s * 0.065, 0, Math.PI * 2); ctx2.fill();
+        ctx2.strokeStyle = "rgba(254,202,202,0.65)"; ctx2.lineWidth = Math.max(0.8, cell * 0.045); ctx2.beginPath(); ctx2.arc(0, 0, s * 0.68, time / 500, time / 500 + Math.PI * 1.15); ctx2.stroke();
         ctx2.restore();
       }
 
-      // Player: a pulsing teal organism.
+      // Player: layered bio-digital organism with nucleus, membrane and orbit.
       const pcx = offX + (run.player.x + 0.5) * cell;
       const pcy = offY + (run.player.y + 0.5) * cell;
       const wobble = 1 + 0.08 * Math.sin(time / 120);
       ctx2.save();
       if (run.player.invuln > 0) ctx2.globalAlpha = 0.45 + 0.4 * Math.sin(time / 60);
-      const r = cell * 0.36 * wobble;
-      ctx2.fillStyle = "#2dd4bf";
-      ctx2.beginPath();
-      ctx2.arc(pcx, pcy, r, 0, Math.PI * 2);
-      ctx2.fill();
-      // Spikes.
-      ctx2.strokeStyle = "#2dd4bf";
-      ctx2.lineWidth = Math.max(1, cell * 0.06);
-      for (let i = 0; i < 8; i++) {
-        const a = (i / 8) * Math.PI * 2 + time / 900;
+      const r = cell * 0.42 * wobble;
+      ctx2.shadowColor = "rgba(45,212,191,0.95)";
+      ctx2.shadowBlur = cell * 1.15;
+      const organism = ctx2.createRadialGradient(pcx - r * 0.28, pcy - r * 0.3, r * 0.08, pcx, pcy, r);
+      organism.addColorStop(0, "#f0fdfa"); organism.addColorStop(0.24, "#5eead4"); organism.addColorStop(0.7, "#14b8a6"); organism.addColorStop(1, "#115e59");
+      ctx2.fillStyle = organism;
+      ctx2.beginPath(); ctx2.arc(pcx, pcy, r, 0, Math.PI * 2); ctx2.fill();
+      ctx2.shadowBlur = 0;
+      ctx2.strokeStyle = "rgba(153,246,228,0.9)";
+      ctx2.lineWidth = Math.max(1, cell * 0.075);
+      for (let i = 0; i < 10; i++) {
+        const a = (i / 10) * Math.PI * 2 + time / 900;
         ctx2.beginPath();
         ctx2.moveTo(pcx + Math.cos(a) * r, pcy + Math.sin(a) * r);
-        ctx2.lineTo(pcx + Math.cos(a) * r * 1.45, pcy + Math.sin(a) * r * 1.45);
+        ctx2.quadraticCurveTo(pcx + Math.cos(a + 0.12) * r * 1.3, pcy + Math.sin(a + 0.12) * r * 1.3, pcx + Math.cos(a) * r * 1.52, pcy + Math.sin(a) * r * 1.52);
         ctx2.stroke();
       }
-      ctx2.fillStyle = "#04211d";
-      ctx2.beginPath();
-      ctx2.arc(pcx - r * 0.28, pcy - r * 0.1, r * 0.16, 0, Math.PI * 2);
-      ctx2.arc(pcx + r * 0.28, pcy - r * 0.1, r * 0.16, 0, Math.PI * 2);
-      ctx2.fill();
+      ctx2.strokeStyle = "rgba(94,234,212,0.62)"; ctx2.lineWidth = Math.max(0.8, cell * 0.045); ctx2.beginPath(); ctx2.ellipse(pcx, pcy, r * 1.48, r * 0.72, time / 650, 0, Math.PI * 2); ctx2.stroke();
+      ctx2.fillStyle = "rgba(4,47,46,0.88)"; ctx2.beginPath(); ctx2.arc(pcx, pcy, r * 0.34, 0, Math.PI * 2); ctx2.fill();
+      ctx2.fillStyle = "#ccfbf1"; ctx2.beginPath(); ctx2.arc(pcx - r * 0.11, pcy - r * 0.12, r * 0.1, 0, Math.PI * 2); ctx2.fill();
       ctx2.restore();
 
       // Restrained edge vignette keeps the field focused without retro scanlines.
@@ -693,9 +732,7 @@ export function VirusRun() {
   const overlay =
     phase === "menu" ? (
       <Overlay>
-        <span className="mb-3 flex size-14 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary shadow-lg" aria-hidden>
-          <ShieldCheck className="size-7" />
-        </span>
+        <VirusCoreGraphic />
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Containment protocol</p>
         <h3 className="font-display text-3xl font-bold uppercase">Virus Run</h3>
         <p className="max-w-sm text-sm text-muted-foreground">
@@ -819,6 +856,43 @@ export function VirusRun() {
           <span />
         </div>
       </div>
+    </div>
+  );
+}
+
+function VirusCoreGraphic() {
+  return (
+    <div className="relative mb-3 flex size-32 items-center justify-center sm:size-40" aria-hidden>
+      <span className="absolute inset-1/4 rounded-full bg-primary/25 blur-2xl" />
+      <svg viewBox="0 0 180 180" className="relative size-full overflow-visible">
+        <defs>
+          <radialGradient id="virus-core" cx="35%" cy="28%" r="70%">
+            <stop offset="0" stopColor="var(--color-primary-foreground)" />
+            <stop offset="0.2" stopColor="var(--color-primary)" />
+            <stop offset="0.7" stopColor="var(--color-progress)" />
+            <stop offset="1" stopColor="var(--color-background)" />
+          </radialGradient>
+          <filter id="virus-glow" x="-70%" y="-70%" width="240%" height="240%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+        <g className="origin-center animate-[spin_18s_linear_infinite]" fill="none" stroke="var(--color-primary)" strokeOpacity=".62">
+          <ellipse cx="90" cy="90" rx="76" ry="39" transform="rotate(24 90 90)" />
+          <ellipse cx="90" cy="90" rx="69" ry="31" transform="rotate(-42 90 90)" strokeOpacity=".28" />
+        </g>
+        <g filter="url(#virus-glow)" stroke="var(--color-primary)" strokeWidth="8" strokeLinecap="round">
+          {Array.from({ length: 12 }).map((_, i) => {
+            const angle = (i / 12) * Math.PI * 2;
+            return <line key={i} x1={90 + Math.cos(angle) * 42} y1={90 + Math.sin(angle) * 42} x2={90 + Math.cos(angle) * 61} y2={90 + Math.sin(angle) * 61} />;
+          })}
+        </g>
+        <circle cx="90" cy="90" r="44" fill="url(#virus-core)" stroke="var(--color-primary-foreground)" strokeOpacity=".36" />
+        <circle cx="90" cy="90" r="20" fill="var(--color-background)" fillOpacity=".72" stroke="var(--color-primary)" strokeWidth="2" />
+        <circle cx="83" cy="82" r="6" fill="var(--color-primary-foreground)" opacity=".9" />
+        <circle cx="55" cy="142" r="4" fill="var(--color-primary)" />
+        <circle cx="149" cy="72" r="3" fill="var(--color-progress)" />
+      </svg>
     </div>
   );
 }
