@@ -100,6 +100,7 @@ export const LESSON_TABS = [
 export const LESSON_TAB_HEADERS: Record<string, string[]> = {
   Lesson: ["Title", "Reading minutes", "Intro", "Where you meet it"],
   Sections: ["Heading", "Paragraph", "Bullets"],
+  "Key terms": ["Term", "Meaning"],
   "Key ideas": ["Idea"],
   Walkthrough: ["Title", "Scenario", "Step label", "Step detail", "Outcome"],
   Reference: ["Reference heading", "Term", "Detail"],
