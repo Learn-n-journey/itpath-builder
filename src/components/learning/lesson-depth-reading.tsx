@@ -3,7 +3,8 @@ import { AlertTriangle, CheckCircle2, ClipboardList, Key, ListChecks, Wrench } f
 
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import type { LessonDepth, LessonReferenceRow } from "@/data/deep-lessons";
+import type { LessonDepth } from "@/data/deep-lessons";
+import type { LessonReferenceRow } from "@/data/deep-lessons/types";
 
 /**
  * Splits the reference rows into sub-sections by their heading, keeping the
