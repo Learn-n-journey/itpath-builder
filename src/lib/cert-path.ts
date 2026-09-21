@@ -174,6 +174,8 @@ export function generateFinalExam(
   };
   return { quiz, questions: picked };
 }
+
+/** Randomised assignment selection for a certification. */
 export function generateAssignments(
   certificationId: string,
   seed: number,

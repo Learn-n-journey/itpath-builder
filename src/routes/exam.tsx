@@ -14,9 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { domain } from "@/domain/active";
 import { certifications } from "@/data/static-content";
 import { selectedCertification } from "@/lib/adaptive-path";
-import { certificationQuestionPool, generateExam } from "@/lib/cert-path";
+import {
+  certificationQuestionPool,
+  courseQuestionPool,
+  generateExam,
+  generateFinalExam,
+} from "@/lib/cert-path";
 import { useShuffleSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
