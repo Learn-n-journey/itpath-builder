@@ -135,7 +135,7 @@ function ExamPage() {
     <>
       <PageHeader
         title="Exam Simulator"
-        description="A full-length timed mock exam drawn at random from the question bank. Score 75% or higher to pass, then review every question you missed."
+        description="A timed mock exam for one certification, or the 80-question final exam covering the whole course. Score 75% or higher to pass, then review every question you missed."
         actions={
           started ? (
             <Button variant="outline" onClick={start}>
@@ -146,7 +146,7 @@ function ExamPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Question bank" value={poolSize} hint={certification.title} />
+        <StatCard label="Question bank" value={poolSize} hint={mode === "final" ? "Whole course" : certification?.title} />
         <StatCard label="This exam" value={questionCount} />
         <StatCard label="Time allowed" value={`${Math.round(totalSeconds / 60)} min`} />
         <StatCard label="Pass mark" value={`${PASS_SCORE}%`} />
