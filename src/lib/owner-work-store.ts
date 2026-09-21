@@ -67,7 +67,7 @@ export function loadOwnerWork(): Promise<boolean> {
       for (const row of data ?? []) {
         const work = row.work as unknown as OwnerTopicWork | null;
         if (!work) continue;
-        next[row.topic_id as string] = { recall: work.recall ?? [], ...work };
+        next[row.topic_id as string] = { ...work, recall: work.recall ?? [] };
       }
       live = next;
       version += 1;
