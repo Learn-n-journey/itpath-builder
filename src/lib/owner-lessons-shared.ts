@@ -98,7 +98,7 @@ const CORRECT_LETTERS = ["A", "B", "C", "D"];
 
 const key = (value: string) => value.trim().toLowerCase();
 
-function body(tabs: SheetTab[], name: string): string[][] {
+export function body(tabs: SheetTab[], name: string): string[][] {
   const tab = tabs.find((item) => key(item.name) === key(name));
   if (!tab) return [];
   return tab.rows
@@ -107,9 +107,9 @@ function body(tabs: SheetTab[], name: string): string[][] {
     .filter((row) => row.some(Boolean));
 }
 
-const cell = (row: string[] | undefined, index: number): string => (row?.[index] ?? "").trim();
+export const cell = (row: string[] | undefined, index: number): string => (row?.[index] ?? "").trim();
 
-function splitList(value: string): string[] {
+export function splitList(value: string): string[] {
   return value
     .split(/\r?\n|\s\|\s|\|/)
     .map((part) => part.trim())
