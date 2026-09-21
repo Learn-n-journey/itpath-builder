@@ -732,9 +732,7 @@ export function VirusRun() {
   const overlay =
     phase === "menu" ? (
       <Overlay>
-        <span className="mb-3 flex size-14 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary shadow-lg" aria-hidden>
-          <ShieldCheck className="size-7" />
-        </span>
+        <VirusCoreGraphic />
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Containment protocol</p>
         <h3 className="font-display text-3xl font-bold uppercase">Virus Run</h3>
         <p className="max-w-sm text-sm text-muted-foreground">
@@ -858,6 +856,43 @@ export function VirusRun() {
           <span />
         </div>
       </div>
+    </div>
+  );
+}
+
+function VirusCoreGraphic() {
+  return (
+    <div className="relative mb-3 flex size-32 items-center justify-center sm:size-40" aria-hidden>
+      <span className="absolute inset-1/4 rounded-full bg-primary/25 blur-2xl" />
+      <svg viewBox="0 0 180 180" className="relative size-full overflow-visible">
+        <defs>
+          <radialGradient id="virus-core" cx="35%" cy="28%" r="70%">
+            <stop offset="0" stopColor="var(--color-primary-foreground)" />
+            <stop offset="0.2" stopColor="var(--color-primary)" />
+            <stop offset="0.7" stopColor="var(--color-progress)" />
+            <stop offset="1" stopColor="var(--color-background)" />
+          </radialGradient>
+          <filter id="virus-glow" x="-70%" y="-70%" width="240%" height="240%">
+            <feGaussianBlur stdDeviation="5" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+        <g className="origin-center animate-[spin_18s_linear_infinite]" fill="none" stroke="var(--color-primary)" strokeOpacity=".62">
+          <ellipse cx="90" cy="90" rx="76" ry="39" transform="rotate(24 90 90)" />
+          <ellipse cx="90" cy="90" rx="69" ry="31" transform="rotate(-42 90 90)" strokeOpacity=".28" />
+        </g>
+        <g filter="url(#virus-glow)" stroke="var(--color-primary)" strokeWidth="8" strokeLinecap="round">
+          {Array.from({ length: 12 }).map((_, i) => {
+            const angle = (i / 12) * Math.PI * 2;
+            return <line key={i} x1={90 + Math.cos(angle) * 42} y1={90 + Math.sin(angle) * 42} x2={90 + Math.cos(angle) * 61} y2={90 + Math.sin(angle) * 61} />;
+          })}
+        </g>
+        <circle cx="90" cy="90" r="44" fill="url(#virus-core)" stroke="var(--color-primary-foreground)" strokeOpacity=".36" />
+        <circle cx="90" cy="90" r="20" fill="var(--color-background)" fillOpacity=".72" stroke="var(--color-primary)" strokeWidth="2" />
+        <circle cx="83" cy="82" r="6" fill="var(--color-primary-foreground)" opacity=".9" />
+        <circle cx="55" cy="142" r="4" fill="var(--color-primary)" />
+        <circle cx="149" cy="72" r="3" fill="var(--color-progress)" />
+      </svg>
     </div>
   );
 }
