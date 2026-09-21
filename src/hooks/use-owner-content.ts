@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { subscribeOwnerLessons, ownerLessonVersion } from "@/lib/owner-lesson-store";
 import { subscribeOwnerWork, ownerWorkVersion } from "@/lib/owner-work-store";
-import { subscribeOwnerQuestions, ownerQuestionVersion } from "@/lib/owner-question-store";
+import { subscribeOwnerQuestions, ownerPoolVersion } from "@/lib/owner-question-store";
 
 /**
  * Re-renders the caller whenever owner workbook content finishes loading, so a
@@ -21,7 +21,7 @@ export function useOwnerContentVersion(): number {
         offQuestions();
       };
     },
-    () => ownerLessonVersion() + ownerWorkVersion() + ownerQuestionVersion(),
+    () => ownerLessonVersion() + ownerWorkVersion() + ownerPoolVersion(),
     () => 0,
   );
 }

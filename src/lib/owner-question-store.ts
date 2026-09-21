@@ -50,6 +50,14 @@ export function ownerPoolVersion(): number {
   return version;
 }
 
+const listeners = new Set<() => void>();
+
+/** Notified when a live load lands, so open pages can refresh their content. */
+export function subscribeOwnerQuestions(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener) as unknown as void;
+}
+
 /** Pulls approved owner questions from the database. Safe to call repeatedly. */
 export function loadOwnerQuestions(): Promise<boolean> {
   if (loading) return loading;
@@ -70,6 +78,7 @@ export function loadOwnerQuestions(): Promise<boolean> {
       }
       live = next;
       version += 1;
+      listeners.forEach((listener) => listener());
       return true;
     } catch {
       return false;
