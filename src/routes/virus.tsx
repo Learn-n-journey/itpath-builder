@@ -18,6 +18,8 @@ export const Route = createFileRoute("/virus")({
         content:
           "Play as the virus: harvest data packets, dodge antivirus daemons and breach endlessly harder systems.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: VirusPage,
