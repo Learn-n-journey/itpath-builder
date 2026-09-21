@@ -16,7 +16,7 @@ import {
 import type { DeepLesson } from "@/data/deep-lessons/types";
 import type { PracticeActivity, RealWorldScenario, RecallQuestion, Resource } from "@/lib/app-data/types";
 import type { WorkedExample } from "@/data/worked-examples";
-import type { OwnerLessonExtras } from "@/lib/owner-lessons-shared";
+import type { OwnerLabItem, OwnerLessonExtras } from "@/lib/owner-lessons-shared";
 
 let liveLessons: Record<string, DeepLesson> | null = null;
 let liveSources: Record<string, Resource[]> | null = null;
@@ -76,6 +76,11 @@ export function ownerWorkedExamplesFor(topicId: string): WorkedExample[] {
   return extrasFor(topicId)?.workedExamples ?? [];
 }
 
+/** Numbered lab items the owner wrote on that topic's Labs tab. */
+export function ownerLabsFor(topicId: string): OwnerLabItem[] {
+  return extrasFor(topicId)?.labs ?? [];
+}
+
 /** Topics whose built-in lesson has been replaced by an owner lesson. */
 export function ownerLessonTopicIds(): Set<string> {
   return new Set(Object.keys(lessonMap()));
@@ -110,10 +115,18 @@ export function loadOwnerLessons(): Promise<boolean> {
         const rows = (row.practice as unknown as PracticeActivity[]) ?? [];
         if (rows.length) practice[topicId] = rows;
         const extra = row.extras as unknown as OwnerLessonExtras | null;
-        if (extra && (extra.recall?.length || extra.workedExamples?.length || extra.teachBack || extra.scenario)) {
+        if (
+          extra &&
+          (extra.recall?.length ||
+            extra.workedExamples?.length ||
+            extra.labs?.length ||
+            extra.teachBack ||
+            extra.scenario)
+        ) {
           extras[topicId] = {
             recall: extra.recall ?? [],
             workedExamples: extra.workedExamples ?? [],
+            ...(extra.labs?.length ? { labs: extra.labs } : {}),
             ...(extra.teachBack ? { teachBack: extra.teachBack } : {}),
             ...(extra.scenario ? { scenario: extra.scenario } : {}),
           };
