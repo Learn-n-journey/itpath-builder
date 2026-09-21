@@ -54,18 +54,6 @@ function passesOffline(answer: string, concepts: string[], modelAnswer?: string)
   return modelAnswer ? answerMatches(answer, modelAnswer) : false;
 }
 
-/**
- * Nearly there: some of the expected thinking is present, so the answer gets a
- * nudge towards the missing step rather than a plain fail.
- */
-function offlineHints(answer: string, concepts: string[]): string[] {
-  const matched = new Set(matchConcepts(answer, concepts));
-  if (matched.size === 0) return [];
-  return concepts
-    .filter((concept) => !matched.has(concept))
-    .slice(0, 4)
-    .map((concept) => `Add the step about ${concept.charAt(0).toLowerCase()}${concept.slice(1)}`);
-}
 
 
 
@@ -75,49 +63,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const lesson = lessons.find((item) => item.topicId === topic.id);
   const module = getLearningModule(topic.id);
   const deepLesson = getDeepLesson(topic.id);
-  // Every recall prompt available for this topic: the authored pair plus ones built from the lesson.
-  // A topic the owner wrote Recall rows for uses only those.
-  // Re-runs once the owner's workbooks finish loading, so the built-in prompts
-  // are never left in place on a first visit.
-  const ownerVersion = useOwnerContentVersion();
-  const recallQuestions = useMemo(() => {
-    const work = ownerWorkRecallFor(topic.id);
-    if (work.length) return work;
-    const owned = ownerRecallFor(topic.id);
-    if (owned.length) return owned;
-    return [...getRecallQuestions(topic.id), ...getGeneratedRecallQuestions(topic.id)];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topic.id, ownerVersion]);
-  // Show two at a time, skipping the ones already answered well, so a return visit brings new ones.
-  // The chosen pair is fixed for the visit, so answering one does not make it vanish before the
-  // feedback is read. A page reload (or moving topic) picks the next pair.
-  const pickedRecall = useRef<{ topicId: string; ids: string[] } | null>(null);
-  const visibleRecall = useMemo(() => {
-    if (pickedRecall.current && pickedRecall.current.topicId === topic.id) {
-      const kept = pickedRecall.current.ids
-        .map((id) => recallQuestions.find((item) => item.id === id))
-        .filter((item): item is (typeof recallQuestions)[number] => Boolean(item));
-      if (kept.length > 0) return kept;
-    }
-    const answeredWell = new Set(
-      user.recallResponses.filter((item) => item.topicId === topic.id && item.correct).map((item) => item.questionId),
-    );
-    const fresh = recallQuestions.filter((item) => !answeredWell.has(item.id));
-    let chosen = fresh.slice(0, 2);
-    if (chosen.length === 0) {
-      // Pool exhausted, so come back round to the ones answered longest ago.
-      const lastSeen = new Map<string, string>();
-      for (const response of user.recallResponses.filter((item) => item.topicId === topic.id)) {
-        const current = lastSeen.get(response.questionId);
-        if (!current || response.createdAt > current) lastSeen.set(response.questionId, response.createdAt);
-      }
-      chosen = [...recallQuestions]
-        .sort((a, b) => (lastSeen.get(a.id) ?? "").localeCompare(lastSeen.get(b.id) ?? ""))
-        .slice(0, 2);
-    }
-    pickedRecall.current = { topicId: topic.id, ids: chosen.map((item) => item.id) };
-    return chosen;
-  }, [recallQuestions, user.recallResponses, topic.id]);
 
   const practiceActivities = getPracticeActivities(topic.id);
   const practice = practiceActivities[0];
