@@ -50,6 +50,14 @@ export function ownerWorkVersion(): number {
   return version;
 }
 
+const listeners = new Set<() => void>();
+
+/** Notified when a live load lands, so open pages can refresh their content. */
+export function subscribeOwnerWork(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener) as unknown as void;
+}
+
 /** Pulls approved owner work from the database. Safe to call repeatedly. */
 export function loadOwnerWork(): Promise<boolean> {
   if (loading) return loading;
@@ -71,6 +79,7 @@ export function loadOwnerWork(): Promise<boolean> {
       }
       live = next;
       version += 1;
+      listeners.forEach((listener) => listener());
       return true;
     } catch {
       return false;
