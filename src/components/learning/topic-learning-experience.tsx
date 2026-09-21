@@ -70,22 +70,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const ownerTeachBack = ownerWorkTeachBackFor(topic.id) ?? ownerTeachBackFor(topic.id);
   const savedTeachBack = user.teachBackResponses[topic.id];
   const savedScenario = user.scenarioResponses[topic.id];
-  // Recall work is kept, so leaving the page and coming back does not wipe it.
-  const savedRecall = useMemo(() => {
-    const answers: Record<string, string> = {};
-    const feedback: Record<string, { correct: boolean; message: string }> = {};
-    for (const response of [...user.recallResponses]
-      .filter((item) => item.topicId === topic.id)
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
-      answers[response.questionId] = response.answer;
-      const question = recallQuestions.find((item) => item.id === response.questionId);
-      feedback[response.questionId] = { correct: response.correct, message: question?.explanation ?? "" };
-    }
-    return { answers, feedback };
-  }, [user.recallResponses, topic.id, recallQuestions]);
-  const [recallAnswers, setRecallAnswers] = useState<Record<string, string>>(savedRecall.answers);
-  const [recallFeedback, setRecallFeedback] = useState<Record<string, { correct: boolean; message: string }>>(savedRecall.feedback);
-
   // Practice work is kept per question, so leaving the page does not wipe it.
   const savedPractice = useMemo(() => {
     const choices: Record<string, number> = {};
@@ -105,15 +89,13 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const [teachBackEditing, setTeachBackEditing] = useState(!savedTeachBack);
   const [scenarioAnswer, setScenarioAnswer] = useState(savedScenario?.response ?? "");
   const [scenarioFeedback, setScenarioFeedback] = useState<string | null>(savedScenario ? scenario?.guidance ?? null : null);
-  const recallMarking = useAiMarking();
-  const [markedRecallId, setMarkedRecallId] = useState<string | null>(null);
   /**
    * Which practice tab is open. Shortcuts elsewhere on the page can open a tab
    * directly by setting the address hash, for example #teach-back.
    */
-  const [workTab, setWorkTab] = useState("recall");
+  const [workTab, setWorkTab] = useState("practice");
   useEffect(() => {
-    const tabs = ["recall", "practice", "teach-back", "scenario"];
+    const tabs = ["practice", "teach-back", "scenario"];
     const applyHash = () => {
       const hash = window.location.hash.replace("#", "");
       if (!tabs.includes(hash)) return;
