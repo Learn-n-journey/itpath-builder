@@ -1,6 +1,7 @@
 # Roadmap
 
 - [x] Neutral main entrance for choosing IT PATH or AUTO PATH; neither course dashboard is the home page.
+- [x] Main entrance account controls: universal sign-in for visitors, session-aware dashboard access, and owner-only Exclusive settings.
 - [x] Separate first-launch onboarding state and AUTO PATH wording for the automotive course.
 
 Confirmed by user ("Confirm" = all eight functionality improvements):

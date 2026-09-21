@@ -1,9 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, LayoutDashboard, LogIn, Settings, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import autopathLogo from "@/assets/autopath-logo.png.asset.json";
 import { setDomainOverride } from "@/lib/active-domain";
+import { OWNER_EMAILS } from "@/lib/beta-access.functions";
+import { useAuth } from "@/state/auth-state";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
@@ -48,6 +50,9 @@ const paths = [
 ];
 
 function CourseChooser() {
+  const { email, userId, ready } = useAuth();
+  const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
+
   function choose(id: string) {
     setDomainOverride(id);
     window.location.assign("/dashboard");
@@ -56,6 +61,32 @@ function CourseChooser() {
   return (
     <main className="path-chooser flex min-h-screen items-center justify-center overflow-hidden px-4 py-10 text-foreground sm:px-8 sm:py-14">
       <div className="w-full max-w-5xl">
+        <div className="mb-8 flex min-h-9 items-center justify-end gap-2">
+          {ready && isOwner ? (
+            <Button asChild size="sm" variant="outline">
+              <Link to="/settings">
+                <Settings className="size-4" aria-hidden />
+                Exclusive settings
+              </Link>
+            </Button>
+          ) : null}
+          {ready && !userId ? (
+            <Button asChild size="sm">
+              <Link to="/auth">
+                <LogIn className="size-4" aria-hidden />
+                Sign in
+              </Link>
+            </Button>
+          ) : null}
+          {ready && userId ? (
+            <Button asChild size="sm" variant="secondary">
+              <Link to="/dashboard">
+                <LayoutDashboard className="size-4" aria-hidden />
+                Dashboard
+              </Link>
+            </Button>
+          ) : null}
+        </div>
         <header className="mx-auto mb-9 max-w-2xl text-center sm:mb-12">
           <div className="mb-5 inline-flex items-center gap-2 text-xs font-semibold uppercase text-path-steel">
             <ShieldCheck className="size-4 text-primary" aria-hidden />
