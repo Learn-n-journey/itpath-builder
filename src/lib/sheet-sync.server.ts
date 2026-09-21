@@ -392,6 +392,45 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
 
         lessonsApproved += 1;
         topicsSynced.add(topic.topicId);
+
+        // A master workbook can also carry the recall-folder tabs
+        // (Recall, Teach back, Application, Troubleshooting). Store those too,
+        // so one workbook per topic feeds everything.
+        const lessonWork = ownerWorkFromTabs(topic, tabs);
+        const hasLessonWork = Boolean(
+          lessonWork.recall.length ||
+            lessonWork.teachBack ||
+            lessonWork.scenario ||
+            lessonWork.troubleshooting,
+        );
+        if (hasLessonWork) {
+          await supabaseAdmin
+            .from("owner_topic_work")
+            .delete()
+            .eq("domain", domain)
+            .eq("topic_id", topic.topicId);
+          const { error: lessonWorkError } = await supabaseAdmin.from("owner_topic_work").insert({
+            domain,
+            topic_id: topic.topicId,
+            source_file: file.name,
+            work: lessonWork as unknown as Json,
+            status: "approved",
+            notes: [],
+          });
+          if (lessonWorkError) throw new Error(`storing work ${file.name}: ${lessonWorkError.message}`);
+          workTopics += 1;
+          report.push({
+            domain,
+            folder: lessonFolder,
+            file: file.name,
+            topic: topic.title,
+            recall: lessonWork.recall.length,
+            teachBack: Boolean(lessonWork.teachBack),
+            application: Boolean(lessonWork.scenario),
+            troubleshooting: Boolean(lessonWork.troubleshooting),
+          });
+        }
+
         report.push({
           domain,
           folder: lessonFolder,
