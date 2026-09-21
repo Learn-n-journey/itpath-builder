@@ -19,8 +19,10 @@ import {
   Package,
   RotateCcw,
   Shield,
+  ShieldCheck,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const COLS = 25;
@@ -509,7 +511,23 @@ export function VirusRun() {
       ctx2.fillStyle = t.bg;
       ctx2.fillRect(0, 0, rect.width, rect.height);
 
-      // Walls as inset blocks, like circuitry.
+      // Fine system grid: technical depth without the old scanline effect.
+      ctx2.strokeStyle = "rgba(148,163,184,0.055)";
+      ctx2.lineWidth = 1;
+      for (let x = offX; x <= offX + cell * COLS; x += cell) {
+        ctx2.beginPath();
+        ctx2.moveTo(x, offY);
+        ctx2.lineTo(x, offY + cell * ROWS);
+        ctx2.stroke();
+      }
+      for (let y = offY; y <= offY + cell * ROWS; y += cell) {
+        ctx2.beginPath();
+        ctx2.moveTo(offX, y);
+        ctx2.lineTo(offX + cell * COLS, y);
+        ctx2.stroke();
+      }
+
+      // Walls as precision-machined circuitry blocks.
       const pad = cell * 0.08;
       for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
@@ -520,6 +538,9 @@ export function VirusRun() {
             ctx2.strokeStyle = t.wallEdge;
             ctx2.lineWidth = 1;
             ctx2.stroke();
+            ctx2.fillStyle = "rgba(255,255,255,0.025)";
+            roundRect(ctx2, offX + x * cell + pad * 1.7, offY + y * cell + pad * 1.7, cell - pad * 3.4, Math.max(1, cell * 0.08), cell * 0.04);
+            ctx2.fill();
           }
         }
       }
@@ -596,9 +617,10 @@ export function VirusRun() {
       ctx2.fill();
       ctx2.restore();
 
-      // Subtle scanline vignette.
-      ctx2.fillStyle = "rgba(0,0,0,0.14)";
-      for (let y = 0; y < rect.height; y += 4) ctx2.fillRect(0, y, rect.width, 1);
+      // Restrained edge vignette keeps the field focused without retro scanlines.
+      ctx2.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx2.lineWidth = 1;
+      ctx2.strokeRect(offX + 0.5, offY + 0.5, cell * COLS - 1, cell * ROWS - 1);
     };
 
     const frame = (time: number) => {
@@ -671,7 +693,11 @@ export function VirusRun() {
   const overlay =
     phase === "menu" ? (
       <Overlay>
-        <h3 className="font-mono text-lg font-semibold text-primary">VIRUS RUN</h3>
+        <span className="mb-3 flex size-14 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary shadow-lg" aria-hidden>
+          <ShieldCheck className="size-7" />
+        </span>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Containment protocol</p>
+        <h3 className="font-display text-3xl font-bold uppercase">Virus Run</h3>
         <p className="max-w-sm text-sm text-muted-foreground">
           You are the virus. Collect every data packet on the system, stay away from the antivirus daemons,
           then reach the open port to slip deeper. There is no last level: each system is harder than the one
@@ -681,12 +707,9 @@ export function VirusRun() {
           <span>Arrow keys or WASD to move, Esc to pause.</span>
           <span>On touch screens, drag on the play area, use the arrow pad, or tilt the stick in its middle.</span>
         </div>
-        <button
-          onClick={startRun}
-          className="mt-2 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-95"
-        >
+        <Button onClick={startRun} className="mt-3 min-w-48">
           <Play className="size-4" aria-hidden /> Start the infection
-        </button>
+        </Button>
         {hud.bestLevel > 0 && (
           <p className="font-mono text-xs text-muted-foreground">
             Deepest breach: system {hud.bestLevel} · {hud.bestPackets} packets harvested
@@ -695,24 +718,25 @@ export function VirusRun() {
       </Overlay>
     ) : phase === "paused" ? (
       <Overlay>
-        <h3 className="font-mono text-lg font-semibold text-primary">PAUSED</h3>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">System held</p>
+        <h3 className="font-display text-2xl font-bold">Paused</h3>
         <div className="mt-2 flex gap-3">
-          <button onClick={resume} className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-transform active:scale-95">
+          <Button onClick={resume}>
             <Play className="size-4" aria-hidden /> Resume
-          </button>
-          <button onClick={startRun} className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2 text-sm font-medium transition-colors hover:bg-secondary">
+          </Button>
+          <Button onClick={startRun} variant="outline">
             <RotateCcw className="size-4" aria-hidden /> Restart
-          </button>
+          </Button>
         </div>
       </Overlay>
     ) : phase === "levelclear" ? (
       <Overlay>
-        <h3 className="font-mono text-lg font-semibold text-primary">SYSTEM BREACHED</h3>
+        <h3 className="font-display text-2xl font-bold text-primary">System breached</h3>
         <p className="text-sm text-muted-foreground">Slipping deeper into the machine…</p>
       </Overlay>
     ) : phase === "gameover" ? (
       <Overlay>
-        <h3 className="font-mono text-lg font-semibold text-red-500">QUARANTINED</h3>
+        <h3 className="font-display text-2xl font-bold text-destructive">Quarantined</h3>
         <p className="text-sm text-muted-foreground">
           The antivirus found you on system {hud.level}. You harvested {hud.collected} packets this breach.
         </p>
@@ -721,57 +745,58 @@ export function VirusRun() {
             Deepest breach so far: system {hud.bestLevel}
           </p>
         )}
-        <button onClick={startRun} className="mt-1 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-95">
+        <Button onClick={startRun} className="mt-2">
           <RotateCcw className="size-4" aria-hidden /> Run again
-        </button>
+        </Button>
       </Overlay>
     ) : null;
 
   return (
-    <div className="mx-auto w-full max-w-4xl">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+    <div className="virus-game mx-auto w-full max-w-5xl">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/70 bg-card/65 p-3 shadow-lg backdrop-blur-xl sm:p-4">
         <div className="min-w-0">
-          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
             {run ? `System ${run.level} · ${hud.system}` : "Virus Run"}
           </p>
           <p className="truncate text-sm font-medium">
             {run ? hud.hint : "Play as the virus and see how deep you get."}
           </p>
         </div>
-        <div className="flex items-center gap-4 font-mono text-sm">
-          <span className="inline-flex items-center gap-1.5" title="Integrity">
+        <div className="flex items-center gap-2 font-mono text-sm">
+          <span className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-border/60 bg-background/45 px-3" title="Integrity">
             {Array.from({ length: MAX_INTEGRITY }).map((_, i) => (
               <Heart
                 key={i}
-                className={cn("size-4", i < hud.integrity ? "fill-red-500 text-red-500" : "text-muted-foreground/40")}
+                 className={cn("size-4", i < hud.integrity ? "fill-destructive text-destructive" : "text-muted-foreground/40")}
                 aria-hidden
               />
             ))}
           </span>
-          <span className="inline-flex items-center gap-1.5" title="Data packets">
-            <Package className="size-4 text-sky-400" aria-hidden />
+          <span className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-border/60 bg-background/45 px-3" title="Data packets">
+            <Package className="size-4 text-progress" aria-hidden />
             {hud.collected}/{hud.required}
           </span>
-          <span className="inline-flex items-center gap-1.5" title="Deepest breach">
+          <span className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-border/60 bg-background/45 px-3" title="Deepest breach">
             <Shield className="size-4 text-muted-foreground" aria-hidden />
             {hud.bestLevel}
           </span>
           {(phase === "playing" || phase === "paused") && (
-            <button
+            <Button
               onClick={phase === "playing" ? pause : resume}
               aria-label={phase === "playing" ? "Pause" : "Resume"}
-              className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-card transition-colors hover:border-primary/60 hover:text-primary"
+              variant="outline"
+              size="icon"
             >
               <Pause className="size-4" aria-hidden />
-            </button>
+            </Button>
           )}
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-xl border border-border">
+      <div className="relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl">
         <canvas
           ref={canvasRef}
-          className="block h-auto w-full aspect-[25/17] touch-none"
+           className="block h-auto w-full rounded-md aspect-[25/17] touch-none"
           onPointerDown={onCanvasPointerDown}
           onPointerMove={onCanvasPointerMove}
           onPointerUp={onCanvasPointerEnd}
@@ -820,7 +845,7 @@ function PadButton({
       onPointerLeave={onRelease}
       onPointerCancel={onRelease}
       onContextMenu={(e) => e.preventDefault()}
-      className="flex size-16 items-center justify-center rounded-2xl border border-border bg-card text-muted-foreground shadow-sm transition-colors active:border-primary active:bg-primary/15 active:text-primary"
+      className="flex size-16 items-center justify-center rounded-lg border border-border bg-card/80 text-muted-foreground shadow-lg backdrop-blur-xl transition-[transform,border-color,background-color] active:scale-95 active:border-primary active:bg-primary/15 active:text-primary"
     >
       {icon}
     </button>
@@ -859,7 +884,7 @@ function Joystick({ onDir, onRelease }: { onDir: (dir: string) => void; onReleas
       ref={baseRef}
       role="application"
       aria-label="Movement stick"
-      className="relative flex size-16 touch-none items-center justify-center rounded-full border border-border bg-secondary/50 select-none"
+      className="relative flex size-16 touch-none items-center justify-center rounded-full border border-border bg-card/80 shadow-lg backdrop-blur-xl select-none"
       onPointerDown={(e) => {
         e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -893,8 +918,10 @@ function Joystick({ onDir, onRelease }: { onDir: (dir: string) => void; onReleas
 
 function Overlay({ children }: { children: React.ReactNode }) {
   return (
-    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-background/85 p-6 text-center backdrop-blur-sm">
-      {children}
+    <div className="absolute inset-1.5 z-10 flex items-center justify-center rounded-md bg-background/72 p-4 backdrop-blur-md">
+      <div className="flex w-full max-w-lg flex-col items-center justify-center gap-2 rounded-lg border border-border/70 bg-card/72 p-6 text-center shadow-2xl backdrop-blur-2xl sm:p-8">
+        {children}
+      </div>
     </div>
   );
 }

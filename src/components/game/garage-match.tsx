@@ -1,4 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  BatteryCharging,
+  CircleGauge,
+  Cog,
+  Fuel,
+  Nut,
+  Wrench,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -8,18 +18,19 @@ import { Button } from "@/components/ui/button";
 // ---------------------------------------------------------------------------
 
 interface PartDef {
-  emoji: string;
+  icon: LucideIcon;
   name: string;
+  tone: string;
 }
 
 const PARTS: PartDef[] = [
-  { emoji: "🛞", name: "Tires" },
-  { emoji: "🔋", name: "Batteries" },
-  { emoji: "⚡", name: "Spark Plugs" },
-  { emoji: "🔧", name: "Wrenches" },
-  { emoji: "🛢️", name: "Oil Cans" },
-  { emoji: "⚙️", name: "Gears" },
-  { emoji: "🔩", name: "Bolts" },
+  { icon: CircleGauge, name: "Tires", tone: "text-emphasis" },
+  { icon: BatteryCharging, name: "Batteries", tone: "text-progress" },
+  { icon: Zap, name: "Spark Plugs", tone: "text-warning" },
+  { icon: Wrench, name: "Wrenches", tone: "text-primary" },
+  { icon: Fuel, name: "Oil Cans", tone: "text-success" },
+  { icon: Cog, name: "Gears", tone: "text-muted-foreground" },
+  { icon: Nut, name: "Bolts", tone: "text-destructive" },
 ];
 
 const CAR_FLEET = [
@@ -755,16 +766,36 @@ export function GarageMatch() {
   return (
     <div className="space-y-5">
       <style>{`
-        @keyframes gm-pop { 0% { transform: scale(1); } 45% { transform: scale(1.28) rotate(6deg); opacity: .85; } 100% { transform: scale(.2); opacity: 0; } }
-        @keyframes gm-drop { 0% { transform: translateY(-16px); opacity: .4; } 100% { transform: translateY(0); opacity: 1; } }
+        @keyframes gm-pop { 0% { transform: scale(1); } 45% { transform: scale(1.12); opacity: .8; } 100% { transform: scale(.72); opacity: 0; } }
+        @keyframes gm-drop { 0% { transform: translateY(-12px) scale(.96); opacity: .35; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
         @keyframes gm-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
-        @keyframes gm-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,.55); } 50% { box-shadow: 0 0 0 5px rgba(245,158,11,0); } }
+        @keyframes gm-pulse { 0%, 100% { opacity: .62; } 50% { opacity: 1; } }
         .gm-pop { animation: gm-pop .2s ease-in forwards; }
-        .gm-drop { animation: gm-drop .22s ease-out; }
+        .gm-drop { animation: gm-drop .24s cubic-bezier(.2,.8,.2,1); }
         .gm-shake { animation: gm-shake .25s ease-in-out; }
         .gm-pulse { animation: gm-pulse 1.6s ease-in-out infinite; }
         .gm-fleet-icon { filter: grayscale(0); }
         .gm-fleet-locked { filter: grayscale(1); }
+        .gm-shell {
+          background: color-mix(in oklab, var(--card) 78%, transparent);
+          backdrop-filter: blur(22px) saturate(130%);
+          box-shadow: 0 22px 60px color-mix(in oklab, var(--background) 64%, transparent), inset 0 1px color-mix(in oklab, var(--foreground) 7%, transparent);
+        }
+        .gm-board {
+          background-color: color-mix(in oklab, var(--background) 78%, var(--secondary));
+          background-image: linear-gradient(color-mix(in oklab, var(--border) 22%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--border) 22%, transparent) 1px, transparent 1px);
+          background-size: 18px 18px;
+          box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 4%, transparent), inset 0 18px 40px color-mix(in oklab, var(--background) 45%, transparent);
+        }
+        .gm-tile {
+          background: color-mix(in oklab, var(--card) 86%, transparent);
+          box-shadow: inset 0 1px color-mix(in oklab, var(--foreground) 8%, transparent), 0 5px 10px color-mix(in oklab, var(--background) 40%, transparent);
+        }
+        .gm-tile:hover { transform: translateY(-1px); border-color: color-mix(in oklab, var(--primary) 45%, var(--border)); }
+        @media (prefers-reduced-motion: reduce) {
+          .gm-pop, .gm-drop, .gm-shake, .gm-pulse { animation: none; }
+          .gm-tile:hover { transform: none; }
+        }
       `}</style>
 
       <PageHeader
@@ -775,21 +806,29 @@ export function GarageMatch() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* Board column */}
         <Panel
-          className="order-2 lg:order-1"
+          className="gm-shell order-2 overflow-hidden lg:order-1"
           title="Work order"
-          description={
-            config.objectives
-              .map((o) => `${PARTS[o.kind]?.name ?? "Parts"}: ${Math.min(stateRef.current.collected[o.kind] ?? 0, o.need)}/${o.need}`)
-              .join(" · ") + ` · Moves left: ${view.moves}`
-          }
+          description={`Job ${String(config.level).padStart(2, "0")} · ${config.job} · ${car.name}`}
         >
-          <div className="mx-auto grid w-full max-w-[520px] grid-cols-8 gap-1 rounded-xl border border-border bg-secondary/40 p-1.5 select-none">
+          <div className="mx-auto mb-4 flex max-w-[520px] items-end justify-between gap-4 border-b border-border/70 pb-4">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Current repair</p>
+              <p className="mt-1 font-display text-lg font-semibold">{ZONES[zonesFixed] ?? ZONES[0]}</p>
+            </div>
+            <div className="min-w-20 rounded-md border border-primary/25 bg-primary/8 px-3 py-2 text-right">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Moves</p>
+              <p className="font-mono text-2xl font-semibold tabular-nums text-primary">{view.moves}</p>
+            </div>
+          </div>
+          <div className="gm-board mx-auto grid w-full max-w-[520px] grid-cols-8 gap-1.5 rounded-lg border border-border/80 p-2 select-none">
             {view.board.map((row, r) =>
               row.map((tile, c) => {
                 const k = key(r, c);
                 const clearing = view.clearing.has(k);
                 const shaking = view.shake.includes(k);
                 const selected = !clearing && view.selected?.[0] === r && view.selected?.[1] === c;
+                const part = tile ? PARTS[tile.kind] : undefined;
+                const PartIcon = part?.icon;
                 return (
                   <button
                     key={tile?.id ?? `${r}-${c}`}
@@ -801,30 +840,30 @@ export function GarageMatch() {
                     onPointerUp={onTilePointerUp}
                     onPointerCancel={onTilePointerUp}
                     className={[
-                      "relative flex aspect-square cursor-grab touch-none items-center justify-center rounded-lg border text-2xl transition-transform duration-100 active:cursor-grabbing sm:text-3xl",
-                      clearing ? "gm-pop border-transparent" : "border-border/60 bg-card hover:bg-secondary/60",
+                      "gm-tile relative flex aspect-square cursor-grab touch-none items-center justify-center rounded-md border transition-[transform,border-color,background-color] duration-150 active:cursor-grabbing active:scale-95",
+                      clearing ? "gm-pop border-transparent" : "border-border/65",
                       tile?.id != null && view.fresh.has(tile.id) ? "gm-drop" : "",
                       shaking ? "gm-shake" : "",
-                      selected ? "border-primary ring-2 ring-primary" : "",
+                      selected ? "border-primary bg-primary/10 ring-2 ring-primary/50" : "",
                     ].join(" ")}
                   >
-                    <span aria-hidden>{tile ? PARTS[tile.kind]?.emoji : ""}</span>
+                    {PartIcon ? <PartIcon aria-hidden className={`size-[44%] stroke-[1.8] ${part?.tone ?? "text-foreground"}`} /> : null}
                     {tile?.special ? (
                       <span
                         aria-hidden
                         className={[
-                          "absolute -right-0.5 -top-0.5 rounded-full px-1 text-[9px] font-bold uppercase",
-                          tile.special === "surge" ? "bg-amber-500 text-black" : "bg-red-500 text-white",
+                          "absolute right-1 top-1 rounded-sm border px-1 text-[8px] font-bold uppercase",
+                          tile.special === "surge" ? "border-warning/50 bg-warning/15 text-warning" : "border-destructive/50 bg-destructive/15 text-destructive",
                         ].join(" ")}
                       >
-                        {tile.special === "surge" ? "⚡" : "V8"}
+                        {tile.special === "surge" ? "S" : "V8"}
                       </span>
                     ) : null}
                     {tile?.special === "surge" ? (
-                      <span aria-hidden className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-amber-400/70" />
+                      <span aria-hidden className="pointer-events-none absolute inset-0 rounded-md ring-2 ring-warning/70" />
                     ) : null}
                     {tile?.special === "engine" ? (
-                      <span aria-hidden className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-red-500/70 gm-pulse" />
+                      <span aria-hidden className="gm-pulse pointer-events-none absolute inset-0 rounded-md ring-2 ring-destructive/70" />
                     ) : null}
                   </button>
                 );
@@ -836,7 +875,10 @@ export function GarageMatch() {
               const got = Math.min(view.collected[o.kind] ?? 0, o.need);
               return (
                 <div key={o.kind} className="flex items-center gap-3 text-sm">
-                  <span aria-hidden className="text-lg">{PARTS[o.kind]?.emoji}</span>
+                  {(() => {
+                    const ObjectiveIcon = PARTS[o.kind]?.icon;
+                    return ObjectiveIcon ? <ObjectiveIcon aria-hidden className={`size-4 ${PARTS[o.kind]?.tone ?? "text-foreground"}`} /> : null;
+                  })()}
                   <span className="w-24 shrink-0 text-muted-foreground">{PARTS[o.kind]?.name}</span>
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
                     <div
@@ -853,7 +895,7 @@ export function GarageMatch() {
 
         {/* Car + garage column */}
         <div className="order-1 space-y-5 lg:order-2">
-          <Panel title={`${car.name}`} description={`${zonesFixed} of ${ZONES.length} areas fixed on this car`}>
+          <Panel className="gm-shell" title={`${car.name}`} description={`${zonesFixed} of ${ZONES.length} areas fixed on this car`}>
             <CarSvg paint={paint} zonesFixed={zonesFixed} />
             <ul className="mt-3 grid grid-cols-2 gap-1.5 text-xs">
               {ZONES.map((zone, i) => (
@@ -862,7 +904,7 @@ export function GarageMatch() {
                     aria-hidden
                     className={[
                       "inline-block size-2 rounded-full",
-                      i < zonesFixed ? "bg-primary" : i === zonesFixed ? "bg-amber-500 gm-pulse" : "bg-red-500/70",
+                       i < zonesFixed ? "bg-primary" : i === zonesFixed ? "bg-warning gm-pulse" : "bg-destructive/70",
                     ].join(" ")}
                   />
                   <span className={i < zonesFixed ? "text-foreground" : "text-muted-foreground"}>{zone}</span>
@@ -871,7 +913,7 @@ export function GarageMatch() {
             </ul>
           </Panel>
 
-          <Panel title="Garage" description={`${carsRestored} of ${CAR_FLEET.length} cars restored`}>
+          <Panel className="gm-shell" title="Garage" description={`${carsRestored} of ${CAR_FLEET.length} cars restored`}>
             <ul className="space-y-2">
               {CAR_FLEET.map((c, i) => {
                 const unlocked = i <= carsRestored;
@@ -883,9 +925,9 @@ export function GarageMatch() {
                       disabled={!unlocked}
                       onClick={() => setActiveCar(i)}
                       className={[
-                        "flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition-colors",
-                        unlocked ? "border-border hover:border-primary/60" : "cursor-not-allowed border-border/40 opacity-45",
-                        save.activeCar === i ? "border-primary ring-1 ring-primary" : "",
+                         "flex w-full items-center gap-3 rounded-md border bg-background/25 p-2.5 text-left transition-[border-color,background-color,transform] active:scale-[0.99]",
+                         unlocked ? "border-border/70 hover:border-primary/60 hover:bg-secondary/35" : "cursor-not-allowed border-border/40 opacity-45",
+                         save.activeCar === i ? "border-primary bg-primary/8 ring-1 ring-primary/40" : "",
                       ].join(" ")}
                     >
                       <span aria-hidden className={`text-2xl ${unlocked ? "gm-fleet-icon" : "gm-fleet-locked"}`}>{unlocked ? "🚗" : "🔒"}</span>
@@ -921,7 +963,7 @@ export function GarageMatch() {
             </div>
           </Panel>
 
-          <Panel title="How to play" description="Swap two neighbouring parts to line up three or more.">
+          <Panel className="gm-shell" title="How to play" description="Swap two neighbouring parts to line up three or more.">
             <ul className="space-y-1.5 text-sm text-muted-foreground">
               <li>🔋⚡ Line up four to charge a <span className="font-medium text-foreground">battery surge</span> — it clears its whole row and column.</li>
               <li>🔥 Line up five to drop in an <span className="font-medium text-foreground">engine block</span> — it blasts everything around it.</li>
