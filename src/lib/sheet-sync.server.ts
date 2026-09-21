@@ -13,6 +13,7 @@
 import type { Json } from "@/integrations/supabase/types";
 import { ownerLessonFromTabs, type SheetTab } from "@/lib/owner-lessons-shared";
 import { ownerWorkFromTabs } from "@/lib/owner-work-shared";
+import { body } from "@/lib/owner-lessons-shared";
 import {
   fileNumber,
   ownerQuestionFromRow,
@@ -72,6 +73,54 @@ export interface SheetSyncResult {
   rejected?: number;
   report?: Record<string, unknown>[];
   error?: string;
+}
+
+
+/**
+ * A master workbook can also carry the exam questions on a "Quiz" tab, so one
+ * file per topic feeds everything. Returns how many rows went live.
+ */
+async function storeQuizTab(
+  supabaseAdmin: any,
+  domain: OwnerDomain,
+  topic: { topicId: string; title: string; certificationId: string; number: number },
+  tabs: SheetTab[],
+  fileName: string,
+): Promise<{ approved: number; rejected: number } | null> {
+  const rows = body(tabs, "Quiz");
+  if (!rows.length) return null;
+
+  const approved: any[] = [];
+  const rejected: any[] = [];
+  rows.forEach((cells, index) => {
+    const result = ownerQuestionFromRow(topic as any, cells, fileName, index + 2);
+    if (!result.question) return;
+    const stored = {
+      domain,
+      topic_id: topic.topicId,
+      source_file: fileName,
+      row_number: index + 2,
+      question: result.question as unknown as Json,
+      status: result.rejectReasons?.length ? "rejected" : "approved",
+      reject_reasons: result.rejectReasons ?? [],
+    };
+    if (stored.status === "approved") approved.push(stored);
+    else rejected.push(stored);
+  });
+
+  await supabaseAdmin
+    .from("owner_questions")
+    .delete()
+    .eq("domain", domain)
+    .eq("topic_id", topic.topicId);
+  const all = [...approved, ...rejected];
+  for (let index = 0; index < all.length; index += INSERT_CHUNK) {
+    const { error } = await supabaseAdmin
+      .from("owner_questions")
+      .insert(all.slice(index, index + INSERT_CHUNK));
+    if (error) throw new Error(`storing quiz rows from ${fileName}: ${error.message}`);
+  }
+  return { approved: approved.length, rejected: rejected.length };
 }
 
 export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Promise<SheetSyncResult> {
@@ -241,6 +290,14 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
           });
         }
 
+        const workQuiz = await storeQuizTab(supabaseAdmin, domain, topic, workTabs, file.name);
+        if (workQuiz) {
+          approvedTotal += workQuiz.approved;
+          rejectedTotal += workQuiz.rejected;
+          topicsSynced.add(topic.topicId);
+          report.push({ domain, folder: workFolder, file: file.name, topic: topic.title, ...workQuiz });
+        }
+
         const work = ownerWorkFromTabs(topic, workTabs);
         const hasWork = Boolean(
           work.recall.length || work.teachBack || work.scenario || work.troubleshooting,
@@ -351,6 +408,14 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
             name: String(sheet.name ?? ""),
             rows: (used.values ?? []).map((row: unknown[]) => row.map((value) => String(value ?? ""))),
           });
+        }
+
+        const lessonQuiz = await storeQuizTab(supabaseAdmin, domain, topic, tabs, file.name);
+        if (lessonQuiz) {
+          approvedTotal += lessonQuiz.approved;
+          rejectedTotal += lessonQuiz.rejected;
+          topicsSynced.add(topic.topicId);
+          report.push({ domain, folder: lessonFolder, file: file.name, topic: topic.title, ...lessonQuiz });
         }
 
         const result = ownerLessonFromTabs(topic, tabs);

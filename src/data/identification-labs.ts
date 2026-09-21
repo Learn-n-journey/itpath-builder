@@ -10,6 +10,7 @@
  */
 import { hardwareComponents } from "@/data/hardware-explorer";
 import { categoryFor } from "@/data/lab-generator";
+import { ownerLabsFor } from "@/lib/owner-lesson-store";
 import type { Lab, Lesson, Topic } from "@/lib/app-data/types";
 
 export const HARDWARE_TOPIC_ID = "topic-computer-hardware-basics";
@@ -28,6 +29,8 @@ export interface IdentificationItem {
   /** Ideas their description of the job has to express. */
   functionConcepts: string[];
   answerFunction: string;
+  /** Optional practice tool this item links to. */
+  practiceIn?: string;
 }
 
 export interface IdentificationSet {
@@ -59,6 +62,23 @@ export function identificationSet(
   round: number,
   lesson?: { keyTerms?: { term: string; meaning: string }[] },
 ): IdentificationSet | undefined {
+  // The owner's Labs tab wins: those numbered items are the lab for this topic.
+  const owned = ownerLabsFor(topicId);
+  if (owned.length) {
+    return {
+      heading: "Name each numbered item, then say what it does",
+      items: owned.map((item) => ({
+        id: `${topicId}-lab-${item.number}`,
+        number: item.number,
+        clue: item.clue,
+        name: item.name,
+        functionConcepts: [item.answerFunction],
+        answerFunction: item.answerFunction,
+        ...(item.practiceIn ? { practiceIn: item.practiceIn } : {}),
+      })),
+    };
+  }
+
   if (topicId === HARDWARE_TOPIC_ID) {
     const component = hardwareComponents[round % hardwareComponents.length];
     if (!component) return undefined;
@@ -100,6 +120,7 @@ export function buildIdentificationLabs(topicList: Topic[], lessonList: Lesson[]
   for (const topic of topicList) {
     const lesson = lessonList.find((item) => item.topicId === topic.id);
     const set = identificationSet(topic.id, 0, lesson);
+    if (!set && ownerLabsFor(topic.id).length === 0) continue;
     if (!set) continue;
     const hardware = topic.id === HARDWARE_TOPIC_ID;
     out.push({
