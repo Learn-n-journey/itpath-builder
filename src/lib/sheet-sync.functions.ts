@@ -53,3 +53,16 @@ export const syncNow = createServerFn({ method: "POST" })
       lessonIssues: result.lessonIssues ?? [],
     };
   });
+
+/** Clears a stuck sync lock left behind by a failed run. Owner only. */
+export const clearSyncLock = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ ok: boolean; error?: string }> => {
+    const email = (context.claims as { email?: string } | null)?.email;
+    if (!OWNER_EMAILS.includes((email ?? "").trim().toLowerCase())) {
+      return { ok: false, error: "Not allowed." };
+    }
+    const { releaseSyncLock } = await import("@/lib/sheet-sync.server");
+    const result = await releaseSyncLock();
+    return result.ok ? { ok: true } : { ok: false, error: result.error ?? "Could not clear it." };
+  });
