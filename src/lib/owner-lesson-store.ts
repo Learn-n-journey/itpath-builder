@@ -91,6 +91,14 @@ export function ownerLessonVersion(): number {
   return version;
 }
 
+const listeners = new Set<() => void>();
+
+/** Notified when a live load lands, so open pages can refresh their content. */
+export function subscribeOwnerLessons(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener) as unknown as void;
+}
+
 /** Pulls approved owner lessons from the database. Safe to call repeatedly. */
 export function loadOwnerLessons(): Promise<boolean> {
   if (loading) return loading;
@@ -137,6 +145,7 @@ export function loadOwnerLessons(): Promise<boolean> {
       livePractice = practice;
       liveExtras = extras;
       version += 1;
+      listeners.forEach((listener) => listener());
       return true;
     } catch {
       return false;

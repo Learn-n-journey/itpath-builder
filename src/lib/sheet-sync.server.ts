@@ -108,12 +108,16 @@ async function storeQuizTab(
     else rejected.push(stored);
   });
 
+  const all = [...approved, ...rejected];
+  // A tab that parsed nothing usable is treated as a broken tab, not as an
+  // instruction to wipe the topic's working questions.
+  if (!all.length) return null;
+
   await supabaseAdmin
     .from("owner_questions")
     .delete()
     .eq("domain", domain)
     .eq("topic_id", topic.topicId);
-  const all = [...approved, ...rejected];
   for (let index = 0; index < all.length; index += INSERT_CHUNK) {
     const { error } = await supabaseAdmin
       .from("owner_questions")
