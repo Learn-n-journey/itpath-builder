@@ -645,7 +645,7 @@ export function VirusRun() {
       ctx2.strokeStyle = "rgba(153,246,228,0.9)";
       ctx2.lineWidth = Math.max(1, cell * 0.075);
       for (let i = 0; i < 10; i++) {
-        const a = (i / 8) * Math.PI * 2 + time / 900;
+        const a = (i / 10) * Math.PI * 2 + time / 900;
         ctx2.beginPath();
         ctx2.moveTo(pcx + Math.cos(a) * r, pcy + Math.sin(a) * r);
         ctx2.quadraticCurveTo(pcx + Math.cos(a + 0.12) * r * 1.3, pcy + Math.sin(a + 0.12) * r * 1.3, pcx + Math.cos(a) * r * 1.52, pcy + Math.sin(a) * r * 1.52);
