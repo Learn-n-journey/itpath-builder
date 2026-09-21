@@ -770,6 +770,7 @@ export function GarageMatch() {
         @keyframes gm-drop { 0% { transform: translateY(-12px) scale(.96); opacity: .35; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
         @keyframes gm-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         @keyframes gm-pulse { 0%, 100% { opacity: .62; } 50% { opacity: 1; } }
+        @keyframes gm-sheen { 0% { transform: translateX(-140%) skewX(-18deg); } 55%, 100% { transform: translateX(260%) skewX(-18deg); } }
         .gm-pop { animation: gm-pop .2s ease-in forwards; }
         .gm-drop { animation: gm-drop .24s cubic-bezier(.2,.8,.2,1); }
         .gm-shake { animation: gm-shake .25s ease-in-out; }
@@ -783,14 +784,23 @@ export function GarageMatch() {
         }
         .gm-board {
           background-color: color-mix(in oklab, var(--background) 78%, var(--secondary));
-          background-image: linear-gradient(color-mix(in oklab, var(--border) 22%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--border) 22%, transparent) 1px, transparent 1px);
-          background-size: 18px 18px;
-          box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 4%, transparent), inset 0 18px 40px color-mix(in oklab, var(--background) 45%, transparent);
+          background-image: radial-gradient(circle at 50% 0%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 48%), linear-gradient(color-mix(in oklab, var(--border) 18%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--border) 18%, transparent) 1px, transparent 1px);
+          background-size: 100% 100%, 18px 18px, 18px 18px;
+          box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--foreground) 5%, transparent), inset 0 24px 50px color-mix(in oklab, var(--background) 52%, transparent), 0 18px 42px color-mix(in oklab, var(--background) 45%, transparent);
         }
         .gm-tile {
-          background: color-mix(in oklab, var(--card) 86%, transparent);
-          box-shadow: inset 0 1px color-mix(in oklab, var(--foreground) 8%, transparent), 0 5px 10px color-mix(in oklab, var(--background) 40%, transparent);
+          overflow: hidden;
+          background: linear-gradient(145deg, color-mix(in oklab, var(--card) 96%, var(--foreground) 4%), color-mix(in oklab, var(--card) 82%, var(--background)));
+          box-shadow: inset 0 1px color-mix(in oklab, var(--foreground) 15%, transparent), inset 0 -2px color-mix(in oklab, var(--background) 45%, transparent), 0 5px 10px color-mix(in oklab, var(--background) 46%, transparent);
         }
+        .gm-tile::after { content: ""; position: absolute; inset: 0 auto 0 -35%; width: 28%; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--foreground) 13%, transparent), transparent); pointer-events: none; }
+        .gm-tile:hover::after { animation: gm-sheen .8s ease-out; }
+        .gm-part { width: 72%; height: 72%; overflow: visible; filter: drop-shadow(0 5px 4px color-mix(in oklab, var(--background) 55%, transparent)); }
+        .gm-part .metal-hi { stroke: color-mix(in oklab, currentColor 35%, var(--foreground)); }
+        .gm-part .metal-lo { fill: color-mix(in oklab, currentColor 32%, var(--background)); }
+        .gm-part .metal-mid { fill: color-mix(in oklab, currentColor 64%, var(--card)); }
+        .gm-part .metal-face { fill: color-mix(in oklab, currentColor 78%, var(--foreground)); }
+        .gm-part .cutout { fill: color-mix(in oklab, var(--background) 88%, transparent); }
         .gm-tile:hover { transform: translateY(-1px); border-color: color-mix(in oklab, var(--primary) 45%, var(--border)); }
         @media (prefers-reduced-motion: reduce) {
           .gm-pop, .gm-drop, .gm-shake, .gm-pulse { animation: none; }
@@ -847,7 +857,7 @@ export function GarageMatch() {
                       selected ? "border-primary bg-primary/10 ring-2 ring-primary/50" : "",
                     ].join(" ")}
                   >
-                    {PartIcon ? <PartIcon aria-hidden className={`size-[44%] stroke-[1.8] ${part?.tone ?? "text-foreground"}`} /> : null}
+                    {PartIcon ? <PartGraphic kind={tile?.kind ?? 0} className={part?.tone ?? "text-foreground"} /> : null}
                     {tile?.special ? (
                       <span
                         aria-hidden
@@ -1072,24 +1082,51 @@ function CarSvg({ paint, zonesFixed }: { paint: string; zonesFixed: number }) {
     [86, 30], // Interior
   ];
   return (
-    <svg viewBox="0 0 200 80" className="w-full" role="img" aria-label={`Side view of the car with ${zonesFixed} of ${ZONES.length} areas fixed`}>
+    <svg viewBox="0 0 200 92" className="w-full overflow-visible" role="img" aria-label={`Side view of the car with ${zonesFixed} of ${ZONES.length} areas fixed`}>
+      <defs>
+        <linearGradient id="car-paint" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={paint} stopOpacity="1" />
+          <stop offset="0.48" stopColor={paint} stopOpacity="0.9" />
+          <stop offset="1" stopColor={paint} stopOpacity="0.48" />
+        </linearGradient>
+        <linearGradient id="car-glass" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="var(--color-foreground)" stopOpacity="0.34" />
+          <stop offset="1" stopColor="var(--color-background)" stopOpacity="0.95" />
+        </linearGradient>
+        <radialGradient id="wheel-metal">
+          <stop offset="0" stopColor="var(--color-foreground)" stopOpacity="0.8" />
+          <stop offset="0.25" stopColor="var(--color-muted-foreground)" />
+          <stop offset="0.3" stopColor="var(--color-background)" />
+          <stop offset="1" stopColor="var(--color-card)" />
+        </radialGradient>
+        <filter id="car-shadow" x="-20%" y="-20%" width="140%" height="170%">
+          <feDropShadow dx="0" dy="6" stdDeviation="5" floodColor="var(--color-background)" floodOpacity="0.72" />
+        </filter>
+      </defs>
+      <ellipse cx="103" cy="74" rx="88" ry="9" fill="var(--color-background)" opacity="0.56" />
+      <g filter="url(#car-shadow)">
       {/* body */}
       <path
         d="M8 56 L8 44 Q8 34 28 31 L56 17 Q62 12 78 12 L118 12 Q138 12 149 25 L172 31 Q192 35 192 46 L192 56 Z"
-        fill={paint}
-        opacity="0.9"
+        fill="url(#car-paint)"
         stroke="currentColor"
         strokeOpacity="0.35"
         strokeWidth="1.5"
       />
+      <path d="M14 39 Q48 34 69 32 L153 31 Q177 33 187 41" fill="none" stroke="var(--color-foreground)" strokeOpacity="0.28" strokeWidth="1.5" />
+      <path d="M15 51 L190 51" fill="none" stroke="var(--color-background)" strokeOpacity="0.38" strokeWidth="2" />
       {/* windows */}
-      <path d="M64 18 L78 15 L78 28 L60 28 Z" fill="var(--color-secondary)" opacity="0.9" />
-      <path d="M84 15 L112 15 L118 28 L84 28 Z" fill="var(--color-secondary)" opacity="0.9" />
+      <path d="M64 18 L78 15 L78 28 L60 28 Z" fill="url(#car-glass)" stroke="var(--color-foreground)" strokeOpacity="0.18" />
+      <path d="M84 15 L112 15 L118 28 L84 28 Z" fill="url(#car-glass)" stroke="var(--color-foreground)" strokeOpacity="0.18" />
+      <path d="M123 16 Q135 18 145 27 L124 27 Z" fill="url(#car-glass)" stroke="var(--color-foreground)" strokeOpacity="0.18" />
+      <path d="M174 37 L190 41 L190 47 L176 45 Z" fill="var(--color-warning)" opacity="0.92" />
+      <path d="M9 40 L25 37 L24 44 L9 46 Z" fill="var(--color-destructive)" opacity="0.8" />
       {/* wheels */}
-      <circle cx="56" cy="60" r="11" fill="var(--color-card)" stroke="currentColor" strokeOpacity="0.5" strokeWidth="2" />
-      <circle cx="56" cy="60" r="4.5" fill="var(--color-secondary)" />
-      <circle cx="150" cy="60" r="11" fill="var(--color-card)" stroke="currentColor" strokeOpacity="0.5" strokeWidth="2" />
-      <circle cx="150" cy="60" r="4.5" fill="var(--color-secondary)" />
+      <circle cx="56" cy="60" r="13" fill="var(--color-background)" stroke="var(--color-muted-foreground)" strokeOpacity="0.55" strokeWidth="2" />
+      <circle cx="56" cy="60" r="8" fill="url(#wheel-metal)" />
+      <circle cx="150" cy="60" r="13" fill="var(--color-background)" stroke="var(--color-muted-foreground)" strokeOpacity="0.55" strokeWidth="2" />
+      <circle cx="150" cy="60" r="8" fill="url(#wheel-metal)" />
+      </g>
       {/* zone markers */}
       {markers.map(([cx, cy], i) => {
         const fixed = i < zonesFixed;
@@ -1113,6 +1150,52 @@ function CarSvg({ paint, zonesFixed }: { paint: string; zonesFixed: number }) {
           </g>
         );
       })}
+    </svg>
+  );
+}
+
+function PartGraphic({ kind, className }: { kind: number; className: string }) {
+  const common = { stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  return (
+    <svg viewBox="0 0 64 64" className={`gm-part ${className}`} aria-hidden>
+      {kind === 0 ? <>
+        <ellipse cx="32" cy="32" rx="21" ry="25" className="metal-lo" {...common} />
+        <ellipse cx="32" cy="32" rx="14" ry="18" className="cutout" {...common} />
+        <path d="M18 16l7 5M39 43l7 5M46 16l-7 5M25 43l-7 5" className="metal-hi" fill="none" {...common} />
+        <circle cx="32" cy="32" r="6" className="metal-face" {...common} />
+      </> : null}
+      {kind === 1 ? <>
+        <rect x="12" y="17" width="40" height="33" rx="7" className="metal-mid" {...common} />
+        <path d="M22 17v-5h7v5M39 17v-5h7v5" className="metal-hi" fill="none" {...common} />
+        <path d="M22 33h20M32 24v18" className="cutout" {...common} />
+        <rect x="16" y="21" width="32" height="5" rx="2" fill="currentColor" opacity=".28" />
+      </> : null}
+      {kind === 2 ? <>
+        <path d="M25 8h14l-2 13 6 7-7 25h-8l-7-25 6-7z" className="metal-mid" {...common} />
+        <path d="M25 17h14M24 28h16M27 35h10" className="metal-hi" fill="none" {...common} />
+        <path d="M29 43h6l-3 11z" className="metal-face" {...common} />
+      </> : null}
+      {kind === 3 ? <>
+        <path d="M42 10a13 13 0 0 0-14 16L11 43a7 7 0 0 0 10 10l17-17a13 13 0 0 0 16-14l-9 8-10-10z" className="metal-mid" {...common} />
+        <circle cx="17" cy="47" r="3" className="cutout" />
+        <path d="M28 28l8 8" className="metal-hi" fill="none" {...common} />
+      </> : null}
+      {kind === 4 ? <>
+        <path d="M23 10h18l2 10 8 12v19H13V32l8-12z" className="metal-mid" {...common} />
+        <path d="M21 20h22M17 34h30" className="metal-hi" fill="none" {...common} />
+        <path d="M24 39h16v8H24z" className="cutout" {...common} />
+        <path d="M27 8h10" className="metal-face" {...common} />
+      </> : null}
+      {kind === 5 ? <>
+        <path d="M32 7l5 6 8-1 2 8 7 4-3 8 3 8-7 4-2 8-8-1-5 6-5-6-8 1-2-8-7-4 3-8-3-8 7-4 2-8 8 1z" className="metal-mid" {...common} />
+        <circle cx="32" cy="32" r="11" className="metal-face" {...common} />
+        <circle cx="32" cy="32" r="5" className="cutout" {...common} />
+      </> : null}
+      {kind === 6 ? <>
+        <path d="M24 8h16l4 8-4 7 8 25-8 8H24l-8-8 8-25-4-7z" className="metal-mid" {...common} />
+        <path d="M24 23h16M21 40h22" className="metal-hi" fill="none" {...common} />
+        <circle cx="32" cy="16" r="4" className="cutout" {...common} />
+      </> : null}
     </svg>
   );
 }
