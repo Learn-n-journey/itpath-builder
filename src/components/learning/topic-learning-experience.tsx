@@ -233,9 +233,9 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         <ContentSection title="What It Is" text={lesson.definition} /><ContentSection title="Why It Matters" text={lesson.whyItMatters} />
         <ListSection title="How It Works" items={module.howItWorks} /><ListSection title="Where You See It" items={module.whereYouSeeIt} />
         <section><h2 className="mb-3 text-base font-semibold text-foreground">Keywords</h2><dl className="divide-y divide-border border-y border-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
-        <ListSection title="Examples" items={lesson.realWorldExamples} /><ListSection title="Common Problems" items={module.commonProblems} /><ListSection title="How It Fails" items={module.howItFails} /><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /><ListSection title="Exam Coverage" items={module.examCoverage} /><ListSection title="Interview Questions" items={module.interviewQuestions} />
+        <ListSection title="Examples" items={lesson.realWorldExamples} /><ListSection title="Common Problems" items={module.commonProblems} /><ListSection title="How It Fails" items={module.howItFails} /><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /><ListSection title="Exam Coverage" items={examCoverage} /><ListSection title="Interview Questions" items={module.interviewQuestions} />
         <ContentReportButton kind="lesson" refId={topic.id} label={topic.title} />
-      </div></Panel><LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} /><div id="worked-examples" className="scroll-mt-24"><WorkedExamples examples={getWorkedExamples(topic.id)} /></div><MediaPanel topic={topic} /></div>
+      </div></Panel><div id="worked-examples" className="scroll-mt-24"><WorkedExamples examples={getWorkedExamples(topic.id)} /></div><LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} /></div>
 
     <section id="work-on-it" className="scroll-mt-24 space-y-4">
       <div>
@@ -244,12 +244,8 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       </div>
       <Tabs value={workTab} onValueChange={setWorkTab} className="space-y-4">
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
-        <TabsTrigger value="recall">Recall</TabsTrigger>{practice ? <TabsTrigger value="practice">Practice</TabsTrigger> : null}<TabsTrigger value="teach-back">Teach Back</TabsTrigger>{scenario ? <TabsTrigger value="scenario">Real-World Scenario</TabsTrigger> : null}
+        {practice ? <TabsTrigger value="practice">Practice</TabsTrigger> : null}<TabsTrigger value="teach-back">Teach Back</TabsTrigger>{scenario ? <TabsTrigger value="scenario">Real-World Scenario</TabsTrigger> : null}
       </TabsList>
-      <TabsContent value="recall"><div className="space-y-4">{visibleRecall.map((question, index) => {
-        const feedback = recallFeedback[question.id];
-        return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={question.id}>Your answer</Label><Textarea id={question.id} className="mt-2" rows={4} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "Marking…" : "Check answer"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-primary" : "text-amber-400"}`}>{feedback.correct ? "Correct. " : feedback.message.startsWith("Nearly there") ? "" : "Here is where I would go next. "}{feedback.message}</p> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
-      })}</div></TabsContent>
       <TabsContent value="practice"><div className="space-y-4">{practiceActivities.map((activity, index) => {
         const chosen = practiceChoices[activity.id];
         const feedback = practiceFeedback[activity.id];
