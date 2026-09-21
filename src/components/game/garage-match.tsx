@@ -192,8 +192,8 @@ function loadSave(): SaveData {
 
 const ROWS = 8;
 const COLS = 8;
-const WAIT_CLEAR = 200;
-const WAIT_SWAP = 170;
+const WAIT_CLEAR = 360;
+const WAIT_SWAP = 220;
 const WAIT_FALL = 230;
 
 type Special = null | "surge" | "engine";
@@ -379,6 +379,7 @@ interface GameState {
   clearing: Set<string>;
   fresh: Set<number>;
   shake: string[];
+  swapping: Record<string, string>;
   selected: [number, number] | null;
   moves: number;
   collected: Record<number, number>;
@@ -396,7 +397,7 @@ export function GarageMatch() {
   // Authoritative mutable game state, mirrored into React state for rendering.
   const boardRef = useRef<Board>([]);
   const stateRef = useRef<GameState>({
-    board: [], clearing: new Set(), fresh: new Set(), shake: [], selected: null, moves: 0, collected: {},
+    board: [], clearing: new Set(), fresh: new Set(), shake: [], swapping: {}, selected: null, moves: 0, collected: {},
   });
   const [view, setView] = useState<GameState | null>(null);
   const busyRef = useRef(false);
@@ -424,7 +425,7 @@ export function GarageMatch() {
       boardRef.current = filledBoard(config.kinds, config.seed + guard * 31);
     }
     stateRef.current = {
-      board: boardRef.current, clearing: new Set(), fresh: new Set(), shake: [], selected: null,
+      board: boardRef.current, clearing: new Set(), fresh: new Set(), shake: [], swapping: {}, selected: null,
       moves: config.moves, collected: {},
     };
     objectivesRef.current = config.objectives;
@@ -590,10 +591,20 @@ export function GarageMatch() {
       const nb = cloneBoard(boardRef.current);
       put(nb, r1, c1, b);
       put(nb, r2, c2, a);
-      boardRef.current = nb;
-      stateRef.current.board = nb;
+      const dr = r2 - r1;
+      const dc = c2 - c1;
+      const towardSecond = `translate(calc(${dc * 100}% + ${dc * 0.375}rem), calc(${dr * 100}% + ${dr * 0.375}rem))`;
+      const towardFirst = `translate(calc(${-dc * 100}% + ${-dc * 0.375}rem), calc(${-dr * 100}% + ${-dr * 0.375}rem))`;
+      stateRef.current.swapping = {
+        [key(r1, c1)]: towardSecond,
+        [key(r2, c2)]: towardFirst,
+      };
       sync();
       await wait(WAIT_SWAP);
+      boardRef.current = nb;
+      stateRef.current.board = nb;
+      stateRef.current.swapping = {};
+      sync();
 
       const bothSpecial = a.special && b.special;
       const anySpecial = a.special || b.special;
@@ -625,12 +636,19 @@ export function GarageMatch() {
         sync();
         finishIfOver();
       } else {
-        // No match: revert with a shake.
+        // No match: glide both pieces back to their original cells, then shake.
+        stateRef.current.swapping = {
+          [key(r1, c1)]: towardSecond,
+          [key(r2, c2)]: towardFirst,
+        };
+        sync();
+        await wait(WAIT_SWAP);
         const rb = cloneBoard(nb);
         put(rb, r1, c1, a);
         put(rb, r2, c2, b);
         boardRef.current = rb;
         stateRef.current.board = rb;
+        stateRef.current.swapping = {};
         stateRef.current.shake = [key(r1, c1), key(r2, c2)];
         sync();
         await wait(260);
@@ -766,15 +784,30 @@ export function GarageMatch() {
   return (
     <div className="space-y-5">
       <style>{`
-        @keyframes gm-pop { 0% { transform: scale(1); } 45% { transform: scale(1.12); opacity: .8; } 100% { transform: scale(.72); opacity: 0; } }
+        @keyframes gm-pop { 0% { transform: scale(1); opacity: 1; } 42% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(.58); opacity: 0; } }
         @keyframes gm-drop { 0% { transform: translateY(-12px) scale(.96); opacity: .35; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
         @keyframes gm-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
         @keyframes gm-pulse { 0%, 100% { opacity: .62; } 50% { opacity: 1; } }
         @keyframes gm-sheen { 0% { transform: translateX(-140%) skewX(-18deg); } 55%, 100% { transform: translateX(260%) skewX(-18deg); } }
-        .gm-pop { animation: gm-pop .2s ease-in forwards; }
+        @keyframes gm-burst-ring { 0% { transform: scale(.2); opacity: 0; } 22% { opacity: 1; } 100% { transform: scale(1.45); opacity: 0; } }
+        @keyframes gm-burst-core { 0% { transform: scale(.15) rotate(0); opacity: 0; } 25% { transform: scale(1.05) rotate(18deg); opacity: 1; } 100% { transform: scale(.35) rotate(48deg); opacity: 0; } }
+        @keyframes gm-spark-a { 0% { transform: translate(0,0) scale(.2); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(155%,-150%) scale(.05); opacity: 0; } }
+        @keyframes gm-spark-b { 0% { transform: translate(0,0) scale(.2); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(-170%,-65%) scale(.05); opacity: 0; } }
+        @keyframes gm-spark-c { 0% { transform: translate(0,0) scale(.2); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(120%,155%) scale(.05); opacity: 0; } }
+        @keyframes gm-spark-d { 0% { transform: translate(0,0) scale(.2); opacity: 0; } 25% { opacity: 1; } 100% { transform: translate(-135%,145%) scale(.05); opacity: 0; } }
+        .gm-pop { animation: gm-pop .36s cubic-bezier(.2,.75,.25,1) forwards; z-index: 4; }
         .gm-drop { animation: gm-drop .24s cubic-bezier(.2,.8,.2,1); }
         .gm-shake { animation: gm-shake .25s ease-in-out; }
         .gm-pulse { animation: gm-pulse 1.6s ease-in-out infinite; }
+        .gm-swapping { z-index: 5; transition: transform .22s cubic-bezier(.22,.9,.28,1.08); }
+        .gm-match-burst { position: absolute; inset: -18%; z-index: 8; pointer-events: none; }
+        .gm-burst-ring { position: absolute; inset: 13%; border: 2px solid color-mix(in oklab, currentColor 72%, var(--foreground)); border-radius: 50%; box-shadow: 0 0 12px currentColor, inset 0 0 8px currentColor; animation: gm-burst-ring .36s ease-out forwards; }
+        .gm-burst-core { position: absolute; inset: 27%; background: currentColor; clip-path: polygon(50% 0,61% 30%,88% 12%,72% 42%,100% 50%,72% 60%,88% 88%,59% 72%,50% 100%,40% 72%,12% 88%,28% 59%,0 50%,29% 40%,12% 12%,40% 29%); box-shadow: 0 0 16px currentColor; animation: gm-burst-core .34s ease-out forwards; }
+        .gm-spark { position: absolute; left: 46%; top: 46%; width: 9%; height: 16%; border-radius: 1px; background: color-mix(in oklab, currentColor 74%, var(--foreground)); box-shadow: 0 0 7px currentColor; transform-origin: center; }
+        .gm-spark-a { animation: gm-spark-a .34s ease-out forwards; }
+        .gm-spark-b { animation: gm-spark-b .36s .02s ease-out forwards; }
+        .gm-spark-c { animation: gm-spark-c .35s .03s ease-out forwards; }
+        .gm-spark-d { animation: gm-spark-d .37s .01s ease-out forwards; }
         .gm-fleet-icon { filter: grayscale(0); }
         .gm-fleet-locked { filter: grayscale(1); }
         .gm-shell {
@@ -803,7 +836,9 @@ export function GarageMatch() {
         .gm-part .cutout { fill: color-mix(in oklab, var(--background) 88%, transparent); }
         .gm-tile:hover { transform: translateY(-1px); border-color: color-mix(in oklab, var(--primary) 45%, var(--border)); }
         @media (prefers-reduced-motion: reduce) {
-          .gm-pop, .gm-drop, .gm-shake, .gm-pulse { animation: none; }
+          .gm-pop { animation: gm-pop .01s linear forwards; }
+          .gm-drop, .gm-shake, .gm-pulse, .gm-burst-ring, .gm-burst-core, .gm-spark { animation: none; }
+          .gm-swapping { transition-duration: .01s; }
           .gm-tile:hover { transform: none; }
         }
       `}</style>
@@ -837,6 +872,7 @@ export function GarageMatch() {
                 const clearing = view.clearing.has(k);
                 const shaking = view.shake.includes(k);
                 const selected = !clearing && view.selected?.[0] === r && view.selected?.[1] === c;
+                const swapTransform = view.swapping[k];
                 const part = tile ? PARTS[tile.kind] : undefined;
                 const PartIcon = part?.icon;
                 return (
@@ -852,12 +888,24 @@ export function GarageMatch() {
                     className={[
                       "gm-tile relative flex aspect-square cursor-grab touch-none items-center justify-center rounded-md border transition-[transform,border-color,background-color] duration-150 active:cursor-grabbing active:scale-95",
                       clearing ? "gm-pop border-transparent" : "border-border/65",
+                      swapTransform ? "gm-swapping" : "",
                       tile?.id != null && view.fresh.has(tile.id) ? "gm-drop" : "",
                       shaking ? "gm-shake" : "",
                       selected ? "border-primary bg-primary/10 ring-2 ring-primary/50" : "",
                     ].join(" ")}
+                    style={swapTransform ? { transform: swapTransform } : undefined}
                   >
                     {PartIcon ? <PartGraphic kind={tile?.kind ?? 0} className={part?.tone ?? "text-foreground"} /> : null}
+                    {clearing ? (
+                      <span aria-hidden className={`gm-match-burst ${part?.tone ?? "text-primary"}`}>
+                        <span className="gm-burst-ring" />
+                        <span className="gm-burst-core" />
+                        <span className="gm-spark gm-spark-a" />
+                        <span className="gm-spark gm-spark-b" />
+                        <span className="gm-spark gm-spark-c" />
+                        <span className="gm-spark gm-spark-d" />
+                      </span>
+                    ) : null}
                     {tile?.special ? (
                       <span
                         aria-hidden
