@@ -1,5 +1,5 @@
 import { Link, createFileRoute, notFound } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, CircleDot, RotateCcw, Send } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +16,7 @@ import {
   type MasteryItem,
 } from "@/data/mastery-checks";
 import { matchesConcept } from "@/lib/fuzzy-match";
+import { loadOwnerWork } from "@/lib/owner-work-store";
 import { useAppState } from "@/state/app-state";
 import { cn } from "@/lib/utils";
 
