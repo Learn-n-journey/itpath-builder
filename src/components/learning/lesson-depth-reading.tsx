@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, CheckCircle2, ClipboardList, Key, ListChecks, Wrench } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Key, ListChecks, Wrench } from "lucide-react";
 
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -100,43 +100,32 @@ export function LessonDepthReading({ depth }: { depth: LessonDepth }) {
         </div>
       </Panel>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Panel title="Common misunderstandings" description="What most beginners get wrong here.">
-          <ul className="space-y-4 text-sm leading-7">
-            {depth.misconceptions.map((item) => (
-              <li key={item.claim} className="space-y-1">
-                <p className="flex gap-3 text-foreground">
-                  <AlertTriangle aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
-                  <span>{item.claim}</span>
-                </p>
-                <p className="pl-7 text-muted-foreground">{item.correction}</p>
-              </li>
-            ))}
-          </ul>
-        </Panel>
+      <Panel title="Common misunderstandings" description="What most beginners get wrong here.">
+        <ul className="space-y-4 text-sm leading-7">
+          {depth.misconceptions.map((item) => (
+            <li key={item.claim} className="space-y-1">
+              <p className="flex gap-3 text-foreground">
+                <AlertTriangle aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
+                <span>{item.claim}</span>
+              </p>
+              <p className="pl-7 text-muted-foreground">{item.correction}</p>
+            </li>
+          ))}
+        </ul>
+      </Panel>
 
-        <Panel title="Exam traps" description="How the question writers try to catch you out.">
-          <ul className="space-y-3 text-sm leading-7 text-muted-foreground">
-            {depth.examTraps.map((trap) => (
-              <li key={trap} className="flex gap-3">
-                <ClipboardList aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
-                <span>{trap}</span>
-              </li>
+      <div id="check-yourself" className="scroll-mt-24">
+        <Panel
+          title="Check yourself"
+          description="Answer in your head first, then reveal. This is not scored."
+        >
+          <ul className="space-y-3">
+            {depth.checkYourself.map((check) => (
+              <CheckRow key={check.question} question={check.question} answer={check.answer} />
             ))}
           </ul>
         </Panel>
       </div>
-
-      <Panel
-        title="Check yourself"
-        description="Answer in your head first, then reveal. This is not scored."
-      >
-        <ul className="space-y-3">
-          {depth.checkYourself.map((check) => (
-            <CheckRow key={check.question} question={check.question} answer={check.answer} />
-          ))}
-        </ul>
-      </Panel>
     </div>
   );
 }

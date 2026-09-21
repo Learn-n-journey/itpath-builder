@@ -9,7 +9,6 @@ import { MasteryChecklist } from "@/components/learning/mastery-checklist";
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { Panel } from "@/components/page-kit";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
