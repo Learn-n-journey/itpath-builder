@@ -53,8 +53,23 @@ export const Route = createFileRoute("/mastery-check/$topicId")({
 function MasteryCheckPage() {
   const { topicId } = Route.useParams();
   const topic = findTopic(topicId);
+  // The owner's recall workbook arrives from the database, so rebuild the
+  // checks once it has landed instead of showing the generated ones.
+  const [workVersion, setWorkVersion] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    void loadOwnerWork().then(() => {
+      if (alive) setWorkVersion((value) => value + 1);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const available = useMemo(
+    () => KINDS.filter((kind) => masteryCheckPool(topicId, kind).length > 0),
+    [topicId, workVersion],
+  );
   if (!topic) return null;
-  const available = KINDS.filter((kind) => masteryCheckPool(topicId, kind).length > 0);
 
   return (
     <>
