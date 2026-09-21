@@ -13,6 +13,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { domain } from "@/domain/active";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { loadOwnerLessons } from "@/lib/owner-lesson-store";
+import { loadOwnerWork } from "@/lib/owner-work-store";
 import { firstPracticeTestCertId } from "@/lib/tracks";
 import { MaintenanceGate } from "@/components/maintenance-screen";
 
@@ -107,6 +108,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     void loadOwnerQuestions();
     void loadOwnerLessons();
+    void loadOwnerWork();
   }, []);
 
   const current = navItems.find((i) => i.to === pathname)?.label ?? domain.appName;

@@ -12,6 +12,7 @@
  */
 import type { Json } from "@/integrations/supabase/types";
 import { ownerLessonFromTabs, type SheetTab } from "@/lib/owner-lessons-shared";
+import { ownerWorkFromTabs } from "@/lib/owner-work-shared";
 import {
   fileNumber,
   ownerQuestionFromRow,
@@ -24,9 +25,9 @@ const JOB = "sheet-sync";
 const LOCK_MINUTES = 15;
 const INSERT_CHUNK = 500;
 
-const FOLDERS: Array<{ domain: OwnerDomain; folder: string; lessonFolder: string }> = [
-  { domain: "it-cybersecurity", folder: "itpath", lessonFolder: "itpath lessons" },
-  { domain: "auto-repair", folder: "autopath", lessonFolder: "autopath lessons" },
+const FOLDERS: Array<{ domain: OwnerDomain; folder: string; lessonFolder: string; workFolder: string }> = [
+  { domain: "it-cybersecurity", folder: "itpath", lessonFolder: "itpath lessons", workFolder: "itpath recall" },
+  { domain: "auto-repair", folder: "autopath", lessonFolder: "autopath lessons", workFolder: "autopath recall" },
 ];
 
 async function graph(path: string): Promise<any> {
@@ -59,6 +60,8 @@ function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string
 export interface SheetSyncResult {
   ok: boolean;
   lessonsApproved?: number;
+  /** Topics whose recall workbook was pulled in. */
+  workTopics?: number;
   lessonsRejected?: number;
   /** Why each rejected lesson was held back, so it can be fixed in the sheet. */
   lessonIssues?: Array<{ file: string; topic: string; reasons: string[] }>;
@@ -98,9 +101,10 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
   let lessonsApproved = 0;
   let lessonsRejected = 0;
   const lessonIssues: Array<{ file: string; topic: string; reasons: string[] }> = [];
+  let workTopics = 0;
 
   try {
-    for (const { domain, folder, lessonFolder } of FOLDERS) {
+    for (const { domain, folder, lessonFolder, workFolder } of FOLDERS) {
       if (options.domain && options.domain !== domain) continue;
       let listing: { value?: Array<{ id?: string; name: string; file?: unknown }> };
       try {
