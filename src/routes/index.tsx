@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, LayoutDashboard, LogIn, Settings, ShieldCheck } from "lucide-react";
+import { ArrowRight, Compass, LayoutDashboard, LogIn, Settings, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import autopathLogo from "@/assets/autopath-logo.png.asset.json";
 import { setDomainOverride } from "@/lib/active-domain";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { useAuth } from "@/state/auth-state";
+import { learningPaths, loadLearningPaths } from "@/lib/learning-path-store";
+import { pathAppName, pathKey, type LearningPath } from "@/lib/learning-paths-shared";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
@@ -52,6 +55,14 @@ const paths = [
 function CourseChooser() {
   const { email, userId, ready } = useAuth();
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
+  const [created, setCreated] = useState<LearningPath[]>([]);
+
+  // Paths created in Settings. Row level security only returns a hidden one to
+  // its owner, so a learner sees nothing until it is switched on.
+  useEffect(() => {
+    setCreated(learningPaths());
+    void loadLearningPaths().then(setCreated);
+  }, [userId]);
 
   function choose(id: string) {
     setDomainOverride(id);
@@ -136,6 +147,46 @@ function CourseChooser() {
               </article>
             );
           })}
+
+          {created.map((path) => (
+            <article
+              key={path.slug}
+              className="path-choice group relative flex min-h-[22rem] flex-col overflow-hidden rounded-lg border border-border bg-card p-6 shadow-xl transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-primary/55 hover:shadow-2xl sm:min-h-[25rem] sm:p-8"
+            >
+              <div className="absolute inset-x-0 top-0 h-1 bg-path-steel opacity-40 transition-opacity duration-300 group-hover:opacity-100" aria-hidden />
+              <div className="flex items-start justify-between gap-4">
+                <span className="flex size-20 items-center justify-center rounded-lg border border-border bg-muted/30 shadow-lg sm:size-24">
+                  <Compass className="size-10 text-primary" aria-hidden />
+                </span>
+                {!path.visible ? (
+                  <span className="mt-1 rounded-full border border-border px-2 py-0.5 text-[0.65rem] uppercase text-muted-foreground">
+                    Only you
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="mt-8 flex flex-1 flex-col">
+                <p className="text-xs font-semibold uppercase text-path-steel">Learning path</p>
+                <h2 className="mt-2 font-display text-2xl font-semibold sm:text-3xl">
+                  {pathAppName(path.name)}
+                </h2>
+                <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  {path.topics.length} section{path.topics.length === 1 ? "" : "s"}, taught from the
+                  “{path.folder}” course spreadsheets.
+                </p>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="lg"
+                  className="mt-auto w-full justify-between"
+                  onClick={() => choose(pathKey(path.slug))}
+                >
+                  {`Choose ${pathAppName(path.name)}`}
+                  <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" aria-hidden />
+                </Button>
+              </div>
+            </article>
+          ))}
         </div>
       </div>
     </main>
