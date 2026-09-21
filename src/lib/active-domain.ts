@@ -57,7 +57,7 @@ export function domainOverride(): string | null {
   try {
     const stored = window.localStorage.getItem(OVERRIDE_KEY) ?? readSubjectCookie();
     if (!stored) return null;
-    if (findEntry(stored)) return stored;
+    if (findEntry(stored) || learningPathForKey(stored)) return stored;
     const [id = stored] = stored.split("@");
     return newestKeyFor(id);
   } catch {
