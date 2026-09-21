@@ -29,6 +29,8 @@ export interface IdentificationItem {
   /** Ideas their description of the job has to express. */
   functionConcepts: string[];
   answerFunction: string;
+  /** Optional practice tool this item links to. */
+  practiceIn?: string;
 }
 
 export interface IdentificationSet {
@@ -72,6 +74,7 @@ export function identificationSet(
         name: item.name,
         functionConcepts: [item.answerFunction],
         answerFunction: item.answerFunction,
+        ...(item.practiceIn ? { practiceIn: item.practiceIn } : {}),
       })),
     };
   }

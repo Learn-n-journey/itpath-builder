@@ -27,6 +27,8 @@ export interface OwnerLabItem {
   clue: string;
   name: string;
   answerFunction: string;
+  /** Where the learner should practise it: a tool name or an in-app path. */
+  practiceIn?: string;
 }
 
 export interface OwnerLessonExtras {
@@ -95,7 +97,7 @@ export const LESSON_TAB_HEADERS: Record<string, string[]> = {
     "Expected concepts",
     "Guidance",
   ],
-  Labs: ["Number", "Clue", "Name", "What it does"],
+  Labs: ["Number", "Clue", "Name", "What it does", "Practice in"],
   Quiz: [
     "ID",
     "Course",
@@ -179,6 +181,7 @@ function labsFromTabs(tabs: SheetTab[]): OwnerLabItem[] {
       clue: cell(row, 1),
       name,
       answerFunction,
+      ...(cell(row, 4) ? { practiceIn: cell(row, 4) } : {}),
     });
   });
   return items.sort((left, right) => left.number - right.number);
