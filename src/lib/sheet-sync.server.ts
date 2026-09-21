@@ -1,11 +1,20 @@
-// ============= Full file contents =============
 /**
- * Spreadsheet question sync, shared core.
+ * Spreadsheet content sync, shared core.
  *
- * Reads the numbered spreadsheets in the owner's OneDrive folders — itpath for
- * IT PATH, autopath for AUTO PATH — maps each file's leading number to the
- * topic with that number, runs every row through the same deterministic
- * quality gate used at quiz time, and stores the results in the database.
+ * The owner's OneDrive holds one folder per course, each with the same four
+ * sub-folders:
+ *
+ *   it path/lessons     the lesson text
+ *   it path/try it      practice questions, recall, teach back, real world scenario
+ *   it path/quiz        the topic quiz questions
+ *   it path/labs        the numbered lab items
+ *
+ *   auto path/...       the same four, for the car course
+ *
+ * Every workbook is numbered: the leading number in the filename picks the
+ * topic, 1 being the first topic of that course in curriculum order. A
+ * workbook is the source of truth for its topic and that part of it — delete
+ * the file and the topic falls back to the built-in material.
  *
  * Called by the nightly cron endpoint (/api/public/sheet-sync) and by the
  * owner-only "Sync now" server function. Server-only: imported dynamically.
@@ -13,11 +22,12 @@
 import type { Json } from "@/integrations/supabase/types";
 import { ownerLessonFromTabs, type SheetTab } from "@/lib/owner-lessons-shared";
 import { ownerWorkFromTabs } from "@/lib/owner-work-shared";
-import { body } from "@/lib/owner-lessons-shared";
+import type { OwnerTopicWork } from "@/lib/owner-work-shared";
 import {
   fileNumber,
   ownerQuestionFromRow,
   topicForNumber,
+  type NumberedTopic,
   type OwnerDomain,
 } from "@/lib/owner-questions-shared";
 
@@ -26,10 +36,13 @@ const JOB = "sheet-sync";
 const LOCK_MINUTES = 15;
 const INSERT_CHUNK = 500;
 
-const FOLDERS: Array<{ domain: OwnerDomain; folder: string; lessonFolder: string; workFolder: string }> = [
-  { domain: "it-cybersecurity", folder: "itpath", lessonFolder: "itpath lessons", workFolder: "itpath recall" },
-  { domain: "auto-repair", folder: "autopath", lessonFolder: "autopath lessons", workFolder: "autopath recall" },
+/** The course folders, and the four sub-folders each of them holds. */
+export const COURSE_FOLDERS: Array<{ domain: OwnerDomain; root: string }> = [
+  { domain: "it-cybersecurity", root: "it path" },
+  { domain: "auto-repair", root: "auto path" },
 ];
+
+export const SUB_FOLDERS = ["lessons", "try it", "quiz", "labs"] as const;
 
 async function graph(path: string): Promise<any> {
   const apiKey = process.env["LOVABLE_API_KEY"];
@@ -51,20 +64,42 @@ interface SheetFile {
   name: string;
 }
 
-function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string[] }> {
-  return values
-    .slice(1)
-    .map((row, index) => ({ rowNumber: index + 2, cells: row.map((cell) => String(cell ?? "").trim()) }))
-    .filter(({ cells }) => cells.some(Boolean));
+/** Everything in one folder, numbered workbooks only, in numeric order. */
+async function listWorkbooks(root: string, sub: string): Promise<SheetFile[]> {
+  const path = `${root}/${sub}`.split("/").map(encodeURIComponent).join("/");
+  const listing: { value?: Array<{ id?: string; name: string; file?: unknown }> } = await graph(
+    `/me/drive/root:/${path}:/children`,
+  );
+  return (listing.value ?? [])
+    .filter((item) => item.file && item.name.endsWith(".xlsx") && item.id)
+    .map((item) => ({ id: item.id!, name: item.name }))
+    .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
+}
+
+/** Every worksheet of a workbook, as tab name plus rows of text. */
+async function readTabs(fileId: string): Promise<SheetTab[]> {
+  const sheets = await graph(`/me/drive/items/${fileId}/workbook/worksheets`);
+  const tabs: SheetTab[] = [];
+  for (const sheet of sheets.value ?? []) {
+    const used = await graph(
+      `/me/drive/items/${fileId}/workbook/worksheets/${encodeURIComponent(sheet.id)}` +
+        `/usedRange(valuesOnly=true)?$select=values`,
+    );
+    tabs.push({
+      name: String(sheet.name ?? ""),
+      rows: (used.values ?? []).map((row: unknown[]) => row.map((value) => String(value ?? ""))),
+    });
+  }
+  return tabs;
 }
 
 export interface SheetSyncResult {
   ok: boolean;
   lessonsApproved?: number;
-  /** Topics whose recall workbook was pulled in. */
+  /** Topics whose try-it or labs workbook was pulled in. */
   workTopics?: number;
   lessonsRejected?: number;
-  /** Why each rejected lesson was held back, so it can be fixed in the sheet. */
+  /** Why each lesson carried a note, so it can be fixed in the sheet. */
   lessonIssues?: Array<{ file: string; topic: string; reasons: string[] }>;
   skipped?: string;
   syncedAt?: string;
@@ -75,56 +110,11 @@ export interface SheetSyncResult {
   error?: string;
 }
 
-
-/**
- * A master workbook can also carry the exam questions on a "Quiz" tab, so one
- * file per topic feeds everything. Returns how many rows went live.
- */
-async function storeQuizTab(
-  supabaseAdmin: any,
-  domain: OwnerDomain,
-  topic: { topicId: string; title: string; certificationId: string; number: number },
-  tabs: SheetTab[],
-  fileName: string,
-): Promise<{ approved: number; rejected: number } | null> {
-  const rows = body(tabs, "Quiz");
-  if (!rows.length) return null;
-
-  const approved: any[] = [];
-  const rejected: any[] = [];
-  rows.forEach((cells, index) => {
-    const result = ownerQuestionFromRow(topic as any, cells, fileName, index + 2);
-    if (!result.question) return;
-    const stored = {
-      domain,
-      topic_id: topic.topicId,
-      source_file: fileName,
-      row_number: index + 2,
-      question: result.question as unknown as Json,
-      status: result.rejectReasons?.length ? "rejected" : "approved",
-      reject_reasons: result.rejectReasons ?? [],
-    };
-    if (stored.status === "approved") approved.push(stored);
-    else rejected.push(stored);
-  });
-
-  const all = [...approved, ...rejected];
-  // A tab that parsed nothing usable is treated as a broken tab, not as an
-  // instruction to wipe the topic's working questions.
-  if (!all.length) return null;
-
-  await supabaseAdmin
-    .from("owner_questions")
-    .delete()
-    .eq("domain", domain)
-    .eq("topic_id", topic.topicId);
-  for (let index = 0; index < all.length; index += INSERT_CHUNK) {
-    const { error } = await supabaseAdmin
-      .from("owner_questions")
-      .insert(all.slice(index, index + INSERT_CHUNK));
-    if (error) throw new Error(`storing quiz rows from ${fileName}: ${error.message}`);
-  }
-  return { approved: approved.length, rejected: rejected.length };
+function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string[] }> {
+  return values
+    .slice(1)
+    .map((row, index) => ({ rowNumber: index + 2, cells: row.map((cell) => String(cell ?? "").trim()) }))
+    .filter(({ cells }) => cells.some(Boolean));
 }
 
 export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Promise<SheetSyncResult> {
@@ -157,26 +147,185 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
   let workTopics = 0;
 
   try {
-    for (const { domain, folder, lessonFolder, workFolder } of FOLDERS) {
+    for (const { domain, root } of COURSE_FOLDERS) {
       if (options.domain && options.domain !== domain) continue;
-      let listing: { value?: Array<{ id?: string; name: string; file?: unknown }> };
+
+      // ---- lessons -------------------------------------------------------
+      let lessonFiles: SheetFile[] = [];
       try {
-        listing = await graph(`/me/drive/root:/${folder}:/children`);
+        lessonFiles = await listWorkbooks(root, "lessons");
       } catch (error) {
-        report.push({ domain, folder, skipped: String(error instanceof Error ? error.message : error) });
-        continue;
+        report.push({
+          domain,
+          folder: `${root}/lessons`,
+          skipped: String(error instanceof Error ? error.message : error),
+        });
       }
 
-      const files: SheetFile[] = (listing.value ?? [])
-        .filter((item) => item.file && item.name.endsWith(".xlsx") && item.id)
-        .map((item) => ({ id: item.id!, name: item.name }))
-        .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
-
-      for (const file of files) {
+      for (const file of lessonFiles) {
         const number = fileNumber(file.name);
         const topic = number ? topicForNumber(domain, number) : undefined;
         if (!topic) {
-          report.push({ domain, file: file.name, skipped: "filename number has no matching topic" });
+          report.push({ domain, folder: `${root}/lessons`, file: file.name, skipped: "filename number has no matching topic" });
+          continue;
+        }
+
+        const tabs = await readTabs(file.id);
+        const result = ownerLessonFromTabs(topic, tabs);
+        if (!result.lesson) {
+          lessonsRejected += 1;
+          lessonIssues.push({
+            file: file.name,
+            topic: topic.title,
+            reasons: [result.error ?? "the workbook could not be read"],
+          });
+          report.push({ domain, folder: `${root}/lessons`, file: file.name, topic: topic.title, skipped: result.error });
+          continue;
+        }
+
+        // The owner verifies their own lessons, so a readable lesson always
+        // goes live. Anything the automatic checks flag is kept as a note.
+        const notes = result.rejectReasons ?? [];
+        if (notes.length) lessonIssues.push({ file: file.name, topic: topic.title, reasons: notes });
+
+        await supabaseAdmin
+          .from("owner_lessons")
+          .delete()
+          .eq("domain", domain)
+          .eq("topic_id", topic.topicId);
+        const { error } = await supabaseAdmin.from("owner_lessons").insert({
+          domain,
+          topic_id: topic.topicId,
+          source_file: file.name,
+          lesson: result.lesson as unknown as Json,
+          sources: result.sources as unknown as Json,
+          practice: result.practice as unknown as Json,
+          extras: result.extras as unknown as Json,
+          status: "approved",
+          reject_reasons: notes,
+        });
+        if (error) throw new Error(`storing lesson ${file.name}: ${error.message}`);
+
+        lessonsApproved += 1;
+        topicsSynced.add(topic.topicId);
+        report.push({ domain, folder: `${root}/lessons`, file: file.name, topic: topic.title, lesson: "published", notes });
+      }
+
+      // ---- try it and labs, merged into one row per topic ----------------
+      const work = new Map<string, { topic: NumberedTopic; work: OwnerTopicWork; files: string[] }>();
+
+      for (const sub of ["try it", "labs"] as const) {
+        let files: SheetFile[] = [];
+        try {
+          files = await listWorkbooks(root, sub);
+        } catch (error) {
+          report.push({
+            domain,
+            folder: `${root}/${sub}`,
+            skipped: String(error instanceof Error ? error.message : error),
+          });
+          continue;
+        }
+
+        for (const file of files) {
+          const number = fileNumber(file.name);
+          const topic = number ? topicForNumber(domain, number) : undefined;
+          if (!topic) {
+            report.push({ domain, folder: `${root}/${sub}`, file: file.name, skipped: "filename number has no matching topic" });
+            continue;
+          }
+
+          const tabs = await readTabs(file.id);
+          const parsed = ownerWorkFromTabs(topic, tabs);
+          const existing = work.get(topic.topicId);
+          const merged: OwnerTopicWork = {
+            recall: parsed.recall.length ? parsed.recall : (existing?.work.recall ?? []),
+            ...(parsed.practice?.length
+              ? { practice: parsed.practice }
+              : existing?.work.practice
+                ? { practice: existing.work.practice }
+                : {}),
+            ...(parsed.labs?.length
+              ? { labs: parsed.labs }
+              : existing?.work.labs
+                ? { labs: existing.work.labs }
+                : {}),
+            ...(parsed.teachBack ?? existing?.work.teachBack
+              ? { teachBack: parsed.teachBack ?? existing!.work.teachBack! }
+              : {}),
+            ...(parsed.scenario ?? existing?.work.scenario
+              ? { scenario: parsed.scenario ?? existing!.work.scenario! }
+              : {}),
+            ...(parsed.troubleshooting ?? existing?.work.troubleshooting
+              ? { troubleshooting: parsed.troubleshooting ?? existing!.work.troubleshooting! }
+              : {}),
+          };
+          work.set(topic.topicId, {
+            topic,
+            work: merged,
+            files: [...(existing?.files ?? []), file.name],
+          });
+          report.push({
+            domain,
+            folder: `${root}/${sub}`,
+            file: file.name,
+            topic: topic.title,
+            practice: parsed.practice?.length ?? 0,
+            recall: parsed.recall.length,
+            teachBack: Boolean(parsed.teachBack),
+            scenario: Boolean(parsed.scenario),
+            labs: parsed.labs?.length ?? 0,
+          });
+        }
+      }
+
+      for (const [topicId, entry] of work) {
+        const item = entry.work;
+        const hasWork = Boolean(
+          item.recall.length ||
+            item.practice?.length ||
+            item.labs?.length ||
+            item.teachBack ||
+            item.scenario ||
+            item.troubleshooting,
+        );
+        await supabaseAdmin
+          .from("owner_topic_work")
+          .delete()
+          .eq("domain", domain)
+          .eq("topic_id", topicId);
+        if (!hasWork) continue;
+
+        const { error } = await supabaseAdmin.from("owner_topic_work").insert({
+          domain,
+          topic_id: topicId,
+          source_file: entry.files.join(", "),
+          work: item as unknown as Json,
+          status: "approved",
+          notes: [],
+        });
+        if (error) throw new Error(`storing work for ${entry.topic.title}: ${error.message}`);
+        workTopics += 1;
+        topicsSynced.add(topicId);
+      }
+
+      // ---- quiz ----------------------------------------------------------
+      let quizFiles: SheetFile[] = [];
+      try {
+        quizFiles = await listWorkbooks(root, "quiz");
+      } catch (error) {
+        report.push({
+          domain,
+          folder: `${root}/quiz`,
+          skipped: String(error instanceof Error ? error.message : error),
+        });
+      }
+
+      for (const file of quizFiles) {
+        const number = fileNumber(file.name);
+        const topic = number ? topicForNumber(domain, number) : undefined;
+        if (!topic) {
+          report.push({ domain, folder: `${root}/quiz`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
 
@@ -206,8 +355,20 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
           }
         }
 
-        // The spreadsheet is the source of truth: replace the topic's
-        // stored rows wholesale, so deletions and edits flow through.
+        // A workbook that parsed nothing usable is treated as broken, not as
+        // an instruction to wipe the topic's working questions.
+        if (!approved.length && !rejected.length) {
+          report.push({
+            domain,
+            folder: `${root}/quiz`,
+            file: file.name,
+            topic: topic.title,
+            skipped: "no readable question rows — the topic keeps its previous questions",
+            unreadable: failed.length,
+          });
+          continue;
+        }
+
         await supabaseAdmin
           .from("owner_questions")
           .delete()
@@ -215,23 +376,23 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
           .eq("topic_id", topic.topicId);
 
         const rows = [
-          ...approved.map((item) => ({
+          ...approved.map((row) => ({
             domain,
             topic_id: topic.topicId,
             source_file: file.name,
-            row_number: item.rowNumber,
-            question: item.question,
+            row_number: row.rowNumber,
+            question: row.question,
             status: "approved",
             reject_reasons: [],
           })),
-          ...rejected.map((item) => ({
+          ...rejected.map((row) => ({
             domain,
             topic_id: topic.topicId,
             source_file: file.name,
-            row_number: item.rowNumber,
-            question: item.question,
+            row_number: row.rowNumber,
+            question: row.question,
             status: "rejected",
-            reject_reasons: item.reasons,
+            reject_reasons: row.reasons,
           })),
         ];
         for (let index = 0; index < rows.length; index += INSERT_CHUNK) {
@@ -246,267 +407,12 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
         topicsSynced.add(topic.topicId);
         report.push({
           domain,
+          folder: `${root}/quiz`,
           file: file.name,
           topic: topic.title,
           approved: approved.length,
           rejected: rejected.length,
           unreadable: failed.length,
-        });
-      }
-
-      // Recall workbooks: one tabbed workbook per topic, in the matching
-      // "<course> recall" folder. Recall, teach back, application and
-      // troubleshooting all come from here and replace the built-in versions.
-      let workListing: { value?: Array<{ id?: string; name: string; file?: unknown }> } = {};
-      try {
-        workListing = await graph(`/me/drive/root:/${workFolder}:/children`);
-      } catch (error) {
-        report.push({
-          domain,
-          folder: workFolder,
-          skipped: String(error instanceof Error ? error.message : error),
-        });
-      }
-
-      const workFiles: SheetFile[] = (workListing.value ?? [])
-        .filter((item) => item.file && item.name.endsWith(".xlsx") && item.id)
-        .map((item) => ({ id: item.id!, name: item.name }))
-        .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
-
-      for (const file of workFiles) {
-        const number = fileNumber(file.name);
-        const topic = number ? topicForNumber(domain, number) : undefined;
-        if (!topic) {
-          report.push({ domain, folder: workFolder, file: file.name, skipped: "filename number has no matching topic" });
-          continue;
-        }
-
-        const workSheets = await graph(`/me/drive/items/${file.id}/workbook/worksheets`);
-        const workTabs: SheetTab[] = [];
-        for (const sheet of workSheets.value ?? []) {
-          const used = await graph(
-            `/me/drive/items/${file.id}/workbook/worksheets/${encodeURIComponent(sheet.id)}` +
-              `/usedRange(valuesOnly=true)?$select=values`,
-          );
-          workTabs.push({
-            name: String(sheet.name ?? ""),
-            rows: (used.values ?? []).map((row: unknown[]) => row.map((value) => String(value ?? ""))),
-          });
-        }
-
-        const workQuiz = await storeQuizTab(supabaseAdmin, domain, topic, workTabs, file.name);
-        if (workQuiz) {
-          approvedTotal += workQuiz.approved;
-          rejectedTotal += workQuiz.rejected;
-          topicsSynced.add(topic.topicId);
-          report.push({ domain, folder: workFolder, file: file.name, topic: topic.title, ...workQuiz });
-        }
-
-        const work = ownerWorkFromTabs(topic, workTabs);
-        const hasWork = Boolean(
-          work.recall.length || work.teachBack || work.scenario || work.troubleshooting,
-        );
-
-        // The workbook is the source of truth: the stored row is replaced
-        // wholesale, so deletions and edits flow through.
-        await supabaseAdmin
-          .from("owner_topic_work")
-          .delete()
-          .eq("domain", domain)
-          .eq("topic_id", topic.topicId);
-
-        if (!hasWork) {
-          report.push({ domain, folder: workFolder, file: file.name, topic: topic.title, skipped: "every tab is empty" });
-          continue;
-        }
-
-        const { error } = await supabaseAdmin.from("owner_topic_work").insert({
-          domain,
-          topic_id: topic.topicId,
-          source_file: file.name,
-          work: work as unknown as Json,
-          status: "approved",
-          notes: [],
-        });
-        if (error) throw new Error(`storing work ${file.name}: ${error.message}`);
-
-        workTopics += 1;
-        topicsSynced.add(topic.topicId);
-        report.push({
-          domain,
-          folder: workFolder,
-          file: file.name,
-          topic: topic.title,
-          recall: work.recall.length,
-          teachBack: Boolean(work.teachBack),
-          application: Boolean(work.scenario),
-          troubleshooting: Boolean(work.troubleshooting),
-        });
-
-        // A master workbook can also carry the lesson tabs. Store those too,
-        // so one workbook per topic feeds everything.
-        const workFileLesson = ownerLessonFromTabs(topic, workTabs);
-        if (workFileLesson.lesson) {
-          const lessonNotes = workFileLesson.rejectReasons ?? [];
-          if (lessonNotes.length) {
-            lessonIssues.push({ file: file.name, topic: topic.title, reasons: lessonNotes });
-          }
-          await supabaseAdmin
-            .from("owner_lessons")
-            .delete()
-            .eq("domain", domain)
-            .eq("topic_id", topic.topicId);
-          const { error: workLessonError } = await supabaseAdmin.from("owner_lessons").insert({
-            domain,
-            topic_id: topic.topicId,
-            source_file: file.name,
-            lesson: workFileLesson.lesson as unknown as Json,
-            sources: workFileLesson.sources as unknown as Json,
-            practice: workFileLesson.practice as unknown as Json,
-            extras: workFileLesson.extras as unknown as Json,
-            status: "approved",
-            reject_reasons: lessonNotes,
-          });
-          if (workLessonError) throw new Error(`storing lesson ${file.name}: ${workLessonError.message}`);
-          lessonsApproved += 1;
-          topicsSynced.add(topic.topicId);
-          report.push({ domain, folder: workFolder, file: file.name, topic: topic.title, lesson: "published", notes: lessonNotes });
-        }
-      }
-
-
-      // Lesson workbooks: one per topic, in the matching "<course> lessons" folder.
-      let lessonListing: { value?: Array<{ id?: string; name: string; file?: unknown }> };
-      try {
-        lessonListing = await graph(`/me/drive/root:/${lessonFolder}:/children`);
-      } catch (error) {
-        report.push({
-          domain,
-          folder: lessonFolder,
-          skipped: String(error instanceof Error ? error.message : error),
-        });
-        continue;
-      }
-
-      const lessonFiles: SheetFile[] = (lessonListing.value ?? [])
-        .filter((item) => item.file && item.name.endsWith(".xlsx") && item.id)
-        .map((item) => ({ id: item.id!, name: item.name }))
-        .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
-
-      for (const file of lessonFiles) {
-        const number = fileNumber(file.name);
-        const topic = number ? topicForNumber(domain, number) : undefined;
-        if (!topic) {
-          report.push({ domain, folder: lessonFolder, file: file.name, skipped: "filename number has no matching topic" });
-          continue;
-        }
-
-        const sheets = await graph(`/me/drive/items/${file.id}/workbook/worksheets`);
-        const tabs: SheetTab[] = [];
-        for (const sheet of sheets.value ?? []) {
-          const used = await graph(
-            `/me/drive/items/${file.id}/workbook/worksheets/${encodeURIComponent(sheet.id)}` +
-              `/usedRange(valuesOnly=true)?$select=values`,
-          );
-          tabs.push({
-            name: String(sheet.name ?? ""),
-            rows: (used.values ?? []).map((row: unknown[]) => row.map((value) => String(value ?? ""))),
-          });
-        }
-
-        const lessonQuiz = await storeQuizTab(supabaseAdmin, domain, topic, tabs, file.name);
-        if (lessonQuiz) {
-          approvedTotal += lessonQuiz.approved;
-          rejectedTotal += lessonQuiz.rejected;
-          topicsSynced.add(topic.topicId);
-          report.push({ domain, folder: lessonFolder, file: file.name, topic: topic.title, ...lessonQuiz });
-        }
-
-        const result = ownerLessonFromTabs(topic, tabs);
-        if (!result.lesson) {
-          report.push({ domain, folder: lessonFolder, file: file.name, topic: topic.title, skipped: result.error });
-          lessonIssues.push({
-            file: file.name,
-            topic: topic.title,
-            reasons: [result.error ?? "the workbook could not be read"],
-          });
-          continue;
-        }
-
-        // The owner verifies their own lessons, so a lesson the workbook can
-        // be read from always goes live. Anything the automatic checks flag is
-        // kept as a note beside it, never as a block.
-        const notes = result.rejectReasons ?? [];
-        if (notes.length) {
-          lessonIssues.push({ file: file.name, topic: topic.title, reasons: notes });
-        }
-        await supabaseAdmin
-          .from("owner_lessons")
-          .delete()
-          .eq("domain", domain)
-          .eq("topic_id", topic.topicId);
-
-        const { error } = await supabaseAdmin.from("owner_lessons").insert({
-          domain,
-          topic_id: topic.topicId,
-          source_file: file.name,
-          lesson: result.lesson as unknown as Json,
-          sources: result.sources as unknown as Json,
-          practice: result.practice as unknown as Json,
-          extras: result.extras as unknown as Json,
-          status: "approved",
-          reject_reasons: notes,
-        });
-        if (error) throw new Error(`storing lesson ${file.name}: ${error.message}`);
-
-        lessonsApproved += 1;
-        topicsSynced.add(topic.topicId);
-
-        // A master workbook can also carry the recall-folder tabs
-        // (Recall, Teach back, Application, Troubleshooting). Store those too,
-        // so one workbook per topic feeds everything.
-        const lessonWork = ownerWorkFromTabs(topic, tabs);
-        const hasLessonWork = Boolean(
-          lessonWork.recall.length ||
-            lessonWork.teachBack ||
-            lessonWork.scenario ||
-            lessonWork.troubleshooting,
-        );
-        if (hasLessonWork) {
-          await supabaseAdmin
-            .from("owner_topic_work")
-            .delete()
-            .eq("domain", domain)
-            .eq("topic_id", topic.topicId);
-          const { error: lessonWorkError } = await supabaseAdmin.from("owner_topic_work").insert({
-            domain,
-            topic_id: topic.topicId,
-            source_file: file.name,
-            work: lessonWork as unknown as Json,
-            status: "approved",
-            notes: [],
-          });
-          if (lessonWorkError) throw new Error(`storing work ${file.name}: ${lessonWorkError.message}`);
-          workTopics += 1;
-          report.push({
-            domain,
-            folder: lessonFolder,
-            file: file.name,
-            topic: topic.title,
-            recall: lessonWork.recall.length,
-            teachBack: Boolean(lessonWork.teachBack),
-            application: Boolean(lessonWork.scenario),
-            troubleshooting: Boolean(lessonWork.troubleshooting),
-          });
-        }
-
-        report.push({
-          domain,
-          folder: lessonFolder,
-          file: file.name,
-          topic: topic.title,
-          lesson: "published",
-          notes,
         });
       }
     }
@@ -516,7 +422,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
       .update({
         locked_until: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected, ${lessonsApproved} lesson(s) published, ${lessonsRejected} rejected, ${workTopics} recall workbook(s)`,
+        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected, ${lessonsApproved} lesson(s) published, ${workTopics} try-it/lab topic(s)`,
       })
       .eq("job", JOB);
 

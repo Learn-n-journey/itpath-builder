@@ -11,6 +11,7 @@
 import { hardwareComponents } from "@/data/hardware-explorer";
 import { categoryFor } from "@/data/lab-generator";
 import { ownerLabsFor } from "@/lib/owner-lesson-store";
+import { ownerWorkLabsFor } from "@/lib/owner-work-store";
 import type { Lab, Lesson, Topic } from "@/lib/app-data/types";
 
 export const HARDWARE_TOPIC_ID = "topic-computer-hardware-basics";
@@ -63,7 +64,7 @@ export function identificationSet(
   lesson?: { keyTerms?: { term: string; meaning: string }[] },
 ): IdentificationSet | undefined {
   // The owner's Labs tab wins: those numbered items are the lab for this topic.
-  const owned = ownerLabsFor(topicId);
+  const owned = ownerWorkLabsFor(topicId).length ? ownerWorkLabsFor(topicId) : ownerLabsFor(topicId);
   if (owned.length) {
     return {
       heading: "Name each numbered item, then say what it does",
@@ -120,7 +121,7 @@ export function buildIdentificationLabs(topicList: Topic[], lessonList: Lesson[]
   for (const topic of topicList) {
     const lesson = lessonList.find((item) => item.topicId === topic.id);
     const set = identificationSet(topic.id, 0, lesson);
-    if (!set && ownerLabsFor(topic.id).length === 0) continue;
+    if (!set && ownerLabsFor(topic.id).length === 0 && ownerWorkLabsFor(topic.id).length === 0) continue;
     if (!set) continue;
     const hardware = topic.id === HARDWARE_TOPIC_ID;
     out.push({

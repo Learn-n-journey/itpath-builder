@@ -13,7 +13,6 @@ import {
   HelpCircle,
   PlayCircle,
   RotateCcw,
-  ShieldAlert,
   Target,
   Wrench,
 } from "lucide-react";
@@ -257,18 +256,7 @@ function Dashboard() {
     const journeyTopic = currentJourneyTopic(user);
     if (journeyTopic) {
       const gate = masteryGate(user, journeyTopic.id);
-      if (gate.delayed.scheduled && gate.delayed.due) {
-        chips.push(
-          <TodayChip
-            key="delayed"
-            to="/mastery-check/$topicId"
-            params={{ topicId: journeyTopic.id }}
-            icon={ShieldAlert}
-            label="Delayed check due"
-            detail={journeyTopic.title}
-          />,
-        );
-      } else if (!gate.met) {
+      if (!gate.met) {
         chips.push(
           <TodayChip
             key="next"

@@ -11,8 +11,16 @@
  * Anything a workbook supplies replaces the built-in version for that topic
  * completely. An empty tab changes nothing.
  */
-import type { RealWorldScenario, RecallQuestion } from "@/lib/app-data/types";
-import { body, cell, splitList, type SheetTab } from "@/lib/owner-lessons-shared";
+import type { PracticeActivity, RealWorldScenario, RecallQuestion } from "@/lib/app-data/types";
+import {
+  body,
+  cell,
+  labsFromTabs,
+  practiceFromTabs,
+  splitList,
+  type OwnerLabItem,
+  type SheetTab,
+} from "@/lib/owner-lessons-shared";
 import type { NumberedTopic } from "@/lib/owner-questions-shared";
 
 export interface OwnerTroubleshooting {
@@ -23,6 +31,10 @@ export interface OwnerTroubleshooting {
 
 export interface OwnerTopicWork {
   recall: RecallQuestion[];
+  /** Practice questions from the "try it" workbook. */
+  practice?: PracticeActivity[];
+  /** Numbered lab items from the "labs" workbook. */
+  labs?: OwnerLabItem[];
   teachBack?: { prompt: string; expectedPoints: string[] };
   scenario?: RealWorldScenario;
   troubleshooting?: OwnerTroubleshooting;
@@ -60,7 +72,8 @@ export function ownerWorkFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Owner
   const teachBack =
     teachPrompt || expectedPoints.length ? { prompt: teachPrompt, expectedPoints } : undefined;
 
-  const applicationRow = body(tabs, "Application")[0];
+  const applicationRow =
+    body(tabs, "Real world scenario")[0] ?? body(tabs, "Application")[0];
   const situation = cell(applicationRow, 1);
   const decisionPrompt = cell(applicationRow, 2);
   const scenario: RealWorldScenario | undefined =
@@ -85,8 +98,13 @@ export function ownerWorkFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Owner
       ? { commonProblems, howItFails, steps }
       : undefined;
 
+  const practice = practiceFromTabs(topic, tabs);
+  const labs = labsFromTabs(tabs);
+
   return {
     recall,
+    ...(practice.length ? { practice } : {}),
+    ...(labs.length ? { labs } : {}),
     ...(teachBack ? { teachBack } : {}),
     ...(scenario ? { scenario } : {}),
     ...(troubleshooting ? { troubleshooting } : {}),

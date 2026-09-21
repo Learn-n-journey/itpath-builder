@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
-import { CalendarClock, Check, Circle } from "lucide-react";
+import { Check, Circle } from "lucide-react";
 
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,8 @@ import { masteryGate } from "@/lib/mastery-gate";
 import { useAppState } from "@/state/app-state";
 
 /**
- * What this section asks for before the next one opens. Each line stands on
- * its own, so a strong score in one place cannot cover a gap somewhere else.
+ * What this section asks for before the next one opens: the topic quiz, and
+ * nothing else. The lab is offered underneath as optional practice.
  */
 const ROW = "flex gap-3 rounded-md p-1 -m-1 transition-colors hover:bg-muted/50";
 
@@ -24,13 +24,6 @@ function CompetencyLink({
   competencyKey: string;
   children: React.ReactNode;
 }) {
-  if (competencyKey === "knowledge") {
-    return (
-      <Link to="/section-quiz/$topicId" params={{ topicId }} className={ROW}>
-        {children}
-      </Link>
-    );
-  }
   if (competencyKey === "practicalAbility") {
     return (
       <Link to="/labs" search={{ lab: identificationLabId(topicId) }} className={ROW}>
@@ -39,12 +32,7 @@ function CompetencyLink({
     );
   }
   return (
-    <Link
-      to="/mastery-check/$topicId"
-      params={{ topicId }}
-      hash={`check-${competencyKey}`}
-      className={ROW}
-    >
+    <Link to="/section-quiz/$topicId" params={{ topicId }} className={ROW}>
       {children}
     </Link>
   );
@@ -59,7 +47,7 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
   return (
     <Panel
       title="What opens the next section"
-      description="Every part below has to stand on its own. An overall percentage is not enough, anything this section does not contain is not asked for, and hands-on labs are extra practice rather than a condition of moving on."
+      description="The 20-question topic quiz, passed at 80 or better. The try-it work and the lab are practice — take them whenever you want, they never hold you back."
     >
       <ul className="space-y-3">
         {required.map((item) => (
@@ -83,30 +71,12 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
                   {item.met ? item.detail : `${item.requirement} ${item.detail}`}
                 </span>
                 <span className="mt-1 block text-xs font-medium text-primary">
-                  {item.met ? "Open it again" : "Open this check"}
+                  {item.met ? "Open it again" : "Open the quiz"}
                 </span>
               </span>
             </CompetencyLink>
           </li>
         ))}
-        <li className="flex gap-3 text-sm">
-          <span
-            className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border ${
-              gate.delayed.passed
-                ? "border-primary bg-primary/15 text-primary"
-                : gate.delayed.due
-                  ? "border-destructive/60 text-destructive"
-                  : "border-border text-muted-foreground"
-            }`}
-            aria-hidden
-          >
-            {gate.delayed.passed ? <Check className="size-3" /> : <CalendarClock className="size-3" />}
-          </span>
-          <span>
-            <span className="font-medium text-foreground">Delayed check</span>
-            <span className="block text-muted-foreground">{gate.delayed.detail}</span>
-          </span>
-        </li>
       </ul>
       {extras.length > 0 ? (
         <div className="mt-5 border-t border-border pt-4">
@@ -136,13 +106,13 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
       <p className="mt-4 text-xs text-muted-foreground">{gate.summary}</p>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button asChild size="sm" variant="secondary">
-          <Link to="/mastery-check/$topicId" params={{ topicId }}>
-            Open the mastery checks
+          <Link to="/section-quiz/$topicId" params={{ topicId }}>
+            Open the topic quiz
           </Link>
         </Button>
         <Button asChild size="sm" variant="ghost">
           <Link to="/labs" search={{ lab: identificationLabId(topicId) }}>
-            Identification lab (extra)
+            Lab (optional)
           </Link>
         </Button>
       </div>

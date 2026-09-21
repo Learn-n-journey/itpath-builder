@@ -20,7 +20,7 @@ export function LessonProgressRing({ topicId }: { topicId: string }) {
   const allDone = total > 0 && met === total;
 
   // Nothing to follow until some proof work exists.
-  if (met === 0 && !gate.delayed.scheduled) return null;
+  if (met === 0) return null;
 
   function jumpToWork() {
     setOpen(false);

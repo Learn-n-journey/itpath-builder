@@ -68,7 +68,6 @@ import { Route as FlashcardsIndexRouteImport } from './routes/flashcards.index'
 import { Route as FlashcardsTopicIdRouteImport } from './routes/flashcards.$topicId'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
-import { Route as MasteryCheckTopicIdRouteImport } from './routes/mastery-check.$topicId'
 import { Route as PracticeTestsCertIdRouteImport } from './routes/practice-tests.$certId'
 import { Route as SectionQuizTopicIdRouteImport } from './routes/section-quiz.$topicId'
 import { Route as StageExamStageIdRouteImport } from './routes/stage-exam.$stageId'
@@ -376,11 +375,6 @@ const GuidesSlugRoute = GuidesSlugRouteImport.update({
   path: '/guides/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MasteryCheckTopicIdRoute = MasteryCheckTopicIdRouteImport.update({
-  id: '/mastery-check/$topicId',
-  path: '/mastery-check/$topicId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PracticeTestsCertIdRoute = PracticeTestsCertIdRouteImport.update({
   id: '/practice-tests/$certId',
   path: '/practice-tests/$certId',
@@ -495,7 +489,6 @@ export interface FileRoutesByFullPath {
   '/checkout/success': typeof CheckoutSuccessRoute
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
-  '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
@@ -568,7 +561,6 @@ export interface FileRoutesByTo {
   '/checkout/success': typeof CheckoutSuccessRoute
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
-  '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
@@ -642,7 +634,6 @@ export interface FileRoutesById {
   '/checkout/success': typeof CheckoutSuccessRoute
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
-  '/mastery-check/$topicId': typeof MasteryCheckTopicIdRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
@@ -717,7 +708,6 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/flashcards/$topicId'
     | '/guides/$slug'
-    | '/mastery-check/$topicId'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
@@ -790,7 +780,6 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/flashcards/$topicId'
     | '/guides/$slug'
-    | '/mastery-check/$topicId'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
@@ -863,7 +852,6 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/flashcards/$topicId'
     | '/guides/$slug'
-    | '/mastery-check/$topicId'
     | '/practice-tests/$certId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
@@ -937,7 +925,6 @@ export interface RootRouteChildren {
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
   FlashcardsTopicIdRoute: typeof FlashcardsTopicIdRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
-  MasteryCheckTopicIdRoute: typeof MasteryCheckTopicIdRoute
   PracticeTestsCertIdRoute: typeof PracticeTestsCertIdRoute
   SectionQuizTopicIdRoute: typeof SectionQuizTopicIdRoute
   StageExamStageIdRoute: typeof StageExamStageIdRoute
@@ -1369,13 +1356,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mastery-check/$topicId': {
-      id: '/mastery-check/$topicId'
-      path: '/mastery-check/$topicId'
-      fullPath: '/mastery-check/$topicId'
-      preLoaderRoute: typeof MasteryCheckTopicIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/practice-tests/$certId': {
       id: '/practice-tests/$certId'
       path: '/practice-tests/$certId'
@@ -1513,7 +1493,6 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutSuccessRoute: CheckoutSuccessRoute,
   FlashcardsTopicIdRoute: FlashcardsTopicIdRoute,
   GuidesSlugRoute: GuidesSlugRoute,
-  MasteryCheckTopicIdRoute: MasteryCheckTopicIdRoute,
   PracticeTestsCertIdRoute: PracticeTestsCertIdRoute,
   SectionQuizTopicIdRoute: SectionQuizTopicIdRoute,
   StageExamStageIdRoute: StageExamStageIdRoute,
