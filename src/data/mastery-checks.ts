@@ -15,8 +15,13 @@
  * already been asked. When a pool runs out it starts again from the items seen
  * longest ago, rather than repeating the most recent set.
  */
-import { learningModules } from "@/data/learning-content";
+import { getLearningModule, learningModules } from "@/data/learning-content";
 import { lessons, topics } from "@/data/static-content";
+import {
+  ownerWorkRecallFor,
+  ownerWorkScenarioFor,
+  ownerWorkTeachBackFor,
+} from "@/lib/owner-work-store";
 
 export type MasteryCheckKind = "recall" | "understanding" | "application" | "troubleshooting";
 
