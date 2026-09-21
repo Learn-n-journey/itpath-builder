@@ -281,6 +281,36 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
           application: Boolean(work.scenario),
           troubleshooting: Boolean(work.troubleshooting),
         });
+
+        // A master workbook can also carry the lesson tabs. Store those too,
+        // so one workbook per topic feeds everything.
+        const workFileLesson = ownerLessonFromTabs(topic, workTabs);
+        if (workFileLesson.lesson) {
+          const lessonNotes = workFileLesson.rejectReasons ?? [];
+          if (lessonNotes.length) {
+            lessonIssues.push({ file: file.name, topic: topic.title, reasons: lessonNotes });
+          }
+          await supabaseAdmin
+            .from("owner_lessons")
+            .delete()
+            .eq("domain", domain)
+            .eq("topic_id", topic.topicId);
+          const { error: workLessonError } = await supabaseAdmin.from("owner_lessons").insert({
+            domain,
+            topic_id: topic.topicId,
+            source_file: file.name,
+            lesson: workFileLesson.lesson as unknown as Json,
+            sources: workFileLesson.sources as unknown as Json,
+            practice: workFileLesson.practice as unknown as Json,
+            extras: workFileLesson.extras as unknown as Json,
+            status: "approved",
+            reject_reasons: lessonNotes,
+          });
+          if (workLessonError) throw new Error(`storing lesson ${file.name}: ${workLessonError.message}`);
+          lessonsApproved += 1;
+          topicsSynced.add(topic.topicId);
+          report.push({ domain, folder: workFolder, file: file.name, topic: topic.title, lesson: "published", notes: lessonNotes });
+        }
       }
 
 
