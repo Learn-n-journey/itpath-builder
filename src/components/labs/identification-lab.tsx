@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { hardwarePhotos } from "@/components/hardware/photos";
 import { identificationSet, type IdentificationItem } from "@/data/identification-labs";
+import { ownerLessonFor } from "@/lib/owner-lesson-store";
 import { lessons } from "@/data/static-content";
 import { matchesConcept, normalizeText } from "@/lib/fuzzy-match";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
