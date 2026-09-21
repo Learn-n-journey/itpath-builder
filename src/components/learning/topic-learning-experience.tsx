@@ -136,12 +136,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
 
   useEffect(() => {
-    setRecallAnswers((current) => mergeSaved(current, savedRecall.answers));
-    setRecallFeedback((current) => mergeSaved(current, savedRecall.feedback));
-  }, [savedRecall]);
-  useEffect(() => { setRecallAnswers(savedRecall.answers); setRecallFeedback(savedRecall.feedback); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [topic.id]);
-
-  useEffect(() => {
     setPracticeChoices((current) => mergeSaved(current, savedPractice.choices));
     setPracticeFeedback((current) => mergeSaved(current, savedPractice.feedback));
   }, [savedPractice]);
@@ -161,49 +155,6 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
   function raiseProgress(patch: Partial<TopicProgress>) {
     actions.setTopicProgress({ ...progress, ...patch, status: "in_progress", updatedAt: new Date().toISOString() });
-  }
-
-  async function submitRecall(questionId: string) {
-    const question = recallQuestions.find((item) => item.id === questionId);
-    const answer = recallAnswers[questionId]?.trim();
-    if (!question || !answer) { toast.error("Write an answer before checking it."); return; }
-    const matched = matchConcepts(answer, question.acceptedConcepts);
-    setMarkedRecallId(questionId);
-    // The AI examiner marks the meaning; the concept matcher is the offline fallback.
-    const graded = await recallMarking.mark({
-      topic: topic.title,
-      task: "Recall question",
-      question: question.prompt,
-      answer,
-      modelAnswer: question.explanation,
-      expectedPoints: question.acceptedConcepts,
-    });
-    const correct = graded ? graded.correct : passesOffline(answer, question.acceptedConcepts, question.explanation);
-    const hints = graded ? graded.hints : correct ? [] : offlineHints(answer, question.acceptedConcepts);
-    // Nearly there means the thinking holds up with a step missing, so it is a nudge, not a mistake.
-    const almost = !correct && (graded ? graded.status === "almost" : hints.length > 0);
-    const now = new Date().toISOString();
-    actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
-    if (!correct && !almost) {
-      actions.recordMistake({
-        topicId: topic.id,
-        activity: "recall",
-        category: matched.length === 0 ? "didnt_know_fact" : "misunderstood_concept",
-        severity: matched.length === 0 ? "high" : "medium",
-        questionId,
-        createdAt: now,
-      });
-      actions.ensureReview({ topicId: topic.id });
-    } else {
-      // Answered it well, so any review waiting on this topic is settled.
-      actions.settleTopicReview(topic.id, "pass");
-    }
-    const message = almost
-      ? `Nearly there. ${hints.length ? hints.join(". ") + "." : question.explanation}`
-      : question.explanation;
-    setRecallFeedback((current) => ({ ...current, [questionId]: { correct, message } }));
-    raiseProgress({ recall: Math.max(progress.recall, correct ? 35 : almost ? 25 : 10), retention: Math.max(progress.retention, correct ? 15 : 5) });
-
   }
 
   function submitPractice(activityId: string) {
