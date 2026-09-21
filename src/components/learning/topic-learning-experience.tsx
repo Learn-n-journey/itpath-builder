@@ -221,6 +221,10 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     (entry, index, entries) =>
       entries.findIndex((candidate) => candidate.term.trim().toLowerCase() === entry.term.trim().toLowerCase()) === index,
   );
+  // Exam coverage and exam traps are one list: what the exam tests, and how it tries to catch you out.
+  const examCoverage = [...module.examCoverage, ...(deepLesson?.depth?.examTraps ?? [])].filter(
+    (item, index, items) => items.findIndex((candidate) => candidate.trim().toLowerCase() === item.trim().toLowerCase()) === index,
+  );
 
   return <div className="space-y-4">
     <Panel title="Learning objectives">
