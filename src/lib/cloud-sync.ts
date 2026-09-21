@@ -30,7 +30,19 @@ export async function fetchCloudState(userId: string): Promise<CloudFetchResult>
 export async function pushCloudState(
   userId: string,
   user: UserData,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; expired?: boolean }> {
+  // A quietly expired sign-in would otherwise be rejected by the database and
+  // look like a generic save failure, so it is detected up front.
+  const { data: sessionData } = await supabase.auth.getSession();
+  const session = sessionData.session;
+  if (!session || session.user.id !== userId) {
+    return {
+      ok: false,
+      expired: true,
+      error: "Your sign-in has expired. Sign in again to keep saving your progress.",
+    };
+  }
+
   const { error } = await supabase.from("user_state").upsert(
     {
       user_id: userId,
