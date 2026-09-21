@@ -382,6 +382,36 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_paths: {
+        Row: {
+          created_at: string
+          folder: string
+          name: string
+          slug: string
+          topics: Json
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          folder: string
+          name: string
+          slug: string
+          topics?: Json
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          folder?: string
+          name?: string
+          slug?: string
+          topics?: Json
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       link_checks: {
         Row: {
           checked_at: string | null
