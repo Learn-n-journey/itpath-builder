@@ -146,6 +146,35 @@ export function generateExam(
   return { quiz, questions: picked };
 }
 
+/** Every question available to the course-wide final exam, owner spreadsheets included. */
+export function courseQuestionPool(): Question[] {
+  const topicIds = new Set(topics.map((topic) => topic.id));
+  return bankQuestions().filter((question) => topicIds.has(question.topicId));
+}
+
+/**
+ * Builds the final exam: a fixed-length draw from the whole active course.
+ * The same seed always produces the same exam.
+ */
+export function generateFinalExam(
+  courseTitle: string,
+  seed: number,
+  count = 80,
+): GeneratedExam | null {
+  const pool = courseQuestionPool();
+  if (pool.length === 0) return null;
+  const picked = shuffleWithSeed(pool, seed).slice(0, Math.min(count, pool.length));
+  const quiz: Quiz = {
+    id: `quiz-final-${seed}`,
+    title: `${courseTitle} final exam`,
+    description: `${picked.length} questions drawn from the whole ${courseTitle} course (${pool.length} in the bank).`,
+    topicIds: [...new Set(picked.map((question) => question.topicId))],
+    questionIds: picked.map((question) => question.id),
+    kind: "general",
+  };
+  return { quiz, questions: picked };
+}
+
 /** Randomised assignment selection for a certification. */
 export function generateAssignments(
   certificationId: string,
