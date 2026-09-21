@@ -290,6 +290,14 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
           });
         }
 
+        const workQuiz = await storeQuizTab(supabaseAdmin, domain, topic, workTabs, file.name);
+        if (workQuiz) {
+          approvedTotal += workQuiz.approved;
+          rejectedTotal += workQuiz.rejected;
+          topicsSynced.add(topic.topicId);
+          report.push({ domain, folder: workFolder, file: file.name, topic: topic.title, ...workQuiz });
+        }
+
         const work = ownerWorkFromTabs(topic, workTabs);
         const hasWork = Boolean(
           work.recall.length || work.teachBack || work.scenario || work.troubleshooting,
@@ -400,6 +408,14 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
             name: String(sheet.name ?? ""),
             rows: (used.values ?? []).map((row: unknown[]) => row.map((value) => String(value ?? ""))),
           });
+        }
+
+        const lessonQuiz = await storeQuizTab(supabaseAdmin, domain, topic, tabs, file.name);
+        if (lessonQuiz) {
+          approvedTotal += lessonQuiz.approved;
+          rejectedTotal += lessonQuiz.rejected;
+          topicsSynced.add(topic.topicId);
+          report.push({ domain, folder: lessonFolder, file: file.name, topic: topic.title, ...lessonQuiz });
         }
 
         const result = ownerLessonFromTabs(topic, tabs);
