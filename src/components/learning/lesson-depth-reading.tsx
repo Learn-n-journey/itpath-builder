@@ -4,6 +4,29 @@ import { AlertTriangle, CheckCircle2, ClipboardList, Key, ListChecks, Wrench } f
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import type { LessonDepth } from "@/data/deep-lessons";
+import type { LessonReferenceRow } from "@/data/deep-lessons/types";
+
+/**
+ * Splits the reference rows into sub-sections by their heading, keeping the
+ * order they were written in. Rows sharing a heading are combined under it;
+ * rows with no heading fall under the lesson's own reference heading.
+ */
+function groupReference(reference: LessonDepth["reference"]): {
+  heading: string;
+  rows: LessonReferenceRow[];
+}[] {
+  const groups: { heading: string; rows: LessonReferenceRow[] }[] = [];
+  for (const row of reference.rows) {
+    const heading = (row.group ?? "").trim();
+    const existing = groups.find((group) => group.heading.toLowerCase() === heading.toLowerCase());
+    if (existing) existing.rows.push(row);
+    else groups.push({ heading, rows: [row] });
+  }
+  if (groups.length === 1 && !groups[0]!.heading && reference.heading !== "Reference") {
+    groups[0]!.heading = reference.heading;
+  }
+  return groups;
+}
 
 /**
  * The depth layer of a lesson: the parts that turn reading into teaching.
@@ -54,15 +77,27 @@ export function LessonDepthReading({ depth }: { depth: LessonDepth }) {
         </div>
       </Panel>
 
-      <Panel title={depth.reference.heading} description="Worth keeping at hand while you work.">
-        <dl className="divide-y divide-border text-sm">
-          {depth.reference.rows.map((row) => (
-            <div key={row.term} className="grid gap-1 py-3 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-4">
-              <dt className="font-mono text-xs text-foreground sm:text-sm">{row.term}</dt>
-              <dd className="leading-7 text-muted-foreground">{row.detail}</dd>
-            </div>
+      <Panel title="Reference" description="Worth keeping at hand while you work.">
+        <div className="space-y-6">
+          {groupReference(depth.reference).map((group) => (
+            <section key={group.heading || "ungrouped"}>
+              {group.heading ? (
+                <h4 className="font-display text-sm font-semibold text-foreground">{group.heading}</h4>
+              ) : null}
+              <dl className="divide-y divide-border text-sm">
+                {group.rows.map((row) => (
+                  <div
+                    key={`${group.heading}-${row.term}`}
+                    className="grid gap-1 py-3 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-4"
+                  >
+                    <dt className="font-mono text-xs text-foreground sm:text-sm">{row.term}</dt>
+                    <dd className="leading-7 text-muted-foreground">{row.detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
           ))}
-        </dl>
+        </div>
       </Panel>
 
       <div className="grid gap-4 lg:grid-cols-2">

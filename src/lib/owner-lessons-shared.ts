@@ -363,10 +363,12 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
     .map((row) => ({ label: cell(row, 2), detail: cell(row, 3) }))
     .filter((step) => step.label || step.detail);
 
+  // Column A is a sub-heading, so one Reference tab can hold several groups.
+  // Rows sharing a heading stay together under it, in the order first seen.
   const referenceRows: LessonReferenceRow[] = body(tabs, "Reference")
-    .map((row) => ({ term: cell(row, 1), detail: cell(row, 2) }))
+    .map((row) => ({ term: cell(row, 1), detail: cell(row, 2), group: cell(row, 0) }))
     .filter((row) => row.term && row.detail);
-  const referenceHeading = cell(body(tabs, "Reference")[0], 0) || "Quick reference";
+  const referenceHeading = "Reference";
 
   const misconceptions = body(tabs, "Misconceptions")
     .map((row) => ({ claim: cell(row, 0), correction: cell(row, 1) }))
