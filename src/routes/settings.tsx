@@ -42,6 +42,7 @@ import { setMaintenance } from "@/lib/maintenance.functions";
 import { loadMaintenanceState } from "@/lib/maintenance-state";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { loadOwnerLessons } from "@/lib/owner-lesson-store";
+import { loadOwnerWork } from "@/lib/owner-work-store";
 import { formatStudyTime } from "@/lib/study-time";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
@@ -102,12 +103,13 @@ function SpreadsheetSyncPanel() {
       if (result.skipped) {
         setLastRun("A sync is already running — try again in a few minutes.");
       } else {
-        await Promise.all([loadOwnerQuestions(), loadOwnerLessons()]);
+        await Promise.all([loadOwnerQuestions(), loadOwnerLessons(), loadOwnerWork()]);
         const summary =
           `${result.topics} topic${result.topics === 1 ? "" : "s"} · ` +
           `${result.approved} questions in, ${result.rejected} rejected · ` +
           `${result.lessonsApproved} lesson${result.lessonsApproved === 1 ? "" : "s"} published, ` +
-          `${result.lessonsRejected} with notes`;
+          `${result.lessonsRejected} with notes · ` +
+          `${result.workTopics} recall workbook${result.workTopics === 1 ? "" : "s"}`;
         const held = (result.lessonIssues ?? [])
           .map((item) => `${item.file} (${item.topic}): ${item.reasons.join("; ")}`)
           .join("\n");
@@ -141,7 +143,7 @@ function SpreadsheetSyncPanel() {
       </div>
       <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
         {lastRun ??
-          "Reads the itpath, itpath lessons, autopath and autopath lessons folders in OneDrive. The nightly pull happens on its own."}
+          "Reads the itpath, itpath lessons, itpath recall, autopath, autopath lessons and autopath recall folders in OneDrive. The nightly pull happens on its own."}
       </p>
     </div>
   );
