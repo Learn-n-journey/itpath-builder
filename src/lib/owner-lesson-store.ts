@@ -76,6 +76,11 @@ export function ownerWorkedExamplesFor(topicId: string): WorkedExample[] {
   return extrasFor(topicId)?.workedExamples ?? [];
 }
 
+/** The word list the owner wrote on that topic's Key terms tab. */
+export function ownerKeyTermsFor(topicId: string): Array<{ term: string; meaning: string }> {
+  return extrasFor(topicId)?.keyTerms ?? [];
+}
+
 /** Numbered lab items the owner wrote on that topic's Labs tab. */
 export function ownerLabsFor(topicId: string): OwnerLabItem[] {
   return extrasFor(topicId)?.labs ?? [];

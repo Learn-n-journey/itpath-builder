@@ -33,6 +33,8 @@ export interface OwnerLabItem {
 
 export interface OwnerLessonExtras {
   recall: RecallQuestion[];
+  /** The topic's word list, written on the Key terms tab. */
+  keyTerms?: Array<{ term: string; meaning: string }>;
   /** Numbered identification-lab items written on the Labs tab. */
   labs?: OwnerLabItem[];
   teachBack?: { prompt: string; expectedPoints: string[] };
@@ -50,6 +52,7 @@ export interface SheetTab {
 export const LESSON_FOLDER_TABS = [
   "Lesson",
   "Sections",
+  "Key terms",
   "Key ideas",
   "Walkthrough",
   "Reference",
@@ -66,6 +69,7 @@ export const TRY_IT_FOLDER_TABS = [
   "Recall",
   "Teach back",
   "Real world scenario",
+  "Troubleshooting",
 ] as const;
 
 export const QUIZ_FOLDER_TABS = ["Quiz"] as const;
@@ -96,6 +100,7 @@ export const LESSON_TABS = [
 export const LESSON_TAB_HEADERS: Record<string, string[]> = {
   Lesson: ["Title", "Reading minutes", "Intro", "Where you meet it"],
   Sections: ["Heading", "Paragraph", "Bullets"],
+  "Key terms": ["Term", "Meaning"],
   "Key ideas": ["Idea"],
   Walkthrough: ["Title", "Scenario", "Step label", "Step detail", "Outcome"],
   Reference: ["Reference heading", "Term", "Detail"],
@@ -281,8 +286,13 @@ function extrasFromTabs(topic: NumberedTopic, tabs: SheetTab[]): OwnerLessonExtr
 
   const labs = labsFromTabs(tabs);
 
+  const keyTerms = body(tabs, "Key terms")
+    .map((row) => ({ term: cell(row, 0), meaning: cell(row, 1) }))
+    .filter((entry) => entry.term && entry.meaning);
+
   return {
     recall,
+    ...(keyTerms.length ? { keyTerms } : {}),
     ...(labs.length ? { labs } : {}),
     workedExamples: workedExamples.filter((example) => example.question && example.steps.length),
     ...(teachBack ? { teachBack } : {}),

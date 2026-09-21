@@ -29,7 +29,12 @@ import { topicMeasures } from "@/lib/mastery-summary";
 import { answerMatches, coveredConcepts } from "@/lib/fuzzy-match";
 import { ContentReportButton } from "@/components/content-report-button";
 import { LessonSources } from "@/components/learning/lesson-sources";
-import { ownerLessonSourcesFor, ownerRecallFor, ownerTeachBackFor } from "@/lib/owner-lesson-store";
+import {
+  ownerKeyTermsFor,
+  ownerLessonSourcesFor,
+  ownerRecallFor,
+  ownerTeachBackFor,
+} from "@/lib/owner-lesson-store";
 import { ownerWorkRecallFor, ownerWorkTeachBackFor } from "@/lib/owner-work-store";
 import { useOwnerContentVersion } from "@/hooks/use-owner-content";
 
@@ -333,8 +338,9 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   // A subject may not carry practice decisions or real-world scenarios for
   // every section; those parts simply do not appear, the lesson still does.
   if (!lesson || !module) return null;
+  const ownTerms = ownerKeyTermsFor(topic.id);
   const keywords = [
-    ...lesson.keyTerms.map(({ term, meaning }) => ({ term, meaning })),
+    ...(ownTerms.length ? ownTerms : lesson.keyTerms.map(({ term, meaning }) => ({ term, meaning }))),
     ...(deepLesson?.plain?.wordList.map(({ term, plain }) => ({ term, meaning: plain })) ?? []),
   ].filter(
     (entry, index, entries) =>
