@@ -133,3 +133,5 @@ Done when: typecheck + build clean, features verified in browser.
 - Owner lesson spreadsheets always publish; automatic checks are advisory notes only (owner verifies manually). Done.
 - Lesson spreadsheets carry a Practice tab; owner practice rows replace a topic\'s built-in practice. Done.
 - Lesson workbooks also feed Recall, Teach back, Real world scenario, Worked examples and Practice tabs; each replaces the built-in version for that topic. Done.
+
+- Recall workbooks: "itpath recall" and "autopath recall" folders, one tabbed workbook per topic (Recall, Teach back, Application, Troubleshooting), same numbering; owner rows replace the built-in/AI versions for that topic. Done.
