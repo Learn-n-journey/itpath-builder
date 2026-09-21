@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { hardwarePhotos } from "@/components/hardware/photos";
 import { identificationSet, type IdentificationItem } from "@/data/identification-labs";
+import { ownerLessonFor } from "@/lib/owner-lesson-store";
 import { lessons } from "@/data/static-content";
 import { matchesConcept, normalizeText } from "@/lib/fuzzy-match";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
@@ -25,7 +26,11 @@ export function IdentificationLab({ lab }: { lab: Lab }) {
     [lab.id, user.labAttempts],
   );
   const [round, setRound] = useState(history.length);
-  const lesson = lessons.find((item) => item.topicId === lab.topicId);
+  const baseLesson = lessons.find((item) => item.topicId === lab.topicId);
+  const ownerRows = ownerLessonFor(lab.topicId)?.depth?.reference?.rows ?? [];
+  const lesson = ownerRows.length >= 3
+    ? { keyTerms: ownerRows.map((row) => ({ term: row.term, meaning: row.detail })) }
+    : baseLesson;
   const set = useMemo(() => identificationSet(lab.topicId, round, lesson), [lab.topicId, round, lesson]);
   const [answers, setAnswers] = useState<Record<string, { name: string; job: string }>>({});
   const [marked, setMarked] = useState<{ score: number; earned: number; total: number } | null>(null);

@@ -57,7 +57,7 @@ function pick<T>(items: readonly T[], round: number, count: number): T[] {
 export function identificationSet(
   topicId: string,
   round: number,
-  lesson?: Lesson,
+  lesson?: { keyTerms?: { term: string; meaning: string }[] },
 ): IdentificationSet | undefined {
   if (topicId === HARDWARE_TOPIC_ID) {
     const component = hardwareComponents[round % hardwareComponents.length];
