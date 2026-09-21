@@ -544,3 +544,28 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
     };
   }
 }
+
+/**
+ * Releases the single-flight lock so a new sync can start.
+ *
+ * A crashed or timed-out run can leave the lock held until it expires; this
+ * clears it immediately.
+ */
+export async function releaseSyncLock(): Promise<{ ok: boolean; error?: string; heldSince?: string }> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const current = await supabaseAdmin
+    .from("job_locks")
+    .select("locked_until, updated_at")
+    .eq("job", JOB)
+    .maybeSingle();
+  const { error } = await supabaseAdmin
+    .from("job_locks")
+    .update({
+      locked_until: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      note: "lock cleared by the owner",
+    })
+    .eq("job", JOB);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, heldSince: current.data?.updated_at ?? undefined };
+}
