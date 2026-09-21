@@ -201,6 +201,89 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
         });
       }
 
+      // Recall workbooks: one tabbed workbook per topic, in the matching
+      // "<course> recall" folder. Recall, teach back, application and
+      // troubleshooting all come from here and replace the built-in versions.
+      let workListing: { value?: Array<{ id?: string; name: string; file?: unknown }> } = {};
+      try {
+        workListing = await graph(`/me/drive/root:/${workFolder}:/children`);
+      } catch (error) {
+        report.push({
+          domain,
+          folder: workFolder,
+          skipped: String(error instanceof Error ? error.message : error),
+        });
+      }
+
+      const workFiles: SheetFile[] = (workListing.value ?? [])
+        .filter((item) => item.file && item.name.endsWith(".xlsx") && item.id)
+        .map((item) => ({ id: item.id!, name: item.name }))
+        .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
+
+      for (const file of workFiles) {
+        const number = fileNumber(file.name);
+        const topic = number ? topicForNumber(domain, number) : undefined;
+        if (!topic) {
+          report.push({ domain, folder: workFolder, file: file.name, skipped: "filename number has no matching topic" });
+          continue;
+        }
+
+        const workSheets = await graph(`/me/drive/items/${file.id}/workbook/worksheets`);
+        const workTabs: SheetTab[] = [];
+        for (const sheet of workSheets.value ?? []) {
+          const used = await graph(
+            `/me/drive/items/${file.id}/workbook/worksheets/${encodeURIComponent(sheet.id)}` +
+              `/usedRange(valuesOnly=true)?$select=values`,
+          );
+          workTabs.push({
+            name: String(sheet.name ?? ""),
+            rows: (used.values ?? []).map((row: unknown[]) => row.map((value) => String(value ?? ""))),
+          });
+        }
+
+        const work = ownerWorkFromTabs(topic, workTabs);
+        const hasWork = Boolean(
+          work.recall.length || work.teachBack || work.scenario || work.troubleshooting,
+        );
+
+        // The workbook is the source of truth: the stored row is replaced
+        // wholesale, so deletions and edits flow through.
+        await supabaseAdmin
+          .from("owner_topic_work")
+          .delete()
+          .eq("domain", domain)
+          .eq("topic_id", topic.topicId);
+
+        if (!hasWork) {
+          report.push({ domain, folder: workFolder, file: file.name, topic: topic.title, skipped: "every tab is empty" });
+          continue;
+        }
+
+        const { error } = await supabaseAdmin.from("owner_topic_work").insert({
+          domain,
+          topic_id: topic.topicId,
+          source_file: file.name,
+          work: work as unknown as Json,
+          status: "approved",
+          notes: [],
+        });
+        if (error) throw new Error(`storing work ${file.name}: ${error.message}`);
+
+        workTopics += 1;
+        topicsSynced.add(topic.topicId);
+        report.push({
+          domain,
+          folder: workFolder,
+          file: file.name,
+          topic: topic.title,
+          recall: work.recall.length,
+          teachBack: Boolean(work.teachBack),
+          application: Boolean(work.scenario),
+          troubleshooting: Boolean(work.troubleshooting),
+        });
+      }
+
+
       // Lesson workbooks: one per topic, in the matching "<course> lessons" folder.
       let lessonListing: { value?: Array<{ id?: string; name: string; file?: unknown }> };
       try {
