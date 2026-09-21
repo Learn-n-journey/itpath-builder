@@ -10,6 +10,7 @@
 import { getDeepLesson } from "@/data/deep-lessons";
 import { lessons, topics } from "@/data/static-content";
 import { getTopicQuestionPool } from "@/data/topic-quizzes";
+import { ownerKeyTermsFor } from "@/lib/owner-lesson-store";
 import type { FlashcardReview, UserData } from "@/lib/app-data/types";
 
 export type FlashcardKind = "term" | "reference" | "trap" | "mixup" | "check" | "quiz";
@@ -67,11 +68,13 @@ export function topicFlashcards(topicId: string): Flashcard[] {
     });
   };
 
-  lesson?.keyTerms.forEach((term, index) => {
+  const ownTerms = ownerKeyTermsFor(topicId);
+  const terms = ownTerms.length ? ownTerms : (lesson?.keyTerms ?? []);
+  terms.forEach((term, index) => {
     push("term", index, `What does "${term.term}" mean?`, term.meaning);
   });
   deep?.plain?.wordList.forEach((word, index) => {
-    if (lesson?.keyTerms.some((term) => term.term.toLowerCase() === word.term.toLowerCase())) return;
+    if (terms.some((term) => term.term.toLowerCase() === word.term.toLowerCase())) return;
     push("term", 1000 + index, `What does "${word.term}" mean?`, word.plain);
   });
   deep?.depth?.reference.rows.forEach((row, index) => {
