@@ -37,7 +37,7 @@ const STUDY_PART_TARGETS: Record<string, string | undefined> = {
   "Read the lesson": "#lesson-reading",
   "Second pass with notes": "#lesson-reading",
   "Work through the examples": "#worked-examples",
-  "Recall from memory": "#recall",
+  "Recall from memory": "#check-yourself",
   "Practice decision": "#practice",
   "Teach it back": "#teach-back",
   "Real-world scenario": "#scenario",
