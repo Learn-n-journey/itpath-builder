@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { RotateCcw, Send } from "lucide-react";
+import { ExternalLink, RotateCcw, Send } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 import { Panel } from "@/components/page-kit";
@@ -14,6 +15,21 @@ import { matchesConcept, normalizeText } from "@/lib/fuzzy-match";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { cn } from "@/lib/utils";
+
+/** "Practice in" text from the Labs tab -> an in-app practice page. */
+const PRACTICE_PAGES: Array<{ match: RegExp; path: string; label: string }> = [
+  { match: /command|terminal|shell|prompt|cli/i, path: "/command-line", label: "Open the command line" },
+  { match: /hardware|motherboard|board/i, path: "/explore-hardware", label: "Open Explore hardware" },
+  { match: /engine|under the hood|auto/i, path: "/explore-engine", label: "Open Explore engine" },
+  { match: /scan|obd/i, path: "/obd-scanner", label: "Open the scan tool" },
+];
+
+function practiceLink(value?: string): { path: string; label: string } | undefined {
+  const text = (value ?? "").trim();
+  if (!text) return undefined;
+  if (text.startsWith("/")) return { path: text, label: "Open the practice page" };
+  return PRACTICE_PAGES.find((entry) => entry.match.test(text));
+}
 
 /**
  * The blank explorer. Numbers stay, labels go, and the learner names each part
@@ -125,6 +141,15 @@ export function IdentificationLab({ lab }: { lab: Lab }) {
               <p className="text-sm font-medium">
                 {item.number}. {item.clue || "What is this part?"}
               </p>
+              {practiceLink(item.practiceIn) ? (
+                <Link
+                  to={practiceLink(item.practiceIn)!.path}
+                  className="mt-2 inline-flex items-center gap-1 text-xs text-primary underline-offset-4 hover:underline"
+                >
+                  <ExternalLink className="size-3" />
+                  {practiceLink(item.practiceIn)!.label}
+                </Link>
+              ) : null}
               <Input
                 className="mt-3"
                 aria-label={`Name for item ${item.number}`}
