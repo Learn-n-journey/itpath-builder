@@ -27,6 +27,8 @@ import { useShuffleSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
 const PASS_SCORE = 75;
+/** Questions in the course-wide final exam. */
+const FINAL_EXAM_SIZE = 80;
 /** Seconds allowed per question in the simulator. */
 const SECONDS_PER_QUESTION = 72;
 
@@ -96,21 +98,31 @@ function ExamTimer({ seconds, onExpire }: { seconds: number; onExpire: () => voi
 function ExamPage() {
   const { user } = useAppState();
   const [seed, reshuffle] = useShuffleSeed();
+  const [mode, setMode] = useState<"mock" | "final">("mock");
   const [certId, setCertId] = useState(() => selectedCertification(user.settings).id);
   const [count, setCount] = useState(50);
   const [started, setStarted] = useState(false);
   const [expired, setExpired] = useState(false);
 
   const certification = certifications.find((item) => item.id === certId) ?? certifications[0];
-  const poolSize = certification ? certificationQuestionPool(certification.id).length : 0;
+  const finalPoolSize = useMemo(() => courseQuestionPool().length, []);
+  const poolSize = mode === "final" ? finalPoolSize : certification ? certificationQuestionPool(certification.id).length : 0;
   const exam = useMemo(
-    () => (certification && started ? generateExam(certification, seed, count) : null),
-    [certification, seed, count, started],
+    () => {
+      if (!started) return null;
+      if (mode === "final") return generateFinalExam(domain.appName, seed, FINAL_EXAM_SIZE);
+      return certification ? generateExam(certification, seed, count) : null;
+    },
+    [mode, certification, seed, count, started],
   );
 
-  if (!certification) return null;
+  if (mode === "mock" && !certification) return null;
 
-  const questionCount = exam ? exam.questions.length : Math.min(count, poolSize);
+  const questionCount = exam
+    ? exam.questions.length
+    : mode === "final"
+      ? Math.min(FINAL_EXAM_SIZE, finalPoolSize)
+      : Math.min(count, poolSize);
   const totalSeconds = questionCount * SECONDS_PER_QUESTION;
 
   function start() {
