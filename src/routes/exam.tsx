@@ -41,12 +41,12 @@ export const Route = createFileRoute("/exam")({
       { title: "Exam Simulator | IT PATH" },
       {
         name: "description",
-        content: "Sit a full timed mock certification exam with a pass or fail report and a review of every question you missed.",
+        content: "Sit a timed mock exam for any certification, or the 80-question final exam covering the whole course, with a pass or fail report and a review of every question you missed.",
       },
       { property: "og:title", content: "Exam Simulator | IT PATH" },
       {
         property: "og:description",
-        content: "Randomised timed mock exams drawn from the full question bank for your certification.",
+        content: "Randomised timed mock exams and an 80-question course-wide final exam, drawn from the full question bank.",
       },
     ],
   }),
