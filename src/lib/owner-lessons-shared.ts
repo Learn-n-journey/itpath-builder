@@ -21,8 +21,18 @@ import { deepLessonIssues } from "@/lib/lesson-quality";
 import type { NumberedTopic } from "@/lib/owner-questions-shared";
 
 /** The rest of a topic's work, when the workbook supplies it. */
+export interface OwnerLabItem {
+  /** Item number for this topic's lab, 1 upwards. */
+  number: number;
+  clue: string;
+  name: string;
+  answerFunction: string;
+}
+
 export interface OwnerLessonExtras {
   recall: RecallQuestion[];
+  /** Numbered identification-lab items written on the Labs tab. */
+  labs?: OwnerLabItem[];
   teachBack?: { prompt: string; expectedPoints: string[] };
   scenario?: RealWorldScenario;
   workedExamples: WorkedExample[];
@@ -50,6 +60,8 @@ export const LESSON_TABS = [
   "Teach back",
   "Real world scenario",
   "Worked examples",
+  "Labs",
+  "Quiz",
 ] as const;
 
 /** Headers of each tab, in column order. The template workbook uses these. */
@@ -82,6 +94,23 @@ export const LESSON_TAB_HEADERS: Record<string, string[]> = {
     "Decision prompt",
     "Expected concepts",
     "Guidance",
+  ],
+  Labs: ["Number", "Clue", "Name", "What it does"],
+  Quiz: [
+    "ID",
+    "Course",
+    "Topic",
+    "Question",
+    "Choice A",
+    "Choice B",
+    "Choice C",
+    "Choice D",
+    "Correct",
+    "Explanation",
+    "Source name",
+    "Source URL",
+    "Objective",
+    "Difficulty",
   ],
   "Worked examples": [
     "Title",
@@ -136,6 +165,24 @@ export interface OwnerLessonResult {
 }
 
 const EMPTY_EXTRAS: OwnerLessonExtras = { recall: [], workedExamples: [] };
+
+/** Labs tab -> numbered identification items for this topic. */
+function labsFromTabs(tabs: SheetTab[]): OwnerLabItem[] {
+  const items: OwnerLabItem[] = [];
+  body(tabs, "Labs").forEach((row, index) => {
+    const name = cell(row, 2);
+    const answerFunction = cell(row, 3);
+    if (!name || !answerFunction) return;
+    const given = Number.parseInt(cell(row, 0), 10);
+    items.push({
+      number: Number.isFinite(given) && given > 0 ? given : index + 1,
+      clue: cell(row, 1),
+      name,
+      answerFunction,
+    });
+  });
+  return items.sort((left, right) => left.number - right.number);
+}
 
 /** Recall, Teach back, Real world scenario and Worked examples tabs. */
 function extrasFromTabs(topic: NumberedTopic, tabs: SheetTab[]): OwnerLessonExtras {
@@ -203,8 +250,11 @@ function extrasFromTabs(topic: NumberedTopic, tabs: SheetTab[]): OwnerLessonExtr
     if (tryPrompt && tryAnswer) current.tryIt.push({ prompt: tryPrompt, answer: tryAnswer });
   }
 
+  const labs = labsFromTabs(tabs);
+
   return {
     recall,
+    ...(labs.length ? { labs } : {}),
     workedExamples: workedExamples.filter((example) => example.question && example.steps.length),
     ...(teachBack ? { teachBack } : {}),
     ...(scenario ? { scenario } : {}),
