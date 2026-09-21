@@ -796,7 +796,7 @@ export function VirusRun() {
       <div className="relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl">
         <canvas
           ref={canvasRef}
-           className="block h-auto w-full rounded-md aspect-[25/17] touch-none"
+           className="block w-full rounded-md aspect-[4/5] touch-none sm:aspect-[25/17]"
           onPointerDown={onCanvasPointerDown}
           onPointerMove={onCanvasPointerMove}
           onPointerUp={onCanvasPointerEnd}
@@ -918,8 +918,8 @@ function Joystick({ onDir, onRelease }: { onDir: (dir: string) => void; onReleas
 
 function Overlay({ children }: { children: React.ReactNode }) {
   return (
-    <div className="absolute inset-1.5 z-10 flex items-center justify-center rounded-md bg-background/72 p-4 backdrop-blur-md">
-      <div className="flex w-full max-w-lg flex-col items-center justify-center gap-2 rounded-lg border border-border/70 bg-card/72 p-6 text-center shadow-2xl backdrop-blur-2xl sm:p-8">
+    <div className="absolute inset-1.5 z-10 flex items-center justify-center rounded-md bg-background/72 p-3 backdrop-blur-md sm:p-4">
+      <div className="flex w-full max-w-lg flex-col items-center justify-center gap-2 rounded-lg border border-border/70 bg-card/72 p-4 text-center shadow-2xl backdrop-blur-2xl sm:p-8">
         {children}
       </div>
     </div>
