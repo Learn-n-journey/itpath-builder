@@ -20,6 +20,7 @@ export type SyncNowReply =
       rejected: number;
       lessonsApproved: number;
       lessonsRejected: number;
+      workTopics: number;
       lessonIssues: Array<{ file: string; topic: string; reasons: string[] }>;
     }
   | { ok: false; error: string };
@@ -48,6 +49,7 @@ export const syncNow = createServerFn({ method: "POST" })
       rejected: result.rejected ?? 0,
       lessonsApproved: result.lessonsApproved ?? 0,
       lessonsRejected: result.lessonsRejected ?? 0,
+      workTopics: result.workTopics ?? 0,
       lessonIssues: result.lessonIssues ?? [],
     };
   });

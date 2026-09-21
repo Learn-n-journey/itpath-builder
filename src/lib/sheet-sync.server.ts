@@ -378,7 +378,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
       .update({
         locked_until: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected, ${lessonsApproved} lesson(s) published, ${lessonsRejected} rejected`,
+        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected, ${lessonsApproved} lesson(s) published, ${lessonsRejected} rejected, ${workTopics} recall workbook(s)`,
       })
       .eq("job", JOB);
 
@@ -391,6 +391,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
       lessonsApproved,
       lessonsRejected,
       lessonIssues,
+      workTopics,
       report,
     };
   } catch (error) {
