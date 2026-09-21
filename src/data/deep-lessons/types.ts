@@ -27,6 +27,8 @@ export interface LessonMisconception {
 export interface LessonReferenceRow {
   term: string;
   detail: string;
+  /** Optional sub-heading this row belongs under; identical values group together. */
+  group?: string;
 }
 
 export interface LessonCheck {

@@ -54,15 +54,27 @@ export function LessonDepthReading({ depth }: { depth: LessonDepth }) {
         </div>
       </Panel>
 
-      <Panel title={depth.reference.heading} description="Worth keeping at hand while you work.">
-        <dl className="divide-y divide-border text-sm">
-          {depth.reference.rows.map((row) => (
-            <div key={row.term} className="grid gap-1 py-3 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-4">
-              <dt className="font-mono text-xs text-foreground sm:text-sm">{row.term}</dt>
-              <dd className="leading-7 text-muted-foreground">{row.detail}</dd>
-            </div>
+      <Panel title="Reference" description="Worth keeping at hand while you work.">
+        <div className="space-y-6">
+          {groupReference(depth.reference).map((group) => (
+            <section key={group.heading || "ungrouped"}>
+              {group.heading ? (
+                <h4 className="font-display text-sm font-semibold text-foreground">{group.heading}</h4>
+              ) : null}
+              <dl className="divide-y divide-border text-sm">
+                {group.rows.map((row) => (
+                  <div
+                    key={`${group.heading}-${row.term}`}
+                    className="grid gap-1 py-3 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-4"
+                  >
+                    <dt className="font-mono text-xs text-foreground sm:text-sm">{row.term}</dt>
+                    <dd className="leading-7 text-muted-foreground">{row.detail}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
           ))}
-        </dl>
+        </div>
       </Panel>
 
       <div className="grid gap-4 lg:grid-cols-2">
