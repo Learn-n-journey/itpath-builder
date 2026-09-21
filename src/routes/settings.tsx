@@ -158,7 +158,13 @@ function SpreadsheetSyncPanel() {
         <Button variant="secondary" onClick={() => handleSync("all", "Both courses")} disabled={busy !== null}>
           {busy === "all" ? "Syncing…" : "Sync everything"}
         </Button>
+        <Button variant="outline" onClick={handleClearLock} disabled={busy !== null}>
+          {busy === "clear" ? "Clearing…" : "Clear stuck sync"}
+        </Button>
       </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        If a sync fails and the app keeps saying one is already running, use “Clear stuck sync”, then sync again.
+      </p>
       <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
         {lastRun ??
           "Reads the itpath, itpath lessons, itpath recall, autopath, autopath lessons and autopath recall folders in OneDrive. The nightly pull happens on its own."}
