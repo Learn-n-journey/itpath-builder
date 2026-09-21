@@ -2,6 +2,7 @@ import { domainOverlay } from "@/data/domain-overlay";
 import { extraPracticeActivities } from "@/data/practice-extra";
 import { expansionModules, expansionPractice, expansionRecall, expansionScenarios } from "@/data/curriculum";
 import { ownerPracticeFor, ownerRecallFor, ownerScenarioFor } from "@/lib/owner-lesson-store";
+import { ownerTroubleshootingFor, ownerWorkRecallFor, ownerWorkScenarioFor } from "@/lib/owner-work-store";
 import type { LearningModule, PracticeActivity, RecallQuestion, RealWorldScenario } from "@/lib/app-data/types";
 
 const moduleData: Array<Omit<LearningModule, "id" | "lessonId" | "recallQuestionIds" | "practiceActivityId" | "scenarioId"> & {
@@ -160,9 +161,25 @@ export const learningModules: LearningModule[] = domainOverlay?.modules ?? autho
 export const recallQuestions: RecallQuestion[] = domainOverlay?.recall ?? authoredRecall;
 export const practiceActivities: PracticeActivity[] = domainOverlay?.practice ?? authoredPractice;
 
-export function getLearningModule(topicId: string) { return learningModules.find((item) => item.topicId === topicId); }
+/**
+ * A topic's module. When the owner wrote a Troubleshooting tab in that topic's
+ * recall workbook, those lists replace the built-in ones.
+ */
+export function getLearningModule(topicId: string) {
+  const found = learningModules.find((item) => item.topicId === topicId);
+  const owned = ownerTroubleshootingFor(topicId);
+  if (!found || !owned) return found;
+  return {
+    ...found,
+    ...(owned.commonProblems.length ? { commonProblems: owned.commonProblems } : {}),
+    ...(owned.howItFails.length ? { howItFails: owned.howItFails } : {}),
+    ...(owned.steps.length ? { troubleshooting: owned.steps } : {}),
+  };
+}
 /** A topic the owner wrote Recall rows for shows only those. */
 export function getRecallQuestions(topicId: string) {
+  const work = ownerWorkRecallFor(topicId);
+  if (work.length) return work;
   const owned = ownerRecallFor(topicId);
   if (owned.length) return owned;
   return recallQuestions.filter((item) => item.topicId === topicId);
@@ -178,5 +195,5 @@ export function getPracticeActivities(topicId: string) {
   return practiceActivities.filter((item) => item.topicId === topicId);
 }
 export function getRealWorldScenario(topicId: string) {
-  return ownerScenarioFor(topicId) ?? realWorldScenariosActive.find((item) => item.topicId === topicId);
+  return ownerWorkScenarioFor(topicId) ?? ownerScenarioFor(topicId) ?? realWorldScenariosActive.find((item) => item.topicId === topicId);
 }

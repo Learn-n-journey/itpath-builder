@@ -30,6 +30,7 @@ import { answerMatches, coveredConcepts } from "@/lib/fuzzy-match";
 import { ContentReportButton } from "@/components/content-report-button";
 import { LessonSources } from "@/components/learning/lesson-sources";
 import { ownerLessonSourcesFor, ownerRecallFor, ownerTeachBackFor } from "@/lib/owner-lesson-store";
+import { ownerWorkRecallFor, ownerWorkTeachBackFor } from "@/lib/owner-work-store";
 
 
 /**
@@ -74,6 +75,8 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   // Every recall prompt available for this topic: the authored pair plus ones built from the lesson.
   // A topic the owner wrote Recall rows for uses only those.
   const recallQuestions = useMemo(() => {
+    const work = ownerWorkRecallFor(topic.id);
+    if (work.length) return work;
     const owned = ownerRecallFor(topic.id);
     if (owned.length) return owned;
     return [...getRecallQuestions(topic.id), ...getGeneratedRecallQuestions(topic.id)];
@@ -112,7 +115,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const practiceActivities = getPracticeActivities(topic.id);
   const practice = practiceActivities[0];
   const scenario = getRealWorldScenario(topic.id);
-  const ownerTeachBack = ownerTeachBackFor(topic.id);
+  const ownerTeachBack = ownerWorkTeachBackFor(topic.id) ?? ownerTeachBackFor(topic.id);
   const savedTeachBack = user.teachBackResponses[topic.id];
   const savedScenario = user.scenarioResponses[topic.id];
   // Recall work is kept, so leaving the page and coming back does not wipe it.
