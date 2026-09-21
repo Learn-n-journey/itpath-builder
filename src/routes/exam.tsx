@@ -155,47 +155,68 @@ function ExamPage() {
       {!started ? (
         <Panel
           className="mt-6"
-          title="Set up your mock exam"
+          title="Set up your exam"
           description="Question order, choice order and the selection itself change every time."
         >
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label htmlFor="exam-cert">Certification</Label>
-              <Select value={certId} onValueChange={setCertId}>
-                <SelectTrigger id="exam-cert" className="mt-2">
+              <Label htmlFor="exam-mode">Exam type</Label>
+              <Select value={mode} onValueChange={(value) => setMode(value as "mock" | "final")}>
+                <SelectTrigger id="exam-mode" className="mt-2">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {certifications.map((item) => (
-                    <SelectItem key={item.id} value={item.id}>
-                      {item.title}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="mock">Mock exam — one certification</SelectItem>
+                  <SelectItem value="final">Final exam — whole course, 80 questions</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label htmlFor="exam-count">Length</Label>
-              <Select value={`${count}`} onValueChange={(value) => setCount(Number(value))}>
-                <SelectTrigger id="exam-count" className="mt-2">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="25">25 questions, short</SelectItem>
-                  <SelectItem value="50">50 questions, standard</SelectItem>
-                  <SelectItem value="75">75 questions, full length</SelectItem>
-                  <SelectItem value="90">90 questions, maximum</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {mode === "mock" ? (
+              <>
+                <div>
+                  <Label htmlFor="exam-cert">Certification</Label>
+                  <Select value={certId} onValueChange={setCertId}>
+                    <SelectTrigger id="exam-cert" className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {certifications.map((item) => (
+                        <SelectItem key={item.id} value={item.id}>
+                          {item.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="exam-count">Length</Label>
+                  <Select value={`${count}`} onValueChange={(value) => setCount(Number(value))}>
+                    <SelectTrigger id="exam-count" className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="25">25 questions, short</SelectItem>
+                      <SelectItem value="50">50 questions, standard</SelectItem>
+                      <SelectItem value="75">75 questions, full length</SelectItem>
+                      <SelectItem value="90">90 questions, maximum</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            ) : null}
           </div>
+          <p className="mt-4 text-sm text-muted-foreground">
+            {mode === "final"
+              ? `The final exam draws ${Math.min(FINAL_EXAM_SIZE, finalPoolSize)} questions from the whole ${domain.appName} course — every certification, including your spreadsheet questions.`
+              : `Questions come from the ${certification?.title} bank.`}
+          </p>
           {poolSize === 0 ? (
-            <p className="mt-4 text-sm text-muted-foreground">
-              There are no questions for this certification yet. Pick another one.
+            <p className="mt-4 text-sm text-destructive">
+              There are no questions here yet. Pick another certification.
             </p>
           ) : (
             <Button className="mt-5" onClick={start}>
-              <ClipboardCheck /> Start timed exam
+              <ClipboardCheck /> {mode === "final" ? "Start final exam" : "Start timed exam"}
             </Button>
           )}
         </Panel>
@@ -203,7 +224,9 @@ function ExamPage() {
         <div className="mt-6 space-y-4">
           <div className="panel flex flex-wrap items-center justify-between gap-3 p-4">
             <div>
-              <p className="text-sm font-medium">{certification.title} mock exam</p>
+              <p className="text-sm font-medium">
+                {mode === "final" ? `${domain.appName} final exam` : `${certification?.title} mock exam`}
+              </p>
               <p className="text-xs text-muted-foreground">
                 {expired
                   ? "Time is up. Submit now, anything unanswered is marked wrong, exactly like the real exam."
