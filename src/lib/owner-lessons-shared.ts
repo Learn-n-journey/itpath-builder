@@ -46,6 +46,32 @@ export interface SheetTab {
   rows: string[][];
 }
 
+/** Tabs of the four folder templates, in the order the workbooks use them. */
+export const LESSON_FOLDER_TABS = [
+  "Lesson",
+  "Sections",
+  "Key ideas",
+  "Walkthrough",
+  "Reference",
+  "Misconceptions",
+  "Exam traps",
+  "Check yourself",
+  "Sources",
+  "Plain words",
+  "Worked examples",
+] as const;
+
+export const TRY_IT_FOLDER_TABS = [
+  "Practice",
+  "Recall",
+  "Teach back",
+  "Real world scenario",
+] as const;
+
+export const QUIZ_FOLDER_TABS = ["Quiz"] as const;
+
+export const LABS_FOLDER_TABS = ["Labs"] as const;
+
 export const LESSON_TABS = [
   "Lesson",
   "Sections",
@@ -169,7 +195,7 @@ export interface OwnerLessonResult {
 const EMPTY_EXTRAS: OwnerLessonExtras = { recall: [], workedExamples: [] };
 
 /** Labs tab -> numbered identification items for this topic. */
-function labsFromTabs(tabs: SheetTab[]): OwnerLabItem[] {
+export function labsFromTabs(tabs: SheetTab[]): OwnerLabItem[] {
   const items: OwnerLabItem[] = [];
   body(tabs, "Labs").forEach((row, index) => {
     const name = cell(row, 2);
@@ -265,7 +291,7 @@ function extrasFromTabs(topic: NumberedTopic, tabs: SheetTab[]): OwnerLessonExtr
 }
 
 /** Practice tab rows -> practice activities for this topic. */
-function practiceFromTabs(topic: NumberedTopic, tabs: SheetTab[]): PracticeActivity[] {
+export function practiceFromTabs(topic: NumberedTopic, tabs: SheetTab[]): PracticeActivity[] {
   const items: PracticeActivity[] = [];
   body(tabs, "Practice").forEach((row, index) => {
     const title = cell(row, 0);

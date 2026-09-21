@@ -127,7 +127,7 @@ function SpreadsheetSyncPanel() {
           `${result.approved} questions in, ${result.rejected} rejected · ` +
           `${result.lessonsApproved} lesson${result.lessonsApproved === 1 ? "" : "s"} published, ` +
           `${result.lessonsRejected} with notes · ` +
-          `${result.workTopics} recall workbook${result.workTopics === 1 ? "" : "s"}`;
+          `${result.workTopics} try-it/lab topic${result.workTopics === 1 ? "" : "s"}`;
         const held = (result.lessonIssues ?? [])
           .map((item) => `${item.file} (${item.topic}): ${item.reasons.join("; ")}`)
           .join("\n");
@@ -167,7 +167,7 @@ function SpreadsheetSyncPanel() {
       </p>
       <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
         {lastRun ??
-          "Reads the itpath, itpath lessons, itpath recall, autopath, autopath lessons and autopath recall folders in OneDrive. The nightly pull happens on its own."}
+          "Reads the “it path” and “auto path” folders in OneDrive, each with its lessons, try it, quiz and labs sub-folders. The nightly pull happens on its own."}
       </p>
     </div>
   );

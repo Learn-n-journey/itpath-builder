@@ -7,7 +7,8 @@
  * troubleshooting lists for that topic are retired.
  */
 import { ownerTopicWork as snapshot } from "@/data/owner-work";
-import type { RealWorldScenario, RecallQuestion } from "@/lib/app-data/types";
+import type { PracticeActivity, RealWorldScenario, RecallQuestion } from "@/lib/app-data/types";
+import type { OwnerLabItem } from "@/lib/owner-lessons-shared";
 import type { OwnerTopicWork, OwnerTroubleshooting } from "@/lib/owner-work-shared";
 
 let live: Record<string, OwnerTopicWork> | null = null;
@@ -43,6 +44,16 @@ export function ownerWorkScenarioFor(topicId: string): RealWorldScenario | undef
 /** The troubleshooting lists the owner wrote, when the workbook has them. */
 export function ownerTroubleshootingFor(topicId: string): OwnerTroubleshooting | undefined {
   return workFor(topicId)?.troubleshooting;
+}
+
+/** Practice questions the owner wrote in that topic's "try it" workbook. */
+export function ownerWorkPracticeFor(topicId: string): PracticeActivity[] {
+  return workFor(topicId)?.practice ?? [];
+}
+
+/** Numbered lab items the owner wrote in that topic's "labs" workbook. */
+export function ownerWorkLabsFor(topicId: string): OwnerLabItem[] {
+  return workFor(topicId)?.labs ?? [];
 }
 
 /** Bumped each time a live load lands, so cached reads can be invalidated. */

@@ -47,19 +47,6 @@ export function sidebarAttention(user: UserData, now: Date = new Date()): Sideba
     });
   }
 
-  // My Path: the delayed check is due and holding the next section closed.
-  const current = currentJourneyTopic(user);
-  if (current) {
-    const gate = masteryGate(user, current.id, now);
-    if (gate.delayed.due) {
-      out.push({
-        to: "/my-path",
-        label: "The delayed check is due before the next section opens",
-        count: 1,
-      });
-    }
-  }
-
   // Study plan: a session that was built but still has tasks to work through.
   const openPlan = (user.studyPlans ?? []).find(
     (plan) =>

@@ -138,11 +138,6 @@ function SectionQuizPage() {
             Back to the lesson
           </Link>
         </Button>
-        <Button asChild variant="secondary">
-          <Link to="/mastery-check/$topicId" params={{ topicId }}>
-            Mastery checks
-          </Link>
-        </Button>
         <Button asChild variant="ghost">
           <Link to="/journey">Journey map</Link>
         </Button>

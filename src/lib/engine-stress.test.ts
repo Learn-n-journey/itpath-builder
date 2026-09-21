@@ -79,7 +79,6 @@ describe("learning engine stress", () => {
             for (const competency of gate.competencies) {
               if (competency.required) expect(competency.met, `${topic.id} ${competency.key}`).toBe(true);
             }
-            expect(gate.delayed.passed, `${topic.id} delayed check`).toBe(true);
           }
 
           const scope = topicScopeProgress(user, topic.id);
