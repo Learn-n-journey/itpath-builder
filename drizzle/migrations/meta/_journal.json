@@ -71,6 +71,13 @@
       "when": 1789945924118,
       "tag": "0009_owner_lessons_extras",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789955237234,
+      "tag": "0010_create_owner_topic_work",
+      "breakpoints": true
     }
   ]
 }
