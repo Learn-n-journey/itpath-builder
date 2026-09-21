@@ -23,6 +23,7 @@ import type { Json } from "@/integrations/supabase/types";
 import { ownerLessonFromTabs, type SheetTab } from "@/lib/owner-lessons-shared";
 import { ownerWorkFromTabs } from "@/lib/owner-work-shared";
 import type { OwnerTopicWork } from "@/lib/owner-work-shared";
+import { learningPathFromRow, pathCertificationId, pathTopicId } from "@/lib/learning-paths-shared";
 import {
   fileNumber,
   ownerQuestionFromRow,
@@ -36,11 +37,48 @@ const JOB = "sheet-sync";
 const LOCK_MINUTES = 15;
 const INSERT_CHUNK = 500;
 
-/** The course folders, and the four sub-folders each of them holds. */
+/** The built-in course folders, and the four sub-folders each of them holds. */
 export const COURSE_FOLDERS: Array<{ domain: OwnerDomain; root: string }> = [
   { domain: "it-cybersecurity", root: "it path" },
   { domain: "auto-repair", root: "auto path" },
 ];
+
+/**
+ * Every folder to read: the two built-in courses plus each path created in
+ * Settings, which always reads "<name> path" and numbers the sections the
+ * owner typed when creating it.
+ */
+async function courseFolders(): Promise<
+  Array<{ domain: OwnerDomain; root: string; topics?: NumberedTopic[] }>
+> {
+  const folders: Array<{ domain: OwnerDomain; root: string; topics?: NumberedTopic[] }> = [
+    ...COURSE_FOLDERS,
+  ];
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin
+      .from("learning_paths")
+      .select("slug, name, folder, topics, visible")
+      .order("created_at", { ascending: true });
+    for (const row of data ?? []) {
+      const path = learningPathFromRow(row);
+      folders.push({
+        domain: path.slug,
+        root: path.folder,
+        topics: path.topics.map((title, index) => ({
+          number: index + 1,
+          topicId: pathTopicId(path.slug, index + 1),
+          title,
+          domain: path.slug,
+          certificationId: pathCertificationId(path.slug),
+        })),
+      });
+    }
+  } catch {
+    /* created paths are unavailable; the built-in courses still sync */
+  }
+  return folders;
+}
 
 export const SUB_FOLDERS = ["lessons", "try it", "quiz", "labs"] as const;
 
@@ -147,8 +185,14 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
   let workTopics = 0;
 
   try {
-    for (const { domain, root } of COURSE_FOLDERS) {
+    for (const { domain, root, topics: pathTopics } of await courseFolders()) {
       if (options.domain && options.domain !== domain) continue;
+      const pickTopic = (number: number | undefined): NumberedTopic | undefined =>
+        number === undefined
+          ? undefined
+          : pathTopics
+            ? pathTopics.find((topic) => topic.number === number)
+            : topicForNumber(domain, number);
 
       // ---- lessons -------------------------------------------------------
       let lessonFiles: SheetFile[] = [];
@@ -164,7 +208,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
 
       for (const file of lessonFiles) {
         const number = fileNumber(file.name);
-        const topic = number ? topicForNumber(domain, number) : undefined;
+        const topic = pickTopic(number);
         if (!topic) {
           report.push({ domain, folder: `${root}/lessons`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
@@ -229,7 +273,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
 
         for (const file of files) {
           const number = fileNumber(file.name);
-          const topic = number ? topicForNumber(domain, number) : undefined;
+          const topic = pickTopic(number);
           if (!topic) {
             report.push({ domain, folder: `${root}/${sub}`, file: file.name, skipped: "filename number has no matching topic" });
             continue;
@@ -323,7 +367,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
 
       for (const file of quizFiles) {
         const number = fileNumber(file.name);
-        const topic = number ? topicForNumber(domain, number) : undefined;
+        const topic = pickTopic(number);
         if (!topic) {
           report.push({ domain, folder: `${root}/quiz`, file: file.name, skipped: "filename number has no matching topic" });
           continue;

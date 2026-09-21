@@ -12,7 +12,7 @@ import { autoRepairPackage } from "@/content/packs/auto-repair/3.7.0/package";
 import { questionIssues } from "@/lib/question-quality";
 import type { Question } from "@/lib/app-data/types";
 
-export type OwnerDomain = "it-cybersecurity" | "auto-repair";
+export type OwnerDomain = "it-cybersecurity" | "auto-repair" | (string & {});
 
 export interface NumberedTopic {
   number: number;
@@ -43,7 +43,11 @@ export const autoTopicNumbers: NumberedTopic[] = autoRepairPackage.sections.map(
 );
 
 export function topicsForDomain(domain: OwnerDomain): NumberedTopic[] {
-  return domain === "auto-repair" ? autoTopicNumbers : itTopicNumbers;
+  if (domain === "auto-repair") return autoTopicNumbers;
+  if (domain === "it-cybersecurity") return itTopicNumbers;
+  // A path created in Settings numbers its own sections; the caller supplies
+  // that list, because it is not part of this build.
+  return [];
 }
 
 export function topicForNumber(domain: OwnerDomain, number: number): NumberedTopic | undefined {
