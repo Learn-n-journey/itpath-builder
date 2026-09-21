@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CheckCircle2, Edit3, FileText, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
@@ -15,14 +15,13 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { lessons, resources, type Resource, type Topic } from "@/data/static-content";
-import { getGeneratedRecallQuestions } from "@/data/recall-generator";
+import { lessons, resources, type Topic } from "@/data/static-content";
 import { getWorkedExamples } from "@/data/worked-examples";
 import { getDeepLesson } from "@/data/deep-lessons";
 import { DeepLessonReading } from "@/components/learning/deep-lesson-reading";
 import { LessonDepthReading } from "@/components/learning/lesson-depth-reading";
 import { WorkedExamples } from "@/components/learning/worked-examples";
-import { getLearningModule, getPracticeActivities, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
+import { getLearningModule, getPracticeActivities, getRealWorldScenario } from "@/data/learning-content";
 import type { TopicProgress } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { topicMeasures } from "@/lib/mastery-summary";
@@ -32,11 +31,9 @@ import { LessonSources } from "@/components/learning/lesson-sources";
 import {
   ownerKeyTermsFor,
   ownerLessonSourcesFor,
-  ownerRecallFor,
   ownerTeachBackFor,
 } from "@/lib/owner-lesson-store";
-import { ownerWorkRecallFor, ownerWorkTeachBackFor } from "@/lib/owner-work-store";
-import { useOwnerContentVersion } from "@/hooks/use-owner-content";
+import { ownerWorkTeachBackFor } from "@/lib/owner-work-store";
 
 
 /**
