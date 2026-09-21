@@ -146,7 +146,7 @@ function ExamPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Question bank" value={poolSize} hint={mode === "final" ? "Whole course" : certification?.title} />
+        <StatCard label="Question bank" value={poolSize} hint={mode === "final" || !certification ? "Whole course" : certification.title} />
         <StatCard label="This exam" value={questionCount} />
         <StatCard label="Time allowed" value={`${Math.round(totalSeconds / 60)} min`} />
         <StatCard label="Pass mark" value={`${PASS_SCORE}%`} />
@@ -208,7 +208,7 @@ function ExamPage() {
           <p className="mt-4 text-sm text-muted-foreground">
             {mode === "final"
               ? `The final exam draws ${Math.min(FINAL_EXAM_SIZE, finalPoolSize)} questions from the whole ${domain.appName} course — every certification, including your spreadsheet questions.`
-              : `Questions come from the ${certification?.title} bank.`}
+              : `Questions come from the ${certification ? certification.title : "certification"} bank.`}
           </p>
           {poolSize === 0 ? (
             <p className="mt-4 text-sm text-destructive">
