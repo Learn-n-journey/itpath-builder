@@ -258,6 +258,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           setCloudSyncedAt(new Date().toISOString());
           setCloudStatus("synced");
         } else {
+          // The sign-in lapsed: keep a local safety copy so nothing is lost,
+          // and ask the learner to sign in again rather than retrying forever.
+          if (result.expired) writeStateBackup(userId, user);
           setCloudError(result.error ?? "Could not save to your account");
           setCloudStatus("error");
         }

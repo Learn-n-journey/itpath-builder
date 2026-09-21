@@ -31,6 +31,7 @@ import { ContentReportButton } from "@/components/content-report-button";
 import { LessonSources } from "@/components/learning/lesson-sources";
 import { ownerLessonSourcesFor, ownerRecallFor, ownerTeachBackFor } from "@/lib/owner-lesson-store";
 import { ownerWorkRecallFor, ownerWorkTeachBackFor } from "@/lib/owner-work-store";
+import { useOwnerContentVersion } from "@/hooks/use-owner-content";
 
 
 /**
@@ -74,13 +75,17 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const deepLesson = getDeepLesson(topic.id);
   // Every recall prompt available for this topic: the authored pair plus ones built from the lesson.
   // A topic the owner wrote Recall rows for uses only those.
+  // Re-runs once the owner's workbooks finish loading, so the built-in prompts
+  // are never left in place on a first visit.
+  const ownerVersion = useOwnerContentVersion();
   const recallQuestions = useMemo(() => {
     const work = ownerWorkRecallFor(topic.id);
     if (work.length) return work;
     const owned = ownerRecallFor(topic.id);
     if (owned.length) return owned;
     return [...getRecallQuestions(topic.id), ...getGeneratedRecallQuestions(topic.id)];
-  }, [topic.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topic.id, ownerVersion]);
   // Show two at a time, skipping the ones already answered well, so a return visit brings new ones.
   // The chosen pair is fixed for the visit, so answering one does not make it vanish before the
   // feedback is read. A page reload (or moving topic) picks the next pair.
