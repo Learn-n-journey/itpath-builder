@@ -14,6 +14,7 @@ import { domain } from "@/domain/active";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { loadOwnerLessons } from "@/lib/owner-lesson-store";
 import { loadOwnerWork } from "@/lib/owner-work-store";
+import { loadLearningPaths } from "@/lib/learning-path-store";
 import { firstPracticeTestCertId } from "@/lib/tracks";
 import { MaintenanceGate } from "@/components/maintenance-screen";
 
@@ -109,6 +110,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     void loadOwnerQuestions();
     void loadOwnerLessons();
     void loadOwnerWork();
+    void loadLearningPaths();
   }, []);
 
   const current = navItems.find((i) => i.to === pathname)?.label ?? domain.appName;
