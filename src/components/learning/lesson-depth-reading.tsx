@@ -3,7 +3,29 @@ import { AlertTriangle, CheckCircle2, ClipboardList, Key, ListChecks, Wrench } f
 
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import type { LessonDepth } from "@/data/deep-lessons";
+import type { LessonDepth, LessonReferenceRow } from "@/data/deep-lessons";
+
+/**
+ * Splits the reference rows into sub-sections by their heading, keeping the
+ * order they were written in. Rows sharing a heading are combined under it;
+ * rows with no heading fall under the lesson's own reference heading.
+ */
+function groupReference(reference: LessonDepth["reference"]): {
+  heading: string;
+  rows: LessonReferenceRow[];
+}[] {
+  const groups: { heading: string; rows: LessonReferenceRow[] }[] = [];
+  for (const row of reference.rows) {
+    const heading = (row.group ?? "").trim();
+    const existing = groups.find((group) => group.heading.toLowerCase() === heading.toLowerCase());
+    if (existing) existing.rows.push(row);
+    else groups.push({ heading, rows: [row] });
+  }
+  if (groups.length === 1 && !groups[0]!.heading && reference.heading !== "Reference") {
+    groups[0]!.heading = reference.heading;
+  }
+  return groups;
+}
 
 /**
  * The depth layer of a lesson: the parts that turn reading into teaching.
