@@ -37,7 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
-import { syncNow } from "@/lib/sheet-sync.functions";
+import { clearSyncLock, syncNow } from "@/lib/sheet-sync.functions";
 import { setMaintenance } from "@/lib/maintenance.functions";
 import { loadMaintenanceState } from "@/lib/maintenance-state";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
@@ -88,8 +88,26 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 
 function SpreadsheetSyncPanel() {
   const runSyncNow = useServerFn(syncNow);
+  const runClearLock = useServerFn(clearSyncLock);
   const [busy, setBusy] = useState<string | null>(null);
   const [lastRun, setLastRun] = useState<string | null>(null);
+
+  async function handleClearLock() {
+    setBusy("clear");
+    try {
+      const result = await runClearLock({});
+      if (!result.ok) {
+        toast.error(result.error ?? "Could not clear it.");
+        return;
+      }
+      toast.success("Cleared. You can start a sync again now.");
+      setLastRun("Stuck sync cleared — try syncing again.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Could not clear it.");
+    } finally {
+      setBusy(null);
+    }
+  }
 
   async function handleSync(scope: "it-cybersecurity" | "auto-repair" | "all", label: string) {
     setBusy(scope);
@@ -140,7 +158,13 @@ function SpreadsheetSyncPanel() {
         <Button variant="secondary" onClick={() => handleSync("all", "Both courses")} disabled={busy !== null}>
           {busy === "all" ? "Syncing…" : "Sync everything"}
         </Button>
+        <Button variant="outline" onClick={handleClearLock} disabled={busy !== null}>
+          {busy === "clear" ? "Clearing…" : "Clear stuck sync"}
+        </Button>
       </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        If a sync fails and the app keeps saying one is already running, use “Clear stuck sync”, then sync again.
+      </p>
       <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
         {lastRun ??
           "Reads the itpath, itpath lessons, itpath recall, autopath, autopath lessons and autopath recall folders in OneDrive. The nightly pull happens on its own."}
