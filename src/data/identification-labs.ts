@@ -117,6 +117,7 @@ export function buildIdentificationLabs(topicList: Topic[], lessonList: Lesson[]
   for (const topic of topicList) {
     const lesson = lessonList.find((item) => item.topicId === topic.id);
     const set = identificationSet(topic.id, 0, lesson);
+    if (!set && ownerLabsFor(topic.id).length === 0) continue;
     if (!set) continue;
     const hardware = topic.id === HARDWARE_TOPIC_ID;
     out.push({
