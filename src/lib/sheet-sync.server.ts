@@ -551,7 +551,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
  * A crashed or timed-out run can leave the lock held until it expires; this
  * clears it immediately.
  */
-export async function releaseSyncLock(): Promise<{ ok: boolean; error?: string; heldSince?: string }> {
+export async function releaseSyncLock(): Promise<{ ok: boolean; error?: string; heldSince?: string | undefined }> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const current = await supabaseAdmin
     .from("job_locks")
