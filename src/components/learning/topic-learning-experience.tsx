@@ -30,6 +30,7 @@ import { answerMatches, coveredConcepts } from "@/lib/fuzzy-match";
 import { ContentReportButton } from "@/components/content-report-button";
 import { LessonSources } from "@/components/learning/lesson-sources";
 import { ownerLessonSourcesFor, ownerRecallFor, ownerTeachBackFor } from "@/lib/owner-lesson-store";
+import { ownerWorkRecallFor, ownerWorkTeachBackFor } from "@/lib/owner-work-store";
 
 
 /**
