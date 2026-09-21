@@ -138,13 +138,69 @@ function mcq(
 /** Every mastery item a section can ask for, by kind. */
 export function masteryCheckPool(topicId: string, kind: MasteryCheckKind): MasteryItem[] {
   const topic = topics.find((item) => item.id === topicId);
-  const learningModule = learningModules.find((item) => item.topicId === topicId);
+  // The owner's recall workbook replaces the built-in lists for this topic, so
+  // the proof runs on their material rather than the generated one.
+  const learningModule = getLearningModule(topicId);
   const lesson = lessons.find((item) => item.topicId === topicId);
   if (!topic || !learningModule) return [];
   const slug = topicId.replace(/^topic-/, "");
   const out: MasteryItem[] = [];
   const termList = (lesson?.keyTerms ?? []).map((term) => term.term);
 
+  const ownerRecall = ownerWorkRecallFor(topicId);
+  const ownerTeachBack = ownerWorkTeachBackFor(topicId);
+  const ownerScenario = ownerWorkScenarioFor(topicId);
+
+  if (kind === "recall" && ownerRecall.length) {
+    return ownerRecall.map((row, index) => ({
+      id: `mc-${slug}-owner-recall-${index + 1}`,
+      kind,
+      prompt: row.prompt,
+      choices: [],
+      concepts: row.acceptedConcepts,
+      explanation: row.explanation || row.acceptedConcepts.join("; "),
+    }));
+  }
+
+  if (kind === "understanding" && ownerTeachBack) {
+    const points = ownerTeachBack.expectedPoints;
+    const items: MasteryItem[] = [
+      {
+        id: `mc-${slug}-owner-teach-core`,
+        kind,
+        prompt: ownerTeachBack.prompt || `Explain ${lower(topic.title)} in your own words.`,
+        choices: [],
+        concepts: points.length ? points : [topic.summary],
+        explanation: points.join("; "),
+      },
+    ];
+    points.forEach((point, index) => {
+      items.push({
+        id: `mc-${slug}-owner-teach-point-${index + 1}`,
+        kind,
+        prompt: `${ownerTeachBack.prompt || `Explain ${lower(topic.title)} in your own words.`} Focus on this part: ${sentence(point)}`,
+        choices: [],
+        concepts: [point],
+        explanation: sentence(point),
+      });
+    });
+    return items;
+  }
+
+  if (kind === "application" && ownerScenario) {
+    return [
+      {
+        id: `mc-${slug}-owner-application`,
+        kind,
+        prompt: `${sentence(ownerScenario.situation)} ${sentence(ownerScenario.decisionPrompt)}`,
+        choices: [],
+        concepts: ownerScenario.expectedConcepts.length
+          ? ownerScenario.expectedConcepts
+          : [ownerScenario.guidance],
+        explanation: ownerScenario.guidance,
+      },
+    ];
+  }
 
   if (kind === "recall") {
     (lesson?.keyTerms ?? []).forEach((term, index) => {
