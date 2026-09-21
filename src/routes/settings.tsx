@@ -9,6 +9,7 @@ import { ProfileNamePanel } from "@/components/profile-name-panel";
 import { WelcomeSetup } from "@/components/onboarding/welcome-setup";
 import { restartTour, setupPending } from "@/lib/onboarding";
 import { SiteEngagementPanel } from "@/components/site-engagement-panel";
+import { LearningPathsPanel } from "@/components/learning-paths-panel";
 
 
 import { SystemDiagnostics } from "@/components/system-diagnostics";
@@ -513,6 +514,8 @@ function SettingsPage() {
           <SpreadsheetSyncPanel />
         </Panel>
       ) : null}
+
+      {isOwner ? <LearningPathsPanel /> : null}
 
       {isOwner ? (
         <Panel

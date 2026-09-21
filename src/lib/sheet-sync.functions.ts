@@ -25,7 +25,8 @@ export type SyncNowReply =
     }
   | { ok: false; error: string };
 
-type SyncScope = "it-cybersecurity" | "auto-repair" | "all";
+/** A built-in course, a created path's own id, or "all". */
+type SyncScope = "it-cybersecurity" | "auto-repair" | "all" | (string & {});
 
 export const syncNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
