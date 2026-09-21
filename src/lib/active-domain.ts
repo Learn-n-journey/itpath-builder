@@ -9,6 +9,8 @@
  */
 import { ACTIVE_PACKAGE, findEntry, registeredKeys, registry } from "@/domain/registry";
 import { readSubjectCookie, writeSubjectCookie } from "@/lib/subject-cookie";
+import { learningPathForKey, learningPaths } from "@/lib/learning-path-store";
+import { pathAppName, pathKey } from "@/lib/learning-paths-shared";
 
 const OVERRIDE_KEY = "itpath.active-domain.v1";
 
@@ -28,10 +30,15 @@ export function domainOptions(): DomainOption[] {
     const held = newest.get(id);
     if (!held || key.localeCompare(held) > 0) newest.set(id, key);
   }
-  return [...newest.values()].map((key) => ({
+  const built = [...newest.values()].map((key) => ({
     key,
     name: registry[key]?.manifest.name ?? key,
   }));
+  const created = learningPaths().map((path) => ({
+    key: pathKey(path.slug),
+    name: pathAppName(path.name),
+  }));
+  return [...built, ...created];
 }
 
 
