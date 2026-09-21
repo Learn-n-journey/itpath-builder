@@ -13,6 +13,8 @@ import { itPack } from "@/content/packs/it-pack";
 import { autoRepairPackage as autoRepair2_0_0Package } from "@/content/packs/auto-repair/2.0.0/package";
 import { autoRepairPackage as autoRepair3_4_0Package } from "@/content/packs/auto-repair/3.4.0/package";
 import { coursePackFromDomainPackage } from "@/content/packs/from-package";
+import { customPathPack } from "@/content/packs/custom-path-pack";
+import { learningPathForKey } from "@/lib/learning-path-store";
 import type { CoursePack } from "@/content/pack-contract";
 
 /** Every subject's material, by the same key the registry uses. */
@@ -26,6 +28,10 @@ function resolveActivePack(): CoursePack {
   // A device-level choice from Settings wins over the build default; both
   // keys come from the same registry, so material can never disagree.
   const key = domainOverride() ?? ACTIVE_PACKAGE;
+  // A path created in Settings has no build-time material at all: it is built
+  // from its saved section list and filled by its spreadsheets.
+  const created = learningPathForKey(key);
+  if (created) return customPathPack(created);
   const build = packs[key];
   if (!build) {
     throw new Error(
