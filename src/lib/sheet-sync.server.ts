@@ -456,7 +456,10 @@ export async function runSheetSync(
         lessonsApproved += 1;
         topicsSynced.add(topic.topicId);
         report.push({ domain, folder: `${root}/lessons`, file: file.name, topic: topic.title, lesson: "published", notes });
+        }
       }
+
+      if (partial) break;
 
       // ---- try it and labs, merged into one row per topic ----------------
       const work = new Map<string, { topic: NumberedTopic; work: OwnerTopicWork; files: string[] }>();
