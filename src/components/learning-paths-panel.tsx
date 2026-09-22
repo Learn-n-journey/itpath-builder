@@ -101,7 +101,7 @@ export function LearningPathsPanel() {
         toast.error(result.error ?? "The sync could not be started.");
         return;
       }
-      toast.success("Sync started — it runs on the server, so you can close the app.");
+      toast.success("Sync started — keep the app open until it finishes.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "The sync could not be started.");
     } finally {
