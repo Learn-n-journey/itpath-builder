@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { BookOpen, CornerUpLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
