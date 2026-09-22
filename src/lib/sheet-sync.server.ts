@@ -35,6 +35,11 @@ import {
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/microsoft_excel";
 const JOB = "sheet-sync";
 const LOCK_MINUTES = 15;
+/**
+ * How long one server slice may run before it saves its place and hands the
+ * rest to the next tick. Keeps a run well inside the server's request limit.
+ */
+const SLICE_MS = 100_000;
 const INSERT_CHUNK = 500;
 const EXCEL_ROW_PAGE = 1_000;
 const MAX_GRAPH_ATTEMPTS = 5;
@@ -247,6 +252,8 @@ export interface SheetSyncResult {
   rejected?: number;
   report?: Record<string, unknown>[];
   error?: string;
+  /** True when the run used up its time slice and still has work left. */
+  partial?: boolean;
 }
 
 /** A snapshot of a sync while it is still running, for the live counter. */
@@ -274,6 +281,8 @@ export async function runSheetSync(
     domain?: OwnerDomain;
     force?: boolean;
     onProgress?: (progress: SyncProgress) => void | Promise<void>;
+    /** Stop cleanly after this many milliseconds and report the rest as left over. */
+    budgetMs?: number;
   } = {},
 ): Promise<SheetSyncResult> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -305,6 +314,10 @@ export async function runSheetSync(
   let workTopics = 0;
   let unchangedFiles = 0;
   let filesDone = 0;
+  let partial = false;
+
+  const deadline = options.budgetMs ? Date.now() + options.budgetMs : null;
+  const outOfTime = (): boolean => deadline !== null && Date.now() >= deadline;
 
   // Reported while the run is still going, so the owner can watch it move.
   const emit = async (stage: string, course: string, file?: string): Promise<void> => {
@@ -387,15 +400,26 @@ export async function runSheetSync(
       }
 
       // Different workbooks are read a few at a time; each one is still read
-      // start to finish on its own, which is what Excel needs.
-      const lessonTabs = await mapPool(pendingLessons, WORKBOOK_CONCURRENCY, async ({ file }) => {
-        const tabs = await readTabs(file.id);
-        filesDone += 1;
-        await emit("lessons", domain, file.name);
-        return tabs;
-      });
+      // start to finish on its own, which is what Excel needs. Work is done in
+      // small batches so the run can stop on time and pick up where it left off.
+      const lessonBatches: Array<typeof pendingLessons> = [];
+      for (let i = 0; i < pendingLessons.length; i += WORKBOOK_CONCURRENCY) {
+        lessonBatches.push(pendingLessons.slice(i, i + WORKBOOK_CONCURRENCY));
+      }
 
-      for (const [index, { file, topic }] of pendingLessons.entries()) {
+      for (const batch of lessonBatches) {
+        if (outOfTime()) {
+          partial = true;
+          break;
+        }
+        const lessonTabs = await mapPool(batch, WORKBOOK_CONCURRENCY, async ({ file }) => {
+          const tabs = await readTabs(file.id);
+          filesDone += 1;
+          await emit("lessons", domain, file.name);
+          return tabs;
+        });
+
+        for (const [index, { file, topic }] of batch.entries()) {
         const tabs = lessonTabs[index] ?? [];
         const result = ownerLessonFromTabs(topic, tabs);
 
@@ -437,7 +461,10 @@ export async function runSheetSync(
         lessonsApproved += 1;
         topicsSynced.add(topic.topicId);
         report.push({ domain, folder: `${root}/lessons`, file: file.name, topic: topic.title, lesson: "published", notes });
+        }
       }
+
+      if (partial) break;
 
       // ---- try it and labs, merged into one row per topic ----------------
       const work = new Map<string, { topic: NumberedTopic; work: OwnerTopicWork; files: string[] }>();
@@ -483,6 +510,13 @@ export async function runSheetSync(
           }
           pendingWork.push({ sub, file, topic });
         }
+      }
+
+      // Try-it and labs are stored as one row per topic, so they are read as a
+      // whole. If there is no time left for them, they wait for the next slice.
+      if (pendingWork.length && outOfTime()) {
+        partial = true;
+        break;
       }
 
       const workTabs = await mapPool(pendingWork, WORKBOOK_CONCURRENCY, async ({ sub, file }) => {
@@ -599,14 +633,24 @@ export async function runSheetSync(
         pendingQuiz.push({ file, topic });
       }
 
-      const quizTabs = await mapPool(pendingQuiz, WORKBOOK_CONCURRENCY, async ({ file }) => {
+      const quizBatches: Array<typeof pendingQuiz> = [];
+      for (let i = 0; i < pendingQuiz.length; i += WORKBOOK_CONCURRENCY) {
+        quizBatches.push(pendingQuiz.slice(i, i + WORKBOOK_CONCURRENCY));
+      }
+
+      for (const batch of quizBatches) {
+      if (outOfTime()) {
+        partial = true;
+        break;
+      }
+      const quizTabs = await mapPool(batch, WORKBOOK_CONCURRENCY, async ({ file }) => {
         const tabs = await readTabs(file.id);
         filesDone += 1;
         await emit("quiz", domain, file.name);
         return tabs;
       });
 
-      for (const [index, { file, topic }] of pendingQuiz.entries()) {
+      for (const [index, { file, topic }] of batch.entries()) {
         const approved: Array<{ rowNumber: number; question: Json }> = [];
         const rejected: Array<{ rowNumber: number; question: Json; reasons: string[] }> = [];
         const failed: Array<{ rowNumber: number; error: string }> = [];
@@ -691,6 +735,9 @@ export async function runSheetSync(
           unreadable: failed.length,
         });
       }
+      }
+
+      if (partial) break;
     }
 
     await supabaseAdmin
@@ -713,6 +760,7 @@ export async function runSheetSync(
       lessonIssues,
       workTopics,
       unchangedFiles,
+      partial,
       report,
     };
   } catch (error) {
@@ -789,7 +837,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
 
   const next = await supabaseAdmin
     .from("sync_queue")
-    .select("id, scope, force")
+    .select("id, scope, force, result")
     .eq("status", "queued")
     .order("created_at", { ascending: true })
     .limit(1)
@@ -805,21 +853,57 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
     .select("id");
   if (!claimed.data?.length) return { ran: false };
 
+  // Totals carried over from earlier slices of the same request.
+  const carried = ((job.result as { tally?: Record<string, number> } | null)?.tally ?? {}) as Record<
+    string,
+    number
+  >;
+  const carry = (key: string, value: number | undefined): number => (carried[key] ?? 0) + (value ?? 0);
+
   try {
     let lastProgressWrite = 0;
     const result = await runSheetSync({
       ...(job.scope === "all" ? {} : { domain: job.scope }),
       force: Boolean(job.force),
+      budgetMs: SLICE_MS,
       onProgress: async (progress) => {
         const now = Date.now();
         if (now - lastProgressWrite < 3_000) return;
         lastProgressWrite = now;
         await supabaseAdmin
           .from("sync_queue")
-          .update({ result: { progress } as unknown as Json })
+          .update({ result: { progress, tally: carried } as unknown as Json })
           .eq("id", job.id);
       },
     });
+
+    const tally = {
+      topics: carry("topics", result.topics),
+      approved: carry("approved", result.approved),
+      rejected: carry("rejected", result.rejected),
+      lessonsApproved: carry("lessonsApproved", result.lessonsApproved),
+      lessonsRejected: carry("lessonsRejected", result.lessonsRejected),
+      workTopics: carry("workTopics", result.workTopics),
+      unchangedFiles: carry("unchangedFiles", result.unchangedFiles),
+    };
+
+    // Out of time but not out of work: put the request back in the queue so the
+    // next server tick carries on where this one stopped. Workbooks already
+    // stored are remembered, so nothing is read twice.
+    if (result.ok && result.partial) {
+      await releaseSyncLock();
+      await supabaseAdmin
+        .from("sync_queue")
+        .update({
+          status: "queued",
+          force: false,
+          result: { tally } as unknown as Json,
+        })
+        .eq("id", job.id);
+      await supabaseAdmin.rpc("ensure_sync_worker");
+      return { ran: true, id: job.id, result };
+    }
+
     await supabaseAdmin
       .from("sync_queue")
       .update({
@@ -827,13 +911,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
         error: result.ok ? null : (result.error ?? "The sync failed."),
         result: {
           skipped: result.skipped ?? null,
-          topics: result.topics ?? 0,
-          approved: result.approved ?? 0,
-          rejected: result.rejected ?? 0,
-          lessonsApproved: result.lessonsApproved ?? 0,
-          lessonsRejected: result.lessonsRejected ?? 0,
-          workTopics: result.workTopics ?? 0,
-          unchangedFiles: result.unchangedFiles ?? 0,
+          ...tally,
           lessonIssues: result.lessonIssues ?? [],
         } as unknown as Json,
         finished_at: new Date().toISOString(),
