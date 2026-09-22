@@ -904,6 +904,17 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
       return { ran: true, id: job.id, result };
     }
 
+    // A run that found the lock held did no work at all. Marking it "done" would
+    // quietly report success with nothing imported, so put it back in the queue.
+    if (result.ok && result.skipped) {
+      await supabaseAdmin
+        .from("sync_queue")
+        .update({ status: "queued", started_at: null, result: { tally, skipped: result.skipped } as unknown as Json })
+        .eq("id", job.id);
+      await supabaseAdmin.rpc("ensure_sync_worker");
+      return { ran: true, id: job.id, result };
+    }
+
     await supabaseAdmin
       .from("sync_queue")
       .update({
@@ -917,7 +928,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
         finished_at: new Date().toISOString(),
       })
       .eq("id", job.id);
-    await supabaseAdmin.rpc("stop_sync_worker");
+    await stopWorkerIfQueueEmpty(supabaseAdmin);
     return { ran: true, id: job.id, result };
   } catch (error) {
     await supabaseAdmin
