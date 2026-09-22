@@ -149,3 +149,5 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Simplify the topic overview quick links to Read It, See It, Try It, and Prove It only.
 
 - [x] Sync safeguards: a run blocked by the lock is requeued instead of reported done; the minute worker stays armed while requests are still queued; a crashed run releases the lock.
+
+- [ ] Switch spreadsheet syncing back to the in-app (offline/manual) method instead of the server queue — awaiting owner confirmation of scope.
