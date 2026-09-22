@@ -687,7 +687,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
 
   const next = await supabaseAdmin
     .from("sync_queue")
-    .select("id, scope")
+    .select("id, scope, force")
     .eq("status", "queued")
     .order("created_at", { ascending: true })
     .limit(1)
