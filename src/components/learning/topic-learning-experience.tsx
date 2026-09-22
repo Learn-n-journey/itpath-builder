@@ -22,7 +22,7 @@ import { DeepLessonReading } from "@/components/learning/deep-lesson-reading";
 import { LessonDepthReading } from "@/components/learning/lesson-depth-reading";
 import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getLearningModule, getPracticeActivities, getRealWorldScenario } from "@/data/learning-content";
-import type { TopicProgress } from "@/lib/app-data/types";
+import type { TopicProgress, Resource } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { topicMeasures } from "@/lib/mastery-summary";
 import { answerMatches, coveredConcepts } from "@/lib/fuzzy-match";
@@ -298,6 +298,63 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       </Panel>
     </div>
   </div>;
+}
+
+const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
+
+function MediaPanel({ topic }: { topic: Topic }) {
+  const media = useMemo(() => {
+    const direct = resources.filter((resource) => resource.topicIds.includes(topic.id));
+    const related = resources.filter(
+      (resource) => !direct.includes(resource) && resource.certificationId === topic.certificationId,
+    );
+    return [...direct, ...related.slice(0, Math.max(0, 4 - direct.length))];
+  }, [topic.id, topic.certificationId]);
+
+  const videos = media.filter((resource) => resource.kind === "video");
+  const reading = media.filter((resource) => resource.kind !== "video");
+  if (media.length === 0) return null;
+
+  return (
+    <Panel title="Watch and read" description="Verified official and reputable sources for this topic. Links open in a new tab.">
+      <div className="space-y-6">
+        {videos.length > 0 ? <MediaGroup title="Video training" items={videos} video /> : null}
+        {reading.length > 0 ? <MediaGroup title="Reading and courses" items={reading} /> : null}
+      </div>
+    </Panel>
+  );
+}
+
+function MediaGroup({ title, items, video = false }: { title: string; items: Resource[]; video?: boolean }) {
+  const Icon = video ? PlayCircle : FileText;
+  return (
+    <section>
+      <h2 className="mb-3 text-base font-semibold text-foreground">{title}</h2>
+      <ul className="grid gap-3 sm:grid-cols-2">
+        {items.map((resource) => (
+          <li key={resource.id} className="rounded-lg border border-border bg-secondary/20 p-4">
+            <div className="flex items-start gap-3">
+              <Icon aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
+              <div className="min-w-0 space-y-2">
+                <p className="text-sm font-medium text-foreground">{resource.title}</p>
+                <p className="text-xs text-muted-foreground">{resource.provider}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <Badge variant="outline">{kindLabels[resource.kind]}</Badge>
+                  <Badge variant="outline">{resource.access === "free" ? "Free" : "Paid"}</Badge>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a href={resource.url} target="_blank" rel="noreferrer">
+                    {video ? "Watch" : "Open"}
+                    <ExternalLink aria-hidden />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 function ContentSection({ title, text }: { title: string; text: string }) { return <section><h2 className="mb-2 text-base font-semibold text-foreground">{title}</h2><p>{text}</p></section>; }
