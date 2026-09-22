@@ -395,15 +395,26 @@ export async function runSheetSync(
       }
 
       // Different workbooks are read a few at a time; each one is still read
-      // start to finish on its own, which is what Excel needs.
-      const lessonTabs = await mapPool(pendingLessons, WORKBOOK_CONCURRENCY, async ({ file }) => {
-        const tabs = await readTabs(file.id);
-        filesDone += 1;
-        await emit("lessons", domain, file.name);
-        return tabs;
-      });
+      // start to finish on its own, which is what Excel needs. Work is done in
+      // small batches so the run can stop on time and pick up where it left off.
+      const lessonBatches: Array<typeof pendingLessons> = [];
+      for (let i = 0; i < pendingLessons.length; i += WORKBOOK_CONCURRENCY) {
+        lessonBatches.push(pendingLessons.slice(i, i + WORKBOOK_CONCURRENCY));
+      }
 
-      for (const [index, { file, topic }] of pendingLessons.entries()) {
+      for (const batch of lessonBatches) {
+        if (outOfTime()) {
+          partial = true;
+          break;
+        }
+        const lessonTabs = await mapPool(batch, WORKBOOK_CONCURRENCY, async ({ file }) => {
+          const tabs = await readTabs(file.id);
+          filesDone += 1;
+          await emit("lessons", domain, file.name);
+          return tabs;
+        });
+
+        for (const [index, { file, topic }] of batch.entries()) {
         const tabs = lessonTabs[index] ?? [];
         const result = ownerLessonFromTabs(topic, tabs);
 
