@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity: {
+        Row: {
+          action: string
+          actor: string | null
+          area: string
+          created_at: string
+          detail: Json
+          id: string
+          result: string
+          subject: string | null
+        }
+        Insert: {
+          action: string
+          actor?: string | null
+          area: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          result?: string
+          subject?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string | null
+          area?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          result?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
       ai_cache: {
         Row: {
           bucket: string | null
@@ -277,6 +310,69 @@ export type Database = {
         }
         Relationships: []
       }
+      content_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          content_hash: string
+          domain: string
+          id: string
+          imported_at: string
+          kind: string
+          note: string | null
+          payload: Json
+          published_at: string | null
+          rolled_back_at: string | null
+          source_file: string
+          status: string
+          superseded_at: string | null
+          topic_id: string
+          updated_at: string
+          validated_at: string | null
+          validation: Json
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          content_hash: string
+          domain: string
+          id?: string
+          imported_at?: string
+          kind: string
+          note?: string | null
+          payload?: Json
+          published_at?: string | null
+          rolled_back_at?: string | null
+          source_file?: string
+          status?: string
+          superseded_at?: string | null
+          topic_id: string
+          updated_at?: string
+          validated_at?: string | null
+          validation?: Json
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          content_hash?: string
+          domain?: string
+          id?: string
+          imported_at?: string
+          kind?: string
+          note?: string | null
+          payload?: Json
+          published_at?: string | null
+          rolled_back_at?: string | null
+          source_file?: string
+          status?: string
+          superseded_at?: string | null
+          topic_id?: string
+          updated_at?: string
+          validated_at?: string | null
+          validation?: Json
+        }
+        Relationships: []
+      }
       course_maintenance: {
         Row: {
           domain: string
@@ -292,6 +388,72 @@ export type Database = {
           domain?: string
           enabled?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      flow_events: {
+        Row: {
+          count: number
+          day: string
+          flow: string
+          outcome: string
+          slow_count: number
+          total_ms: number
+          updated_at: string
+        }
+        Insert: {
+          count?: number
+          day: string
+          flow: string
+          outcome: string
+          slow_count?: number
+          total_ms?: number
+          updated_at?: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          flow?: string
+          outcome?: string
+          slow_count?: number
+          total_ms?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      health_runs: {
+        Row: {
+          area: string
+          checks: Json
+          duration_ms: number
+          finished_at: string
+          id: string
+          scope: string
+          started_at: string
+          state: string
+          summary: Json
+        }
+        Insert: {
+          area: string
+          checks?: Json
+          duration_ms?: number
+          finished_at?: string
+          id?: string
+          scope?: string
+          started_at?: string
+          state?: string
+          summary?: Json
+        }
+        Update: {
+          area?: string
+          checks?: Json
+          duration_ms?: number
+          finished_at?: string
+          id?: string
+          scope?: string
+          started_at?: string
+          state?: string
+          summary?: Json
         }
         Relationships: []
       }
@@ -447,6 +609,7 @@ export type Database = {
       }
       owner_lessons: {
         Row: {
+          content_hash: string | null
           domain: string
           extras: Json
           id: string
@@ -458,8 +621,10 @@ export type Database = {
           status: string
           synced_at: string
           topic_id: string
+          version_id: string | null
         }
         Insert: {
+          content_hash?: string | null
           domain: string
           extras?: Json
           id?: string
@@ -471,8 +636,10 @@ export type Database = {
           status?: string
           synced_at?: string
           topic_id: string
+          version_id?: string | null
         }
         Update: {
+          content_hash?: string | null
           domain?: string
           extras?: Json
           id?: string
@@ -484,11 +651,13 @@ export type Database = {
           status?: string
           synced_at?: string
           topic_id?: string
+          version_id?: string | null
         }
         Relationships: []
       }
       owner_questions: {
         Row: {
+          content_hash: string | null
           domain: string
           id: string
           question: Json
@@ -498,8 +667,10 @@ export type Database = {
           status: string
           synced_at: string
           topic_id: string
+          version_id: string | null
         }
         Insert: {
+          content_hash?: string | null
           domain: string
           id?: string
           question: Json
@@ -509,8 +680,10 @@ export type Database = {
           status?: string
           synced_at?: string
           topic_id: string
+          version_id?: string | null
         }
         Update: {
+          content_hash?: string | null
           domain?: string
           id?: string
           question?: Json
@@ -520,11 +693,13 @@ export type Database = {
           status?: string
           synced_at?: string
           topic_id?: string
+          version_id?: string | null
         }
         Relationships: []
       }
       owner_topic_work: {
         Row: {
+          content_hash: string | null
           domain: string
           id: string
           notes: Json
@@ -532,9 +707,11 @@ export type Database = {
           status: string
           synced_at: string
           topic_id: string
+          version_id: string | null
           work: Json
         }
         Insert: {
+          content_hash?: string | null
           domain: string
           id?: string
           notes?: Json
@@ -542,9 +719,11 @@ export type Database = {
           status?: string
           synced_at?: string
           topic_id: string
+          version_id?: string | null
           work?: Json
         }
         Update: {
+          content_hash?: string | null
           domain?: string
           id?: string
           notes?: Json
@@ -552,6 +731,7 @@ export type Database = {
           status?: string
           synced_at?: string
           topic_id?: string
+          version_id?: string | null
           work?: Json
         }
         Relationships: []
@@ -762,6 +942,15 @@ export type Database = {
           allowed: boolean
           used: number
         }[]
+      }
+      bump_flow_event: {
+        Args: {
+          _duration_ms?: number
+          _flow: string
+          _outcome: string
+          _slow?: boolean
+        }
+        Returns: undefined
       }
       ensure_sync_worker: { Args: never; Returns: undefined }
       has_active_subscription: {
