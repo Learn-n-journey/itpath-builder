@@ -5,6 +5,9 @@ import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import type { LessonDepth } from "@/data/deep-lessons";
 import type { LessonReferenceRow } from "@/data/deep-lessons/types";
+import { ReviewConceptLink } from "@/components/learning/remediation-link";
+import { lessonSectionId, resolveLessonSection } from "@/lib/lesson-concepts";
+import { getDeepLesson } from "@/data/deep-lessons";
 
 /**
  * Splits the reference rows into sub-sections by their heading, keeping the
@@ -63,19 +66,21 @@ export function LessonMisconceptions({ depth }: { depth: LessonDepth }) {
   return <Panel title="Common misunderstandings" description="What most beginners get wrong here."><ul className="space-y-4 text-sm leading-7">{depth.misconceptions.map((item) => <li key={item.claim} className="space-y-1"><p className="flex gap-3 text-foreground"><AlertTriangle aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" /><span>{item.claim}</span></p><p className="pl-7 text-muted-foreground">{item.correction}</p></li>)}</ul></Panel>;
 }
 
-export function LessonCheckYourself({ depth }: { depth: LessonDepth }) {
+export function LessonCheckYourself({ depth, topicId }: { depth: LessonDepth; topicId?: string }) {
   if (depth.checkYourself.length === 0) return null;
-  return <div id="check-yourself" className="scroll-mt-24"><Panel title="Check yourself" description="Answer in your head first, then reveal. This is practice, not mastery proof."><ul className="space-y-3">{depth.checkYourself.map((check) => <CheckRow key={check.question} question={check.question} answer={check.answer} />)}</ul></Panel></div>;
+  return <div id="check-yourself" className="scroll-mt-24"><Panel title="Check yourself" description="Answer in your head first, then reveal. This is practice, not mastery proof."><ul className="space-y-3">{depth.checkYourself.map((check, index) => <CheckRow key={check.question} check={check} index={index} {...(topicId ? { topicId } : {})} />)}</ul></Panel></div>;
 }
 
-function CheckRow({ question, answer }: { question: string; answer: string }) {
+function CheckRow({ check, index, topicId }: { check: LessonDepth["checkYourself"][number]; index: number; topicId?: string }) {
   const [shown, setShown] = useState(false);
+  const sectionId = topicId ? check.lessonSectionId ?? lessonSectionId(topicId, "core") : undefined;
+  const mapped = topicId && sectionId ? resolveLessonSection(topicId, sectionId, getDeepLesson(topicId)) : undefined;
   return (
     <li className="rounded-lg border border-border p-3">
       <div className="flex items-start justify-between gap-3">
         <p className="flex gap-3 text-sm leading-7 text-foreground">
           <ListChecks aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
-          <span>{question}</span>
+          <span>{check.question}</span>
         </p>
         <Button variant="ghost" size="sm" onClick={() => setShown((value) => !value)}>
           {shown ? "Hide" : "Show answer"}
@@ -84,9 +89,10 @@ function CheckRow({ question, answer }: { question: string; answer: string }) {
       {shown ? (
         <p className="mt-2 flex gap-3 pl-7 text-sm leading-7 text-muted-foreground">
           <Wrench aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
-          <span>{answer}</span>
+          <span>{check.answer}</span>
         </p>
       ) : null}
+      {shown && mapped && topicId && sectionId ? <ReviewConceptLink topicId={topicId} conceptId={check.conceptId ?? `${topicId}:check:${index + 1}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="check-yourself" sourceItemId={`check-${index + 1}`} /> : null}
     </li>
   );
 }

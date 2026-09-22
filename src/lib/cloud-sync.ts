@@ -75,5 +75,7 @@ export function activityCount(user: UserData): number {
     user.portfolio.length +
     user.mistakes.length +
     user.reviews.length
+    + Object.keys(user.readingPositions ?? {}).length
+    + (user.remediationEvents?.length ?? 0)
   );
 }

@@ -16,6 +16,9 @@ import { matchesConcept, normalizeText } from "@/lib/fuzzy-match";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { cn } from "@/lib/utils";
+import { ReviewConceptLink } from "@/components/learning/remediation-link";
+import { getDeepLesson } from "@/data/deep-lessons";
+import { lessonSectionId, resolveLessonSection } from "@/lib/lesson-concepts";
 
 /** "Practice in" text from the Labs tab -> an in-app practice page. */
 const PRACTICE_PAGES: Array<{ match: RegExp; path: string; label: string }> = [
@@ -54,6 +57,7 @@ export function IdentificationLab({ lab }: { lab: Lab }) {
   const [answers, setAnswers] = useState<Record<string, { name: string; job: string }>>({});
   const [marked, setMarked] = useState<{ score: number; earned: number; total: number } | null>(null);
   const photo = set?.photoKey ? hardwarePhotos[set.photoKey] : undefined;
+  const deepLesson = getDeepLesson(lab.topicId);
 
   if (!set) return null;
 
@@ -139,6 +143,8 @@ export function IdentificationLab({ lab }: { lab: Lab }) {
         {set.items.map((item) => {
           const ok = marked ? nameRight(item) : false;
           const jobOk = marked ? jobRight(item) : false;
+          const sectionId = item.lessonSectionId ?? lab.lessonSectionId ?? (!item.id.includes("-lab-") ? lessonSectionId(lab.topicId, "key-terms") : undefined);
+          const mapped = resolveLessonSection(lab.topicId, sectionId, deepLesson);
           return (
             <div key={item.id} className="rounded-md border border-border p-4">
               <p className="text-sm font-medium">
@@ -191,6 +197,7 @@ export function IdentificationLab({ lab }: { lab: Lab }) {
                   </p>
                 </div>
               ) : null}
+              {marked && (!ok || !jobOk) && mapped && sectionId ? <ReviewConceptLink topicId={lab.topicId} conceptId={item.conceptId ?? lab.conceptId ?? `${lab.topicId}:lab:${item.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="lab" sourceItemId={item.id} /> : null}
             </div>
           );
         })}

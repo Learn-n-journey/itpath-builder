@@ -85,7 +85,7 @@ export function ownerQuestionFromRow(
   sourceFile: string,
   rowNumber: number,
 ): OwnerRowResult {
-  const [id, , , prompt, a, b, c, d, correct, explanation, , , , difficulty] = cells;
+  const [id, , , prompt, a, b, c, d, correct, explanation, , , , difficulty, conceptId, lessonSectionId] = cells;
   const choices = [a, b, c, d].filter((value): value is string => Boolean(value));
   if (!prompt || choices.length !== 4) {
     return { question: null, error: "row is missing the question text or four choices" };
@@ -110,6 +110,8 @@ export function ownerQuestionFromRow(
     difficulty: /intermediate|advanced/i.test(difficulty ?? "") ? "challenging" : "standard",
     mistakeCategory: "concept",
     requiresReasoning: false,
+    ...(conceptId?.trim() ? { conceptId: conceptId.trim() } : {}),
+    ...(lessonSectionId?.trim() ? { lessonSectionId: lessonSectionId.trim() } : {}),
   };
 
   // Nothing here decides a question is good. The same deterministic gate that

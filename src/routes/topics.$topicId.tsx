@@ -10,7 +10,6 @@ import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
-import { topicStudyTimeForSession } from "@/lib/study-time";
 import { activeDomainKey } from "@/lib/active-domain";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { loadOwnerLessons } from "@/lib/owner-lesson-store";
@@ -40,18 +39,12 @@ export const Route = createFileRoute("/topics/$topicId")({
   component: TopicPage,
 });
 
-/** Which part of the page each study stage jumps to. */
-const STUDY_PART_TARGETS: Record<string, string | undefined> = {
-  "Read": "#read-it",
-  "Read again, take notes": "#read-it",
-  "Work through the examples": "#see-it",
-  "Test yourself": "#check-yourself",
-  "Practice": "#practice",
-  "Explain it back": "#teach-back",
-  "Real-world scenario": "#scenario",
-  "Hands-on practice": "#prove-it",
-  "Spaced review": "#keep-handy",
-};
+const TOPIC_SHORTCUTS = [
+  { label: "Read It", target: "#read-it" },
+  { label: "See It", target: "#see-it" },
+  { label: "Try It", target: "#try-it" },
+  { label: "Prove It", target: "#prove-it" },
+] as const;
 
 function TopicPage() {
   const { topicId } = Route.useParams();
@@ -112,7 +105,6 @@ function TopicPage() {
   const prerequisites = topic.prerequisiteTopicIds
     .map((id) => topics.find((candidate) => candidate.id === id))
     .filter((candidate) => candidate !== undefined);
-  const studyTime = topicStudyTimeForSession(topic.id, user.settings.sessionLengthMinutes);
   const refreshTopicId = topic.id;
   const refreshTopicTitle = topic.title;
 
@@ -186,38 +178,18 @@ function TopicPage() {
 
       <Panel
         className="mb-4"
-        title="What is in this topic"
-        description="Work through it at your own pace. Tap any stage to jump straight to it."
+        title="Quick links"
+        description="Jump straight to a learning stage."
       >
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {studyTime.parts.map((part) => {
-            const target = STUDY_PART_TARGETS[part.label];
-            const inner = (
-              <>
-                <span className="block text-sm font-medium text-foreground">{part.label}</span>
-                <p className="mt-1 text-xs text-muted-foreground">{part.detail}</p>
-                {target ? (
-                  <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary">
-                    Jump to this <ArrowRight className="size-3" aria-hidden />
-                  </span>
-                ) : null}
-              </>
-            );
-            return (
-              <li key={part.label}>
-                {target ? (
-                  <a
-                    href={target}
-                    className="block h-full rounded-lg border border-border bg-secondary/20 p-4 transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <div className="h-full rounded-lg border border-border bg-secondary/20 p-4">{inner}</div>
-                )}
-              </li>
-            );
-          })}
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {TOPIC_SHORTCUTS.map((shortcut) => (
+            <li key={shortcut.label}>
+              <a href={shortcut.target} className="flex h-full items-center justify-between gap-2 rounded-lg border border-border bg-secondary/20 p-3 text-sm font-medium text-foreground transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                {shortcut.label}
+                <ArrowRight className="size-4 shrink-0 text-primary" aria-hidden />
+              </a>
+            </li>
+          ))}
         </ul>
       </Panel>
 

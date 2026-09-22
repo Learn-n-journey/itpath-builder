@@ -145,3 +145,5 @@ Done when: typecheck + build clean, features verified in browser.
 
 ## Current
 - [ ] Reorganize topic lessons into Read It → See It → Try It → Prove It → Keep Handy without changing learning logic or content.
+
+- [x] Simplify the topic overview quick links to Read It, See It, Try It, and Prove It only.

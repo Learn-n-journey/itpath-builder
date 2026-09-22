@@ -44,9 +44,9 @@ export const WORK_TABS = ["Recall", "Teach back", "Application", "Troubleshootin
 
 /** Headers of each tab, in column order. The template workbook uses these. */
 export const WORK_TAB_HEADERS: Record<string, string[]> = {
-  Recall: ["Prompt", "Accepted concepts", "Explanation"],
+  Recall: ["Prompt", "Accepted concepts", "Explanation", "Concept ID", "Lesson section ID"],
   "Teach back": ["Prompt", "Expected point"],
-  Application: ["Title", "Situation", "Decision prompt", "Expected concepts", "Guidance"],
+  Application: ["Title", "Situation", "Decision prompt", "Expected concepts", "Guidance", "Concept ID", "Lesson section ID"],
   Troubleshooting: ["Common problem", "How it fails", "Troubleshooting step"],
 };
 
@@ -63,6 +63,8 @@ export function ownerWorkFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Owner
       prompt,
       acceptedConcepts: accepted,
       explanation: cell(row, 2),
+      ...(cell(row, 3) ? { conceptId: cell(row, 3) } : {}),
+      ...(cell(row, 4) ? { lessonSectionId: cell(row, 4) } : {}),
     });
   });
 
@@ -86,6 +88,8 @@ export function ownerWorkFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Owner
           decisionPrompt,
           expectedConcepts: splitList(cell(applicationRow, 3).replace(/,/g, "|")),
           guidance: cell(applicationRow, 4),
+          ...(cell(applicationRow, 5) ? { conceptId: cell(applicationRow, 5) } : {}),
+          ...(cell(applicationRow, 6) ? { lessonSectionId: cell(applicationRow, 6) } : {}),
         }
       : undefined;
 
