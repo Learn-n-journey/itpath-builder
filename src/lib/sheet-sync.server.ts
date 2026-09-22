@@ -476,6 +476,11 @@ export async function runSheetSync(
           continue;
         }
 
+        if (unchanged(file)) {
+          unchangedFiles += 1;
+          continue;
+        }
+
         const approved: Array<{ rowNumber: number; question: Json }> = [];
         const rejected: Array<{ rowNumber: number; question: Json; reasons: string[] }> = [];
         const failed: Array<{ rowNumber: number; error: string }> = [];
