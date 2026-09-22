@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -9,10 +9,8 @@ import { ProfileNamePanel } from "@/components/profile-name-panel";
 import { WelcomeSetup } from "@/components/onboarding/welcome-setup";
 import { restartTour, setupPending } from "@/lib/onboarding";
 import { SiteEngagementPanel } from "@/components/site-engagement-panel";
-import { LearningPathsPanel } from "@/components/learning-paths-panel";
 
 
-import { SystemDiagnostics } from "@/components/system-diagnostics";
 import {
   AlertDialog,
   AlertDialogAction,
