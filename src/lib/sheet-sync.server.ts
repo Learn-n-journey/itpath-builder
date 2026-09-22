@@ -371,6 +371,7 @@ export async function runSheetSync(
         });
       }
 
+      const pendingLessons: Array<{ file: SheetFile; topic: NumberedTopic }> = [];
       for (const file of lessonFiles) {
         const number = fileNumber(file.name);
         const topic = pickTopic(number);
@@ -378,16 +379,26 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/lessons`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
-
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
         }
+        pendingLessons.push({ file, topic });
+      }
 
+      // Different workbooks are read a few at a time; each one is still read
+      // start to finish on its own, which is what Excel needs.
+      const lessonTabs = await mapPool(pendingLessons, WORKBOOK_CONCURRENCY, async ({ file }) => {
+        const tabs = await readTabs(file.id);
         filesDone += 1;
         await emit("lessons", domain, file.name);
-        const tabs = await readTabs(file.id);
+        return tabs;
+      });
+
+      for (const [index, { file, topic }] of pendingLessons.entries()) {
+        const tabs = lessonTabs[index] ?? [];
         const result = ownerLessonFromTabs(topic, tabs);
+
         if (!result.lesson) {
           lessonsRejected += 1;
           lessonIssues.push({
