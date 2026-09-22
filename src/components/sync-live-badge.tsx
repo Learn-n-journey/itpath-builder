@@ -70,15 +70,40 @@ export function SyncLiveBadge() {
     return () => window.clearInterval(timer);
   }, [isOwner, inFlight, refresh]);
 
+  // Keeps the run moving while the app is open: one slice at a time, never two
+  // at once.
+  useEffect(() => {
+    if (!isOwner || !inFlight) return;
+    let stopped = false;
+    const tick = async () => {
+      if (stopped || slicing.current) return;
+      slicing.current = true;
+      try {
+        await runSlice({});
+      } catch {
+        /* the next tick tries again */
+      } finally {
+        slicing.current = false;
+        if (!stopped) void refresh();
+      }
+    };
+    void tick();
+    const timer = window.setInterval(() => void tick(), 4_000);
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+    };
+  }, [isOwner, inFlight, refresh, runSlice]);
+
   if (!isOwner || !inFlight || hidden || !run) return null;
 
   const progress = run.progress;
   const line =
     run.status === "queued"
-      ? "Waiting to start on the server…"
+      ? "Starting…"
       : progress
         ? `${progress.course === "auto-repair" ? "AUTO PATH" : progress.course === "it-cybersecurity" ? "IT PATH" : progress.course} · ${progress.stage}${progress.file ? ` · ${progress.file}` : ""}`
-        : "Running on the server…";
+        : "Reading your workbooks…";
 
   return (
     <div className="fixed bottom-4 left-4 z-40 max-w-[18rem] rounded-lg border border-border bg-card/95 px-3 py-2 shadow-lg backdrop-blur">
