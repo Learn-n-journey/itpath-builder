@@ -36,6 +36,9 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/microsoft_excel";
 const JOB = "sheet-sync";
 const LOCK_MINUTES = 15;
 const INSERT_CHUNK = 500;
+const EXCEL_ROW_PAGE = 1_000;
+const MAX_GRAPH_ATTEMPTS = 5;
+const RETRYABLE_GRAPH_STATUSES = new Set([429, 503, 504]);
 
 /** The built-in course folders, and the four sub-folders each of them holds. */
 export const COURSE_FOLDERS: Array<{ domain: OwnerDomain; root: string }> = [
@@ -82,19 +85,46 @@ async function courseFolders(): Promise<
 
 export const SUB_FOLDERS = ["lessons", "try it", "quiz", "labs"] as const;
 
+function retryDelay(response: Response, attempt: number): number {
+  const retryAfterMs = Number(response.headers.get("x-ms-retry-after-ms"));
+  if (Number.isFinite(retryAfterMs) && retryAfterMs > 0) return Math.min(retryAfterMs, 30_000);
+
+  const retryAfter = response.headers.get("retry-after");
+  if (retryAfter) {
+    const seconds = Number(retryAfter);
+    if (Number.isFinite(seconds) && seconds >= 0) return Math.min(seconds * 1_000, 30_000);
+    const dateDelay = Date.parse(retryAfter) - Date.now();
+    if (Number.isFinite(dateDelay) && dateDelay > 0) return Math.min(dateDelay, 30_000);
+  }
+
+  return Math.min(1_000 * 2 ** attempt, 16_000) + Math.floor(Math.random() * 500);
+}
+
 async function graph(path: string): Promise<any> {
   const apiKey = process.env["LOVABLE_API_KEY"];
   const connectionKey = process.env["MICROSOFT_EXCEL_API_KEY"];
   if (!apiKey || !connectionKey) {
     throw new Error("the Excel connection is not configured in this environment");
   }
-  const response = await fetch(`${GATEWAY_URL}${path}`, {
-    headers: { Authorization: `Bearer ${apiKey}`, "X-Connection-Api-Key": connectionKey },
-  });
-  if (!response.ok) {
-    throw new Error(`Excel request failed [${response.status}]: ${(await response.text()).slice(0, 300)}`);
+
+  for (let attempt = 0; attempt < MAX_GRAPH_ATTEMPTS; attempt += 1) {
+    const response = await fetch(`${GATEWAY_URL}${path}`, {
+      headers: { Authorization: `Bearer ${apiKey}`, "X-Connection-Api-Key": connectionKey },
+    });
+    if (response.ok) return response.json();
+
+    const message = (await response.text()).slice(0, 300);
+    const canRetry = RETRYABLE_GRAPH_STATUSES.has(response.status) && attempt < MAX_GRAPH_ATTEMPTS - 1;
+    if (!canRetry) {
+      const suffix = RETRYABLE_GRAPH_STATUSES.has(response.status)
+        ? ` after ${MAX_GRAPH_ATTEMPTS} attempts`
+        : "";
+      throw new Error(`Excel request failed [${response.status}]${suffix}: ${message}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, retryDelay(response, attempt)));
   }
-  return response.json();
+
+  throw new Error("Excel request failed after all retry attempts");
 }
 
 interface SheetFile {
@@ -106,26 +136,68 @@ interface SheetFile {
 async function listWorkbooks(root: string, sub: string): Promise<SheetFile[]> {
   const path = `${root}/${sub}`.split("/").map(encodeURIComponent).join("/");
   const listing: { value?: Array<{ id?: string; name: string; file?: unknown }> } = await graph(
-    `/me/drive/root:/${path}:/children`,
+    `/me/drive/root:/${path}:/children?$select=id,name,file`,
   );
   return (listing.value ?? [])
     .filter((item) => item.file && item.name.endsWith(".xlsx") && item.id)
-    .map((item) => ({ id: item.id!, name: item.name }))
+    .flatMap((item) => (item.id ? [{ id: item.id, name: item.name }] : []))
     .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
+}
+
+function columnName(column: number): string {
+  let value = column;
+  let result = "";
+  while (value > 0) {
+    value -= 1;
+    result = String.fromCharCode(65 + (value % 26)) + result;
+    value = Math.floor(value / 26);
+  }
+  return result || "A";
+}
+
+function usedRangeStart(address: string): { row: number; column: number } {
+  const localAddress = address.split("!").pop()?.replaceAll("$", "") ?? "A1";
+  const match = /^([A-Z]+)(\d+)/i.exec(localAddress);
+  if (!match) return { row: 1, column: 1 };
+  const letters = match[1]?.toUpperCase() ?? "A";
+  let column = 0;
+  for (const letter of letters) column = column * 26 + letter.charCodeAt(0) - 64;
+  return { row: Number(match[2] ?? 1), column };
+}
+
+async function readSheetRows(fileId: string, sheetId: string): Promise<string[][]> {
+  const base = `/me/drive/items/${fileId}/workbook/worksheets/${encodeURIComponent(sheetId)}`;
+  const bounds: { address?: string; rowCount?: number; columnCount?: number } = await graph(
+    `${base}/usedRange(valuesOnly=true)?$select=address,rowCount,columnCount`,
+  );
+  const rowCount = Math.max(0, Number(bounds.rowCount ?? 0));
+  const columnCount = Math.max(0, Number(bounds.columnCount ?? 0));
+  if (!rowCount || !columnCount) return [];
+
+  const start = usedRangeStart(String(bounds.address ?? "A1"));
+  const endColumn = columnName(start.column + columnCount - 1);
+  const rows: string[][] = [];
+  for (let offset = 0; offset < rowCount; offset += EXCEL_ROW_PAGE) {
+    const firstRow = start.row + offset;
+    const lastRow = Math.min(start.row + rowCount - 1, firstRow + EXCEL_ROW_PAGE - 1);
+    const range = `${columnName(start.column)}${firstRow}:${endColumn}${lastRow}`;
+    const page: { values?: unknown[][] } = await graph(
+      `${base}/range(address='${range}')?$select=values`,
+    );
+    rows.push(...(page.values ?? []).map((row) => row.map((value) => String(value ?? ""))));
+  }
+  return rows;
 }
 
 /** Every worksheet of a workbook, as tab name plus rows of text. */
 async function readTabs(fileId: string): Promise<SheetTab[]> {
-  const sheets = await graph(`/me/drive/items/${fileId}/workbook/worksheets`);
+  const sheets = await graph(`/me/drive/items/${fileId}/workbook/worksheets?$select=id,name`);
   const tabs: SheetTab[] = [];
   for (const sheet of sheets.value ?? []) {
-    const used = await graph(
-      `/me/drive/items/${fileId}/workbook/worksheets/${encodeURIComponent(sheet.id)}` +
-        `/usedRange(valuesOnly=true)?$select=values`,
-    );
+    if (!sheet.id) continue;
     tabs.push({
       name: String(sheet.name ?? ""),
-      rows: (used.values ?? []).map((row: unknown[]) => row.map((value) => String(value ?? ""))),
+      rows: await readSheetRows(fileId, String(sheet.id)),
     });
   }
   return tabs;
@@ -376,14 +448,10 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
         const approved: Array<{ rowNumber: number; question: Json }> = [];
         const rejected: Array<{ rowNumber: number; question: Json; reasons: string[] }> = [];
         const failed: Array<{ rowNumber: number; error: string }> = [];
-        const sheets = await graph(`/me/drive/items/${file.id}/workbook/worksheets`);
+        const tabs = await readTabs(file.id);
 
-        for (const sheet of sheets.value ?? []) {
-          const used = await graph(
-            `/me/drive/items/${file.id}/workbook/worksheets/${encodeURIComponent(sheet.id)}` +
-              `/usedRange(valuesOnly=true)?$select=values`,
-          );
-          for (const { rowNumber, cells } of dataRows(used.values ?? [])) {
+        for (const tab of tabs) {
+          for (const { rowNumber, cells } of dataRows(tab.rows)) {
             const result = ownerQuestionFromRow(topic, cells, file.name, rowNumber);
             if (result.question && !result.rejectReasons) {
               approved.push({ rowNumber, question: result.question as unknown as Json });
