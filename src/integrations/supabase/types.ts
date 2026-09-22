@@ -628,6 +628,42 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_queue: {
+        Row: {
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          requested_by: string | null
+          result: Json | null
+          scope: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          requested_by?: string | null
+          result?: Json | null
+          scope?: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          requested_by?: string | null
+          result?: Json | null
+          scope?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       tutor_threads: {
         Row: {
           created_at: string
