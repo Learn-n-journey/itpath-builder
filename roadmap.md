@@ -141,4 +141,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Excel sync retries temporary 429/503/504 failures and reads large worksheet ranges in bounded pages
 - [x] Spreadsheet sync downloads each changed workbook once and parses every sheet locally, bypassing Excel's slow workbook-opening service
 
-- [ ] Owner-only refresh button on every topic that syncs only that topic from its spreadsheets and confirms completion
+- [x] Owner-only refresh button on every topic that syncs only that topic from its spreadsheets and confirms completion

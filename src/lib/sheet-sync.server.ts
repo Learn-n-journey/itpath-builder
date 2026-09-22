@@ -270,6 +270,8 @@ function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string
 export async function runSheetSync(
   options: {
     domain?: OwnerDomain;
+    /** Limit a manual refresh to one topic across all four content folders. */
+    topicId?: string;
     force?: boolean;
     onProgress?: (progress: SyncProgress) => void | Promise<void>;
     /** Stop cleanly after this many milliseconds and report the rest as left over. */
@@ -383,6 +385,7 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/lessons`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
+        if (options.topicId && topic.topicId !== options.topicId) continue;
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
@@ -499,6 +502,7 @@ export async function runSheetSync(
             report.push({ domain, folder: `${root}/${sub}`, file: file.name, skipped: "filename number has no matching topic" });
             continue;
           }
+          if (options.topicId && topic.topicId !== options.topicId) continue;
           pendingWork.push({ sub, file, topic });
         }
       }
@@ -617,6 +621,7 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/quiz`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
+        if (options.topicId && topic.topicId !== options.topicId) continue;
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;

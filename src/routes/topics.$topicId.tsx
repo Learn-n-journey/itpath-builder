@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, BookOpen, Layers, Lock, MessagesSquare } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowLeft, ArrowRight, BookOpen, Layers, Lock, MessagesSquare, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { blockingTopic } from "@/lib/journey-order";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
@@ -10,6 +13,13 @@ import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
 import { topicStudyTimeForSession } from "@/lib/study-time";
+import { activeDomainKey } from "@/lib/active-domain";
+import { OWNER_EMAILS } from "@/lib/beta-access.functions";
+import { loadOwnerLessons } from "@/lib/owner-lesson-store";
+import { loadOwnerQuestions } from "@/lib/owner-question-store";
+import { loadOwnerWork } from "@/lib/owner-work-store";
+import { refreshTopic } from "@/lib/sheet-sync.functions";
+import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/topics/$topicId")({
@@ -47,6 +57,10 @@ function TopicPage() {
   const { topicId } = Route.useParams();
   const topic = getTopic(topicId);
   const { user } = useAppState();
+  const { email } = useAuth();
+  const refresh = useServerFn(refreshTopic);
+  const [refreshing, setRefreshing] = useState(false);
+  const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
 
   if (!topic) {
     return (
@@ -100,6 +114,27 @@ function TopicPage() {
     .filter((candidate) => candidate !== undefined);
   const studyTime = topicStudyTimeForSession(topic.id, user.settings.sessionLengthMinutes);
 
+  async function handleRefresh() {
+    setRefreshing(true);
+    try {
+      const domain = activeDomainKey().split("@")[0] ?? "";
+      const result = await refresh({ data: { domain, topicId: topic.id } });
+      if (!result.ok || !result.summary) {
+        toast.error(result.error ?? "This topic could not be refreshed.");
+        return;
+      }
+      await Promise.all([loadOwnerQuestions(), loadOwnerLessons(), loadOwnerWork()]);
+      const summary = result.summary;
+      toast.success(
+        `Refreshed ${topic.title}: ${summary.lessonsApproved} lesson, ${summary.approved} questions, and ${summary.workTopics} try-it/lab update${summary.workTopics === 1 ? "" : "s"}.`,
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "This topic could not be refreshed.");
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   return (
     <article>
       <Button asChild variant="ghost" size="sm" className="mb-5 -ml-3">
@@ -112,6 +147,12 @@ function TopicPage() {
       <PageHeader title={topic.title} description={topic.summary} />
 
       <div className="mb-6 flex flex-wrap gap-2">
+        {isOwner ? (
+          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+            <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden />
+            {refreshing ? "Refreshing…" : "Refresh topic"}
+          </Button>
+        ) : null}
         <Button asChild variant="secondary" size="sm">
           <Link to="/flashcards/$topicId" params={{ topicId: topic.id }}>
             <Layers aria-hidden />
