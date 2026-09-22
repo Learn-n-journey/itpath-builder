@@ -377,32 +377,12 @@ function SettingsPage() {
       {isOwner ? (
         <Panel
           className="mt-4"
-          title="Spreadsheet content"
-          description="Your numbered question and lesson spreadsheets are pulled in automatically every night. Use these to bring in changes right away."
+          title="Control room"
+          description="Imports, content checks, sources, releases and the activity log all live in one place now."
         >
-          <SpreadsheetSyncPanel />
-        </Panel>
-      ) : null}
-
-      {isOwner ? <LearningPathsPanel /> : null}
-
-      {isOwner ? (
-        <Panel
-          className="mt-4"
-          title="Maintenance screen"
-          description="Close a course while you work on it. Visitors see a short maintenance notice instead; you always keep full access."
-        >
-          <MaintenancePanel />
-        </Panel>
-      ) : null}
-
-      {isOwner ? (
-        <Panel
-          className="mt-4"
-          title="System diagnostics"
-          description="Runs live checks against this browser session. Results are measured, not assumed."
-        >
-          <SystemDiagnostics />
+          <Button asChild>
+            <Link to="/admin">Open the control room</Link>
+          </Button>
         </Panel>
       ) : null}
 
