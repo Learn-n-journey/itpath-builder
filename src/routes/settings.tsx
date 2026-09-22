@@ -103,15 +103,15 @@ function SpreadsheetSyncPanel() {
 
   const describe = useCallback((run: SyncRunStatus): string => {
     const summary = run.result;
-    if (run.status === "queued") return "Waiting to start — it runs on the server, so you can close the app.";
+    if (run.status === "queued") return "Starting — keep this page open until it finishes.";
     if (run.status === "running") {
       const p = run.progress;
       return p
         ? `Running on the server — ${p.stage}${p.file ? ` · ${p.file}` : ""} · ${p.filesDone} workbook(s) read, ` +
             `${p.approved} question(s) in, ${p.lessonsApproved} lesson(s) published` +
             (p.unchangedFiles ? `, ${p.unchangedFiles} skipped` : "") +
-            ". You can close the app; it keeps going."
-        : "Running on the server now. You can close the app; it keeps going.";
+            ". Keep the app open until it finishes."
+        : "Running now. Keep the app open until it finishes.";
     }
     if (run.status === "failed") return `Failed: ${run.error ?? "the sync did not finish."}`;
     if (!summary) return "Finished.";
