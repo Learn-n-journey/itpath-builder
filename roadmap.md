@@ -153,3 +153,6 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Switch spreadsheet syncing back to the in-app (offline/manual) method instead of the server queue — awaiting owner confirmation of scope.
 - [x] Spreadsheet sync switched back to in-app: runs while the app is open, background minute worker off.
 - [x] Chooser slogan -> "Your journey. Your legacy."
+
+25. [ ] Owner Admin Control Room at /admin: health dashboard (system, content, sources, imports, engine, flows, performance), content release gate (Imported → Validated → Preview → Approved → Live) with version history and rollback, activity log.
+26. [ ] Consolidate every existing owner-only tool (spreadsheet sync, learning paths, maintenance, diagnostics, beta access, site engagement, AI usage, content reports, subject switch, link health) into that single admin area and remove them from Settings.
