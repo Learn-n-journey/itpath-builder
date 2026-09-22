@@ -262,6 +262,30 @@ export async function runSheetSync(
   let lessonsRejected = 0;
   const lessonIssues: Array<{ file: string; topic: string; reasons: string[] }> = [];
   let workTopics = 0;
+  let unchangedFiles = 0;
+
+  // Skip workbooks OneDrive says have not changed since the last good sync.
+  const seenState = new Map<string, string>();
+  if (!options.force) {
+    const { data } = await supabaseAdmin.from("sheet_file_state").select("file_id,last_modified");
+    for (const row of data ?? []) seenState.set(row.file_id, row.last_modified);
+  }
+  const unchanged = (file: SheetFile): boolean =>
+    !options.force && Boolean(file.lastModified) && seenState.get(file.id) === file.lastModified;
+  const remember = async (file: SheetFile, domain: string, folder: string): Promise<void> => {
+    if (!file.lastModified) return;
+    await supabaseAdmin.from("sheet_file_state").upsert(
+      {
+        file_id: file.id,
+        domain,
+        folder,
+        file_name: file.name,
+        last_modified: file.lastModified,
+        synced_at: new Date().toISOString(),
+      },
+      { onConflict: "file_id" },
+    );
+  };
 
   try {
     for (const { domain, root, topics: pathTopics } of await courseFolders()) {
