@@ -213,6 +213,8 @@ export interface SheetSyncResult {
   lessonsApproved?: number;
   /** Topics whose try-it or labs workbook was pulled in. */
   workTopics?: number;
+  /** Workbooks OneDrive reported as unchanged, so they were not re-read. */
+  unchangedFiles?: number;
   lessonsRejected?: number;
   /** Why each lesson carried a note, so it can be fixed in the sheet. */
   lessonIssues?: Array<{ file: string; topic: string; reasons: string[] }>;
