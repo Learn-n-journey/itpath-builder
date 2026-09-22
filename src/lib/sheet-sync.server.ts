@@ -39,6 +39,28 @@ const INSERT_CHUNK = 500;
 const EXCEL_ROW_PAGE = 1_000;
 const MAX_GRAPH_ATTEMPTS = 5;
 const RETRYABLE_GRAPH_STATUSES = new Set([429, 503, 504]);
+/** How many different workbooks are read at the same time. */
+const WORKBOOK_CONCURRENCY = 4;
+
+/** Runs the same work over many items, a few at a time, keeping input order. */
+async function mapPool<T, R>(
+  items: T[],
+  limit: number,
+  work: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const index = next;
+      next += 1;
+      results[index] = await work(items[index] as T, index);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
+
 
 /** The built-in course folders, and the four sub-folders each of them holds. */
 export const COURSE_FOLDERS: Array<{ domain: OwnerDomain; root: string }> = [
@@ -349,6 +371,7 @@ export async function runSheetSync(
         });
       }
 
+      const pendingLessons: Array<{ file: SheetFile; topic: NumberedTopic }> = [];
       for (const file of lessonFiles) {
         const number = fileNumber(file.name);
         const topic = pickTopic(number);
@@ -356,16 +379,26 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/lessons`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
-
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
         }
+        pendingLessons.push({ file, topic });
+      }
 
+      // Different workbooks are read a few at a time; each one is still read
+      // start to finish on its own, which is what Excel needs.
+      const lessonTabs = await mapPool(pendingLessons, WORKBOOK_CONCURRENCY, async ({ file }) => {
+        const tabs = await readTabs(file.id);
         filesDone += 1;
         await emit("lessons", domain, file.name);
-        const tabs = await readTabs(file.id);
+        return tabs;
+      });
+
+      for (const [index, { file, topic }] of pendingLessons.entries()) {
+        const tabs = lessonTabs[index] ?? [];
         const result = ownerLessonFromTabs(topic, tabs);
+
         if (!result.lesson) {
           lessonsRejected += 1;
           lessonIssues.push({
@@ -410,16 +443,21 @@ export async function runSheetSync(
       const work = new Map<string, { topic: NumberedTopic; work: OwnerTopicWork; files: string[] }>();
 
       const workFolders: Array<{ sub: string; files: SheetFile[] }> = [];
-      for (const sub of ["try it", "labs"] as const) {
-        try {
-          workFolders.push({ sub, files: await listWorkbooks(root, sub) });
-        } catch (error) {
-          report.push({
-            domain,
-            folder: `${root}/${sub}`,
-            skipped: String(error instanceof Error ? error.message : error),
-          });
+      const workListings = await Promise.all(
+        (["try it", "labs"] as const).map(async (sub) => {
+          try {
+            return { sub, files: await listWorkbooks(root, sub) };
+          } catch (error) {
+            return { sub, error: String(error instanceof Error ? error.message : error) };
+          }
+        }),
+      );
+      for (const listing of workListings) {
+        if ("error" in listing) {
+          report.push({ domain, folder: `${root}/${listing.sub}`, skipped: listing.error });
+          continue;
         }
+        workFolders.push(listing);
       }
       const allWorkFiles = workFolders.flatMap((entry) => entry.files);
       // Try-it and labs merge into one row per topic, so they are re-read
@@ -434,6 +472,7 @@ export async function runSheetSync(
         });
       }
 
+      const pendingWork: Array<{ sub: string; file: SheetFile; topic: NumberedTopic }> = [];
       for (const { sub, files } of workChanged ? workFolders : []) {
         for (const file of files) {
           const number = fileNumber(file.name);
@@ -442,11 +481,21 @@ export async function runSheetSync(
             report.push({ domain, folder: `${root}/${sub}`, file: file.name, skipped: "filename number has no matching topic" });
             continue;
           }
+          pendingWork.push({ sub, file, topic });
+        }
+      }
 
-          filesDone += 1;
-          await emit(`${sub}`, domain, file.name);
-          const tabs = await readTabs(file.id);
-          const parsed = ownerWorkFromTabs(topic, tabs);
+      const workTabs = await mapPool(pendingWork, WORKBOOK_CONCURRENCY, async ({ sub, file }) => {
+        const tabs = await readTabs(file.id);
+        filesDone += 1;
+        await emit(sub, domain, file.name);
+        return tabs;
+      });
+
+      {
+        for (const [index, { sub, file, topic }] of pendingWork.entries()) {
+          const parsed = ownerWorkFromTabs(topic, workTabs[index] ?? []);
+
           const existing = work.get(topic.topicId);
           const merged: OwnerTopicWork = {
             recall: parsed.recall.length ? parsed.recall : (existing?.work.recall ?? []),
@@ -519,9 +568,9 @@ export async function runSheetSync(
         topicsSynced.add(topicId);
       }
 
-      for (const file of workChanged ? allWorkFiles : []) {
-        await remember(file, domain, `${root}/try it + labs`);
-      }
+      await Promise.all(
+        (workChanged ? allWorkFiles : []).map((file) => remember(file, domain, `${root}/try it + labs`)),
+      );
 
       // ---- quiz ----------------------------------------------------------
       let quizFiles: SheetFile[] = [];
@@ -535,6 +584,7 @@ export async function runSheetSync(
         });
       }
 
+      const pendingQuiz: Array<{ file: SheetFile; topic: NumberedTopic }> = [];
       for (const file of quizFiles) {
         const number = fileNumber(file.name);
         const topic = pickTopic(number);
@@ -542,18 +592,26 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/quiz`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
-
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
         }
+        pendingQuiz.push({ file, topic });
+      }
 
+      const quizTabs = await mapPool(pendingQuiz, WORKBOOK_CONCURRENCY, async ({ file }) => {
+        const tabs = await readTabs(file.id);
+        filesDone += 1;
+        await emit("quiz", domain, file.name);
+        return tabs;
+      });
+
+      for (const [index, { file, topic }] of pendingQuiz.entries()) {
         const approved: Array<{ rowNumber: number; question: Json }> = [];
         const rejected: Array<{ rowNumber: number; question: Json; reasons: string[] }> = [];
         const failed: Array<{ rowNumber: number; error: string }> = [];
-        filesDone += 1;
-        await emit("quiz", domain, file.name);
-        const tabs = await readTabs(file.id);
+        const tabs = quizTabs[index] ?? [];
+
 
         for (const tab of tabs) {
           for (const { rowNumber, cells } of dataRows(tab.rows)) {
