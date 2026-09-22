@@ -183,8 +183,8 @@ export const recordHealthRun = createServerFn({ method: "POST" })
       area: data.area,
       scope: data.scope ?? "all",
       state: data.state,
-      checks: data.checks,
-      summary: data.summary,
+      checks: data.checks as never,
+      summary: data.summary as never,
       duration_ms: Math.max(0, Math.round(data.durationMs)),
       started_at: new Date(now.getTime() - Math.max(0, data.durationMs)).toISOString(),
       finished_at: now.toISOString(),
@@ -412,7 +412,7 @@ export const advanceVersion = createServerFn({ method: "POST" })
         .eq("status", "live");
     }
 
-    const { error } = await supabaseAdmin.from("content_versions").update(patch).eq("id", version.id);
+    const { error } = await supabaseAdmin.from("content_versions").update(patch as never).eq("id", version.id);
     if (error) return { ok: true, owner: true, error: error.message };
 
     await writeActivity({
