@@ -258,6 +258,24 @@ function SpreadsheetSyncPanel() {
         {lastRun ??
           "Reads the “it path” and “auto path” folders in OneDrive, each with its lessons, try it, quiz and labs sub-folders. The nightly pull happens on its own."}
       </p>
+      {history.length > 0 ? (
+        <div className="mt-4 rounded-lg border border-border/60 p-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Last {history.length} scan{history.length === 1 ? "" : "s"}
+          </p>
+          <ul className="mt-2 space-y-3">
+            {history.map((run) => (
+              <li key={run.id} className="text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">
+                  {scopeLabel(run.scope)} ·{" "}
+                  {new Date(run.finishedAt ?? run.createdAt).toLocaleString()}
+                </span>
+                <span className="mt-1 block whitespace-pre-line">{describe(run)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }
