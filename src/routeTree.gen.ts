@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AchievementsRouteImport } from './routes/achievements'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AiUsageRouteImport } from './routes/ai-usage'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -93,6 +94,11 @@ const AboutRoute = AboutRouteImport.update({
 const AchievementsRoute = AchievementsRouteImport.update({
   id: '/achievements',
   path: '/achievements',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AiTutorRoute = AiTutorRouteImport.update({
@@ -436,6 +442,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
+  '/admin': typeof AdminRoute
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
@@ -508,6 +515,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
+  '/admin': typeof AdminRoute
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
@@ -581,6 +589,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/achievements': typeof AchievementsRoute
+  '/admin': typeof AdminRoute
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
@@ -655,6 +664,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/achievements'
+    | '/admin'
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
@@ -727,6 +737,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/achievements'
+    | '/admin'
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
@@ -799,6 +810,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/achievements'
+    | '/admin'
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
@@ -872,6 +884,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AchievementsRoute: typeof AchievementsRoute
+  AdminRoute: typeof AdminRoute
   AiTutorRoute: typeof AiTutorRoute
   AiUsageRoute: typeof AiUsageRoute
   AuthRoute: typeof AuthRoute
@@ -962,6 +975,13 @@ declare module '@tanstack/react-router' {
       path: '/achievements'
       fullPath: '/achievements'
       preLoaderRoute: typeof AchievementsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ai-tutor': {
@@ -1440,6 +1460,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AchievementsRoute: AchievementsRoute,
+  AdminRoute: AdminRoute,
   AiTutorRoute: AiTutorRoute,
   AiUsageRoute: AiUsageRoute,
   AuthRoute: AuthRoute,
