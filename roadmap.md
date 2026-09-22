@@ -147,3 +147,5 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Reorganize topic lessons into Read It → See It → Try It → Prove It → Keep Handy without changing learning logic or content.
 
 - [x] Simplify the topic overview quick links to Read It, See It, Try It, and Prove It only.
+
+- [x] Sync safeguards: a run blocked by the lock is requeued instead of reported done; the minute worker stays armed while requests are still queued; a crashed run releases the lock.

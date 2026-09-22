@@ -952,7 +952,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
  * sitting untouched until the next nightly run.
  */
 async function stopWorkerIfQueueEmpty(
-  supabaseAdmin: Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"],
+  supabaseAdmin: (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"],
 ): Promise<void> {
   const waiting = await supabaseAdmin.from("sync_queue").select("id").eq("status", "queued").limit(1);
   if (waiting.data?.length) {
