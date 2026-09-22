@@ -603,6 +603,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
         finished_at: new Date().toISOString(),
       })
       .eq("id", job.id);
+    await supabaseAdmin.rpc("stop_sync_worker");
     return { ran: true, id: job.id };
   }
 }
