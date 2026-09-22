@@ -730,6 +730,9 @@ export async function runSheetSync(
           unreadable: failed.length,
         });
       }
+      }
+
+      if (partial) break;
     }
 
     await supabaseAdmin
