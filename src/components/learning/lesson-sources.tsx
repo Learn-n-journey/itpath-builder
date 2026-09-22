@@ -18,7 +18,7 @@ export function LessonSources({ resources, topicId }: LessonSourcesProps) {
 
   return (
     <aside aria-label="Lesson sources" className="px-1 text-xs leading-5 text-muted-foreground">
-      <span className="font-medium text-foreground/80">Watch and read: </span>
+      <span className="font-medium text-foreground/80">Sources: </span>
       {sources.map((source, index) => (
         <span key={source.id}>
           {index > 0 ? <span aria-hidden> · </span> : null}

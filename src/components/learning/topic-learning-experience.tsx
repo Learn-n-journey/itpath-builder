@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Edit3, FileText, Save } from "lucide-react";
+import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
@@ -9,6 +9,7 @@ import { MasteryChecklist } from "@/components/learning/mastery-checklist";
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { Panel } from "@/components/page-kit";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -21,7 +22,7 @@ import { DeepLessonReading } from "@/components/learning/deep-lesson-reading";
 import { LessonDepthReading } from "@/components/learning/lesson-depth-reading";
 import { WorkedExamples } from "@/components/learning/worked-examples";
 import { getLearningModule, getPracticeActivities, getRealWorldScenario } from "@/data/learning-content";
-import type { TopicProgress } from "@/lib/app-data/types";
+import type { TopicProgress, Resource } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { topicMeasures } from "@/lib/mastery-summary";
 import { answerMatches, coveredConcepts } from "@/lib/fuzzy-match";
@@ -238,7 +239,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         <section><h2 className="mb-3 text-base font-semibold text-foreground">Keywords</h2><dl className="divide-y divide-border border-y border-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
         <ListSection title="Examples" items={lesson.realWorldExamples} /><ListSection title="Common Problems" items={module.commonProblems} /><ListSection title="How It Fails" items={module.howItFails} /><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /><ListSection title="Exam Coverage" items={examCoverage} /><ListSection title="Interview Questions" items={module.interviewQuestions} />
         <ContentReportButton kind="lesson" refId={topic.id} label={topic.title} />
-      </div></Panel><div id="worked-examples" className="scroll-mt-24"><WorkedExamples examples={getWorkedExamples(topic.id)} /></div><LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} /></div>
+      </div></Panel><div id="worked-examples" className="scroll-mt-24"><WorkedExamples examples={getWorkedExamples(topic.id)} /></div><MediaPanel topic={topic} /><LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} /></div>
 
     <section id="work-on-it" className="scroll-mt-24 space-y-4">
       <div>
@@ -297,6 +298,63 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       </Panel>
     </div>
   </div>;
+}
+
+const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
+
+function MediaPanel({ topic }: { topic: Topic }) {
+  const media = useMemo(() => {
+    const direct = resources.filter((resource) => resource.topicIds.includes(topic.id));
+    const related = resources.filter(
+      (resource) => !direct.includes(resource) && resource.certificationId === topic.certificationId,
+    );
+    return [...direct, ...related.slice(0, Math.max(0, 4 - direct.length))];
+  }, [topic.id, topic.certificationId]);
+
+  const videos = media.filter((resource) => resource.kind === "video");
+  const reading = media.filter((resource) => resource.kind !== "video");
+  if (media.length === 0) return null;
+
+  return (
+    <Panel title="Watch and read" description="Verified official and reputable sources for this topic. Links open in a new tab.">
+      <div className="space-y-6">
+        {videos.length > 0 ? <MediaGroup title="Video training" items={videos} video /> : null}
+        {reading.length > 0 ? <MediaGroup title="Reading and courses" items={reading} /> : null}
+      </div>
+    </Panel>
+  );
+}
+
+function MediaGroup({ title, items, video = false }: { title: string; items: Resource[]; video?: boolean }) {
+  const Icon = video ? PlayCircle : FileText;
+  return (
+    <section>
+      <h2 className="mb-3 text-base font-semibold text-foreground">{title}</h2>
+      <ul className="grid gap-3 sm:grid-cols-2">
+        {items.map((resource) => (
+          <li key={resource.id} className="rounded-lg border border-border bg-secondary/20 p-4">
+            <div className="flex items-start gap-3">
+              <Icon aria-hidden className="mt-0.5 size-4 shrink-0 text-primary" />
+              <div className="min-w-0 space-y-2">
+                <p className="text-sm font-medium text-foreground">{resource.title}</p>
+                <p className="text-xs text-muted-foreground">{resource.provider}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <Badge variant="outline">{kindLabels[resource.kind]}</Badge>
+                  <Badge variant="outline">{resource.access === "free" ? "Free" : "Paid"}</Badge>
+                </div>
+                <Button asChild variant="outline" size="sm">
+                  <a href={resource.url} target="_blank" rel="noreferrer">
+                    {video ? "Watch" : "Open"}
+                    <ExternalLink aria-hidden />
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }
 
 function ContentSection({ title, text }: { title: string; text: string }) { return <section><h2 className="mb-2 text-base font-semibold text-foreground">{title}</h2><p>{text}</p></section>; }
