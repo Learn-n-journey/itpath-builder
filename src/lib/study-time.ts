@@ -155,7 +155,7 @@ export function topicStudyTime(topicId: string): StudyTimeEstimate {
     {
       label: "Read",
       minutes: readMinutes,
-      detail: `About ${readingWords.toLocaleString()} words at a careful technical reading pace.`,
+      detail: `About ${readingWords.toLocaleString()} words of topic reading.`,
     },
     {
       label: "Read again, take notes",
