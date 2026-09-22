@@ -39,6 +39,28 @@ const INSERT_CHUNK = 500;
 const EXCEL_ROW_PAGE = 1_000;
 const MAX_GRAPH_ATTEMPTS = 5;
 const RETRYABLE_GRAPH_STATUSES = new Set([429, 503, 504]);
+/** How many different workbooks are read at the same time. */
+const WORKBOOK_CONCURRENCY = 4;
+
+/** Runs the same work over many items, a few at a time, keeping input order. */
+async function mapPool<T, R>(
+  items: T[],
+  limit: number,
+  work: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let next = 0;
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const index = next;
+      next += 1;
+      results[index] = await work(items[index] as T, index);
+    }
+  });
+  await Promise.all(runners);
+  return results;
+}
+
 
 /** The built-in course folders, and the four sub-folders each of them holds. */
 export const COURSE_FOLDERS: Array<{ domain: OwnerDomain; root: string }> = [
