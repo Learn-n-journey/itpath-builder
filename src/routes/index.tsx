@@ -101,7 +101,7 @@ function CourseChooser() {
         <header className="mx-auto mb-9 max-w-2xl text-center sm:mb-12">
           <div className="mb-5 inline-flex items-center gap-2 text-xs font-semibold uppercase text-path-steel">
             <ShieldCheck className="size-4 text-primary" aria-hidden />
-            Practical learning, built around evidence
+            Your journey. Your legacy.
           </div>
           <h1 className="font-display text-3xl font-semibold sm:text-4xl">Choose your path</h1>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">

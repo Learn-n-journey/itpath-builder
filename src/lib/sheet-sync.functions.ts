@@ -84,12 +84,26 @@ export const syncNow = createServerFn({ method: "POST" })
       .single();
     if (error) return { ok: false, error: error.message };
 
-    // Arms the server-side runner. It checks every minute while something is
-    // waiting and switches itself off once the queue is empty, so the run
-    // finishes even with the app closed.
-    await supabaseAdmin.rpc("ensure_sync_worker");
-
     return { ok: true, id: row.id };
+  });
+
+/**
+ * Works through one slice of the waiting sync and returns.
+ *
+ * The app calls this in a loop while it is open, so a run makes steady
+ * progress without the minute-by-minute background worker.
+ */
+export const syncSlice = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ ok: boolean; ran: boolean; error?: string }> => {
+    if (!isOwner(context)) return { ok: false, ran: false, error: "Not allowed." };
+    const { drainSyncQueue } = await import("@/lib/sheet-sync.server");
+    try {
+      const drained = await drainSyncQueue();
+      return { ok: true, ran: drained.ran };
+    } catch (error) {
+      return { ok: false, ran: false, error: String(error instanceof Error ? error.message : error) };
+    }
   });
 
 /** Refreshes one topic immediately from its lesson, try-it, quiz and lab workbooks. */

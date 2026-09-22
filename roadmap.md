@@ -151,3 +151,5 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Sync safeguards: a run blocked by the lock is requeued instead of reported done; the minute worker stays armed while requests are still queued; a crashed run releases the lock.
 
 - [ ] Switch spreadsheet syncing back to the in-app (offline/manual) method instead of the server queue — awaiting owner confirmation of scope.
+- [x] Spreadsheet sync switched back to in-app: runs while the app is open, background minute worker off.
+- [x] Chooser slogan -> "Your journey. Your legacy."

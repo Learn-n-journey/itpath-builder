@@ -103,15 +103,15 @@ function SpreadsheetSyncPanel() {
 
   const describe = useCallback((run: SyncRunStatus): string => {
     const summary = run.result;
-    if (run.status === "queued") return "Waiting to start — it runs on the server, so you can close the app.";
+    if (run.status === "queued") return "Starting — keep this page open until it finishes.";
     if (run.status === "running") {
       const p = run.progress;
       return p
-        ? `Running on the server — ${p.stage}${p.file ? ` · ${p.file}` : ""} · ${p.filesDone} workbook(s) read, ` +
+        ? `Running — ${p.stage}${p.file ? ` · ${p.file}` : ""} · ${p.filesDone} workbook(s) read, ` +
             `${p.approved} question(s) in, ${p.lessonsApproved} lesson(s) published` +
             (p.unchangedFiles ? `, ${p.unchangedFiles} skipped` : "") +
-            ". You can close the app; it keeps going."
-        : "Running on the server now. You can close the app; it keeps going.";
+            ". Keep the app open until it finishes."
+        : "Running now. Keep the app open until it finishes.";
     }
     if (run.status === "failed") return `Failed: ${run.error ?? "the sync did not finish."}`;
     if (!summary) return "Finished.";
@@ -193,8 +193,8 @@ function SpreadsheetSyncPanel() {
         setLastRun(`Failed: ${result.error ?? "The sync could not be started."}`);
         return;
       }
-      toast.success(`${label} sync started — it runs on the server, so you can close the app.`);
-      setLastRun("Waiting to start — it runs on the server, so you can close the app.");
+      toast.success(`${label} sync started — keep the app open until it finishes.`);
+      setLastRun("Starting — keep this page open until it finishes.");
       await refresh();
     } catch (error) {
       const message = error instanceof Error ? error.message : "The sync could not be started.";
@@ -235,7 +235,7 @@ function SpreadsheetSyncPanel() {
         </Button>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        A sync runs on the server, so it finishes even if you close the app or your screen turns off. It only opens
+        A sync runs while the app is open, so leave this page up until it finishes. It only opens
         workbooks that changed since last time, so it is much quicker; use “Re-read everything” to pull every
         workbook again. It may take a minute to start. If one seems stuck, use “Clear stuck sync”, then start it again.
       </p>
