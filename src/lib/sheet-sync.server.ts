@@ -507,6 +507,13 @@ export async function runSheetSync(
         }
       }
 
+      // Try-it and labs are stored as one row per topic, so they are read as a
+      // whole. If there is no time left for them, they wait for the next slice.
+      if (pendingWork.length && outOfTime()) {
+        partial = true;
+        break;
+      }
+
       const workTabs = await mapPool(pendingWork, WORKBOOK_CONCURRENCY, async ({ sub, file }) => {
         const tabs = await readTabs(file.id);
         filesDone += 1;
