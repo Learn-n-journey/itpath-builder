@@ -116,7 +116,8 @@ export const syncStatus = createServerFn({ method: "GET" })
         createdAt: row.created_at,
         startedAt: row.started_at,
         finishedAt: row.finished_at,
-        result: ((row.result as { progress?: unknown } | null)?.progress
+        result: ((row.result as { progress?: unknown; tally?: unknown } | null)?.progress ||
+        (row.result as { tally?: unknown } | null)?.tally
           ? null
           : ((row.result as unknown as SyncRunSummary | null) ?? null)),
         progress:
