@@ -443,16 +443,21 @@ export async function runSheetSync(
       const work = new Map<string, { topic: NumberedTopic; work: OwnerTopicWork; files: string[] }>();
 
       const workFolders: Array<{ sub: string; files: SheetFile[] }> = [];
-      for (const sub of ["try it", "labs"] as const) {
-        try {
-          workFolders.push({ sub, files: await listWorkbooks(root, sub) });
-        } catch (error) {
-          report.push({
-            domain,
-            folder: `${root}/${sub}`,
-            skipped: String(error instanceof Error ? error.message : error),
-          });
+      const workListings = await Promise.all(
+        (["try it", "labs"] as const).map(async (sub) => {
+          try {
+            return { sub, files: await listWorkbooks(root, sub) };
+          } catch (error) {
+            return { sub, error: String(error instanceof Error ? error.message : error) };
+          }
+        }),
+      );
+      for (const listing of workListings) {
+        if ("error" in listing) {
+          report.push({ domain, folder: `${root}/${listing.sub}`, skipped: listing.error });
+          continue;
         }
+        workFolders.push(listing);
       }
       const allWorkFiles = workFolders.flatMap((entry) => entry.files);
       // Try-it and labs merge into one row per topic, so they are re-read
@@ -467,6 +472,7 @@ export async function runSheetSync(
         });
       }
 
+      const pendingWork: Array<{ sub: string; file: SheetFile; topic: NumberedTopic }> = [];
       for (const { sub, files } of workChanged ? workFolders : []) {
         for (const file of files) {
           const number = fileNumber(file.name);
@@ -475,11 +481,21 @@ export async function runSheetSync(
             report.push({ domain, folder: `${root}/${sub}`, file: file.name, skipped: "filename number has no matching topic" });
             continue;
           }
+          pendingWork.push({ sub, file, topic });
+        }
+      }
 
-          filesDone += 1;
-          await emit(`${sub}`, domain, file.name);
-          const tabs = await readTabs(file.id);
-          const parsed = ownerWorkFromTabs(topic, tabs);
+      const workTabs = await mapPool(pendingWork, WORKBOOK_CONCURRENCY, async ({ sub, file }) => {
+        const tabs = await readTabs(file.id);
+        filesDone += 1;
+        await emit(sub, domain, file.name);
+        return tabs;
+      });
+
+      {
+        for (const [index, { sub, file, topic }] of pendingWork.entries()) {
+          const parsed = ownerWorkFromTabs(topic, workTabs[index] ?? []);
+
           const existing = work.get(topic.topicId);
           const merged: OwnerTopicWork = {
             recall: parsed.recall.length ? parsed.recall : (existing?.work.recall ?? []),
