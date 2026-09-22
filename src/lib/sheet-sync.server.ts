@@ -358,6 +358,7 @@ export async function runSheetSync(
         });
         if (error) throw new Error(`storing lesson ${file.name}: ${error.message}`);
 
+        await remember(file, domain, `${root}/lessons`);
         lessonsApproved += 1;
         topicsSynced.add(topic.topicId);
         report.push({ domain, folder: `${root}/lessons`, file: file.name, topic: topic.title, lesson: "published", notes });
