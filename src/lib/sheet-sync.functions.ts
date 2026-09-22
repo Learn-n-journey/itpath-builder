@@ -19,6 +19,7 @@ export interface SyncRunSummary {
   lessonsApproved: number;
   lessonsRejected: number;
   workTopics: number;
+  unchangedFiles?: number;
   lessonIssues: Array<{ file: string; topic: string; reasons: string[] }>;
 }
 
@@ -44,8 +45,9 @@ type SyncScope = "it-cybersecurity" | "auto-repair" | "all" | (string & {});
 /** Puts a sync in the queue. Returns as soon as it is written. */
 export const syncNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { scope?: SyncScope } | undefined) => ({
+  .inputValidator((input: { scope?: SyncScope; force?: boolean } | undefined) => ({
     scope: (input?.scope ?? "all") as SyncScope,
+    force: input?.force === true,
   }))
   .handler(async ({ context, data }): Promise<{ ok: boolean; id?: string; error?: string }> => {
     if (!isOwner(context)) return { ok: false, error: "Not allowed." };
@@ -63,7 +65,7 @@ export const syncNow = createServerFn({ method: "POST" })
 
     const { data: row, error } = await supabaseAdmin
       .from("sync_queue")
-      .insert({ scope: data.scope, requested_by: context.userId })
+      .insert({ scope: data.scope, force: data.force, requested_by: context.userId })
       .select("id")
       .single();
     if (error) return { ok: false, error: error.message };
