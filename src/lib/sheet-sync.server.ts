@@ -848,21 +848,57 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
     .select("id");
   if (!claimed.data?.length) return { ran: false };
 
+  // Totals carried over from earlier slices of the same request.
+  const carried = ((job.result as { tally?: Record<string, number> } | null)?.tally ?? {}) as Record<
+    string,
+    number
+  >;
+  const carry = (key: string, value: number | undefined): number => (carried[key] ?? 0) + (value ?? 0);
+
   try {
     let lastProgressWrite = 0;
     const result = await runSheetSync({
       ...(job.scope === "all" ? {} : { domain: job.scope }),
       force: Boolean(job.force),
+      budgetMs: SLICE_MS,
       onProgress: async (progress) => {
         const now = Date.now();
         if (now - lastProgressWrite < 3_000) return;
         lastProgressWrite = now;
         await supabaseAdmin
           .from("sync_queue")
-          .update({ result: { progress } as unknown as Json })
+          .update({ result: { progress, tally: carried } as unknown as Json })
           .eq("id", job.id);
       },
     });
+
+    const tally = {
+      topics: carry("topics", result.topics),
+      approved: carry("approved", result.approved),
+      rejected: carry("rejected", result.rejected),
+      lessonsApproved: carry("lessonsApproved", result.lessonsApproved),
+      lessonsRejected: carry("lessonsRejected", result.lessonsRejected),
+      workTopics: carry("workTopics", result.workTopics),
+      unchangedFiles: carry("unchangedFiles", result.unchangedFiles),
+    };
+
+    // Out of time but not out of work: put the request back in the queue so the
+    // next server tick carries on where this one stopped. Workbooks already
+    // stored are remembered, so nothing is read twice.
+    if (result.ok && result.partial) {
+      await releaseSyncLock();
+      await supabaseAdmin
+        .from("sync_queue")
+        .update({
+          status: "queued",
+          force: false,
+          result: { tally } as unknown as Json,
+        })
+        .eq("id", job.id);
+      await supabaseAdmin.rpc("ensure_sync_worker");
+      return { ran: true, id: job.id, result };
+    }
+
     await supabaseAdmin
       .from("sync_queue")
       .update({
@@ -870,13 +906,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
         error: result.ok ? null : (result.error ?? "The sync failed."),
         result: {
           skipped: result.skipped ?? null,
-          topics: result.topics ?? 0,
-          approved: result.approved ?? 0,
-          rejected: result.rejected ?? 0,
-          lessonsApproved: result.lessonsApproved ?? 0,
-          lessonsRejected: result.lessonsRejected ?? 0,
-          workTopics: result.workTopics ?? 0,
-          unchangedFiles: result.unchangedFiles ?? 0,
+          ...tally,
           lessonIssues: result.lessonIssues ?? [],
         } as unknown as Json,
         finished_at: new Date().toISOString(),
