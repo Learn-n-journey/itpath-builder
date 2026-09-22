@@ -54,27 +54,24 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
   }, [saved]);
 
   useEffect(() => {
-    setHashPresent(Boolean(window.location.hash));
-    const hash = window.location.hash.replace("#", "");
-    if (!hash) return;
-    const index = lesson.sections.findIndex((section) => lessonPartAnchor(section.heading) === hash || lessonConceptAnchor(deepSectionId(lesson.topicId, section)) === hash);
-    if (index === -1) return;
-    const sectionId = sectionIds[index];
-    if (!sectionId) return;
-    setOpenParts((current) => (current.includes(sectionId) ? current : [...current, sectionId]));
-    const frame = window.requestAnimationFrame(() => {
-      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    return () => window.cancelAnimationFrame(frame);
-    const onHashChange = () => {
-      const next = window.location.hash.replace("#", "");
-      const found = lesson.sections.find((section) => lessonPartAnchor(section.heading) === next || lessonConceptAnchor(deepSectionId(lesson.topicId, section)) === next);
-      if (!found) return;
-      const id = deepSectionId(lesson.topicId, found);
-      setOpenParts((current) => current.includes(id) ? current : [...current, id]);
+    let frame = 0;
+    const applyHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      setHashPresent(Boolean(hash));
+      if (!hash) return;
+      const index = lesson.sections.findIndex((section) => lessonPartAnchor(section.heading) === hash || lessonConceptAnchor(deepSectionId(lesson.topicId, section)) === hash);
+      if (index === -1) return;
+      const sectionId = sectionIds[index];
+      if (!sectionId) return;
+      setOpenParts((current) => (current.includes(sectionId) ? current : [...current, sectionId]));
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
     };
-    window.addEventListener("hashchange", onHashChange);
-    return () => { window.cancelAnimationFrame(frame); window.removeEventListener("hashchange", onHashChange); };
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => { window.cancelAnimationFrame(frame); window.removeEventListener("hashchange", applyHash); };
   }, [lesson, sectionIds]);
 
   useEffect(() => {
