@@ -309,6 +309,10 @@ export async function runSheetSync(
   let workTopics = 0;
   let unchangedFiles = 0;
   let filesDone = 0;
+  let partial = false;
+
+  const deadline = options.budgetMs ? Date.now() + options.budgetMs : null;
+  const outOfTime = (): boolean => deadline !== null && Date.now() >= deadline;
 
   // Reported while the run is still going, so the owner can watch it move.
   const emit = async (stage: string, course: string, file?: string): Promise<void> => {
