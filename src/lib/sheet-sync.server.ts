@@ -568,9 +568,9 @@ export async function runSheetSync(
         topicsSynced.add(topicId);
       }
 
-      for (const file of workChanged ? allWorkFiles : []) {
-        await remember(file, domain, `${root}/try it + labs`);
-      }
+      await Promise.all(
+        (workChanged ? allWorkFiles : []).map((file) => remember(file, domain, `${root}/try it + labs`)),
+      );
 
       // ---- quiz ----------------------------------------------------------
       let quizFiles: SheetFile[] = [];
@@ -584,6 +584,7 @@ export async function runSheetSync(
         });
       }
 
+      const pendingQuiz: Array<{ file: SheetFile; topic: NumberedTopic }> = [];
       for (const file of quizFiles) {
         const number = fileNumber(file.name);
         const topic = pickTopic(number);
@@ -591,18 +592,26 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/quiz`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
-
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
         }
+        pendingQuiz.push({ file, topic });
+      }
 
+      const quizTabs = await mapPool(pendingQuiz, WORKBOOK_CONCURRENCY, async ({ file }) => {
+        const tabs = await readTabs(file.id);
+        filesDone += 1;
+        await emit("quiz", domain, file.name);
+        return tabs;
+      });
+
+      for (const [index, { file, topic }] of pendingQuiz.entries()) {
         const approved: Array<{ rowNumber: number; question: Json }> = [];
         const rejected: Array<{ rowNumber: number; question: Json; reasons: string[] }> = [];
         const failed: Array<{ rowNumber: number; error: string }> = [];
-        filesDone += 1;
-        await emit("quiz", domain, file.name);
-        const tabs = await readTabs(file.id);
+        const tabs = quizTabs[index] ?? [];
+
 
         for (const tab of tabs) {
           for (const { rowNumber, cells } of dataRows(tab.rows)) {
