@@ -92,6 +92,40 @@ export const syncNow = createServerFn({ method: "POST" })
     return { ok: true, id: row.id };
   });
 
+/** Refreshes one topic immediately from its lesson, try-it, quiz and lab workbooks. */
+export const refreshTopic = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { domain: string; topicId: string }) => ({
+    domain: input.domain.trim(),
+    topicId: input.topicId.trim(),
+  }))
+  .handler(async ({ context, data }): Promise<{ ok: boolean; summary?: SyncRunSummary; error?: string }> => {
+    if (!isOwner(context)) return { ok: false, error: "Not allowed." };
+    if (!data.domain || !data.topicId) return { ok: false, error: "The topic could not be identified." };
+
+    const { runSheetSync } = await import("@/lib/sheet-sync.server");
+    const result = await runSheetSync({
+      domain: data.domain,
+      topicId: data.topicId,
+      force: true,
+    });
+    if (!result.ok) return { ok: false, error: result.error ?? "The topic could not be refreshed." };
+    return {
+      ok: true,
+      summary: {
+        skipped: result.skipped ?? null,
+        topics: result.topics ?? 0,
+        approved: result.approved ?? 0,
+        rejected: result.rejected ?? 0,
+        lessonsApproved: result.lessonsApproved ?? 0,
+        lessonsRejected: result.lessonsRejected ?? 0,
+        workTopics: result.workTopics ?? 0,
+        unchangedFiles: result.unchangedFiles ?? 0,
+        lessonIssues: result.lessonIssues ?? [],
+      },
+    };
+  });
+
 /** The latest few runs, newest first, for the Settings panel. */
 export const syncStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

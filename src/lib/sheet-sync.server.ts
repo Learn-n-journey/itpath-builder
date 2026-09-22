@@ -40,7 +40,7 @@ const LOCK_MINUTES = 15;
  * How long one server slice may run before it saves its place and hands the
  * rest to the next tick. Keeps a run well inside the server's request limit.
  */
-const SLICE_MS = 100_000;
+const SLICE_MS = 45_000;
 const INSERT_CHUNK = 500;
 const MAX_GRAPH_ATTEMPTS = 5;
 const RETRYABLE_GRAPH_STATUSES = new Set([429, 503, 504]);
@@ -270,6 +270,8 @@ function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string
 export async function runSheetSync(
   options: {
     domain?: OwnerDomain;
+    /** Limit a manual refresh to one topic across all four content folders. */
+    topicId?: string;
     force?: boolean;
     onProgress?: (progress: SyncProgress) => void | Promise<void>;
     /** Stop cleanly after this many milliseconds and report the rest as left over. */
@@ -383,6 +385,7 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/lessons`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
+        if (options.topicId && topic.topicId !== options.topicId) continue;
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
@@ -478,11 +481,14 @@ export async function runSheetSync(
         workFolders.push(listing);
       }
       const allWorkFiles = workFolders.flatMap((entry) => entry.files);
+      const selectedWorkFiles = options.topicId
+        ? allWorkFiles.filter((file) => pickTopic(fileNumber(file.name))?.topicId === options.topicId)
+        : allWorkFiles;
       // Try-it and labs merge into one row per topic, so they are re-read
       // together as soon as any one of their workbooks changed.
-      const workChanged = allWorkFiles.some((file) => !unchanged(file));
-      if (!workChanged && allWorkFiles.length) {
-        unchangedFiles += allWorkFiles.length;
+      const workChanged = selectedWorkFiles.some((file) => !unchanged(file));
+      if (!workChanged && selectedWorkFiles.length) {
+        unchangedFiles += selectedWorkFiles.length;
         report.push({
           domain,
           folder: `${root}/try it + labs`,
@@ -499,6 +505,7 @@ export async function runSheetSync(
             report.push({ domain, folder: `${root}/${sub}`, file: file.name, skipped: "filename number has no matching topic" });
             continue;
           }
+          if (options.topicId && topic.topicId !== options.topicId) continue;
           pendingWork.push({ sub, file, topic });
         }
       }
@@ -594,7 +601,7 @@ export async function runSheetSync(
       }
 
       await Promise.all(
-        (workChanged ? allWorkFiles : []).map((file) => remember(file, domain, `${root}/try it + labs`)),
+        (workChanged ? selectedWorkFiles : []).map((file) => remember(file, domain, `${root}/try it + labs`)),
       );
 
       // ---- quiz ----------------------------------------------------------
@@ -617,6 +624,7 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/quiz`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
+        if (options.topicId && topic.topicId !== options.topicId) continue;
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
