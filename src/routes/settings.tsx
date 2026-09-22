@@ -118,6 +118,9 @@ function SpreadsheetSyncPanel() {
       `${summary.lessonsApproved} lesson${summary.lessonsApproved === 1 ? "" : "s"} published, ` +
       `${summary.lessonsRejected} with notes · ` +
       `${summary.workTopics} try-it/lab topic${summary.workTopics === 1 ? "" : "s"}` +
+      (summary.unchangedFiles
+        ? ` · ${summary.unchangedFiles} unchanged workbook${summary.unchangedFiles === 1 ? "" : "s"} skipped`
+        : "") +
       (held ? `\nPublished with notes:\n${held}` : "")
     );
   }, []);
@@ -169,10 +172,14 @@ function SpreadsheetSyncPanel() {
     }
   }
 
-  async function handleSync(scope: "it-cybersecurity" | "auto-repair" | "all", label: string) {
-    setBusy(scope);
+  async function handleSync(
+    scope: "it-cybersecurity" | "auto-repair" | "all",
+    label: string,
+    force = false,
+  ) {
+    setBusy(force ? `${scope}-force` : scope);
     try {
-      const result = await runSyncNow({ data: { scope } });
+      const result = await runSyncNow({ data: { scope, force } });
       if (!result.ok) {
         toast.error(result.error ?? "The sync could not be started.");
         setLastRun(`Failed: ${result.error ?? "The sync could not be started."}`);
@@ -208,13 +215,21 @@ function SpreadsheetSyncPanel() {
         >
           Sync everything
         </Button>
+        <Button
+          variant="outline"
+          onClick={() => handleSync("all", "Full re-read", true)}
+          disabled={busy !== null || inFlight}
+        >
+          Re-read everything
+        </Button>
         <Button variant="outline" onClick={handleClearLock} disabled={busy === "clear"}>
           {busy === "clear" ? "Clearing…" : "Clear stuck sync"}
         </Button>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        A sync runs on the server, so it finishes even if you close the app or your screen turns off. It may take a
-        minute to start. If one seems stuck, use “Clear stuck sync”, then start it again.
+        A sync runs on the server, so it finishes even if you close the app or your screen turns off. It only opens
+        workbooks that changed since last time, so it is much quicker; use “Re-read everything” to pull every
+        workbook again. It may take a minute to start. If one seems stuck, use “Clear stuck sync”, then start it again.
       </p>
       <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
         {lastRun ??

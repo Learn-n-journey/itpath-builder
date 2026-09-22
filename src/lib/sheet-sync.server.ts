@@ -130,17 +130,22 @@ async function graph(path: string): Promise<any> {
 interface SheetFile {
   id: string;
   name: string;
+  lastModified: string;
 }
 
 /** Everything in one folder, numbered workbooks only, in numeric order. */
 async function listWorkbooks(root: string, sub: string): Promise<SheetFile[]> {
   const path = `${root}/${sub}`.split("/").map(encodeURIComponent).join("/");
-  const listing: { value?: Array<{ id?: string; name: string; file?: unknown }> } = await graph(
-    `/me/drive/root:/${path}:/children?$select=id,name,file`,
-  );
+  const listing: {
+    value?: Array<{ id?: string; name: string; file?: unknown; lastModifiedDateTime?: string }>;
+  } = await graph(`/me/drive/root:/${path}:/children?$select=id,name,file,lastModifiedDateTime`);
   return (listing.value ?? [])
     .filter((item) => item.file && item.name.endsWith(".xlsx") && item.id)
-    .flatMap((item) => (item.id ? [{ id: item.id, name: item.name }] : []))
+    .flatMap((item) =>
+      item.id
+        ? [{ id: item.id, name: item.name, lastModified: String(item.lastModifiedDateTime ?? "") }]
+        : [],
+    )
     .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
 }
 
@@ -208,6 +213,8 @@ export interface SheetSyncResult {
   lessonsApproved?: number;
   /** Topics whose try-it or labs workbook was pulled in. */
   workTopics?: number;
+  /** Workbooks OneDrive reported as unchanged, so they were not re-read. */
+  unchangedFiles?: number;
   lessonsRejected?: number;
   /** Why each lesson carried a note, so it can be fixed in the sheet. */
   lessonIssues?: Array<{ file: string; topic: string; reasons: string[] }>;
@@ -227,7 +234,9 @@ function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string
     .filter(({ cells }) => cells.some(Boolean));
 }
 
-export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Promise<SheetSyncResult> {
+export async function runSheetSync(
+  options: { domain?: OwnerDomain; force?: boolean } = {},
+): Promise<SheetSyncResult> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const now = new Date();
   const until = new Date(now.getTime() + LOCK_MINUTES * 60_000).toISOString();
@@ -255,6 +264,30 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
   let lessonsRejected = 0;
   const lessonIssues: Array<{ file: string; topic: string; reasons: string[] }> = [];
   let workTopics = 0;
+  let unchangedFiles = 0;
+
+  // Skip workbooks OneDrive says have not changed since the last good sync.
+  const seenState = new Map<string, string>();
+  if (!options.force) {
+    const { data } = await supabaseAdmin.from("sheet_file_state").select("file_id,last_modified");
+    for (const row of data ?? []) seenState.set(row.file_id, row.last_modified);
+  }
+  const unchanged = (file: SheetFile): boolean =>
+    !options.force && Boolean(file.lastModified) && seenState.get(file.id) === file.lastModified;
+  const remember = async (file: SheetFile, domain: string, folder: string): Promise<void> => {
+    if (!file.lastModified) return;
+    await supabaseAdmin.from("sheet_file_state").upsert(
+      {
+        file_id: file.id,
+        domain,
+        folder,
+        file_name: file.name,
+        last_modified: file.lastModified,
+        synced_at: new Date().toISOString(),
+      },
+      { onConflict: "file_id" },
+    );
+  };
 
   try {
     for (const { domain, root, topics: pathTopics } of await courseFolders()) {
@@ -283,6 +316,11 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
         const topic = pickTopic(number);
         if (!topic) {
           report.push({ domain, folder: `${root}/lessons`, file: file.name, skipped: "filename number has no matching topic" });
+          continue;
+        }
+
+        if (unchanged(file)) {
+          unchangedFiles += 1;
           continue;
         }
 
@@ -322,6 +360,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
         });
         if (error) throw new Error(`storing lesson ${file.name}: ${error.message}`);
 
+        await remember(file, domain, `${root}/lessons`);
         lessonsApproved += 1;
         topicsSynced.add(topic.topicId);
         report.push({ domain, folder: `${root}/lessons`, file: file.name, topic: topic.title, lesson: "published", notes });
@@ -330,19 +369,32 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
       // ---- try it and labs, merged into one row per topic ----------------
       const work = new Map<string, { topic: NumberedTopic; work: OwnerTopicWork; files: string[] }>();
 
+      const workFolders: Array<{ sub: string; files: SheetFile[] }> = [];
       for (const sub of ["try it", "labs"] as const) {
-        let files: SheetFile[] = [];
         try {
-          files = await listWorkbooks(root, sub);
+          workFolders.push({ sub, files: await listWorkbooks(root, sub) });
         } catch (error) {
           report.push({
             domain,
             folder: `${root}/${sub}`,
             skipped: String(error instanceof Error ? error.message : error),
           });
-          continue;
         }
+      }
+      const allWorkFiles = workFolders.flatMap((entry) => entry.files);
+      // Try-it and labs merge into one row per topic, so they are re-read
+      // together as soon as any one of their workbooks changed.
+      const workChanged = allWorkFiles.some((file) => !unchanged(file));
+      if (!workChanged && allWorkFiles.length) {
+        unchangedFiles += allWorkFiles.length;
+        report.push({
+          domain,
+          folder: `${root}/try it + labs`,
+          skipped: "no workbook changed since the last sync",
+        });
+      }
 
+      for (const { sub, files } of workChanged ? workFolders : []) {
         for (const file of files) {
           const number = fileNumber(file.name);
           const topic = pickTopic(number);
@@ -425,6 +477,10 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
         topicsSynced.add(topicId);
       }
 
+      for (const file of workChanged ? allWorkFiles : []) {
+        await remember(file, domain, `${root}/try it + labs`);
+      }
+
       // ---- quiz ----------------------------------------------------------
       let quizFiles: SheetFile[] = [];
       try {
@@ -442,6 +498,11 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
         const topic = pickTopic(number);
         if (!topic) {
           report.push({ domain, folder: `${root}/quiz`, file: file.name, skipped: "filename number has no matching topic" });
+          continue;
+        }
+
+        if (unchanged(file)) {
+          unchangedFiles += 1;
           continue;
         }
 
@@ -514,6 +575,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
           if (error) throw new Error(`storing ${file.name}: ${error.message}`);
         }
 
+        await remember(file, domain, `${root}/quiz`);
         approvedTotal += approved.length;
         rejectedTotal += rejected.length;
         topicsSynced.add(topic.topicId);
@@ -534,7 +596,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
       .update({
         locked_until: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected, ${lessonsApproved} lesson(s) published, ${workTopics} try-it/lab topic(s)`,
+        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected, ${lessonsApproved} lesson(s) published, ${workTopics} try-it/lab topic(s), ${unchangedFiles} unchanged workbook(s) skipped`,
       })
       .eq("job", JOB);
 
@@ -548,6 +610,7 @@ export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Prom
       lessonsRejected,
       lessonIssues,
       workTopics,
+      unchangedFiles,
       report,
     };
   } catch (error) {
@@ -624,7 +687,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
 
   const next = await supabaseAdmin
     .from("sync_queue")
-    .select("id, scope")
+    .select("id, scope, force")
     .eq("status", "queued")
     .order("created_at", { ascending: true })
     .limit(1)
@@ -641,7 +704,10 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
   if (!claimed.data?.length) return { ran: false };
 
   try {
-    const result = await runSheetSync(job.scope === "all" ? {} : { domain: job.scope });
+    const result = await runSheetSync({
+      ...(job.scope === "all" ? {} : { domain: job.scope }),
+      force: Boolean(job.force),
+    });
     await supabaseAdmin
       .from("sync_queue")
       .update({
@@ -655,6 +721,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
           lessonsApproved: result.lessonsApproved ?? 0,
           lessonsRejected: result.lessonsRejected ?? 0,
           workTopics: result.workTopics ?? 0,
+          unchangedFiles: result.unchangedFiles ?? 0,
           lessonIssues: result.lessonIssues ?? [],
         } as unknown as Json,
         finished_at: new Date().toISOString(),

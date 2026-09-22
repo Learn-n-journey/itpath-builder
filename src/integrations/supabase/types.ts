@@ -580,6 +580,33 @@ export type Database = {
         }
         Relationships: []
       }
+      sheet_file_state: {
+        Row: {
+          domain: string
+          file_id: string
+          file_name: string
+          folder: string
+          last_modified: string
+          synced_at: string
+        }
+        Insert: {
+          domain: string
+          file_id: string
+          file_name: string
+          folder: string
+          last_modified: string
+          synced_at?: string
+        }
+        Update: {
+          domain?: string
+          file_id?: string
+          file_name?: string
+          folder?: string
+          last_modified?: string
+          synced_at?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean | null
@@ -633,6 +660,7 @@ export type Database = {
           created_at: string
           error: string | null
           finished_at: string | null
+          force: boolean
           id: string
           requested_by: string | null
           result: Json | null
@@ -644,6 +672,7 @@ export type Database = {
           created_at?: string
           error?: string | null
           finished_at?: string | null
+          force?: boolean
           id?: string
           requested_by?: string | null
           result?: Json | null
@@ -655,6 +684,7 @@ export type Database = {
           created_at?: string
           error?: string | null
           finished_at?: string | null
+          force?: boolean
           id?: string
           requested_by?: string | null
           result?: Json | null
