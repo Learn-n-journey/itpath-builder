@@ -40,7 +40,9 @@ const LOCK_MINUTES = 15;
  * How long one server slice may run before it saves its place and hands the
  * rest to the next tick. Keeps a run well inside the server's request limit.
  */
-const SLICE_MS = 45_000;
+const SLICE_MS = 20_000;
+const STALE_MINUTES = 3;
+
 const INSERT_CHUNK = 500;
 const MAX_GRAPH_ATTEMPTS = 5;
 const RETRYABLE_GRAPH_STATUSES = new Set([429, 503, 504]);
@@ -816,16 +818,15 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
 
   // Never start a second run on top of one already in flight.
   // A run that died mid-flight must not block the queue forever.
-  const stale = new Date(Date.now() - LOCK_MINUTES * 60_000).toISOString();
+  // A slice that was cut off mid-flight is put straight back in the queue so the
+  // next tick carries on from the workbooks already stored, instead of failing.
+  const stale = new Date(Date.now() - STALE_MINUTES * 60_000).toISOString();
   await supabaseAdmin
     .from("sync_queue")
-    .update({
-      status: "failed",
-      error: "The run stopped before it finished. Start it again.",
-      finished_at: new Date().toISOString(),
-    })
+    .update({ status: "queued", force: false, started_at: null })
     .eq("status", "running")
     .lt("started_at", stale);
+
 
   const running = await supabaseAdmin
     .from("sync_queue")
