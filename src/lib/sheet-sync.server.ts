@@ -456,6 +456,10 @@ export async function runSheetSync(
         topicsSynced.add(topicId);
       }
 
+      for (const file of workChanged ? allWorkFiles : []) {
+        await remember(file, domain, `${root}/try it + labs`);
+      }
+
       // ---- quiz ----------------------------------------------------------
       let quizFiles: SheetFile[] = [];
       try {
