@@ -361,19 +361,32 @@ export async function runSheetSync(
       // ---- try it and labs, merged into one row per topic ----------------
       const work = new Map<string, { topic: NumberedTopic; work: OwnerTopicWork; files: string[] }>();
 
+      const workFolders: Array<{ sub: string; files: SheetFile[] }> = [];
       for (const sub of ["try it", "labs"] as const) {
-        let files: SheetFile[] = [];
         try {
-          files = await listWorkbooks(root, sub);
+          workFolders.push({ sub, files: await listWorkbooks(root, sub) });
         } catch (error) {
           report.push({
             domain,
             folder: `${root}/${sub}`,
             skipped: String(error instanceof Error ? error.message : error),
           });
-          continue;
         }
+      }
+      const allWorkFiles = workFolders.flatMap((entry) => entry.files);
+      // Try-it and labs merge into one row per topic, so they are re-read
+      // together as soon as any one of their workbooks changed.
+      const workChanged = allWorkFiles.some((file) => !unchanged(file));
+      if (!workChanged && allWorkFiles.length) {
+        unchangedFiles += allWorkFiles.length;
+        report.push({
+          domain,
+          folder: `${root}/try it + labs`,
+          skipped: "no workbook changed since the last sync",
+        });
+      }
 
+      for (const { sub, files } of workChanged ? workFolders : []) {
         for (const file of files) {
           const number = fileNumber(file.name);
           const topic = pickTopic(number);
