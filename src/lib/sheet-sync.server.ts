@@ -939,7 +939,25 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
         finished_at: new Date().toISOString(),
       })
       .eq("id", job.id);
-    await supabaseAdmin.rpc("stop_sync_worker");
+    await releaseSyncLock();
+    await stopWorkerIfQueueEmpty(supabaseAdmin);
     return { ran: true, id: job.id };
   }
+}
+
+/**
+ * Stops the minute worker only when nothing is waiting.
+ *
+ * Stopping it while another request is still queued used to leave that request
+ * sitting untouched until the next nightly run.
+ */
+async function stopWorkerIfQueueEmpty(
+  supabaseAdmin: Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"],
+): Promise<void> {
+  const waiting = await supabaseAdmin.from("sync_queue").select("id").eq("status", "queued").limit(1);
+  if (waiting.data?.length) {
+    await supabaseAdmin.rpc("ensure_sync_worker");
+    return;
+  }
+  await supabaseAdmin.rpc("stop_sync_worker");
 }
