@@ -1,28 +1,20 @@
-# Replace spreadsheet sync with durable workbook jobs
+# Topic lesson learning-flow redesign
 
 ## What will change
-- Turn each sync into a short discovery pass followed by one durable job per changed workbook.
-- Process several independent workbook jobs at once; each job saves immediately and cannot erase another workbook’s progress.
-- Retry failed workbook jobs individually with increasing cooldowns instead of restarting the course.
-- Keep unchanged-workbook detection, safe quiz replacement, live progress, completion summaries, manual sync, and nightly sync.
-- Make try-it and lab workbooks update their own topic safely instead of forcing every try-it/lab workbook to be reopened together.
+- Reorganize the existing topic page into five clear stages: **Read It**, **See It**, **Try It**, **Prove It**, and **Keep Handy**.
+- Keep the current progressive lesson accordion, with only the first lesson part open initially and deep links opening the correct part.
+- Move existing material rather than duplicate it: introductions and core teaching into Read It; examples, walkthroughs, misconceptions, and exam traps into See It; self-check, practice, recall, and optional hands-on work into Try It; teach back, scenario, labs, and the section quiz into Prove It; terms, reference, sources, media, notes, and supporting material into Keep Handy.
+- Restore the existing saved recall activity inside Try It, clearly label all Try It work as practice, and preserve every current save, score, AI-feedback, and progress update.
+- Update study-stage links to the new anchors and remove the old reading-pace wording.
 
-## Reliability model
-- A short request lists folders and queues only changed files.
-- Each later request claims a small number of workbook jobs, reads them concurrently, saves successful results, and requeues temporary Excel failures.
-- Expired claims return to the queue automatically, so a stopped request loses at most one workbook attempt—not the whole run.
-- The parent sync finishes only when every workbook job is done, skipped, or has exhausted its retries.
-
-## Technical details
-- Add a `sync_work_items` table with workbook identity, course, folder, topic, status, attempts, claim time, result, and error.
-- Replace the current full-course `runSheetSync` drain with discovery and per-workbook processing functions.
-- Use short worker ticks and atomic claims; retain the existing authenticated owner controls and secured public worker endpoint.
-- Merge try-it and lab data with the existing stored topic record so either workbook can be updated independently.
-- Update live totals from work-item counts and aggregate final results into the existing sync history.
+## Safety boundaries
+- Do not change prerequisite locking, mastery requirements, quiz rules, scoring, progress calculations, workbook parsing/imports, owner-content precedence, routes, or database behavior.
+- Reuse the existing lesson, depth, examples, mastery, lab, notes, sources, and media components; adjust them only enough to support the new placement.
+- Preserve owner-authored lessons and newly imported topics automatically through the same data selectors.
 
 ## Verification
-- Confirm a sync queues only changed workbooks.
-- Confirm multiple workbooks finish within one tick and a temporary Excel failure retries only that workbook.
-- Confirm a dead worker claim is reclaimed without failing the parent sync.
-- Confirm broken quiz files keep the previous working questions.
-- Confirm the preview build is clean and the latest sync reaches completion.
+- Check the no-loss inventory against the rendered page, including conditional activities.
+- Test lesson-part deep links and every study-stage jump target.
+- Confirm locked topics still show the same gate before lesson content.
+- Confirm owner-fed content paths and workbook-backed recall/practice/scenario/lab selectors remain intact.
+- Inspect desktop and phone layouts, then run the relevant lesson/mastery tests and confirm the preview build is clean.

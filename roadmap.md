@@ -142,3 +142,6 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Spreadsheet sync downloads each changed workbook once and parses every sheet locally, bypassing Excel's slow workbook-opening service
 
 - [x] Owner-only refresh button on every topic that syncs only that topic from its spreadsheets and confirms completion
+
+## Current
+- [ ] Reorganize topic lessons into Read It → See It → Try It → Prove It → Keep Handy without changing learning logic or content.
