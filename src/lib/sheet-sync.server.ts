@@ -721,6 +721,7 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
           lessonsApproved: result.lessonsApproved ?? 0,
           lessonsRejected: result.lessonsRejected ?? 0,
           workTopics: result.workTopics ?? 0,
+          unchangedFiles: result.unchangedFiles ?? 0,
           lessonIssues: result.lessonIssues ?? [],
         } as unknown as Json,
         finished_at: new Date().toISOString(),
