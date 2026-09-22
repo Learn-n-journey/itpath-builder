@@ -8,7 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { syncStatus, type SyncRunStatus } from "@/lib/sheet-sync.functions";
+import { syncStatus, syncSlice, type SyncRunStatus } from "@/lib/sheet-sync.functions";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { useAuth } from "@/state/auth-state";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
@@ -23,9 +23,11 @@ export function SyncLiveBadge() {
   const { email } = useAuth();
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
   const readStatus = useServerFn(syncStatus);
+  const runSlice = useServerFn(syncSlice);
   const [run, setRun] = useState<SyncRunStatus | null>(null);
   const [hidden, setHidden] = useState(false);
   const settledRef = useRef<string | null>(null);
+  const slicing = useRef(false);
 
   const refresh = useCallback(async () => {
     try {
