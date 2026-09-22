@@ -35,6 +35,11 @@ import {
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/microsoft_excel";
 const JOB = "sheet-sync";
 const LOCK_MINUTES = 15;
+/**
+ * How long one server slice may run before it saves its place and hands the
+ * rest to the next tick. Keeps a run well inside the server's request limit.
+ */
+const SLICE_MS = 100_000;
 const INSERT_CHUNK = 500;
 const EXCEL_ROW_PAGE = 1_000;
 const MAX_GRAPH_ATTEMPTS = 5;
