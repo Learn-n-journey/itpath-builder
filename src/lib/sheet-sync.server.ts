@@ -232,7 +232,9 @@ function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string
     .filter(({ cells }) => cells.some(Boolean));
 }
 
-export async function runSheetSync(options: { domain?: OwnerDomain } = {}): Promise<SheetSyncResult> {
+export async function runSheetSync(
+  options: { domain?: OwnerDomain; force?: boolean } = {},
+): Promise<SheetSyncResult> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const now = new Date();
   const until = new Date(now.getTime() + LOCK_MINUTES * 60_000).toISOString();
