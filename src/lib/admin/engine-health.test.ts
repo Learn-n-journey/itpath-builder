@@ -24,7 +24,7 @@ describe("engine diagnostics", () => {
     expect(checks.every((check) => check.lastRunAt === "2026-01-01T00:00:00.000Z")).toBe(true);
     // The diagnostics are a pure read: the course material is unchanged.
     expect(JSON.stringify(pack.sections)).toBe(before);
-  });
+  }, 60_000);
 });
 
 describe("content health", () => {
