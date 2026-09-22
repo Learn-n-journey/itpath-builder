@@ -900,7 +900,6 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
           result: { tally } as unknown as Json,
         })
         .eq("id", job.id);
-      await supabaseAdmin.rpc("ensure_sync_worker");
       return { ran: true, id: job.id, result };
     }
 
@@ -911,7 +910,6 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
         .from("sync_queue")
         .update({ status: "queued", started_at: null, result: { tally, skipped: result.skipped } as unknown as Json })
         .eq("id", job.id);
-      await supabaseAdmin.rpc("ensure_sync_worker");
       return { ran: true, id: job.id, result };
     }
 
@@ -954,10 +952,5 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
 async function stopWorkerIfQueueEmpty(
   supabaseAdmin: (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"],
 ): Promise<void> {
-  const waiting = await supabaseAdmin.from("sync_queue").select("id").eq("status", "queued").limit(1);
-  if (waiting.data?.length) {
-    await supabaseAdmin.rpc("ensure_sync_worker");
-    return;
-  }
   await supabaseAdmin.rpc("stop_sync_worker");
 }
