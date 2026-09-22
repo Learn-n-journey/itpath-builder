@@ -68,10 +68,10 @@ export const syncNow = createServerFn({ method: "POST" })
       .single();
     if (error) return { ok: false, error: error.message };
 
-    // Give it a head start instead of waiting for the next minute tick. If the
-    // caller disappears mid-request the scheduled runner picks it up anyway.
-    const { drainSyncQueue } = await import("@/lib/sheet-sync.server");
-    void drainSyncQueue().catch(() => undefined);
+    // Arms the server-side runner. It checks every minute while something is
+    // waiting and switches itself off once the queue is empty, so the run
+    // finishes even with the app closed.
+    await supabaseAdmin.rpc("ensure_sync_worker");
 
     return { ok: true, id: row.id };
   });
