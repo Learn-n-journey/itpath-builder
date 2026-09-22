@@ -135,3 +135,4 @@ Done when: typecheck + build clean, features verified in browser.
 - Lesson workbooks also feed Recall, Teach back, Real world scenario, Worked examples and Practice tabs; each replaces the built-in version for that topic. Done.
 
 - Recall workbooks: "itpath recall" and "autopath recall" folders, one tabbed workbook per topic (Recall, Teach back, Application, Troubleshooting), same numbering; owner rows replace the built-in/AI versions for that topic. Done.
+- Lesson page: merged "Common Problems" + "How It Fails" into one "What goes wrong" section; study stage names renamed (Read, Read again take notes, Test yourself, Practice, Explain it back). Done.

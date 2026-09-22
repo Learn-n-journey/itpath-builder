@@ -181,7 +181,7 @@ export const DIAGNOSIS_LABEL: Record<Diagnosis, string> = {
 };
 
 export const METHOD_LABEL: Record<TeachingMethod, string> = {
-  read: "Read the lesson",
+  read: "Read",
   worked_example: "Study a worked example",
   guided_practice: "Guided practice",
   retrieval_drill: "Retrieval drill",
