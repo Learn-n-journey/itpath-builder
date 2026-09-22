@@ -535,6 +535,18 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   // Never start a second run on top of one already in flight.
+  // A run that died mid-flight must not block the queue forever.
+  const stale = new Date(Date.now() - LOCK_MINUTES * 60_000).toISOString();
+  await supabaseAdmin
+    .from("sync_queue")
+    .update({
+      status: "failed",
+      error: "The run stopped before it finished. Start it again.",
+      finished_at: new Date().toISOString(),
+    })
+    .eq("status", "running")
+    .lt("started_at", stale);
+
   const running = await supabaseAdmin
     .from("sync_queue")
     .select("id")
