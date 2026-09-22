@@ -40,7 +40,7 @@ const LOCK_MINUTES = 15;
  * How long one server slice may run before it saves its place and hands the
  * rest to the next tick. Keeps a run well inside the server's request limit.
  */
-const SLICE_MS = 100_000;
+const SLICE_MS = 45_000;
 const INSERT_CHUNK = 500;
 const MAX_GRAPH_ATTEMPTS = 5;
 const RETRYABLE_GRAPH_STATUSES = new Set([429, 503, 504]);

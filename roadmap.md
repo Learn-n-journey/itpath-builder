@@ -139,3 +139,4 @@ Done when: typecheck + build clean, features verified in browser.
 
 - [x] Spreadsheet sync now runs on the server (queue + self-arming minute worker) so it finishes with the app closed
 - [x] Excel sync retries temporary 429/503/504 failures and reads large worksheet ranges in bounded pages
+- [x] Spreadsheet sync downloads each changed workbook once and parses every sheet locally, bypassing Excel's slow workbook-opening service
