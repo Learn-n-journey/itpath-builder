@@ -550,6 +550,7 @@ export async function runSheetSync(
           if (error) throw new Error(`storing ${file.name}: ${error.message}`);
         }
 
+        await remember(file, domain, `${root}/quiz`);
         approvedTotal += approved.length;
         rejectedTotal += rejected.length;
         topicsSynced.add(topic.topicId);
