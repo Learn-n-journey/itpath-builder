@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { activeCoursePack } from "@/content/course-pack";
+import { coursePack } from "@/content/course-pack";
 import { engineHealthChecks, findCycles } from "./engine-health";
 import { contentHealth, topicHealthChecks } from "./content-health";
 
@@ -16,7 +16,7 @@ describe("engine diagnostics", () => {
   });
 
   it("runs against the live course without touching learner data", () => {
-    const pack = activeCoursePack();
+    const pack = coursePack;
     const before = JSON.stringify(pack.sections);
     const checks = engineHealthChecks(pack, "2026-01-01T00:00:00.000Z");
     expect(checks.length).toBeGreaterThan(0);
@@ -29,12 +29,12 @@ describe("engine diagnostics", () => {
 
 describe("content health", () => {
   it("fails loudly for a topic that does not exist", () => {
-    const checks = topicHealthChecks(activeCoursePack(), "no-such-topic");
+    const checks = topicHealthChecks(coursePack, "no-such-topic");
     expect(checks[0]?.state).toBe("failed");
   });
 
   it("gives every real topic a report with an action for each problem", () => {
-    const pack = activeCoursePack();
+    const pack = coursePack;
     const report = contentHealth(pack);
     expect(report).toHaveLength(pack.sections.length);
     for (const topic of report) {
@@ -47,7 +47,7 @@ describe("content health", () => {
   });
 
   it("flags a topic with no quiz questions as unable to be completed", () => {
-    const pack = activeCoursePack();
+    const pack = coursePack;
     const thin = { ...pack, sectionQuestionPool: () => [] } as typeof pack;
     const checks = engineHealthChecks(thin);
     const impossible = checks.find((check) => check.id === "engine:impossible-progression");

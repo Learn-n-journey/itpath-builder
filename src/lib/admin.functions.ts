@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { ActivityEntry, ContentVersion, FlowCounter, HealthCheck } from "@/lib/admin/types";
+import type { ActivityEntry, ContentVersion, DetailBag, FlowCounter, HealthCheck } from "@/lib/admin/types";
 import { canRollback, canTransition, rollbackTarget } from "@/lib/admin/release";
 
 export function isOwnerEmail(email: string | undefined | null): boolean {
@@ -104,7 +104,7 @@ export interface RecordRunInput {
   scope?: string;
   state: string;
   checks: HealthCheck[];
-  summary?: Record<string, unknown>;
+  summary?: DetailBag;
   durationMs?: number;
 }
 
@@ -135,7 +135,7 @@ export interface HealthRunRow {
   scope: string;
   state: string;
   checks: HealthCheck[];
-  summary: Record<string, unknown>;
+  summary: DetailBag;
   finishedAt: string;
 }
 
@@ -161,7 +161,7 @@ export const lastHealthRuns = createServerFn({ method: "GET" })
         scope: row.scope,
         state: row.state,
         checks: (row.checks as unknown as HealthCheck[]) ?? [],
-        summary: (row.summary as unknown as Record<string, unknown>) ?? {},
+        summary: (row.summary as unknown as DetailBag) ?? {},
         finishedAt: row.finished_at,
       });
     }
@@ -173,7 +173,7 @@ export interface LogActivityInput {
   action: string;
   subject?: string;
   result?: "info" | "pass" | "fail" | "blocked";
-  detail?: Record<string, unknown>;
+  detail?: DetailBag;
 }
 
 export const logActivity = createServerFn({ method: "POST" })
@@ -217,7 +217,7 @@ export const listActivity = createServerFn({ method: "GET" })
         action: row.action,
         subject: row.subject,
         result: row.result as ActivityEntry["result"],
-        detail: (row.detail as unknown as Record<string, unknown>) ?? {},
+        detail: (row.detail as unknown as DetailBag) ?? {},
         createdAt: row.created_at,
       })),
     };

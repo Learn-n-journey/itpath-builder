@@ -79,13 +79,16 @@ export interface ContentVersion {
   rolledBackAt: string | null;
 }
 
+/** Short, non-sensitive facts attached to a log line or a run summary. */
+export type DetailBag = Record<string, string | number | boolean | null>;
+
 export interface ActivityEntry {
   id: string;
   area: string;
   action: string;
   subject: string | null;
   result: "info" | "pass" | "fail" | "blocked";
-  detail: Record<string, unknown>;
+  detail: DetailBag;
   createdAt: string;
 }
 
