@@ -55,11 +55,13 @@ export interface TransitionResult {
 }
 
 export function canTransition(from: ContentStatus, to: ContentStatus, context: TransitionContext = {}): TransitionResult {
-  if (!ALLOWED[from]?.includes(to)) {
-    return { ok: false, reason: `Content at "${from}" cannot move straight to "${to}".` };
-  }
+  // Validation comes first: failed validation blocks publication whatever
+  // step the owner tries next.
   if ((to === "validated" || to === "preview" || to === "approved" || to === "live") && context.validationPassed === false) {
     return { ok: false, reason: "Validation failed, so this content cannot be published." };
+  }
+  if (!ALLOWED[from]?.includes(to)) {
+    return { ok: false, reason: `Content at "${from}" cannot move straight to "${to}".` };
   }
   if ((to === "approved" || to === "live" || to === "rolled_back") && context.owner !== true) {
     return { ok: false, reason: "Only the owner can approve, publish or roll back content." };

@@ -25,7 +25,7 @@ export function findCycles(edges: Map<string, string[]>): string[][] {
       const start = stack.indexOf(node);
       if (start >= 0) {
         const cycle = [...stack.slice(start), node];
-        const key = [...cycle].sort().join(">");
+        const key = [...new Set(cycle)].sort().join(">");
         if (!seen.has(key)) {
           seen.add(key);
           cycles.push(cycle);
