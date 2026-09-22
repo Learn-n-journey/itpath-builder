@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { BetaAccessPanel } from "@/components/beta-access-panel";
@@ -38,7 +38,12 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
-import { clearSyncLock, syncNow } from "@/lib/sheet-sync.functions";
+import {
+  clearSyncLock,
+  syncNow,
+  syncStatus,
+  type SyncRunStatus,
+} from "@/lib/sheet-sync.functions";
 import { setMaintenance } from "@/lib/maintenance.functions";
 import { loadMaintenanceState } from "@/lib/maintenance-state";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
@@ -90,8 +95,61 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 function SpreadsheetSyncPanel() {
   const runSyncNow = useServerFn(syncNow);
   const runClearLock = useServerFn(clearSyncLock);
+  const readStatus = useServerFn(syncStatus);
   const [busy, setBusy] = useState<string | null>(null);
   const [lastRun, setLastRun] = useState<string | null>(null);
+  const [live, setLive] = useState<SyncRunStatus | null>(null);
+  const finishedRef = useRef<string | null>(null);
+
+  const describe = useCallback((run: SyncRunStatus): string => {
+    const summary = run.result;
+    if (run.status === "queued") return "Waiting to start — it runs on the server, so you can close the app.";
+    if (run.status === "running") return "Running on the server now. You can close the app; it keeps going.";
+    if (run.status === "failed") return `Failed: ${run.error ?? "the sync did not finish."}`;
+    if (!summary) return "Finished.";
+    if (summary.skipped) return `Skipped: ${summary.skipped}`;
+    const held = (summary.lessonIssues ?? [])
+      .map((item) => `${item.file} (${item.topic}): ${item.reasons.join("; ")}`)
+      .join("\n");
+    return (
+      `Finished ${run.finishedAt ? new Date(run.finishedAt).toLocaleTimeString() : ""} — ` +
+      `${summary.topics} topic${summary.topics === 1 ? "" : "s"} · ` +
+      `${summary.approved} questions in, ${summary.rejected} rejected · ` +
+      `${summary.lessonsApproved} lesson${summary.lessonsApproved === 1 ? "" : "s"} published, ` +
+      `${summary.lessonsRejected} with notes · ` +
+      `${summary.workTopics} try-it/lab topic${summary.workTopics === 1 ? "" : "s"}` +
+      (held ? `\nPublished with notes:\n${held}` : "")
+    );
+  }, []);
+
+  const refresh = useCallback(async () => {
+    try {
+      const status = await readStatus({});
+      const run = status.runs[0];
+      if (!run) return;
+      setLive(run);
+      setLastRun(describe(run));
+      const settled = run.status === "done" || run.status === "failed";
+      if (settled && finishedRef.current !== run.id) {
+        finishedRef.current = run.id;
+        await Promise.all([loadOwnerQuestions(), loadOwnerLessons(), loadOwnerWork()]);
+      }
+    } catch {
+      /* status is only informational */
+    }
+  }, [describe, readStatus]);
+
+  // Picks the run back up whenever the page is opened again, and keeps the
+  // line fresh while one is in flight.
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (live?.status !== "queued" && live?.status !== "running") return;
+    const timer = window.setInterval(() => void refresh(), 10_000);
+    return () => window.clearInterval(timer);
+  }, [live?.status, refresh]);
 
   async function handleClearLock() {
     setBusy("clear");
@@ -102,6 +160,7 @@ function SpreadsheetSyncPanel() {
         return;
       }
       toast.success("Cleared. You can start a sync again now.");
+      setLive(null);
       setLastRun("Stuck sync cleared — try syncing again.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not clear it.");
@@ -115,31 +174,15 @@ function SpreadsheetSyncPanel() {
     try {
       const result = await runSyncNow({ data: { scope } });
       if (!result.ok) {
-        toast.error(result.error);
-        setLastRun(`Failed: ${result.error}`);
+        toast.error(result.error ?? "The sync could not be started.");
+        setLastRun(`Failed: ${result.error ?? "The sync could not be started."}`);
         return;
       }
-      if (result.skipped) {
-        setLastRun("A sync is already running — try again in a few minutes.");
-      } else {
-        await Promise.all([loadOwnerQuestions(), loadOwnerLessons(), loadOwnerWork()]);
-        const summary =
-          `${result.topics} topic${result.topics === 1 ? "" : "s"} · ` +
-          `${result.approved} questions in, ${result.rejected} rejected · ` +
-          `${result.lessonsApproved} lesson${result.lessonsApproved === 1 ? "" : "s"} published, ` +
-          `${result.lessonsRejected} with notes · ` +
-          `${result.workTopics} try-it/lab topic${result.workTopics === 1 ? "" : "s"}`;
-        const held = (result.lessonIssues ?? [])
-          .map((item) => `${item.file} (${item.topic}): ${item.reasons.join("; ")}`)
-          .join("\n");
-        toast.success(`${label} synced: ${summary}`);
-        setLastRun(
-          `Last sync: ${new Date().toLocaleTimeString()} — ${label}: ${summary}` +
-            (held ? `\nPublished with notes:\n${held}` : ""),
-        );
-      }
+      toast.success(`${label} sync started — it runs on the server, so you can close the app.`);
+      setLastRun("Waiting to start — it runs on the server, so you can close the app.");
+      await refresh();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "The sync failed.";
+      const message = error instanceof Error ? error.message : "The sync could not be started.";
       toast.error(message);
       setLastRun(`Failed: ${message}`);
     } finally {
@@ -147,24 +190,31 @@ function SpreadsheetSyncPanel() {
     }
   }
 
+  const inFlight = live?.status === "queued" || live?.status === "running";
+
   return (
     <div>
       <div className="flex flex-wrap gap-2">
-        <Button onClick={() => handleSync("it-cybersecurity", "IT PATH")} disabled={busy !== null}>
-          {busy === "it-cybersecurity" ? "Syncing…" : "Sync IT PATH"}
+        <Button onClick={() => handleSync("it-cybersecurity", "IT PATH")} disabled={busy !== null || inFlight}>
+          Sync IT PATH
         </Button>
-        <Button onClick={() => handleSync("auto-repair", "AUTO PATH")} disabled={busy !== null}>
-          {busy === "auto-repair" ? "Syncing…" : "Sync AUTO PATH"}
+        <Button onClick={() => handleSync("auto-repair", "AUTO PATH")} disabled={busy !== null || inFlight}>
+          Sync AUTO PATH
         </Button>
-        <Button variant="secondary" onClick={() => handleSync("all", "Both courses")} disabled={busy !== null}>
-          {busy === "all" ? "Syncing…" : "Sync everything"}
+        <Button
+          variant="secondary"
+          onClick={() => handleSync("all", "Both courses")}
+          disabled={busy !== null || inFlight}
+        >
+          Sync everything
         </Button>
-        <Button variant="outline" onClick={handleClearLock} disabled={busy !== null}>
+        <Button variant="outline" onClick={handleClearLock} disabled={busy === "clear"}>
           {busy === "clear" ? "Clearing…" : "Clear stuck sync"}
         </Button>
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
-        If a sync fails and the app keeps saying one is already running, use “Clear stuck sync”, then sync again.
+        A sync runs on the server, so it finishes even if you close the app or your screen turns off. It may take a
+        minute to start. If one seems stuck, use “Clear stuck sync”, then start it again.
       </p>
       <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
         {lastRun ??

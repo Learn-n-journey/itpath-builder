@@ -136,3 +136,5 @@ Done when: typecheck + build clean, features verified in browser.
 
 - Recall workbooks: "itpath recall" and "autopath recall" folders, one tabbed workbook per topic (Recall, Teach back, Application, Troubleshooting), same numbering; owner rows replace the built-in/AI versions for that topic. Done.
 - Lesson page: merged "Common Problems" + "How It Fails" into one "What goes wrong" section; study stage names renamed (Read, Read again take notes, Test yourself, Practice, Explain it back). Done.
+
+- [x] Spreadsheet sync now runs on the server (queue + self-arming minute worker) so it finishes with the app closed

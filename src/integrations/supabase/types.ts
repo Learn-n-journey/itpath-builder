@@ -628,6 +628,42 @@ export type Database = {
         }
         Relationships: []
       }
+      sync_queue: {
+        Row: {
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          requested_by: string | null
+          result: Json | null
+          scope: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          requested_by?: string | null
+          result?: Json | null
+          scope?: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          requested_by?: string | null
+          result?: Json | null
+          scope?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       tutor_threads: {
         Row: {
           created_at: string
@@ -697,10 +733,12 @@ export type Database = {
           used: number
         }[]
       }
+      ensure_sync_worker: { Args: never; Returns: undefined }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
       }
+      stop_sync_worker: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

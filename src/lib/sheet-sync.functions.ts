@@ -1,68 +1,126 @@
 // ============= Full file contents =============
 /**
- * Owner-only "Sync now" trigger for the spreadsheet question sync.
+ * Owner-only sync controls for the spreadsheet content sync.
  *
- * Runs the exact same routine as the nightly cron job, but is started from
- * the Settings page instead of waiting for the schedule. Only the owner
- * accounts may call it.
+ * Pressing "Sync now" only writes a request; the server picks it up and does
+ * the work on its own, so closing the app or locking the screen cannot
+ * interrupt a run. The Settings panel reads the status back from the queue.
  */
 import { createServerFn } from "@tanstack/react-start";
 
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export type SyncNowReply =
-  | {
-      ok: true;
-      skipped?: string | undefined;
-      topics: number;
-      approved: number;
-      rejected: number;
-      lessonsApproved: number;
-      lessonsRejected: number;
-      workTopics: number;
-      lessonIssues: Array<{ file: string; topic: string; reasons: string[] }>;
-    }
-  | { ok: false; error: string };
+export interface SyncRunSummary {
+  skipped?: string | null;
+  topics: number;
+  approved: number;
+  rejected: number;
+  lessonsApproved: number;
+  lessonsRejected: number;
+  workTopics: number;
+  lessonIssues: Array<{ file: string; topic: string; reasons: string[] }>;
+}
+
+export interface SyncRunStatus {
+  id: string;
+  scope: string;
+  status: "queued" | "running" | "done" | "failed";
+  error?: string | null;
+  createdAt: string;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+  result?: SyncRunSummary | null;
+}
+
+function isOwner(context: { claims: unknown }): boolean {
+  const email = (context.claims as { email?: string } | null)?.email;
+  return OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
+}
 
 /** A built-in course, a created path's own id, or "all". */
 type SyncScope = "it-cybersecurity" | "auto-repair" | "all" | (string & {});
 
+/** Puts a sync in the queue. Returns as soon as it is written. */
 export const syncNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { scope?: SyncScope } | undefined) => ({
     scope: (input?.scope ?? "all") as SyncScope,
   }))
-  .handler(async ({ context, data }): Promise<SyncNowReply> => {
-    const email = (context.claims as { email?: string } | null)?.email;
-    if (!OWNER_EMAILS.includes((email ?? "").trim().toLowerCase())) {
-      return { ok: false, error: "Not allowed." };
+  .handler(async ({ context, data }): Promise<{ ok: boolean; id?: string; error?: string }> => {
+    if (!isOwner(context)) return { ok: false, error: "Not allowed." };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const waiting = await supabaseAdmin
+      .from("sync_queue")
+      .select("id")
+      .in("status", ["queued", "running"])
+      .limit(1);
+    if (waiting.data?.length) {
+      return { ok: true, id: waiting.data[0]!.id };
     }
 
-    const { runSheetSync } = await import("@/lib/sheet-sync.server");
-    const result = await runSheetSync(data.scope === "all" ? {} : { domain: data.scope });
-    if (!result.ok) return { ok: false, error: result.error ?? "The sync failed." };
+    const { data: row, error } = await supabaseAdmin
+      .from("sync_queue")
+      .insert({ scope: data.scope, requested_by: context.userId })
+      .select("id")
+      .single();
+    if (error) return { ok: false, error: error.message };
+
+    // Arms the server-side runner. It checks every minute while something is
+    // waiting and switches itself off once the queue is empty, so the run
+    // finishes even with the app closed.
+    await supabaseAdmin.rpc("ensure_sync_worker");
+
+    return { ok: true, id: row.id };
+  });
+
+/** The latest few runs, newest first, for the Settings panel. */
+export const syncStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ ok: boolean; runs: SyncRunStatus[]; error?: string }> => {
+    if (!isOwner(context)) return { ok: false, runs: [], error: "Not allowed." };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("sync_queue")
+      .select("id, scope, status, error, result, created_at, started_at, finished_at")
+      .order("created_at", { ascending: false })
+      .limit(5);
+    if (error) return { ok: false, runs: [], error: error.message };
+
     return {
       ok: true,
-      skipped: result.skipped,
-      topics: result.topics ?? 0,
-      approved: result.approved ?? 0,
-      rejected: result.rejected ?? 0,
-      lessonsApproved: result.lessonsApproved ?? 0,
-      lessonsRejected: result.lessonsRejected ?? 0,
-      workTopics: result.workTopics ?? 0,
-      lessonIssues: result.lessonIssues ?? [],
+      runs: (data ?? []).map((row) => ({
+        id: row.id,
+        scope: row.scope,
+        status: row.status as SyncRunStatus["status"],
+        error: row.error,
+        createdAt: row.created_at,
+        startedAt: row.started_at,
+        finishedAt: row.finished_at,
+        result: (row.result as unknown as SyncRunSummary | null) ?? null,
+      })),
     };
   });
 
-/** Clears a stuck sync lock left behind by a failed run. Owner only. */
+/** Clears a stuck sync so a new one can start. Owner only. */
 export const clearSyncLock = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ ok: boolean; error?: string }> => {
-    const email = (context.claims as { email?: string } | null)?.email;
-    if (!OWNER_EMAILS.includes((email ?? "").trim().toLowerCase())) {
-      return { ok: false, error: "Not allowed." };
-    }
+    if (!isOwner(context)) return { ok: false, error: "Not allowed." };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("sync_queue")
+      .update({
+        status: "failed",
+        error: "Cleared by the owner.",
+        finished_at: new Date().toISOString(),
+      })
+      .in("status", ["queued", "running"]);
+
     const { releaseSyncLock } = await import("@/lib/sheet-sync.server");
     const result = await releaseSyncLock();
     return result.ok ? { ok: true } : { ok: false, error: result.error ?? "Could not clear it." };
