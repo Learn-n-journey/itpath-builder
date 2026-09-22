@@ -98,14 +98,12 @@ export function LearningPathsPanel() {
     try {
       const result = await runSync({ data: { scope: path.slug } });
       if (!result.ok) {
-        toast.error(result.error);
+        toast.error(result.error ?? "The sync could not be started.");
         return;
       }
-      toast.success(
-        `Synced: ${result.lessonsApproved} lesson(s), ${result.approved} question(s), ${result.workTopics} try-it/lab section(s).`,
-      );
+      toast.success("Sync started — it runs on the server, so you can close the app.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "The sync failed.");
+      toast.error(error instanceof Error ? error.message : "The sync could not be started.");
     } finally {
       setBusy(null);
     }
