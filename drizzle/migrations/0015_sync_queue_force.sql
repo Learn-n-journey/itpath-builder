@@ -1,0 +1,1 @@
+ALTER TABLE public.sync_queue ADD COLUMN IF NOT EXISTS force boolean NOT NULL DEFAULT false;

@@ -660,6 +660,7 @@ export type Database = {
           created_at: string
           error: string | null
           finished_at: string | null
+          force: boolean
           id: string
           requested_by: string | null
           result: Json | null
@@ -671,6 +672,7 @@ export type Database = {
           created_at?: string
           error?: string | null
           finished_at?: string | null
+          force?: boolean
           id?: string
           requested_by?: string | null
           result?: Json | null
@@ -682,6 +684,7 @@ export type Database = {
           created_at?: string
           error?: string | null
           finished_at?: string | null
+          force?: boolean
           id?: string
           requested_by?: string | null
           result?: Json | null
