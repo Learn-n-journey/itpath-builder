@@ -704,7 +704,10 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
   if (!claimed.data?.length) return { ran: false };
 
   try {
-    const result = await runSheetSync(job.scope === "all" ? {} : { domain: job.scope });
+    const result = await runSheetSync({
+      ...(job.scope === "all" ? {} : { domain: job.scope }),
+      force: Boolean(job.force),
+    });
     await supabaseAdmin
       .from("sync_queue")
       .update({
