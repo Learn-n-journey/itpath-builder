@@ -99,7 +99,17 @@ function SpreadsheetSyncPanel() {
   const [busy, setBusy] = useState<string | null>(null);
   const [lastRun, setLastRun] = useState<string | null>(null);
   const [live, setLive] = useState<SyncRunStatus | null>(null);
+  const [history, setHistory] = useState<SyncRunStatus[]>([]);
   const finishedRef = useRef<string | null>(null);
+
+  const scopeLabel = (scope: string) =>
+    scope === "it-cybersecurity"
+      ? "IT PATH"
+      : scope === "auto-repair"
+        ? "AUTO PATH"
+        : scope === "all"
+          ? "Everything"
+          : scope;
 
   const describe = useCallback((run: SyncRunStatus): string => {
     const summary = run.result;
@@ -136,6 +146,11 @@ function SpreadsheetSyncPanel() {
   const refresh = useCallback(async () => {
     try {
       const status = await readStatus({});
+      setHistory(
+        (status.runs ?? [])
+          .filter((item) => item.status === "done" || item.status === "failed")
+          .slice(0, 3),
+      );
       const run = status.runs[0];
       if (!run) return;
       setLive(run);
