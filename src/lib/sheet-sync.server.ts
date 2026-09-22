@@ -610,6 +610,7 @@ export async function runSheetSync(
       lessonsRejected,
       lessonIssues,
       workTopics,
+      unchangedFiles,
       report,
     };
   } catch (error) {
