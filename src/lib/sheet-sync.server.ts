@@ -247,6 +247,8 @@ export interface SheetSyncResult {
   rejected?: number;
   report?: Record<string, unknown>[];
   error?: string;
+  /** True when the run used up its time slice and still has work left. */
+  partial?: boolean;
 }
 
 /** A snapshot of a sync while it is still running, for the live counter. */
