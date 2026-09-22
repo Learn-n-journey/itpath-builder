@@ -36,7 +36,7 @@ export function buildOverview(areas: AreaHealth[]): AdminOverview {
     .filter((check) => check.state === "failed");
   const blocking: HealthState = blockingChecks.length > 0
     ? "failed"
-    : areas.some((area) => CRITICAL_AREAS.includes(area.area) && area.state === "unknown")
+    : CRITICAL_AREAS.some((area) => (by(area)?.state ?? "unknown") === "unknown")
       ? "unknown"
       : "healthy";
   const attention = worstState(areas.map((area) => area.state));
