@@ -24,7 +24,7 @@ export function LessonProgressRing({ topicId }: { topicId: string }) {
 
   function jumpToWork() {
     setOpen(false);
-    document.getElementById("work-on-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("prove-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (

@@ -6,8 +6,6 @@ import { toast } from "sonner";
 import { blockingTopic } from "@/lib/journey-order";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
-import { ObdPracticePanel } from "@/components/auto/obd-practice-panel";
-import { TopicKnowledgePanel } from "@/components/knowledge/topic-knowledge-panel";
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
@@ -44,13 +42,15 @@ export const Route = createFileRoute("/topics/$topicId")({
 
 /** Which part of the page each study stage jumps to. */
 const STUDY_PART_TARGETS: Record<string, string | undefined> = {
-  "Read": "#lesson-reading",
-  "Read again, take notes": "#lesson-reading",
-  "Work through the examples": "#worked-examples",
+  "Read": "#read-it",
+  "Read again, take notes": "#read-it",
+  "Work through the examples": "#see-it",
   "Test yourself": "#check-yourself",
   "Practice": "#practice",
   "Explain it back": "#teach-back",
   "Real-world scenario": "#scenario",
+  "Hands-on practice": "#prove-it",
+  "Spaced review": "#keep-handy",
 };
 
 function TopicPage() {
@@ -223,30 +223,6 @@ function TopicPage() {
 
 
       <TopicLearningExperience topic={topic} />
-
-      <div className="mt-4">
-        <ObdPracticePanel topicId={topic.id} topicTitle={topic.title} />
-      </div>
-
-
-      <div className="mt-4">
-        <Panel
-          title="Section quiz"
-          description="Twenty questions on this section alone, part multiple choice and part written in your own words. Eighty percent is a pass."
-        >
-          <Link
-            to="/section-quiz/$topicId"
-            params={{ topicId: topic.id }}
-            className="inline-flex items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/15"
-          >
-            Take the section quiz
-          </Link>
-        </Panel>
-      </div>
-
-      <div className="mt-4">
-        <TopicKnowledgePanel topicId={topic.id} />
-      </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <Panel title="Prerequisites">

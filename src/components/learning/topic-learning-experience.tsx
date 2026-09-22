@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { BookOpen, CheckCircle2, Edit3, ExternalLink, Eye, FileText, PlayCircle, Save, ShieldCheck, Sparkles, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
@@ -18,10 +18,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { lessons, resources, type Topic } from "@/data/static-content";
 import { getWorkedExamples } from "@/data/worked-examples";
 import { getDeepLesson } from "@/data/deep-lessons";
+import { getGeneratedRecallQuestions } from "@/data/recall-generator";
 import { DeepLessonReading } from "@/components/learning/deep-lesson-reading";
-import { LessonDepthReading } from "@/components/learning/lesson-depth-reading";
+import {
+  LessonCheckYourself,
+  LessonKeyIdeas,
+  LessonMisconceptions,
+  LessonReferencePanel,
+  LessonWalkthroughPanel,
+} from "@/components/learning/lesson-depth-reading";
 import { WorkedExamples } from "@/components/learning/worked-examples";
-import { getLearningModule, getPracticeActivities, getRealWorldScenario } from "@/data/learning-content";
+import { getLearningModule, getPracticeActivities, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
 import type { TopicProgress, Resource } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { topicMeasures } from "@/lib/mastery-summary";
@@ -31,9 +38,13 @@ import { LessonSources } from "@/components/learning/lesson-sources";
 import {
   ownerKeyTermsFor,
   ownerLessonSourcesFor,
+  ownerRecallFor,
   ownerTeachBackFor,
 } from "@/lib/owner-lesson-store";
-import { ownerWorkTeachBackFor } from "@/lib/owner-work-store";
+import { ownerWorkRecallFor, ownerWorkTeachBackFor } from "@/lib/owner-work-store";
+import { useOwnerContentVersion } from "@/hooks/use-owner-content";
+import { ObdPracticePanel } from "@/components/auto/obd-practice-panel";
+import { TopicKnowledgePanel } from "@/components/knowledge/topic-knowledge-panel";
 
 
 /**
@@ -54,6 +65,15 @@ function passesOffline(answer: string, concepts: string[], modelAnswer?: string)
   return modelAnswer ? answerMatches(answer, modelAnswer) : false;
 }
 
+function offlineHints(answer: string, concepts: string[]): string[] {
+  const matched = new Set(matchConcepts(answer, concepts));
+  if (matched.size === 0) return [];
+  return concepts
+    .filter((concept) => !matched.has(concept))
+    .slice(0, 4)
+    .map((concept) => `Add the step about ${concept.charAt(0).toLowerCase()}${concept.slice(1)}`);
+}
+
 
 
 
@@ -63,6 +83,32 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const lesson = lessons.find((item) => item.topicId === topic.id);
   const module = getLearningModule(topic.id);
   const deepLesson = getDeepLesson(topic.id);
+  const ownerVersion = useOwnerContentVersion();
+  const recallQuestions = useMemo(() => {
+    const work = ownerWorkRecallFor(topic.id);
+    if (work.length) return work;
+    const owned = ownerRecallFor(topic.id);
+    if (owned.length) return owned;
+    return [...getRecallQuestions(topic.id), ...getGeneratedRecallQuestions(topic.id)];
+    // Owner content versions intentionally refresh workbook-backed questions.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topic.id, ownerVersion]);
+  const pickedRecall = useRef<{ topicId: string; ids: string[] } | null>(null);
+  const visibleRecall = useMemo(() => {
+    if (pickedRecall.current?.topicId === topic.id) {
+      const kept = pickedRecall.current.ids
+        .map((id) => recallQuestions.find((item) => item.id === id))
+        .filter((item): item is (typeof recallQuestions)[number] => Boolean(item));
+      if (kept.length > 0) return kept;
+    }
+    const answeredWell = new Set(
+      user.recallResponses.filter((item) => item.topicId === topic.id && item.correct).map((item) => item.questionId),
+    );
+    const fresh = recallQuestions.filter((item) => !answeredWell.has(item.id));
+    const chosen = fresh.length > 0 ? fresh.slice(0, 2) : recallQuestions.slice(0, 2);
+    pickedRecall.current = { topicId: topic.id, ids: chosen.map((item) => item.id) };
+    return chosen;
+  }, [recallQuestions, user.recallResponses, topic.id]);
 
   const practiceActivities = getPracticeActivities(topic.id);
   const practice = practiceActivities[0];
@@ -70,6 +116,22 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const ownerTeachBack = ownerWorkTeachBackFor(topic.id) ?? ownerTeachBackFor(topic.id);
   const savedTeachBack = user.teachBackResponses[topic.id];
   const savedScenario = user.scenarioResponses[topic.id];
+  const savedRecall = useMemo(() => {
+    const answers: Record<string, string> = {};
+    const feedback: Record<string, { correct: boolean; message: string }> = {};
+    for (const response of [...user.recallResponses]
+      .filter((item) => item.topicId === topic.id)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))) {
+      answers[response.questionId] = response.answer;
+      feedback[response.questionId] = {
+        correct: response.correct,
+        message: recallQuestions.find((item) => item.id === response.questionId)?.explanation ?? "",
+      };
+    }
+    return { answers, feedback };
+  }, [user.recallResponses, topic.id, recallQuestions]);
+  const [recallAnswers, setRecallAnswers] = useState<Record<string, string>>(savedRecall.answers);
+  const [recallFeedback, setRecallFeedback] = useState<Record<string, { correct: boolean; message: string }>>(savedRecall.feedback);
   // Practice work is kept per question, so leaving the page does not wipe it.
   const savedPractice = useMemo(() => {
     const choices: Record<string, number> = {};
@@ -93,21 +155,24 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
    * Which practice tab is open. Shortcuts elsewhere on the page can open a tab
    * directly by setting the address hash, for example #teach-back.
    */
-  const [workTab, setWorkTab] = useState("practice");
+  const [tryTab, setTryTab] = useState(visibleRecall.length > 0 ? "recall" : "practice");
+  const [proveTab, setProveTab] = useState("teach-back");
   useEffect(() => {
-    const tabs = ["practice", "teach-back", "scenario"];
     const applyHash = () => {
       const hash = window.location.hash.replace("#", "");
-      if (!tabs.includes(hash)) return;
-      setWorkTab(hash);
+      if (["recall", "practice"].includes(hash)) setTryTab(hash);
+      else if (["teach-back", "scenario"].includes(hash)) setProveTab(hash);
+      else return;
       window.requestAnimationFrame(() => {
-        document.getElementById("work-on-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.getElementById(["recall", "practice"].includes(hash) ? "try-it" : "prove-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     };
     applyHash();
     window.addEventListener("hashchange", applyHash);
     return () => window.removeEventListener("hashchange", applyHash);
   }, []);
+  const recallMarking = useAiMarking();
+  const [markedRecallId, setMarkedRecallId] = useState<string | null>(null);
   const teachBackMarking = useAiMarking();
   const scenarioMarking = useAiMarking();
   
@@ -136,6 +201,11 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
 
   useEffect(() => {
+    setRecallAnswers((current) => mergeSaved(current, savedRecall.answers));
+    setRecallFeedback((current) => mergeSaved(current, savedRecall.feedback));
+  }, [savedRecall]);
+  useEffect(() => { setRecallAnswers(savedRecall.answers); setRecallFeedback(savedRecall.feedback); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [topic.id]);
+  useEffect(() => {
     setPracticeChoices((current) => mergeSaved(current, savedPractice.choices));
     setPracticeFeedback((current) => mergeSaved(current, savedPractice.feedback));
   }, [savedPractice]);
@@ -155,6 +225,34 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
   function raiseProgress(patch: Partial<TopicProgress>) {
     actions.setTopicProgress({ ...progress, ...patch, status: "in_progress", updatedAt: new Date().toISOString() });
+  }
+
+  async function submitRecall(questionId: string) {
+    const question = recallQuestions.find((item) => item.id === questionId);
+    const answer = recallAnswers[questionId]?.trim();
+    if (!question || !answer) { toast.error("Write an answer before checking it."); return; }
+    const matched = matchConcepts(answer, question.acceptedConcepts);
+    setMarkedRecallId(questionId);
+    const graded = await recallMarking.mark({
+      topic: topic.title,
+      task: "Recall question",
+      question: question.prompt,
+      answer,
+      modelAnswer: question.explanation,
+      expectedPoints: question.acceptedConcepts,
+    });
+    const correct = graded ? graded.correct : passesOffline(answer, question.acceptedConcepts, question.explanation);
+    const hints = graded ? graded.hints : correct ? [] : offlineHints(answer, question.acceptedConcepts);
+    const almost = !correct && (graded ? graded.status === "almost" : hints.length > 0);
+    const now = new Date().toISOString();
+    actions.addRecallResponse({ id: crypto.randomUUID(), questionId, topicId: topic.id, answer, correct, matchedConcepts: matched, createdAt: now });
+    if (!correct && !almost) {
+      actions.recordMistake({ topicId: topic.id, activity: "recall", category: matched.length === 0 ? "didnt_know_fact" : "misunderstood_concept", severity: matched.length === 0 ? "high" : "medium", questionId, createdAt: now });
+      actions.ensureReview({ topicId: topic.id });
+    } else actions.settleTopicReview(topic.id, "pass");
+    const message = almost ? `Nearly there. ${hints.length ? `${hints.join(". ")}.` : question.explanation}` : question.explanation;
+    setRecallFeedback((current) => ({ ...current, [questionId]: { correct, message } }));
+    raiseProgress({ recall: Math.max(progress.recall, correct ? 35 : almost ? 25 : 10), retention: Math.max(progress.retention, correct ? 15 : 5) });
   }
 
   function submitPractice(activityId: string) {
@@ -231,73 +329,85 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <ul className="space-y-3">{topic.learningObjectives.map((objective) => <li key={objective} className="flex gap-3 text-sm text-muted-foreground"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" /><span>{objective}</span></li>)}</ul>
     </Panel>
 
-    <MasteryChecklist topicId={topic.id} />
-
-    <div id="lesson-reading" className="scroll-mt-24 space-y-4">{deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}{deepLesson?.depth ? <LessonDepthReading depth={deepLesson.depth} /> : null}<Panel title={deepLesson ? "Quick reference" : lesson.title} description={deepLesson ? "A condensed summary of the lesson above, for revision." : lesson.body}><div className="space-y-7 text-sm leading-7 text-muted-foreground">
-        <ContentSection title="What It Is" text={lesson.definition} /><ContentSection title="Why It Matters" text={lesson.whyItMatters} />
-        <ListSection title="How It Works" items={module.howItWorks} /><ListSection title="Where You See It" items={module.whereYouSeeIt} />
-        <section><h2 className="mb-3 text-base font-semibold text-foreground">Keywords</h2><dl className="divide-y divide-border border-y border-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
-        <ListSection title="Examples" items={lesson.realWorldExamples} /><ListSection title="What goes wrong" items={[...module.commonProblems, ...module.howItFails]} /><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /><ListSection title="Exam Coverage" items={examCoverage} /><ListSection title="Interview Questions" items={module.interviewQuestions} />
-        <ContentReportButton kind="lesson" refId={topic.id} label={topic.title} />
-      </div></Panel><div id="worked-examples" className="scroll-mt-24"><WorkedExamples examples={getWorkedExamples(topic.id)} /></div><MediaPanel topic={topic} /><LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} /></div>
-
-    <section id="work-on-it" className="scroll-mt-24 space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold text-foreground">Work on it</h2>
-        <p className="text-sm text-muted-foreground">Read the lesson first, then check yourself here. Your answers are saved as you go.</p>
+    <LearningStage id="read-it" number="01" title="Read It" description="Build the idea in small, manageable parts." icon={<BookOpen />}>
+      <div id="lesson-reading" className="scroll-mt-24 space-y-4">
+        {deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}
+        {deepLesson?.depth ? <LessonKeyIdeas depth={deepLesson.depth} /> : null}
+        <Panel title={deepLesson ? "Core lesson summary" : lesson.title} description={deepLesson ? "The essential explanation and context in one place." : lesson.body}>
+          <div className="space-y-7 text-sm leading-7 text-muted-foreground">
+            <ContentSection title="What It Is" text={lesson.definition} />
+            <ContentSection title="Why It Matters" text={lesson.whyItMatters} />
+            <ListSection title="Where You See It" items={module.whereYouSeeIt} />
+            <ListSection title="How It Works" items={module.howItWorks} />
+            <ListSection title="Practical Knowledge" items={module.practicalKnowledge} />
+          </div>
+        </Panel>
       </div>
-      <Tabs value={workTab} onValueChange={setWorkTab} className="space-y-4">
-      <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
-        {practice ? <TabsTrigger value="practice">Practice</TabsTrigger> : null}<TabsTrigger value="teach-back">Teach Back</TabsTrigger>{scenario ? <TabsTrigger value="scenario">Real-World Scenario</TabsTrigger> : null}
-      </TabsList>
-      <TabsContent value="practice"><div className="space-y-4">{practiceActivities.map((activity, index) => {
-        const chosen = practiceChoices[activity.id];
-        const feedback = practiceFeedback[activity.id];
-        return <Panel key={activity.id} title={`Practice ${index + 1}: ${activity.title}`} description={activity.prompt}><div className="grid gap-2">{activity.choices.map((choice, choiceIndex) => <Button key={choice} variant={chosen === choiceIndex ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" onClick={() => setPracticeChoices((current) => ({ ...current, [activity.id]: choiceIndex }))}>{choice}</Button>)}</div><Button className="mt-4" onClick={() => submitPractice(activity.id)}>Check decision</Button>{feedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{feedback}</p> : null}</Panel>;
-      })}</div></TabsContent>
+    </LearningStage>
 
-      <TabsContent value="teach-back"><Panel title="Teach Back" description={ownerTeachBack?.prompt || "Explain this topic in your own words. GAYL reads it back and tells you what your explanation shows."}>{teachBackEditing ? <><Label htmlFor="teach-back">Your explanation</Label><Textarea id="teach-back" className="mt-2" rows={7} value={teachBack} onChange={(event) => setTeachBack(event.target.value)} /><div className="mt-3 flex flex-wrap gap-2"><Button disabled={teachBackMarking.busy} onClick={() => void saveTeachBack()}><Save />{teachBackMarking.busy ? "GAYL is reading…" : "Save"}</Button>{savedTeachBack ? <Button variant="outline" onClick={() => { setTeachBack(savedTeachBack.body); setTeachBackEditing(false); }}><FileText />Review saved response</Button> : null}</div></> : <><div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">{savedTeachBack?.body}</div><Button className="mt-3" variant="outline" onClick={() => setTeachBackEditing(true)}><Edit3 />Edit</Button></>}<AiFeedback state={teachBackMarking} /></Panel></TabsContent>
-      {scenario ? <TabsContent value="scenario"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}<AiFeedback state={scenarioMarking} /></Panel></TabsContent> : null}
+    <LearningStage id="see-it" number="02" title="See It" description="Watch the concepts work, then notice the traps and failure patterns." icon={<Eye />}>
+      <div id="worked-examples" className="scroll-mt-24 space-y-4">
+        <WorkedExamples examples={getWorkedExamples(topic.id)} />
+        {deepLesson?.depth ? <LessonWalkthroughPanel depth={deepLesson.depth} /> : null}
+        {deepLesson?.depth ? <LessonMisconceptions depth={deepLesson.depth} /> : null}
+        <Panel title="Apply the pattern" description="Connect the concept to failures, troubleshooting, and exam wording.">
+          <div className="space-y-7 text-sm leading-7 text-muted-foreground">
+            <ListSection title="Examples" items={lesson.realWorldExamples} />
+            <ListSection title="What goes wrong" items={[...module.commonProblems, ...module.howItFails]} />
+            <ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered />
+            <ListSection title="Exam Coverage" items={examCoverage} />
+          </div>
+        </Panel>
+      </div>
+    </LearningStage>
+
+    <LearningStage id="try-it" number="03" title="Try It" description="Low-stakes practice. Mistakes here are part of learning and do not prove mastery." icon={<Wrench />} tone="practice">
+      {deepLesson?.depth ? <LessonCheckYourself depth={deepLesson.depth} /> : null}
+      <Tabs value={tryTab} onValueChange={setTryTab} className="space-y-4">
+        <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
+          {visibleRecall.length > 0 ? <TabsTrigger value="recall">Recall</TabsTrigger> : null}
+          {practice ? <TabsTrigger value="practice">Practice</TabsTrigger> : null}
+        </TabsList>
+        {visibleRecall.length > 0 ? <TabsContent value="recall"><div id="recall" className="scroll-mt-24 space-y-4">{visibleRecall.map((question, index) => {
+          const feedback = recallFeedback[question.id];
+          return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={`recall-${question.id}`}>Answer from memory</Label><Textarea id={`recall-${question.id}`} className="mt-2" rows={5} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy && markedRecallId === question.id} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "GAYL is reading…" : "Check recall"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-success" : "text-muted-foreground"}`}>{feedback.correct ? "Correct. " : "Keep building it. "}{feedback.message}</p> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
+        })}</div></TabsContent> : null}
+        {practice ? <TabsContent value="practice"><div id="practice" className="scroll-mt-24 space-y-4">{practiceActivities.map((activity, index) => {
+          const chosen = practiceChoices[activity.id]; const feedback = practiceFeedback[activity.id];
+          return <Panel key={activity.id} title={`Practice ${index + 1}: ${activity.title}`} description={activity.prompt}><div className="grid gap-2">{activity.choices.map((choice, choiceIndex) => <Button key={choice} variant={chosen === choiceIndex ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" onClick={() => setPracticeChoices((current) => ({ ...current, [activity.id]: choiceIndex }))}>{choice}</Button>)}</div><Button className="mt-4" onClick={() => submitPractice(activity.id)}>Check decision</Button>{feedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{feedback}</p> : null}</Panel>;
+        })}</div></TabsContent> : null}
       </Tabs>
-    </section>
+      <ObdPracticePanel topicId={topic.id} topicTitle={topic.title} />
+    </LearningStage>
 
-    <div className="grid gap-4 lg:grid-cols-2">
-      <AnnotationPanel
-        target={{ kind: "lesson", id: lesson.id, label: topic.title, href: `/topics/${topic.id}` }}
-        title="Lesson notes and bookmark"
-        description="Notes and bookmarks for this lesson, saved with everything else you have marked."
-      />
-      <Panel
-        title="Where you stand in this section"
-        description="How much of this section you have done, and how the final section quiz went."
-      >
-        <div className="space-y-4">
-          <div>
-            <div className="mb-1.5 flex justify-between text-sm">
-              <span>Learning progress</span>
-              <span className="tabular-nums text-muted-foreground">{sectionMeasures.learningProgress}%</span>
-            </div>
-            <Progress value={sectionMeasures.learningProgress} />
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              {sectionMeasures.activitiesCompleted} of {sectionMeasures.activitiesTotal} activities done
-            </p>
-          </div>
-          <div>
-            <div className="mb-1.5 flex justify-between text-sm">
-              <span>Overall mastery</span>
-              <span className="tabular-nums text-muted-foreground">{sectionMeasures.overallMastery}%</span>
-            </div>
-            <Progress value={sectionMeasures.overallMastery} />
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              {sectionMeasures.assessmentsTaken > 0
-                ? "Your best result on the final section quiz."
-                : "Take the final section quiz to set this."}
-            </p>
-          </div>
-        </div>
-      </Panel>
-    </div>
+    <LearningStage id="prove-it" number="04" title="Prove It" description="Demonstrate what you can explain and apply. Only the section quiz controls mastery." icon={<ShieldCheck />} tone="proof">
+      <Tabs value={proveTab} onValueChange={setProveTab} className="space-y-4">
+        <TabsList className="h-auto w-full justify-start overflow-x-auto p-1"><TabsTrigger value="teach-back">Teach Back</TabsTrigger>{scenario ? <TabsTrigger value="scenario">Real-World Scenario</TabsTrigger> : null}</TabsList>
+        <TabsContent value="teach-back"><div id="teach-back" className="scroll-mt-24"><Panel title="Teach Back" description={ownerTeachBack?.prompt || "Explain this topic in your own words. GAYL reads it back and tells you what your explanation shows."}>{teachBackEditing ? <><Label htmlFor="teach-back-answer">Your explanation</Label><Textarea id="teach-back-answer" className="mt-2" rows={7} value={teachBack} onChange={(event) => setTeachBack(event.target.value)} /><div className="mt-3 flex flex-wrap gap-2"><Button disabled={teachBackMarking.busy} onClick={() => void saveTeachBack()}><Save />{teachBackMarking.busy ? "GAYL is reading…" : "Save"}</Button>{savedTeachBack ? <Button variant="outline" onClick={() => { setTeachBack(savedTeachBack.body); setTeachBackEditing(false); }}><FileText />Review saved response</Button> : null}</div></> : <><div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">{savedTeachBack?.body}</div><Button className="mt-3" variant="outline" onClick={() => setTeachBackEditing(true)}><Edit3 />Edit</Button></>}<AiFeedback state={teachBackMarking} /></Panel></div></TabsContent>
+        {scenario ? <TabsContent value="scenario"><div id="scenario" className="scroll-mt-24"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}<AiFeedback state={scenarioMarking} /></Panel></div></TabsContent> : null}
+      </Tabs>
+      <MasteryChecklist topicId={topic.id} />
+      <div id="section-quiz" className="scroll-mt-24"><Panel title="Section quiz" description="Twenty questions on this section alone, part multiple choice and part written in your own words. Eighty percent is a pass."><Button asChild><Link to="/section-quiz/$topicId" params={{ topicId: topic.id }}>Take the section quiz</Link></Button></Panel></div>
+      <Panel title="Where you stand in this section" description="Practice progress is separate from the section quiz result that proves mastery."><div className="grid gap-5 sm:grid-cols-2"><div><div className="mb-1.5 flex justify-between text-sm"><span>Learning progress</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.learningProgress}%</span></div><Progress value={sectionMeasures.learningProgress} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.activitiesCompleted} of {sectionMeasures.activitiesTotal} activities done</p></div><div><div className="mb-1.5 flex justify-between text-sm"><span>Overall mastery</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.overallMastery}%</span></div><Progress value={sectionMeasures.overallMastery} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.assessmentsTaken > 0 ? "Your best result on the final section quiz." : "Take the final section quiz to set this."}</p></div></div></Panel>
+    </LearningStage>
+
+    <LearningStage id="keep-handy" number="05" title="Keep Handy" description="Lookup material, trusted sources, and your own notes—available without interrupting the lesson." icon={<Sparkles />}>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel title="Key Terms"><dl className="divide-y divide-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 text-sm sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd className="leading-7 text-muted-foreground">{item.meaning}</dd></div>)}</dl></Panel>
+        {deepLesson?.depth ? <LessonReferencePanel depth={deepLesson.depth} /> : null}
+      </div>
+      <Panel title="Interview Questions" description="Useful prompts for review and career conversations."><ListSection title="Questions to rehearse" items={module.interviewQuestions} /></Panel>
+      <MediaPanel topic={topic} />
+      <TopicKnowledgePanel topicId={topic.id} />
+      <AnnotationPanel target={{ kind: "lesson", id: lesson.id, label: topic.title, href: `/topics/${topic.id}` }} title="Lesson notes and bookmark" description="Notes and bookmarks for this lesson, saved with everything else you have marked." />
+      <ContentReportButton kind="lesson" refId={topic.id} label={topic.title} />
+      <LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} />
+    </LearningStage>
   </div>;
+}
+
+function LearningStage({ id, number, title, description, icon, tone, children }: { id: string; number: string; title: string; description: string; icon: ReactNode; tone?: "practice" | "proof"; children: ReactNode }) {
+  return <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24 overflow-hidden rounded-xl border border-border bg-card shadow-sm"><header className={`border-b border-border p-4 sm:p-6 ${tone === "practice" ? "bg-primary/5" : tone === "proof" ? "bg-success/5" : "bg-secondary/20"}`}><div className="flex items-start gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-primary/30 bg-primary/10 text-primary [&>svg]:size-5" aria-hidden>{icon}</span><div className="min-w-0"><p className="font-mono text-xs font-semibold tracking-[0.16em] text-primary">STAGE {number}</p><h2 id={`${id}-title`} className="font-display text-xl font-semibold text-foreground sm:text-2xl">{title}</h2><p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p></div></div></header><div className="space-y-4 p-3 sm:p-5">{children}</div></section>;
 }
 
 const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };

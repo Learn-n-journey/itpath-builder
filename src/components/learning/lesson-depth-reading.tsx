@@ -35,99 +35,37 @@ function groupReference(reference: LessonDepth["reference"]): {
 export function LessonDepthReading({ depth }: { depth: LessonDepth }) {
   return (
     <div className="space-y-4">
-      <Panel
-        title="Key ideas"
-        description="If you remember nothing else from this topic, remember these."
-      >
-        <ul className="space-y-3 text-sm leading-7 text-muted-foreground">
-          {depth.keyIdeas.map((idea) => (
-            <li key={idea} className="flex gap-3">
-              <Key aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
-              <span>{idea}</span>
-            </li>
-          ))}
-        </ul>
-      </Panel>
-
-      <Panel title={depth.walkthrough.title} description="A worked example, step by step.">
-        <div className="space-y-4 text-sm leading-7 text-muted-foreground">
-          <p className="rounded-lg border border-border bg-secondary/40 p-3 text-foreground">
-            {depth.walkthrough.scenario}
-          </p>
-          <ol className="space-y-3">
-            {depth.walkthrough.steps.map((step, index) => (
-              <li key={step.label} className="flex gap-3">
-                <span className="mt-0.5 font-mono text-xs text-primary">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
-                <span>
-                  <span className="block font-medium text-foreground">{step.label}</span>
-                  <span>{step.detail}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
-          <p className="flex gap-3">
-            <CheckCircle2 aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
-            <span>
-              <span className="font-medium text-foreground">Outcome: </span>
-              {depth.walkthrough.outcome}
-            </span>
-          </p>
-        </div>
-      </Panel>
-
-      <Panel title="Reference" description="Worth keeping at hand while you work.">
-        <div className="space-y-6">
-          {groupReference(depth.reference).map((group) => (
-            <section key={group.heading || "ungrouped"}>
-              {group.heading ? (
-                <h4 className="font-display text-sm font-semibold text-foreground">{group.heading}</h4>
-              ) : null}
-              <dl className="divide-y divide-border text-sm">
-                {group.rows.map((row) => (
-                  <div
-                    key={`${group.heading}-${row.term}`}
-                    className="grid gap-1 py-3 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-4"
-                  >
-                    <dt className="font-mono text-xs text-foreground sm:text-sm">{row.term}</dt>
-                    <dd className="leading-7 text-muted-foreground">{row.detail}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-          ))}
-        </div>
-      </Panel>
-
-      <Panel title="Common misunderstandings" description="What most beginners get wrong here.">
-        <ul className="space-y-4 text-sm leading-7">
-          {depth.misconceptions.map((item) => (
-            <li key={item.claim} className="space-y-1">
-              <p className="flex gap-3 text-foreground">
-                <AlertTriangle aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
-                <span>{item.claim}</span>
-              </p>
-              <p className="pl-7 text-muted-foreground">{item.correction}</p>
-            </li>
-          ))}
-        </ul>
-      </Panel>
-
-      <div id="check-yourself" className="scroll-mt-24">
-        <Panel
-          title="Check yourself"
-          description="Answer in your head first, then reveal. This is not scored."
-        >
-          <ul className="space-y-3">
-            {depth.checkYourself.map((check) => (
-              <CheckRow key={check.question} question={check.question} answer={check.answer} />
-            ))}
-          </ul>
-        </Panel>
-      </div>
+      <LessonKeyIdeas depth={depth} />
+      <LessonWalkthroughPanel depth={depth} />
+      <LessonReferencePanel depth={depth} />
+      <LessonMisconceptions depth={depth} />
+      <LessonCheckYourself depth={depth} />
     </div>
   );
+}
+
+export function LessonKeyIdeas({ depth }: { depth: LessonDepth }) {
+  if (depth.keyIdeas.length === 0) return null;
+  return <Panel title="Key ideas" description="If you remember nothing else from this topic, remember these."><ul className="space-y-3 text-sm leading-7 text-muted-foreground">{depth.keyIdeas.map((idea) => <li key={idea} className="flex gap-3"><Key aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" /><span>{idea}</span></li>)}</ul></Panel>;
+}
+
+export function LessonWalkthroughPanel({ depth }: { depth: LessonDepth }) {
+  return <Panel title={depth.walkthrough.title} description="A worked example, step by step."><div className="space-y-4 text-sm leading-7 text-muted-foreground"><p className="rounded-lg border border-border bg-secondary/40 p-3 text-foreground">{depth.walkthrough.scenario}</p><ol className="space-y-3">{depth.walkthrough.steps.map((step, index) => <li key={step.label} className="flex gap-3"><span className="mt-0.5 font-mono text-xs text-primary">{String(index + 1).padStart(2, "0")}</span><span><span className="block font-medium text-foreground">{step.label}</span><span>{step.detail}</span></span></li>)}</ol><p className="flex gap-3"><CheckCircle2 aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" /><span><span className="font-medium text-foreground">Outcome: </span>{depth.walkthrough.outcome}</span></p></div></Panel>;
+}
+
+export function LessonReferencePanel({ depth }: { depth: LessonDepth }) {
+  if (depth.reference.rows.length === 0) return null;
+  return <Panel title="Reference" description="Worth keeping at hand while you work."><div className="space-y-6">{groupReference(depth.reference).map((group) => <section key={group.heading || "ungrouped"}>{group.heading ? <h4 className="font-display text-sm font-semibold text-foreground">{group.heading}</h4> : null}<dl className="divide-y divide-border text-sm">{group.rows.map((row) => <div key={`${group.heading}-${row.term}`} className="grid gap-1 py-3 sm:grid-cols-[minmax(0,14rem)_1fr] sm:gap-4"><dt className="font-mono text-xs text-foreground sm:text-sm">{row.term}</dt><dd className="leading-7 text-muted-foreground">{row.detail}</dd></div>)}</dl></section>)}</div></Panel>;
+}
+
+export function LessonMisconceptions({ depth }: { depth: LessonDepth }) {
+  if (depth.misconceptions.length === 0) return null;
+  return <Panel title="Common misunderstandings" description="What most beginners get wrong here."><ul className="space-y-4 text-sm leading-7">{depth.misconceptions.map((item) => <li key={item.claim} className="space-y-1"><p className="flex gap-3 text-foreground"><AlertTriangle aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" /><span>{item.claim}</span></p><p className="pl-7 text-muted-foreground">{item.correction}</p></li>)}</ul></Panel>;
+}
+
+export function LessonCheckYourself({ depth }: { depth: LessonDepth }) {
+  if (depth.checkYourself.length === 0) return null;
+  return <div id="check-yourself" className="scroll-mt-24"><Panel title="Check yourself" description="Answer in your head first, then reveal. This is practice, not mastery proof."><ul className="space-y-3">{depth.checkYourself.map((check) => <CheckRow key={check.question} question={check.question} answer={check.answer} />)}</ul></Panel></div>;
 }
 
 function CheckRow({ question, answer }: { question: string; answer: string }) {
