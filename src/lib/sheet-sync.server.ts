@@ -317,6 +317,11 @@ export async function runSheetSync(
           continue;
         }
 
+        if (unchanged(file)) {
+          unchangedFiles += 1;
+          continue;
+        }
+
         const tabs = await readTabs(file.id);
         const result = ownerLessonFromTabs(topic, tabs);
         if (!result.lesson) {
