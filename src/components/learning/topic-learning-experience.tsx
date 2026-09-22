@@ -45,6 +45,8 @@ import { ownerWorkRecallFor, ownerWorkTeachBackFor } from "@/lib/owner-work-stor
 import { useOwnerContentVersion } from "@/hooks/use-owner-content";
 import { ObdPracticePanel } from "@/components/auto/obd-practice-panel";
 import { TopicKnowledgePanel } from "@/components/knowledge/topic-knowledge-panel";
+import { ReturnToActivity, ReviewConceptLink } from "@/components/learning/remediation-link";
+import { lessonConceptAnchor, lessonSectionId, resolveLessonSection } from "@/lib/lesson-concepts";
 
 
 /**
@@ -325,6 +327,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   );
 
   return <div className="space-y-4">
+    <ReturnToActivity topicId={topic.id} />
     <Panel title="Learning objectives">
       <ul className="space-y-3">{topic.learningObjectives.map((objective) => <li key={objective} className="flex gap-3 text-sm text-muted-foreground"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" /><span>{objective}</span></li>)}</ul>
     </Panel>
@@ -332,37 +335,37 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     <LearningStage id="read-it" number="01" title="Read It" description="Build the idea in small, manageable parts." icon={<BookOpen />}>
       <div id="lesson-reading" className="scroll-mt-24 space-y-4">
         {deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}
-        {deepLesson?.depth ? <LessonKeyIdeas depth={deepLesson.depth} /> : null}
-        <Panel title={deepLesson ? "Core lesson summary" : lesson.title} description={deepLesson ? "The essential explanation and context in one place." : lesson.body}>
+        {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "key-ideas"))} className="scroll-mt-24"><LessonKeyIdeas depth={deepLesson.depth} /></div> : null}
+        <div id={lessonConceptAnchor(lessonSectionId(topic.id, "core"))} className="scroll-mt-24"><Panel title={deepLesson ? "Core lesson summary" : lesson.title} description={deepLesson ? "The essential explanation and context in one place." : lesson.body}>
           <div className="space-y-7 text-sm leading-7 text-muted-foreground">
             <ContentSection title="What It Is" text={lesson.definition} />
             <ContentSection title="Why It Matters" text={lesson.whyItMatters} />
-            <ListSection title="Where You See It" items={module.whereYouSeeIt} />
-            <ListSection title="How It Works" items={module.howItWorks} />
-            <ListSection title="Practical Knowledge" items={module.practicalKnowledge} />
+            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "where-you-see-it"))} className="scroll-mt-24"><ListSection title="Where You See It" items={module.whereYouSeeIt} /></div>
+            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "how-it-works"))} className="scroll-mt-24"><ListSection title="How It Works" items={module.howItWorks} /></div>
+            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "practical-knowledge"))} className="scroll-mt-24"><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /></div>
           </div>
-        </Panel>
+        </Panel></div>
       </div>
     </LearningStage>
 
     <LearningStage id="see-it" number="02" title="See It" description="Watch the concepts work, then notice the traps and failure patterns." icon={<Eye />}>
       <div id="worked-examples" className="scroll-mt-24 space-y-4">
         <WorkedExamples examples={getWorkedExamples(topic.id)} />
-        {deepLesson?.depth ? <LessonWalkthroughPanel depth={deepLesson.depth} /> : null}
-        {deepLesson?.depth ? <LessonMisconceptions depth={deepLesson.depth} /> : null}
+        {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "walkthrough"))} className="scroll-mt-24"><LessonWalkthroughPanel depth={deepLesson.depth} /></div> : null}
+        {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "misconceptions"))} className="scroll-mt-24"><LessonMisconceptions depth={deepLesson.depth} /></div> : null}
         <Panel title="Apply the pattern" description="Connect the concept to failures, troubleshooting, and exam wording.">
           <div className="space-y-7 text-sm leading-7 text-muted-foreground">
             <ListSection title="Examples" items={lesson.realWorldExamples} />
-            <ListSection title="What goes wrong" items={[...module.commonProblems, ...module.howItFails]} />
-            <ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered />
-            <ListSection title="Exam Coverage" items={examCoverage} />
+            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "problems"))} className="scroll-mt-24"><ListSection title="What goes wrong" items={[...module.commonProblems, ...module.howItFails]} /></div>
+            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "troubleshooting"))} className="scroll-mt-24"><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /></div>
+            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "exam-coverage"))} className="scroll-mt-24"><ListSection title="Exam Coverage" items={examCoverage} /></div>
           </div>
         </Panel>
       </div>
     </LearningStage>
 
     <LearningStage id="try-it" number="03" title="Try It" description="Low-stakes practice. Mistakes here are part of learning and do not prove mastery." icon={<Wrench />} tone="practice">
-      {deepLesson?.depth ? <LessonCheckYourself depth={deepLesson.depth} /> : null}
+      {deepLesson?.depth ? <LessonCheckYourself depth={deepLesson.depth} topicId={topic.id} /> : null}
       <Tabs value={tryTab} onValueChange={setTryTab} className="space-y-4">
         <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
           {visibleRecall.length > 0 ? <TabsTrigger value="recall">Recall</TabsTrigger> : null}
@@ -370,11 +373,16 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         </TabsList>
         {visibleRecall.length > 0 ? <TabsContent value="recall"><div id="recall" className="scroll-mt-24 space-y-4">{visibleRecall.map((question, index) => {
           const feedback = recallFeedback[question.id];
-          return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={`recall-${question.id}`}>Answer from memory</Label><Textarea id={`recall-${question.id}`} className="mt-2" rows={5} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy && markedRecallId === question.id} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "GAYL is reading…" : "Check recall"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-success" : "text-muted-foreground"}`}>{feedback.correct ? "Correct. " : "Keep building it. "}{feedback.message}</p> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
+          const sectionId = question.lessonSectionId ?? (question.id.includes("owner") || question.id.includes("work") ? undefined : lessonSectionId(topic.id, "core"));
+          const mapped = resolveLessonSection(topic.id, sectionId, deepLesson);
+          return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={`recall-${question.id}`}>Answer from memory</Label><Textarea id={`recall-${question.id}`} className="mt-2" rows={5} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy && markedRecallId === question.id} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "GAYL is reading…" : "Check recall"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-success" : "text-muted-foreground"}`}>{feedback.correct ? "Correct. " : "Keep building it. "}{feedback.message}</p> : null}{feedback && !feedback.correct && mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={question.conceptId ?? `${topic.id}:recall:${question.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="recall" sourceItemId={question.id} /> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
         })}</div></TabsContent> : null}
         {practice ? <TabsContent value="practice"><div id="practice" className="scroll-mt-24 space-y-4">{practiceActivities.map((activity, index) => {
           const chosen = practiceChoices[activity.id]; const feedback = practiceFeedback[activity.id];
-          return <Panel key={activity.id} title={`Practice ${index + 1}: ${activity.title}`} description={activity.prompt}><div className="grid gap-2">{activity.choices.map((choice, choiceIndex) => <Button key={choice} variant={chosen === choiceIndex ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" onClick={() => setPracticeChoices((current) => ({ ...current, [activity.id]: choiceIndex }))}>{choice}</Button>)}</div><Button className="mt-4" onClick={() => submitPractice(activity.id)}>Check decision</Button>{feedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{feedback}</p> : null}</Panel>;
+          const incorrect = feedback?.startsWith("Not yet.") ?? false;
+          const sectionId = activity.lessonSectionId ?? (activity.id.includes("owner") ? undefined : lessonSectionId(topic.id, "core"));
+          const mapped = resolveLessonSection(topic.id, sectionId, deepLesson);
+          return <Panel key={activity.id} title={`Practice ${index + 1}: ${activity.title}`} description={activity.prompt}><div className="grid gap-2">{activity.choices.map((choice, choiceIndex) => <Button key={choice} variant={chosen === choiceIndex ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" onClick={() => setPracticeChoices((current) => ({ ...current, [activity.id]: choiceIndex }))}>{choice}</Button>)}</div><Button className="mt-4" onClick={() => submitPractice(activity.id)}>Check decision</Button>{feedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{feedback}</p> : null}{incorrect && mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={activity.conceptId ?? `${topic.id}:practice:${activity.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="practice" sourceItemId={activity.id} /> : null}</Panel>;
         })}</div></TabsContent> : null}
       </Tabs>
       <ObdPracticePanel topicId={topic.id} topicTitle={topic.title} />
@@ -384,7 +392,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <Tabs value={proveTab} onValueChange={setProveTab} className="space-y-4">
         <TabsList className="h-auto w-full justify-start overflow-x-auto p-1"><TabsTrigger value="teach-back">Teach Back</TabsTrigger>{scenario ? <TabsTrigger value="scenario">Real-World Scenario</TabsTrigger> : null}</TabsList>
         <TabsContent value="teach-back"><div id="teach-back" className="scroll-mt-24"><Panel title="Teach Back" description={ownerTeachBack?.prompt || "Explain this topic in your own words. GAYL reads it back and tells you what your explanation shows."}>{teachBackEditing ? <><Label htmlFor="teach-back-answer">Your explanation</Label><Textarea id="teach-back-answer" className="mt-2" rows={7} value={teachBack} onChange={(event) => setTeachBack(event.target.value)} /><div className="mt-3 flex flex-wrap gap-2"><Button disabled={teachBackMarking.busy} onClick={() => void saveTeachBack()}><Save />{teachBackMarking.busy ? "GAYL is reading…" : "Save"}</Button>{savedTeachBack ? <Button variant="outline" onClick={() => { setTeachBack(savedTeachBack.body); setTeachBackEditing(false); }}><FileText />Review saved response</Button> : null}</div></> : <><div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">{savedTeachBack?.body}</div><Button className="mt-3" variant="outline" onClick={() => setTeachBackEditing(true)}><Edit3 />Edit</Button></>}<AiFeedback state={teachBackMarking} /></Panel></div></TabsContent>
-        {scenario ? <TabsContent value="scenario"><div id="scenario" className="scroll-mt-24"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}<AiFeedback state={scenarioMarking} /></Panel></div></TabsContent> : null}
+        {scenario ? <TabsContent value="scenario"><div id="scenario" className="scroll-mt-24"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}{savedScenario && !savedScenario.meetsCriteria && (() => { const sectionId = scenario.lessonSectionId ?? (scenario.id.includes("owner") || scenario.id.includes("work") ? undefined : lessonSectionId(topic.id, "troubleshooting")); const mapped = resolveLessonSection(topic.id, sectionId, deepLesson); return mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={scenario.conceptId ?? `${topic.id}:scenario:${scenario.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="scenario" sourceItemId={scenario.id} /> : null; })()}<AiFeedback state={scenarioMarking} /></Panel></div></TabsContent> : null}
       </Tabs>
       <MasteryChecklist topicId={topic.id} />
       <div id="section-quiz" className="scroll-mt-24"><Panel title="Section quiz" description="Twenty questions on this section alone, part multiple choice and part written in your own words. Eighty percent is a pass."><Button asChild><Link to="/section-quiz/$topicId" params={{ topicId: topic.id }}>Take the section quiz</Link></Button></Panel></div>
@@ -393,8 +401,8 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
     <LearningStage id="keep-handy" number="05" title="Keep Handy" description="Lookup material, trusted sources, and your own notes—available without interrupting the lesson." icon={<Sparkles />}>
       <div className="grid gap-4 lg:grid-cols-2">
-        <Panel title="Key Terms"><dl className="divide-y divide-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 text-sm sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd className="leading-7 text-muted-foreground">{item.meaning}</dd></div>)}</dl></Panel>
-        {deepLesson?.depth ? <LessonReferencePanel depth={deepLesson.depth} /> : null}
+        <div id={lessonConceptAnchor(lessonSectionId(topic.id, "key-terms"))} className="scroll-mt-24"><Panel title="Key Terms"><dl className="divide-y divide-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 text-sm sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd className="leading-7 text-muted-foreground">{item.meaning}</dd></div>)}</dl></Panel></div>
+        {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "reference"))} className="scroll-mt-24"><LessonReferencePanel depth={deepLesson.depth} /></div> : null}
       </div>
       <Panel title="Interview Questions" description="Useful prompts for review and career conversations."><ListSection title="Questions to rehearse" items={module.interviewQuestions} /></Panel>
       <MediaPanel topic={topic} />

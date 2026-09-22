@@ -262,6 +262,21 @@ export function sanitizeUser(raw: unknown): UserData {
     flashcardReviews: arr(r.flashcardReviews, base.flashcardReviews).filter(
       (card) => card && typeof card.id === "string" && typeof card.topicId === "string",
     ),
+    readingPositions:
+      r.readingPositions && typeof r.readingPositions === "object" && !Array.isArray(r.readingPositions)
+        ? Object.fromEntries(
+            Object.entries(r.readingPositions).filter(([, value]) => {
+              const item = value as { topicId?: unknown; sectionId?: unknown; offset?: unknown };
+              return typeof item?.topicId === "string" && typeof item.sectionId === "string" && typeof item.offset === "number";
+            }),
+          )
+        : base.readingPositions,
+    remediationEvents: arr(r.remediationEvents, base.remediationEvents).filter(
+      (event) => event && typeof event.topicId === "string" && typeof event.lessonSectionId === "string",
+    ),
+    ...(r.activityReturn && typeof r.activityReturn === "object" && typeof r.activityReturn.href === "string"
+      ? { activityReturn: r.activityReturn }
+      : {}),
     settings: {
       ...defaultSettings,
       ...(r.settings ?? {}),

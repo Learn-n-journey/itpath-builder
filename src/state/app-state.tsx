@@ -38,11 +38,13 @@ import {
 import {
   APP_DATA_VERSION,
   type AssignmentAttempt,
+  type ActivityReturnContext,
   type Bookmark,
   type CertificationObjectiveOverride,
   type IncidentAttempt,
   type LabAttempt,
   type MasteryCheckAttempt,
+  type RemediationEvent,
   type Note,
   type Mistake,
   type PracticeResponse,
@@ -58,6 +60,7 @@ import {
   type TerminalAttempt,
   type TicketAttempt,
   type TopicProgress,
+  type TopicReadingPosition,
   type UserData,
   type UserSettings,
 } from "@/lib/app-data/types";
@@ -104,6 +107,9 @@ interface AppActions {
   setTeachBackResponse: (response: TeachBackResponse) => void;
   setScenarioResponse: (response: ScenarioResponse) => void;
   setTopicProgress: (progress: TopicProgress) => void;
+  setReadingPosition: (position: TopicReadingPosition) => void;
+  addRemediationEvent: (event: RemediationEvent) => void;
+  setActivityReturn: (context?: ActivityReturnContext) => void;
   declareExamOutcome: (certificationId: string, outcome: "attempted" | "passed", note: string) => void;
   clearExamDeclaration: (certificationId: string) => void;
   saveCertificationObjective: (objective: CertificationObjectiveOverride) => void;
@@ -405,6 +411,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setUser((current) => userMutations.setScenarioResponse(current, response)),
       setTopicProgress: (progress) =>
         setUser((current) => userMutations.setTopicProgress(current, progress)),
+      setReadingPosition: (position) =>
+        setUser((current) => userMutations.setReadingPosition(current, position)),
+      addRemediationEvent: (event) =>
+        setUser((current) => userMutations.addRemediationEvent(current, event)),
+      setActivityReturn: (context) =>
+        setUser((current) => userMutations.setActivityReturn(current, context)),
       declareExamOutcome: (certificationId, outcome, note) =>
         setUser((current) =>
           userMutations.setCertificationProgress(

@@ -88,7 +88,7 @@ export function objectiveForTopic(topicId: string): string {
 
 export function tagQuestion(question: Question, kind: string, anchor: string): QuestionTags {
   return {
-    conceptId: conceptKey(question.topicId, anchor),
+    conceptId: question.conceptId ?? conceptKey(question.topicId, anchor),
     objectiveId: objectiveForTopic(question.topicId),
     skill: question.mistakeCategory,
     difficulty: difficultyForKind(kind, question.difficulty),

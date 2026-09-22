@@ -86,6 +86,12 @@ export const qualityRules: QualityRule[] = [
     says: "A question keeps the same concept id every time it is asked, inside its own section.",
   },
   {
+    id: "concepts.remediation-maps",
+    area: "concepts",
+    severity: "warning",
+    says: "Every assessment item should point to a lesson section that exists and renders a stable anchor; legacy unmapped items stay flagged.",
+  },
+  {
     id: "domain.definition-complete",
     area: "structure",
     severity: "blocking",

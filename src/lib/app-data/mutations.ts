@@ -1,5 +1,6 @@
 import type {
   AssignmentAttempt,
+  ActivityReturnContext,
   Bookmark,
   CareerTicket,
   CertificationObjectiveOverride,
@@ -23,6 +24,8 @@ import type {
   TeachBackResponse,
   TerminalAttempt,
   MasteryCheckAttempt,
+  RemediationEvent,
+  TopicReadingPosition,
   TopicProgress,
   UserData,
   UserSettings,
@@ -77,6 +80,19 @@ export const userMutations = {
     ...user,
     topicProgress: { ...user.topicProgress, [progress.topicId]: progress },
   }),
+  setReadingPosition: (user: UserData, position: TopicReadingPosition): UserData => ({
+    ...user,
+    readingPositions: { ...user.readingPositions, [position.topicId]: position },
+  }),
+  addRemediationEvent: (user: UserData, event: RemediationEvent): UserData => ({
+    ...user,
+    remediationEvents: [event, ...user.remediationEvents].slice(0, 1000),
+  }),
+  setActivityReturn: (user: UserData, context?: ActivityReturnContext): UserData => {
+    if (context) return { ...user, activityReturn: context };
+    const { activityReturn: _removed, ...rest } = user;
+    return rest;
+  },
   removeTopicProgress: (user: UserData, topicId: string): UserData => {
     const next = { ...user.topicProgress };
     delete next[topicId];

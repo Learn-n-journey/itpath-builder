@@ -29,6 +29,8 @@ export interface OwnerLabItem {
   answerFunction: string;
   /** Where the learner should practise it: a tool name or an in-app path. */
   practiceIn?: string;
+  conceptId?: string;
+  lessonSectionId?: string;
 }
 
 export interface OwnerLessonExtras {
@@ -99,7 +101,7 @@ export const LESSON_TABS = [
 /** Headers of each tab, in column order. The template workbook uses these. */
 export const LESSON_TAB_HEADERS: Record<string, string[]> = {
   Lesson: ["Title", "Reading minutes", "Intro", "Where you meet it"],
-  Sections: ["Heading", "Paragraph", "Bullets"],
+  Sections: ["Heading", "Paragraph", "Bullets", "Section ID"],
   "Key terms": ["Term", "Meaning"],
   "Key ideas": ["Idea"],
   Walkthrough: ["Title", "Scenario", "Step label", "Step detail", "Outcome"],
@@ -118,8 +120,10 @@ export const LESSON_TAB_HEADERS: Record<string, string[]> = {
     "Choice D",
     "Correct",
     "Explanation",
+    "Concept ID",
+    "Lesson section ID",
   ],
-  Recall: ["Prompt", "Accepted concepts", "Explanation"],
+  Recall: ["Prompt", "Accepted concepts", "Explanation", "Concept ID", "Lesson section ID"],
   "Teach back": ["Prompt", "Expected point"],
   "Real world scenario": [
     "Title",
@@ -127,8 +131,10 @@ export const LESSON_TAB_HEADERS: Record<string, string[]> = {
     "Decision prompt",
     "Expected concepts",
     "Guidance",
+    "Concept ID",
+    "Lesson section ID",
   ],
-  Labs: ["Number", "Clue", "Name", "What it does", "Practice in"],
+  Labs: ["Number", "Clue", "Name", "What it does", "Practice in", "Concept ID", "Lesson section ID"],
   Quiz: [
     "ID",
     "Course",
@@ -144,6 +150,8 @@ export const LESSON_TAB_HEADERS: Record<string, string[]> = {
     "Source URL",
     "Objective",
     "Difficulty",
+    "Concept ID",
+    "Lesson section ID",
   ],
   "Worked examples": [
     "Title",
@@ -213,6 +221,8 @@ export function labsFromTabs(tabs: SheetTab[]): OwnerLabItem[] {
       name,
       answerFunction,
       ...(cell(row, 4) ? { practiceIn: cell(row, 4) } : {}),
+      ...(cell(row, 5) ? { conceptId: cell(row, 5) } : {}),
+      ...(cell(row, 6) ? { lessonSectionId: cell(row, 6) } : {}),
     });
   });
   return items.sort((left, right) => left.number - right.number);
@@ -232,6 +242,8 @@ function extrasFromTabs(topic: NumberedTopic, tabs: SheetTab[]): OwnerLessonExtr
       prompt,
       acceptedConcepts: accepted,
       explanation,
+      ...(cell(row, 3) ? { conceptId: cell(row, 3) } : {}),
+      ...(cell(row, 4) ? { lessonSectionId: cell(row, 4) } : {}),
     });
   });
 
@@ -253,6 +265,8 @@ function extrasFromTabs(topic: NumberedTopic, tabs: SheetTab[]): OwnerLessonExtr
           decisionPrompt,
           expectedConcepts: splitList(cell(scenarioRow, 3).replace(/,/g, "|")),
           guidance: cell(scenarioRow, 4),
+          ...(cell(scenarioRow, 5) ? { conceptId: cell(scenarioRow, 5) } : {}),
+          ...(cell(scenarioRow, 6) ? { lessonSectionId: cell(scenarioRow, 6) } : {}),
         }
       : undefined;
 
@@ -317,6 +331,8 @@ export function practiceFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Practi
       choices,
       answerIndex,
       explanation: cell(row, 7),
+      ...(cell(row, 8) ? { conceptId: cell(row, 8) } : {}),
+      ...(cell(row, 9) ? { lessonSectionId: cell(row, 9) } : {}),
     });
   });
   return items;
@@ -335,7 +351,7 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
     const bullets = splitList(cell(row, 2));
     const current = sections[sections.length - 1];
     if (heading && (!current || key(current.heading) !== key(heading))) {
-      sections.push({ heading, paragraphs: [] });
+      sections.push({ ...(cell(row, 3) ? { id: cell(row, 3) } : {}), heading, paragraphs: [] });
     }
     const target = sections[sections.length - 1];
     if (!target) continue;
@@ -379,7 +395,7 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
     .filter(Boolean);
 
   const checkYourself: LessonCheck[] = body(tabs, "Check yourself")
-    .map((row) => ({ question: cell(row, 0), answer: cell(row, 1) }))
+    .map((row) => ({ question: cell(row, 0), answer: cell(row, 1), ...(cell(row, 2) ? { conceptId: cell(row, 2) } : {}), ...(cell(row, 3) ? { lessonSectionId: cell(row, 3) } : {}) }))
     .filter((row) => row.question && row.answer);
 
   const plainRows = body(tabs, "Plain words");

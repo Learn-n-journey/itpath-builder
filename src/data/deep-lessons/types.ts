@@ -1,6 +1,8 @@
 /** Shared shapes for the deep instructional reading used by the Learn page. */
 
 export interface DeepLessonSection {
+  /** Stable authored identity. Existing lessons fall back to a deterministic heading slug. */
+  id?: string;
   heading: string;
   paragraphs: string[];
   bullets?: string[];
@@ -34,6 +36,8 @@ export interface LessonReferenceRow {
 export interface LessonCheck {
   question: string;
   answer: string;
+  conceptId?: string;
+  lessonSectionId?: string;
 }
 
 /**

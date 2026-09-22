@@ -32,6 +32,8 @@ export interface IdentificationItem {
   answerFunction: string;
   /** Optional practice tool this item links to. */
   practiceIn?: string;
+  conceptId?: string;
+  lessonSectionId?: string;
 }
 
 export interface IdentificationSet {
@@ -76,6 +78,8 @@ export function identificationSet(
         functionConcepts: [item.answerFunction],
         answerFunction: item.answerFunction,
         ...(item.practiceIn ? { practiceIn: item.practiceIn } : {}),
+        ...(item.conceptId ? { conceptId: item.conceptId } : {}),
+        ...(item.lessonSectionId ? { lessonSectionId: item.lessonSectionId } : {}),
       })),
     };
   }
@@ -152,6 +156,9 @@ export function buildIdentificationLabs(topicList: Topic[], lessonList: Lesson[]
       })),
       reflectionPrompt: "Which one did you have to think hardest about, and what would fix that gap?",
       masteryScore: 80,
+      ...(!ownerLabsFor(topic.id).length && !ownerWorkLabsFor(topic.id).length
+        ? { conceptId: `${topic.id}:lab:identification`, lessonSectionId: `${topic.id}:lesson:key-terms` }
+        : {}),
     });
   }
   return out;

@@ -26,6 +26,7 @@ import { conceptKey, tagQuestion, type TaggedQuestion } from "@/lib/question-tag
 import { finalizeQuestionSet } from "@/lib/quiz-finalize";
 import type { ConceptStat } from "@/lib/concept-mastery";
 import type { Question } from "@/lib/app-data/types";
+import { generatedQuestionSection, lessonSectionId } from "@/lib/lesson-concepts";
 
 /** How many questions a section quiz holds. Declared by the live subject. */
 export const SECTION_QUIZ_SIZE = domainOverlay?.sizes.sectionQuiz ?? 20;
@@ -900,10 +901,16 @@ export function getTaggedTopicPool(topicId: string): TaggedQuestion[] {
   if (cached && cached.version === version) return cached.items;
   const tagged = topicPool(topicId)
     .filter((item) => isUsableQuestion(item.question))
-    .map((item) => ({
-      question: item.question,
-      tags: tagQuestion(item.question, item.kind, item.sourceKey),
-    }));
+    .map((item) => {
+      const mappedSectionId = item.question.lessonSectionId
+        ?? generatedQuestionSection(item.question.topicId, item.kind)
+        ?? (item.kind === "authored" ? lessonSectionId(item.question.topicId, "core") : undefined);
+      const question = {
+        ...item.question,
+        ...(mappedSectionId ? { lessonSectionId: mappedSectionId } : {}),
+      };
+      return { question, tags: tagQuestion(question, item.kind, item.sourceKey) };
+    });
   taggedCache.set(topicId, { version, items: tagged });
   return tagged;
 }
@@ -1004,5 +1011,5 @@ export function drawSectionQuiz(topicId: string, nonce: number): Question[] {
 
 /** Every question available for a topic, used to top up the larger stage exams. */
 export function getTopicQuestionPool(topicId: string): Question[] {
-  return usableQuestions(topicPool(topicId).map((item) => item.question));
+  return getTaggedTopicPool(topicId).map((item) => item.question);
 }

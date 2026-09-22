@@ -27,6 +27,10 @@ import { buildQuizDiagnostic } from "@/lib/quiz-diagnostic";
 import { createQuizAttempt, safeChoiceOrder, scoreQuiz } from "@/lib/quiz-engine";
 import { useAppState } from "@/state/app-state";
 import { ContentReportButton } from "@/components/content-report-button";
+import { ReviewConceptLink } from "@/components/learning/remediation-link";
+import { getDeepLesson } from "@/data/deep-lessons";
+import { conceptIdFor } from "@/data/topic-quizzes";
+import { resolveLessonSection } from "@/lib/lesson-concepts";
 
 export const questionTypeLabels: Record<QuestionType, string> = {
   multiple_choice: "Multiple Choice",
@@ -461,6 +465,7 @@ function QuizReview({
     const question = pool.find((item) => item.id === questionId);
     const result = attempt.results.find((item) => item.questionId === questionId);
     if (!question || !result) return null;
+    const section = resolveLessonSection(question.topicId, question.lessonSectionId, getDeepLesson(question.topicId));
     return (
       <article key={questionId} className="rounded-md border border-border p-4">
         <div className="flex items-start gap-3">
@@ -490,6 +495,7 @@ function QuizReview({
               label={question.prompt.slice(0, 200)}
               className="mt-2"
             />
+            {!result.correct && section && question.lessonSectionId ? <ReviewConceptLink topicId={question.topicId} conceptId={conceptIdFor(question)} sectionId={question.lessonSectionId} anchor={section.anchor} sourceKind="quiz" sourceItemId={question.id} /> : null}
           </div>
         </div>
       </article>

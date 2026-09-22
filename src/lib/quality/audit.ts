@@ -21,6 +21,7 @@ import { shingles } from "@/lib/originality";
 import { getRule } from "./rules";
 import type { AuditOptions, AuditReport, Finding } from "./types";
 import type { Question } from "@/lib/app-data/types";
+import { lessonConceptSections } from "@/lib/lesson-concepts";
 
 export type { AuditOptions, AuditReport, Finding } from "./types";
 
@@ -98,7 +99,14 @@ export function auditCoursePack(pack: CoursePack, options: AuditOptions = {}): A
       note(findings, "content.lesson-numbers-hold-up", subject, `${issue.claim.trim()} -> ${issue.problem}`);
     }
     const lesson = pack.lessons.find((item) => item.topicId === topic.id);
-    for (const issue of lessonQualityIssues(topic, lesson, pack.getDeepLesson(topic.id))) {
+    const deepLesson = pack.getDeepLesson(topic.id);
+    const lessonSections = lessonConceptSections(topic.id, deepLesson);
+    const validSectionIds = new Set(lessonSections.map((item) => item.id));
+    const anchors = lessonSections.map((item) => item.anchor);
+    if (new Set(anchors).size !== anchors.length) {
+      note(findings, "concepts.remediation-maps", subject, "Two lesson concepts render the same remediation anchor.");
+    }
+    for (const issue of lessonQualityIssues(topic, lesson, deepLesson)) {
       note(findings, "content.lesson-instructionally-sound", subject, issue);
     }
     // Copied wording: no lesson may reuse long runs of another lesson's text.
@@ -130,6 +138,11 @@ export function auditCoursePack(pack: CoursePack, options: AuditOptions = {}): A
         note(findings, "papers.section-quiz-whole", `question:${question.id}`, "Question is stored in another section's pool.");
       }
       auditQuestion(findings, question);
+      if (!question.lessonSectionId) {
+        note(findings, "concepts.remediation-maps", `question:${question.id}`, "Required assessment item has no lesson section mapping.");
+      } else if (!validSectionIds.has(question.lessonSectionId)) {
+        note(findings, "concepts.remediation-maps", `question:${question.id}`, `Mapped lesson section ${question.lessonSectionId} does not exist.`);
+      }
     }
     if (available === 0) continue;
 

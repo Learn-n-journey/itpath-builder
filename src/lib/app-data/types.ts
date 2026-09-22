@@ -2,7 +2,7 @@ import type { MachineState, ShellKind } from "@/lib/terminal/machine";
 import type { TerminalScenario } from "@/lib/terminal/scenarios";
 
 /** Strongly typed IT PATH application data. Static content and user records stay separate. */
-export const APP_DATA_VERSION = 17;
+export const APP_DATA_VERSION = 18;
 
 export type EntityId = string;
 export type ExperienceLevel = "none" | "beginner" | "some" | "intermediate";
@@ -120,6 +120,8 @@ export interface Lab {
   checklist: LabChecklistItem[];
   reflectionPrompt: string;
   masteryScore: number;
+  conceptId?: EntityId;
+  lessonSectionId?: EntityId;
 }
 
 export interface LabChecklistItem {
@@ -188,6 +190,10 @@ export interface Question {
   difficulty: Difficulty;
   mistakeCategory: MistakeCategory;
   requiresReasoning: boolean;
+  /** Stable authored concept identity, when supplied by a content source. */
+  conceptId?: EntityId;
+  /** Stable lesson section that teaches this item. Optional means no targeted remediation. */
+  lessonSectionId?: EntityId;
 }
 
 export interface Certification {
@@ -265,6 +271,8 @@ export interface RecallQuestion {
   prompt: string;
   acceptedConcepts: string[];
   explanation: string;
+  conceptId?: EntityId;
+  lessonSectionId?: EntityId;
 }
 
 export interface PracticeActivity {
@@ -275,6 +283,8 @@ export interface PracticeActivity {
   choices: string[];
   answerIndex: number;
   explanation: string;
+  conceptId?: EntityId;
+  lessonSectionId?: EntityId;
 }
 
 export interface RealWorldScenario {
@@ -285,6 +295,40 @@ export interface RealWorldScenario {
   decisionPrompt: string;
   expectedConcepts: string[];
   guidance: string;
+  conceptId?: EntityId;
+  lessonSectionId?: EntityId;
+}
+
+export type LearningActivityKind = "practice" | "check-yourself" | "recall" | "scenario" | "lab" | "quiz";
+
+/** Approximate reading location. It is navigation state, never mastery evidence. */
+export interface TopicReadingPosition {
+  topicId: EntityId;
+  sectionId: EntityId;
+  offset: number;
+  contentFingerprint: string;
+  updatedAt: string;
+  reviewedSectionIds: EntityId[];
+}
+
+/** A review visit caused by a weak answer, kept separate from scored evidence. */
+export interface RemediationEvent {
+  id: EntityId;
+  topicId: EntityId;
+  conceptId: EntityId;
+  lessonSectionId: EntityId;
+  sourceKind: LearningActivityKind;
+  sourceItemId: EntityId;
+  createdAt: string;
+}
+
+export interface ActivityReturnContext {
+  topicId: EntityId;
+  sourceKind: LearningActivityKind;
+  sourceItemId: EntityId;
+  href: string;
+  label: string;
+  createdAt: string;
 }
 
 export interface LearningModule {
@@ -831,6 +875,10 @@ export interface UserData {
   learnerSignals: LearnerSignal[];
   /** Spaced repetition state for flashcards, one record per card seen. */
   flashcardReviews: FlashcardReview[];
+  /** Per-topic navigation state. Reading it never contributes to mastery. */
+  readingPositions: Record<EntityId, TopicReadingPosition>;
+  remediationEvents: RemediationEvent[];
+  activityReturn?: ActivityReturnContext;
   settings: UserSettings;
 }
 
