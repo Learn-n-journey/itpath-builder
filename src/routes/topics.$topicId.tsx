@@ -34,12 +34,12 @@ export const Route = createFileRoute("/topics/$topicId")({
 
 /** Which part of the page each study stage jumps to. */
 const STUDY_PART_TARGETS: Record<string, string | undefined> = {
-  "Read the lesson": "#lesson-reading",
-  "Second pass with notes": "#lesson-reading",
+  "Read": "#lesson-reading",
+  "Read again, take notes": "#lesson-reading",
   "Work through the examples": "#worked-examples",
-  "Recall from memory": "#check-yourself",
-  "Practice decision": "#practice",
-  "Teach it back": "#teach-back",
+  "Test yourself": "#check-yourself",
+  "Practice": "#practice",
+  "Explain it back": "#teach-back",
   "Real-world scenario": "#scenario",
 };
 

@@ -153,12 +153,12 @@ export function topicStudyTime(topicId: string): StudyTimeEstimate {
 
   const parts: StudyTimePart[] = [
     {
-      label: "Read the lesson",
+      label: "Read",
       minutes: readMinutes,
       detail: `About ${readingWords.toLocaleString()} words at a careful technical reading pace.`,
     },
     {
-      label: "Second pass with notes",
+      label: "Read again, take notes",
       minutes: secondPassMinutes,
       detail: "Re-read the harder parts and write your own notes.",
     },
@@ -168,17 +168,17 @@ export function topicStudyTime(topicId: string): StudyTimeEstimate {
       detail: `${examples.length} worked example${examples.length === 1 ? "" : "s"} and ${practiceItems} practice question${practiceItems === 1 ? "" : "s"}.`,
     },
     {
-      label: "Recall from memory",
+      label: "Test yourself",
       minutes: recallMinutes,
       detail: `${recall.length} written recall question${recall.length === 1 ? "" : "s"}.`,
     },
     {
-      label: "Practice decision",
+      label: "Practice",
       minutes: practiceMinutes,
       detail: "One applied decision with feedback.",
     },
     {
-      label: "Teach it back",
+      label: "Explain it back",
       minutes: teachBackMinutes,
       detail: "Write the topic in your own words.",
     },
