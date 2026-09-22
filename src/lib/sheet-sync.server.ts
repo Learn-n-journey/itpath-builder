@@ -20,6 +20,7 @@
  * owner-only "Sync now" server function. Server-only: imported dynamically.
  */
 import type { Json } from "@/integrations/supabase/types";
+import * as XLSX from "xlsx";
 import { ownerLessonFromTabs, type SheetTab } from "@/lib/owner-lessons-shared";
 import { ownerWorkFromTabs } from "@/lib/owner-work-shared";
 import type { OwnerTopicWork } from "@/lib/owner-work-shared";
@@ -41,7 +42,6 @@ const LOCK_MINUTES = 15;
  */
 const SLICE_MS = 100_000;
 const INSERT_CHUNK = 500;
-const EXCEL_ROW_PAGE = 1_000;
 const MAX_GRAPH_ATTEMPTS = 5;
 const RETRYABLE_GRAPH_STATUSES = new Set([429, 503, 504]);
 /** How many different workbooks are read at the same time. */
@@ -176,63 +176,54 @@ async function listWorkbooks(root: string, sub: string): Promise<SheetFile[]> {
     .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
 }
 
-function columnName(column: number): string {
-  let value = column;
-  let result = "";
-  while (value > 0) {
-    value -= 1;
-    result = String.fromCharCode(65 + (value % 26)) + result;
-    value = Math.floor(value / 26);
-  }
-  return result || "A";
-}
-
-function usedRangeStart(address: string): { row: number; column: number } {
-  const localAddress = address.split("!").pop()?.replaceAll("$", "") ?? "A1";
-  const match = /^([A-Z]+)(\d+)/i.exec(localAddress);
-  if (!match) return { row: 1, column: 1 };
-  const letters = match[1]?.toUpperCase() ?? "A";
-  let column = 0;
-  for (const letter of letters) column = column * 26 + letter.charCodeAt(0) - 64;
-  return { row: Number(match[2] ?? 1), column };
-}
-
-async function readSheetRows(fileId: string, sheetId: string): Promise<string[][]> {
-  const base = `/me/drive/items/${fileId}/workbook/worksheets/${encodeURIComponent(sheetId)}`;
-  const bounds: { address?: string; rowCount?: number; columnCount?: number } = await graph(
-    `${base}/usedRange(valuesOnly=true)?$select=address,rowCount,columnCount`,
-  );
-  const rowCount = Math.max(0, Number(bounds.rowCount ?? 0));
-  const columnCount = Math.max(0, Number(bounds.columnCount ?? 0));
-  if (!rowCount || !columnCount) return [];
-
-  const start = usedRangeStart(String(bounds.address ?? "A1"));
-  const endColumn = columnName(start.column + columnCount - 1);
-  const rows: string[][] = [];
-  for (let offset = 0; offset < rowCount; offset += EXCEL_ROW_PAGE) {
-    const firstRow = start.row + offset;
-    const lastRow = Math.min(start.row + rowCount - 1, firstRow + EXCEL_ROW_PAGE - 1);
-    const range = `${columnName(start.column)}${firstRow}:${endColumn}${lastRow}`;
-    const page: { values?: unknown[][] } = await graph(
-      `${base}/range(address='${range}')?$select=values`,
-    );
-    rows.push(...(page.values ?? []).map((row) => row.map((value) => String(value ?? ""))));
-  }
-  return rows;
-}
-
-/** Every worksheet of a workbook, as tab name plus rows of text. */
+/**
+ * Downloads the workbook once and parses every sheet locally. This avoids
+ * opening the file through Excel's workbook host and replaces dozens of
+ * worksheet/range requests with one OneDrive file download.
+ */
 async function readTabs(fileId: string): Promise<SheetTab[]> {
-  const sheets = await graph(`/me/drive/items/${fileId}/workbook/worksheets?$select=id,name`);
-  const tabs: SheetTab[] = [];
-  for (const sheet of sheets.value ?? []) {
-    if (!sheet.id) continue;
-    tabs.push({
-      name: String(sheet.name ?? ""),
-      rows: await readSheetRows(fileId, String(sheet.id)),
-    });
+  const apiKey = process.env["LOVABLE_API_KEY"];
+  const connectionKey = process.env["MICROSOFT_EXCEL_API_KEY"];
+  if (!apiKey || !connectionKey) {
+    throw new Error("the Excel connection is not configured in this environment");
   }
-  return tabs;
+
+  let lastError = "Workbook download failed";
+  for (let attempt = 0; attempt < MAX_GRAPH_ATTEMPTS; attempt += 1) {
+    const response = await fetch(`${GATEWAY_URL}/me/drive/items/${encodeURIComponent(fileId)}/content`, {
+      headers: { Authorization: `Bearer ${apiKey}`, "X-Connection-Api-Key": connectionKey },
+      redirect: "manual",
+    });
+
+    let download = response;
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get("location");
+      if (!location) throw new Error("OneDrive did not provide a workbook download address");
+      download = await fetch(location);
+    }
+
+    if (download.ok) {
+      const workbook = XLSX.read(await download.arrayBuffer(), { type: "array", raw: false });
+      return workbook.SheetNames.flatMap((name) => {
+        const sheet = workbook.Sheets[name];
+        if (!sheet) return [];
+        const rows = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
+          header: 1,
+          raw: false,
+          defval: "",
+          blankrows: false,
+        });
+        return [{ name, rows: rows.map((row) => row.map((value) => String(value ?? ""))) }];
+      });
+    }
+
+    lastError = `Workbook download failed [${download.status}]: ${(await download.text()).slice(0, 300)}`;
+    const canRetry = RETRYABLE_GRAPH_STATUSES.has(download.status) && attempt < MAX_GRAPH_ATTEMPTS - 1;
+    if (!canRetry) throw new Error(lastError);
+    await new Promise((resolve) => setTimeout(resolve, retryDelay(download, attempt)));
+  }
+
+  throw new Error(`${lastError} after all retry attempts`);
 }
 
 export interface SheetSyncResult {
