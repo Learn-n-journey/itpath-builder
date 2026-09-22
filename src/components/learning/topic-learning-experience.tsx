@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Edit3, FileText, Save } from "lucide-react";
+import { CheckCircle2, Edit3, ExternalLink, FileText, PlayCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
@@ -9,6 +9,7 @@ import { MasteryChecklist } from "@/components/learning/mastery-checklist";
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { Panel } from "@/components/page-kit";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -238,7 +239,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         <section><h2 className="mb-3 text-base font-semibold text-foreground">Keywords</h2><dl className="divide-y divide-border border-y border-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd>{item.meaning}</dd></div>)}</dl></section>
         <ListSection title="Examples" items={lesson.realWorldExamples} /><ListSection title="Common Problems" items={module.commonProblems} /><ListSection title="How It Fails" items={module.howItFails} /><ListSection title="How to Troubleshoot" items={module.troubleshooting} ordered /><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /><ListSection title="Exam Coverage" items={examCoverage} /><ListSection title="Interview Questions" items={module.interviewQuestions} />
         <ContentReportButton kind="lesson" refId={topic.id} label={topic.title} />
-      </div></Panel><div id="worked-examples" className="scroll-mt-24"><WorkedExamples examples={getWorkedExamples(topic.id)} /></div><LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} /></div>
+      </div></Panel><div id="worked-examples" className="scroll-mt-24"><WorkedExamples examples={getWorkedExamples(topic.id)} /></div><MediaPanel topic={topic} /><LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} /></div>
 
     <section id="work-on-it" className="scroll-mt-24 space-y-4">
       <div>
