@@ -227,6 +227,19 @@ export interface SheetSyncResult {
   error?: string;
 }
 
+/** A snapshot of a sync while it is still running, for the live counter. */
+export interface SyncProgress {
+  stage: string;
+  course: string;
+  file?: string;
+  filesDone: number;
+  topics: number;
+  approved: number;
+  lessonsApproved: number;
+  unchangedFiles: number;
+  at: string;
+}
+
 function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string[] }> {
   return values
     .slice(1)
@@ -235,7 +248,11 @@ function dataRows(values: unknown[][]): Array<{ rowNumber: number; cells: string
 }
 
 export async function runSheetSync(
-  options: { domain?: OwnerDomain; force?: boolean } = {},
+  options: {
+    domain?: OwnerDomain;
+    force?: boolean;
+    onProgress?: (progress: SyncProgress) => void | Promise<void>;
+  } = {},
 ): Promise<SheetSyncResult> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const now = new Date();
@@ -265,6 +282,27 @@ export async function runSheetSync(
   const lessonIssues: Array<{ file: string; topic: string; reasons: string[] }> = [];
   let workTopics = 0;
   let unchangedFiles = 0;
+  let filesDone = 0;
+
+  // Reported while the run is still going, so the owner can watch it move.
+  const emit = async (stage: string, course: string, file?: string): Promise<void> => {
+    if (!options.onProgress) return;
+    try {
+      await options.onProgress({
+        stage,
+        course,
+        ...(file ? { file } : {}),
+        filesDone,
+        topics: topicsSynced.size,
+        approved: approvedTotal,
+        lessonsApproved,
+        unchangedFiles,
+        at: new Date().toISOString(),
+      });
+    } catch {
+      /* progress is only informational */
+    }
+  };
 
   // Skip workbooks OneDrive says have not changed since the last good sync.
   const seenState = new Map<string, string>();
@@ -324,6 +362,8 @@ export async function runSheetSync(
           continue;
         }
 
+        filesDone += 1;
+        await emit("lessons", domain, file.name);
         const tabs = await readTabs(file.id);
         const result = ownerLessonFromTabs(topic, tabs);
         if (!result.lesson) {
@@ -403,6 +443,8 @@ export async function runSheetSync(
             continue;
           }
 
+          filesDone += 1;
+          await emit(`${sub}`, domain, file.name);
           const tabs = await readTabs(file.id);
           const parsed = ownerWorkFromTabs(topic, tabs);
           const existing = work.get(topic.topicId);
@@ -509,6 +551,8 @@ export async function runSheetSync(
         const approved: Array<{ rowNumber: number; question: Json }> = [];
         const rejected: Array<{ rowNumber: number; question: Json; reasons: string[] }> = [];
         const failed: Array<{ rowNumber: number; error: string }> = [];
+        filesDone += 1;
+        await emit("quiz", domain, file.name);
         const tabs = await readTabs(file.id);
 
         for (const tab of tabs) {
@@ -704,9 +748,19 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
   if (!claimed.data?.length) return { ran: false };
 
   try {
+    let lastProgressWrite = 0;
     const result = await runSheetSync({
       ...(job.scope === "all" ? {} : { domain: job.scope }),
       force: Boolean(job.force),
+      onProgress: async (progress) => {
+        const now = Date.now();
+        if (now - lastProgressWrite < 3_000) return;
+        lastProgressWrite = now;
+        await supabaseAdmin
+          .from("sync_queue")
+          .update({ result: { progress } as unknown as Json })
+          .eq("id", job.id);
+      },
     });
     await supabaseAdmin
       .from("sync_queue")

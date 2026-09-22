@@ -23,6 +23,19 @@ export interface SyncRunSummary {
   lessonIssues: Array<{ file: string; topic: string; reasons: string[] }>;
 }
 
+/** Live counters written while a run is still going. */
+export interface SyncProgressStatus {
+  stage: string;
+  course: string;
+  file?: string;
+  filesDone: number;
+  topics: number;
+  approved: number;
+  lessonsApproved: number;
+  unchangedFiles: number;
+  at: string;
+}
+
 export interface SyncRunStatus {
   id: string;
   scope: string;
@@ -32,6 +45,7 @@ export interface SyncRunStatus {
   startedAt?: string | null;
   finishedAt?: string | null;
   result?: SyncRunSummary | null;
+  progress?: SyncProgressStatus | null;
 }
 
 function isOwner(context: { claims: unknown }): boolean {
@@ -102,7 +116,13 @@ export const syncStatus = createServerFn({ method: "GET" })
         createdAt: row.created_at,
         startedAt: row.started_at,
         finishedAt: row.finished_at,
-        result: (row.result as unknown as SyncRunSummary | null) ?? null,
+        result: ((row.result as { progress?: unknown } | null)?.progress
+          ? null
+          : ((row.result as unknown as SyncRunSummary | null) ?? null)),
+        progress:
+          ((row.result as { progress?: SyncProgressStatus } | null)?.progress as
+            | SyncProgressStatus
+            | undefined) ?? null,
       })),
     };
   });
