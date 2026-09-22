@@ -733,10 +733,12 @@ export type Database = {
           used: number
         }[]
       }
+      ensure_sync_worker: { Args: never; Returns: undefined }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
       }
+      stop_sync_worker: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
