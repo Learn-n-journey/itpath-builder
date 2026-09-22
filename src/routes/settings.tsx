@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { BetaAccessPanel } from "@/components/beta-access-panel";
@@ -38,7 +38,12 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { certifications } from "@/data/static-content";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
-import { clearSyncLock, syncNow } from "@/lib/sheet-sync.functions";
+import {
+  clearSyncLock,
+  syncNow,
+  syncStatus,
+  type SyncRunStatus,
+} from "@/lib/sheet-sync.functions";
 import { setMaintenance } from "@/lib/maintenance.functions";
 import { loadMaintenanceState } from "@/lib/maintenance-state";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
