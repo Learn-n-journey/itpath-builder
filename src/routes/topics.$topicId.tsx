@@ -113,12 +113,14 @@ function TopicPage() {
     .map((id) => topics.find((candidate) => candidate.id === id))
     .filter((candidate) => candidate !== undefined);
   const studyTime = topicStudyTimeForSession(topic.id, user.settings.sessionLengthMinutes);
+  const refreshTopicId = topic.id;
+  const refreshTopicTitle = topic.title;
 
   async function handleRefresh() {
     setRefreshing(true);
     try {
       const domain = activeDomainKey().split("@")[0] ?? "";
-      const result = await refresh({ data: { domain, topicId: topic.id } });
+      const result = await refresh({ data: { domain, topicId: refreshTopicId } });
       if (!result.ok || !result.summary) {
         toast.error(result.error ?? "This topic could not be refreshed.");
         return;
@@ -126,7 +128,7 @@ function TopicPage() {
       await Promise.all([loadOwnerQuestions(), loadOwnerLessons(), loadOwnerWork()]);
       const summary = result.summary;
       toast.success(
-        `Refreshed ${topic.title}: ${summary.lessonsApproved} lesson, ${summary.approved} questions, and ${summary.workTopics} try-it/lab update${summary.workTopics === 1 ? "" : "s"}.`,
+        `Refreshed ${refreshTopicTitle}: ${summary.lessonsApproved} lesson, ${summary.approved} questions, and ${summary.workTopics} try-it/lab update${summary.workTopics === 1 ? "" : "s"}.`,
       );
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "This topic could not be refreshed.");

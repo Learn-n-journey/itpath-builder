@@ -481,11 +481,14 @@ export async function runSheetSync(
         workFolders.push(listing);
       }
       const allWorkFiles = workFolders.flatMap((entry) => entry.files);
+      const selectedWorkFiles = options.topicId
+        ? allWorkFiles.filter((file) => pickTopic(fileNumber(file.name))?.topicId === options.topicId)
+        : allWorkFiles;
       // Try-it and labs merge into one row per topic, so they are re-read
       // together as soon as any one of their workbooks changed.
-      const workChanged = allWorkFiles.some((file) => !unchanged(file));
-      if (!workChanged && allWorkFiles.length) {
-        unchangedFiles += allWorkFiles.length;
+      const workChanged = selectedWorkFiles.some((file) => !unchanged(file));
+      if (!workChanged && selectedWorkFiles.length) {
+        unchangedFiles += selectedWorkFiles.length;
         report.push({
           domain,
           folder: `${root}/try it + labs`,
@@ -598,7 +601,7 @@ export async function runSheetSync(
       }
 
       await Promise.all(
-        (workChanged ? allWorkFiles : []).map((file) => remember(file, domain, `${root}/try it + labs`)),
+        (workChanged ? selectedWorkFiles : []).map((file) => remember(file, domain, `${root}/try it + labs`)),
       );
 
       // ---- quiz ----------------------------------------------------------
