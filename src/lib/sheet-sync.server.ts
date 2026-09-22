@@ -523,3 +523,73 @@ export async function releaseSyncLock(): Promise<{ ok: boolean; error?: string; 
   if (error) return { ok: false, error: error.message };
   return { ok: true, heldSince: current.data?.updated_at ?? undefined };
 }
+
+/**
+ * Runs the next requested sync, if there is one.
+ *
+ * The owner's "Sync now" button only writes a request into sync_queue and
+ * returns, so closing the app cannot interrupt anything. A scheduled job
+ * calls this every minute and does the actual work on the server.
+ */
+export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; result?: SheetSyncResult }> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+  // Never start a second run on top of one already in flight.
+  const running = await supabaseAdmin
+    .from("sync_queue")
+    .select("id")
+    .eq("status", "running")
+    .limit(1);
+  if (running.data?.length) return { ran: false };
+
+  const next = await supabaseAdmin
+    .from("sync_queue")
+    .select("id, scope")
+    .eq("status", "queued")
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  const job = next.data;
+  if (!job) return { ran: false };
+
+  const claimed = await supabaseAdmin
+    .from("sync_queue")
+    .update({ status: "running", started_at: new Date().toISOString() })
+    .eq("id", job.id)
+    .eq("status", "queued")
+    .select("id");
+  if (!claimed.data?.length) return { ran: false };
+
+  try {
+    const result = await runSheetSync(job.scope === "all" ? {} : { domain: job.scope });
+    await supabaseAdmin
+      .from("sync_queue")
+      .update({
+        status: result.ok ? "done" : "failed",
+        error: result.ok ? null : (result.error ?? "The sync failed."),
+        result: {
+          skipped: result.skipped ?? null,
+          topics: result.topics ?? 0,
+          approved: result.approved ?? 0,
+          rejected: result.rejected ?? 0,
+          lessonsApproved: result.lessonsApproved ?? 0,
+          lessonsRejected: result.lessonsRejected ?? 0,
+          workTopics: result.workTopics ?? 0,
+          lessonIssues: result.lessonIssues ?? [],
+        } as unknown as Json,
+        finished_at: new Date().toISOString(),
+      })
+      .eq("id", job.id);
+    return { ran: true, id: job.id, result };
+  } catch (error) {
+    await supabaseAdmin
+      .from("sync_queue")
+      .update({
+        status: "failed",
+        error: String(error instanceof Error ? error.message : error).slice(0, 400),
+        finished_at: new Date().toISOString(),
+      })
+      .eq("id", job.id);
+    return { ran: true, id: job.id };
+  }
+}
