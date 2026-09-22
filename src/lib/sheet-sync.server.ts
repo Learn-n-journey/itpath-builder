@@ -628,14 +628,24 @@ export async function runSheetSync(
         pendingQuiz.push({ file, topic });
       }
 
-      const quizTabs = await mapPool(pendingQuiz, WORKBOOK_CONCURRENCY, async ({ file }) => {
+      const quizBatches: Array<typeof pendingQuiz> = [];
+      for (let i = 0; i < pendingQuiz.length; i += WORKBOOK_CONCURRENCY) {
+        quizBatches.push(pendingQuiz.slice(i, i + WORKBOOK_CONCURRENCY));
+      }
+
+      for (const batch of quizBatches) {
+      if (outOfTime()) {
+        partial = true;
+        break;
+      }
+      const quizTabs = await mapPool(batch, WORKBOOK_CONCURRENCY, async ({ file }) => {
         const tabs = await readTabs(file.id);
         filesDone += 1;
         await emit("quiz", domain, file.name);
         return tabs;
       });
 
-      for (const [index, { file, topic }] of pendingQuiz.entries()) {
+      for (const [index, { file, topic }] of batch.entries()) {
         const approved: Array<{ rowNumber: number; question: Json }> = [];
         const rejected: Array<{ rowNumber: number; question: Json; reasons: string[] }> = [];
         const failed: Array<{ rowNumber: number; error: string }> = [];
