@@ -92,6 +92,7 @@ import { MilestoneOverlay } from "@/components/milestones/milestone-overlay";
 import { QuickNav } from "@/components/layout/quick-nav";
 import { SidePanel } from "@/components/layout/side-panel";
 import { StudyTabs } from "@/components/layout/study-tabs";
+import { SyncLiveBadge } from "@/components/sync-live-badge";
 import { WelcomeTour } from "@/components/onboarding/welcome-tour";
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -184,6 +185,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <MilestoneOverlay />
         <GaylBubble />
         <SidePanel />
+        <SyncLiveBadge />
         <QuickNav />
         <footer className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
