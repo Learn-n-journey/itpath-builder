@@ -755,6 +755,7 @@ export async function runSheetSync(
       lessonIssues,
       workTopics,
       unchangedFiles,
+      partial,
       report,
     };
   } catch (error) {
