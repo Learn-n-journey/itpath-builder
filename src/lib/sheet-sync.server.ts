@@ -276,6 +276,8 @@ export async function runSheetSync(
     domain?: OwnerDomain;
     force?: boolean;
     onProgress?: (progress: SyncProgress) => void | Promise<void>;
+    /** Stop cleanly after this many milliseconds and report the rest as left over. */
+    budgetMs?: number;
   } = {},
 ): Promise<SheetSyncResult> {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
