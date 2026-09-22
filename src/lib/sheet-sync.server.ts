@@ -130,17 +130,22 @@ async function graph(path: string): Promise<any> {
 interface SheetFile {
   id: string;
   name: string;
+  lastModified: string;
 }
 
 /** Everything in one folder, numbered workbooks only, in numeric order. */
 async function listWorkbooks(root: string, sub: string): Promise<SheetFile[]> {
   const path = `${root}/${sub}`.split("/").map(encodeURIComponent).join("/");
-  const listing: { value?: Array<{ id?: string; name: string; file?: unknown }> } = await graph(
-    `/me/drive/root:/${path}:/children?$select=id,name,file`,
-  );
+  const listing: {
+    value?: Array<{ id?: string; name: string; file?: unknown; lastModifiedDateTime?: string }>;
+  } = await graph(`/me/drive/root:/${path}:/children?$select=id,name,file,lastModifiedDateTime`);
   return (listing.value ?? [])
     .filter((item) => item.file && item.name.endsWith(".xlsx") && item.id)
-    .flatMap((item) => (item.id ? [{ id: item.id, name: item.name }] : []))
+    .flatMap((item) =>
+      item.id
+        ? [{ id: item.id, name: item.name, lastModified: String(item.lastModifiedDateTime ?? "") }]
+        : [],
+    )
     .sort((left, right) => left.name.localeCompare(right.name, undefined, { numeric: true }));
 }
 
