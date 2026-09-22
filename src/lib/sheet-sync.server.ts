@@ -596,7 +596,7 @@ export async function runSheetSync(
       .update({
         locked_until: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected, ${lessonsApproved} lesson(s) published, ${workTopics} try-it/lab topic(s)`,
+        note: `synced ${topicsSynced.size} topic(s), ${approvedTotal} approved, ${rejectedTotal} rejected, ${lessonsApproved} lesson(s) published, ${workTopics} try-it/lab topic(s), ${unchangedFiles} unchanged workbook(s) skipped`,
       })
       .eq("job", JOB);
 
