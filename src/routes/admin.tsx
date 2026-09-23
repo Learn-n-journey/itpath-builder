@@ -25,7 +25,8 @@ import { SystemDiagnostics } from "@/components/system-diagnostics";
 import { SpreadsheetSyncPanel } from "@/components/owner/spreadsheet-sync-panel";
 import { MaintenancePanel } from "@/components/owner/maintenance-panel";
 import { coursePack } from "@/content/course-pack";
-import { contentHealth, coverageGaps, coverageGapsCsv, type TopicHealth } from "@/lib/admin/content-health";
+import { contentHealth, type TopicHealth } from "@/lib/admin/content-health";
+import { courseCoverage, coverageCsv } from "@/lib/admin/concept-coverage";
 import { engineHealthChecks } from "@/lib/admin/engine-health";
 import { areaHealth, buildOverview, filterChecks, stateLabel, type HealthFilter } from "@/lib/admin/health-state";
 import type { ActivityEntry, ContentVersion, FlowCounter, HealthCheck, HealthState } from "@/lib/admin/types";
@@ -217,19 +218,19 @@ function AdminPage() {
   }, [saveRun]);
 
   const downloadCoverageGaps = useCallback(() => {
-    const gaps = coverageGaps(coursePack);
-    if (gaps.length === 0) {
-      toast.success("Every quiz question is covered by its lesson.");
+    const report = courseCoverage(coursePack);
+    if (report.findings.length === 0) {
+      toast.success(`All ${report.pass} questions test knowledge the course teaches.`);
       return;
     }
-    const blob = new Blob([coverageGapsCsv(gaps)], { type: "text/csv;charset=utf-8" });
+    const blob = new Blob([coverageCsv(report.findings)], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `quiz-not-in-lessons-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `quiz-concept-coverage-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.success(`${gaps.length} question${gaps.length === 1 ? "" : "s"} listed.`);
+    toast.success(`${report.pass} pass · ${report.review} to review · ${report.fail} not taught.`);
   }, []);
 
 
@@ -543,11 +544,12 @@ function AdminPage() {
                 {busy === "Content check" ? "Checking…" : "Check all topics"}
               </Button>
               <Button variant="outline" onClick={downloadCoverageGaps}>
-                Download quiz-only list
+                Download coverage report
               </Button>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              The download lists every quiz question whose wording appears nowhere in that topic's lesson, videos or sources.
+              The download judges every quiz, self-check and recall question on the knowledge it needs, not its wording, and lists
+              anything the topic or its prerequisites never taught.
             </p>
 
             {contentReport === null ? (
