@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Compass, LayoutDashboard, LogIn, Settings, ShieldCheck } from "lucide-react";
+import { ArrowRight, Compass, LayoutDashboard, LogIn, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
