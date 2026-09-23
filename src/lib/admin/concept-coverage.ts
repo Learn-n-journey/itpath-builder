@@ -342,8 +342,11 @@ export function classifyCoverage(prompt: string, answers: string[], options: Cla
   const belongsInLesson = missing.some((term) => options.objectiveTerms?.has(term));
   let verdict: CoverageVerdict;
   if (missingEverywhere.length === 0) {
+    // Taught somewhere in the course, just not here: worth a look, never a block.
     verdict = "review";
-  } else if (missingEverywhere.length === 1 && coverage >= 0.5) {
+  } else if (coverage >= 0.5) {
+    // Most of what the question needs was taught; the odd unmatched word is
+    // wording, not untaught knowledge.
     verdict = "review";
   } else {
     verdict = "fail";
