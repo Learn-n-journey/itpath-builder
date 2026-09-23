@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Clock, PlayCircle, Wrench } from "lucide-react";
+import { Check, ChevronRight, Clock, PlayCircle, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
@@ -152,6 +152,7 @@ function Dashboard() {
   }, []);
   const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
   const resume = useMemo(() => (d.hasAnyActivity ? resumeTarget(user) : null), [user, d.hasAnyActivity]);
+  const quizCount = user.quizAttempts.filter((a) => a.status === "submitted").length;
   const missedAnchors = useMemo(() => {
     const map: Record<string, string> = {};
     for (const item of missedQuestions(user)) {
@@ -229,6 +230,9 @@ function Dashboard() {
               </Button>
               <Link to="/study-plan" className="text-sm text-muted-foreground hover:text-foreground">
                 Study plan
+              </Link>
+              <Link to="/quiz-me" className="text-sm text-muted-foreground hover:text-foreground">
+                Quiz me
               </Link>
             </div>
           </>
