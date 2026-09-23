@@ -227,21 +227,8 @@ export function topicHealthChecks(
   );
 
   // Assessment material that was not taught.
-  // The full lesson is the reading plus everything the linked videos and
-  // sources cover, so all of it counts as taught.
-  const taughtText = [
-    text,
-    topic.title,
-    ...(topic.learningObjectives ?? []),
-    ...videos.flatMap((video) => [video.title, video.description, video.objective]),
-    reading ? `${reading.title} ${reading.provider}` : "",
-  ].join(" ");
-  const lessonWords = new Set(normalise(taughtText).split(" "));
-  const untaught = pool.filter((question) => {
-    const terms = normalise(question.prompt).split(" ").filter((word) => word.length > 7);
-    if (terms.length === 0) return false;
-    return terms.every((term) => !lessonWords.has(term));
-  });
+  const untaught = untaughtQuestions(pack, topicId);
+
   add(
     "taught",
     "Only what was taught",
