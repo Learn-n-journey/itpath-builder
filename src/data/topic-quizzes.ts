@@ -26,7 +26,7 @@ import { conceptKey, tagQuestion, type TaggedQuestion } from "@/lib/question-tag
 import { finalizeQuestionSet } from "@/lib/quiz-finalize";
 import type { ConceptStat } from "@/lib/concept-mastery";
 import type { Question } from "@/lib/app-data/types";
-import { generatedQuestionSection, lessonSectionId } from "@/lib/lesson-concepts";
+import { generatedQuestionSection, inferLessonSection, lessonSectionId } from "@/lib/lesson-concepts";
 
 /** How many questions a section quiz holds. Declared by the live subject. */
 export const SECTION_QUIZ_SIZE = domainOverlay?.sizes.sectionQuiz ?? 20;
@@ -906,12 +906,17 @@ export function getTaggedTopicPool(topicId: string): TaggedQuestion[] {
   const version = ownerPoolVersion();
   const cached = taggedCache.get(topicId);
   if (cached && cached.version === version) return cached.items;
+  const lesson = getDeepLesson(topicId);
   const tagged = topicPool(topicId)
     .filter((item) => isUsableQuestion(item.question))
     .map((item) => {
       const mappedSectionId = item.question.lessonSectionId
         ?? generatedQuestionSection(item.question.topicId, item.kind)
-        ?? (item.kind === "authored" ? lessonSectionId(item.question.topicId, "core") : undefined);
+        ?? (item.kind === "authored" ? lessonSectionId(item.question.topicId, "core") : undefined)
+        // Workbook questions rarely carry a mapping column: link them to the
+        // lesson part they clearly belong to, and leave them unlinked when the
+        // match is not obvious.
+        ?? inferLessonSection(item.question.topicId, item.question.prompt, lesson);
       const question = {
         ...item.question,
         ...(mappedSectionId ? { lessonSectionId: mappedSectionId } : {}),
