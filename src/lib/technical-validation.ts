@@ -122,6 +122,7 @@ function maskFor(prefix: number): string {
 
 const CIDR_MASK = /\/(\d{1,2})\b[^.\n]{0,60}?(?:subnet\s*)?mask\s*(?:is|of|=)?\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gi;
 const MASK_CIDR = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s*(?:is|=|means|equals?)\s*(?:the same as\s*)?\/(\d{1,2})\b/gi;
+const CIDR_HOSTS = /\/(\d{1,2})\b[^.\n]{0,70}?([\d,]+)\s*(usable\s*)?(?:hosts|host addresses|usable addresses)/gi;
 // Keep a CIDR host-count claim inside one clause. The previous wildcard could
 // run across commas/semicolons and pair a /27 mentioned in one clause with a
 // different number later in the sentence, creating a false factual finding.
@@ -143,7 +144,7 @@ function checkSubnets(text: string): TechnicalIssue[] {
     if (expected === match[1]) continue;
     issues.push({ claim: match[0], problem: `${match[1]} is not /${prefix}. A /${prefix} mask is ${expected}.` });
   }
-  for (const match of text.matchAll(/\/(\d{1,2})\b[^.,;:\n]{0,70}?([\d,]+)\s*(usable\s*)?(?:hosts|host addresses|usable addresses)/gi)) {
+  for (const match of text.matchAll(CIDR_HOSTS)) {
     const prefix = Number(match[1]);
     const stated = num(match[2] ?? "");
     if (prefix > 32 || prefix < 1 || !Number.isFinite(stated)) continue;
