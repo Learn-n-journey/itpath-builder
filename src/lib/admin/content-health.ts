@@ -275,14 +275,22 @@ export function topicHealthChecks(
     "Learners are tested on material this topic never covered.",
     "Teach the concept in the lesson where it belongs, or move or replace the question.",
   );
+  // Only genuinely undertaught coverage is worth the owner's attention. A
+  // question that leans on a concept another topic teaches is a normal
+  // cross-topic link and is reported, not warned about.
+  const indirect = reviewing.filter((finding) => finding.reviewKind !== "elsewhere");
+  const elsewhere = reviewing.length - indirect.length;
   add(
     "taught-review",
     "Concept coverage review",
-    reviewing.length === 0,
-    `${reviewing.length} question${reviewing.length === 1 ? " leans" : "s lean"} on coverage that is indirect or taught in another topic.`,
+    indirect.length === 0,
+    `${indirect.length} question${indirect.length === 1 ? " leans" : "s lean"} on coverage this lesson only implies.`,
     "A beginner may have to infer something this lesson only implies.",
     "Read the coverage list and either say it plainly once, or link the prerequisite.",
     "warning",
+    elsewhere === 0
+      ? "Every question rests on concepts this topic or its prerequisites teach."
+      : `${elsewhere} question${elsewhere === 1 ? " builds" : "s build"} on a concept taught in another topic, which is fine.`,
   );
 
 
