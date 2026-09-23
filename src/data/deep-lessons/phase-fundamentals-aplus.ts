@@ -36,6 +36,17 @@ export const fundamentalsAPlusDeepLessons: DeepLesson[] = [
           "Hexadecimal digit: one of 0-9 or A-F, representing a value from 0 to 15 in four bits.",
           "Octal digit: one of 0-7, representing three bits, used in Linux permission modes.",
           "Base-2 versus base-10 units: storage vendors use decimal billions (10^9) while operating systems often report binary gibibytes (2^30), causing the well-known 'missing gigabytes' confusion.",
+          "ASCII: the original character set, which numbers 128 characters, so every ASCII character fits in a single byte with the top bit unused.",
+          "UTF-8: the encoding used almost everywhere today, which stores a character in one to four bytes depending on the character.",
+          "Radix: another word for the base a number is written in, which code has to be told explicitly when it converts text into a number.",
+        ],
+      },
+      {
+        heading: "How Text and Typed Numbers Are Stored",
+        paragraphs: [
+          "Numbers are not the only thing bits have to carry. Text is stored as numbers too, and a character set is simply the agreed table that says which number means which character. ASCII is that table for the first 128 characters: the letter A is 65, the digit 0 is 48, and a space is 32. Because 128 values fit inside seven bits, every ASCII character sits comfortably in one byte.",
+          "ASCII has no room for accented letters, other alphabets, or symbols, which is why UTF-8 replaced it. UTF-8 is a variable-length encoding: a character can take one, two, three, or four bytes. Its most useful property is that it was designed to be backwards compatible with ASCII, so the first 128 characters are encoded as exactly the same single byte with the same value. Plain English text is therefore identical in ASCII and UTF-8, while an accented letter takes two bytes, most other scripts take three, and emoji take four. This is why a file that opens correctly in one editor can show a pair of strange characters in another: a multi-byte UTF-8 sequence read as single-byte characters produces one wrong character per byte.",
+          "The same need to be explicit appears when code turns text into a number. A string such as \"0x144\" is just characters until something interprets it, and the interpreter has to be told which base to read it in. In Python, int(\"0x144\", 16) states the radix as 16, so the text is read as hexadecimal and becomes the decimal value 324. Passing the same string with no base, or with base 10, raises an error because the characters are not valid decimal digits. Reading a value in the wrong base is a silent source of wrong answers: the characters 144 are 144 in decimal, 324 in hexadecimal, and 100 in octal.",
         ],
       },
       {

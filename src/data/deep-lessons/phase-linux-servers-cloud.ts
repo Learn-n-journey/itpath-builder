@@ -557,6 +557,16 @@ export const linuxServersCloudDeepLessons: DeepLesson[] = [
           "DNS integration: the dependency of directory services on correct DNS, since clients find domain controllers by querying specific SRV records.",
           "Delegated administration: assigning specific limited administrative rights over part of the directory, such as one OU, without granting full domain admin rights.",
           "GPO inheritance and precedence: the order in which policies from different levels combine, and how blocking or enforcing overrides that normal order.",
+          "FSMO roles: five specialised jobs that cannot be done by every domain controller at once, held by a single nominated controller each.",
+          "PDC Emulator: the FSMO role that acts as the domain's time authority and receives password changes immediately.",
+        ],
+      },
+      {
+        heading: "The Roles Only One Controller Holds",
+        paragraphs: [
+          "Replication means every domain controller normally holds the same writable copy of the directory, which works well for ordinary changes. A few jobs, however, would produce conflicts if two controllers did them at the same time, so Active Directory assigns those jobs to one nominated controller each. These are the Flexible Single Master Operation roles, usually shortened to FSMO roles. Two of them exist once per forest, the Schema Master and the Domain Naming Master, and three exist once per domain: the RID Master, which hands out blocks of identifier numbers, the Infrastructure Master, which keeps cross-domain references current, and the PDC Emulator.",
+          "The PDC Emulator is the one that shows up most often in support work, because it carries two responsibilities everyone depends on. First, it is the authoritative time source for the domain: every other domain controller synchronises its clock to the PDC Emulator, and every domain-joined client synchronises to a domain controller. Since Kerberos rejects tickets whose timestamps drift too far apart, the whole authentication chain rests on that single clock being correct, which is why the PDC Emulator is the controller you point at a reliable external time source.",
+          "Second, password changes are replicated to the PDC Emulator immediately rather than waiting for the normal replication cycle. When a user changes their password and then authenticates against a different domain controller that has not received the change yet, that controller does not simply reject them: it forwards the attempt to the PDC Emulator to check against the newest password before returning a failure. This is why a password change usually works everywhere within seconds instead of after replication finishes, and why login failures spread quickly across a domain when the PDC Emulator is offline.",
         ],
       },
       {
