@@ -547,11 +547,16 @@ export const sourceHealth = createServerFn({ method: "GET" })
       .order("ok", { ascending: true })
       .order("checked_at", { ascending: false })
       .limit(500);
-    // Only report checks for URLs that still exist in the current curriculum.
-    // This prevents a replaced source URL from leaving its old failed database
-    // row visible in Content Health forever.
+    // Purge stored checks for URLs that no longer exist in the current
+    // curriculum (link_checks is keyed by URL). Without this, a replaced or
+    // removed source link leaves its old failure row behind and the dashboard
+    // keeps reporting problems for links the app no longer uses.
     const { externalLinks } = await import("@/lib/external-links");
     const currentUrls = new Set(externalLinks().map((link) => link.url));
+    const staleUrls = [...new Set((data ?? []).map((row) => row.url).filter((url) => !currentUrls.has(url)))];
+    if (staleUrls.length > 0) {
+      await supabaseAdmin.from("link_checks").delete().in("url", staleUrls);
+    }
     const rows: SourceHealthRow[] = (data ?? [])
       .filter((row) => currentUrls.has(row.url))
       .map((row) => ({
