@@ -243,6 +243,12 @@ export function requiredKnowledge(prompt: string, answers: string[] = []): strin
     const bare = piece.replace(/[^A-Za-z0-9/.\-_]/g, "").replace(/^[.\-_]+|[.\-_]+$/g, "");
     if (!bare) continue;
     const lower = bare.toLowerCase();
+    // Quantities ("250w", "1000", "8gb") are arithmetic in the question, not
+    // knowledge the lesson has to name.
+    if (/^\d+[a-z]{0,3}$/.test(lower)) continue;
+    // Command switches ("/scannow", "-la") belong to the command they follow;
+    // the command itself carries the knowledge.
+    if (/^[/\\-]/.test(bare)) continue;
     const isAcronym = /^[A-Z0-9/.-]{2,8}$/.test(bare) && /[A-Z]/.test(bare);
     const isCommandish = /[/\\._-]/.test(bare) && bare.length >= 3;
     if (!isAcronym && !isCommandish) {
@@ -250,6 +256,7 @@ export function requiredKnowledge(prompt: string, answers: string[] = []): strin
       if (QUESTION_LANGUAGE.has(lower)) continue;
       if (QUESTION_LANGUAGE.has(stem(lower))) continue;
     }
+
     const key = isAcronym || isCommandish ? lower : stem(lower);
     if (seen.has(key)) continue;
     seen.add(key);
