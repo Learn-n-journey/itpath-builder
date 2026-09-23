@@ -162,7 +162,29 @@ export const systemHealth = createServerFn({ method: "POST" })
       return `${count ?? 0} approved question${count === 1 ? "" : "s"} available.`;
     });
 
+    // Speed always reports, so "Is IT PATH working?" answers instead of
+    // sitting on "not yet checked" whenever every service replied quickly.
+    const slowest = timings.reduce<{ label: string; took: number } | null>(
+      (worst, timing) => (worst === null || timing.took > worst.took ? timing : worst),
+      null,
+    );
+    const answered = timings.length;
+    checks.push({
+      id: "performance:response",
+      area: "performance",
+      label: "Speed",
+      state: answered === 0 ? "unknown" : slowest && slowest.took > 2000 ? "warning" : "healthy",
+      detail:
+        answered === 0
+          ? "No service answered, so speed could not be measured."
+          : `${answered} service${answered === 1 ? "" : "s"} answered; slowest was ${slowest?.label} at ${slowest?.took}ms.`,
+      affects: "How quickly pages and saved work respond for everyone.",
+      action: slowest && slowest.took > 2000 ? "Watch for repeats; the database may be under load." : "",
+      lastRunAt: ranAt,
+    });
+
     return { ok: true, owner: true, ranAt, checks };
+
   });
 
 /** Keeps a record of a check that was run, so "not yet checked" stays honest. */
