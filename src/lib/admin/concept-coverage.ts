@@ -31,6 +31,8 @@ export interface CoverageFinding {
   taughtKnowledge: string[];
   /** Required knowledge nothing in the topic or its prerequisites teaches. */
   missingKnowledge: string[];
+  /** Of those, the knowledge the course does not teach anywhere at all. */
+  missingEverywhere: string[];
   /** Short quotes from the lesson showing where the concept is taught. */
   lessonEvidence: string[];
   reason: string;
@@ -42,17 +44,22 @@ export interface CoverageFinding {
  * knowledge, so its absence from a lesson means nothing.
  */
 const QUESTION_LANGUAGE = new Set([
-  "about","above","according","across","action","actions","actually","additional","after","again","against","allow","allowed","allows","along","already","also","although","always","among","amount","another","answer","answers","anything","appear","appears","apply","applies","approach","appropriate","around","aspect","assume","assuming","available","avoid","based","because","become","becomes","been","before","begin","behaviour","behavior","being","below","besides","best","better","between","beyond","both","brief","bring","building","business","cannot","carefully","case","cases","cause","causes","certain","chance","change","changes","choice","choices","choose","chosen","clear","clearly","colleague","come","comes","common","commonly","company","compare","compared","complete","completely","concern","concerned","condition","conditions","consider","consistent","contains","continue","correct","correctly","could","course","create","created","current","currently","customer","decide","decision","describe","describes","description","detail","details","determine","difference","different","directly","does","doing","during","each","earlier","effect","either","else","engineer","enough","ensure","entire","especially","essential","even","event","every","everything","exactly","example","except","expect","expected","experience","explain","explains","fact","factor","field","find","finds","first","follow","following","follows","further","general","generally","give","given","gives","goal","good","greater","group","handle","happen","happens","hard","help","helps","here","high","higher","highly","however","identify","immediately","impact","important","include","included","includes","including","incorrect","indicate","indicates","information","initial","instead","intended","into","issue","issues","itself","just","keep","kind","know","known","large","larger","last","later","least","leave","less","level","light","like","likely","limited","little","long","longer","look","looking","made","main","make","makes","making","manager","many","matter","mean","means","measure","member","mention","mentioned","might","minimal","minimum","more","most","mostly","move","much","multiple","must","near","need","needed","needs","never","newly","next","nothing","notice","noticed","number","observe","observed","obvious","occur","occurs","offer","often","once","only","onto","open","option","options","order","other","others","otherwise","output","over","overall","part","particular","particularly","perform","performed","perhaps","person","phrase","place","plan","point","possible","potential","potentially","practice","prefer","preferred","present","prevent","previous","primary","probably","problem","process","produce","product","provide","provided","provides","purpose","quickly","rather","reason","reasonable","receive","recent","recently","recommend","recommended","reduce","refer","refers","related","relationship","remain","remains","repeat","report","reported","represent","represents","request","require","required","requires","respond","response","result","results","return","right","routine","said","same","scenario","second","section","seem","seems","sees","select","separate","series","several","should","show","shows","similar","simple","simply","since","single","situation","small","smaller","some","something","sometimes","soon","specific","specifically","standard","start","started","state","statement","statements","still","strong","strongly","such","suggest","suggests","support","suppose","sure","take","takes","team","technician","tell","term","terms","test","tested","than","that","their","them","then","there","therefore","these","they","thing","think","third","this","those","though","three","through","time","times","today","together","total","toward","true","turn","turns","twice","type","typical","typically","under","understand","unless","until","upon","used","useful","user","uses","using","usually","valid","value","various","very","view","want","warning","were","what","whatever","when","where","whether","which","while","whole","whose","will","with","within","without","word","work","working","works","would","write","wrong","year","your",
+  "about","above","fulfill","fulfils","fulfills","alteration","recollection","recollections","emphasize","emphasizes","emphasise","remedial","trainee","capability","capabilities","assigned","authority","agreement","incoming","sorting","assessing","coordinating","handling","separate","target","targets","duties","offered","investigation","administrator","administrators","admin","according","across","action","actions","actually","additional","after","again","against","allow","allowed","allows","along","already","also","although","always","among","amount","another","answer","answers","anything","appear","appears","apply","applies","approach","appropriate","around","aspect","assume","assuming","available","avoid","based","because","become","becomes","been","before","begin","behaviour","behavior","being","below","besides","best","better","between","beyond","both","brief","bring","building","business","cannot","carefully","case","cases","cause","causes","certain","chance","change","changes","choice","choices","choose","chosen","clear","clearly","colleague","come","comes","common","commonly","company","compare","compared","complete","completely","concern","concerned","condition","conditions","consider","consistent","contains","continue","correct","correctly","could","course","create","created","current","currently","customer","decide","decision","describe","describes","description","detail","details","determine","difference","different","directly","does","doing","during","each","earlier","effect","either","else","engineer","enough","ensure","entire","especially","essential","even","event","every","everything","exactly","example","except","expect","expected","experience","explain","explains","fact","factor","field","find","finds","first","follow","following","follows","further","general","generally","give","given","gives","goal","good","greater","group","handle","happen","happens","hard","help","helps","here","high","higher","highly","however","identify","immediately","impact","important","include","included","includes","including","incorrect","indicate","indicates","information","initial","instead","intended","into","issue","issues","itself","just","keep","kind","know","known","large","larger","last","later","least","leave","less","level","light","like","likely","limited","little","long","longer","look","looking","made","main","make","makes","making","manager","many","matter","mean","means","measure","member","mention","mentioned","might","minimal","minimum","more","most","mostly","move","much","multiple","must","near","need","needed","needs","never","newly","next","nothing","notice","noticed","number","observe","observed","obvious","occur","occurs","offer","often","once","only","onto","open","option","options","order","other","others","otherwise","output","over","overall","part","particular","particularly","perform","performed","perhaps","person","phrase","place","plan","point","possible","potential","potentially","practice","prefer","preferred","present","prevent","previous","prove","proves","proved","stop","stopped","stops","primary","probably","problem","process","produce","product","provide","provided","provides","purpose","quickly","rather","reason","reasonable","receive","recent","recently","recommend","recommended","reduce","refer","refers","related","relationship","remain","remains","repeat","report","reported","represent","represents","request","require","required","requires","respond","response","result","results","return","right","routine","said","same","scenario","second","section","seem","seems","sees","select","separate","series","several","should","show","shows","similar","simple","simply","since","single","situation","small","smaller","some","something","sometimes","soon","specific","specifically","standard","start","started","state","statement","statements","still","strong","strongly","such","suggest","suggests","support","suppose","sure","take","takes","team","technician","tell","term","terms","test","tested","than","that","their","them","then","there","therefore","these","they","thing","think","third","this","those","though","three","through","time","times","today","together","total","toward","true","turn","turns","twice","type","typical","typically","under","understand","unless","until","upon","used","useful","user","uses","using","usually","valid","value","various","very","view","want","warning","were","what","whatever","when","where","whether","which","while","whole","whose","will","with","within","without","word","work","working","works","would","write","wrong","year","your",
 ]);
 
 function stem(word: string): string {
   let out = word;
-  for (const suffix of ["'s", "ies", "ing", "ed", "es", "s"]) {
-    if (out.length > suffix.length + 3 && out.endsWith(suffix)) {
-      out = suffix === "ies" ? `${out.slice(0, -3)}y` : out.slice(0, -suffix.length);
-      break;
-    }
+  if (/[a-z]{3}ied$/.test(out)) return `${out.slice(0, -3)}y`;
+  if (out.length > 5 && (out.endsWith("ing") || out.endsWith("ed"))) {
+    out = out.slice(0, out.endsWith("ing") ? -3 : -2);
+    // "stopped" -> "stop", "running" -> "run"
+    if (/([bdfgklmnprt])\1$/.test(out)) out = out.slice(0, -1);
+    else if (/[^aeiou][aeiou][^aeiouwxy]$/.test(out) && out.length <= 4) out = `${out}e`;
+    return out;
   }
+  if (out.length > 4 && out.endsWith("ies")) return `${out.slice(0, -3)}y`;
+  if (out.length > 4 && out.endsWith("es") && /(s|x|z|ch|sh)es$/.test(out)) return out.slice(0, -2);
+  if (out.length > 4 && out.endsWith("s") && !/(ss|us|is|os|as)$/.test(out)) return out.slice(0, -1);
   return out;
 }
 
@@ -61,6 +68,7 @@ function tokens(text: string): string[] {
     .toLowerCase()
     .replace(/[^a-z0-9/.\-_ ]+/g, " ")
     .split(/\s+/)
+    .map((word) => word.replace(/^[./\-_]+|[./\-_]+$/g, ""))
     .filter(Boolean);
 }
 
@@ -85,7 +93,7 @@ const SYNONYM_GROUPS: string[][] = [
   ["ram", "memory", "system memory"],
   ["cpu", "processor"],
   ["psu", "power supply"],
-  ["firewall", "packet filter"],
+  ["firewall", "packet filter", "block", "filter"],
   ["subnet", "subnetwork"],
   ["gateway", "default gateway", "router"],
   ["latency", "delay", "round trip time"],
@@ -94,7 +102,7 @@ const SYNONYM_GROUPS: string[][] = [
   ["malware", "malicious software"],
   ["driver", "device driver"],
   ["virtual machine", "vm", "guest"],
-  ["dns", "name resolution", "domain name"],
+  ["dns", "name resolution", "domain name", "resolve", "resolution", "lookup"],
   ["dhcp", "address assignment", "lease"],
 ];
 
@@ -111,10 +119,16 @@ export interface TaughtVocabulary {
   acronyms: Map<string, string[]>;
   /** The sentences the material is made of, used for evidence quotes. */
   sentences: string[];
+  /**
+   * Words so widespread across the course that they carry no specific
+   * technical knowledge (ordinary language, house style, framing words).
+   * Only the course-wide vocabulary fills this.
+   */
+  general: Set<string>;
 }
 
 function emptyVocabulary(): TaughtVocabulary {
-  return { stems: new Set(), groups: new Set(), acronyms: new Map(), sentences: [] };
+  return { stems: new Set(), groups: new Set(), acronyms: new Map(), sentences: [], general: new Set() };
 }
 
 function addText(vocabulary: TaughtVocabulary, text: string | undefined | null): void {
@@ -143,7 +157,7 @@ function addText(vocabulary: TaughtVocabulary, text: string | undefined | null):
 export function topicTeachingMaterial(pack: CoursePack, topicId: string): string[] {
   const topic = pack.sections.find((section) => section.id === topicId);
   if (!topic) return [];
-  const parts: string[] = [topic.title, topic.description ?? "", ...(topic.learningObjectives ?? []), pack.lessonText(topicId)];
+  const parts: string[] = [topic.title, topic.summary ?? "", ...(topic.learningObjectives ?? []), pack.lessonText(topicId)];
 
   const deep = pack.getDeepLesson(topicId);
   if (deep) {
@@ -167,17 +181,47 @@ export function topicTeachingMaterial(pack: CoursePack, topicId: string): string
 
   // Applications count as teaching: worked practice, recall and the scenario.
   for (const activity of pack.getPracticeActivities(topicId)) {
-    parts.push(activity.title ?? "", activity.prompt ?? "", activity.guidance ?? "", ...(activity.steps ?? []));
+    parts.push(activity.title, activity.prompt, activity.explanation, ...activity.choices);
   }
-  for (const recall of pack.getRecallQuestions(topicId)) parts.push(recall.prompt ?? "", recall.answer ?? "");
+  // Recall explanations teach; the accepted answers are left out so a recall
+  // question can never prove its own coverage.
+  for (const recall of pack.getRecallQuestions(topicId)) parts.push(recall.explanation);
   const scenario = pack.getRealWorldScenario(topicId);
-  if (scenario) parts.push(scenario.title ?? "", scenario.situation ?? "", scenario.response ?? "", scenario.lesson ?? "");
+  if (scenario) parts.push(scenario.title, scenario.situation, scenario.decisionPrompt, scenario.guidance, ...scenario.expectedConcepts);
 
   for (const video of pack.resources.videos[topicId] ?? []) parts.push(video.title, video.description, video.objective);
   const reading = pack.resources.reading[topicId];
   if (reading) parts.push(reading.title, reading.provider);
 
   return parts.filter((part): part is string => Boolean(part && part.trim()));
+}
+
+/**
+ * Vocabulary of one topic on its own. Cached per pack: a health run reads the
+ * same topic many times, once for itself and again for every topic that lists
+ * it as a prerequisite.
+ */
+const OWN_VOCABULARY = new WeakMap<object, Map<string, TaughtVocabulary>>();
+
+function ownVocabulary(pack: CoursePack, topicId: string): TaughtVocabulary {
+  let cache = OWN_VOCABULARY.get(pack as object);
+  if (!cache) {
+    cache = new Map();
+    OWN_VOCABULARY.set(pack as object, cache);
+  }
+  const cached = cache.get(topicId);
+  if (cached) return cached;
+  const vocabulary = emptyVocabulary();
+  for (const part of topicTeachingMaterial(pack, topicId)) addText(vocabulary, part);
+  cache.set(topicId, vocabulary);
+  return vocabulary;
+}
+
+function mergeVocabulary(into: TaughtVocabulary, from: TaughtVocabulary): void {
+  for (const value of from.stems) into.stems.add(value);
+  for (const value of from.groups) into.groups.add(value);
+  for (const [key, value] of from.acronyms) into.acronyms.set(key, value);
+  into.sentences.push(...from.sentences);
 }
 
 /** Vocabulary for a topic plus every prerequisite that leads to it. */
@@ -187,7 +231,7 @@ export function taughtVocabulary(pack: CoursePack, topicId: string): TaughtVocab
   const walk = (id: string, depth: number) => {
     if (seen.has(id) || depth > 6) return;
     seen.add(id);
-    for (const part of topicTeachingMaterial(pack, id)) addText(vocabulary, part);
+    mergeVocabulary(vocabulary, ownVocabulary(pack, id));
     const topic = pack.sections.find((section) => section.id === id);
     for (const prerequisite of topic?.prerequisiteTopicIds ?? []) walk(prerequisite, depth + 1);
   };
@@ -198,7 +242,16 @@ export function taughtVocabulary(pack: CoursePack, topicId: string): TaughtVocab
 /** Vocabulary of everything the whole course teaches, in any topic. */
 export function courseVocabulary(pack: CoursePack): TaughtVocabulary {
   const vocabulary = emptyVocabulary();
-  for (const section of pack.sections) for (const part of topicTeachingMaterial(pack, section.id)) addText(vocabulary, part);
+  const seenIn = new Map<string, number>();
+  for (const section of pack.sections) {
+    const own = ownVocabulary(pack, section.id);
+    mergeVocabulary(vocabulary, own);
+    for (const word of own.stems) seenIn.set(word, (seenIn.get(word) ?? 0) + 1);
+  }
+  // A word used by most of the course teaches nothing specific: it is ordinary
+  // language, not knowledge a single question can be said to require.
+  const threshold = Math.max(4, Math.ceil(pack.sections.length * 0.45));
+  for (const [word, count] of seenIn) if (count >= threshold) vocabulary.general.add(word);
   return vocabulary;
 }
 
@@ -212,9 +265,15 @@ export function requiredKnowledge(prompt: string, answers: string[] = []): strin
   const raw = `${prompt} ${answers.join(" ")}`;
   const original = raw.split(/\s+/);
   for (const piece of original) {
-    const bare = piece.replace(/[^A-Za-z0-9/.\-_]/g, "");
+    const bare = piece.replace(/[^A-Za-z0-9/.\-_]/g, "").replace(/^[.\-_]+|[.\-_]+$/g, "");
     if (!bare) continue;
     const lower = bare.toLowerCase();
+    // Quantities ("250w", "1000", "8gb") are arithmetic in the question, not
+    // knowledge the lesson has to name.
+    if (/^\d+[a-z]{0,3}$/.test(lower)) continue;
+    // Command switches ("/scannow", "-la") belong to the command they follow;
+    // the command itself carries the knowledge.
+    if (/^[/\\-]/.test(bare)) continue;
     const isAcronym = /^[A-Z0-9/.-]{2,8}$/.test(bare) && /[A-Z]/.test(bare);
     const isCommandish = /[/\\._-]/.test(bare) && bare.length >= 3;
     if (!isAcronym && !isCommandish) {
@@ -222,6 +281,7 @@ export function requiredKnowledge(prompt: string, answers: string[] = []): strin
       if (QUESTION_LANGUAGE.has(lower)) continue;
       if (QUESTION_LANGUAGE.has(stem(lower))) continue;
     }
+
     const key = isAcronym || isCommandish ? lower : stem(lower);
     if (seen.has(key)) continue;
     seen.add(key);
@@ -262,6 +322,8 @@ export interface ClassifyOptions {
   course: TaughtVocabulary;
   /** Words the topic's own objectives or title promise to teach. */
   objectiveTerms?: Set<string>;
+  /** Ordinary course-wide language to ignore; defaults to the course's own. */
+  generalTerms?: Set<string>;
 }
 
 export interface Classification {
@@ -278,7 +340,8 @@ export interface Classification {
 
 /** Judge one question against what its topic and prerequisites taught. */
 export function classifyCoverage(prompt: string, answers: string[], options: ClassifyOptions): Classification {
-  const required = requiredKnowledge(prompt, answers);
+  const general = options.generalTerms ?? options.course.general;
+  const required = requiredKnowledge(prompt, answers).filter((term) => !general.has(term));
   const taught = required.filter((term) => isCovered(term, options.topic));
   const missing = required.filter((term) => !taught.includes(term));
   const missingEverywhere = missing.filter((term) => !isCovered(term, options.course));
@@ -304,8 +367,11 @@ export function classifyCoverage(prompt: string, answers: string[], options: Cla
   const belongsInLesson = missing.some((term) => options.objectiveTerms?.has(term));
   let verdict: CoverageVerdict;
   if (missingEverywhere.length === 0) {
+    // Taught somewhere in the course, just not here: worth a look, never a block.
     verdict = "review";
-  } else if (missingEverywhere.length === 1 && coverage >= 0.5) {
+  } else if (coverage >= 0.5 || missingEverywhere.length < 2) {
+    // Most of what the question needs was taught, or only a single word went
+    // unmatched: that is wording, not untaught knowledge.
     verdict = "review";
   } else {
     verdict = "fail";
@@ -350,6 +416,7 @@ export function topicCoverage(pack: CoursePack, topicId: string, course: TaughtV
       requiredKnowledge: result.required,
       taughtKnowledge: result.taught,
       missingKnowledge: result.missing,
+      missingEverywhere: result.missingEverywhere,
       lessonEvidence: result.evidence,
       reason: result.reason,
       remediation: result.remediation,
@@ -362,7 +429,7 @@ export function topicCoverage(pack: CoursePack, topicId: string, course: TaughtV
   const checks = pack.getDeepLesson(topicId)?.depth?.checkYourself ?? [];
   checks.forEach((check, index) => push("self-check", `${topicId}:check:${index + 1}`, check.question, [check.answer]));
   for (const recall of pack.getRecallQuestions(topicId)) {
-    push("recall", recall.id, recall.prompt ?? "", [recall.answer ?? ""]);
+    push("recall", recall.id, recall.prompt, recall.acceptedConcepts);
   }
 
   return findings;
@@ -408,6 +475,7 @@ export function coverageCsv(findings: CoverageFinding[]): string {
       "Question",
       "Knowledge required",
       "Not taught here",
+      "Not taught anywhere",
       "Lesson evidence",
       "Why flagged",
       "What to do",
@@ -421,6 +489,7 @@ export function coverageCsv(findings: CoverageFinding[]): string {
       finding.prompt,
       finding.requiredKnowledge.join(" "),
       finding.missingKnowledge.join(" "),
+      finding.missingEverywhere.join(" "),
       finding.lessonEvidence.join(" | "),
       finding.reason,
       finding.remediation,

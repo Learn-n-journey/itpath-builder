@@ -8,6 +8,14 @@
 import type { CoursePack } from "@/content/pack-contract";
 import type { Finding } from "@/lib/quality/types";
 import { lessonConceptSections } from "@/lib/lesson-concepts";
+import {
+  courseCoverage,
+  courseVocabulary,
+  coverageCsv,
+  topicCoverage,
+  type CoverageFinding,
+  type TaughtVocabulary,
+} from "./concept-coverage";
 import type { HealthCheck } from "./types";
 
 const PLACEHOLDER = /\b(lorem ipsum|todo|tbd|coming soon|placeholder|fill in later|xxx+)\b/i;
@@ -24,66 +32,31 @@ export interface TopicHealthOptions {
   /** Findings produced by the existing content audit, if it has been run. */
   findings?: Finding[];
   ranAt?: string | null;
-}
-
-/** One quiz question whose wording appears nowhere in the topic's material. */
-export interface CoverageGap {
-  topicId: string;
-  topicTitle: string;
-  questionId: string;
-  prompt: string;
-  /** The words from the question that the lesson never uses. */
-  missingTerms: string[];
+  /** Vocabulary of the whole course, computed once when checking every topic. */
+  courseVocabulary?: TaughtVocabulary;
 }
 
 /**
- * Questions in a topic's quiz pool that the topic never teaches.
- * The full lesson is the reading plus everything the linked videos and
- * sources cover, so all of it counts as taught.
+ * Questions in a topic whose required technical knowledge the topic (or a
+ * prerequisite) never teaches. Concept coverage decides this, not word
+ * matching: see src/lib/admin/concept-coverage.ts.
  */
-export function untaughtQuestions(pack: CoursePack, topicId: string): CoverageGap[] {
-  const topic = pack.sections.find((section) => section.id === topicId);
-  if (!topic) return [];
-  const videos = pack.resources.videos[topicId] ?? [];
-  const reading = pack.resources.reading[topicId];
-  const taughtText = [
-    pack.lessonText(topicId),
-    topic.title,
-    ...(topic.learningObjectives ?? []),
-    ...videos.flatMap((video) => [video.title, video.description, video.objective]),
-    reading ? `${reading.title} ${reading.provider}` : "",
-  ].join(" ");
-  const lessonWords = new Set(normalise(taughtText).split(" "));
-  const gaps: CoverageGap[] = [];
-  for (const question of pack.sectionQuestionPool(topicId)) {
-    const terms = normalise(question.prompt).split(" ").filter((word) => word.length > 7);
-    if (terms.length === 0) continue;
-    if (terms.some((term) => lessonWords.has(term))) continue;
-    gaps.push({
-      topicId,
-      topicTitle: topic.title,
-      questionId: question.id,
-      prompt: question.prompt,
-      missingTerms: [...new Set(terms)],
-    });
-  }
-  return gaps;
+export function untaughtQuestions(
+  pack: CoursePack,
+  topicId: string,
+  course: TaughtVocabulary = courseVocabulary(pack),
+): CoverageFinding[] {
+  return topicCoverage(pack, topicId, course).filter((finding) => finding.verdict !== "pass");
 }
 
-/** Every untaught question across the whole course. */
-export function coverageGaps(pack: CoursePack): CoverageGap[] {
-  return pack.sections.flatMap((section) => untaughtQuestions(pack, section.id));
+/** Every reviewable or failing question across the whole course. */
+export function coverageGaps(pack: CoursePack): CoverageFinding[] {
+  return courseCoverage(pack).findings;
 }
 
-/** Coverage gaps as a spreadsheet-friendly CSV. */
-export function coverageGapsCsv(gaps: CoverageGap[]): string {
-  const cell = (value: string) => `"${value.replace(/"/g, '""')}"`;
-  const rows = [
-    ["Topic", "Topic id", "Question id", "Question", "Words not in the lesson"],
-    ...gaps.map((gap) => [gap.topicTitle, gap.topicId, gap.questionId, gap.prompt, gap.missingTerms.join(" ")]),
-  ];
-  return rows.map((row) => row.map(cell).join(",")).join("\r\n");
-}
+/** Coverage findings as a spreadsheet-friendly CSV. */
+export const coverageGapsCsv = coverageCsv;
+
 
 /** Every check for one topic. */
 export function topicHealthChecks(
@@ -285,16 +258,30 @@ export function topicHealthChecks(
     "Correct the lesson-section column, or add the missing lesson part.",
   );
 
-  // Assessment material that was not taught.
-  const untaught = untaughtQuestions(pack, topicId);
-
+  // Assessment material that was not taught. Concept coverage decides this:
+  // different wording from the lesson is fine and wanted; untaught technical
+  // knowledge is not.
+  const flagged = untaughtQuestions(pack, topicId, options.courseVocabulary ?? courseVocabulary(pack));
+  const failing = flagged.filter((finding) => finding.verdict === "fail");
+  const reviewing = flagged.filter((finding) => finding.verdict === "review");
   add(
     "taught",
     "Only what was taught",
-    untaught.length === 0,
-    `${untaught.length} question${untaught.length === 1 ? " uses" : "s use"} wording that appears nowhere in the lesson, its videos or its sources.`,
+    failing.length === 0,
+    `${failing.length} question${failing.length === 1 ? " needs" : "s need"} knowledge this topic never teaches: ${failing
+      .slice(0, 3)
+      .map((finding) => finding.missingKnowledge.slice(0, 4).join(", "))
+      .join("; ")}.`,
     "Learners are tested on material this topic never covered.",
-    "Either teach the material in the lesson, or move the question.",
+    "Teach the concept in the lesson where it belongs, or move or replace the question.",
+  );
+  add(
+    "taught-review",
+    "Concept coverage review",
+    reviewing.length === 0,
+    `${reviewing.length} question${reviewing.length === 1 ? " leans" : "s lean"} on coverage that is indirect or taught in another topic.`,
+    "A beginner may have to infer something this lesson only implies.",
+    "Read the coverage list and either say it plainly once, or link the prerequisite.",
     "warning",
   );
 
@@ -357,8 +344,9 @@ export interface TopicHealth {
 }
 
 export function contentHealth(pack: CoursePack, options: TopicHealthOptions = {}): TopicHealth[] {
+  const vocabulary = options.courseVocabulary ?? courseVocabulary(pack);
   return pack.sections.map((topic) => {
-    const checks = topicHealthChecks(pack, topic.id, options);
+    const checks = topicHealthChecks(pack, topic.id, { ...options, courseVocabulary: vocabulary });
     const failed = checks.filter((item) => item.state === "failed").length;
     const warnings = checks.filter((item) => item.state === "warning").length;
     return {
