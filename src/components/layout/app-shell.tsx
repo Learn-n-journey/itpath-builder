@@ -90,7 +90,6 @@ function Brand() {
 
 import { GaylBubble } from "@/components/gayl/gayl-bubble";
 import { MilestoneOverlay } from "@/components/milestones/milestone-overlay";
-import { QuickNav } from "@/components/layout/quick-nav";
 import { SidePanel } from "@/components/layout/side-panel";
 import { StudyTabs } from "@/components/layout/study-tabs";
 import { SyncLiveBadge } from "@/components/sync-live-badge";
