@@ -32,9 +32,18 @@ async function probe(url: string): Promise<{ status: number | null; error: strin
       headers: { "user-agent": "IT-PATH-link-check/1.0 (+https://it-path.net)" },
     });
   try {
-    let response = await attempt("HEAD");
-    // Plenty of documentation sites refuse HEAD but serve GET fine.
-    if (response.status === 405 || response.status === 403 || response.status === 501) {
+    let response: Response;
+    try {
+      response = await attempt("HEAD");
+    } catch {
+      // A timed-out/reset HEAD request does not prove the learner-facing URL is
+      // unavailable. Retry with the same GET request a browser would make.
+      response = await attempt("GET");
+    }
+    // Documentation/CDN/WAF endpoints commonly reject or throttle HEAD while
+    // serving GET normally. Confirm any non-success HEAD response with GET
+    // before recording the source as unavailable.
+    if (!response.ok) {
       response = await attempt("GET");
     }
     return { status: response.status, error: null };
