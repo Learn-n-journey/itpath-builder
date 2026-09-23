@@ -3,7 +3,7 @@ import { lessonConceptSections } from "@/lib/lesson-concepts";
 const pack = coursePack;
 let noMap = 0, bad = 0, ok = 0; const badIds = new Map<string, number>();
 const perTopic: Array<[string, number, number]> = [];
-for (const topic of pack.topics) {
+for (const topic of pack.sections) {
   const deep = pack.getDeepLesson(topic.id);
   const valid = new Set(lessonConceptSections(topic.id, deep).map((s) => s.id));
   let t0 = 0, t1 = 0;
