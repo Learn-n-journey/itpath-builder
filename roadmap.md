@@ -171,3 +171,11 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Apply the same structure to remaining learner-facing pages through shared shell/components, keeping admin and public guide surfaces appropriate to their roles.
 - [x] Verify all named screens at 430px and desktop widths, then run focused tests, full tests, type checks, and confirm the preview build is clean.
 - [x] Remove unnecessary instructional filler and describe Review by its actual contents.
+
+## Learner UX polish pass
+- [ ] Add shape-matched loading skeletons to primary data-driven learner screens
+- [ ] Standardize motion, reduced-motion behavior, status vocabulary, empty states, and interactive rows
+- [ ] Preserve learner presentation preferences locally
+- [ ] Add contextual breadcrumbs and rule-safe next actions to deeper activity flows
+- [ ] Standardize secondary disclosure patterns and responsive content widths
+- [ ] Run learner-route interaction and mobile/tablet/desktop visual regression checks
