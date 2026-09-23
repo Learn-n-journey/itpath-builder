@@ -326,6 +326,7 @@ function AdminPage() {
         affects: "Learners following the source cannot reach it.",
         action: "Review each failing link and approve a replacement yourself. Sources are never swapped automatically.",
         lastRunAt: sources[0]?.checkedAt ?? null,
+        ...(broken[0] ? { link: broken[0].url, linkLabel: "Open the first failing link" } : {}),
       },
     ];
   }, [sources]);
