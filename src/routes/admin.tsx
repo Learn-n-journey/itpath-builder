@@ -852,6 +852,7 @@ function AdminPage() {
           <SiteEngagementPanel />
         </TabsContent>
       </Tabs>
+      </JumpToTab.Provider>
     </div>
   );
 }
