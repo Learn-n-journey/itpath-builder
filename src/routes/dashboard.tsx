@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, ChevronRight, Clock, PlayCircle, Wrench } from "lucide-react";
+import { BarChart3, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Flame, PlayCircle, SlidersHorizontal, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { Panel, StatCard } from "@/components/page-kit";
 import { ReadinessPanel } from "@/components/readiness-panel";
 import { StreakPanel } from "@/components/streak-panel";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,8 @@ import { overallMeasures } from "@/lib/mastery-summary";
 import { useProfile } from "@/hooks/use-profile";
 import { useAppState } from "@/state/app-state";
 import autopathLogo from "@/assets/autopath-logo.png.asset.json";
+import itPathArtwork from "@/assets/path-it.jpg";
+import autoPathArtwork from "@/assets/path-auto.jpg";
 import { activeDomainKey } from "@/domain/active";
 
 
@@ -120,12 +122,14 @@ function Dashboard() {
   // The subject choice lives in browser storage, so the matching course logo
   // is selected as soon as the dashboard hydrates.
   const [logo, setLogo] = useState({ src: "/icons/icon-256.png", alt: "IT PATH logo, a mountain path with circuit traces" });
+  const [courseArtwork, setCourseArtwork] = useState({ src: itPathArtwork, alt: "A blue-lit desktop computer" });
   useEffect(() => {
     if (activeDomainKey.split("@")[0] === "auto-repair") {
       setLogo({
         src: autopathLogo.url,
         alt: "AUTO PATH logo, a dark navy app icon with a chrome piston, blue wrench and circuit traces",
       });
+      setCourseArtwork({ src: autoPathArtwork, alt: "A detailed automotive engine" });
     }
   }, []);
 
@@ -189,6 +193,8 @@ function Dashboard() {
   }, [user, reviewTopics]);
 
   const journeyTopic = currentJourneyTopic(user);
+  const courseTopicIndex = journeyTopic ? Math.max(0, path.topics.findIndex((topic) => topic.id === journeyTopic.id)) : 0;
+  const currentStage = journeyTopic?.difficulty === "challenging" ? "Advanced" : journeyTopic?.difficulty === "standard" ? "Core" : "Foundation";
   const primary: { to: string; params?: Record<string, string>; search?: unknown; title: string; detail: string } | null =
     resume
       ? { to: resume.to, ...(resume.params ? { params: resume.params as Record<string, string> } : {}), ...(resume.search ? { search: resume.search } : {}), title: resume.label, detail: resume.detail }
@@ -199,27 +205,44 @@ function Dashboard() {
           : null;
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <header className="mb-6 flex items-center gap-3">
-        <img src={logo.src} alt={logo.alt} className="size-10 shrink-0 rounded-md" />
+    <div className="mx-auto max-w-4xl pb-8">
+      <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border pb-5">
         <div className="min-w-0">
-          <h1 className="truncate font-display text-[1.75rem] font-semibold leading-tight tracking-tight sm:text-4xl">
-            {firstName ? greetingFor(firstName) : "Dashboard"}
-          </h1>
-          <p className="truncate text-sm text-muted-foreground">{user.settings.certificationTarget}</p>
+          <Link to="/settings" className="inline-flex max-w-full items-center gap-1 font-display text-lg font-semibold hover:text-primary">
+            <span className="truncate">{path.certification.title}</span>
+            <ChevronDown className="size-4 shrink-0 text-primary" aria-hidden />
+          </Link>
+          <p className="mt-1 truncate text-sm text-muted-foreground">
+            {currentStage} · {d.masteredTopics} of {d.topicsTotal} topics
+          </p>
+        </div>
+        <div className="relative grid size-[3.75rem] place-items-center rounded-full border-4 border-secondary" aria-label={`${d.overallProgress}% overall progress`}>
+          <span className="font-display text-base font-semibold tabular-nums">{d.overallProgress}%</span>
         </div>
       </header>
 
-      <section aria-labelledby="continue-heading" className="rounded-lg bg-card p-5 sm:p-6">
-        <h2 id="continue-heading" className="text-sm text-muted-foreground">
-          {d.hasAnyActivity ? "Continue learning" : "Start learning"}
-        </h2>
+      <section aria-labelledby="continue-heading" className="relative overflow-hidden border-b border-border pb-6">
+        <div className="relative z-10 max-w-[72%] sm:max-w-[68%]">
+          <h1 className="text-base font-medium">
+            {d.hasAnyActivity ? "Continue learning" : "Start learning"}
+          </h1>
+        </div>
         {primary ? (
           <>
-            <p className="mt-1 font-display text-xl font-semibold leading-snug sm:text-2xl">{primary.title}</p>
-            <p className="mt-1 truncate text-sm text-muted-foreground">{primary.detail}</p>
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg">
+            <div className="relative z-10 mt-3 max-w-[72%] sm:max-w-[68%]">
+              <p className="text-sm text-muted-foreground">{primary.detail}</p>
+              <h2 id="continue-heading" className="mt-1 font-display text-2xl font-semibold leading-tight sm:text-3xl">{primary.title}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {path.certification.title} · Section {Math.min(courseTopicIndex + 1, path.topics.length)} of {path.topics.length}
+              </p>
+            </div>
+            <img
+              src={courseArtwork.src}
+              alt={courseArtwork.alt}
+              className="pointer-events-none absolute -right-10 top-6 h-44 w-48 object-cover object-right opacity-90 [mask-image:linear-gradient(to_right,transparent,black_35%)] sm:right-0 sm:h-48 sm:w-64"
+            />
+            <div className="relative z-10 mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:max-w-xl">
+              <Button asChild size="lg" className="w-full">
                 <Link
                   to={primary.to}
                   {...(primary.params ? { params: primary.params as never } : {})}
@@ -228,12 +251,9 @@ function Dashboard() {
                   <PlayCircle className="size-4" aria-hidden /> Continue
                 </Link>
               </Button>
-              <Link to="/study-plan" className="text-sm text-muted-foreground hover:text-foreground">
-                Study plan
-              </Link>
-              <Link to="/quiz-me" className="text-sm text-muted-foreground hover:text-foreground">
-                Quiz me
-              </Link>
+              <Button asChild variant="outline" size="lg" className="px-4">
+                <Link to="/study-plan"><BookOpen className="size-4 text-primary" aria-hidden /><span className="hidden xs:inline">Study plan</span></Link>
+              </Button>
             </div>
           </>
         ) : (
@@ -242,10 +262,10 @@ function Dashboard() {
           </Button>
         )}
         {d.hasAnyActivity && (actions.length > 0 || todayChips.length > 0) ? (
-          <details className="group mt-4 border-t border-border/60 pt-3">
-            <summary className="flex cursor-pointer list-none items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
-              <ChevronRight className="size-4 transition-transform group-open:rotate-90" aria-hidden />
+          <details className="group relative z-10 mt-3">
+            <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
               Other suggestions ({actions.length + todayChips.length})
+              <ChevronRight className="size-4 transition-transform group-open:rotate-90" aria-hidden />
             </summary>
             <div className="mt-3 space-y-3">
               <TodayStrip chips={todayChips} />
@@ -261,34 +281,24 @@ function Dashboard() {
         ) : null}
       </section>
 
-      <section className="mt-8">
+      <section className="border-b border-border py-5">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
-          <h2 className="font-display text-lg font-semibold">Progress</h2>
+          <h2 className="font-display text-xl font-semibold">Your progress</h2>
           <span className="text-sm text-muted-foreground tabular-nums">
             {d.masteredTopics} of {d.topicsTotal} topics mastered
           </span>
         </div>
-        <div className="mt-3 space-y-3">
-          <MeterRow label="Learning progress" value={measures.learningProgress} />
-          <MeterRow label="Overall mastery" value={measures.overallMastery} />
+        <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <Meter value={measures.learningProgress} />
+          <span className="text-sm font-semibold tabular-nums">{measures.learningProgress}%</span>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-x-6 sm:grid-cols-4 [&>div]:py-1.5">
+        <div className="mt-5 grid grid-cols-4 divide-x divide-border">
           {d.certificationReadiness[0] ? (
-            <StatCard label={`${d.certificationReadiness[0].title} readiness`} value={`${d.certificationReadiness[0].overall}%`} />
+            <div className="min-w-0 pr-2"><SlidersHorizontal className="mb-2 size-5 text-primary" aria-hidden /><p className="text-xs text-muted-foreground">{d.certificationReadiness[0].title} readiness</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{d.certificationReadiness[0].overall}%</p></div>
           ) : null}
-          <StatCard
-            label={quizCount > 0 ? `Recent quiz average · ${quizCount} ${quizCount === 1 ? "quiz" : "quizzes"}` : "Recent quiz average"}
-            value={quizCount > 0 ? `${d.quizAverage}%` : "—"}
-          />
-          <StatCard
-            label="Study time"
-            value={d.studyMinutesTotal < 60 ? `${d.studyMinutesTotal} min` : `${d.studyHoursTotal}h`}
-          />
-          {d.streakDays > 0 ? (
-            <StatCard label="Streak" value={`${d.streakDays} ${d.streakDays === 1 ? "day" : "days"}`} />
-          ) : (
-            <StatCard label="Streak" value="No streak yet" />
-          )}
+          <div className="min-w-0 px-2"><BarChart3 className="mb-2 size-5 text-primary" aria-hidden /><p className="text-xs text-muted-foreground">Quiz average</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{quizCount > 0 ? `${d.quizAverage}%` : "—"}</p><p className="truncate text-[0.6875rem] text-muted-foreground">{quizCount > 0 ? `${quizCount} completed` : "No quizzes yet"}</p></div>
+          <div className="min-w-0 px-2"><Clock className="mb-2 size-5 text-primary" aria-hidden /><p className="text-xs text-muted-foreground">Study time</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{d.studyMinutesTotal < 60 ? `${d.studyMinutesTotal} min` : `${d.studyHoursTotal}h`}</p></div>
+          <div className="min-w-0 pl-2"><Flame className="mb-2 size-5 text-primary" aria-hidden /><p className="text-xs text-muted-foreground">Streak</p><p className="mt-1 font-display text-lg font-semibold">{d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p><p className="truncate text-[0.6875rem] text-muted-foreground">{d.streakDays > 0 ? `${d.streakDays === 1 ? "day" : "days"} active` : "No streak yet"}</p></div>
         </div>
         <details className="mt-1">
           <summary className="cursor-pointer list-none py-2 text-sm text-primary hover:underline [&::-webkit-details-marker]:hidden">
@@ -309,10 +319,10 @@ function Dashboard() {
         </details>
       </section>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-2">
-        <Panel title="Due for review">
+      <div>
+        <Panel title="Due for review" className="border-t-0 py-5">
           {reviewTopics.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nothing is due. Reviews appear here as topics come up for spaced repetition.</p>
+            <div className="flex items-start gap-4 text-muted-foreground"><CalendarDays className="mt-0.5 size-6 shrink-0" aria-hidden /><div><p className="text-sm text-foreground/85">Nothing due right now.</p><p className="mt-0.5 text-sm">We’ll show topics here as they become due.</p></div></div>
           ) : (
             <ul className="divide-y divide-border/60 text-sm">
               {reviewTopics.map((item) => (
@@ -346,7 +356,7 @@ function Dashboard() {
           ) : null}
         </Panel>
 
-        <Panel title="Today">
+        <Panel title="Today" className="py-5">
           {!hydrated ? (
             <p className="text-sm text-muted-foreground">Loading…</p>
           ) : d.todaysTasks.length === 0 ? (
@@ -368,25 +378,30 @@ function Dashboard() {
           )}
         </Panel>
 
-        <Panel title="Certifications">
-          <ul className="space-y-3">
+        <Panel title="Certifications" className="py-5">
+          <Link to="/certifications" className="absolute right-0 top-5 text-sm text-primary hover:underline">View all →</Link>
+          <ul className="divide-y divide-border/60">
             {d.certificationReadiness.map((cert) => (
-              <li key={cert.id}>
-                <MeterRow label={cert.title} value={cert.overall} />
-                <p className="mt-1 text-xs text-muted-foreground">{certificationStatusLabels[cert.status as CertificationStatus]}</p>
+              <li key={cert.id} className="grid grid-cols-[minmax(0,1fr)_7rem_auto] items-center gap-3 py-2.5">
+                <div className="min-w-0"><p className="truncate text-sm">{cert.title}</p><span className="sr-only">{certificationStatusLabels[cert.status as CertificationStatus]}</span></div>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><Meter value={cert.overall} /><span className="text-sm font-semibold tabular-nums">{cert.overall}%</span></div>
+                <ChevronRight className="size-4 text-primary" aria-hidden />
               </li>
             ))}
           </ul>
-          <Link to="/certifications" className="mt-3 inline-block text-sm text-primary hover:underline">All certifications</Link>
         </Panel>
 
-        <Panel title="Career readiness">
-          <div className="space-y-3">
+        <Panel title="Career readiness" className="py-5">
+          <Link to="/career-skills" className="absolute right-0 top-5 text-sm text-primary hover:underline">View all →</Link>
+          <div className="divide-y divide-border/60">
             {d.careerReadiness.map((track) => (
-              <MeterRow key={track.track} label={track.label} value={track.score} />
+              <div key={track.track} className="grid grid-cols-[minmax(0,1fr)_7rem_auto] items-center gap-3 py-2.5">
+                <p className="truncate text-sm">{track.label}</p>
+                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><Meter value={track.score} /><span className="text-sm font-semibold tabular-nums">{track.score}%</span></div>
+                <ChevronRight className="size-4 text-primary" aria-hidden />
+              </div>
             ))}
           </div>
-          <Link to="/career-skills" className="mt-3 inline-block text-sm text-primary hover:underline">Career skills</Link>
         </Panel>
       </div>
 
