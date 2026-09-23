@@ -22,6 +22,7 @@ import { networkSecurityPlainLanguage } from "./deep-lessons/plain-network-secur
 import { linuxServersCloudPlainLanguage } from "./deep-lessons/plain-linux-servers-cloud";
 import { advancedSecurityPlainLanguage } from "./deep-lessons/plain-advanced-security";
 import { ownerLessonFor } from "@/lib/owner-lesson-store";
+import { lessonWithCoverageSupplements, withCoverageSupplements } from "./deep-lessons/coverage-supplements";
 import type {
   DeepLesson,
   DeepLessonSection,
@@ -736,11 +737,11 @@ export const deepLessons: DeepLesson[] = [
 ].map((lesson) => {
   const depth = lessonDepthByTopic[lesson.topicId];
   const plain = plainLanguageByTopic[lesson.topicId];
-  return {
+  return withCoverageSupplements({
     ...lesson,
     ...(depth ? { depth } : {}),
     ...(plain ? { plain } : {}),
-  };
+  });
 });
 
 /**
@@ -748,5 +749,6 @@ export const deepLessons: DeepLesson[] = [
  * when one exists for this topic, the built-in lesson is never returned.
  */
 export function getDeepLesson(topicId: string): DeepLesson | undefined {
-  return ownerLessonFor(topicId) ?? deepLessons.find((lesson) => lesson.topicId === topicId);
+  const lesson = ownerLessonFor(topicId) ?? deepLessons.find((candidate) => candidate.topicId === topicId);
+  return lessonWithCoverageSupplements(topicId, lesson);
 }
