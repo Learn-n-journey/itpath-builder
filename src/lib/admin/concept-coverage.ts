@@ -468,6 +468,7 @@ export function topicCoverage(pack: CoursePack, topicId: string, course: TaughtV
       missingKnowledge: result.missing,
       missingEverywhere: result.missingEverywhere,
       lessonEvidence: result.evidence,
+      ...(result.reviewKind ? { reviewKind: result.reviewKind } : {}),
       reason: result.reason,
       remediation: result.remediation,
     });
