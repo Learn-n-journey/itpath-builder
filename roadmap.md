@@ -173,12 +173,12 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Remove unnecessary instructional filler and describe Review by its actual contents.
 
 ## Learner UX polish pass
-- [ ] Add shape-matched loading skeletons to primary data-driven learner screens
-- [ ] Standardize motion, reduced-motion behavior, status vocabulary, empty states, and interactive rows
-- [ ] Preserve learner presentation preferences locally
-- [ ] Add contextual breadcrumbs and rule-safe next actions to deeper activity flows
-- [ ] Standardize secondary disclosure patterns and responsive content widths
-- [ ] Run learner-route interaction and mobile/tablet/desktop visual regression checks
+- [x] Add shape-matched loading skeletons to primary data-driven learner screens
+- [x] Standardize motion, reduced-motion behavior, status vocabulary, empty states, and interactive rows
+- [x] Preserve learner presentation preferences locally
+- [x] Add contextual breadcrumbs and rule-safe next actions to deeper activity flows
+- [x] Standardize secondary disclosure patterns and responsive content widths
+- [x] Run learner-route interaction and mobile/tablet/desktop visual regression checks
 
 ## Semantic color hierarchy pass
 - [x] Add ordered multi-stage journey colors and matching milestone nodes to My Path
