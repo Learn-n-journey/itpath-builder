@@ -16,6 +16,8 @@ const BATCH = 60;
 /** How long one run may hold the lock before another run may take over. */
 const LOCK_MINUTES = 10;
 const JOB = "link-check";
+/** Bump when probe semantics change so stale failures are rechecked first. */
+const CHECK_VERSION = 2;
 
 interface CheckRow {
   url: string;
@@ -91,9 +93,17 @@ export const Route = createFileRoute("/api/public/link-check")({
           .select("url, checked_at, fail_count");
         const known = new Map<string, CheckRow>((rows ?? []).map((row) => [row.url, row as CheckRow]));
 
+        // Recheck failures first. This is important after probe logic changes:
+        // a previously blocked HEAD request must not leave a valid source marked
+        // unavailable until the crawler eventually cycles through every link.
         const due = [...links].sort((a, b) => {
-          const left = known.get(a.url)?.checked_at;
-          const right = known.get(b.url)?.checked_at;
+          const leftRow = known.get(a.url);
+          const rightRow = known.get(b.url);
+          const leftFailed = (leftRow?.fail_count ?? 0) > 0;
+          const rightFailed = (rightRow?.fail_count ?? 0) > 0;
+          if (leftFailed !== rightFailed) return leftFailed ? -1 : 1;
+          const left = leftRow?.checked_at;
+          const right = rightRow?.checked_at;
           if (!left && !right) return 0;
           if (!left) return -1;
           if (!right) return 1;
@@ -120,7 +130,7 @@ export const Route = createFileRoute("/api/public/link-check")({
 
         await supabaseAdmin
           .from("job_locks")
-          .update({ locked_until: new Date().toISOString(), note: `checked ${Math.min(BATCH, due.length)}` })
+          .update({ locked_until: new Date().toISOString(), note: `v${CHECK_VERSION}: checked ${Math.min(BATCH, due.length)}` })
           .eq("job", JOB);
 
         return Response.json({
