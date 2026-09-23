@@ -143,7 +143,7 @@ function addText(vocabulary: TaughtVocabulary, text: string | undefined | null):
 export function topicTeachingMaterial(pack: CoursePack, topicId: string): string[] {
   const topic = pack.sections.find((section) => section.id === topicId);
   if (!topic) return [];
-  const parts: string[] = [topic.title, topic.description ?? "", ...(topic.learningObjectives ?? []), pack.lessonText(topicId)];
+  const parts: string[] = [topic.title, topic.summary ?? "", ...(topic.learningObjectives ?? []), pack.lessonText(topicId)];
 
   const deep = pack.getDeepLesson(topicId);
   if (deep) {
@@ -167,11 +167,11 @@ export function topicTeachingMaterial(pack: CoursePack, topicId: string): string
 
   // Applications count as teaching: worked practice, recall and the scenario.
   for (const activity of pack.getPracticeActivities(topicId)) {
-    parts.push(activity.title ?? "", activity.prompt ?? "", activity.guidance ?? "", ...(activity.steps ?? []));
+    parts.push(activity.title, activity.prompt, activity.explanation, ...activity.choices);
   }
-  for (const recall of pack.getRecallQuestions(topicId)) parts.push(recall.prompt ?? "", recall.answer ?? "");
+  for (const recall of pack.getRecallQuestions(topicId)) parts.push(recall.prompt, recall.explanation, ...recall.acceptedConcepts);
   const scenario = pack.getRealWorldScenario(topicId);
-  if (scenario) parts.push(scenario.title ?? "", scenario.situation ?? "", scenario.response ?? "", scenario.lesson ?? "");
+  if (scenario) parts.push(scenario.title, scenario.situation, scenario.decisionPrompt, scenario.guidance, ...scenario.expectedConcepts);
 
   for (const video of pack.resources.videos[topicId] ?? []) parts.push(video.title, video.description, video.objective);
   const reading = pack.resources.reading[topicId];
@@ -362,7 +362,7 @@ export function topicCoverage(pack: CoursePack, topicId: string, course: TaughtV
   const checks = pack.getDeepLesson(topicId)?.depth?.checkYourself ?? [];
   checks.forEach((check, index) => push("self-check", `${topicId}:check:${index + 1}`, check.question, [check.answer]));
   for (const recall of pack.getRecallQuestions(topicId)) {
-    push("recall", recall.id, recall.prompt ?? "", [recall.answer ?? ""]);
+    push("recall", recall.id, recall.prompt, recall.acceptedConcepts);
   }
 
   return findings;
