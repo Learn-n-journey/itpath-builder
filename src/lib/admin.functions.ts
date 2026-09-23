@@ -100,15 +100,17 @@ export const systemHealth = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const checks: HealthCheck[] = [];
+    const timings: Array<{ label: string; took: number }> = [];
 
     async function probe(id: string, label: string, affects: string, job: () => Promise<string>) {
       const started = Date.now();
       try {
         const detail = await job();
         const took = Date.now() - started;
+        timings.push({ label, took });
         checks.push({
           id,
-          area: took > 2000 ? "performance" : "system",
+          area: "system",
           label,
           state: took > 2000 ? "warning" : "healthy",
           detail: `${detail} (${took}ms)`,
@@ -116,6 +118,7 @@ export const systemHealth = createServerFn({ method: "POST" })
           action: took > 2000 ? "Watch for repeats; the database may be under load." : "",
           lastRunAt: ranAt,
         });
+
       } catch (error) {
         checks.push({
           id,
