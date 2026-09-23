@@ -100,7 +100,7 @@ const coverageSupplements: Record<string, DeepLessonSection[]> = {
       ],
     },
   ],
-  "topic-mobile-device-hardware": [
+  "topic-mobile-hardware-and-components": [
     {
       id: "mobile-components-sensors-and-secure-processing",
       heading: "Mobile Components, Sensors, and Secure Processing",
@@ -148,7 +148,7 @@ const coverageSupplements: Record<string, DeepLessonSection[]> = {
       ],
     },
   ],
-  "topic-printers-peripherals-and-connectivity": [
+  "topic-printers-and-peripherals": [
     {
       id: "peripheral-selection-and-output-troubleshooting",
       heading: "Peripheral Selection and Output Troubleshooting",
