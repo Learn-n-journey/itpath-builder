@@ -123,7 +123,8 @@ function maskFor(prefix: number): string {
 const CIDR_MASK = /\/(\d{1,2})\b[^.\n]{0,60}?(?:subnet\s*)?mask\s*(?:is|of|=)?\s*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gi;
 const MASK_CIDR = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s*(?:is|=|means|equals?)\s*(?:the same as\s*)?\/(\d{1,2})\b/gi;
 const CIDR_HOSTS =
-  /\/(\d{1,2})\b[^.\n]{0,70}?(?<![A-Za-z])([\d,]+)\s*(usable\s*)?(?:hosts|host addresses|usable addresses)/gi;
+  /\/(\d{1,2})\b[^.,;:\n/]{0,70}?(?<![A-Za-z])([\d,]+)\s*(usable\s*)?(?:hosts|host addresses|usable addresses)/gi;
+
 // Keep a CIDR host-count claim inside one clause. The previous wildcard could
 // run across commas/semicolons and pair a /27 mentioned in one clause with a
 // different number later in the sentence, creating a false factual finding.
