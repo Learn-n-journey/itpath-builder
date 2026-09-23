@@ -4,6 +4,7 @@ import {
   courseCoverage,
   coverageCsv,
   requiredKnowledge,
+  taughtVocabulary,
   type ClassifyOptions,
   type TaughtVocabulary,
 } from "./concept-coverage";
@@ -11,8 +12,6 @@ import { coursePack } from "@/content/course-pack";
 
 /** A stand-in body of teaching material. */
 function vocabularyOf(...texts: string[]): TaughtVocabulary {
-  // Uses the same builder the real check does, via a tiny fake pack surface.
-  const module = require("./concept-coverage") as typeof import("./concept-coverage");
   const fake = {
     sections: [{ id: "t", title: "Topic", summary: "", learningObjectives: [], prerequisiteTopicIds: [] }],
     lessonText: () => texts.join("\n"),
@@ -21,8 +20,8 @@ function vocabularyOf(...texts: string[]): TaughtVocabulary {
     getRecallQuestions: () => [],
     getRealWorldScenario: () => undefined,
     resources: { videos: {}, reading: {} },
-  } as unknown as Parameters<typeof module.taughtVocabulary>[0];
-  return module.taughtVocabulary(fake, "t");
+  } as unknown as Parameters<typeof taughtVocabulary>[0];
+  return taughtVocabulary(fake, "t");
 }
 
 const emptyCourse = vocabularyOf("");
