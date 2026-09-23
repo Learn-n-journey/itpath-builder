@@ -188,8 +188,13 @@ const PORTS: Record<string, number[]> = {
   vnc: [5900],
 };
 
+// The gap may not cross a clause boundary. A sentence such as "port 443 is
+// HTTPS, while TCP port 22 is SSH" pairs each protocol with its own port, and
+// listing sentences ("port 21 is FTP control, port 25 SMTP") do the same, so
+// commas, semicolons, colons and joining words end the pairing.
 const PROTO_PORT = new RegExp(
-  String.raw`\b(${Object.keys(PORTS).join("|")})\b[^.\n]{0,40}?\bports?\s*(\d{1,5})`,
+  String.raw`\b(${Object.keys(PORTS).join("|")})\b(?:(?!\b(?:while|whereas|but|and|or|not|instead)\b)[^.,;:\n])
+{0,40}?\bports?\s*(\d{1,5})`.replace(/\n/g, ""),
   "gi",
 );
 
