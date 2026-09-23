@@ -1,4 +1,4 @@
-import { labs, quizzes, topics } from "@/data/static-content";
+import { assignments, labs, quizzes, topics } from "@/data/static-content";
 import type { UserData } from "@/lib/app-data/types";
 
 /**
@@ -60,8 +60,10 @@ export function resumeTarget(user: UserData): ResumeTarget | undefined {
     (attempt) => attempt.status === "started" || attempt.status === "submitted",
   );
   if (openTask) {
+    const task = assignments.find((item) => item.id === openTask.assignmentId);
+    const topic = task ? topics.find((item) => item.id === task.topicId) : undefined;
     return {
-      label: "Practice task",
+      label: topic ? `${topic.title} · Practice` : "Practice task",
       detail: "Finish it and send it in so it counts.",
       to: "/practice",
     };
