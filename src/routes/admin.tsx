@@ -158,9 +158,15 @@ function AdminPage() {
           readVersions({ data: {} }),
         ]);
         for (const run of runs.runs) {
-          if (run.area === "system") setSystemRanAt(run.finishedAt);
+          if (run.area === "system") {
+            setSystemRanAt(run.finishedAt);
+            setSystemChecks(run.checks);
+          }
           if (run.area === "content") setContentRanAt(run.finishedAt);
-          if (run.area === "engine") setEngineRanAt(run.finishedAt);
+          if (run.area === "engine") {
+            setEngineRanAt(run.finishedAt);
+            setEngineChecks(run.checks);
+          }
         }
         setActivity(activityReply.entries);
         setVersions(versionReply.versions);
