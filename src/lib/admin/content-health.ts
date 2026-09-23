@@ -8,6 +8,14 @@
 import type { CoursePack } from "@/content/pack-contract";
 import type { Finding } from "@/lib/quality/types";
 import { lessonConceptSections } from "@/lib/lesson-concepts";
+import {
+  courseCoverage,
+  courseVocabulary,
+  coverageCsv,
+  topicCoverage,
+  type CoverageFinding,
+  type TaughtVocabulary,
+} from "./concept-coverage";
 import type { HealthCheck } from "./types";
 
 const PLACEHOLDER = /\b(lorem ipsum|todo|tbd|coming soon|placeholder|fill in later|xxx+)\b/i;
@@ -24,6 +32,8 @@ export interface TopicHealthOptions {
   /** Findings produced by the existing content audit, if it has been run. */
   findings?: Finding[];
   ranAt?: string | null;
+  /** Vocabulary of the whole course, computed once when checking every topic. */
+  courseVocabulary?: TaughtVocabulary;
 }
 
 /**
@@ -248,16 +258,30 @@ export function topicHealthChecks(
     "Correct the lesson-section column, or add the missing lesson part.",
   );
 
-  // Assessment material that was not taught.
-  const untaught = untaughtQuestions(pack, topicId);
-
+  // Assessment material that was not taught. Concept coverage decides this:
+  // different wording from the lesson is fine and wanted; untaught technical
+  // knowledge is not.
+  const flagged = untaughtQuestions(pack, topicId, options.courseVocabulary ?? courseVocabulary(pack));
+  const failing = flagged.filter((finding) => finding.verdict === "fail");
+  const reviewing = flagged.filter((finding) => finding.verdict === "review");
   add(
     "taught",
     "Only what was taught",
-    untaught.length === 0,
-    `${untaught.length} question${untaught.length === 1 ? " uses" : "s use"} wording that appears nowhere in the lesson, its videos or its sources.`,
+    failing.length === 0,
+    `${failing.length} question${failing.length === 1 ? " needs" : "s need"} knowledge this topic never teaches: ${failing
+      .slice(0, 3)
+      .map((finding) => finding.missingKnowledge.slice(0, 4).join(", "))
+      .join("; ")}.`,
     "Learners are tested on material this topic never covered.",
-    "Either teach the material in the lesson, or move the question.",
+    "Teach the concept in the lesson where it belongs, or move or replace the question.",
+  );
+  add(
+    "taught-review",
+    "Concept coverage review",
+    reviewing.length === 0,
+    `${reviewing.length} question${reviewing.length === 1 ? " leans" : "s lean"} on coverage that is indirect or taught in another topic.`,
+    "A beginner may have to infer something this lesson only implies.",
+    "Read the coverage list and either say it plainly once, or link the prerequisite.",
     "warning",
   );
 
@@ -320,8 +344,9 @@ export interface TopicHealth {
 }
 
 export function contentHealth(pack: CoursePack, options: TopicHealthOptions = {}): TopicHealth[] {
+  const vocabulary = options.courseVocabulary ?? courseVocabulary(pack);
   return pack.sections.map((topic) => {
-    const checks = topicHealthChecks(pack, topic.id, options);
+    const checks = topicHealthChecks(pack, topic.id, { ...options, courseVocabulary: vocabulary });
     const failed = checks.filter((item) => item.state === "failed").length;
     const warnings = checks.filter((item) => item.state === "warning").length;
     return {
