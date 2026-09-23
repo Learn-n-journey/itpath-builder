@@ -393,20 +393,42 @@ export function classifyCoverage(prompt: string, answers: string[], options: Cla
 
   const belongsInLesson = missing.some((term) => options.objectiveTerms?.has(term));
   let verdict: CoverageVerdict;
+  let reviewKind: Classification["reviewKind"];
   if (missingEverywhere.length === 0) {
-    // Taught somewhere in the course, just not here: worth a look, never a block.
-    verdict = "review";
+    // The course does teach it, just in another topic. That is a normal
+    // cross-topic link and only worth a look when this topic's own objectives
+    // promise the concept, or when most of the question rests on it.
+    if (belongsInLesson || coverage < 0.5) {
+      verdict = "review";
+      reviewKind = "elsewhere";
+    } else {
+      verdict = "pass";
+    }
   } else if (coverage >= 0.5 || missingEverywhere.length < 2) {
     // Most of what the question needs was taught, or only a single word went
     // unmatched: that is wording, not untaught knowledge.
     verdict = "review";
+    reviewKind = "indirect";
   } else {
     verdict = "fail";
   }
 
+  if (verdict === "pass") {
+    return {
+      verdict,
+      required,
+      taught,
+      missing,
+      missingEverywhere,
+      evidence,
+      reason: `Every concept is taught in the course; ${missing.join(", ")} comes from another topic the learner has already met.`,
+      remediation: "None. Keep the question as written.",
+    };
+  }
+
   const reason =
     verdict === "review"
-      ? missingEverywhere.length === 0
+      ? reviewKind === "elsewhere"
         ? `Taught elsewhere in the course but not in this topic: ${missing.join(", ")}.`
         : `Coverage is indirect; a beginner may have to infer: ${missing.join(", ")}.`
       : `This topic never teaches: ${missingEverywhere.join(", ")}.`;
@@ -417,7 +439,7 @@ export function classifyCoverage(prompt: string, answers: string[], options: Cla
       ? "Either add a prerequisite link to the topic that teaches it, or say it plainly once in this lesson."
       : "The question asks for out-of-scope knowledge. Move it to the topic that teaches it, or replace the question.";
 
-  return { verdict, required, taught, missing, missingEverywhere, evidence, reason, remediation };
+  return { verdict, required, taught, missing, missingEverywhere, evidence, reviewKind, reason, remediation };
 }
 
 /** Every question in a topic, judged. */
