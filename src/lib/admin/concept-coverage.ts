@@ -289,7 +289,11 @@ export function requiredKnowledge(prompt: string, answers: string[] = []): strin
     // a scenario hands the learner, not vocabulary the lesson has to contain.
     if (/\.(txt|log|csv|conf|cfg|ini|bak|tmp|doc|docx|xls|xlsx|pdf|zip|json|xml|yml|yaml|old|dat|bin)$/.test(lower)) continue;
     const isAcronym = /^[A-Z0-9/.-]{2,8}$/.test(bare) && /[A-Z]/.test(bare);
-    const isCommandish = /[/\\._-]/.test(bare) && bare.length >= 3;
+    // An ordinary hyphenated English word ("short-lived", "falling-demand") is
+    // wording, not a command or a path: treat it like any other word so it
+    // stems the same way the lesson's copy of it does.
+    const isHyphenatedWord = /^[a-z]+(-[a-z]+)+$/.test(lower);
+    const isCommandish = !isHyphenatedWord && /[/\\._-]/.test(bare) && bare.length >= 3;
     if (!isAcronym && !isCommandish) {
       if (lower.length < 5) continue;
       if (QUESTION_LANGUAGE.has(lower)) continue;
