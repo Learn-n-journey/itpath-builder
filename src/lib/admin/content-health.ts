@@ -226,8 +226,17 @@ export function topicHealthChecks(
     "Correct the lesson-section column, or add the missing lesson part.",
   );
 
-  // Assessment material that was not taught
-  const lessonWords = new Set(normalise(text).split(" "));
+  // Assessment material that was not taught.
+  // The full lesson is the reading plus everything the linked videos and
+  // sources cover, so all of it counts as taught.
+  const taughtText = [
+    text,
+    topic.title,
+    ...(topic.learningObjectives ?? []),
+    ...videos.flatMap((video) => [video.title, video.description, video.objective]),
+    reading ? `${reading.title} ${reading.provider}` : "",
+  ].join(" ");
+  const lessonWords = new Set(normalise(taughtText).split(" "));
   const untaught = pool.filter((question) => {
     const terms = normalise(question.prompt).split(" ").filter((word) => word.length > 7);
     if (terms.length === 0) return false;
@@ -237,11 +246,12 @@ export function topicHealthChecks(
     "taught",
     "Only what was taught",
     untaught.length === 0,
-    `${untaught.length} question${untaught.length === 1 ? " uses" : "s use"} wording that does not appear in the lesson.`,
+    `${untaught.length} question${untaught.length === 1 ? " uses" : "s use"} wording that appears nowhere in the lesson, its videos or its sources.`,
     "Learners are tested on material this topic never covered.",
     "Either teach the material in the lesson, or move the question.",
     "warning",
   );
+
 
   // Prerequisites resolve
   const known = new Set(pack.sections.map((section) => section.id));
