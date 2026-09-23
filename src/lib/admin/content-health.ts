@@ -261,7 +261,8 @@ export function topicHealthChecks(
   // Assessment material that was not taught. Concept coverage decides this:
   // different wording from the lesson is fine and wanted; untaught technical
   // knowledge is not.
-  const flagged = untaughtQuestions(pack, topicId, options.courseVocabulary ?? courseVocabulary(pack));
+  const judged = topicCoverage(pack, topicId, options.courseVocabulary ?? courseVocabulary(pack));
+  const flagged = judged.filter((finding) => finding.verdict !== "pass");
   const failing = flagged.filter((finding) => finding.verdict === "fail");
   const reviewing = flagged.filter((finding) => finding.verdict === "review");
   add(
