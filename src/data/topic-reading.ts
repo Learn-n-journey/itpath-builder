@@ -288,7 +288,7 @@ export const readingSources: Record<string, ReadingSource> = {
     key: "identity",
     title: "Digital identity guidelines, SP 800-63",
     provider: "NIST",
-    url: "https://csrc.nist.gov/publications/detail/sp/800-63/3/final",
+    url: "https://csrc.nist.gov/pubs/sp/800/63/4/final",
   },
   firewall: {
     key: "firewall",
