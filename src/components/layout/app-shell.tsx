@@ -17,6 +17,7 @@ import { loadOwnerWork } from "@/lib/owner-work-store";
 import { loadLearningPaths } from "@/lib/learning-path-store";
 import { firstPracticeTestCertId } from "@/lib/tracks";
 import { MaintenanceGate } from "@/components/maintenance-screen";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useSidebarAttention();
@@ -145,7 +146,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <header className="sticky top-0 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/85 px-4 py-3 shadow-sm backdrop-blur-xl lg:hidden">
+      <header className="sticky top-0 z-20 grid h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-background/92 px-2 backdrop-blur-xl lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Open navigation">
@@ -162,8 +163,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </SheetContent>
         </Sheet>
         <span className="flex min-w-0 items-center gap-2 truncate font-display text-sm font-semibold">
-          <span className="h-1.5 w-1.5 shrink-0 bg-emphasis" aria-hidden />
-          {current}
+          <ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden />
+          <span className="truncate">{domain.appName}</span>
+          <span className="truncate text-xs font-normal text-muted-foreground">· {current}</span>
         </span>
         <Button
           variant="ghost"
@@ -175,18 +177,17 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Button>
       </header>
 
-      <main className={cn("lg:pl-68")}>
-        <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+      <main className={cn("pb-16 lg:pl-68 lg:pb-0")}>
+        <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
           <StudyTabs />
           <div key={pathname} className="page-enter" data-page-content>
             {children}
           </div>
         </div>
         <MilestoneOverlay />
-        <GaylBubble />
-        <SidePanel />
+        <div className="hidden lg:block"><GaylBubble /></div>
+        <div className="hidden lg:block"><SidePanel /></div>
         <SyncLiveBadge />
-        <QuickNav />
         <footer className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
             <span>{domain.appName} · David Boley</span>
@@ -212,6 +213,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </footer>
       </main>
+      <MobileBottomNav onMore={() => setOpen(true)} />
     </div>
     </MaintenanceGate>
   );
