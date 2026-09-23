@@ -16,7 +16,7 @@ import {
 import type { DeepLesson } from "@/data/deep-lessons/types";
 import type { PracticeActivity, RealWorldScenario, RecallQuestion, Resource } from "@/lib/app-data/types";
 import type { WorkedExample } from "@/data/worked-examples";
-import type { OwnerLabItem, OwnerLessonExtras } from "@/lib/owner-lessons-shared";
+import { splitLongParagraph, type OwnerLabItem, type OwnerLessonExtras } from "@/lib/owner-lessons-shared";
 
 let liveLessons: Record<string, DeepLesson> | null = null;
 let liveSources: Record<string, Resource[]> | null = null;
