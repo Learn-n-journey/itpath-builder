@@ -110,6 +110,9 @@ const SYNONYM_GROUPS: string[][] = [
   ["virtual machine", "vm", "guest"],
   ["dns", "name resolution", "domain name", "resolve", "resolution", "lookup"],
   ["dhcp", "address assignment", "lease"],
+  ["byte", "octet", "eight-bit", "8-bit"],
+  ["load balancer", "reverse proxy", "distributor", "frontend", "front-end"],
+  ["ascii", "character set", "character encoding"],
 ];
 
 const SYNONYM_OF = new Map<string, number>();
