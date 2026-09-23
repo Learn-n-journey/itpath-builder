@@ -26,6 +26,65 @@ export interface TopicHealthOptions {
   ranAt?: string | null;
 }
 
+/** One quiz question whose wording appears nowhere in the topic's material. */
+export interface CoverageGap {
+  topicId: string;
+  topicTitle: string;
+  questionId: string;
+  prompt: string;
+  /** The words from the question that the lesson never uses. */
+  missingTerms: string[];
+}
+
+/**
+ * Questions in a topic's quiz pool that the topic never teaches.
+ * The full lesson is the reading plus everything the linked videos and
+ * sources cover, so all of it counts as taught.
+ */
+export function untaughtQuestions(pack: CoursePack, topicId: string): CoverageGap[] {
+  const topic = pack.sections.find((section) => section.id === topicId);
+  if (!topic) return [];
+  const videos = pack.resources.videos[topicId] ?? [];
+  const reading = pack.resources.reading[topicId];
+  const taughtText = [
+    pack.lessonText(topicId),
+    topic.title,
+    ...(topic.learningObjectives ?? []),
+    ...videos.flatMap((video) => [video.title, video.description, video.objective]),
+    reading ? `${reading.title} ${reading.provider}` : "",
+  ].join(" ");
+  const lessonWords = new Set(normalise(taughtText).split(" "));
+  const gaps: CoverageGap[] = [];
+  for (const question of pack.sectionQuestionPool(topicId)) {
+    const terms = normalise(question.prompt).split(" ").filter((word) => word.length > 7);
+    if (terms.length === 0) continue;
+    if (terms.some((term) => lessonWords.has(term))) continue;
+    gaps.push({
+      topicId,
+      topicTitle: topic.title,
+      questionId: question.id,
+      prompt: question.prompt,
+      missingTerms: [...new Set(terms)],
+    });
+  }
+  return gaps;
+}
+
+/** Every untaught question across the whole course. */
+export function coverageGaps(pack: CoursePack): CoverageGap[] {
+  return pack.sections.flatMap((section) => untaughtQuestions(pack, section.id));
+}
+
+/** Coverage gaps as a spreadsheet-friendly CSV. */
+export function coverageGapsCsv(gaps: CoverageGap[]): string {
+  const cell = (value: string) => `"${value.replace(/"/g, '""')}"`;
+  const rows = [
+    ["Topic", "Topic id", "Question id", "Question", "Words not in the lesson"],
+    ...gaps.map((gap) => [gap.topicTitle, gap.topicId, gap.questionId, gap.prompt, gap.missingTerms.join(" ")]),
+  ];
+  return rows.map((row) => row.map(cell).join(",")).join("\r\n");
+}
+
 /** Every check for one topic. */
 export function topicHealthChecks(
   pack: CoursePack,
