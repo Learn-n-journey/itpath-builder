@@ -285,6 +285,9 @@ export function requiredKnowledge(prompt: string, answers: string[] = []): strin
     // Command switches ("/scannow", "-la") belong to the command they follow;
     // the command itself carries the knowledge.
     if (/^[/\\-]/.test(bare)) continue;
+    // Example file names ("source.txt", "backup.txt", "app.log") are the props
+    // a scenario hands the learner, not vocabulary the lesson has to contain.
+    if (/\.(txt|log|csv|conf|cfg|ini|bak|tmp|doc|docx|xls|xlsx|pdf|zip|json|xml|yml|yaml|old|dat|bin)$/.test(lower)) continue;
     const isAcronym = /^[A-Z0-9/.-]{2,8}$/.test(bare) && /[A-Z]/.test(bare);
     const isCommandish = /[/\\._-]/.test(bare) && bare.length >= 3;
     if (!isAcronym && !isCommandish) {
