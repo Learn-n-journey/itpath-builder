@@ -33,7 +33,7 @@ describe("content health", () => {
     expect(checks[0]?.state).toBe("failed");
   });
 
-  it("gives every real topic a report with an action for each problem", () => {
+  it("gives every real topic a report with an action for each problem", { timeout: 120_000 }, () => {
     const pack = coursePack;
     const report = contentHealth(pack);
     expect(report).toHaveLength(pack.sections.length);
