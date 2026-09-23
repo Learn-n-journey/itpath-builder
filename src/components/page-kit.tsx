@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function PageHeader({
   title,
@@ -75,20 +76,59 @@ export function EmptyState({
   children,
 }: {
   title: string;
-  body: string;
+  body?: string;
   icon?: LucideIcon;
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center px-6 py-10 text-center">
+    <div className="flex flex-col items-center px-4 py-6 text-center">
       {Icon ? (
         <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-secondary text-emphasis">
           <Icon className="size-5" aria-hidden />
         </span>
       ) : null}
       <h3 className="font-display text-base font-semibold">{title}</h3>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">{body}</p>
-      {children ? <div className="mt-5">{children}</div> : null}
+      {body ? <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">{body}</p> : null}
+      {children ? <div className="mt-3">{children}</div> : null}
+    </div>
+  );
+}
+
+export function LearnerPageSkeleton({
+  rows = 5,
+  metrics = 4,
+  detail = false,
+}: {
+  rows?: number;
+  metrics?: number;
+  detail?: boolean;
+}) {
+  return (
+    <div className="animate-in fade-in duration-150" aria-label="Loading page" aria-busy="true">
+      <div className="mb-5 space-y-2">
+        <Skeleton className="h-8 w-44" />
+        <Skeleton className="h-4 w-full max-w-md" />
+      </div>
+      <div className="grid divide-x divide-border border-y border-border py-3" style={{ gridTemplateColumns: `repeat(${metrics}, minmax(0, 1fr))` }}>
+        {Array.from({ length: metrics }).map((_, index) => (
+          <div key={index} className="space-y-2 px-3 first:pl-0 last:pr-0">
+            <Skeleton className="h-6 w-10" />
+            <Skeleton className="h-3 w-full max-w-20" />
+          </div>
+        ))}
+      </div>
+      <div className={cn("mt-5 grid items-start gap-5", detail && "xl:grid-cols-[20rem_minmax(0,1fr)]")}>
+        <div className="divide-y divide-border/70 border-t border-border/60">
+          {Array.from({ length: rows }).map((_, index) => (
+            <div key={index} className="grid min-h-16 grid-cols-[2.25rem_minmax(0,1fr)_1rem] items-center gap-3 py-3">
+              <Skeleton className="size-9" />
+              <div className="space-y-2"><Skeleton className="h-4 w-3/5" /><Skeleton className="h-3 w-4/5" /></div>
+              <Skeleton className="size-4" />
+            </div>
+          ))}
+        </div>
+        {detail ? <div className="space-y-3 border-t border-border/60 pt-4"><Skeleton className="h-6 w-2/5" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-5/6" /><Skeleton className="h-28 w-full" /></div> : null}
+      </div>
     </div>
   );
 }

@@ -195,6 +195,20 @@ html.light {
   .path-choice { animation: none; }
 }
 
+/* Shared progressive disclosure: quick enough to support, never delay, a task. */
+details > :not(summary) {
+  animation: disclosure-enter 180ms ease-out;
+}
+
+@keyframes disclosure-enter {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+[data-learning-status] {
+  transition: color 180ms ease-out, background-color 180ms ease-out, border-color 180ms ease-out;
+}
+
 /* Fallback for browsers without oklch support (older mobile Chrome). */
 @supports not (color: oklch(0 0 0)) {
   :root,
