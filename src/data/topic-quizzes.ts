@@ -26,7 +26,7 @@ import { conceptKey, tagQuestion, type TaggedQuestion } from "@/lib/question-tag
 import { finalizeQuestionSet } from "@/lib/quiz-finalize";
 import type { ConceptStat } from "@/lib/concept-mastery";
 import type { Question } from "@/lib/app-data/types";
-import { generatedQuestionSection, lessonSectionId } from "@/lib/lesson-concepts";
+import { generatedQuestionSection, inferLessonSection, lessonSectionId } from "@/lib/lesson-concepts";
 
 /** How many questions a section quiz holds. Declared by the live subject. */
 export const SECTION_QUIZ_SIZE = domainOverlay?.sizes.sectionQuiz ?? 20;
@@ -738,12 +738,19 @@ function topicPool(topicId: string): PoolItem[] {
   // A section the owner has written a spreadsheet for uses those questions and
   // nothing else. They still pass the same gate as every other question.
   const owner = ownerQuestionsFor(topicId) ?? [];
-  const all = owner.length
-    ? owner.map((item) => ({
-        question: item,
-        kind: "owner",
-        sourceKey: `owner-${stableQuestionKey(item.prompt.trim().toLowerCase())}:${item.prompt}`,
-      }))
+  const ownerItems: PoolItem[] = owner.map((item) => ({
+    question: item,
+    kind: "owner",
+    sourceKey: `owner-${stableQuestionKey(item.prompt.trim().toLowerCase())}:${item.prompt}`,
+  }));
+  // A section the owner has written a spreadsheet for leads with those
+  // questions. Nothing is dropped: when the workbook holds fewer than a whole
+  // quiz, the course's own questions top the pool up so the section can still
+  // be passed, and the owner's questions still come first.
+  const all = ownerItems.length
+    ? ownerItems.length >= SECTION_QUIZ_SIZE
+      ? ownerItems
+      : [...ownerItems, ...authored, ...buildPool(topicId)]
     : [...authored, ...buildPool(topicId)];
   // Drop repeated prompts across the whole pool.
   const seen = new Set<string>();
@@ -899,12 +906,17 @@ export function getTaggedTopicPool(topicId: string): TaggedQuestion[] {
   const version = ownerPoolVersion();
   const cached = taggedCache.get(topicId);
   if (cached && cached.version === version) return cached.items;
+  const lesson = getDeepLesson(topicId);
   const tagged = topicPool(topicId)
     .filter((item) => isUsableQuestion(item.question))
     .map((item) => {
       const mappedSectionId = item.question.lessonSectionId
         ?? generatedQuestionSection(item.question.topicId, item.kind)
-        ?? (item.kind === "authored" ? lessonSectionId(item.question.topicId, "core") : undefined);
+        ?? (item.kind === "authored" ? lessonSectionId(item.question.topicId, "core") : undefined)
+        // Workbook questions rarely carry a mapping column: link them to the
+        // lesson part they clearly belong to, and leave them unlinked when the
+        // match is not obvious.
+        ?? inferLessonSection(item.question.topicId, item.question.prompt, lesson);
       const question = {
         ...item.question,
         ...(mappedSectionId ? { lessonSectionId: mappedSectionId } : {}),

@@ -338,6 +338,35 @@ export function practiceFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Practi
   return items;
 }
 
+/** Longest paragraph a reader can hold in one go, in words. */
+const MAX_PARAGRAPH_WORDS = 200;
+
+/**
+ * Keeps every word the owner wrote, but breaks a very long block into
+ * readable paragraphs at sentence boundaries. Nothing is dropped or reworded.
+ */
+export function splitLongParagraph(text: string): string[] {
+  const total = text.trim().split(/\s+/).filter(Boolean).length;
+  if (total <= MAX_PARAGRAPH_WORDS) return [text];
+  const sentences = text.split(/(?<=[.!?])\s+/).filter((part) => part.trim().length > 0);
+  if (sentences.length < 2) return [text];
+  const out: string[] = [];
+  let current: string[] = [];
+  let count = 0;
+  for (const sentence of sentences) {
+    const length = sentence.trim().split(/\s+/).filter(Boolean).length;
+    if (count > 0 && count + length > MAX_PARAGRAPH_WORDS) {
+      out.push(current.join(" "));
+      current = [];
+      count = 0;
+    }
+    current.push(sentence.trim());
+    count += length;
+  }
+  if (current.length) out.push(current.join(" "));
+  return out;
+}
+
 /** Builds one topic's lesson from its workbook tabs, then gates it. */
 export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): OwnerLessonResult {
   const head = body(tabs, "Lesson")[0];
@@ -355,7 +384,7 @@ export function ownerLessonFromTabs(topic: NumberedTopic, tabs: SheetTab[]): Own
     }
     const target = sections[sections.length - 1];
     if (!target) continue;
-    if (paragraph) target.paragraphs.push(paragraph);
+    if (paragraph) target.paragraphs.push(...splitLongParagraph(paragraph));
     if (bullets.length) target.bullets = [...(target.bullets ?? []), ...bullets];
   }
 

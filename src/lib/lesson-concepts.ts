@@ -57,6 +57,56 @@ export function generatedQuestionSection(topicId: string, kind: string): string 
   return suffix[kind] ? lessonSectionId(topicId, suffix[kind]) : undefined;
 }
 
+const INFER_STOPWORDS = new Set([
+  "which", "where", "there", "their", "these", "those", "about", "after", "before", "being",
+  "below", "between", "during", "should", "would", "could", "other", "another", "following",
+  "because", "through", "while", "using", "makes", "given", "first", "second", "third",
+  "best", "most", "least", "always", "never", "often", "usually", "answer", "question",
+  "option", "options", "correct", "incorrect", "example", "examples", "statement",
+]);
+
+function inferTerms(text: string): string[] {
+  return [
+    ...new Set(
+      text
+        .toLowerCase()
+        .replace(/[^a-z0-9 ]+/g, " ")
+        .split(/\s+/)
+        .filter((word) => word.length >= 5 && !INFER_STOPWORDS.has(word)),
+    ),
+  ];
+}
+
+/**
+ * Best-effort mapping from a question to the lesson part that teaches it.
+ *
+ * Only used when the workbook carries no explicit mapping. It links a question
+ * to a lesson part only when the wording overlap is clear and beats every other
+ * part, so "Review this concept" never points somewhere arbitrary; otherwise it
+ * returns nothing and the question simply has no review link.
+ */
+export function inferLessonSection(topicId: string, prompt: string, lesson?: DeepLesson): string | undefined {
+  const sections = lesson?.sections ?? [];
+  if (sections.length === 0) return undefined;
+  const terms = inferTerms(prompt);
+  if (terms.length < 3) return undefined;
+  let best = { id: "", score: 0 };
+  let runnerUp = 0;
+  for (const section of sections) {
+    const body = `${section.heading} ${section.paragraphs.join(" ")}`.toLowerCase();
+    let score = 0;
+    for (const term of terms) if (body.includes(term)) score += 1;
+    if (score > best.score) {
+      runnerUp = best.score;
+      best = { id: deepSectionId(topicId, section), score };
+    } else if (score > runnerUp) {
+      runnerUp = score;
+    }
+  }
+  if (best.score < 3 || best.score <= runnerUp) return undefined;
+  return best.id;
+}
+
 export function remediationHref(topicId: string, anchor: string): string {
   return `/topics/${encodeURIComponent(topicId)}#${anchor}`;
 }
