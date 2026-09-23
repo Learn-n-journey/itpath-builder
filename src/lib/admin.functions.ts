@@ -520,16 +520,23 @@ export const sourceHealth = createServerFn({ method: "GET" })
       .order("ok", { ascending: true })
       .order("checked_at", { ascending: false })
       .limit(500);
-    const rows: SourceHealthRow[] = (data ?? []).map((row) => ({
-      url: row.url,
-      kind: row.kind,
-      label: row.label,
-      status: row.status,
-      ok: row.ok,
-      failCount: row.fail_count,
-      lastError: row.last_error,
-      checkedAt: row.checked_at,
-    }));
+    // Only report checks for URLs that still exist in the current curriculum.
+    // This prevents a replaced source URL from leaving its old failed database
+    // row visible in Content Health forever.
+    const { externalLinks } = await import("@/lib/external-links");
+    const currentUrls = new Set(externalLinks().map((link) => link.url));
+    const rows: SourceHealthRow[] = (data ?? [])
+      .filter((row) => currentUrls.has(row.url))
+      .map((row) => ({
+        url: row.url,
+        kind: row.kind,
+        label: row.label,
+        status: row.status,
+        ok: row.ok,
+        failCount: row.fail_count,
+        lastError: row.last_error,
+        checkedAt: row.checked_at,
+      }));
     return { ok: true, owner: true, rows };
   });
 
