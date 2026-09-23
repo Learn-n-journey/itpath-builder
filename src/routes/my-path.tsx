@@ -20,6 +20,8 @@ import { useDismissable } from "@/hooks/use-dismissable";
 import { SectionTabs, PATH_TABS } from "@/components/layout/section-tabs";
 import { CompactStat, CompactStats, ContentRow, ProgressLine } from "@/components/learner-ui";
 import { topicScopeProgress } from "@/lib/scope-progress";
+import { accentFill, journeyAccent } from "@/lib/visual-accents";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/my-path")({
   staticData: { sitemap: false },
@@ -148,13 +150,19 @@ function MyPath() {
 
       <CompactStats className="grid-cols-4"><CompactStat label="Certifications" value={certCount} /><CompactStat label="Topics" value={topics.length} /><CompactStat label="Completed" value={stats.topicsCompleted} /><CompactStat label="Mastered" value={stats.topicsMastered} /></CompactStats>
 
-      <div className="relative mt-5 space-y-5 before:absolute before:bottom-4 before:left-3.5 before:top-9 before:w-px before:bg-border">
-        {levels.map((group) => (
-          <Panel key={group.level} title={group.label} className="relative pl-8 before:absolute before:left-2.5 before:top-4 before:size-2.5 before:rounded-full before:bg-primary">
+      <div className="relative mt-5 space-y-5">
+        <span className="journey-spectrum absolute bottom-4 left-[0.8125rem] top-9 w-0.5 rounded-full" aria-hidden />
+        {levels.map((group, groupIndex) => {
+          const groupAccent = journeyAccent(groupIndex, levels.length);
+          return (
+          <Panel key={group.level} title={group.label} className="relative pl-8">
+            <span className={cn("absolute left-[0.4375rem] top-3 size-3.5 rounded-full ring-4 ring-background", accentFill[groupAccent])} aria-hidden />
             <div className="divide-y divide-border/70">
-              {group.items.map((certification) => {
+              {group.items.map((certification, certificationIndex) => {
                 const studyIndex = certificationStudyIndex(certification.id);
                 const stages = certificationStages(certification.id);
+                const preceding = levels.slice(0, groupIndex).reduce((sum, item) => sum + item.items.length, 0);
+                const certificationAccent = journeyAccent(preceding + certificationIndex, certCount);
 
                 return (
                   <Link
@@ -163,13 +171,13 @@ function MyPath() {
                     params={{ certId: certification.id }}
                     className="block"
                   >
-                    <ContentRow icon={Award} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={studyIndex.topics.length === 0 ? 0 : Math.round(studyIndex.topics.reduce((sum, topic) => sum + topicScopeProgress(user, topic.id).overall, 0) / studyIndex.topics.length)} />
+                    <ContentRow icon={Award} accent={certificationAccent} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={studyIndex.topics.length === 0 ? 0 : Math.round(studyIndex.topics.reduce((sum, topic) => sum + topicScopeProgress(user, topic.id).overall, 0) / studyIndex.topics.length)} />
                   </Link>
                 );
               })}
             </div>
           </Panel>
-        ))}
+        )})}
       </div>
     </>
   );

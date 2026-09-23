@@ -1,7 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   CheckCircle2,
-  
+  CircuitBoard,
+  Cloud,
+  Code2,
+  Network,
+  ShieldCheck as SecurityIcon,
+  Terminal,
   FileText,
   FlaskConical,
   RefreshCw,
@@ -35,6 +40,8 @@ import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 import { learnerStatusLabel } from "@/lib/learner-status";
 import { nextJourneyTopic } from "@/lib/journey-order";
+import type { VisualAccent } from "@/lib/visual-accents";
+import type { LucideIcon } from "lucide-react";
 
 export const Route = createFileRoute("/labs")({
   staticData: { sitemap: false },
@@ -71,6 +78,18 @@ const categoryLabels: Record<Lab["category"], string> = {
   dns: "DNS",
   security: "Security",
   cloud: "Cloud",
+};
+
+const categoryVisuals: Record<Lab["category"], { icon: LucideIcon; accent: VisualAccent }> = {
+  hardware: { icon: CircuitBoard, accent: "amber" },
+  windows: { icon: Code2, accent: "blue" },
+  networking: { icon: Network, accent: "cyan" },
+  linux: { icon: Terminal, accent: "orange" },
+  powershell: { icon: Terminal, accent: "blue" },
+  bash: { icon: Terminal, accent: "green" },
+  dns: { icon: Network, accent: "violet" },
+  security: { icon: SecurityIcon, accent: "coral" },
+  cloud: { icon: Cloud, accent: "violet" },
 };
 
 function LabsPage() {
@@ -147,7 +166,7 @@ function LabsPage() {
                   className="block w-full"
                   onClick={() => setSelectedId(item.id)}
                 >
-                  <ContentRow icon={FlaskConical} eyebrow={categoryLabels[item.category]} title={item.title} metadata={learnerStatusLabel(itemAttempt?.status)} selected={item.id === lab?.id} />
+                   <ContentRow icon={categoryVisuals[item.category].icon} accent={categoryVisuals[item.category].accent} eyebrow={categoryLabels[item.category]} title={item.title} metadata={learnerStatusLabel(itemAttempt?.status)} selected={item.id === lab?.id} />
                 </button>
               );
             })}

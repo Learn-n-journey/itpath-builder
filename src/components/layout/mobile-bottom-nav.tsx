@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Award, BookOpen, LayoutDashboard, Menu, Route as RouteIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { accentText, featureAccent } from "@/lib/visual-accents";
 
 const items = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
@@ -19,7 +20,7 @@ export function MobileBottomNav({ onMore }: { onMore: () => void }) {
           const active = pathname === item.to || (item.to === "/certifications" && pathname.startsWith("/certifications/"));
           return (
             <Link key={item.to} to={item.to} className={cn("flex min-w-0 flex-col items-center justify-center gap-1 text-[0.625rem] text-muted-foreground", active && "text-primary")}>
-              <item.icon className="size-4.5 shrink-0" aria-hidden />
+              <item.icon className={cn("size-4.5 shrink-0", active ? "text-primary" : accentText[featureAccent(item.to)])} aria-hidden />
               <span className="max-w-full truncate px-1">{item.label}</span>
             </Link>
           );

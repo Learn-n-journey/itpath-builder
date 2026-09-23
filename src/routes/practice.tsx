@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   CheckCircle2,
+  BrainCircuit,
   ClipboardList,
+  Code2,
+  GitCompareArrows,
+  Hammer,
+  MessageCircleQuestion,
+  Network,
+  SearchCheck,
+  ShieldAlert,
+  Siren,
   FileText,
   RefreshCw,
   RotateCcw,
@@ -52,6 +61,8 @@ import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 import { learnerStatusLabel } from "@/lib/learner-status";
 import { nextJourneyTopic } from "@/lib/journey-order";
+import type { VisualAccent } from "@/lib/visual-accents";
+import type { LucideIcon } from "lucide-react";
 
 export const Route = createFileRoute("/practice")({
   staticData: { sitemap: false },
@@ -91,6 +102,22 @@ const typeLabels: Record<Assignment["type"], string> = {
   command_challenge: "Command Challenge",
   exam_simulation: "Exam Simulation",
   capstone: "Capstone",
+};
+
+const typeVisuals: Record<Assignment["type"], { icon: LucideIcon; accent: VisualAccent }> = {
+  explain: { icon: MessageCircleQuestion, accent: "amber" },
+  recall: { icon: BrainCircuit, accent: "violet" },
+  configure: { icon: Code2, accent: "blue" },
+  build: { icon: Hammer, accent: "violet" },
+  compare: { icon: GitCompareArrows, accent: "cyan" },
+  scenario: { icon: Network, accent: "blue" },
+  incident: { icon: Siren, accent: "coral" },
+  troubleshoot: { icon: SearchCheck, accent: "coral" },
+  design: { icon: Network, accent: "green" },
+  teach_back: { icon: MessageCircleQuestion, accent: "amber" },
+  command_challenge: { icon: Code2, accent: "green" },
+  exam_simulation: { icon: ShieldAlert, accent: "orange" },
+  capstone: { icon: Hammer, accent: "violet" },
 };
 
 const OTHER = "other";
@@ -190,7 +217,7 @@ function PracticePage() {
                   className="block w-full"
                   onClick={() => setSelectedId(item.id)}
                 >
-                  <ContentRow icon={ClipboardList} eyebrow={typeLabels[item.type]} title={item.title} metadata={learnerStatusLabel(itemAttempt?.status)} selected={item.id === assignment?.id} />
+                   <ContentRow icon={typeVisuals[item.type].icon} accent={typeVisuals[item.type].accent} eyebrow={typeLabels[item.type]} title={item.title} metadata={learnerStatusLabel(itemAttempt?.status)} selected={item.id === assignment?.id} />
                 </button>
               );
             })}

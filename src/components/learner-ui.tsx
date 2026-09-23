@@ -5,16 +5,17 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { accentFill, accentSelection, accentSurface, accentText, type VisualAccent } from "@/lib/visual-accents";
 
 export function CompactStats({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn("grid grid-cols-3 divide-x divide-border border-y border-border py-3", className)}>{children}</div>;
 }
 
-export function CompactStat({ value, label, icon: Icon }: { value: ReactNode; label: string; icon?: LucideIcon }) {
+export function CompactStat({ value, label, icon: Icon, accent = "cyan" }: { value: ReactNode; label: string; icon?: LucideIcon; accent?: VisualAccent }) {
   return (
     <div className="min-w-0 px-3 first:pl-0 last:pr-0">
       <div className="flex items-center gap-1.5">
-        {Icon ? <Icon className="size-4 shrink-0 text-primary" aria-hidden /> : null}
+        {Icon ? <Icon className={cn("size-4 shrink-0", accentText[accent])} aria-hidden /> : null}
         <p className="font-display text-lg font-semibold tabular-nums">{value}</p>
       </div>
       <p className="mt-0.5 truncate text-[0.6875rem] text-muted-foreground">{label}</p>
@@ -22,12 +23,12 @@ export function CompactStat({ value, label, icon: Icon }: { value: ReactNode; la
   );
 }
 
-export function ProgressLine({ value, label, className }: { value: number; label?: string; className?: string }) {
+export function ProgressLine({ value, label, className, accent = "cyan" }: { value: number; label?: string; className?: string; accent?: VisualAccent }) {
   return (
     <div className={cn("grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3", className)}>
       <div className="min-w-0">
         {label ? <p className="mb-1 truncate text-xs text-muted-foreground">{label}</p> : null}
-        <Progress value={value} className="h-1.5" />
+        <Progress value={value} className="h-1.5" indicatorClassName={accentFill[accent]} />
       </div>
       <span className="text-xs font-semibold tabular-nums">{Math.round(value)}%</span>
     </div>
@@ -44,6 +45,7 @@ export function ContentRow({
   status,
   trailing,
   selected,
+  accent = "cyan",
   className,
 }: {
   icon?: LucideIcon;
@@ -55,17 +57,18 @@ export function ContentRow({
   status?: ReactNode;
   trailing?: ReactNode;
   selected?: boolean;
+  accent?: VisualAccent;
   className?: string;
 }) {
   return (
-    <div className={cn("grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/70 px-1 py-3 text-left transition-[background-color,transform] duration-150 last:border-b-0 hover:bg-accent/35 active:scale-[0.995]", selected && "bg-primary/8", className)}>
-      {Icon ? <span className="grid size-9 shrink-0 place-items-center rounded-md bg-secondary text-primary"><Icon className="size-4" aria-hidden /></span> : <span />}
+    <div className={cn("grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/70 px-1 py-3 text-left transition-[background-color,transform] duration-150 last:border-b-0 hover:bg-accent/35 active:scale-[0.995]", selected && accentSelection[accent], className)}>
+      {Icon ? <span className={cn("grid size-9 shrink-0 place-items-center rounded-md ring-1 ring-inset", accentSurface[accent])}><Icon className="size-4" aria-hidden /></span> : <span />}
       <div className="min-w-0">
-        {eyebrow ? <p className="truncate text-[0.6875rem] font-medium text-primary">{eyebrow}</p> : null}
+        {eyebrow ? <p className={cn("truncate text-[0.6875rem] font-medium", accentText[accent])}>{eyebrow}</p> : null}
         <p className="truncate text-sm font-semibold">{title}</p>
         {description ? <p className="mt-0.5 line-clamp-2 text-xs leading-4 text-muted-foreground">{description}</p> : null}
         {metadata ? <div className="mt-1 text-[0.6875rem] text-muted-foreground">{metadata}</div> : null}
-        {typeof progress === "number" ? <ProgressLine value={progress} className="mt-2" /> : null}
+        {typeof progress === "number" ? <ProgressLine value={progress} accent={accent} className="mt-2" /> : null}
       </div>
       <div className="flex shrink-0 items-center gap-2">
         {status}

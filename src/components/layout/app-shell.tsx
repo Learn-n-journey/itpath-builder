@@ -18,6 +18,7 @@ import { loadLearningPaths } from "@/lib/learning-path-store";
 import { firstPracticeTestCertId } from "@/lib/tracks";
 import { MaintenanceGate } from "@/components/maintenance-screen";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
+import { accentSurface, featureAccent } from "@/lib/visual-accents";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useSidebarAttention();
@@ -43,7 +44,9 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
                       activeOptions={{ exact: item.to === "/" }}
                       className="group flex min-h-10 items-center gap-3 rounded-md border border-transparent px-3 py-2 text-sm text-sidebar-foreground/72 transition-[color,background-color,border-color,box-shadow,transform] duration-150 hover:translate-x-0.5 hover:border-sidebar-border hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground active:scale-[0.98] data-[status=active]:border-sidebar-primary/25 data-[status=active]:bg-sidebar-accent data-[status=active]:font-semibold data-[status=active]:text-sidebar-primary data-[status=active]:shadow-[inset_3px_0_0_var(--color-sidebar-primary)]"
                     >
-                      <item.icon className="size-4 shrink-0 transition-transform duration-200 group-hover:scale-110" aria-hidden />
+                      <span className={cn("grid size-7 shrink-0 place-items-center rounded-md ring-1 ring-inset", accentSurface[featureAccent(item.to)])}>
+                        <item.icon className="size-3.5 transition-transform duration-200 group-hover:scale-110" aria-hidden />
+                      </span>
                       <span className="flex flex-1 items-center justify-between gap-2">
                         <span>{item.label}</span>
                         <span className="flex items-center gap-1.5">

@@ -74,7 +74,7 @@ function TodayChip({
       {...(params ? { params: params as never } : {})}
       className="flex min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-md bg-secondary/50 px-3 py-2 hover:bg-secondary"
     >
-      <Icon className="size-4 shrink-0 text-primary" aria-hidden />
+       <Icon className="size-4 shrink-0 text-feature-amber" aria-hidden />
       <span className="min-w-0">
         <span className="block truncate text-sm font-medium">{label}</span>
         <span className="block truncate text-xs text-muted-foreground">{detail}</span>
@@ -285,11 +285,11 @@ function Dashboard() {
         </div>
         <div className="mt-5 grid grid-cols-4 divide-x divide-border">
           {d.certificationReadiness[0] ? (
-            <div className="min-w-0 pr-2"><SlidersHorizontal className="mb-2 size-5 text-primary" aria-hidden /><p className="text-xs text-muted-foreground">{d.certificationReadiness[0].title} readiness</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{d.certificationReadiness[0].overall}%</p></div>
+             <div className="min-w-0 pr-2"><SlidersHorizontal className="mb-2 size-5 text-feature-violet" aria-hidden /><p className="text-xs text-muted-foreground">{d.certificationReadiness[0].title} readiness</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{d.certificationReadiness[0].overall}%</p></div>
           ) : null}
-          <div className="min-w-0 px-2"><BarChart3 className="mb-2 size-5 text-primary" aria-hidden /><p className="text-xs text-muted-foreground">Quiz average</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{quizCount > 0 ? `${d.quizAverage}%` : "—"}</p><p className="text-[0.625rem] leading-tight text-muted-foreground sm:text-[0.6875rem]">{quizCount > 0 ? `${quizCount} completed` : "No quizzes yet"}</p></div>
-          <div className="min-w-0 px-2"><Clock className="mb-2 size-5 text-primary" aria-hidden /><p className="text-xs text-muted-foreground">Study time</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{d.studyMinutesTotal < 60 ? `${d.studyMinutesTotal} min` : `${d.studyHoursTotal}h`}</p></div>
-          <div className="min-w-0 pl-2"><Flame className="mb-2 size-5 text-primary" aria-hidden /><p className="text-xs text-muted-foreground">Streak</p><p className="mt-1 font-display text-lg font-semibold">{d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p><p className="text-[0.625rem] leading-tight text-muted-foreground sm:text-[0.6875rem]">{d.streakDays > 0 ? `${d.streakDays === 1 ? "day" : "days"} active` : "No streak yet"}</p></div>
+          <div className="min-w-0 px-2"><BarChart3 className="mb-2 size-5 text-feature-blue" aria-hidden /><p className="text-xs text-muted-foreground">Quiz average</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{quizCount > 0 ? `${d.quizAverage}%` : "—"}</p><p className="text-[0.625rem] leading-tight text-muted-foreground sm:text-[0.6875rem]">{quizCount > 0 ? `${quizCount} completed` : "No quizzes yet"}</p></div>
+          <div className="min-w-0 px-2"><Clock className="mb-2 size-5 text-feature-cyan" aria-hidden /><p className="text-xs text-muted-foreground">Study time</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{d.studyMinutesTotal < 60 ? `${d.studyMinutesTotal} min` : `${d.studyHoursTotal}h`}</p></div>
+          <div className="min-w-0 pl-2"><Flame className="mb-2 size-5 text-feature-orange" aria-hidden /><p className="text-xs text-muted-foreground">Streak</p><p className="mt-1 font-display text-lg font-semibold">{d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p><p className="text-[0.625rem] leading-tight text-muted-foreground sm:text-[0.6875rem]">{d.streakDays > 0 ? `${d.streakDays === 1 ? "day" : "days"} active` : "No streak yet"}</p></div>
         </div>
         <details className="mt-1">
           <summary className="cursor-pointer list-none py-2 text-sm text-primary hover:underline [&::-webkit-details-marker]:hidden">
@@ -313,7 +313,7 @@ function Dashboard() {
       <div>
         <Panel title="Due for review" className="border-t-0 py-5">
           {reviewTopics.length === 0 ? (
-            <div className="flex items-start gap-4 text-muted-foreground"><CalendarDays className="mt-0.5 size-6 shrink-0" aria-hidden /><div><p className="text-sm text-foreground/85">Nothing due right now.</p><p className="mt-0.5 text-sm">We’ll show topics here as they become due.</p></div></div>
+             <div className="flex items-start gap-4 text-muted-foreground"><CalendarDays className="mt-0.5 size-6 shrink-0 text-feature-amber" aria-hidden /><div><p className="text-sm text-foreground/85">Nothing due right now.</p><p className="mt-0.5 text-sm">We’ll show topics here as they become due.</p></div></div>
           ) : (
             <ul className="divide-y divide-border/60 text-sm">
               {reviewTopics.map((item) => (
