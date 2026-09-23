@@ -65,26 +65,41 @@ export const Route = createFileRoute("/admin")({
 });
 
 const TONE: Record<HealthState, string> = {
-  healthy: "border-emerald-500/40 bg-emerald-500/10 text-emerald-400",
-  warning: "border-amber-500/40 bg-amber-500/10 text-amber-400",
-  failed: "border-red-500/40 bg-red-500/10 text-red-400",
-  unknown: "border-border bg-muted/40 text-muted-foreground",
+  healthy: "text-success",
+  warning: "text-warning",
+  failed: "text-destructive",
+  unknown: "text-muted-foreground",
 };
+const DOT: Record<HealthState, string> = {
+  healthy: "bg-success",
+  warning: "bg-warning",
+  failed: "bg-destructive",
+  unknown: "bg-muted-foreground/50",
+};
+
+function shortTime(iso: string | null | undefined): string {
+  if (!iso) return "Never checked";
+  const date = new Date(iso);
+  const sameDay = date.toDateString() === new Date().toDateString();
+  return sameDay
+    ? date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+    : date.toLocaleDateString([], { month: "short", day: "numeric" });
+}
 
 function StateChip({ state }: { state: HealthState }) {
   return (
-    <span className={`inline-flex shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${TONE[state]}`}>
+    <span className={`inline-flex shrink-0 items-center gap-1.5 text-xs font-medium ${TONE[state]}`}>
+      <span className={`size-1.5 rounded-full ${DOT[state]}`} aria-hidden />
       {stateLabel(state)}
     </span>
   );
 }
 
-function AnswerCard({ question, state, note }: { question: string; state: HealthState; note: string }) {
+function AnswerCard({ question, state }: { question: string; state: HealthState; note: string }) {
   return (
-    <div className={`rounded-xl border p-3 ${TONE[state]}`}>
-      <p className="text-xs font-medium opacity-80">{question}</p>
-      <p className="mt-1 text-base font-semibold">{stateLabel(state)}</p>
-      <p className="mt-1 text-xs opacity-80">{note}</p>
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2">
+      <p className="truncate text-sm">{question}</p>
+      <StateChip state={state} />
     </div>
   );
 }
@@ -92,37 +107,108 @@ function AnswerCard({ question, state, note }: { question: string; state: Health
 /** Lets a finding send the owner to another tab of this same screen. */
 const JumpToTab = createContext<((tab: string) => void) | null>(null);
 
-function CheckRow({ check }: { check: HealthCheck }) {
+function CheckAction({ check }: { check: HealthCheck }) {
   const jump = useContext(JumpToTab);
   const target = checkTarget(check);
+  if (!target) return null;
+  const cls = "shrink-0 text-sm font-medium text-primary hover:underline";
+  return target.tab ? (
+    <button type="button" className={cls} onClick={() => jump?.(target.tab as string)}>
+      {target.label} →
+    </button>
+  ) : (
+    <a className={cls} href={target.href} {...(target.external ? { target: "_blank", rel: "noreferrer" } : {})}>
+      {target.label} →
+    </a>
+  );
+}
+
+function CheckRow({ check }: { check: HealthCheck }) {
+  const [open, setOpen] = useState(false);
+  const hasDetail = Boolean(check.detail || check.affects || check.action || check.lastRunAt);
   return (
-    <li className="rounded-lg border border-border/60 p-3">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium">{check.label}</p>
-        <StateChip state={check.state} />
+    <li className="py-2.5">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
+        <span className={`mt-1.5 size-2 rounded-full ${DOT[check.state]}`} aria-label={stateLabel(check.state)} />
+        <button
+          type="button"
+          className="min-w-0 text-left"
+          aria-expanded={open}
+          onClick={() => hasDetail && setOpen((value) => !value)}
+        >
+          <span className="block text-sm">{check.label}</span>
+          {check.topicId ? <span className="block truncate text-xs text-muted-foreground">{check.topicId}</span> : null}
+        </button>
+        {check.state === "healthy" ? null : <CheckAction check={check} />}
       </div>
-      {check.detail ? <p className="mt-1 text-xs text-muted-foreground">{check.detail}</p> : null}
-      {check.state !== "healthy" && check.affects ? (
-        <p className="mt-1 text-xs text-muted-foreground">Affects: {check.affects}</p>
+      {open ? (
+        <div className="ml-5 mt-2 space-y-1 border-l border-border/60 pl-3 text-xs text-muted-foreground">
+          {check.detail ? <p>{check.detail}</p> : null}
+          {check.state !== "healthy" && check.affects ? <p>Affects: {check.affects}</p> : null}
+          {check.state !== "healthy" && check.action ? <p className="text-foreground/90">Fix: {check.action}</p> : null}
+          {check.lastRunAt ? <p>Checked {new Date(check.lastRunAt).toLocaleString()}</p> : null}
+        </div>
       ) : null}
-      {check.state !== "healthy" && check.action ? (
-        <p className="mt-1 text-xs font-medium text-foreground">Do this: {check.action}</p>
+    </li>
+  );
+}
+
+function AreaRow({ area }: { area: { area: string; state: HealthState; lastRunAt: string | null; checks: HealthCheck[] } }) {
+  const [open, setOpen] = useState(false);
+  const issues = area.checks.filter((check) => check.state !== "healthy");
+  return (
+    <li>
+      <button
+        type="button"
+        className="grid w-full grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 py-2.5 text-left"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span className="truncate text-sm font-medium capitalize">
+          {area.area}
+          {issues.length > 0 ? <span className="ml-2 text-xs font-normal text-muted-foreground">{issues.length} issue{issues.length === 1 ? "" : "s"}</span> : null}
+        </span>
+        <span className="text-xs text-muted-foreground tabular-nums">{shortTime(area.lastRunAt)}</span>
+        <StateChip state={area.state} />
+      </button>
+      {open && area.checks.length > 0 ? (
+        <ul className="mb-2 divide-y divide-border/40 pl-3">
+          {(issues.length > 0 ? issues : area.checks).map((check) => (
+            <CheckRow key={check.id} check={check} />
+          ))}
+        </ul>
       ) : null}
-      {target ? (
-        target.tab ? (
-          <Button className="mt-2" size="sm" variant="outline" onClick={() => jump?.(target.tab as string)}>
-            {target.label}
-          </Button>
-        ) : (
-          <Button className="mt-2" size="sm" variant="outline" asChild>
-            <a
-              href={target.href}
-              {...(target.external ? { target: "_blank", rel: "noreferrer" } : {})}
-            >
-              {target.label}
-            </a>
-          </Button>
-        )
+    </li>
+  );
+}
+
+function ActivityRow({ entry }: { entry: ActivityEntry }) {
+  const [open, setOpen] = useState(false);
+  const details = Object.entries(entry.detail);
+  const findings = details.find(([key]) => /finding|failed|warning|blocking|count/i.test(key));
+  const bad = /fail|block|reject|error/i.test(entry.result);
+  const warn = /warn|review/i.test(entry.result);
+  return (
+    <li>
+      <button
+        type="button"
+        className="grid w-full grid-cols-[4.5rem_minmax(0,1fr)_auto] items-baseline gap-3 py-2 text-left"
+        onClick={() => details.length > 0 && setOpen((value) => !value)}
+        aria-expanded={open}
+      >
+        <span className="font-mono text-xs text-muted-foreground tabular-nums">{shortTime(entry.createdAt)}</span>
+        <span className="min-w-0">
+          <span className="block truncate text-sm">{entry.action}{entry.subject ? ` · ${entry.subject}` : ""}</span>
+          <span className="block truncate text-xs text-muted-foreground">
+            {entry.area}{findings ? ` · ${findings[0]} ${String(findings[1])}` : ""}
+          </span>
+        </span>
+        <span className={`text-xs ${bad ? "text-destructive" : warn ? "text-warning" : "text-muted-foreground"}`}>{entry.result}</span>
+      </button>
+      {open ? (
+        <p className="mb-2 ml-[5.25rem] text-xs text-muted-foreground">
+          {new Date(entry.createdAt).toLocaleString()} · {details.map(([key, value]) => `${key}: ${String(value)}`).join(" · ")}
+        </p>
       ) : null}
     </li>
   );
@@ -491,30 +577,27 @@ function AdminPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6">
-      <PageHeader
-        title="Control room"
-        description="Everything that tells you whether IT PATH and its material are in good shape."
-      />
+      <PageHeader title="Control room" />
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="divide-y divide-border/60 border-y border-border/60">
         <AnswerCard question="Is IT PATH working?" state={overview.working} note="Services and speed" />
         <AnswerCard question="Is the content healthy?" state={overview.content} note="Topics and imports" />
         <AnswerCard question="Is anything blocking learners?" state={overview.blocking} note="Engine, content, services" />
         <AnswerCard question="Does anything need me?" state={overview.attention} note="Across every area" />
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-4 flex flex-wrap items-center gap-3">
         <Button onClick={runEverything} disabled={busy !== null}>
           {busy === "Full health check" ? "Checking…" : "Run full health check"}
         </Button>
         <span className="text-xs text-muted-foreground">
-          {overview.lastRunAt ? `Last run ${new Date(overview.lastRunAt).toLocaleString()}` : "Nothing has been checked yet."}
+          {overview.lastRunAt ? `Last checked ${shortTime(overview.lastRunAt)}` : "Not yet checked"}
         </span>
       </div>
 
       <JumpToTab.Provider value={jumpToTab}>
       <Tabs value={tab} onValueChange={setTab} className="mt-5">
-        <TabsList className="flex w-full flex-wrap justify-start gap-1">
+        <TabsList className="flex h-auto w-full justify-start gap-1 overflow-x-auto whitespace-nowrap bg-transparent p-0 [scrollbar-width:none]">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
           <TabsTrigger value="sources">Sources</TabsTrigger>
@@ -526,29 +609,39 @@ function AdminPage() {
         </TabsList>
 
         <TabsContent value="overview">
-          <Panel className="mt-4" title="What needs attention">
-            <div className="flex flex-wrap gap-1">
+          <section className="mt-5">
+            <h2 className="font-display text-lg font-semibold">Areas</h2>
+            <ul className="mt-2 divide-y divide-border/60">
+              {areas
+                .filter((area) => area.area !== "performance")
+                .map((area) => (
+                  <AreaRow key={area.area} area={area} />
+                ))}
+            </ul>
+          </section>
+          <Panel className="mt-6" title="What needs attention">
+            <div className="-mx-1 flex gap-1 overflow-x-auto whitespace-nowrap px-1 [scrollbar-width:none]">
               {FILTERS.map((item) => (
-                <Button
+                <button
                   key={item.id}
-                  size="sm"
-                  variant={filter === item.id ? "default" : "outline"}
+                  type="button"
                   onClick={() => setFilter(item.id)}
+                  className={`h-8 shrink-0 rounded-md px-3 text-sm ${filter === item.id ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
                 >
                   {item.label}
-                </Button>
+                </button>
               ))}
             </div>
             <Input
-              className="mt-3"
+              className="mt-2 h-9"
               value={topicFilter}
               placeholder="Filter by topic id"
               onChange={(event) => setTopicFilter(event.target.value.trim())}
             />
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-2 divide-y divide-border/60">
               {shown.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Nothing matches that filter. Run the full health check if areas still say “Not yet checked”.
+                  Nothing here.
                 </p>
               ) : (
                 shown.slice(0, 120).map((check) => <CheckRow key={check.id} check={check} />)
@@ -556,27 +649,10 @@ function AdminPage() {
             </ul>
           </Panel>
 
-          <Panel className="mt-4" title="Areas">
-            <ul className="space-y-2">
-              {areas
-                .filter((area) => area.area !== "performance")
-                .map((area) => (
-                  <li key={area.area} className="flex items-center justify-between gap-2 rounded-lg border border-border/60 p-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium capitalize">{area.area}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {area.lastRunAt ? `Checked ${new Date(area.lastRunAt).toLocaleString()}` : "Never checked"}
-                      </p>
-                    </div>
-                    <StateChip state={area.state} />
-                  </li>
-                ))}
-            </ul>
-          </Panel>
         </TabsContent>
 
         <TabsContent value="content">
-          <Panel className="mt-4" title="Topic health" description="Every topic, checked against the quality rules already used by the course.">
+          <Panel className="mt-6" title="Topic health">
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => run("Content check", checkContent)} disabled={busy !== null}>
                 {busy === "Content check" ? "Checking…" : "Check all topics"}
@@ -585,19 +661,15 @@ function AdminPage() {
                 Download coverage report
               </Button>
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              The download judges every quiz, self-check and recall question on the knowledge it needs, not its wording, and lists
-              anything the topic or its prerequisites never taught.
-            </p>
 
             {contentReport === null ? (
               <p className="mt-3 text-sm text-muted-foreground">Not yet checked.</p>
             ) : (
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 divide-y divide-border/60">
                 {contentReport
                   .filter((topic) => (filter === "healthy" ? topic.state === "healthy" : topic.state !== "healthy"))
                   .map((topic) => (
-                    <li key={topic.topicId} className="rounded-lg border border-border/60 p-3">
+                    <li key={topic.topicId} className="py-3">
                       <button
                         type="button"
                         className="flex w-full items-start justify-between gap-2 text-left"
@@ -612,7 +684,7 @@ function AdminPage() {
                         <StateChip state={topic.state} />
                       </button>
                       {openTopic === topic.topicId ? (
-                        <ul className="mt-2 space-y-2">
+                        <ul className="mt-2 divide-y divide-border/40 pl-3">
                           {topic.checks.map((check) => (
                             <CheckRow key={check.id} check={check} />
                           ))}
@@ -626,21 +698,21 @@ function AdminPage() {
         </TabsContent>
 
         <TabsContent value="sources">
-          <Panel className="mt-4" title="Reading and video sources" description="Checked by the nightly crawler. Replacements are always your decision.">
+          <Panel className="mt-6" title="Reading and video sources">
             <Button onClick={() => run("Source check", loadSupporting)} disabled={busy !== null}>
               {busy === "Source check" ? "Loading…" : "Load latest results"}
             </Button>
             {sources === null ? (
               <p className="mt-3 text-sm text-muted-foreground">Not yet loaded.</p>
             ) : (
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 divide-y divide-border/60">
                 {sources.filter((row) => !row.ok).length === 0 ? (
                   <p className="text-sm text-muted-foreground">Every checked source answered.</p>
                 ) : (
                   sources
                     .filter((row) => !row.ok)
                     .map((row) => (
-                      <li key={row.url} className="rounded-lg border border-border/60 p-3">
+                      <li key={row.url} className="py-3">
                         <p className="text-sm font-medium">{row.label ?? row.url}</p>
                         <p className="mt-1 break-all text-xs text-muted-foreground">{row.url}</p>
                         <p className="mt-1 text-xs text-muted-foreground">
@@ -658,10 +730,10 @@ function AdminPage() {
         </TabsContent>
 
         <TabsContent value="imports">
-          <Panel className="mt-4" title="Spreadsheet imports">
+          <Panel className="mt-6" title="Spreadsheet imports">
             <SpreadsheetSyncPanel />
           </Panel>
-          <Panel className="mt-4" title="What is in the store">
+          <Panel className="mt-6" title="What is in the store">
             <Button onClick={() => run("Import check", loadSupporting)} disabled={busy !== null}>
               {busy === "Import check" ? "Loading…" : "Load import history"}
             </Button>
@@ -669,7 +741,7 @@ function AdminPage() {
               <p className="mt-3 text-sm text-muted-foreground">Not yet loaded.</p>
             ) : (
               <>
-                <ul className="mt-3 space-y-2">
+                <ul className="mt-3 divide-y divide-border/60">
                   {importChecks.map((check) => (
                     <CheckRow key={check.id} check={check} />
                   ))}
@@ -698,7 +770,7 @@ function AdminPage() {
                   const family = versions.filter((item) => item.topicId === version.topicId && item.kind === version.kind);
                   const rollbackAllowed = canRollback(family);
                   return (
-                    <li key={version.id} className="rounded-lg border border-border/60 p-3">
+                    <li key={version.id} className="py-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
                           <p className="text-sm font-medium">
@@ -709,7 +781,7 @@ function AdminPage() {
                             {new Date(version.importedAt).toLocaleString()}
                           </p>
                           {version.validation.passed ? null : (
-                            <p className="mt-1 text-xs text-red-400">
+                            <p className="mt-1 text-xs text-destructive">
                               Validation failed ({version.validation.blocking} blocking) — publishing is blocked.
                             </p>
                           )}
@@ -769,7 +841,7 @@ function AdminPage() {
           <Panel
             className="mt-4"
             title="Learning engine"
-            description="Checks prerequisites, unlocking, concept links and review targets. These only read the course material, never a learner's progress."
+           
           >
             <Button onClick={() => run("Engine check", checkEngine)} disabled={busy !== null}>
               {busy === "Engine check" ? "Checking…" : "Run engine checks"}
@@ -777,14 +849,14 @@ function AdminPage() {
             {engineChecks === null ? (
               <p className="mt-3 text-sm text-muted-foreground">Not yet checked.</p>
             ) : (
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 divide-y divide-border/60">
                 {engineChecks.map((check) => (
                   <CheckRow key={check.id} check={check} />
                 ))}
               </ul>
             )}
           </Panel>
-          <Panel className="mt-4" title="Everyday journeys">
+          <Panel className="mt-6" title="Everyday journeys">
             {flowChecks.length === 0 ? (
               <p className="text-sm text-muted-foreground">Load the latest results from the Sources or Imports tab.</p>
             ) : (
@@ -798,28 +870,13 @@ function AdminPage() {
         </TabsContent>
 
         <TabsContent value="log">
-          <Panel className="mt-4" title="Activity log" description="Imports, validation, approvals, publications, rollbacks and blocked steps.">
+          <Panel className="mt-6" title="Activity log">
             {activity.length === 0 ? (
               <p className="text-sm text-muted-foreground">Nothing recorded yet.</p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="divide-y divide-border/60">
                 {activity.map((entry) => (
-                  <li key={entry.id} className="rounded-lg border border-border/60 p-3">
-                    <p className="text-sm font-medium">
-                      {entry.action}
-                      {entry.subject ? ` · ${entry.subject}` : ""}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(entry.createdAt).toLocaleString()} · {entry.area} · {entry.result}
-                    </p>
-                    {Object.keys(entry.detail).length > 0 ? (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {Object.entries(entry.detail)
-                          .map(([key, value]) => `${key}: ${String(value)}`)
-                          .join(" · ")}
-                      </p>
-                    ) : null}
-                  </li>
+                  <ActivityRow key={entry.id} entry={entry} />
                 ))}
               </ul>
             )}
@@ -827,14 +884,14 @@ function AdminPage() {
         </TabsContent>
 
         <TabsContent value="tools">
-          <Panel className="mt-4" title="Service checks" description="Runs live checks against the services the app depends on.">
+          <Panel className="mt-6" title="Service checks">
             <Button onClick={() => run("Service check", checkSystem)} disabled={busy !== null}>
               {busy === "Service check" ? "Checking…" : "Check services"}
             </Button>
             {systemChecks === null ? (
               <p className="mt-3 text-sm text-muted-foreground">Not yet checked.</p>
             ) : (
-              <ul className="mt-3 space-y-2">
+              <ul className="mt-3 divide-y divide-border/60">
                 {systemChecks.map((check) => (
                   <CheckRow key={check.id} check={check} />
                 ))}
@@ -849,7 +906,7 @@ function AdminPage() {
           >
             <MaintenancePanel />
           </Panel>
-          <Panel className="mt-4" title="Browser diagnostics" description="Live checks against this browser session.">
+          <Panel className="mt-6" title="Browser diagnostics">
             <SystemDiagnostics />
           </Panel>
           <BetaAccessPanel />
