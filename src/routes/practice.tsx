@@ -12,7 +12,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -48,6 +48,10 @@ function criterionPassed(
 }
 import { useAppState } from "@/state/app-state";
 import { CompactStat, CompactStats, ContentRow } from "@/components/learner-ui";
+import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
+import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
+import { learnerStatusLabel } from "@/lib/learner-status";
+import { nextJourneyTopic } from "@/lib/journey-order";
 
 export const Route = createFileRoute("/practice")({
   staticData: { sitemap: false },
@@ -96,16 +100,14 @@ function certificationIdFor(assignment: Assignment): string {
 }
 
 function PracticePage() {
-  const { user } = useAppState();
+  const { user, hydrated } = useAppState();
   const { assignment: requestedAssignmentId } = Route.useSearch();
   const requested = requestedAssignmentId
     ? assignments.find((item) => item.id === requestedAssignmentId)
     : undefined;
   const [seed, reshuffle] = useShuffleSeed();
-  const [selectedId, setSelectedId] = useState(requested?.id ?? "");
-  const [group, setGroup] = useState(() =>
-    requested ? certificationIdFor(requested) : selectedCertification(user.settings).id,
-  );
+  const [selectedId, setSelectedId] = useUiPreference("practice.item", requested?.id ?? "", isStringPreference);
+  const [group, setGroup] = useUiPreference("practice.certification", requested ? certificationIdFor(requested) : selectedCertification(user.settings).id, isStringPreference);
 
   useEffect(() => {
     if (!requested) return;
@@ -144,6 +146,8 @@ function PracticePage() {
   const latest = assignment
     ? attempts.find((attempt) => attempt.assignmentId === assignment.id)
     : undefined;
+
+  if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} detail />;
 
   return (
     <>
@@ -186,7 +190,7 @@ function PracticePage() {
                   className="block w-full"
                   onClick={() => setSelectedId(item.id)}
                 >
-                  <ContentRow icon={ClipboardList} eyebrow={typeLabels[item.type]} title={item.title} metadata={itemAttempt?.status.replace("_", " ") ?? "Not started"} selected={item.id === assignment?.id} />
+                  <ContentRow icon={ClipboardList} eyebrow={typeLabels[item.type]} title={item.title} metadata={learnerStatusLabel(itemAttempt?.status)} selected={item.id === assignment?.id} />
                 </button>
               );
             })}
@@ -224,6 +228,7 @@ function AssignmentWorkspace({
   const latestResponse = latestAttempt?.responses["main"] ?? "";
   const attemptResponse = attempt?.responses["main"] ?? "";
   const topic = topics.find((item) => item.id === assignment.topicId);
+  const next = nextJourneyTopic(assignment.topicId, user);
   const history = useMemo(
     () => user.assignmentAttempts.filter((item) => item.assignmentId === assignment.id),
     [assignment.id, user.assignmentAttempts],
@@ -374,6 +379,7 @@ function AssignmentWorkspace({
   const resultMap = new Map(attempt?.criterionResults.map((item) => [item.criterionId, item]));
   return (
     <div className="space-y-5">
+      <LearningBreadcrumbs items={[{ label: "Practice", to: "/practice" }, ...(topic ? [{ label: topic.title, to: "/topics/$topicId", params: { topicId: topic.id } }] : []), { label: assignment.title }]} />
       <Panel>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -570,6 +576,15 @@ function AssignmentWorkspace({
           <p className="mt-2 whitespace-pre-wrap rounded-md border border-border p-4 text-sm text-muted-foreground">
             {attempt.responses["main"]}
           </p>
+        </Panel>
+      ) : null}
+
+      {attempt?.status === "completed" ? (
+        <Panel title="Practice complete" description={`${assignment.title} is recorded.`}>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: assignment.topicId }}>Return to topic</Link></Button>
+            {next ? <Button asChild size="sm" variant="secondary"><Link to="/topics/$topicId" params={{ topicId: next.id }}>Next topic</Link></Button> : <Button asChild size="sm" variant="secondary"><Link to="/my-path">Continue path</Link></Button>}
+          </div>
         </Panel>
       ) : null}
 

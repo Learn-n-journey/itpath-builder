@@ -3,7 +3,7 @@ import { ExternalLink, FileText, Search, SlidersHorizontal, X } from "lucide-rea
 import { useMemo, useState } from "react";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
-import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
+import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { certifications, resources, topics } from "@/data/static-content";
 import type { Resource } from "@/lib/app-data/types";
 import { selectedCertification } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
+import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 
 export const Route = createFileRoute("/resources")({
   staticData: { sitemap: false },
@@ -41,9 +42,9 @@ const emptyFilters: Filters = { topic: "all", certification: "all", kind: "all",
 const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
 
 function ResourcesPage() {
-  const { user, actions } = useAppState();
-  const [query, setQuery] = useState("");
-  const [filters, setFilters] = useState<Filters>(() => ({ ...emptyFilters, certification: selectedCertification(user.settings).id }));
+  const { user, hydrated } = useAppState();
+  const [query, setQuery] = useUiPreference("resources.search", "", isStringPreference);
+  const [filters, setFilters] = useUiPreference<Filters>("resources.filters", { ...emptyFilters, certification: selectedCertification(user.settings).id }, (value): value is Filters => Boolean(value) && typeof value === "object" && ["topic", "certification", "kind", "access"].every((key) => typeof (value as Record<string, unknown>)[key] === "string"));
   const [openNoteId, setOpenNoteId] = useState<string | null>(null);
 
   const filteredResources = useMemo(() => {
@@ -63,6 +64,8 @@ function ResourcesPage() {
   const hasFilters = query.length > 0 || Object.values(filters).some((value) => value !== "all");
   function clearFilters() { setQuery(""); setFilters(emptyFilters); }
   function updateFilter(key: keyof Filters, value: string) { setFilters((current) => ({ ...current, [key]: value })); }
+
+  if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={3} />;
 
   return (
     <>

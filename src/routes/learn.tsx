@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, Search, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
-import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
+import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { certifications, topics } from "@/data/static-content";
@@ -11,6 +11,7 @@ import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
 import { ContentRow, SectionHeading } from "@/components/learner-ui";
 import { topicScopeProgress } from "@/lib/scope-progress";
+import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 
 export const Route = createFileRoute("/learn")({
   staticData: { sitemap: false },
@@ -28,8 +29,8 @@ export const Route = createFileRoute("/learn")({
 });
 
 function Learn() {
-  const { user } = useAppState();
-  const [query, setQuery] = useState("");
+  const { user, hydrated } = useAppState();
+  const [query, setQuery] = useUiPreference("learn.search", "", isStringPreference);
   const path = useMemo(() => adaptivePath(user), [user]);
   const filteredTopics = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -43,6 +44,8 @@ function Learn() {
         .includes(needle);
     });
   }, [query, user]);
+
+  if (!hydrated) return <LearnerPageSkeleton rows={7} metrics={3} />;
 
   return (
     <>
