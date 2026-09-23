@@ -179,3 +179,9 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Add contextual breadcrumbs and rule-safe next actions to deeper activity flows
 - [ ] Standardize secondary disclosure patterns and responsive content widths
 - [ ] Run learner-route interaction and mobile/tablet/desktop visual regression checks
+
+## Semantic color hierarchy pass
+- [ ] Add ordered multi-stage journey colors and matching milestone nodes to My Path
+- [ ] Define persistent semantic feature and activity accent colors
+- [ ] Apply consistent colored technical icons to Dashboard, Practice, Labs, and More
+- [ ] Compare mobile results directly with the supplied reference while preserving the dark base theme
