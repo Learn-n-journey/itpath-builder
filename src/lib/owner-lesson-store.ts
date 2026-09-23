@@ -104,6 +104,21 @@ export function subscribeOwnerLessons(listener: () => void): () => void {
   return () => listeners.delete(listener) as unknown as void;
 }
 
+/**
+ * Lessons imported before paragraph splitting existed still hold very long
+ * blocks. Break those at sentence boundaries on the way in: every word stays,
+ * it simply reads as paragraphs instead of one wall of text.
+ */
+function readableParagraphs(lesson: DeepLesson): DeepLesson {
+  return {
+    ...lesson,
+    sections: (lesson.sections ?? []).map((section) => ({
+      ...section,
+      paragraphs: (section.paragraphs ?? []).flatMap((paragraph) => splitLongParagraph(paragraph)),
+    })),
+  };
+}
+
 /** Pulls approved owner lessons from the database. Safe to call repeatedly. */
 export function loadOwnerLessons(): Promise<boolean> {
   if (loading) return loading;
@@ -123,7 +138,7 @@ export function loadOwnerLessons(): Promise<boolean> {
       const extras: Record<string, OwnerLessonExtras> = {};
       for (const row of data ?? []) {
         const topicId = row.topic_id as string;
-        lessons[topicId] = row.lesson as unknown as DeepLesson;
+        lessons[topicId] = readableParagraphs(row.lesson as unknown as DeepLesson);
         sources[topicId] = (row.sources as unknown as Resource[]) ?? [];
         const rows = (row.practice as unknown as PracticeActivity[]) ?? [];
         if (rows.length) practice[topicId] = rows;
