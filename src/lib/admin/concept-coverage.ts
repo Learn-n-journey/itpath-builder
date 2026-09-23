@@ -271,6 +271,11 @@ export function requiredKnowledge(prompt: string, answers: string[] = []): strin
     // Quantities ("250w", "1000", "8gb") are arithmetic in the question, not
     // knowledge the lesson has to name.
     if (/^\d+[a-z]{0,3}$/.test(lower)) continue;
+    // Addresses, masks, prefixes and binary strings are the arithmetic the
+    // question hands the learner, not vocabulary the lesson has to contain.
+    if (/^\d{1,3}(\.\d{1,3})+/.test(lower)) continue;
+    if (/^[01]{4,}$/.test(lower)) continue;
+    if (/^\/?\d{1,3}$/.test(lower)) continue;
     // Command switches ("/scannow", "-la") belong to the command they follow;
     // the command itself carries the knowledge.
     if (/^[/\\-]/.test(bare)) continue;
