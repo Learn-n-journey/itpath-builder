@@ -207,6 +207,7 @@ export interface HealthRunSummary {
   state: HealthState;
   finishedAt: string;
   durationMs: number;
+  checks: HealthCheck[];
 }
 
 /** The most recent run per area, used to show when each area was last checked. */
@@ -217,7 +218,7 @@ export const lastHealthRuns = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data } = await supabaseAdmin
       .from("health_runs")
-      .select("id, area, state, finished_at, duration_ms")
+      .select("id, area, state, finished_at, duration_ms, checks")
       .order("finished_at", { ascending: false })
       .limit(40);
     const seen = new Set<string>();
@@ -231,6 +232,7 @@ export const lastHealthRuns = createServerFn({ method: "GET" })
         state: row.state as HealthState,
         finishedAt: row.finished_at,
         durationMs: row.duration_ms,
+        checks: Array.isArray(row.checks) ? (row.checks as unknown as HealthCheck[]) : [],
       });
     }
     return { ok: true, owner: true, runs };
