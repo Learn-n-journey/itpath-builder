@@ -50,7 +50,7 @@ export function checkTarget(check: HealthCheck): CheckTarget | null {
     case "content":
       return { href: "/admin", label: "Open content", external: false, tab: "content" };
     case "flows":
-      return { href: "/admin", label: "Open journeys", external: false, tab: "flows" };
+      return { href: "/admin", label: "Open journeys", external: false, tab: "engine" };
     default:
       return null;
   }
