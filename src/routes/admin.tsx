@@ -216,6 +216,23 @@ function AdminPage() {
     return report;
   }, [saveRun]);
 
+  const downloadCoverageGaps = useCallback(() => {
+    const gaps = coverageGaps(coursePack);
+    if (gaps.length === 0) {
+      toast.success("Every quiz question is covered by its lesson.");
+      return;
+    }
+    const blob = new Blob([coverageGapsCsv(gaps)], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `quiz-not-in-lessons-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${gaps.length} question${gaps.length === 1 ? "" : "s"} listed.`);
+  }, []);
+
+
   const checkEngine = useCallback(async () => {
     const started = Date.now();
     const ranAt = new Date().toISOString();
