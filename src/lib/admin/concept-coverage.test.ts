@@ -40,7 +40,8 @@ describe("requiredKnowledge", () => {
     const terms = requiredKnowledge("Which DNS record does ipconfig /flushdns clear?");
     expect(terms).toContain("dns");
     expect(terms).toContain("ipconfig");
-    expect(terms).toContain("/flushdns");
+    // A switch belongs to the command it follows; the command carries the knowledge.
+    expect(terms).not.toContain("/flushdns");
   });
 });
 
