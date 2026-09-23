@@ -132,7 +132,7 @@ export const readingSources: Record<string, ReadingSource> = {
     key: "wirelessSecurity",
     title: "Establishing wireless robust security networks, SP 800-97",
     provider: "NIST",
-    url: "https://csrc.nist.gov/pubs/sp/800/97/final",
+    url: "https://csrc.nist.gov/publications/detail/sp/800-97/final",
   },
   cloud: {
     key: "cloud",
@@ -288,7 +288,7 @@ export const readingSources: Record<string, ReadingSource> = {
     key: "identity",
     title: "Digital identity guidelines, SP 800-63",
     provider: "NIST",
-    url: "https://csrc.nist.gov/pubs/sp/800/63/3/final",
+    url: "https://csrc.nist.gov/publications/detail/sp/800-63/3/final",
   },
   firewall: {
     key: "firewall",
@@ -310,9 +310,9 @@ export const readingSources: Record<string, ReadingSource> = {
   },
   siem: {
     key: "siem",
-    title: "What is SIEM",
-    provider: "Microsoft",
-    url: "https://www.microsoft.com/en-us/security/business/security-101/what-is-siem",
+    title: "What is SIEM: Microsoft Sentinel overview",
+    provider: "Microsoft Learn",
+    url: "https://learn.microsoft.com/en-us/azure/sentinel/overview",
   },
   logging: {
     key: "logging",

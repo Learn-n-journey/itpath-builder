@@ -139,7 +139,13 @@ function deepBaseIssues(deep: DeepLesson): string[] {
   if (deep.depth && deep.depth.checkYourself.length < MIN_SELF_CHECKS) {
     issues.push("lesson does not ask the learner to retrieve what it just taught");
   }
-  if (deep.depth && deep.depth.checkYourself.some((check) => words(check.question) < 4 || !check.answer.trim())) {
+  // A short question is fine when it is a real question with a real answer:
+  // "What is decapsulation?" earns its place. What must not pass is a prompt
+  // that asks nothing, or an answer too thin to teach anything.
+  if (
+    deep.depth &&
+    deep.depth.checkYourself.some((check) => words(check.question) < 3 || words(check.answer) < 4)
+  ) {
     issues.push("a lesson self-check has no meaningful question or answer");
   }
   return [...new Set(issues)];
