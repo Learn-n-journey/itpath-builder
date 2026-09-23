@@ -25,7 +25,7 @@ import { SystemDiagnostics } from "@/components/system-diagnostics";
 import { SpreadsheetSyncPanel } from "@/components/owner/spreadsheet-sync-panel";
 import { MaintenancePanel } from "@/components/owner/maintenance-panel";
 import { coursePack } from "@/content/course-pack";
-import { contentHealth, type TopicHealth } from "@/lib/admin/content-health";
+import { contentHealth, coverageGaps, coverageGapsCsv, type TopicHealth } from "@/lib/admin/content-health";
 import { engineHealthChecks } from "@/lib/admin/engine-health";
 import { areaHealth, buildOverview, filterChecks, stateLabel, type HealthFilter } from "@/lib/admin/health-state";
 import type { ActivityEntry, ContentVersion, FlowCounter, HealthCheck, HealthState } from "@/lib/admin/types";
@@ -215,6 +215,23 @@ function AdminPage() {
     });
     return report;
   }, [saveRun]);
+
+  const downloadCoverageGaps = useCallback(() => {
+    const gaps = coverageGaps(coursePack);
+    if (gaps.length === 0) {
+      toast.success("Every quiz question is covered by its lesson.");
+      return;
+    }
+    const blob = new Blob([coverageGapsCsv(gaps)], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `quiz-not-in-lessons-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${gaps.length} question${gaps.length === 1 ? "" : "s"} listed.`);
+  }, []);
+
 
   const checkEngine = useCallback(async () => {
     const started = Date.now();
@@ -521,9 +538,18 @@ function AdminPage() {
 
         <TabsContent value="content">
           <Panel className="mt-4" title="Topic health" description="Every topic, checked against the quality rules already used by the course.">
-            <Button onClick={() => run("Content check", checkContent)} disabled={busy !== null}>
-              {busy === "Content check" ? "Checking…" : "Check all topics"}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={() => run("Content check", checkContent)} disabled={busy !== null}>
+                {busy === "Content check" ? "Checking…" : "Check all topics"}
+              </Button>
+              <Button variant="outline" onClick={downloadCoverageGaps}>
+                Download quiz-only list
+              </Button>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              The download lists every quiz question whose wording appears nowhere in that topic's lesson, videos or sources.
+            </p>
+
             {contentReport === null ? (
               <p className="mt-3 text-sm text-muted-foreground">Not yet checked.</p>
             ) : (
