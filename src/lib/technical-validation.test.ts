@@ -21,6 +21,10 @@ describe("deterministic technical checks", () => {
     expect(checkTechnicalClaims("A /24 has a subnet mask of 255.255.255.0")).toEqual([]);
     expect(checkTechnicalClaims("A /24 gives you 254 usable hosts")).toEqual([]);
     expect(checkTechnicalClaims("A /24 gives you 512 hosts").length).toBe(1);
+    expect(checkTechnicalClaims("A /27 contains 32 addresses and usually 30 usable hosts")).toEqual([]);
+    expect(checkTechnicalClaims("A /27 contains 32 addresses, while a /29 has 6 usable hosts")).toEqual([]);
+    expect(checkTechnicalClaims("A /27 contains 32 addresses, while another block has 4 usable hosts")).toEqual([]);
+    expect(checkTechnicalClaims("A /27 gives you 4 usable hosts").length).toBe(1);
   });
 
   it("catches wrong port numbers", () => {
