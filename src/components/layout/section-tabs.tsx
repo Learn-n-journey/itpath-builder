@@ -15,7 +15,7 @@ export function SectionTabs({ tabs }: { tabs: SectionTab[] }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <nav className="mb-5 flex flex-wrap gap-2" aria-label="Section views">
+    <nav className="mb-5 flex gap-2 overflow-x-auto pb-1" aria-label="Section views">
       {tabs.map((tab) => {
         const active = pathname === tab.to;
         return (
@@ -24,7 +24,7 @@ export function SectionTabs({ tabs }: { tabs: SectionTab[] }) {
             to={tab.to}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "rounded-full border px-3.5 py-1.5 text-sm transition-colors",
+              "shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-[color,background-color,border-color,transform] duration-150 active:scale-[0.98]",
               active
                 ? "border-primary bg-primary text-primary-foreground shadow-sm"
                 : "border-border bg-card/70 text-muted-foreground hover:text-foreground",

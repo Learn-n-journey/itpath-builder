@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   CheckCircle2,
   
@@ -364,8 +364,8 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
       {attempt && (attempt.status === "completed" || attempt.status === "mastered") ? (
         <Panel title={attempt.status === "mastered" ? `${lab.title} mastered` : "Lab complete"}>
           <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm"><a href={`/topics/${lab.topicId}`}>Return to topic</a></Button>
-            {next ? <Button asChild size="sm" variant="secondary"><a href={`/topics/${next.id}`}>Next topic</a></Button> : <Button asChild size="sm" variant="secondary"><a href="/my-path">Continue path</a></Button>}
+            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: lab.topicId }}>Return to topic</Link></Button>
+            {next ? <Button asChild size="sm" variant="secondary"><Link to="/topics/$topicId" params={{ topicId: next.id }}>Next topic</Link></Button> : <Button asChild size="sm" variant="secondary"><Link to="/my-path">Continue path</Link></Button>}
           </div>
         </Panel>
       ) : null}

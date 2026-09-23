@@ -323,7 +323,7 @@ function ReviewQueue({
   return (
     <Panel title={title} description={description}>
       {reviews.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{empty}</p>
+        <EmptyState title={empty} />
       ) : (
         <ul className="space-y-3 text-sm">
           {reviews.map((review) => (

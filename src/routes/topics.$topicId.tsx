@@ -1,12 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, ArrowRight, BookOpen, Layers, Lock, MessagesSquare, RefreshCw } from "lucide-react";
+import { ArrowRight, BookOpen, Layers, Lock, MessagesSquare, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { blockingTopic, isMastered, nextJourneyTopic } from "@/lib/journey-order";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
-import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
+import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
@@ -20,7 +20,6 @@ import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { trackFlow } from "@/lib/flow-events.functions";
 import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
-import { LearnerPageSkeleton } from "@/components/page-kit";
 
 export const Route = createFileRoute("/topics/$topicId")({
   staticData: { sitemap: false },

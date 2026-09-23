@@ -348,9 +348,7 @@ function Dashboard() {
         </Panel>
 
         <Panel title="Today" className="py-5">
-          {!hydrated ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : d.todaysTasks.length === 0 ? (
+          {d.todaysTasks.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nothing outstanding.</p>
           ) : (
             <ul className="divide-y divide-border/60">

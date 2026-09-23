@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarCheck, Flame, PartyPopper, Share2, Target, Trophy } from "lucide-react";
+import { CalendarCheck, CheckCircle2, Flame, Share2, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -229,7 +229,7 @@ function DailyChallengePage() {
         >
           <div className="flex flex-col items-center gap-3 border-y border-primary/40 bg-primary/5 p-5 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-primary/15 text-primary">
-              <PartyPopper className="size-7" aria-hidden />
+              <CheckCircle2 className="size-7" aria-hidden />
             </span>
             <div>
               <h2 className="font-display text-2xl font-semibold">
@@ -390,8 +390,9 @@ function DailyChallengePage() {
         )}
       </Panel>
 
-      <Panel title="How the challenge works">
-        <ul className="grid gap-2 sm:grid-cols-2">
+      <details className="group mt-5 border-t border-border pt-4">
+        <summary className="cursor-pointer list-none text-sm font-medium text-primary [&::-webkit-details-marker]:hidden">How this works</summary>
+        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {[
             {
               Icon: CalendarCheck,
@@ -421,7 +422,7 @@ function DailyChallengePage() {
             </li>
           ))}
         </ul>
-      </Panel>
+      </details>
     </>
   );
 }
