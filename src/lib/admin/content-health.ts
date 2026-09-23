@@ -261,7 +261,8 @@ export function topicHealthChecks(
   // Assessment material that was not taught. Concept coverage decides this:
   // different wording from the lesson is fine and wanted; untaught technical
   // knowledge is not.
-  const flagged = untaughtQuestions(pack, topicId, options.courseVocabulary ?? courseVocabulary(pack));
+  const judged = topicCoverage(pack, topicId, options.courseVocabulary ?? courseVocabulary(pack));
+  const flagged = judged.filter((finding) => finding.verdict !== "pass");
   const failing = flagged.filter((finding) => finding.verdict === "fail");
   const reviewing = flagged.filter((finding) => finding.verdict === "review");
   add(
@@ -277,20 +278,24 @@ export function topicHealthChecks(
   );
   // Only genuinely undertaught coverage is worth the owner's attention. A
   // question that leans on a concept another topic teaches is a normal
-  // cross-topic link and is reported, not warned about.
+  // cross-topic link, and a handful of questions asking the learner to join
+  // two taught ideas is how a good paper reads. The check turns amber only
+  // when a large share of the topic's questions lean that way.
   const indirect = reviewing.filter((finding) => finding.reviewKind !== "elsewhere");
   const elsewhere = reviewing.length - indirect.length;
+  const share = judged.length === 0 ? 0 : indirect.length / judged.length;
+  const tooMany = indirect.length >= 5 && share >= 0.4;
   add(
     "taught-review",
     "Concept coverage review",
-    indirect.length === 0,
-    `${indirect.length} question${indirect.length === 1 ? " leans" : "s lean"} on coverage this lesson only implies.`,
-    "A beginner may have to infer something this lesson only implies.",
-    "Read the coverage list and either say it plainly once, or link the prerequisite.",
+    !tooMany,
+    `${indirect.length} of ${judged.length} questions (${Math.round(share * 100)}%) lean on coverage this lesson only implies.`,
+    "Beginners may have to infer too much of this topic for themselves.",
+    "Read the coverage list and either say those points plainly once, or link the prerequisite.",
     "warning",
-    elsewhere === 0
-      ? "Every question rests on concepts this topic or its prerequisites teach."
-      : `${elsewhere} question${elsewhere === 1 ? " builds" : "s build"} on a concept taught in another topic, which is fine.`,
+    indirect.length === 0 && elsewhere === 0
+      ? "Every question rests on concepts this topic or its prerequisites teach plainly."
+      : `${indirect.length} question${indirect.length === 1 ? " asks" : "s ask"} the learner to join taught ideas together, and ${elsewhere} build${elsewhere === 1 ? "s" : ""} on another topic — both normal.`,
   );
 
 

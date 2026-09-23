@@ -752,10 +752,15 @@ function topicPool(topicId: string): PoolItem[] {
       ? ownerItems
       : [...ownerItems, ...authored, ...buildPool(topicId)]
     : [...authored, ...buildPool(topicId)];
-  // Drop repeated prompts across the whole pool.
+  // Drop repeated prompts across the whole pool. Punctuation and quote marks
+  // are ignored, so the same question worded with different quotes counts once.
   const seen = new Set<string>();
   const unique = all.filter((item) => {
-    const key = item.question.prompt.trim().toLowerCase();
+    const key = item.question.prompt
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
