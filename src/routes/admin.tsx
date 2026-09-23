@@ -88,7 +88,12 @@ function AnswerCard({ question, state, note }: { question: string; state: Health
   );
 }
 
+/** Lets a finding send the owner to another tab of this same screen. */
+const JumpToTab = createContext<((tab: string) => void) | null>(null);
+
 function CheckRow({ check }: { check: HealthCheck }) {
+  const jump = useContext(JumpToTab);
+  const target = checkTarget(check);
   return (
     <li className="rounded-lg border border-border/60 p-3">
       <div className="flex items-start justify-between gap-2">
@@ -101,6 +106,22 @@ function CheckRow({ check }: { check: HealthCheck }) {
       ) : null}
       {check.state !== "healthy" && check.action ? (
         <p className="mt-1 text-xs font-medium text-foreground">Do this: {check.action}</p>
+      ) : null}
+      {target ? (
+        target.tab ? (
+          <Button className="mt-2" size="sm" variant="outline" onClick={() => jump?.(target.tab as string)}>
+            {target.label}
+          </Button>
+        ) : (
+          <Button className="mt-2" size="sm" variant="outline" asChild>
+            <a
+              href={target.href}
+              {...(target.external ? { target: "_blank", rel: "noreferrer" } : {})}
+            >
+              {target.label}
+            </a>
+          </Button>
+        )
       ) : null}
     </li>
   );
