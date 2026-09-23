@@ -508,6 +508,7 @@ function AdminPage() {
         </span>
       </div>
 
+      <JumpToTab.Provider value={jumpToTab}>
       <Tabs value={tab} onValueChange={setTab} className="mt-5">
         <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
