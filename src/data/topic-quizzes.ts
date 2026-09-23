@@ -738,12 +738,19 @@ function topicPool(topicId: string): PoolItem[] {
   // A section the owner has written a spreadsheet for uses those questions and
   // nothing else. They still pass the same gate as every other question.
   const owner = ownerQuestionsFor(topicId) ?? [];
-  const all = owner.length
-    ? owner.map((item) => ({
-        question: item,
-        kind: "owner",
-        sourceKey: `owner-${stableQuestionKey(item.prompt.trim().toLowerCase())}:${item.prompt}`,
-      }))
+  const ownerItems: PoolItem[] = owner.map((item) => ({
+    question: item,
+    kind: "owner",
+    sourceKey: `owner-${stableQuestionKey(item.prompt.trim().toLowerCase())}:${item.prompt}`,
+  }));
+  // A section the owner has written a spreadsheet for leads with those
+  // questions. Nothing is dropped: when the workbook holds fewer than a whole
+  // quiz, the course's own questions top the pool up so the section can still
+  // be passed, and the owner's questions still come first.
+  const all = ownerItems.length
+    ? ownerItems.length >= SECTION_QUIZ_SIZE
+      ? ownerItems
+      : [...ownerItems, ...authored, ...buildPool(topicId)]
     : [...authored, ...buildPool(topicId)];
   // Drop repeated prompts across the whole pool.
   const seen = new Set<string>();
