@@ -35,6 +35,12 @@ export interface CoverageFinding {
   missingEverywhere: string[];
   /** Short quotes from the lesson showing where the concept is taught. */
   lessonEvidence: string[];
+  /**
+   * For a review verdict: "elsewhere" when the course teaches the concept in
+   * another topic (a cross-topic link, normal and not worth chasing), or
+   * "indirect" when the lesson only implies it and a beginner must infer.
+   */
+  reviewKind?: "elsewhere" | "indirect";
   reason: string;
   remediation: string;
 }
