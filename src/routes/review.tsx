@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { EmptyState, LearnerPageSkeleton, PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { MissedQuestionsPanel } from "@/components/review/missed-questions-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ import {
 import { missedQuestionCount, missedQuestions, type MissedQuestion } from "@/lib/missed-questions";
 import { useAppState } from "@/state/app-state";
 import { SectionTabs, REVIEW_TABS } from "@/components/layout/section-tabs";
+import { isBooleanPreference, isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 
 export const Route = createFileRoute("/review")({
   staticData: { sitemap: false },
@@ -45,9 +46,9 @@ function topicTitle(topicId: string) {
 }
 
 function Review() {
-  const { user, actions } = useAppState();
-  const [categoryFilter, setCategoryFilter] = useState<MistakeCause | "all">("all");
-  const [showResolved, setShowResolved] = useState(false);
+  const { user, actions, hydrated } = useAppState();
+  const [categoryFilter, setCategoryFilter] = useUiPreference<MistakeCause | "all">("review.category", "all", (value): value is MistakeCause | "all" => isStringPreference(value));
+  const [showResolved, setShowResolved] = useUiPreference("review.resolved", false, isBooleanPreference);
 
   const summary = useMemo(() => summarizeMistakes(user), [user]);
   const buckets = useMemo(() => bucketReviews(user.reviews), [user.reviews]);
@@ -78,6 +79,8 @@ function Review() {
       (showResolved || !mistake.resolved) &&
       (categoryFilter === "all" || mistake.category === categoryFilter),
   );
+
+  if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={2} />;
 
   return (
     <>

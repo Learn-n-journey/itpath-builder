@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BarChart3, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Flame, PlayCircle, SlidersHorizontal, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
-import { Panel, StatCard } from "@/components/page-kit";
+import { LearnerPageSkeleton, Panel, StatCard } from "@/components/page-kit";
 import { ReadinessPanel } from "@/components/readiness-panel";
 import { StreakPanel } from "@/components/streak-panel";
 import { Button } from "@/components/ui/button";
@@ -192,6 +192,8 @@ function Dashboard() {
         : path.recommendedTopic
           ? { to: "/topics/$topicId", params: { topicId: path.recommendedTopic.id }, title: path.recommendedTopic.title, detail: "Recommended next" }
           : null;
+
+  if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} />;
 
   return (
     <div className="mx-auto max-w-4xl pb-8">

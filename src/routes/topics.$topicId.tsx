@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, ArrowRight, BookOpen, Layers, Lock, MessagesSquare, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { blockingTopic } from "@/lib/journey-order";
+import { blockingTopic, isMastered, nextJourneyTopic } from "@/lib/journey-order";
 
 import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
 import { EmptyState, PageHeader, Panel } from "@/components/page-kit";
@@ -19,6 +19,8 @@ import { refreshTopic } from "@/lib/sheet-sync.functions";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { trackFlow } from "@/lib/flow-events.functions";
+import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
+import { LearnerPageSkeleton } from "@/components/page-kit";
 
 export const Route = createFileRoute("/topics/$topicId")({
   staticData: { sitemap: false },
@@ -50,7 +52,7 @@ const TOPIC_SHORTCUTS = [
 function TopicPage() {
   const { topicId } = Route.useParams();
   const topic = getTopic(topicId);
-  const { user } = useAppState();
+  const { user, hydrated } = useAppState();
   const { email } = useAuth();
   const refresh = useServerFn(refreshTopic);
   const [refreshing, setRefreshing] = useState(false);
@@ -61,6 +63,8 @@ function TopicPage() {
   useEffect(() => {
     trackFlow("Open a lesson", lessonFound ? "ok" : "failed");
   }, [topicId, lessonFound]);
+
+  if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={3} />;
 
   if (!topic) {
     return (
@@ -109,6 +113,8 @@ function TopicPage() {
 
   const certification = getCertification(topic.certificationId);
   const progress = user.topicProgress[topic.id];
+  const mastered = isMastered(user, topic.id);
+  const next = mastered ? nextJourneyTopic(topic.id, user) : undefined;
   const prerequisites = topic.prerequisiteTopicIds
     .map((id) => topics.find((candidate) => candidate.id === id))
     .filter((candidate) => candidate !== undefined);
@@ -138,12 +144,7 @@ function TopicPage() {
 
   return (
     <article>
-      <Button asChild variant="ghost" size="sm" className="mb-5 -ml-3">
-        <Link to="/my-path">
-          <ArrowLeft aria-hidden />
-          My Path
-        </Link>
-      </Button>
+      <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, ...(certification ? [{ label: certification.title, to: "/certifications/$certId", params: { certId: certification.id } }] : []), { label: topic.title }]} />
 
       <PageHeader title={topic.title} description={topic.summary} />
 
@@ -202,6 +203,15 @@ function TopicPage() {
 
 
       <TopicLearningExperience topic={topic} />
+
+      {mastered ? (
+        <Panel className="mt-5 border-success/40" title={`${topic.title} mastered`} description="Your recorded evidence meets this topic's mastery requirements.">
+          <div className="flex flex-wrap gap-2">
+            {next ? <Button asChild><Link to="/topics/$topicId" params={{ topicId: next.id }}>Next topic <ArrowRight /></Link></Button> : <Button asChild><Link to="/my-path">Continue path <ArrowRight /></Link></Button>}
+            <Button asChild variant="secondary"><Link to="/review">Review mistakes</Link></Button>
+          </div>
+        </Panel>
+      ) : null}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <Panel title="Prerequisites">

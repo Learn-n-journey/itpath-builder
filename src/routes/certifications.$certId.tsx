@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { LearnerPageSkeleton, PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { useAppState } from "@/state/app-state";
 import {
@@ -32,6 +32,7 @@ import { ReadinessPanel } from "@/components/readiness-panel";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import { inJourneyOrder, isMastered } from "@/lib/journey-order";
 import { certificationTopics } from "@/lib/cert-path";
+import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 
 export const Route = createFileRoute("/certifications/$certId")({
   staticData: { sitemap: false },
@@ -108,7 +109,7 @@ function MaterialList({ title, items }: { title: string; items: Resource[] }) {
 }
 
 function Certifications() {
-  const { user, actions } = useAppState();
+  const { user, actions, hydrated } = useAppState();
   const readiness = useMemo(() => scoreAllCertifications(user), [user]);
   const personalPath = useMemo(() => adaptivePath(user), [user]);
   const { certId } = Route.useParams();
@@ -153,6 +154,8 @@ function Certifications() {
     const cert = allCertifications.find((item) => item.id === certId);
     return cert ? buildReadinessReport(user, cert) : null;
   }, [user, certId]);
+
+  if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={3} />;
 
   if (!selected) {
     return (
@@ -203,9 +206,7 @@ function Certifications() {
 
   return (
     <>
-      <Link to="/certifications" className="text-xs text-muted-foreground hover:underline">
-        ← All certifications
-      </Link>
+      <LearningBreadcrumbs items={[{ label: "Certifications", to: "/certifications" }, { label: selected.certification.title }]} />
       <PageHeader
         title={selected.certification.title}
         description={`${selected.certification.description ?? ""} Work through the topics from the start of the list to the end. Readiness is calculated from your recorded study, labs, practice, quizzes and troubleshooting.`}
