@@ -28,6 +28,7 @@ import { coursePack } from "@/content/course-pack";
 import { contentHealth, type TopicHealth } from "@/lib/admin/content-health";
 import { courseCoverage, coverageCsv } from "@/lib/admin/concept-coverage";
 import { engineHealthChecks } from "@/lib/admin/engine-health";
+import { checkTarget } from "@/lib/admin/check-link";
 import { areaHealth, buildOverview, filterChecks, stateLabel, type HealthFilter } from "@/lib/admin/health-state";
 import type { ActivityEntry, ContentVersion, FlowCounter, HealthCheck, HealthState } from "@/lib/admin/types";
 import { canRollback, lifecycleLabel } from "@/lib/admin/release";
