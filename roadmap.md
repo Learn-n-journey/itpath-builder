@@ -170,3 +170,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Migrate Learn, Practice, Labs, Resources, Daily Challenge, Study Plan, and Pomodoro to dense shared layouts while preserving every action and state transition.
 - [ ] Apply the same structure to remaining learner-facing pages through shared shell/components, keeping admin and public guide surfaces appropriate to their roles.
 - [ ] Verify all named screens at 430px and desktop widths, then run focused tests, full tests, type checks, and confirm the preview build is clean.
+- [ ] Remove unnecessary instructional filler and describe Review by its actual contents.
