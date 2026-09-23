@@ -137,7 +137,7 @@ function CheckRow({ check }: { check: HealthCheck }) {
           onClick={() => hasDetail && setOpen((value) => !value)}
         >
           <span className="block text-sm">{check.label}</span>
-          {check.topicId ? <span className="block truncate text-xs text-muted-foreground">{check.topicId}</span> : null}
+          {check.state !== "healthy" && check.affects ? <span className="block truncate text-xs text-muted-foreground">{check.affects}</span> : null}
         </button>
         {check.state === "healthy" ? null : <CheckAction check={check} />}
       </div>
