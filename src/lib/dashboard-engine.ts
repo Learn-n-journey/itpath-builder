@@ -190,7 +190,7 @@ export function computeDashboard(user: UserData, now: Date = new Date()): Dashbo
     tasks.push({
       id: "task-review",
       label: `Clear ${dueCount} review${dueCount === 1 ? "" : "s"} due`,
-      detail: "Spaced review keeps retention honest.",
+      detail: "Retry missed questions and weak topics.",
       to: "/review",
     });
   }

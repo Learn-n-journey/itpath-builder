@@ -162,7 +162,7 @@ function Dashboard() {
           to="/review"
           icon={Clock}
           label={`${reviewTopics.length} ${reviewTopics.length === 1 ? "topic" : "topics"} due for review`}
-          detail="Spaced review is scheduled"
+          detail="Missed questions and weak topics"
         />,
       );
     }

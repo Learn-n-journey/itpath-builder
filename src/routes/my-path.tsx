@@ -19,6 +19,7 @@ import { currentJourneyTopic } from "@/lib/journey-order";
 import { useDismissable } from "@/hooks/use-dismissable";
 import { SectionTabs, PATH_TABS } from "@/components/layout/section-tabs";
 import { CompactStat, CompactStats, ContentRow, ProgressLine } from "@/components/learner-ui";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const Route = createFileRoute("/my-path")({
   staticData: { sitemap: false },
@@ -160,7 +161,7 @@ function MyPath() {
                     params={{ certId: certification.id }}
                     className="block"
                   >
-                    <ContentRow icon={Award} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={studyIndex.topics.length === 0 ? 0 : Math.round(studyIndex.topics.filter((topic) => user.progress[topic.id]?.mastered).length / studyIndex.topics.length * 100)} />
+                    <ContentRow icon={Award} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={studyIndex.topics.length === 0 ? 0 : Math.round(studyIndex.topics.reduce((sum, topic) => sum + topicScopeProgress(user, topic.id).overall, 0) / studyIndex.topics.length)} />
                   </Link>
                 );
               })}
