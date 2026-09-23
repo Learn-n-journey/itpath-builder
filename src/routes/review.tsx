@@ -32,7 +32,7 @@ export const Route = createFileRoute("/review")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { title: "Review | IT PATH" },
-      { name: "description", content: "Spaced review of past topics and unresolved mistakes." },
+      { name: "description", content: "Missed questions, weak concepts, and topics due to practise again." },
       { property: "og:title", content: "Review | IT PATH" },
       { property: "og:description", content: "Spaced repetition keeps what you learn from fading." },
     ],
@@ -84,7 +84,7 @@ function Review() {
       <SectionTabs tabs={REVIEW_TABS} />
       <PageHeader
         title="Review"
-        description="Every mistake is logged with its cause and the prerequisite it points back to, so review starts at the root cause instead of the newest topic."
+        description="Retry missed questions, revisit weak concepts, and practise topics that are due."
       />
 
       <div className="grid grid-cols-2 gap-3">
@@ -233,7 +233,7 @@ function Review() {
             />
             <ReviewQueue
               title="Overdue"
-              description="Past their due date. The longer they wait, the more retention decays."
+              description="Topics and questions that are past their scheduled practice date."
               reviews={buckets.overdue}
               empty="Nothing is overdue."
               tone="overdue"

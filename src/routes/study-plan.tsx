@@ -21,6 +21,7 @@ import {
 } from "@/lib/study-engine";
 import type { StudyPlan } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
+import { CompactStat, CompactStats } from "@/components/learner-ui";
 
 function durationOptions(sessionLengthMinutes: number): number[] {
   const set = new Set<number>(STUDY_DURATIONS);
@@ -128,26 +129,20 @@ function StudyPlanPage() {
     <>
       <PageHeader
         title="Study Plan"
-        description="Build a study session from your own data, work it, and log the time you actually spend."
+        description="Build a focused study session from your own data."
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Session length" value={`${user.settings.sessionLengthMinutes} min`} hint="Set in Settings" />
-        <StatCard label="Total logged" value={`${Math.round((totalLoggedMinutes / 60) * 10) / 10}h`} />
-        <StatCard label="Sessions logged" value={user.studySessions.length} />
-        <StatCard label="Plans finished" value={completedPlans.length} />
-      </div>
+      <CompactStats className="grid-cols-4"><CompactStat label="Session" value={`${user.settings.sessionLengthMinutes}m`} /><CompactStat label="Logged" value={`${Math.round((totalLoggedMinutes / 60) * 10) / 10}h`} /><CompactStat label="Sessions" value={user.studySessions.length} /><CompactStat label="Finished" value={completedPlans.length} /></CompactStats>
 
       <Panel
-        className="mt-6"
+        className="mt-4"
         title="Today's study session"
-        description="Tasks are chosen from due reviews, weak topics, prerequisites, new material, open work and recent mistakes."
       >
         {!activePlan ? (
           <div className="space-y-4">
             <div>
               <Label>Session length</Label>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
                 {options.map((option) => (
                   <Button
                     key={option}
@@ -274,12 +269,12 @@ function ActivePlan({
         {plan.tasks.map((task, index) => {
           const isActive = task.status === "active";
           return (
-            <li
+             <li
               key={task.id}
               className={
                 isActive
-                  ? "rounded-lg border border-primary/40 bg-primary/5 p-4"
-                  : "rounded-lg border border-border bg-card p-4"
+                  ? "border-l-2 border-primary bg-primary/5 px-3 py-3"
+                  : "border-l-2 border-border px-3 py-3"
               }
             >
               <div className="flex flex-wrap items-center gap-2">

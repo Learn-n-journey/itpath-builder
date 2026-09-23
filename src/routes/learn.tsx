@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { certifications, topics } from "@/data/static-content";
 import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
+import { ContentRow, SectionHeading } from "@/components/learner-ui";
+import { topicScopeProgress } from "@/lib/scope-progress";
 
 export const Route = createFileRoute("/learn")({
   staticData: { sitemap: false },
@@ -46,38 +48,35 @@ function Learn() {
     <>
       <PageHeader
         title="Learn"
-        description="Choose a topic, build recall, apply the knowledge, and explain your reasoning."
+        description="Choose a topic, build understanding, and apply the knowledge."
       />
       {path.recommendedTopic ? (
-        <Panel className="mb-4" title={`${path.certification.title}: your recommended start`} description={`${path.startLabel} based on your experience setting.`}>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm font-medium">{path.recommendedTopic.title}</p>
-            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>Start here <ArrowRight /></Link></Button>
+        <Panel className="mb-4 border border-primary/45 bg-card px-3 pb-3 pt-3" title="Recommended next">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <div className="min-w-0"><p className="truncate text-sm font-semibold">{path.recommendedTopic.title}</p><p className="truncate text-xs text-muted-foreground">{path.certification.title}</p></div>
+            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>Start <ArrowRight /></Link></Button>
           </div>
         </Panel>
       ) : null}
-      <Panel title="Available topics" description={`${filteredTopics.length} of ${topics.length} topics shown`}>
-        <div className="relative mb-5">
+      <section>
+        <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
           <Input aria-label="Search topics" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search topics, objectives, or certifications" className="pl-9 pr-10" />
           {query ? <Button aria-label="Clear search" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setQuery("")}><X className="size-4" /></Button> : null}
         </div>
+        <SectionHeading title={`${filteredTopics.length} topics`} meta="Recommended first" className="mb-1" />
         {filteredTopics.length === 0 ? (
           <EmptyState icon={Search} title="No topics found" body={`No available topic matches “${query}”.`}><Button variant="outline" onClick={() => setQuery("")}>Clear search</Button></EmptyState>
         ) : (
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="divide-y divide-border/70">
             {filteredTopics.map((topic) => {
               const certification = certifications.find((item) => item.id === topic.certificationId);
-              return <Link key={topic.id} to="/topics/$topicId" params={{ topicId: topic.id }} className="group rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                <div className="flex items-start justify-between gap-4"><BookOpen className="mt-0.5 size-5 shrink-0 text-primary" /><ArrowRight className="size-4 shrink-0 text-muted-foreground group-hover:text-primary" /></div>
-                <h2 className="mt-4 font-display text-base font-semibold">{topic.title}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{topic.summary}</p>
-                <p className="mt-4 text-xs font-medium text-muted-foreground">{certification?.title ?? "General IT"}{topic.id === path.recommendedTopic?.id ? " · Recommended start" : ""}</p>
-              </Link>;
+              const progress = topicScopeProgress(user, topic.id).overall;
+              return <Link key={topic.id} to="/topics/$topicId" params={{ topicId: topic.id }} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ContentRow icon={BookOpen} eyebrow={topic.id === path.recommendedTopic?.id ? "Recommended" : undefined} title={topic.title} description={topic.summary} metadata={certification?.title ?? "General IT"} progress={progress} /></Link>;
             })}
           </div>
         )}
-      </Panel>
+      </section>
     </>
   );
 }

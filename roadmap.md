@@ -163,10 +163,11 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Three permanent quality checks: cross-lesson contradictions, certification coverage gaps, difficulty/progression order.
 
 ## Cohesive learner UI redesign
-- [ ] Build a shared compact learner app header and persistent mobile bottom navigation: Dashboard, My Path, Learn, Certifications, More.
-- [ ] Replace floating quick navigation and nonessential floating controls with integrated navigation that does not cover content; keep GAYL and Second Brain reachable.
-- [ ] Add shared compact page headers, section headers, progress bars, metric summaries, interactive content rows, status indicators, search/filter controls, and certification/activity cards.
-- [ ] Migrate Dashboard and My Path to the reference hierarchy, density, milestone treatment, and consistent progress language.
-- [ ] Migrate Learn, Practice, Labs, Resources, Daily Challenge, Study Plan, and Pomodoro to dense shared layouts while preserving every action and state transition.
-- [ ] Apply the same structure to remaining learner-facing pages through shared shell/components, keeping admin and public guide surfaces appropriate to their roles.
-- [ ] Verify all named screens at 430px and desktop widths, then run focused tests, full tests, type checks, and confirm the preview build is clean.
+- [x] Build a shared compact learner app header and persistent mobile bottom navigation: Dashboard, My Path, Learn, Certifications, More.
+- [x] Replace floating quick navigation and nonessential floating controls with integrated navigation that does not cover content; keep GAYL and Second Brain reachable.
+- [x] Add shared compact page headers, section headers, progress bars, metric summaries, interactive content rows, status indicators, search/filter controls, and certification/activity cards.
+- [x] Migrate Dashboard and My Path to the reference hierarchy, density, milestone treatment, and consistent progress language.
+- [x] Migrate Learn, Practice, Labs, Resources, Daily Challenge, Study Plan, and Pomodoro to dense shared layouts while preserving every action and state transition.
+- [x] Apply the same structure to remaining learner-facing pages through shared shell/components, keeping admin and public guide surfaces appropriate to their roles.
+- [x] Verify all named screens at 430px and desktop widths, then run focused tests, full tests, type checks, and confirm the preview build is clean.
+- [x] Remove unnecessary instructional filler and describe Review by its actual contents.

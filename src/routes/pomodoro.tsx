@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useAppState } from "@/state/app-state";
+import { CompactStat, CompactStats } from "@/components/learner-ui";
 
 export const Route = createFileRoute("/pomodoro")({
   staticData: { sitemap: false },
@@ -129,22 +130,12 @@ function PomodoroPage() {
   return (
     <>
       <PageHeader
-        title="Pomodoro timer"
-        description="Focus in timed blocks. Finished focus time is added to your study time, and the next block starts on its own."
+        title="Pomodoro"
+        description="Focus in timed blocks. Log your progress."
       />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Today" value={`${todayMinutes} min`} hint="Logged study time" icon={Timer} />
-        <StatCard label="Blocks this session" value={completedBlocks} hint="Completed focus blocks" />
-        <StatCard
-          label="Current block"
-          value={`${Math.floor(elapsedFocus / 60)} min`}
-          hint="Unlogged focus time"
-        />
-      </div>
-
-      <Panel className="mb-6">
-        <div className="flex flex-col items-center gap-5 py-4">
+      <Panel className="mb-4 border-t-0 pt-0">
+        <div className="flex flex-col items-center gap-4 py-2">
           <span className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
             {phase === "focus" ? "Focus" : "Break"}
           </span>
@@ -168,7 +159,9 @@ function PomodoroPage() {
         </div>
       </Panel>
 
-      <Panel title="Block lengths" description="Adjust between blocks. Changes apply to the next timer.">
+      <CompactStats className="mb-4"><CompactStat label="Today" value={`${todayMinutes}m`} icon={Timer} /><CompactStat label="Blocks" value={completedBlocks} /><CompactStat label="Logged" value={`${Math.floor(elapsedFocus / 60)}m`} /></CompactStats>
+
+      <Panel title="Block lengths">
         <div className="grid gap-6 sm:grid-cols-2">
           <div>
             <Label className="mb-3 block">Focus: {focusMinutes} min</Label>

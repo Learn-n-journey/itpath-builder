@@ -30,6 +30,7 @@ import { projectFromLabAttempt } from "@/lib/portfolio-engine";
 import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 import { adaptivePath } from "@/lib/adaptive-path";
+import { CompactStat, CompactStats, ContentRow } from "@/components/learner-ui";
 
 export const Route = createFileRoute("/labs")({
   staticData: { sitemap: false },
@@ -124,43 +125,30 @@ function LabsPage() {
     <>
       <PageHeader
         title="Labs"
-        description="Guided practical work you perform in an environment you control, shown in a random order. IT PATH records your evidence but never claims to access that environment."
+        description="Hands-on practice in a safe environment."
         actions={
           <Button variant="outline" onClick={() => { reshuffle(); setSelectedId(""); }}>
             <RefreshCw /> Shuffle
           </Button>
         }
       />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Available" value={labs.length} />
-        <StatCard label="In progress" value={attempts.filter((item) => item.status === "in_progress").length} />
-        <StatCard label="Needs review" value={attempts.filter((item) => item.status === "needs_review").length} />
-        <StatCard label="Completed" value={attempts.filter((item) => item.status === "completed" || item.status === "mastered").length} />
-      </div>
+      <CompactStats className="grid-cols-4"><CompactStat label="Available" value={labs.length} /><CompactStat label="In progress" value={attempts.filter((item) => item.status === "in_progress").length} /><CompactStat label="Review" value={attempts.filter((item) => item.status === "needs_review").length} /><CompactStat label="Completed" value={attempts.filter((item) => item.status === "completed" || item.status === "mastered").length} /></CompactStats>
 
       <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <Panel
           title="Lab library"
-          description={`${labs.length} practical exercises across core IT disciplines, with a walkthrough and a fault-diagnosis drill for every topic.`}
         >
-          <div className="space-y-2">
+          <div>
             {shuffled.map((item) => {
               const itemAttempt = attempts.find((attempt) => attempt.labId === item.id);
               return (
-                <Button
+                <button
                   key={item.id}
-                  variant={item.id === lab?.id ? "secondary" : "ghost"}
-                  className="h-auto w-full justify-start whitespace-normal px-3 py-3 text-left"
+                  className="block w-full"
                   onClick={() => setSelectedId(item.id)}
                 >
-                  <span className="min-w-0">
-                    <span className="block text-xs text-primary">{categoryLabels[item.category]}</span>
-                    <span className="mt-1 block">{item.title}</span>
-                    <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                      {itemAttempt ? statusLabels[itemAttempt.status] : "Not Started"}
-                    </span>
-                  </span>
-                </Button>
+                  <ContentRow icon={FlaskConical} eyebrow={categoryLabels[item.category]} title={item.title} metadata={itemAttempt ? statusLabels[itemAttempt.status] : "Not Started"} selected={item.id === lab?.id} />
+                </button>
               );
             })}
           </div>

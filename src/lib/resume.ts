@@ -64,7 +64,7 @@ export function resumeTarget(user: UserData): ResumeTarget | undefined {
     const topic = task ? topics.find((item) => item.id === task.topicId) : undefined;
     return {
       label: topic ? `${topic.title} · Practice` : "Practice task",
-      detail: "Finish it and send it in so it counts.",
+      detail: "Continue your open practice task.",
       to: "/practice",
     };
   }

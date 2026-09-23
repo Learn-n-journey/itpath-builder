@@ -47,6 +47,7 @@ function criterionPassed(
   return false;
 }
 import { useAppState } from "@/state/app-state";
+import { CompactStat, CompactStats, ContentRow } from "@/components/learner-ui";
 
 export const Route = createFileRoute("/practice")({
   staticData: { sitemap: false },
@@ -148,28 +149,15 @@ function PracticePage() {
     <>
       <PageHeader
         title="Practice"
-        description="Applied tasks grouped by certification and evaluated against visible criteria. Opening a task never changes your progress."
+        description="Applied tasks to reinforce your knowledge."
         actions={
           <Button variant="outline" onClick={refresh}>
             <RefreshCw /> Shuffle
           </Button>
         }
       />
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Available" value={assignments.length} />
-        <StatCard label="Started" value={attempts.filter((a) => a.status === "started").length} />
-        <StatCard
-          label="Submitted"
-          value={
-            attempts.filter((a) => a.status === "submitted" || a.status === "evaluated").length
-          }
-        />
-        <StatCard
-          label="Completed"
-          value={attempts.filter((a) => a.status === "completed").length}
-        />
-      </div>
-      <div className="mt-6 flex flex-wrap gap-2">
+      <CompactStats className="grid-cols-4"><CompactStat label="Available" value={assignments.length} /><CompactStat label="Started" value={attempts.filter((a) => a.status === "started").length} /><CompactStat label="Submitted" value={attempts.filter((a) => a.status === "submitted" || a.status === "evaluated").length} /><CompactStat label="Completed" value={attempts.filter((a) => a.status === "completed").length} /></CompactStats>
+      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
         {groups.map((entry) => (
           <Button
             key={entry.id}
@@ -185,29 +173,21 @@ function PracticePage() {
           </Button>
         ))}
       </div>
-      <div className="mt-5 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
+      <div className="mt-4 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
         <Panel
           title={activeGroup?.title ?? "Practice library"}
-          description="Every task attached to this certification, reshuffled whenever you refresh."
         >
-          <div className="max-h-[32rem] space-y-2 overflow-y-auto pr-1">
+          <div className="max-h-[32rem] overflow-y-auto pr-1">
             {activeGroup?.items.map((item) => {
               const itemAttempt = attempts.find((attempt) => attempt.assignmentId === item.id);
               return (
-                <Button
+                <button
                   key={item.id}
-                  variant={item.id === assignment?.id ? "secondary" : "ghost"}
-                  className="h-auto w-full justify-start whitespace-normal px-3 py-3 text-left"
+                  className="block w-full"
                   onClick={() => setSelectedId(item.id)}
                 >
-                  <span className="min-w-0">
-                    <span className="block text-xs text-primary">{typeLabels[item.type]}</span>
-                    <span className="mt-1 block">{item.title}</span>
-                    <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                      {itemAttempt?.status.replace("_", " ") ?? "Not started"}
-                    </span>
-                  </span>
-                </Button>
+                  <ContentRow icon={ClipboardList} eyebrow={typeLabels[item.type]} title={item.title} metadata={itemAttempt?.status.replace("_", " ") ?? "Not started"} selected={item.id === assignment?.id} />
+                </button>
               );
             })}
           </div>
