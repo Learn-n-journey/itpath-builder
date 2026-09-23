@@ -196,6 +196,34 @@ export function topicTeachingMaterial(pack: CoursePack, topicId: string): string
   return parts.filter((part): part is string => Boolean(part && part.trim()));
 }
 
+/**
+ * Vocabulary of one topic on its own. Cached per pack: a health run reads the
+ * same topic many times, once for itself and again for every topic that lists
+ * it as a prerequisite.
+ */
+const OWN_VOCABULARY = new WeakMap<object, Map<string, TaughtVocabulary>>();
+
+function ownVocabulary(pack: CoursePack, topicId: string): TaughtVocabulary {
+  let cache = OWN_VOCABULARY.get(pack as object);
+  if (!cache) {
+    cache = new Map();
+    OWN_VOCABULARY.set(pack as object, cache);
+  }
+  const cached = cache.get(topicId);
+  if (cached) return cached;
+  const vocabulary = emptyVocabulary();
+  for (const part of topicTeachingMaterial(pack, topicId)) addText(vocabulary, part);
+  cache.set(topicId, vocabulary);
+  return vocabulary;
+}
+
+function mergeVocabulary(into: TaughtVocabulary, from: TaughtVocabulary): void {
+  for (const value of from.stems) into.stems.add(value);
+  for (const value of from.groups) into.groups.add(value);
+  for (const [key, value] of from.acronyms) into.acronyms.set(key, value);
+  into.sentences.push(...from.sentences);
+}
+
 /** Vocabulary for a topic plus every prerequisite that leads to it. */
 export function taughtVocabulary(pack: CoursePack, topicId: string): TaughtVocabulary {
   const vocabulary = emptyVocabulary();
@@ -203,7 +231,7 @@ export function taughtVocabulary(pack: CoursePack, topicId: string): TaughtVocab
   const walk = (id: string, depth: number) => {
     if (seen.has(id) || depth > 6) return;
     seen.add(id);
-    for (const part of topicTeachingMaterial(pack, id)) addText(vocabulary, part);
+    mergeVocabulary(vocabulary, ownVocabulary(pack, id));
     const topic = pack.sections.find((section) => section.id === id);
     for (const prerequisite of topic?.prerequisiteTopicIds ?? []) walk(prerequisite, depth + 1);
   };
@@ -216,12 +244,9 @@ export function courseVocabulary(pack: CoursePack): TaughtVocabulary {
   const vocabulary = emptyVocabulary();
   const seenIn = new Map<string, number>();
   for (const section of pack.sections) {
-    const here = new Set<string>();
-    for (const part of topicTeachingMaterial(pack, section.id)) {
-      addText(vocabulary, part);
-      for (const word of tokens(part)) here.add(stem(word));
-    }
-    for (const word of here) seenIn.set(word, (seenIn.get(word) ?? 0) + 1);
+    const own = ownVocabulary(pack, section.id);
+    mergeVocabulary(vocabulary, own);
+    for (const word of own.stems) seenIn.set(word, (seenIn.get(word) ?? 0) + 1);
   }
   // A word used by most of the course teaches nothing specific: it is ordinary
   // language, not knowledge a single question can be said to require.
