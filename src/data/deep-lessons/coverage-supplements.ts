@@ -100,6 +100,19 @@ const coverageSupplements: Record<string, DeepLessonSection[]> = {
       ],
     },
   ],
+  "topic-mobile-device-hardware": [
+    {
+      id: "mobile-components-sensors-and-secure-processing",
+      heading: "Mobile Components, Sensors, and Secure Processing",
+      paragraphs: [
+        "Mobile hardware combines general processors with specialised components. A neural processing unit, or NPU, accelerates on-device machine-learning work such as image analysis while using less power than sending every operation through the main CPU. Sustained heavy processing creates heat, so a phone may use thermal throttling to lower clock speed and protect the battery and silicon; smooth performance followed by heat and slowdown is a strong clue.",
+        "Ultra-wideband, or UWB, measures radio timing precisely enough for accurate short-range ranging and direction finding, making it useful for locating nearby tags. An accelerometer measures linear acceleration and movement, a gyroscope measures rotation, a magnetometer supplies compass direction, and an ambient-light sensor helps the display adapt to surrounding light. Magnets can disturb a magnetometer even when the other motion sensors work normally.",
+        "A haptic actuator creates vibration or tactile feedback independently of the speaker. Camera autofocus adjusts the lens to produce a sharp image, while an LED flash supplies light in dark scenes. A failed microphone can leave incoming audio intact while calls and voice recordings contain no sound.",
+        "Secure enclaves and hardware-backed keystores isolate cryptographic keys from the ordinary operating system and may perform sensitive operations without exposing the raw key. Mobile document-picker frameworks similarly let a user grant an application access to selected files from local, cloud, or attached storage without granting broad access to every file.",
+        "The display produces the visible image; the digitizer detects touch. A broken display can show no image while touch still causes sounds or responses, while a failed digitizer can leave a perfect picture that no longer responds accurately to a finger or stylus.",
+      ],
+    },
+  ],
   "topic-network-attacks-and-access-control": [
     {
       id: "network-access-control-and-aaa",
@@ -108,6 +121,18 @@ const coverageSupplements: Record<string, DeepLessonSection[]> = {
         "AAA separates authentication, authorisation, and accounting. Authentication proves identity, authorisation decides what that identity may do, and accounting records the session and actions. RADIUS commonly supports network access such as VPN and 802.1X and usually encrypts only the password field in its classic form. TACACS+ separates the AAA functions more clearly and encrypts the packet body, which makes it well suited to detailed administration of network devices.",
         "IEEE 802.1X controls access at a wired or wireless port. The endpoint is the supplicant, the switch or access point is the authenticator, and an authentication server, commonly RADIUS, validates the identity. Until authentication succeeds, the port permits only the limited exchange needed for access control rather than ordinary network traffic.",
         "Access control does not replace segmentation or monitoring. Apply least privilege, place unauthorised or unhealthy devices into a restricted VLAN where appropriate, watch for repeated failures, and protect the AAA service itself because a central outage can deny access across the network.",
+      ],
+    },
+  ],
+  "topic-networking-basics": [
+    {
+      id: "networking-addressing-captures-and-link-errors",
+      heading: "Addressing, Captures, and Link Errors",
+      paragraphs: [
+        "DNS normally uses destination port 53 over UDP for ordinary queries and can use TCP 53 for responses that do not fit, retries after truncation, and operations such as zone transfer. IPv4 private addresses come from 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16 and are not routed directly across the public internet.",
+        "IPv6 Stateless Address Autoconfiguration, or SLAAC, lets a host form an address using information advertised by a local router rather than requiring a traditional DHCPv4-style address lease. DHCPv6 may still supply other settings or managed addresses, depending on the router advertisement and network design.",
+        "Wireshark capture filters decide which packets are collected and must be chosen before or during capture. Display filters change only which packets are shown and can be applied repeatedly to an existing capture; the display filter tcp shows TCP packets without deleting other captured traffic.",
+        "Ethernet's frame check sequence, or FCS, detects frame corruption. A duplex mismatch, especially one side forced to full duplex while the other negotiates differently, can cause late collisions, FCS errors, retransmissions, and poor throughput. Configure both ends consistently, preferably with compatible auto-negotiation, then clear counters and retest.",
       ],
     },
   ],
@@ -120,6 +145,18 @@ const coverageSupplements: Record<string, DeepLessonSection[]> = {
         "1000BASE-LX uses long-wavelength light, normally around 1310 nm, over single-mode fibre and can also run over some multimode installations within stricter limits. Older multimode fibre can suffer differential mode delay when a laser launches unevenly into its core, so a mode-conditioning patch cable may be required for certain 1000BASE-LX deployments. Fibre mating surfaces must be inspected and cleaned before connection because tiny contamination can produce major optical loss.",
         "MDI and MDI-X describe whether transmit and receive pairs are presented in the endpoint or switch arrangement. Older links sometimes required a crossover cable between like devices; auto-MDI/MDI-X now detects and corrects the pair orientation automatically on most modern Ethernet ports.",
         "When a copper termination fails, remove the damaged end, preserve pair twists as close to the contact as practical, follow one wiring standard consistently, provide strain relief, and test again. A 110-style punch-down tool seats conductors into insulation-displacement contacts on patch panels and jacks. Label both ends and record the result so a passing cable remains maintainable.",
+      ],
+    },
+  ],
+  "topic-printers-peripherals-and-connectivity": [
+    {
+      id: "peripheral-selection-and-output-troubleshooting",
+      heading: "Peripheral Selection and Output Troubleshooting",
+      paragraphs: [
+        "Printer symptoms often identify the subsystem. Loose laser-printer toner that rubs off points to insufficient heat or pressure at the fuser. Marks repeating at a regular distance suggest a rotating component such as the drum, fuser roller, or transfer roller; the interval can be compared with component circumference. Missing inkjet lines after long disuse call for a nozzle check followed by the manufacturer's printhead-cleaning process before replacing parts.",
+        "Choose the mechanism for the job. A sheet-fed scanner with an automatic document feeder processes stacks of loose pages quickly, while a flatbed supports books, photographs, and fragile originals without pulling them through rollers. An impact dot-matrix printer can strike multipart forms in one pass. An inkjet is often the practical starting point for occasional high-quality photographs and colour marketing work, while volume, consumable cost, durability, and media support still need to be checked.",
+        "AirPrint uses service discovery on the local network, so a phone isolated on guest Wi-Fi may not discover a printer on the staff network. Move the authorised device to a network that can reach and discover the printer, or use an intentionally configured print service; do not remove segmentation without reviewing the security effect.",
+        "HDMI Audio Return Channel, or ARC, sends audio from a television back to a soundbar or receiver over the HDMI connection. DisplayPort Multi-Stream Transport, or MST, can carry separate display streams to compatible daisy-chained monitors or an MST hub. A USB-C-to-VGA connection needs an adapter that supports the laptop's USB-C video output mode and performs the required digital-to-analogue conversion.",
       ],
     },
   ],
