@@ -19,17 +19,27 @@ export const techExtraSeeds: TopicSeed[] = [
       title: "How software is actually written",
       body: "You do not need to be a developer to work in IT, but you do need to read logic. Every automation, every configuration file, every error message about a type mismatch assumes this vocabulary.",
       definition: "A program is a set of instructions acting on data. Data has a type: integer, floating point, boolean, character and string. Logic controls which instructions run: branching chooses a path, looping repeats work, and functions package reusable steps under a name.",
-      whyItMatters: "Type errors, off by one loops and unhandled conditions are the causes behind a large share of software faults you will be asked about. Knowing the difference between a compiled language and an interpreted one also explains why one application ships a single executable and another needs a runtime installed.",
+      whyItMatters:
+        "Type errors, off by one loops and unhandled conditions are the causes behind a large share of software faults you will be asked about. Knowing the difference between a compiled language and an interpreted one also explains why one application ships a single executable and another needs a runtime installed.\n\n" +
+        "Once code starts waiting on something outside itself, a second idea appears: asynchronous work. A network call, a file read or a database query takes far longer than an instruction, so blocking the program until the answer arrives wastes the whole time. Instead the language hands back a placeholder for a result that is not ready yet, which JavaScript calls a promise. A promise is pending until it either resolves with a value or rejects with an error. Marking a function async lets you write await in front of a promise, which pauses only that function until the result arrives while the rest of the program keeps running. Written with await, asynchronous code reads top to bottom like ordinary instructions, and a rejected promise can be caught with the same error handling you would use for any other failure.\n\n" +
+        "Code also has to be stored and shared, which is the job of version control. A repository keeps the history of every committed change, and branches let separate pieces of work progress without colliding. Work that is still in progress creates a practical problem: your edits are in the working directory but not committed, and switching branches would carry them along or refuse to move. The command git stash solves this by shelving the uncommitted changes, both staged and unstaged, and returning the working directory to the last commit. The shelved work waits on a stack until you run git stash pop or git stash apply to bring it back, so you can jump to another branch for an urgent fix and then restore exactly what you were doing.",
       keyTerms: [
         ["Variable", "A named container holding a value that can change."],
         ["Boolean", "A value that is only true or false."],
-        ["Array", "An ordered collection accessed by index."],
+        ["Array", "An ordered collection accessed by index, starting at 0 in most languages."],
+        ["Index", "The position number used to retrieve one item from an array or collection."],
         ["Function", "A named, reusable block of instructions, often returning a value."],
         ["Object", "A bundle of related data and the operations that act on it."],
+        ["Promise", "A placeholder for a result that is not ready yet; it is pending, then resolves or rejects."],
+        ["Async and await", "Async marks a function that can wait; await pauses it for a promise without blocking the rest of the program."],
+        ["Git stash", "Temporarily shelves uncommitted changes so the working directory is clean, then restores them with stash pop."],
       ],
       examples: [
         "Storing a phone number as an integer drops the leading zero, which is why it belongs in a string.",
         "A loop that runs one time too many is the classic off by one bug behind an index out of range error.",
+        "Retrieving the third item from an array uses index 2, because the first item sits at index 0.",
+        "An await on a fetch call lets the interface keep responding while the response is still on its way.",
+        "Git stash before switching branches to fix a live bug, then git stash pop to pick the unfinished work back up.",
       ],
       misconceptions: [
         "Markup such as HTML is not a programming language; it describes structure rather than logic.",
