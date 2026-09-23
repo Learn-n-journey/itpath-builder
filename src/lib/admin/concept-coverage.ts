@@ -42,7 +42,7 @@ export interface CoverageFinding {
  * knowledge, so its absence from a lesson means nothing.
  */
 const QUESTION_LANGUAGE = new Set([
-  "about","above","according","across","action","actions","actually","additional","after","again","against","allow","allowed","allows","along","already","also","although","always","among","amount","another","answer","answers","anything","appear","appears","apply","applies","approach","appropriate","around","aspect","assume","assuming","available","avoid","based","because","become","becomes","been","before","begin","behaviour","behavior","being","below","besides","best","better","between","beyond","both","brief","bring","building","business","cannot","carefully","case","cases","cause","causes","certain","chance","change","changes","choice","choices","choose","chosen","clear","clearly","colleague","come","comes","common","commonly","company","compare","compared","complete","completely","concern","concerned","condition","conditions","consider","consistent","contains","continue","correct","correctly","could","course","create","created","current","currently","customer","decide","decision","describe","describes","description","detail","details","determine","difference","different","directly","does","doing","during","each","earlier","effect","either","else","engineer","enough","ensure","entire","especially","essential","even","event","every","everything","exactly","example","except","expect","expected","experience","explain","explains","fact","factor","field","find","finds","first","follow","following","follows","further","general","generally","give","given","gives","goal","good","greater","group","handle","happen","happens","hard","help","helps","here","high","higher","highly","however","identify","immediately","impact","important","include","included","includes","including","incorrect","indicate","indicates","information","initial","instead","intended","into","issue","issues","itself","just","keep","kind","know","known","large","larger","last","later","least","leave","less","level","light","like","likely","limited","little","long","longer","look","looking","made","main","make","makes","making","manager","many","matter","mean","means","measure","member","mention","mentioned","might","minimal","minimum","more","most","mostly","move","much","multiple","must","near","need","needed","needs","never","newly","next","nothing","notice","noticed","number","observe","observed","obvious","occur","occurs","offer","often","once","only","onto","open","option","options","order","other","others","otherwise","output","over","overall","part","particular","particularly","perform","performed","perhaps","person","phrase","place","plan","point","possible","potential","potentially","practice","prefer","preferred","present","prevent","previous","primary","probably","problem","process","produce","product","provide","provided","provides","purpose","quickly","rather","reason","reasonable","receive","recent","recently","recommend","recommended","reduce","refer","refers","related","relationship","remain","remains","repeat","report","reported","represent","represents","request","require","required","requires","respond","response","result","results","return","right","routine","said","same","scenario","second","section","seem","seems","sees","select","separate","series","several","should","show","shows","similar","simple","simply","since","single","situation","small","smaller","some","something","sometimes","soon","specific","specifically","standard","start","started","state","statement","statements","still","strong","strongly","such","suggest","suggests","support","suppose","sure","take","takes","team","technician","tell","term","terms","test","tested","than","that","their","them","then","there","therefore","these","they","thing","think","third","this","those","though","three","through","time","times","today","together","total","toward","true","turn","turns","twice","type","typical","typically","under","understand","unless","until","upon","used","useful","user","uses","using","usually","valid","value","various","very","view","want","warning","were","what","whatever","when","where","whether","which","while","whole","whose","will","with","within","without","word","work","working","works","would","write","wrong","year","your",
+  "about","above","administrator","administrators","admin","according","across","action","actions","actually","additional","after","again","against","allow","allowed","allows","along","already","also","although","always","among","amount","another","answer","answers","anything","appear","appears","apply","applies","approach","appropriate","around","aspect","assume","assuming","available","avoid","based","because","become","becomes","been","before","begin","behaviour","behavior","being","below","besides","best","better","between","beyond","both","brief","bring","building","business","cannot","carefully","case","cases","cause","causes","certain","chance","change","changes","choice","choices","choose","chosen","clear","clearly","colleague","come","comes","common","commonly","company","compare","compared","complete","completely","concern","concerned","condition","conditions","consider","consistent","contains","continue","correct","correctly","could","course","create","created","current","currently","customer","decide","decision","describe","describes","description","detail","details","determine","difference","different","directly","does","doing","during","each","earlier","effect","either","else","engineer","enough","ensure","entire","especially","essential","even","event","every","everything","exactly","example","except","expect","expected","experience","explain","explains","fact","factor","field","find","finds","first","follow","following","follows","further","general","generally","give","given","gives","goal","good","greater","group","handle","happen","happens","hard","help","helps","here","high","higher","highly","however","identify","immediately","impact","important","include","included","includes","including","incorrect","indicate","indicates","information","initial","instead","intended","into","issue","issues","itself","just","keep","kind","know","known","large","larger","last","later","least","leave","less","level","light","like","likely","limited","little","long","longer","look","looking","made","main","make","makes","making","manager","many","matter","mean","means","measure","member","mention","mentioned","might","minimal","minimum","more","most","mostly","move","much","multiple","must","near","need","needed","needs","never","newly","next","nothing","notice","noticed","number","observe","observed","obvious","occur","occurs","offer","often","once","only","onto","open","option","options","order","other","others","otherwise","output","over","overall","part","particular","particularly","perform","performed","perhaps","person","phrase","place","plan","point","possible","potential","potentially","practice","prefer","preferred","present","prevent","previous","primary","probably","problem","process","produce","product","provide","provided","provides","purpose","quickly","rather","reason","reasonable","receive","recent","recently","recommend","recommended","reduce","refer","refers","related","relationship","remain","remains","repeat","report","reported","represent","represents","request","require","required","requires","respond","response","result","results","return","right","routine","said","same","scenario","second","section","seem","seems","sees","select","separate","series","several","should","show","shows","similar","simple","simply","since","single","situation","small","smaller","some","something","sometimes","soon","specific","specifically","standard","start","started","state","statement","statements","still","strong","strongly","such","suggest","suggests","support","suppose","sure","take","takes","team","technician","tell","term","terms","test","tested","than","that","their","them","then","there","therefore","these","they","thing","think","third","this","those","though","three","through","time","times","today","together","total","toward","true","turn","turns","twice","type","typical","typically","under","understand","unless","until","upon","used","useful","user","uses","using","usually","valid","value","various","very","view","want","warning","were","what","whatever","when","where","whether","which","while","whole","whose","will","with","within","without","word","work","working","works","would","write","wrong","year","your",
 ]);
 
 function stem(word: string): string {
@@ -61,6 +61,7 @@ function tokens(text: string): string[] {
     .toLowerCase()
     .replace(/[^a-z0-9/.\-_ ]+/g, " ")
     .split(/\s+/)
+    .map((word) => word.replace(/^[./\-_]+|[./\-_]+$/g, ""))
     .filter(Boolean);
 }
 
@@ -111,10 +112,16 @@ export interface TaughtVocabulary {
   acronyms: Map<string, string[]>;
   /** The sentences the material is made of, used for evidence quotes. */
   sentences: string[];
+  /**
+   * Words so widespread across the course that they carry no specific
+   * technical knowledge (ordinary language, house style, framing words).
+   * Only the course-wide vocabulary fills this.
+   */
+  general: Set<string>;
 }
 
 function emptyVocabulary(): TaughtVocabulary {
-  return { stems: new Set(), groups: new Set(), acronyms: new Map(), sentences: [] };
+  return { stems: new Set(), groups: new Set(), acronyms: new Map(), sentences: [], general: new Set() };
 }
 
 function addText(vocabulary: TaughtVocabulary, text: string | undefined | null): void {
@@ -200,7 +207,19 @@ export function taughtVocabulary(pack: CoursePack, topicId: string): TaughtVocab
 /** Vocabulary of everything the whole course teaches, in any topic. */
 export function courseVocabulary(pack: CoursePack): TaughtVocabulary {
   const vocabulary = emptyVocabulary();
-  for (const section of pack.sections) for (const part of topicTeachingMaterial(pack, section.id)) addText(vocabulary, part);
+  const seenIn = new Map<string, number>();
+  for (const section of pack.sections) {
+    const here = new Set<string>();
+    for (const part of topicTeachingMaterial(pack, section.id)) {
+      addText(vocabulary, part);
+      for (const word of tokens(part)) here.add(stem(word));
+    }
+    for (const word of here) seenIn.set(word, (seenIn.get(word) ?? 0) + 1);
+  }
+  // A word used by most of the course teaches nothing specific: it is ordinary
+  // language, not knowledge a single question can be said to require.
+  const threshold = Math.max(4, Math.ceil(pack.sections.length * 0.45));
+  for (const [word, count] of seenIn) if (count >= threshold) vocabulary.general.add(word);
   return vocabulary;
 }
 
@@ -214,7 +233,7 @@ export function requiredKnowledge(prompt: string, answers: string[] = []): strin
   const raw = `${prompt} ${answers.join(" ")}`;
   const original = raw.split(/\s+/);
   for (const piece of original) {
-    const bare = piece.replace(/[^A-Za-z0-9/.\-_]/g, "");
+    const bare = piece.replace(/[^A-Za-z0-9/.\-_]/g, "").replace(/^[.\-_]+|[.\-_]+$/g, "");
     if (!bare) continue;
     const lower = bare.toLowerCase();
     const isAcronym = /^[A-Z0-9/.-]{2,8}$/.test(bare) && /[A-Z]/.test(bare);
@@ -264,6 +283,8 @@ export interface ClassifyOptions {
   course: TaughtVocabulary;
   /** Words the topic's own objectives or title promise to teach. */
   objectiveTerms?: Set<string>;
+  /** Ordinary course-wide language to ignore; defaults to the course's own. */
+  generalTerms?: Set<string>;
 }
 
 export interface Classification {
@@ -280,7 +301,8 @@ export interface Classification {
 
 /** Judge one question against what its topic and prerequisites taught. */
 export function classifyCoverage(prompt: string, answers: string[], options: ClassifyOptions): Classification {
-  const required = requiredKnowledge(prompt, answers);
+  const general = options.generalTerms ?? options.course.general;
+  const required = requiredKnowledge(prompt, answers).filter((term) => !general.has(term));
   const taught = required.filter((term) => isCovered(term, options.topic));
   const missing = required.filter((term) => !taught.includes(term));
   const missingEverywhere = missing.filter((term) => !isCovered(term, options.course));
