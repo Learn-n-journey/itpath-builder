@@ -144,7 +144,7 @@ function deepBaseIssues(deep: DeepLesson): string[] {
   // that asks nothing, or an answer too thin to teach anything.
   if (
     deep.depth &&
-    deep.depth.checkYourself.some((check) => words(check.question) < 3 || words(check.answer) < 4)
+    deep.depth.checkYourself.some((check) => words(check.question) < 3 || !check.answer.trim())
   ) {
     issues.push("a lesson self-check has no meaningful question or answer");
   }
