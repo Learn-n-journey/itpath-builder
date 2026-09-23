@@ -1,21 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Activity,
-  Award,
-  Brain,
-  Check,
-  CheckCircle2,
-  ClipboardList,
-  Clock,
-  Flame,
-  FlaskConical,
-  HelpCircle,
-  PlayCircle,
-  RotateCcw,
-  Target,
-  Wrench,
-} from "lucide-react";
+import { Check, Clock, PlayCircle, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
 import { PageHeader, Panel, StatCard } from "@/components/page-kit";
@@ -156,7 +141,7 @@ function TodayChip({
     <Link
       to={to}
       {...(params ? { params: params as never } : {})}
-      className="motion-surface pressable flex min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-md border border-border bg-card px-3.5 py-2.5 transition-colors hover:border-primary/50"
+      className="flex min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-md bg-secondary/50 px-3 py-2 hover:bg-secondary"
     >
       <Icon className="size-4 shrink-0 text-primary" aria-hidden />
       <span className="min-w-0">
@@ -253,22 +238,6 @@ function Dashboard() {
         />,
       );
     }
-    const journeyTopic = currentJourneyTopic(user);
-    if (journeyTopic) {
-      const gate = masteryGate(user, journeyTopic.id);
-      if (!gate.met) {
-        chips.push(
-          <TodayChip
-            key="next"
-            to="/topics/$topicId"
-            params={{ topicId: journeyTopic.id }}
-            icon={Target}
-            label="Next on the path"
-            detail={journeyTopic.title}
-          />,
-        );
-      }
-    }
     const weakCount = missedQuestions(user).length;
     if (weakCount > 0) {
       chips.push(
@@ -284,233 +253,132 @@ function Dashboard() {
     return chips;
   }, [user, reviewTopics]);
 
+  const journeyTopic = currentJourneyTopic(user);
+  const primary: { to: string; params?: Record<string, string>; search?: unknown; title: string; detail: string } | null =
+    resume
+      ? { to: resume.to, ...(resume.params ? { params: resume.params as Record<string, string> } : {}), ...(resume.search ? { search: resume.search } : {}), title: resume.label, detail: resume.detail }
+      : journeyTopic
+        ? { to: "/topics/$topicId", params: { topicId: journeyTopic.id }, title: journeyTopic.title, detail: "Next on your path" }
+        : path.recommendedTopic
+          ? { to: "/topics/$topicId", params: { topicId: path.recommendedTopic.id }, title: path.recommendedTopic.title, detail: "Recommended next" }
+          : null;
+
   return (
-    <>
-      <div className="flex items-start gap-4">
-        <img
-          src={logo.src}
-          alt={logo.alt}
-          className="h-14 w-14 shrink-0 rounded-lg border border-border shadow-lg sm:h-16 sm:w-16"
-        />
-        <div className="min-w-0 flex-1">
-          <PageHeader
-            title={firstName ? greetingFor(firstName) : "Dashboard"}
-            description={`Certification focus: ${user.settings.certificationTarget}.`}
-            actions={
-              <Button asChild className="mt-12">
-                <Link to="/study-plan">Open study plan</Link>
-              </Button>
-            }
-          />
+    <div className="mx-auto max-w-4xl">
+      <header className="mb-6 flex items-center gap-3">
+        <img src={logo.src} alt={logo.alt} className="size-10 shrink-0 rounded-md" />
+        <div className="min-w-0">
+          <h1 className="truncate font-display text-[1.75rem] font-semibold leading-tight tracking-tight sm:text-4xl">
+            {firstName ? greetingFor(firstName) : "Dashboard"}
+          </h1>
+          <p className="truncate text-sm text-muted-foreground">{user.settings.certificationTarget}</p>
         </div>
+      </header>
 
-      </div>
-
-      {d.hasAnyActivity ? <TodayStrip chips={todayChips} /> : null}
-
-      {resume ? (
-        <Panel className="mb-5" title="Pick up where you left off">
-          <Link
-            to={resume.to}
-            {...(resume.params ? { params: resume.params as never } : {})}
-            {...(resume.search ? { search: resume.search as never } : {})}
-            className="group flex items-center gap-3 rounded-md border border-border bg-secondary/30 p-4 transition-[border-color,background-color,transform] duration-150 hover:-translate-y-0.5 hover:border-primary/50 hover:bg-secondary/45 active:translate-y-px"
-          >
-            <PlayCircle className="size-8 shrink-0 text-primary" aria-hidden />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-medium">{resume.label}</span>
-              <span className="block truncate text-sm text-muted-foreground">{resume.detail}</span>
-            </span>
-            <span className="hidden shrink-0 text-sm font-medium text-primary sm:block">Resume</span>
-          </Link>
-        </Panel>
-      ) : null}
-
-      <ProgressOverview
-        progress={measures.learningProgress}
-        hasActivity={d.hasAnyActivity}
-        topicsComplete={d.masteredTopics}
-        topicsTotal={d.topicsTotal}
-        recommendation={path.recommendedTopic?.title ?? "Choose a topic in Learn"}
-      />
-
-      {!d.hasAnyActivity ? (
-        <Panel
-          className="mb-4"
-          title="Start here"
-          description="Every figure below reads zero until you log some work. Three steps will change that."
-        >
-          <ol className="space-y-3 text-sm">
-            <li>
-              <span className="font-medium">1. Confirm your goal.</span>{" "}
-              <span className="text-muted-foreground">
-                Your certification target, experience level and session length shape everything else.
-              </span>
-            </li>
-            <li>
-              <span className="font-medium">2. Study your first topic.</span>{" "}
-              <span className="text-muted-foreground">
-                {path.recommendedTopic
-                  ? `${path.recommendedTopic.title}, ${path.reason}.`
-                  : "Pick any topic in Learn."}
-              </span>
-            </li>
-            <li>
-              <span className="font-medium">3. Prove it.</span>{" "}
-              <span className="text-muted-foreground">
-                Run the lab, take a quiz, and your scores start moving.
-              </span>
-            </li>
-          </ol>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {path.recommendedTopic ? (
-              <Button asChild size="sm">
-                <Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>
-                  Start learning
+      <section aria-labelledby="continue-heading" className="rounded-lg bg-card p-5 sm:p-6">
+        <h2 id="continue-heading" className="text-sm text-muted-foreground">
+          {d.hasAnyActivity ? "Continue learning" : "Start learning"}
+        </h2>
+        {primary ? (
+          <>
+            <p className="mt-1 font-display text-xl font-semibold leading-snug sm:text-2xl">{primary.title}</p>
+            <p className="mt-1 truncate text-sm text-muted-foreground">{primary.detail}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <Button asChild size="lg">
+                <Link
+                  to={primary.to}
+                  {...(primary.params ? { params: primary.params as never } : {})}
+                  {...(primary.search ? { search: primary.search as never } : {})}
+                >
+                  <PlayCircle className="size-4" aria-hidden /> Continue
                 </Link>
               </Button>
-            ) : null}
-            <Button asChild size="sm" variant="secondary">
-              <Link to="/settings">Check my goal</Link>
-            </Button>
-            <Button asChild size="sm" variant="secondary">
-              <Link to="/guide">How IT PATH works</Link>
-            </Button>
+              <Link to="/study-plan" className="text-sm text-muted-foreground hover:text-foreground">
+                Study plan
+              </Link>
+            </div>
+          </>
+        ) : (
+          <Button asChild className="mt-3">
+            <Link to="/learn">Choose a topic</Link>
+          </Button>
+        )}
+        {d.hasAnyActivity && (actions.length > 0 || todayChips.length > 0) ? (
+          <details className="group mt-4 border-t border-border/60 pt-3">
+            <summary className="cursor-pointer list-none text-sm text-muted-foreground hover:text-foreground">
+              Other suggestions ({actions.length + todayChips.length})
+            </summary>
+            <div className="mt-3 space-y-3">
+              <TodayStrip chips={todayChips} />
+              <NextActionCard actions={actions} onDismiss={dismissAction} />
+            </div>
+          </details>
+        ) : null}
+        {!d.hasAnyActivity ? (
+          <div className="mt-4 flex flex-wrap gap-4 border-t border-border/60 pt-3 text-sm">
+            <Link to="/settings" className="text-muted-foreground hover:text-foreground">Check my goal</Link>
+            <Link to="/guide" className="text-muted-foreground hover:text-foreground">How IT PATH works</Link>
           </div>
-        </Panel>
-      ) : (
-        <div className="mb-5 grid gap-4 lg:grid-cols-3">
-          <NextActionCard className="lg:col-span-2" actions={actions} onDismiss={dismissAction} />
-          <ReadinessPanel report={readiness} />
-          <StreakPanel />
+        ) : null}
+      </section>
+
+      <section className="mt-8">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
+          <h2 className="font-display text-lg font-semibold">Progress</h2>
+          <span className="text-sm text-muted-foreground tabular-nums">
+            {d.masteredTopics} of {d.topicsTotal} topics mastered
+          </span>
         </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 lg:gap-4">
-        <StatCard
-          label="Learning progress"
-          value={`${measures.learningProgress}%`}
-          icon={Target}
-          hint={`${measures.activitiesCompleted} of ${measures.activitiesTotal} activities done`}
-        />
-        <StatCard
-          label="Current goal"
-          value={
-            d.certificationReadiness[0] ? `${d.certificationReadiness[0].overall}%` : "0%"
-          }
-          icon={Award}
-          hint={d.certificationReadiness[0]?.title ?? "No certification progress yet"}
-        />
-        <StatCard
-          label="Study time"
-          value={`${d.studyHoursTotal}h`}
-          icon={Clock}
-          hint={`${d.studyMinutesToday} min logged today`}
-        />
-        <StatCard
-          label="Streak"
-          value={`${d.streakDays} day${d.streakDays === 1 ? "" : "s"}`}
-          icon={Flame}
-          hint={d.streakDays === 0 ? "Log a session to start it" : "Consecutive study days"}
-        />
-        <StatCard
-          label="Quiz average"
-          value={`${d.quizAverage}%`}
-          icon={HelpCircle}
-          hint={`${d.quizAttempts} submitted attempt${d.quizAttempts === 1 ? "" : "s"}`}
-        />
-        <StatCard
-          label="Practice"
-          value={`${d.assignmentsCompleted}/${d.assignmentsTotal}`}
-          icon={ClipboardList}
-        />
-        <StatCard label="Labs" value={`${d.labsCompleted}/${d.labsTotal}`} icon={FlaskConical} />
-        <StatCard
-          label="Mastered topics"
-          value={`${d.masteredTopics}/${d.topicsTotal}`}
-          icon={CheckCircle2}
-        />
-      </div>
-
-      <div className="mt-6 grid gap-4 lg:grid-cols-2 lg:gap-5">
-        <Panel
-          title="Today's tasks"
-          description={
-            hydrated
-              ? "Built from your open work, due reviews and study target."
-              : "Loading your saved data…"
-          }
-        >
-          {d.todaysTasks.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Nothing outstanding today. Your target is met and no reviews are due.
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {d.todaysTasks.map((task) => (
-                <li key={task.id}>
-                  <Link
-                    to={task.to}
-                    params={task.params as never}
-                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-secondary/50 px-3 py-2.5 hover:bg-secondary"
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium">{task.label}</span>
-                      <span className="block truncate text-xs text-muted-foreground">
-                        {task.detail}
-                      </span>
-                    </span>
-                    <span className="text-xs text-primary">Open</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel
-          title="Where you stand"
-          description="Two numbers: how much of the work you have done, and how well the final assessments went."
-        >
-          <div className="space-y-3">
-            <MeterRow label="Learning progress" value={measures.learningProgress} />
-            <MeterRow label="Overall mastery" value={measures.overallMastery} />
+        <div className="mt-3 space-y-3">
+          <MeterRow label="Learning progress" value={measures.learningProgress} />
+          <MeterRow label="Overall mastery" value={measures.overallMastery} />
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-x-6 divide-border/60 sm:grid-cols-4">
+          <StatCard label="Current goal" value={d.certificationReadiness[0] ? `${d.certificationReadiness[0].overall}%` : "0%"} />
+          <StatCard label="Quiz average" value={`${d.quizAverage}%`} />
+          <StatCard label="Study time" value={`${d.studyHoursTotal}h`} />
+          <StatCard label="Streak" value={`${d.streakDays}d`} />
+        </div>
+        <details className="mt-2">
+          <summary className="cursor-pointer list-none py-2 text-sm text-muted-foreground hover:text-foreground">
+            All measures
+          </summary>
+          <div className="grid grid-cols-2 gap-x-6 sm:grid-cols-4">
+            <StatCard label="Practice" value={`${d.assignmentsCompleted}/${d.assignmentsTotal}`} />
+            <StatCard label="Labs" value={`${d.labsCompleted}/${d.labsTotal}`} />
+            <StatCard label="Activities" value={`${measures.activitiesCompleted}/${measures.activitiesTotal}`} />
+            <StatCard label="Final assessments" value={`${measures.assessmentsTaken}/${measures.assessmentsTotal}`} />
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">
-            {measures.activitiesCompleted} of {measures.activitiesTotal} activities done ·{" "}
-            {measures.assessmentsTaken} of {measures.assessmentsTotal} final assessments taken
-          </p>
-        </Panel>
+          {d.hasAnyActivity ? (
+            <div className="mt-4 grid gap-6 lg:grid-cols-2">
+              <ReadinessPanel report={readiness} />
+              <StreakPanel />
+            </div>
+          ) : null}
+        </details>
+      </section>
 
-        <Panel title="Topics to come back to" description="Each line says why it is here: a review that is due, an open mistake, or a low score.">
+      <div className="mt-8 grid gap-8 lg:grid-cols-2">
+        <Panel title="Due for review">
           {reviewTopics.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {d.topicsNeedingReview.length === 0
-                ? "Nothing flagged for review yet."
-                : "All cleared for now. Anything new will show up here."}
-            </p>
+            <p className="text-sm text-muted-foreground">Nothing due.</p>
           ) : (
-            <ul className="space-y-2 text-sm">
+            <ul className="divide-y divide-border/60 text-sm">
               {reviewTopics.map((item) => (
-                <li
-                  key={item.topicId}
-                  className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3"
-                >
+                <li key={item.topicId} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2">
                   <Link
                     to="/review"
-                    {...(missedAnchors[item.topicId]
-                      ? { hash: missedAnchors[item.topicId] as string }
-                      : {})}
-                    className="truncate hover:underline"
+                    {...(missedAnchors[item.topicId] ? { hash: missedAnchors[item.topicId] as string } : {})}
+                    className="min-w-0"
                   >
-                    {item.title}
+                    <span className="block truncate hover:underline">{item.title}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{item.reason}</span>
                   </Link>
-                  <span className="shrink-0 text-xs text-muted-foreground">{item.reason}</span>
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-7 shrink-0 px-2 text-xs"
+                    className="h-8 shrink-0 px-2 text-xs"
                     onClick={() => markReviewDone(item)}
                     aria-label={`Mark ${item.title} as done`}
                   >
@@ -520,67 +388,59 @@ function Dashboard() {
               ))}
             </ul>
           )}
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button asChild variant="secondary" size="sm">
-              <Link to="/review">
-                <RotateCcw className="size-4" aria-hidden /> Open Review
-              </Link>
-            </Button>
-            <Button asChild variant="secondary" size="sm">
-              <Link to="/quiz-me">
-                <Brain className="size-4" aria-hidden /> Quiz me
-              </Link>
-            </Button>
+          <div className="mt-3 flex gap-4 text-sm">
+            <Link to="/review" className="text-primary hover:underline">Open Review</Link>
+            <Link to="/quiz-me" className="text-primary hover:underline">Quiz me</Link>
           </div>
         </Panel>
 
-        <Panel title="Certification readiness" description="Top four, calculated from your evidence.">
+        <Panel title="Today">
+          {!hydrated ? (
+            <p className="text-sm text-muted-foreground">Loading…</p>
+          ) : d.todaysTasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nothing outstanding.</p>
+          ) : (
+            <ul className="divide-y divide-border/60">
+              {d.todaysTasks.map((task) => (
+                <li key={task.id}>
+                  <Link to={task.to} params={task.params as never} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2">
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm">{task.label}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{task.detail}</span>
+                    </span>
+                    <span className="text-xs text-primary">Open</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Panel>
+
+        <Panel title="Certifications">
           <ul className="space-y-3">
             {d.certificationReadiness.map((cert) => (
               <li key={cert.id}>
                 <MeterRow label={cert.title} value={cert.overall} />
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {certificationStatusLabels[cert.status as CertificationStatus]}
-                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{certificationStatusLabels[cert.status as CertificationStatus]}</p>
               </li>
             ))}
           </ul>
-          <div className="mt-4">
-            <Button asChild variant="secondary" size="sm">
-              <Link to="/certifications">
-                <Award className="size-4" aria-hidden /> All certifications
-              </Link>
-            </Button>
-          </div>
+          <Link to="/certifications" className="mt-3 inline-block text-sm text-primary hover:underline">All certifications</Link>
         </Panel>
 
-        <Panel
-          title="Career readiness"
-          description="Weighted from recorded skills evidence across all activities."
-          className="lg:col-span-2"
-        >
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <Panel title="Career readiness">
+          <div className="space-y-3">
             {d.careerReadiness.map((track) => (
               <MeterRow key={track.track} label={track.label} value={track.score} />
             ))}
           </div>
-          <div className="mt-4">
-            <Button asChild variant="secondary" size="sm">
-              <Link to="/career-skills">
-                <Wrench className="size-4" aria-hidden /> Career skills detail
-              </Link>
-            </Button>
-          </div>
+          <Link to="/career-skills" className="mt-3 inline-block text-sm text-primary hover:underline">Career skills</Link>
         </Panel>
       </div>
 
-      <p className="mt-6 text-sm text-muted-foreground">
-        Every figure here is calculated from work you have recorded.{" "}
-        <Link to="/guide" className="text-primary hover:underline">
-          See how the scores are worked out
-        </Link>
-        .
+      <p className="mt-8 text-xs text-muted-foreground">
+        <Link to="/guide" className="hover:text-foreground hover:underline">How scores are calculated</Link>
       </p>
-    </>
+    </div>
   );
 }
