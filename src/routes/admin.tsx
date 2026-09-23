@@ -25,7 +25,7 @@ import { SystemDiagnostics } from "@/components/system-diagnostics";
 import { SpreadsheetSyncPanel } from "@/components/owner/spreadsheet-sync-panel";
 import { MaintenancePanel } from "@/components/owner/maintenance-panel";
 import { coursePack } from "@/content/course-pack";
-import { contentHealth, type TopicHealth } from "@/lib/admin/content-health";
+import { contentHealth, coverageGaps, coverageGapsCsv, type TopicHealth } from "@/lib/admin/content-health";
 import { engineHealthChecks } from "@/lib/admin/engine-health";
 import { areaHealth, buildOverview, filterChecks, stateLabel, type HealthFilter } from "@/lib/admin/health-state";
 import type { ActivityEntry, ContentVersion, FlowCounter, HealthCheck, HealthState } from "@/lib/admin/types";
