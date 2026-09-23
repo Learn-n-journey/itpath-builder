@@ -239,7 +239,8 @@ function Dashboard() {
         )}
         {d.hasAnyActivity && (actions.length > 0 || todayChips.length > 0) ? (
           <details className="group mt-4 border-t border-border/60 pt-3">
-            <summary className="cursor-pointer list-none text-sm text-muted-foreground hover:text-foreground">
+            <summary className="flex cursor-pointer list-none items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
+              <ChevronRight className="size-4 transition-transform group-open:rotate-90" aria-hidden />
               Other suggestions ({actions.length + todayChips.length})
             </summary>
             <div className="mt-3 space-y-3">
@@ -267,15 +268,27 @@ function Dashboard() {
           <MeterRow label="Learning progress" value={measures.learningProgress} />
           <MeterRow label="Overall mastery" value={measures.overallMastery} />
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-x-6 divide-border/60 sm:grid-cols-4">
-          <StatCard label="Current goal" value={d.certificationReadiness[0] ? `${d.certificationReadiness[0].overall}%` : "0%"} />
-          <StatCard label="Quiz average" value={`${d.quizAverage}%`} />
-          <StatCard label="Study time" value={`${d.studyHoursTotal}h`} />
-          <StatCard label="Streak" value={`${d.streakDays}d`} />
+        <div className="mt-3 grid grid-cols-2 gap-x-6 sm:grid-cols-4 [&>div]:py-1.5">
+          {d.certificationReadiness[0] ? (
+            <StatCard label={`${d.certificationReadiness[0].title} readiness`} value={`${d.certificationReadiness[0].overall}%`} />
+          ) : null}
+          <StatCard
+            label={quizCount > 0 ? `Recent quiz average · ${quizCount} ${quizCount === 1 ? "quiz" : "quizzes"}` : "Recent quiz average"}
+            value={quizCount > 0 ? `${d.quizAverage}%` : "—"}
+          />
+          <StatCard
+            label="Study time"
+            value={d.studyMinutesTotal < 60 ? `${d.studyMinutesTotal} min` : `${d.studyHoursTotal}h`}
+          />
+          {d.streakDays > 0 ? (
+            <StatCard label="Streak" value={`${d.streakDays} ${d.streakDays === 1 ? "day" : "days"}`} />
+          ) : (
+            <StatCard label="Streak" value="No streak yet" />
+          )}
         </div>
-        <details className="mt-2">
-          <summary className="cursor-pointer list-none py-2 text-sm text-muted-foreground hover:text-foreground">
-            All measures
+        <details className="mt-1">
+          <summary className="cursor-pointer list-none py-2 text-sm text-primary hover:underline [&::-webkit-details-marker]:hidden">
+            View progress details →
           </summary>
           <div className="grid grid-cols-2 gap-x-6 sm:grid-cols-4">
             <StatCard label="Practice" value={`${d.assignmentsCompleted}/${d.assignmentsTotal}`} />
@@ -295,7 +308,7 @@ function Dashboard() {
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         <Panel title="Due for review">
           {reviewTopics.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nothing due.</p>
+            <p className="text-sm text-muted-foreground">Nothing is due. Reviews appear here as topics come up for spaced repetition.</p>
           ) : (
             <ul className="divide-y divide-border/60 text-sm">
               {reviewTopics.map((item) => (
@@ -322,10 +335,11 @@ function Dashboard() {
               ))}
             </ul>
           )}
-          <div className="mt-3 flex gap-4 text-sm">
-            <Link to="/review" className="text-primary hover:underline">Open Review</Link>
-            <Link to="/quiz-me" className="text-primary hover:underline">Quiz me</Link>
-          </div>
+          {reviewTopics.length > 0 ? (
+            <div className="mt-3 text-sm">
+              <Link to="/review" className="text-primary hover:underline">Open Review</Link>
+            </div>
+          ) : null}
         </Panel>
 
         <Panel title="Today">
