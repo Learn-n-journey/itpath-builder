@@ -361,6 +361,7 @@ export interface Classification {
   /** Missing knowledge the course does not teach anywhere. */
   missingEverywhere: string[];
   evidence: string[];
+  reviewKind?: "elsewhere" | "indirect";
   reason: string;
   remediation: string;
 }
