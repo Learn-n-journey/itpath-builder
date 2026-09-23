@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
@@ -28,6 +28,7 @@ import { coursePack } from "@/content/course-pack";
 import { contentHealth, type TopicHealth } from "@/lib/admin/content-health";
 import { courseCoverage, coverageCsv } from "@/lib/admin/concept-coverage";
 import { engineHealthChecks } from "@/lib/admin/engine-health";
+import { checkTarget } from "@/lib/admin/check-link";
 import { areaHealth, buildOverview, filterChecks, stateLabel, type HealthFilter } from "@/lib/admin/health-state";
 import type { ActivityEntry, ContentVersion, FlowCounter, HealthCheck, HealthState } from "@/lib/admin/types";
 import { canRollback, lifecycleLabel } from "@/lib/admin/release";
@@ -88,7 +89,12 @@ function AnswerCard({ question, state, note }: { question: string; state: Health
   );
 }
 
+/** Lets a finding send the owner to another tab of this same screen. */
+const JumpToTab = createContext<((tab: string) => void) | null>(null);
+
 function CheckRow({ check }: { check: HealthCheck }) {
+  const jump = useContext(JumpToTab);
+  const target = checkTarget(check);
   return (
     <li className="rounded-lg border border-border/60 p-3">
       <div className="flex items-start justify-between gap-2">
@@ -101,6 +107,22 @@ function CheckRow({ check }: { check: HealthCheck }) {
       ) : null}
       {check.state !== "healthy" && check.action ? (
         <p className="mt-1 text-xs font-medium text-foreground">Do this: {check.action}</p>
+      ) : null}
+      {target ? (
+        target.tab ? (
+          <Button className="mt-2" size="sm" variant="outline" onClick={() => jump?.(target.tab as string)}>
+            {target.label}
+          </Button>
+        ) : (
+          <Button className="mt-2" size="sm" variant="outline" asChild>
+            <a
+              href={target.href}
+              {...(target.external ? { target: "_blank", rel: "noreferrer" } : {})}
+            >
+              {target.label}
+            </a>
+          </Button>
+        )
       ) : null}
     </li>
   );
@@ -131,6 +153,11 @@ function AdminPage() {
   const rollback = useServerFn(rollbackVersion);
 
   const [busy, setBusy] = useState<string | null>(null);
+  const [tab, setTab] = useState("overview");
+  const jumpToTab = useCallback((next: string) => {
+    setTab(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   const [filter, setFilter] = useState<HealthFilter>("review");
   const [topicFilter, setTopicFilter] = useState("");
 
@@ -299,6 +326,7 @@ function AdminPage() {
         affects: "Learners following the source cannot reach it.",
         action: "Review each failing link and approve a replacement yourself. Sources are never swapped automatically.",
         lastRunAt: sources[0]?.checkedAt ?? null,
+        ...(broken[0] ? { link: broken[0].url, linkLabel: "Open the first failing link" } : {}),
       },
     ];
   }, [sources]);
@@ -481,7 +509,8 @@ function AdminPage() {
         </span>
       </div>
 
-      <Tabs defaultValue="overview" className="mt-5">
+      <JumpToTab.Provider value={jumpToTab}>
+      <Tabs value={tab} onValueChange={setTab} className="mt-5">
         <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
@@ -824,6 +853,7 @@ function AdminPage() {
           <SiteEngagementPanel />
         </TabsContent>
       </Tabs>
+      </JumpToTab.Provider>
     </div>
   );
 }

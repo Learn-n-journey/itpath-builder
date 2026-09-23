@@ -31,6 +31,10 @@ export interface HealthCheck {
   action: string;
   /** Topic this belongs to, when it is topic level. */
   subjectId?: string;
+  /** Straight to the problem: a page path, or a full URL for an outside link. */
+  link?: string;
+  /** Wording for that link, when the default is not clear enough. */
+  linkLabel?: string;
   lastRunAt?: string | null;
 }
 
