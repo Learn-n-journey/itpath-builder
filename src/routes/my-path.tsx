@@ -65,11 +65,11 @@ function MyPath() {
 
   return (
     <>
-      <SectionTabs tabs={PATH_TABS} />
       <PageHeader
         title="My Path"
         description="Your learning journey from foundational to advanced."
       />
+      <SectionTabs tabs={PATH_TABS} />
 
       {startHere && !startHereCleared ? (
         <Panel
