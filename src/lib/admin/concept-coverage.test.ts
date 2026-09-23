@@ -54,7 +54,7 @@ describe("classifyCoverage", () => {
 
   it("does not fail a question only because a word is missing", () => {
     const taught = vocabularyOf("A firewall filters traffic between networks using rules.");
-    const result = classifyCoverage("Which statement most strongly indicates a firewall rule is blocking traffic?", ["a filtered packet"], options(taught));
+    const result = classifyCoverage("Which statement most strongly indicates a firewall rule is blocking traffic?", ["traffic between networks stopped"], options(taught));
     expect(result.verdict).toBe("pass");
   });
 

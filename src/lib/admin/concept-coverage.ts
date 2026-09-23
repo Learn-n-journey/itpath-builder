@@ -86,7 +86,7 @@ const SYNONYM_GROUPS: string[][] = [
   ["ram", "memory", "system memory"],
   ["cpu", "processor"],
   ["psu", "power supply"],
-  ["firewall", "packet filter"],
+  ["firewall", "packet filter", "block", "filter"],
   ["subnet", "subnetwork"],
   ["gateway", "default gateway", "router"],
   ["latency", "delay", "round trip time"],
@@ -95,7 +95,7 @@ const SYNONYM_GROUPS: string[][] = [
   ["malware", "malicious software"],
   ["driver", "device driver"],
   ["virtual machine", "vm", "guest"],
-  ["dns", "name resolution", "domain name"],
+  ["dns", "name resolution", "domain name", "resolve", "resolution", "lookup"],
   ["dhcp", "address assignment", "lease"],
 ];
 
