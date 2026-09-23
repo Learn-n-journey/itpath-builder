@@ -46,9 +46,9 @@ export function ContentRow({
   className,
 }: {
   icon?: LucideIcon;
-  eyebrow?: string;
+  eyebrow?: string | undefined;
   title: string;
-  description?: string;
+  description?: string | undefined;
   metadata?: ReactNode;
   progress?: number;
   status?: ReactNode;

@@ -164,14 +164,13 @@ function DailyChallengePage() {
     <>
       <PageHeader
         title="Daily Challenge"
-        description="One short set a day. Pick your tier, and move up when the easier one stops stretching you."
+        description="A short, focused quiz to build recall."
       />
 
       <Panel
         title="Choose your tier"
-        description="Each tier is a different set, drawn from harder material as you climb. All three count towards the same streak."
       >
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-2">
           {DAILY_TIERS.map((item) => {
             const best = [...history.byTier.entries()]
               .filter(([key]) => key.endsWith(`:${item.id}`))
@@ -184,7 +183,7 @@ function DailyChallengePage() {
                 onClick={() => setTier(item.id)}
                 aria-pressed={active}
                 className={cn(
-                  "rounded-xl border p-4 text-left transition-all",
+                  "rounded-md border p-3 text-left transition-all",
                   active
                     ? "border-primary/60 bg-primary/10 shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
                     : "border-border/70 bg-secondary/30 hover:border-primary/40",
@@ -196,7 +195,7 @@ function DailyChallengePage() {
                     {item.count} questions
                   </span>
                 </div>
-                <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{item.description}</p>
+                <p className="mt-1 line-clamp-2 text-[0.6875rem] leading-4 text-muted-foreground">{item.description}</p>
                 <p className="mt-2 text-xs font-medium text-primary">
                   {best > 0 ? `Your best: ${best}%` : "No score yet"}
                 </p>
@@ -206,7 +205,7 @@ function DailyChallengePage() {
         </div>
       </Panel>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="mt-3 grid grid-cols-4 divide-x divide-border border-y border-border py-3">
         <StatCard label={`Today, ${tierInfo(tier).label.toLowerCase()}`} value={today ? `${today.best}%` : "Not started"} />
         <StatCard label="Attempts today" value={today?.attempts ?? 0} />
         <StatCard label="Challenge streak" value={challengeStreak} />
@@ -225,7 +224,7 @@ function DailyChallengePage() {
           title={`Today's ${tierInfo(tier).label.toLowerCase()} set is done`}
           description={`Your best today is ${today.best}%. Every answer counted towards your reviews.`}
         >
-          <div className="flex flex-col items-center gap-4 rounded-xl border border-primary/40 bg-primary/5 p-8 text-center">
+          <div className="flex flex-col items-center gap-3 border-y border-primary/40 bg-primary/5 p-5 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-primary/15 text-primary">
               <PartyPopper className="size-7" aria-hidden />
             </span>
@@ -282,7 +281,6 @@ function DailyChallengePage() {
 
       <Panel
         title="Your last seven days"
-        description="Each box is one daily challenge. A filled box means you submitted it; the number is your best score that day."
       >
         <div className="grid grid-cols-7 gap-2">
           {historyKeys.map((key) => {
@@ -292,7 +290,7 @@ function DailyChallengePage() {
               <div key={key} className="text-center">
                 <div
                   className={cn(
-                    "flex h-12 items-center justify-center rounded-xl border text-sm font-semibold tabular-nums transition-all",
+                    "flex h-10 items-center justify-center rounded-md border text-sm font-semibold tabular-nums transition-all",
                     entry
                       ? entry.best >= 80
                         ? "border-primary/50 bg-primary/20 text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"

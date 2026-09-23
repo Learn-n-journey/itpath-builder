@@ -160,7 +160,7 @@ function MyPath() {
                     params={{ certId: certification.id }}
                     className="block"
                   >
-                    <ContentRow icon={Award} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={studyIndex.progress} />
+                    <ContentRow icon={Award} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={studyIndex.topics.length === 0 ? 0 : Math.round(studyIndex.topics.filter((topic) => user.progress[topic.id]?.mastered).length / studyIndex.topics.length * 100)} />
                   </Link>
                 );
               })}
