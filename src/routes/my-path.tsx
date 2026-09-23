@@ -18,6 +18,7 @@ import { adaptiveQueue } from "@/lib/adaptive-engine";
 import { currentJourneyTopic } from "@/lib/journey-order";
 import { useDismissable } from "@/hooks/use-dismissable";
 import { SectionTabs, PATH_TABS } from "@/components/layout/section-tabs";
+import { CompactStat, CompactStats, ContentRow, ProgressLine } from "@/components/learner-ui";
 
 export const Route = createFileRoute("/my-path")({
   staticData: { sitemap: false },
@@ -66,7 +67,7 @@ function MyPath() {
       <SectionTabs tabs={PATH_TABS} />
       <PageHeader
         title="My Path"
-        description="The roadmap organised by certification, not by calendar. Start with entry-level certifications, then move into infrastructure, security and advanced work."
+        description="Your learning journey from foundational to advanced."
       />
 
       {startHere && !startHereCleared ? (
@@ -142,62 +143,25 @@ function MyPath() {
       </Panel>
 
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Certifications" value={certCount} />
-        <StatCard label="Topics available" value={topics.length} />
-        <StatCard label="Topics completed" value={stats.topicsCompleted} />
-        <StatCard label="Topics mastered" value={stats.topicsMastered} />
-      </div>
+      <CompactStats className="grid-cols-4"><CompactStat label="Certifications" value={certCount} /><CompactStat label="Topics" value={topics.length} /><CompactStat label="Completed" value={stats.topicsCompleted} /><CompactStat label="Mastered" value={stats.topicsMastered} /></CompactStats>
 
-      <div className="mt-6 space-y-5">
+      <div className="relative mt-5 space-y-5 before:absolute before:bottom-4 before:left-3.5 before:top-9 before:w-px before:bg-border">
         {levels.map((group) => (
-          <Panel key={group.level} title={group.label}>
-            <div className="grid gap-3 sm:grid-cols-2">
+          <Panel key={group.level} title={group.label} className="relative pl-8 before:absolute before:left-2.5 before:top-4 before:size-2.5 before:rounded-full before:bg-primary">
+            <div className="divide-y divide-border/70">
               {group.items.map((certification) => {
                 const studyIndex = certificationStudyIndex(certification.id);
                 const stages = certificationStages(certification.id);
 
                 return (
-                  <div
+                  <Link
                     key={certification.id}
-                    className="flex min-w-0 flex-col gap-3 rounded-lg border border-border bg-background/40 p-4"
+                    to="/certifications/$certId"
+                    params={{ certId: certification.id }}
+                    className="block"
                   >
-                    <div className="flex items-start gap-3">
-                      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-secondary text-primary">
-                        <Award className="size-4" aria-hidden />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-display text-sm font-semibold">{certification.title}</h4>
-                        <p className="text-xs text-muted-foreground">{certification.code}</p>
-                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
-                          {certification.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground">
-                      {studyIndex.topics.length} topics
-                    </p>
-
-                    {stages.length > 0 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {stages.map((stage) => (
-                          <Badge key={stage.id} variant="outline">
-                            {stage.label}: {stage.topics.length}
-                          </Badge>
-                        ))}
-                      </div>
-                    ) : null}
-
-                    <div className="mt-auto flex justify-end">
-                      <Button asChild variant="ghost" size="sm">
-                        <Link to="/certifications/$certId" params={{ certId: certification.id }}>
-                          Open certification
-                          <ArrowRight aria-hidden />
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
+                    <ContentRow icon={Award} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={studyIndex.progress} />
+                  </Link>
                 );
               })}
             </div>
