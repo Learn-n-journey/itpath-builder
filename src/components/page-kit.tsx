@@ -13,13 +13,9 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="motion-content-enter mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 border-b border-border/70 pb-6">
+    <header className="motion-content-enter mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:mb-8">
       <div className="min-w-0">
-        <div className="mb-3 flex items-center gap-2" aria-hidden>
-          <span className="h-1.5 w-1.5 rounded-sm bg-primary shadow-sm" />
-          <span className="h-px w-10 technical-rule" />
-        </div>
-        <h1 className="font-display text-2xl font-semibold sm:text-3xl">{title}</h1>
+        <h1 className="font-display text-[1.75rem] font-semibold leading-tight tracking-tight sm:text-4xl">{title}</h1>
         {description ? (
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
         ) : null}
@@ -44,14 +40,8 @@ export function Panel({
   id?: string;
 }) {
   return (
-    <section id={id} className={cn("panel motion-surface scroll-mt-24 p-5 sm:p-6", className)}>
-
-      {title ? (
-        <div className="flex items-center gap-2">
-          <span className="h-3 w-0.5 shrink-0 bg-emphasis/70" aria-hidden />
-          <h2 className="font-display text-base font-semibold">{title}</h2>
-        </div>
-      ) : null}
+    <section id={id} className={cn("scroll-mt-24 border-t border-border/60 pt-5", className)}>
+      {title ? <h2 className="font-display text-lg font-semibold">{title}</h2> : null}
       {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       {children ? <div className={title ? "mt-4" : undefined}>{children}</div> : null}
     </section>
@@ -70,16 +60,9 @@ export function StatCard({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="panel motion-surface pressable group min-h-32 p-4 sm:p-5">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-        {Icon ? (
-            <span className="flex size-9 items-center justify-center rounded-md border border-border bg-secondary/55 text-emphasis shadow-sm transition-colors duration-200 group-hover:border-primary/40 group-hover:text-primary">
-            <Icon className="size-4" aria-hidden />
-          </span>
-        ) : null}
-      </div>
-      <p className="mt-2 font-display text-2xl font-semibold tabular-nums">{value}</p>
+    <div className="min-w-0 py-2" data-icon={Icon ? "1" : undefined}>
+      <p className="font-display text-2xl font-semibold tabular-nums">{value}</p>
+      <p className="mt-0.5 text-sm text-foreground/80">{label}</p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
@@ -97,7 +80,7 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="panel motion-surface flex flex-col items-center px-6 py-12 text-center">
+    <div className="flex flex-col items-center px-6 py-10 text-center">
       {Icon ? (
         <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-secondary text-emphasis">
           <Icon className="size-5" aria-hidden />
