@@ -508,7 +508,7 @@ function AdminPage() {
         </span>
       </div>
 
-      <Tabs defaultValue="overview" className="mt-5">
+      <Tabs value={tab} onValueChange={setTab} className="mt-5">
         <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="content">Content</TabsTrigger>
