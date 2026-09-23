@@ -132,6 +132,7 @@ describe("the live course", () => {
         requiredKnowledge: ["kerberos"],
         taughtKnowledge: [],
         missingKnowledge: ["kerberos"],
+        missingEverywhere: ["kerberos"],
         lessonEvidence: [],
         reason: "never taught",
         remediation: "replace",

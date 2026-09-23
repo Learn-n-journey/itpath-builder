@@ -31,6 +31,8 @@ export interface CoverageFinding {
   taughtKnowledge: string[];
   /** Required knowledge nothing in the topic or its prerequisites teaches. */
   missingKnowledge: string[];
+  /** Of those, the knowledge the course does not teach anywhere at all. */
+  missingEverywhere: string[];
   /** Short quotes from the lesson showing where the concept is taught. */
   lessonEvidence: string[];
   reason: string;
@@ -379,6 +381,7 @@ export function topicCoverage(pack: CoursePack, topicId: string, course: TaughtV
       requiredKnowledge: result.required,
       taughtKnowledge: result.taught,
       missingKnowledge: result.missing,
+      missingEverywhere: result.missingEverywhere,
       lessonEvidence: result.evidence,
       reason: result.reason,
       remediation: result.remediation,
@@ -437,6 +440,7 @@ export function coverageCsv(findings: CoverageFinding[]): string {
       "Question",
       "Knowledge required",
       "Not taught here",
+      "Not taught anywhere",
       "Lesson evidence",
       "Why flagged",
       "What to do",
@@ -450,6 +454,7 @@ export function coverageCsv(findings: CoverageFinding[]): string {
       finding.prompt,
       finding.requiredKnowledge.join(" "),
       finding.missingKnowledge.join(" "),
+      finding.missingEverywhere.join(" "),
       finding.lessonEvidence.join(" | "),
       finding.reason,
       finding.remediation,
