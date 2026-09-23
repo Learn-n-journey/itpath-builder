@@ -3,7 +3,7 @@ import { ArrowRight, Award, Lock } from "lucide-react";
 
 import { GaylPathNote } from "@/components/gayl/gayl-insights";
 import { TopicRowMenu } from "@/components/learning/topic-row-menu";
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { topics } from "@/data/static-content";
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/my-path")({
 
 function MyPath() {
   const stats = useStats();
-  const { user } = useAppState();
+  const { user, hydrated } = useAppState();
   const path = adaptivePath(user);
   const queue = adaptiveQueue(user);
   // The starting point is the first topic still waiting on you. As soon as the
@@ -61,6 +61,8 @@ function MyPath() {
   } = useDismissable("itpath.path.starting-point.cleared", startHere?.topic.id ?? null);
   const levels = certificationsByLevel();
   const certCount = levels.reduce((sum, group) => sum + group.items.length, 0);
+
+  if (!hydrated) return <LearnerPageSkeleton rows={7} metrics={4} />;
 
 
   return (

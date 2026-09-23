@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Timer } from "lucide-react";
 import { toast } from "sonner";
 
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -47,7 +47,7 @@ function todayKey(date: Date): string {
 }
 
 function PomodoroPage() {
-  const { user, actions } = useAppState();
+  const { user, actions, hydrated } = useAppState();
   const [focusMinutes, setFocusMinutes] = useState(25);
   const [breakMinutes, setBreakMinutes] = useState(5);
   const [phase, setPhase] = useState<Phase>("focus");
@@ -127,6 +127,8 @@ function PomodoroPage() {
 
   const progress = phaseSeconds > 0 ? 1 - remaining / phaseSeconds : 0;
 
+  if (!hydrated) return <LearnerPageSkeleton rows={2} metrics={3} />;
+
   return (
     <>
       <PageHeader
@@ -144,7 +146,7 @@ function PomodoroPage() {
           </span>
           <div className="h-1.5 w-full max-w-md overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-primary transition-[width] duration-500"
+              className="h-full rounded-full bg-primary transition-[width] duration-200 motion-reduce:transition-none"
               style={{ width: `${Math.min(100, Math.max(0, progress * 100))}%` }}
             />
           </div>

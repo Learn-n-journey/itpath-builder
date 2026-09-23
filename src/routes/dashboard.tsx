@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { BarChart3, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Flame, PlayCircle, SlidersHorizontal, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
-import { Panel, StatCard } from "@/components/page-kit";
+import { LearnerPageSkeleton, Panel, StatCard } from "@/components/page-kit";
 import { ReadinessPanel } from "@/components/readiness-panel";
 import { StreakPanel } from "@/components/streak-panel";
 import { Button } from "@/components/ui/button";
@@ -193,6 +193,8 @@ function Dashboard() {
           ? { to: "/topics/$topicId", params: { topicId: path.recommendedTopic.id }, title: path.recommendedTopic.title, detail: "Recommended next" }
           : null;
 
+  if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} />;
+
   return (
     <div className="mx-auto max-w-4xl pb-8">
       <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border pb-5">
@@ -346,9 +348,7 @@ function Dashboard() {
         </Panel>
 
         <Panel title="Today" className="py-5">
-          {!hydrated ? (
-            <p className="text-sm text-muted-foreground">Loading…</p>
-          ) : d.todaysTasks.length === 0 ? (
+          {d.todaysTasks.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nothing outstanding.</p>
           ) : (
             <ul className="divide-y divide-border/60">

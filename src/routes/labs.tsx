@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   CheckCircle2,
   
@@ -14,7 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { ProGate } from "@/components/pro-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,10 @@ import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { CompactStat, CompactStats, ContentRow } from "@/components/learner-ui";
+import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
+import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
+import { learnerStatusLabel } from "@/lib/learner-status";
+import { nextJourneyTopic } from "@/lib/journey-order";
 
 export const Route = createFileRoute("/labs")({
   staticData: { sitemap: false },
@@ -57,13 +61,6 @@ function LabsPageGated() {
   );
 }
 
-const statusLabels = {
-  in_progress: "In Progress",
-  completed: "Completed",
-  needs_review: "Needs Review",
-  mastered: "Mastered",
-} as const;
-
 const categoryLabels: Record<Lab["category"], string> = {
   hardware: "Hardware",
   windows: "Windows",
@@ -77,12 +74,12 @@ const categoryLabels: Record<Lab["category"], string> = {
 };
 
 function LabsPage() {
-  const { user } = useAppState();
+  const { user, hydrated } = useAppState();
   const { lab: requestedLabId } = Route.useSearch();
   const navigate = useNavigate();
   const focus = useMemo(() => adaptivePath(user), [user]);
   const [seed, reshuffle] = useShuffleSeed();
-  const [selectedId, setSelectedId] = useState(requestedLabId ?? "");
+  const [selectedId, setSelectedId] = useUiPreference("labs.item", requestedLabId ?? "", isStringPreference);
   useEffect(() => {
     if (requestedLabId) setSelectedId(requestedLabId);
   }, [requestedLabId]);
@@ -96,9 +93,12 @@ function LabsPage() {
   // Arriving from a section opens that one lab on its own, not the whole menu.
   const focused = Boolean(requestedLabId) && lab?.id === requestedLabId;
 
+  if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} detail />;
+
   if (focused && lab) {
     return (
       <>
+        <LearningBreadcrumbs items={[{ label: "Labs", to: "/labs" }, { label: lab.title }]} />
         <PageHeader
           title={lab.title}
           description={lab.objective}
@@ -147,7 +147,7 @@ function LabsPage() {
                   className="block w-full"
                   onClick={() => setSelectedId(item.id)}
                 >
-                  <ContentRow icon={FlaskConical} eyebrow={categoryLabels[item.category]} title={item.title} metadata={itemAttempt ? statusLabels[itemAttempt.status] : "Not Started"} selected={item.id === lab?.id} />
+                  <ContentRow icon={FlaskConical} eyebrow={categoryLabels[item.category]} title={item.title} metadata={learnerStatusLabel(itemAttempt?.status)} selected={item.id === lab?.id} />
                 </button>
               );
             })}
@@ -169,6 +169,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
   const [reflection, setReflection] = useState(attempt?.reflection ?? "");
   const [showReview, setShowReview] = useState(false);
   const topic = topics.find((item) => item.id === lab.topicId);
+  const next = nextJourneyTopic(lab.topicId, user);
   const history = useMemo(
     () => user.labAttempts.filter((item) => item.labId === lab.id),
     [lab.id, user.labAttempts],
@@ -272,6 +273,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
 
   return (
     <div className="space-y-5">
+      <LearningBreadcrumbs items={[{ label: "Labs", to: "/labs" }, ...(topic ? [{ label: topic.title, to: "/topics/$topicId", params: { topicId: topic.id } }] : []), { label: lab.title }]} />
       <Panel>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
@@ -347,7 +349,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
       {attempt && showReview ? (
         <Panel title="Lab review" description="This review reflects your saved checklist and reflection, not inspection of an external environment.">
           <div className="flex flex-wrap items-center gap-3">
-            <Badge>{statusLabels[attempt.status]}</Badge>
+            <Badge data-learning-status>{learnerStatusLabel(attempt.status)}</Badge>
             <span className="text-sm font-medium tabular-nums">Score: {attempt.score}/{attempt.maxScore}</span>
           </div>
           {attempt.status === "needs_review" ? <p className="mt-3 text-sm text-warning">Complete every checklist item and provide a substantive reflection, then submit again.</p> : null}
@@ -359,6 +361,15 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
         </Panel>
       ) : null}
 
+      {attempt && (attempt.status === "completed" || attempt.status === "mastered") ? (
+        <Panel title={attempt.status === "mastered" ? `${lab.title} mastered` : "Lab complete"}>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: lab.topicId }}>Return to topic</Link></Button>
+            {next ? <Button asChild size="sm" variant="secondary"><Link to="/topics/$topicId" params={{ topicId: next.id }}>Next topic</Link></Button> : <Button asChild size="sm" variant="secondary"><Link to="/my-path">Continue path</Link></Button>}
+          </div>
+        </Panel>
+      ) : null}
+
       <AnnotationPanel
         target={{ kind: "lab", id: lab.id, label: lab.title, href: "/labs" }}
         title="Lab notes and bookmark"
@@ -367,7 +378,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
 
       {history.length > 1 ? (
         <Panel title={`Attempt history (${history.length})`}>
-          <ul className="divide-y divide-border">{history.map((item) => <li key={item.id} className="flex flex-wrap justify-between gap-2 py-3 text-sm"><span>{new Date(item.createdAt).toLocaleString()}</span><span>{statusLabels[item.status]} · {item.score}/{item.maxScore}</span></li>)}</ul>
+          <ul className="divide-y divide-border">{history.map((item) => <li key={item.id} className="flex flex-wrap justify-between gap-2 py-3 text-sm"><span>{new Date(item.createdAt).toLocaleString()}</span><span>{learnerStatusLabel(item.status)} · {item.score}/{item.maxScore}</span></li>)}</ul>
         </Panel>
       ) : null}
     </div>

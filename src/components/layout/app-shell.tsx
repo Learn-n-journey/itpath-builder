@@ -177,7 +177,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <main className={cn("pb-16 lg:pl-68 lg:pb-0")}>
-        <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
+        <div className="mx-auto w-full max-w-6xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
           <StudyTabs />
           <div key={pathname} className="page-enter" data-page-content>
             {children}

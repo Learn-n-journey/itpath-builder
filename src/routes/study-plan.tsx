@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,7 +74,7 @@ function useTicker(active: boolean) {
 }
 
 function StudyPlanPage() {
-  const { user, actions } = useAppState();
+  const { user, actions, hydrated } = useAppState();
   const options = useMemo(() => durationOptions(user.settings.sessionLengthMinutes), [user.settings.sessionLengthMinutes]);
   const [minutes, setMinutes] = useState(String(user.settings.sessionLengthMinutes));
   const [target, setTarget] = useState<number>(user.settings.sessionLengthMinutes);
@@ -124,6 +124,8 @@ function StudyPlanPage() {
   }
 
   const completedPlans = user.studyPlans.filter((plan) => plan.status === "completed");
+
+  if (!hydrated) return <LearnerPageSkeleton rows={4} metrics={4} />;
 
   return (
     <>
@@ -180,7 +182,7 @@ function StudyPlanPage() {
 
       <Panel className="mt-4" title="Finished sessions">
         {completedPlans.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No generated sessions finished yet.</p>
+          <EmptyState title="No finished sessions" body="Your completed study plans will appear here." />
         ) : (
           <ul className="divide-y divide-border text-sm">
             {completedPlans.slice(0, 8).map((plan) => {

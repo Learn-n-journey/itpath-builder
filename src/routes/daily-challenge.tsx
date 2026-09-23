@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarCheck, Flame, PartyPopper, Share2, Target, Trophy } from "lucide-react";
+import { CalendarCheck, CheckCircle2, Flame, Share2, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { LearnerPageSkeleton, PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import type { Quiz } from "@/lib/app-data/types";
@@ -20,6 +20,7 @@ import {
   type ChallengeTier,
 } from "@/data/daily-challenge";
 import { useAppState } from "@/state/app-state";
+import { useUiPreference } from "@/hooks/use-ui-preference";
 
 export const Route = createFileRoute("/daily-challenge")({
   staticData: { sitemap: false },
@@ -44,11 +45,11 @@ export const Route = createFileRoute("/daily-challenge")({
 });
 
 function DailyChallengePage() {
-  const { user } = useAppState();
+  const { user, hydrated } = useAppState();
   // Today's key is worked out straight away so the set is never stuck loading.
   // The effect then corrects it to the browser's local day if that differs.
   const [todayKey, setTodayKey] = useState<string>(() => dailyDateKey());
-  const [tier, setTier] = useState<ChallengeTier>("beginner");
+  const [tier, setTier] = useUiPreference<ChallengeTier>("daily-challenge.tier", "beginner", (value): value is ChallengeTier => value === "beginner" || value === "intermediate" || value === "expert");
   const [shared, setShared] = useState(false);
   useEffect(() => {
     const local = dailyDateKey();
@@ -144,6 +145,8 @@ function DailyChallengePage() {
     } satisfies Quiz;
   }, [challenge]);
 
+  if (!hydrated) return <LearnerPageSkeleton rows={4} metrics={4} />;
+
   async function shareResult() {
     const text = `I scored ${today?.best ?? 0}% on today's ${tierInfo(tier).label.toLowerCase()} Daily Challenge on IT PATH${challengeStreak > 1 ? `, ${challengeStreak} days in a row` : ""}. https://www.it-path.net/daily-challenge`;
     try {
@@ -226,7 +229,7 @@ function DailyChallengePage() {
         >
           <div className="flex flex-col items-center gap-3 border-y border-primary/40 bg-primary/5 p-5 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-primary/15 text-primary">
-              <PartyPopper className="size-7" aria-hidden />
+              <CheckCircle2 className="size-7" aria-hidden />
             </span>
             <div>
               <h2 className="font-display text-2xl font-semibold">
@@ -387,8 +390,9 @@ function DailyChallengePage() {
         )}
       </Panel>
 
-      <Panel title="How the challenge works">
-        <ul className="grid gap-2 sm:grid-cols-2">
+      <details className="group mt-5 border-t border-border pt-4">
+        <summary className="cursor-pointer list-none text-sm font-medium text-primary [&::-webkit-details-marker]:hidden">How this works</summary>
+        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {[
             {
               Icon: CalendarCheck,
@@ -418,7 +422,7 @@ function DailyChallengePage() {
             </li>
           ))}
         </ul>
-      </Panel>
+      </details>
     </>
   );
 }

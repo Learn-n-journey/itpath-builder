@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link, createFileRoute } from "@tanstack/react-router";
 
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { LearnerPageSkeleton, PageHeader, Panel, StatCard } from "@/components/page-kit";
 import { useAppState } from "@/state/app-state";
 import { EXAM_READY_SCORE, certificationStatusLabels, scoreAllCertifications } from "@/lib/certification-engine";
 import type { CertificationReadiness } from "@/lib/certification-engine";
@@ -57,7 +57,7 @@ function CertCard({ row, focused }: { row: CertificationReadiness; focused: bool
 }
 
 function CertificationsIndex() {
-  const { user } = useAppState();
+  const { user, hydrated } = useAppState();
   const readiness = useMemo(() => scoreAllCertifications(user), [user]);
   const readinessById = useMemo(
     () => new Map(readiness.map((row) => [row.certification.id, row])),
@@ -65,6 +65,8 @@ function CertificationsIndex() {
   );
   const levelGroups = certificationsByLevel();
   const focus = selectedCertification(user.settings);
+
+  if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={3} />;
 
   return (
     <>

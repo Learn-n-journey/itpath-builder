@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function CompactStats({ children, className }: { children: ReactNode; className?: string }) {
   return <div className={cn("grid grid-cols-3 divide-x divide-border border-y border-border py-3", className)}>{children}</div>;
@@ -57,7 +58,7 @@ export function ContentRow({
   className?: string;
 }) {
   return (
-    <div className={cn("grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/70 px-1 py-3 text-left transition-colors last:border-b-0 hover:bg-accent/35", selected && "bg-primary/8", className)}>
+    <div className={cn("grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/70 px-1 py-3 text-left transition-[background-color,transform] duration-150 last:border-b-0 hover:bg-accent/35 active:scale-[0.995]", selected && "bg-primary/8", className)}>
       {Icon ? <span className="grid size-9 shrink-0 place-items-center rounded-md bg-secondary text-primary"><Icon className="size-4" aria-hidden /></span> : <span />}
       <div className="min-w-0">
         {eyebrow ? <p className="truncate text-[0.6875rem] font-medium text-primary">{eyebrow}</p> : null}
@@ -70,6 +71,16 @@ export function ContentRow({
         {status}
         {trailing ?? <ChevronRight className="size-4 text-muted-foreground" aria-hidden />}
       </div>
+    </div>
+  );
+}
+
+export function ContentRowSkeleton() {
+  return (
+    <div className="grid min-h-16 grid-cols-[2.25rem_minmax(0,1fr)_1rem] items-center gap-3 border-b border-border/70 px-1 py-3 last:border-b-0">
+      <Skeleton className="size-9" />
+      <div className="space-y-2"><Skeleton className="h-4 w-3/5" /><Skeleton className="h-3 w-4/5" /></div>
+      <Skeleton className="size-4" />
     </div>
   );
 }

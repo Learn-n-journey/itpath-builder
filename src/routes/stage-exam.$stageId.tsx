@@ -10,6 +10,7 @@ import { STAGE_EXAM_SIZE, STAGE_PASS_SCORE, getStageExam, getStageExamQuestions,
 import type { Quiz } from "@/lib/app-data/types";
 import { journeyOrderedTopics, isMastered } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
+import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 
 export const Route = createFileRoute("/stage-exam/$stageId")({
   staticData: { sitemap: false },
@@ -89,6 +90,7 @@ function StageExamPage() {
   if (remaining.length > 0 && !passed) {
     return (
       <>
+        <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, { label: exam.stage }, { label: "Stage exam" }]} />
         <PageHeader title={exam.title} description={exam.description} />
         <EmptyState
           icon={Lock}
@@ -110,6 +112,7 @@ function StageExamPage() {
 
   return (
     <>
+      <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, { label: exam.stage }, { label: "Stage exam" }]} />
       <PageHeader title={exam.title} description={exam.description} />
 
       {passed ? (

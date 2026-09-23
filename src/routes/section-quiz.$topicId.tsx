@@ -18,6 +18,8 @@ import { conceptStats } from "@/lib/concept-mastery";
 import type { Quiz } from "@/lib/app-data/types";
 import { nextJourneyTopic, sectionQuizBest, sectionQuizPassedAt } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
+import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
+import { certifications } from "@/data/static-content";
 
 const findTopic = (topicId: string) => topics.find((topic) => topic.id === topicId);
 
@@ -92,6 +94,7 @@ function SectionQuizPage() {
 
   return (
     <>
+      <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, ...(certifications.find((item) => item.id === topic.certificationId) ? [{ label: certifications.find((item) => item.id === topic.certificationId)?.title ?? "Certification", to: "/certifications/$certId", params: { certId: topic.certificationId } }] : []), { label: topic.title, to: "/topics/$topicId", params: { topicId } }, { label: "Section quiz" }]} />
       <PageHeader
         title={`${topic.title}: section quiz`}
         description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Every question is multiple choice, and ${SECTION_PASS_SCORE}% is a pass. This is one part of what opens the next section, alongside recall, teach back and the hands on work.`}
