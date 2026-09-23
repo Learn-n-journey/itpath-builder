@@ -9,20 +9,15 @@ import { StreakPanel } from "@/components/streak-panel";
 import { Button } from "@/components/ui/button";
 import { computeDashboard } from "@/lib/dashboard-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
-import { certificationStatusLabels } from "@/lib/certification-engine";
-import type { CertificationStatus } from "@/lib/app-data/types";
 import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
 import { nextActions, type NextAction } from "@/lib/next-action";
 import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
 import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import { resumeTarget} from "@/lib/resume";
-import { greetingFor } from "@/lib/greeting";
 import { currentJourneyTopic } from "@/lib/journey-order";
 import { overallMeasures } from "@/lib/mastery-summary";
-import { useProfile } from "@/hooks/use-profile";
 import { useAppState } from "@/state/app-state";
-import autopathLogo from "@/assets/autopath-logo.png.asset.json";
 import itPathArtwork from "@/assets/path-it.jpg";
 import autoPathArtwork from "@/assets/path-auto.jpg";
 import { activeDomainKey } from "@/domain/active";
@@ -117,18 +112,12 @@ function MeterRow({ label, value, suffix = "%" }: { label: string; value: number
 
 function Dashboard() {
   const { user, hydrated } = useAppState();
-  const { firstName } = useProfile();
 
-  // The subject choice lives in browser storage, so the matching course logo
+  // The subject choice lives in browser storage, so the matching course art
   // is selected as soon as the dashboard hydrates.
-  const [logo, setLogo] = useState({ src: "/icons/icon-256.png", alt: "IT PATH logo, a mountain path with circuit traces" });
   const [courseArtwork, setCourseArtwork] = useState({ src: itPathArtwork, alt: "A blue-lit desktop computer" });
   useEffect(() => {
     if (activeDomainKey.split("@")[0] === "auto-repair") {
-      setLogo({
-        src: autopathLogo.url,
-        alt: "AUTO PATH logo, a dark navy app icon with a chrome piston, blue wrench and circuit traces",
-      });
       setCourseArtwork({ src: autoPathArtwork, alt: "A detailed automotive engine" });
     }
   }, []);
@@ -378,12 +367,12 @@ function Dashboard() {
           )}
         </Panel>
 
-        <Panel title="Certifications" className="py-5">
+        <Panel title="Certifications" className="relative py-5">
           <Link to="/certifications" className="absolute right-0 top-5 text-sm text-primary hover:underline">View all →</Link>
           <ul className="divide-y divide-border/60">
             {d.certificationReadiness.map((cert) => (
               <li key={cert.id} className="grid grid-cols-[minmax(0,1fr)_7rem_auto] items-center gap-3 py-2.5">
-                <div className="min-w-0"><p className="truncate text-sm">{cert.title}</p><span className="sr-only">{certificationStatusLabels[cert.status as CertificationStatus]}</span></div>
+                <p className="min-w-0 truncate text-sm">{cert.title}</p>
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><Meter value={cert.overall} /><span className="text-sm font-semibold tabular-nums">{cert.overall}%</span></div>
                 <ChevronRight className="size-4 text-primary" aria-hidden />
               </li>
@@ -391,7 +380,7 @@ function Dashboard() {
           </ul>
         </Panel>
 
-        <Panel title="Career readiness" className="py-5">
+        <Panel title="Career readiness" className="relative py-5">
           <Link to="/career-skills" className="absolute right-0 top-5 text-sm text-primary hover:underline">View all →</Link>
           <div className="divide-y divide-border/60">
             {d.careerReadiness.map((track) => (
