@@ -8,7 +8,8 @@ function readPreference<T>(key: string, fallback: T, validate?: (value: unknown)
     const raw = window.localStorage.getItem(`${PREFIX}${key}`);
     if (raw === null) return fallback;
     const value: unknown = JSON.parse(raw);
-    return !validate || validate(value) ? value : fallback;
+    if (validate) return validate(value) ? value : fallback;
+    return value as T;
   } catch {
     return fallback;
   }
