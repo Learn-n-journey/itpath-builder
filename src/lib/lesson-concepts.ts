@@ -72,7 +72,7 @@ function inferTerms(text: string): string[] {
         .toLowerCase()
         .replace(/[^a-z0-9 ]+/g, " ")
         .split(/\s+/)
-        .filter((word) => word.length >= 5 && !INFER_STOPWORDS.has(word)),
+        .filter((word) => word.length >= 4 && !INFER_STOPWORDS.has(word)),
     ),
   ];
 }
@@ -80,22 +80,29 @@ function inferTerms(text: string): string[] {
 /**
  * Best-effort mapping from a question to the lesson part that teaches it.
  *
- * Only used when the workbook carries no explicit mapping. It links a question
- * to a lesson part only when the wording overlap is clear and beats every other
- * part, so "Review this concept" never points somewhere arbitrary; otherwise it
- * returns nothing and the question simply has no review link.
+ * Used when the workbook carries no explicit mapping. It prefers the lesson part
+ * whose wording clearly overlaps the question; when no part stands out it falls
+ * back to the lesson's main part, so "Review this concept" always opens the
+ * lesson at a real place rather than leaving the learner with no way back.
  */
 export function inferLessonSection(topicId: string, prompt: string, lesson?: DeepLesson): string | undefined {
   const sections = lesson?.sections ?? [];
   if (sections.length === 0) return undefined;
+  const fallback = sections.some((section) => deepSectionId(topicId, section) === lessonSectionId(topicId, "core"))
+    ? lessonSectionId(topicId, "core")
+    : deepSectionId(topicId, sections[0]!);
   const terms = inferTerms(prompt);
-  if (terms.length < 3) return undefined;
+  if (terms.length < 2) return fallback;
   let best = { id: "", score: 0 };
   let runnerUp = 0;
   for (const section of sections) {
-    const body = `${section.heading} ${section.paragraphs.join(" ")}`.toLowerCase();
+    const heading = section.heading.toLowerCase();
+    const body = section.paragraphs.join(" ").toLowerCase();
     let score = 0;
-    for (const term of terms) if (body.includes(term)) score += 1;
+    for (const term of terms) {
+      if (heading.includes(term)) score += 3;
+      else if (body.includes(term)) score += 1;
+    }
     if (score > best.score) {
       runnerUp = best.score;
       best = { id: deepSectionId(topicId, section), score };
@@ -103,7 +110,7 @@ export function inferLessonSection(topicId: string, prompt: string, lesson?: Dee
       runnerUp = score;
     }
   }
-  if (best.score < 3 || best.score <= runnerUp) return undefined;
+  if (best.score < 2 || best.score <= runnerUp) return fallback;
   return best.id;
 }
 
