@@ -22,7 +22,7 @@ import { networkSecurityPlainLanguage } from "./deep-lessons/plain-network-secur
 import { linuxServersCloudPlainLanguage } from "./deep-lessons/plain-linux-servers-cloud";
 import { advancedSecurityPlainLanguage } from "./deep-lessons/plain-advanced-security";
 import { ownerLessonFor } from "@/lib/owner-lesson-store";
-import { withCoverageSupplements } from "./deep-lessons/coverage-supplements";
+import { lessonWithCoverageSupplements, withCoverageSupplements } from "./deep-lessons/coverage-supplements";
 import type {
   DeepLesson,
   DeepLessonSection,
@@ -750,5 +750,5 @@ export const deepLessons: DeepLesson[] = [
  */
 export function getDeepLesson(topicId: string): DeepLesson | undefined {
   const lesson = ownerLessonFor(topicId) ?? deepLessons.find((candidate) => candidate.topicId === topicId);
-  return lesson ? withCoverageSupplements(lesson) : undefined;
+  return lessonWithCoverageSupplements(topicId, lesson);
 }

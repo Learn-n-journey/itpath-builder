@@ -217,7 +217,7 @@ const coverageSupplements: Record<string, DeepLessonSection[]> = {
       ],
     },
   ],
-  "topic-windows-security-settings-and-permissions": [
+  "topic-windows-security-settings": [
     {
       id: "windows-application-control-and-auditing",
       heading: "Windows Application Control and Auditing",
@@ -252,4 +252,23 @@ export function withCoverageSupplements(lesson: DeepLesson): DeepLesson {
   );
   if (fresh.length === 0) return lesson;
   return { ...lesson, sections: [...lesson.sections, ...fresh] };
+}
+
+/** Create a focused reading layer when a newer curriculum topic has no older deep-lesson record. */
+export function lessonWithCoverageSupplements(
+  topicId: string,
+  lesson?: DeepLesson,
+): DeepLesson | undefined {
+  if (lesson) return withCoverageSupplements(lesson);
+  const sections = coverageSupplements[topicId];
+  if (!sections?.length) return undefined;
+  return {
+    topicId,
+    readingMinutes: Math.max(3, sections.reduce((words, section) => (
+      words + section.paragraphs.join(" ").split(/\s+/).length
+    ), 0) / 180),
+    intro: "This focused reading extends the core lesson with the technical details you need to recognise, explain, and apply.",
+    whereYouMeetIt: "You will meet these details in support work, configuration reviews, troubleshooting, and scenario-based assessments.",
+    sections,
+  };
 }
