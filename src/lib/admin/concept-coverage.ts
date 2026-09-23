@@ -440,7 +440,17 @@ export function classifyCoverage(prompt: string, answers: string[], options: Cla
       ? "Either add a prerequisite link to the topic that teaches it, or say it plainly once in this lesson."
       : "The question asks for out-of-scope knowledge. Move it to the topic that teaches it, or replace the question.";
 
-  return { verdict, required, taught, missing, missingEverywhere, evidence, reviewKind, reason, remediation };
+  return {
+    verdict,
+    required,
+    taught,
+    missing,
+    missingEverywhere,
+    evidence,
+    ...(reviewKind ? { reviewKind } : {}),
+    reason,
+    remediation,
+  };
 }
 
 /** Every question in a topic, judged. */
