@@ -1,6 +1,6 @@
-import { resolveActivePack } from "@/content/course-pack";
+import { coursePack } from "@/content/course-pack";
 import { lessonConceptSections } from "@/lib/lesson-concepts";
-const pack = resolveActivePack();
+const pack = coursePack;
 let noMap = 0, bad = 0, ok = 0; const badIds = new Map<string, number>();
 const perTopic: Array<[string, number, number]> = [];
 for (const topic of pack.topics) {
