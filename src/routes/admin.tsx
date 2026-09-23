@@ -153,6 +153,11 @@ function AdminPage() {
   const rollback = useServerFn(rollbackVersion);
 
   const [busy, setBusy] = useState<string | null>(null);
+  const [tab, setTab] = useState("overview");
+  const jumpToTab = useCallback((next: string) => {
+    setTab(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   const [filter, setFilter] = useState<HealthFilter>("review");
   const [topicFilter, setTopicFilter] = useState("");
 
