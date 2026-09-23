@@ -169,7 +169,9 @@ export function topicTeachingMaterial(pack: CoursePack, topicId: string): string
   for (const activity of pack.getPracticeActivities(topicId)) {
     parts.push(activity.title, activity.prompt, activity.explanation, ...activity.choices);
   }
-  for (const recall of pack.getRecallQuestions(topicId)) parts.push(recall.prompt, recall.explanation, ...recall.acceptedConcepts);
+  // Recall explanations teach; the accepted answers are left out so a recall
+  // question can never prove its own coverage.
+  for (const recall of pack.getRecallQuestions(topicId)) parts.push(recall.explanation);
   const scenario = pack.getRealWorldScenario(topicId);
   if (scenario) parts.push(scenario.title, scenario.situation, scenario.decisionPrompt, scenario.guidance, ...scenario.expectedConcepts);
 
