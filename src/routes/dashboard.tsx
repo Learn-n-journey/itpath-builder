@@ -16,10 +16,9 @@ import { nextActions, type NextAction } from "@/lib/next-action";
 import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
 import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
 import { buildReadinessReport } from "@/lib/readiness-engine";
-import { resumeTarget, type ResumeTarget } from "@/lib/resume";
+import { resumeTarget} from "@/lib/resume";
 import { greetingFor } from "@/lib/greeting";
-import { currentJourneyTopic, journeyIndexFor } from "@/lib/journey-order";
-import { masteryGate } from "@/lib/mastery-gate";
+import { currentJourneyTopic } from "@/lib/journey-order";
 import { overallMeasures } from "@/lib/mastery-summary";
 import { useProfile } from "@/hooks/use-profile";
 import { useAppState } from "@/state/app-state";
@@ -54,71 +53,6 @@ function Meter({ value }: { value: number }) {
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary" aria-hidden>
       <div className="h-full rounded-full bg-progress transition-[width] duration-700 ease-out" style={{ width: `${value}%` }} />
     </div>
-  );
-}
-
-function ProgressOverview({
-  progress,
-  topicsComplete,
-  topicsTotal,
-  recommendation,
-  hasActivity,
-}: {
-  progress: number;
-  topicsComplete: number;
-  topicsTotal: number;
-  recommendation: string;
-  hasActivity: boolean;
-}) {
-  const segments = 10;
-  const activeSegments = Math.round((progress / 100) * segments);
-
-  return (
-    <section className="panel dashboard-summary motion-surface mb-5 p-6 sm:p-8 lg:min-h-64">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-6">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emphasis">
-            <Activity className="size-3.5" aria-hidden />
-            Learning path
-          </div>
-          <p className="mt-4 font-display text-3xl font-semibold tabular-nums sm:text-4xl">
-            {progress === 0 && hasActivity ? "Under 1% complete" : `${progress}% complete`}
-          </p>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">Next: {recommendation}</p>
-        </div>
-        <div className="relative flex size-20 shrink-0 items-center justify-center sm:size-24" aria-label={`${progress}% overall progress`}>
-          <svg className="size-20 -rotate-90 sm:size-24" viewBox="0 0 64 64" aria-hidden>
-            <circle cx="32" cy="32" r="26" fill="none" stroke="var(--color-secondary)" strokeWidth="5" />
-            <circle
-              cx="32"
-              cy="32"
-              r="26"
-              fill="none"
-              stroke="var(--color-progress)"
-              strokeWidth="5"
-              strokeLinecap="round"
-              pathLength="100"
-              strokeDasharray={`${progress} 100`}
-            />
-          </svg>
-          <span className="absolute font-mono text-sm font-semibold tabular-nums">{progress}%</span>
-        </div>
-      </div>
-      <div className="mt-8 grid grid-cols-10 gap-1.5" aria-hidden>
-        {Array.from({ length: segments }, (_, index) => (
-          <span
-            key={index}
-            className={index < activeSegments ? "h-1.5 rounded-sm bg-progress" : "h-1.5 rounded-sm bg-secondary"}
-          />
-        ))}
-      </div>
-      <div className="mt-3 flex items-center justify-between gap-4 text-[11px] uppercase tracking-wide text-muted-foreground">
-        <span>{topicsComplete} of {topicsTotal} topics mastered</span>
-        <span className="flex shrink-0 items-center gap-1.5">
-          <span className="size-1.5 bg-emphasis" aria-hidden /> Evidence based
-        </span>
-      </div>
-    </section>
   );
 }
 
