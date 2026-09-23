@@ -158,3 +158,6 @@ Done when: typecheck + build clean, features verified in browser.
 26. [ ] Consolidate every existing owner-only tool (spreadsheet sync, learning paths, maintenance, diagnostics, beta access, site engagement, AI usage, content reports, subject switch, link health) into that single admin area and remove them from Settings.
 25. [x] Add accurate lesson teaching for genuine gaps in the 2026-09-23 concept coverage report without removing existing material.
 - [x] Health check: purge stale results — old check codes and link findings for content that no longer exists must not survive a new run (user request 09:25).
+- [x] Version fingerprints are reported for information only and never raise a warning.
+- [x] Everyday journeys now record real counts (sign in, open a lesson, take a quiz, take an exam) so the Flows area is no longer "never run".
+- [ ] Three permanent quality checks: cross-lesson contradictions, certification coverage gaps, difficulty/progression order.

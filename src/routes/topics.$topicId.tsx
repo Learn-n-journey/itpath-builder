@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeft, ArrowRight, BookOpen, Layers, Lock, MessagesSquare, RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { blockingTopic } from "@/lib/journey-order";
 
@@ -18,6 +18,7 @@ import { loadOwnerWork } from "@/lib/owner-work-store";
 import { refreshTopic } from "@/lib/sheet-sync.functions";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
+import { trackFlow } from "@/lib/flow-events.functions";
 
 export const Route = createFileRoute("/topics/$topicId")({
   staticData: { sitemap: false },
@@ -54,6 +55,12 @@ function TopicPage() {
   const refresh = useServerFn(refreshTopic);
   const [refreshing, setRefreshing] = useState(false);
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
+
+  // Count that a lesson opened, and whether it had teaching to show.
+  const lessonFound = Boolean(topic);
+  useEffect(() => {
+    trackFlow("Open a lesson", lessonFound ? "ok" : "failed");
+  }, [topicId, lessonFound]);
 
   if (!topic) {
     return (
