@@ -181,7 +181,7 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Run learner-route interaction and mobile/tablet/desktop visual regression checks
 
 ## Semantic color hierarchy pass
-- [ ] Add ordered multi-stage journey colors and matching milestone nodes to My Path
-- [ ] Define persistent semantic feature and activity accent colors
-- [ ] Apply consistent colored technical icons to Dashboard, Practice, Labs, and More
-- [ ] Compare mobile results directly with the supplied reference while preserving the dark base theme
+- [x] Add ordered multi-stage journey colors and matching milestone nodes to My Path
+- [x] Define persistent semantic feature and activity accent colors
+- [x] Apply consistent colored technical icons to Dashboard, Practice, Labs, and More
+- [x] Compare mobile results directly with the supplied reference while preserving the dark base theme
