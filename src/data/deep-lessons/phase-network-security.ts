@@ -141,6 +141,17 @@ export const networkSecurityDeepLessons: DeepLesson[] = [
           "Spanning Tree Protocol (STP): the protocol that blocks redundant links to prevent switching loops.",
           "Port security: a feature limiting or locking which MAC addresses may use a given port.",
           "Inter-VLAN routing: the process, done by a router or layer 3 switch, that lets devices in different VLANs communicate.",
+          "PortFast: a setting that lets an access port skip the spanning tree listening and learning delay and forward straight away.",
+          "BPDU: the small message switches exchange to run spanning tree; only switches should ever send one.",
+          "BPDU Guard: protection that shuts a PortFast port down the moment a BPDU arrives on it.",
+        ],
+      },
+      {
+        heading: "Protecting the Edge Ports",
+        paragraphs: [
+          "Spanning tree is what keeps a redundant network safe, but it also has a cost at the desk. A port running normal spanning tree spends roughly thirty seconds in listening and learning states before it forwards anything, while it checks whether the new connection creates a loop. On a port that only ever has a laptop or a phone on the end, that delay is pure nuisance: the machine boots, finds no network, and fails to pick up an address or apply policy. PortFast removes the delay by moving an access port straight into forwarding, on the assumption that no switch will ever be plugged into it.",
+          "That assumption is exactly what needs protecting. Switches advertise themselves to each other with a small message called a Bridge Protocol Data Unit, or BPDU, and BPDUs are how the spanning tree topology is agreed. If someone plugs a small unmanaged or personal switch into a wall port, that device starts sending BPDUs into a port that was told to skip loop checking, which can force a new root bridge election and reshape or destabilise traffic across the whole network.",
+          "BPDU Guard is the answer, and it is configured together with PortFast rather than instead of it. On a port with BPDU Guard enabled, the arrival of any BPDU is treated as proof that something is on the end that does not belong there, and the switch immediately puts the port into an error-disabled state, cutting the device off before it can affect the topology. The port stays down until an administrator clears the error or an automatic recovery timer brings it back, and the log entry names the port, which makes tracing the unauthorised device straightforward.",
         ],
       },
       {
