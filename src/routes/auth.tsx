@@ -11,6 +11,7 @@ import { useAuth } from "@/state/auth-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { trackFlow } from "@/lib/flow-events.functions";
 
 export const Route = createFileRoute("/auth")({
   staticData: { sitemap: false },
@@ -84,6 +85,7 @@ function AuthPage() {
     event.preventDefault();
     if (busy) return;
     setBusy(true);
+    const startedAt = Date.now();
     try {
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
@@ -107,7 +109,9 @@ function AuthPage() {
         if (error) throw error;
         toast.success("Signed in.");
       }
+      trackFlow("Sign in", "ok", Date.now() - startedAt);
     } catch (error) {
+      trackFlow("Sign in", "failed", Date.now() - startedAt);
       toast.error(error instanceof Error ? error.message : "That did not work. Try again.");
     } finally {
       setBusy(false);

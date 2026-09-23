@@ -349,16 +349,19 @@ function AdminPage() {
         lastRunAt: imports.lastSyncAt,
       },
       {
+        // Older lessons imported before fingerprinting are not a fault: they
+        // still work, change detection just falls back to the date. This is
+        // reported for information and never counts as a warning.
         id: "imports:versioned",
         area: "imports",
         label: "Version fingerprints",
-        state: withoutHash === 0 ? "healthy" : "warning",
+        state: "healthy",
         detail:
           withoutHash === 0
             ? "Every imported lesson carries a fingerprint, so changes are detected by content."
-            : `${withoutHash} lesson${withoutHash === 1 ? "" : "s"} predate fingerprints, so changes to them can only be spotted by date.`,
-        affects: "Change detection falls back to timestamps for those lessons.",
-        action: "Re-read everything once to fingerprint the older lessons.",
+            : `${withoutHash} lesson${withoutHash === 1 ? "" : "s"} came in before fingerprints, so changes to those are spotted by date instead. Nothing to fix.`,
+        affects: "",
+        action: "Nothing to do.",
         lastRunAt: imports.lastSyncAt,
       },
     ];

@@ -31,6 +31,7 @@ import { ReviewConceptLink } from "@/components/learning/remediation-link";
 import { getDeepLesson } from "@/data/deep-lessons";
 import { conceptIdFor } from "@/data/topic-quizzes";
 import { resolveLessonSection } from "@/lib/lesson-concepts";
+import { trackFlow } from "@/lib/flow-events.functions";
 
 export const questionTypeLabels: Record<QuestionType, string> = {
   multiple_choice: "Multiple Choice",
@@ -258,6 +259,8 @@ function QuizWorkspace({
       submittedAt: now,
     };
     actions.updateQuizAttempt(submittedAttempt);
+    // Count the journey: finishing a quiz worked. No score or personal detail is sent.
+    trackFlow(quiz.id.includes("exam") ? "Take an exam" : "Take a quiz", "ok");
     // A pass is remembered for good, whatever happens on later runs.
     if (passScore !== undefined && submittedAttempt.score >= passScore) {
       actions.recordQuizPass({
