@@ -224,34 +224,45 @@ function Dashboard() {
     });
   }, [journeyCourse, courseTopicIndex, user]);
 
+  const currentWindowIndex = journeyWindow.findIndex((step) => step.isCurrent);
+  const journeyFillPercent =
+    currentWindowIndex >= 0 && journeyWindow.length > 1
+      ? (currentWindowIndex / (journeyWindow.length - 1)) * 100
+      : 0;
+
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} />;
 
   return (
     <div className="mx-auto max-w-4xl pb-8">
-      <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border pb-5">
+      <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border/60 pb-5">
         <div className="min-w-0">
-          <Link to="/settings" className="inline-flex max-w-full items-center gap-1 font-display text-lg font-semibold hover:text-primary">
+          <Link to="/settings" className="group inline-flex max-w-full items-center gap-1.5 font-display text-base font-semibold tracking-tight text-foreground transition-colors hover:text-primary sm:text-lg">
             <span className="truncate">{path.certification.title}</span>
-            <ChevronDown className="size-4 shrink-0 text-primary" aria-hidden />
+            <ChevronDown className="size-4 shrink-0 text-primary motion-safe:transition-transform motion-safe:duration-150 group-hover:translate-y-0.5 motion-reduce:transition-none" aria-hidden />
           </Link>
-          <p className="mt-1 truncate text-sm text-muted-foreground">
+          <p className="mt-0.5 truncate text-xs text-muted-foreground sm:text-sm">
             {currentStage} · {d.masteredTopics} of {d.topicsTotal} topics
           </p>
         </div>
-        <div className="relative grid size-[3.75rem] place-items-center rounded-full border-4 border-secondary" aria-label={`${d.overallProgress}% overall progress`}>
-          <span className="font-display text-base font-semibold tabular-nums">{d.overallProgress}%</span>
+        <div className="relative grid size-[3.75rem] shrink-0 place-items-center rounded-full bg-secondary/30 ring-1 ring-inset ring-border/50" aria-label={`${d.overallProgress}% overall progress`}>
+          <span className="font-display text-base font-bold tabular-nums text-foreground">{d.overallProgress}%</span>
         </div>
       </header>
 
-      <nav aria-label="Learning Journey" className="mb-5 border-b border-border pb-5">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your Learning Journey</span>
-          <span className="shrink-0 text-xs text-muted-foreground">
+      <nav aria-label="Learning Journey" className="mb-6 rounded-xl border border-border/50 bg-card/40 p-3.5 shadow-sm sm:p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Your Learning Journey</span>
+          <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
             Step {Math.min(courseTopicIndex + 1, journeyCourse.length)} of {journeyCourse.length}
           </span>
         </div>
         <div className="relative">
-          <div className="absolute left-4 right-4 top-4 h-0.5 bg-border" aria-hidden />
+          <div className="absolute left-6 right-6 top-4 h-[2px] bg-border/60" aria-hidden />
+          <div
+            className="absolute left-6 top-4 h-[2px] bg-gradient-to-r from-primary/80 to-primary shadow-sm motion-safe:transition-[width] motion-safe:duration-300 motion-reduce:transition-none"
+            style={{ width: `calc((100% - 3rem) * ${journeyFillPercent / 100})` }}
+            aria-hidden
+          />
           <div className="relative z-10 flex items-start justify-between gap-1 overflow-x-auto pb-1 sm:gap-2">
             {journeyWindow.map((step) => {
               const node = (
@@ -259,25 +270,21 @@ function Dashboard() {
                   <span
                     className={
                       step.isCurrent
-                        ? "grid size-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground ring-4 ring-primary/20 shadow-sm"
+                        ? "grid size-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground ring-4 ring-primary/25 shadow-md shadow-primary/20 motion-safe:transition-transform motion-safe:duration-150 group-active:scale-95 motion-reduce:transition-none sm:size-9"
                         : step.isCompleted
-                          ? "grid size-7 place-items-center rounded-full border border-primary/50 bg-primary/20 text-xs font-semibold text-primary"
-                          : "grid size-7 place-items-center rounded-full border border-border bg-secondary text-xs text-muted-foreground/70"
+                          ? "grid size-7 place-items-center rounded-full border border-primary/40 bg-primary/15 text-xs font-semibold text-primary motion-safe:transition-all motion-safe:duration-150 group-hover:scale-105 group-hover:border-primary/80 motion-reduce:transition-none sm:size-8"
+                          : "grid size-7 place-items-center rounded-full border border-border/80 bg-secondary/60 text-xs font-medium text-muted-foreground/60 sm:size-8"
                     }
                     aria-hidden
                   >
-                    {step.isCompleted ? <Check className="size-3.5 stroke-[2.5]" /> : step.index}
+                    {step.isCompleted ? <Check className="size-3.5 stroke-[2.5]" /> : <span className="font-display font-bold">{step.index}</span>}
                   </span>
                   {step.isCurrent ? (
-                    <span className="mt-1 text-[0.625rem] font-bold uppercase tracking-wider text-primary">Here</span>
+                    <span className="mt-1 inline-flex items-center rounded-full bg-primary/15 px-1.5 py-0.5 text-[0.5625rem] font-bold uppercase tracking-widest text-primary">Here</span>
                   ) : (
-                    <span className="mt-1 h-3" aria-hidden />
+                    <span className="mt-1 h-3.5" aria-hidden />
                   )}
-                  <span
-                    className={`mt-0.5 block max-w-[4rem] truncate text-center ${
-                      step.isCurrent ? "text-xs font-medium text-foreground" : "text-[0.6875rem] text-muted-foreground"
-                    } sm:max-w-[6.5rem]`}
-                  >
+                  <span className={`mt-0.5 block max-w-[4.5rem] truncate text-center ${step.isCurrent ? "font-display text-xs font-semibold text-foreground" : "text-[0.6875rem] font-medium text-muted-foreground/70 group-hover:text-foreground"} sm:max-w-[6.5rem]`}>
                     {step.topic.title}
                   </span>
                 </>
@@ -289,14 +296,8 @@ function Dashboard() {
                   to="/topics/$topicId"
                   params={{ topicId: step.topic.id }}
                   aria-current={step.isCurrent ? "step" : undefined}
-                  aria-label={
-                    step.isCompleted
-                      ? `Completed: ${step.topic.title}`
-                      : step.isCurrent
-                        ? `Current: ${step.topic.title}`
-                        : step.topic.title
-                  }
-                  className="flex min-w-[4rem] flex-1 flex-col items-center text-center sm:min-w-[6.5rem]"
+                  aria-label={step.isCompleted ? `Completed: ${step.topic.title}` : step.isCurrent ? `Current: ${step.topic.title}` : step.topic.title}
+                  className="group flex min-h-12 min-w-[4.25rem] flex-1 flex-col items-center rounded-lg py-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:min-w-[6.5rem]"
                 >
                   {node}
                 </Link>
@@ -304,14 +305,8 @@ function Dashboard() {
                 <div
                   key={step.topic.id}
                   aria-current={step.isCurrent ? "step" : undefined}
-                  aria-label={
-                    step.isCompleted
-                      ? `Completed: ${step.topic.title}`
-                      : step.isCurrent
-                        ? `Current: ${step.topic.title}`
-                        : `Locked: ${step.topic.title}`
-                  }
-                  className="flex min-w-[4rem] flex-1 flex-col items-center text-center sm:min-w-[6.5rem]"
+                  aria-label={step.isCompleted ? `Completed: ${step.topic.title}` : step.isCurrent ? `Current: ${step.topic.title}` : `Locked: ${step.topic.title}`}
+                  className="group flex min-h-12 min-w-[4.25rem] flex-1 flex-col items-center rounded-lg py-1 text-center sm:min-w-[6.5rem]"
                 >
                   {node}
                 </div>
@@ -323,20 +318,22 @@ function Dashboard() {
 
       <section
         aria-labelledby="continue-heading"
-        className="relative mb-6 overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card/90 via-card/60 to-secondary/30 p-4 shadow-sm sm:p-6"
+        className="relative mb-6 overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-card/95 via-card/85 to-secondary/40 p-5 shadow-xl shadow-black/30 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent sm:p-7"
       >
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 overflow-hidden sm:w-7/12" aria-hidden="true">
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-3/5 overflow-hidden sm:w-1/2" aria-hidden="true">
           <img
             src={courseArtwork.src}
             alt=""
-            className="h-full w-full object-cover object-center opacity-25 mix-blend-luminosity [mask-image:linear-gradient(to_left,black_20%,transparent_90%)] sm:opacity-40"
+            className="h-full w-full object-cover object-right opacity-30 mix-blend-luminosity [mask-image:linear-gradient(to_left,rgba(0,0,0,0.85)_10%,rgba(0,0,0,0.4)_40%,transparent_85%)] sm:opacity-40"
           />
         </div>
+        <div className="pointer-events-none absolute -right-12 -top-12 size-64 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
 
         {primary ? (
           <>
             <div className="relative z-10 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-medium text-primary">
+              <span className="inline-flex items-center gap-1 rounded-md border border-primary/25 bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-wider text-primary">
+                <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse motion-reduce:animate-none" aria-hidden />
                 {d.hasAnyActivity ? "Continue Learning" : "Start Learning"}
               </span>
               <span className="text-xs text-muted-foreground">
@@ -345,23 +342,23 @@ function Dashboard() {
             </div>
 
             <div className="relative z-10 mt-3 max-w-[85%] sm:max-w-[70%]">
-              <p className="text-xs font-medium text-muted-foreground">{primary.detail}</p>
-              <h1 id="continue-heading" className="mt-1 font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{primary.detail}</p>
+              <h1 id="continue-heading" className="mt-1 max-w-[85%] font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl">
                 {primary.title}
               </h1>
             </div>
 
-            <div className="relative z-10 mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Button asChild size="lg" className="w-full px-6 font-semibold sm:w-auto">
+            <div className="relative z-10 mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
+              <Button asChild size="lg" className="h-12 w-full px-6 font-semibold shadow-md shadow-primary/20 motion-safe:transition-all motion-safe:duration-150 motion-safe:ease-out active:scale-[0.985] active:shadow-inner motion-reduce:transition-none sm:w-auto">
                 <Link
                   to={primary.to}
                   {...(primary.params ? { params: primary.params as never } : {})}
                   {...(primary.search ? { search: primary.search as never } : {})}
                 >
-                  <PlayCircle className="size-4" aria-hidden /> Continue
+                  <PlayCircle className="size-4 stroke-[2.2]" aria-hidden /> Continue
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="w-full border-border/80 bg-background/50 hover:bg-background sm:w-auto">
+              <Button asChild variant="outline" size="lg" className="h-12 w-full border-border/70 bg-card/60 px-5 backdrop-blur-sm motion-safe:transition-all motion-safe:duration-150 active:scale-[0.985] motion-reduce:transition-none hover:bg-secondary sm:w-auto">
                 <Link to="/study-plan">
                   <BookOpen className="size-4 text-primary" aria-hidden />
                   Study plan
@@ -386,8 +383,8 @@ function Dashboard() {
         )}
 
         {d.hasAnyActivity && (actions.length > 0 || todayChips.length > 0) ? (
-          <details className="group relative z-10 mt-4">
-            <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
+          <details className="group relative z-10 mt-5 border-t border-border/40 pt-3">
+            <summary className="flex min-h-11 w-fit cursor-pointer list-none items-center gap-1.5 text-xs font-medium text-muted-foreground motion-safe:transition-colors motion-safe:duration-150 hover:text-foreground active:opacity-80 motion-reduce:transition-none [&::-webkit-details-marker]:hidden">
               Other suggestions ({actions.length + todayChips.length})
               <ChevronRight className="size-4 transition-transform group-open:rotate-90" aria-hidden />
             </summary>
@@ -406,27 +403,46 @@ function Dashboard() {
         ) : null}
       </section>
 
-      <section className="border-b border-border py-5">
+      <section className="border-b border-border/60 py-6">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
-          <h2 className="font-display text-xl font-semibold">Your progress</h2>
-          <span className="text-sm text-muted-foreground tabular-nums">
+          <h2 className="font-display text-lg font-semibold tracking-tight sm:text-xl">Your progress</h2>
+          <span className="font-mono text-xs tabular-nums text-muted-foreground">
             {d.masteredTopics} of {d.topicsTotal} topics mastered
           </span>
         </div>
-        <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <div className="mt-2.5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <Meter value={measures.learningProgress} />
-          <span className="text-sm font-semibold tabular-nums">{measures.learningProgress}%</span>
+          <span className="font-display text-sm font-bold tabular-nums text-foreground">{measures.learningProgress}%</span>
         </div>
-        <div className="mt-5 grid grid-cols-4 divide-x divide-border">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-border/50">
           {d.certificationReadiness[0] ? (
-             <div className="min-w-0 pr-2"><SlidersHorizontal className="mb-2 size-5 text-feature-violet" aria-hidden /><p className="text-xs text-muted-foreground">{d.certificationReadiness[0].title} readiness</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{d.certificationReadiness[0].overall}%</p></div>
+            <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:pr-3">
+              <SlidersHorizontal className="size-4 text-feature-violet" aria-hidden />
+              <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">{d.certificationReadiness[0].title} readiness</p>
+              <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.certificationReadiness[0].overall}%</p>
+            </div>
           ) : null}
-          <div className="min-w-0 px-2"><BarChart3 className="mb-2 size-5 text-feature-blue" aria-hidden /><p className="text-xs text-muted-foreground">Quiz average</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{quizCount > 0 ? `${d.quizAverage}%` : "—"}</p><p className="text-[0.625rem] leading-tight text-muted-foreground sm:text-[0.6875rem]">{quizCount > 0 ? `${quizCount} completed` : "No quizzes yet"}</p></div>
-          <div className="min-w-0 px-2"><Clock className="mb-2 size-5 text-feature-cyan" aria-hidden /><p className="text-xs text-muted-foreground">Study time</p><p className="mt-1 font-display text-lg font-semibold tabular-nums">{d.studyMinutesTotal < 60 ? `${d.studyMinutesTotal} min` : `${d.studyHoursTotal}h`}</p></div>
-          <div className="min-w-0 pl-2"><Flame className="mb-2 size-5 text-feature-orange" aria-hidden /><p className="text-xs text-muted-foreground">Streak</p><p className="mt-1 font-display text-lg font-semibold">{d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p><p className="text-[0.625rem] leading-tight text-muted-foreground sm:text-[0.6875rem]">{d.streakDays > 0 ? `${d.streakDays === 1 ? "day" : "days"} active` : "No streak yet"}</p></div>
+          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-3">
+            <BarChart3 className="size-4 text-feature-blue" aria-hidden />
+            <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Quiz average</p>
+            <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{quizCount > 0 ? `${d.quizAverage}%` : "—"}</p>
+            <p className="text-[0.625rem] text-muted-foreground">{quizCount > 0 ? `${quizCount} completed` : "No quizzes yet"}</p>
+          </div>
+          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-3">
+            <Clock className="size-4 text-feature-cyan" aria-hidden />
+            <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Study time</p>
+            <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.studyMinutesTotal < 60 ? `${d.studyMinutesTotal} min` : `${d.studyHoursTotal}h`}</p>
+            <p className="text-[0.625rem] text-muted-foreground">Recorded in app</p>
+          </div>
+          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:pl-3">
+            <Flame className="size-4 text-feature-orange" aria-hidden />
+            <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Streak</p>
+            <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p>
+            <p className="text-[0.625rem] text-muted-foreground">{d.streakDays > 0 ? `${d.streakDays === 1 ? "day" : "days"} active` : "No streak yet"}</p>
+          </div>
         </div>
         <details className="mt-1">
-          <summary className="cursor-pointer list-none py-2 text-sm text-primary hover:underline [&::-webkit-details-marker]:hidden">
+          <summary className="inline-block cursor-pointer list-none py-2.5 text-xs font-semibold text-primary hover:underline [&::-webkit-details-marker]:hidden">
             View progress details →
           </summary>
           <div className="grid grid-cols-2 gap-x-6 sm:grid-cols-4">
@@ -451,7 +467,7 @@ function Dashboard() {
           ) : (
             <ul className="divide-y divide-border/60 text-sm">
               {reviewTopics.map((item) => (
-                <li key={item.topicId} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2">
+                <li key={item.topicId} className="grid min-h-11 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 motion-reduce:transition-none">
                   <Link
                     to="/review"
                     {...(missedAnchors[item.topicId] ? { hash: missedAnchors[item.topicId] as string } : {})}
@@ -464,7 +480,7 @@ function Dashboard() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="h-8 shrink-0 px-2 text-xs"
+                    className="min-h-9 min-w-16 shrink-0 px-2 text-xs motion-safe:transition-transform motion-safe:duration-150 active:scale-95 motion-reduce:transition-none"
                     onClick={() => markReviewDone(item)}
                     aria-label={`Mark ${item.title} as done`}
                   >
@@ -488,7 +504,7 @@ function Dashboard() {
             <ul className="divide-y divide-border/60">
               {d.todaysTasks.map((task) => (
                 <li key={task.id}>
-                  <Link to={task.to} params={task.params as never} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2">
+                  <Link to={task.to} params={task.params as never} className="grid min-h-11 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 motion-reduce:transition-none">
                     <span className="min-w-0">
                       <span className="block truncate text-sm">{task.label}</span>
                       <span className="block truncate text-xs text-muted-foreground">{task.detail}</span>
@@ -505,10 +521,10 @@ function Dashboard() {
           <Link to="/certifications" className="absolute right-0 top-5 text-sm text-primary hover:underline">View all →</Link>
           <ul className="divide-y divide-border/60">
             {d.certificationReadiness.map((cert) => (
-              <li key={cert.id} className="grid grid-cols-[minmax(0,1fr)_7rem_auto] items-center gap-3 py-2.5">
+              <li key={cert.id} className="group grid min-h-11 grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 motion-reduce:transition-none sm:grid-cols-[minmax(0,1fr)_7rem_auto]">
                 <p className="min-w-0 truncate text-sm">{cert.title}</p>
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><Meter value={cert.overall} /><span className="text-sm font-semibold tabular-nums">{cert.overall}%</span></div>
-                <ChevronRight className="size-4 text-primary" aria-hidden />
+                <ChevronRight className="size-4 text-muted-foreground motion-safe:transition-all motion-safe:duration-150 group-hover:translate-x-0.5 group-hover:text-primary motion-reduce:transition-none" aria-hidden />
               </li>
             ))}
           </ul>
@@ -518,10 +534,10 @@ function Dashboard() {
           <Link to="/career-skills" className="absolute right-0 top-5 text-sm text-primary hover:underline">View all →</Link>
           <div className="divide-y divide-border/60">
             {d.careerReadiness.map((track) => (
-              <div key={track.track} className="grid grid-cols-[minmax(0,1fr)_7rem_auto] items-center gap-3 py-2.5">
+              <div key={track.track} className="group grid min-h-11 grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 motion-reduce:transition-none sm:grid-cols-[minmax(0,1fr)_7rem_auto]">
                 <p className="truncate text-sm">{track.label}</p>
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><Meter value={track.score} /><span className="text-sm font-semibold tabular-nums">{track.score}%</span></div>
-                <ChevronRight className="size-4 text-primary" aria-hidden />
+                <ChevronRight className="size-4 text-muted-foreground motion-safe:transition-all motion-safe:duration-150 group-hover:translate-x-0.5 group-hover:text-primary motion-reduce:transition-none" aria-hidden />
               </div>
             ))}
           </div>
