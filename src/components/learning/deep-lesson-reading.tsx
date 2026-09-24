@@ -181,7 +181,7 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
               className="scroll-mt-24"
             >
               <AccordionTrigger className="text-left">
-                <span className="flex min-w-0 items-baseline gap-3">
+                <span className="flex min-w-0 flex-1 items-baseline gap-3">
                   <span className="font-mono text-xs text-primary">
                     {String(index + 1).padStart(2, "0")}
                   </span>
