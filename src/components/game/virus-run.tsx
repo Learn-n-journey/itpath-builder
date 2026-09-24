@@ -853,12 +853,17 @@ export function VirusRun() {
       </Overlay>
     ) : phase === "levelclear" ? (
       <Overlay>
-        <h3 className="font-display text-2xl font-bold text-primary">System breached</h3>
-        <p className="text-sm text-muted-foreground">Slipping deeper into the machine…</p>
+        <ShieldCheck className="size-10 text-primary" aria-hidden />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Access granted</p>
+        <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">System breached</h3>
+        <div className="h-px w-40 bg-gradient-to-r from-transparent via-primary to-transparent" aria-hidden />
+        <p className="text-sm text-muted-foreground">Entering the next system…</p>
       </Overlay>
     ) : phase === "gameover" ? (
       <Overlay>
-        <h3 className="font-display text-2xl font-bold text-destructive">Quarantined</h3>
+        <Shield className="size-10 text-destructive" aria-hidden />
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-destructive">Connection terminated</p>
+        <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-destructive">Quarantined</h3>
         <p className="text-sm text-muted-foreground">
           The antivirus found you on system {hud.level}. You harvested {hud.collected} packets this breach.
         </p>
