@@ -56,7 +56,7 @@ function Learn() {
       {path.recommendedTopic ? (
         <Panel className="mb-4 border border-primary/45 bg-card px-3 pb-3 pt-3" title="Recommended next">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-            <div className="min-w-0"><p className="truncate text-sm font-semibold">{path.recommendedTopic.title}</p><p className="truncate text-xs text-muted-foreground">{path.certification.title}</p></div>
+            <div className="min-w-0"><p className="truncate text-sm font-semibold">{path.recommendedTopic.title}</p><p className="truncate text-xs text-muted-foreground">Recommended next topic</p></div>
             <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>Start <ArrowRight /></Link></Button>
           </div>
         </Panel>
@@ -64,7 +64,7 @@ function Learn() {
       <section>
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <Input aria-label="Search topics" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search topics, objectives, or certifications" className="pl-9 pr-10" />
+          <Input aria-label="Search topics" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search topics or objectives" className="pl-9 pr-10" />
           {query ? <Button aria-label="Clear search" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setQuery("")}><X className="size-4" /></Button> : null}
         </div>
         <SectionHeading title={`${filteredTopics.length} topics`} meta="Recommended first" className="mb-1" />
@@ -75,7 +75,7 @@ function Learn() {
             {filteredTopics.map((topic) => {
               const certification = certifications.find((item) => item.id === topic.certificationId);
               const progress = topicScopeProgress(user, topic.id).overall;
-              return <Link key={topic.id} to="/topics/$topicId" params={{ topicId: topic.id }} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ContentRow icon={BookOpen} eyebrow={topic.id === path.recommendedTopic?.id ? "Recommended" : undefined} title={topic.title} description={topic.summary} metadata={certification?.title ?? "General IT"} progress={progress} /></Link>;
+              return <Link key={topic.id} to="/topics/$topicId" params={{ topicId: topic.id }} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ContentRow icon={BookOpen} eyebrow={topic.id === path.recommendedTopic?.id ? "Recommended" : undefined} title={topic.title} description={topic.summary} metadata={topic.difficulty === "gentle" ? "Foundation" : topic.difficulty === "standard" ? "Core" : "Advanced"} progress={progress} /></Link>;
             })}
           </div>
         )}
