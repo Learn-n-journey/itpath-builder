@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ExternalLink, FileText, Search, SlidersHorizontal, X } from "lucide-react";
+import { BadgeCheck, Bookmark, ExternalLink, FileText, Search, SlidersHorizontal, Target, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
-import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
+import { EmptyState, LearnerPageSkeleton, PageHeader } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,6 +61,13 @@ function ResourcesPage() {
     });
   }, [filters, query]);
 
+  const currentTopicId = user.activeTopicId;
+  const currentTopic = topics.find((topic) => topic.id === currentTopicId);
+  const currentTopicResources = currentTopicId
+    ? filteredResources.filter((resource) => resource.topicIds.includes(currentTopicId)).slice(0, 3)
+    : [];
+  const featuredIds = new Set(currentTopicResources.map((resource) => resource.id));
+  const libraryResources = filteredResources.filter((resource) => !featuredIds.has(resource.id));
   const hasFilters = query.length > 0 || Object.values(filters).some((value) => value !== "all");
   function clearFilters() { setQuery(""); setFilters(emptyFilters); }
   function updateFilter(key: keyof Filters, value: string) { setFilters((current) => ({ ...current, [key]: value })); }
@@ -69,7 +76,7 @@ function ResourcesPage() {
 
   return (
     <>
-      <PageHeader title="Resources" description="Verified references and training matched to your curriculum." />
+      <PageHeader title="Resources" description="Verified references and training matched to your journey." />
 
       <section>
         <div className="relative">
@@ -83,19 +90,45 @@ function ResourcesPage() {
           <ResourceFilter label="Type" allLabel="All types" value={filters.kind} onChange={(value) => updateFilter("kind", value)} options={Object.entries(kindLabels).map(([value, label]) => ({ value, label }))} />
           <ResourceFilter label="Access" allLabel="All access" value={filters.access} onChange={(value) => updateFilter("access", value)} options={[{ value: "free", label: "Free" }, { value: "paid", label: "Paid" }]} />
         </div></details>
-        {hasFilters ? <Button variant="ghost" className="mt-4" onClick={clearFilters}><X />Clear all filters</Button> : null}
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          <QuickFilter active={filters.kind === "all"} onClick={() => updateFilter("kind", "all")}>All</QuickFilter>
+          <QuickFilter active={filters.kind === "course" || filters.kind === "learning-path"} onClick={() => updateFilter("kind", filters.kind === "course" ? "learning-path" : "course")}>Courses</QuickFilter>
+          <QuickFilter active={filters.kind === "docs"} onClick={() => updateFilter("kind", "docs")}>Docs</QuickFilter>
+          <QuickFilter active={filters.kind === "video"} onClick={() => updateFilter("kind", "video")}>Videos</QuickFilter>
+        </div>
+        {hasFilters ? <Button variant="ghost" size="sm" className="mt-2" onClick={clearFilters}><X />Clear filters</Button> : null}
       </section>
 
-      <section className="mt-4" aria-label="Resource results">
+      {currentTopic && currentTopicResources.length > 0 ? (
+        <section className="mt-5 rounded-2xl border border-primary/30 bg-primary/5 p-3 sm:p-4" aria-label={`Resources for ${currentTopic.title}`}>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="grid size-10 shrink-0 place-items-center rounded-full border border-primary/30 bg-primary/10 text-primary"><Target className="size-5" aria-hidden /></span>
+              <div className="min-w-0">
+                <h2 className="truncate font-display text-base font-semibold">For {currentTopic.title}</h2>
+                <p className="text-xs text-muted-foreground">{filteredResources.filter((resource) => resource.topicIds.includes(currentTopic.id)).length} verified resources</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            {currentTopicResources.map((resource) => <ResourceCard key={resource.id} resource={resource} noteOpen={openNoteId === resource.id} onToggleNote={() => setOpenNoteId((current) => current === resource.id ? null : resource.id)} featured />)}
+          </div>
+        </section>
+      ) : null}
+
+      <section className="mt-5" aria-label="Resource results">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div><h2 className="font-display text-lg font-semibold">All resources</h2><p className="text-xs text-muted-foreground">{filteredResources.length} resources</p></div>
+        </div>
         {filteredResources.length === 0 ? (
           <EmptyState icon={Search} title="No resources found" body="No verified resource matches the current search and filters.">
             <Button variant="outline" onClick={clearFilters}>Clear all filters</Button>
           </EmptyState>
-        ) : (
+        ) : libraryResources.length > 0 ? (
           <div className="grid gap-2 lg:grid-cols-2">
-            {filteredResources.map((resource) => <ResourceCard key={resource.id} resource={resource} noteOpen={openNoteId === resource.id} onToggleNote={() => setOpenNoteId((current) => current === resource.id ? null : resource.id)} />)}
+            {libraryResources.map((resource) => <ResourceCard key={resource.id} resource={resource} noteOpen={openNoteId === resource.id} onToggleNote={() => setOpenNoteId((current) => current === resource.id ? null : resource.id)} />)}
           </div>
-        )}
+        ) : <p className="rounded-xl border border-border/60 py-6 text-center text-sm text-muted-foreground">All matching resources are shown above for your current topic.</p>}
       </section>
     </>
   );
@@ -105,7 +138,11 @@ function ResourceFilter({ label, allLabel, value, onChange, options }: { label: 
   return <div><Label>{label}</Label><Select value={value} onValueChange={onChange}><SelectTrigger className="mt-1.5" aria-label={`${label} filter`}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">{allLabel}</SelectItem>{options.map((option) => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}</SelectContent></Select></div>;
 }
 
-function ResourceCard({ resource, noteOpen, onToggleNote }: { resource: Resource; noteOpen: boolean; onToggleNote: () => void }) {
+function QuickFilter({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return <Button type="button" variant={active ? "default" : "outline"} size="sm" className="shrink-0 rounded-full px-4" onClick={onClick}>{children}</Button>;
+}
+
+function ResourceCard({ resource, noteOpen, onToggleNote, featured = false }: { resource: Resource; noteOpen: boolean; onToggleNote: () => void; featured?: boolean }) {
   const { user } = useAppState();
   const target = { kind: "resource" as const, id: resource.id, label: resource.title, href: resource.url };
   const bookmark = bookmarkFor(user, target);
@@ -115,32 +152,30 @@ function ResourceCard({ resource, noteOpen, onToggleNote }: { resource: Resource
 
 
   return (
-    <article className="rounded-md border border-border bg-card p-3">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0"><p className="text-xs font-medium text-primary">{resource.provider}</p><h2 className="mt-1 font-display text-base font-semibold">{resource.title}</h2></div>
-        <Badge variant={resource.status === "verified" ? "secondary" : "outline"}>{resource.status === "verified" ? "Verified" : "Unavailable"}</Badge>
+    <article className={featured ? "rounded-xl border border-primary/25 bg-card/80 p-4 shadow-sm" : "border-b border-border/60 px-1 py-4 last:border-b-0"}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="flex items-center gap-1.5 text-xs font-medium text-primary">
+            {resource.provider}
+            {resource.status === "verified" ? <BadgeCheck className="size-3.5" aria-label="Verified" /> : null}
+          </p>
+          <h2 className="mt-1 font-display text-base font-semibold leading-snug">{resource.title}</h2>
+        </div>
+        {resource.status !== "verified" ? <Badge variant="outline">Unavailable</Badge> : null}
       </div>
+      {resourceTopics.length > 0 ? <p className="mt-2 line-clamp-1 text-xs text-muted-foreground"><span className="font-medium text-foreground/75">Matches:</span> {resourceTopics.map((topic) => topic.title).join(" · ")}</p> : null}
       <div className="mt-2 flex flex-wrap gap-1.5">
-        <Badge variant="outline">{certification?.title ?? "General IT"}</Badge><Badge variant="outline">{kindLabels[resource.kind]}</Badge><Badge variant="outline">{resource.access === "free" ? "Free" : "Paid"}</Badge>
+        <Badge variant="outline" className="font-normal">{kindLabels[resource.kind]}</Badge>
+        <Badge variant="outline" className="font-normal">{resource.access === "free" ? "Free" : "Paid"}</Badge>
+        {certification ? <Badge variant="outline" className="max-w-44 truncate font-normal">{certification.title}</Badge> : null}
       </div>
-      <p className="mt-2 line-clamp-1 text-xs text-muted-foreground">{resourceTopics.map((topic) => topic.title).join(" · ")}</p>
-      <p className="mt-1 text-[0.6875rem] text-muted-foreground">Verified <time dateTime={resource.lastVerified}>{resource.lastVerified}</time></p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <Button asChild size="sm"><a href={resource.url} target="_blank" rel="noreferrer">Open<ExternalLink /></a></Button>
-        <Button variant="outline" size="sm" onClick={onToggleNote}>
-          <FileText />
-          {noteOpen ? "Hide notes" : savedNotes.length > 0 ? `Notes (${savedNotes.length})` : "Add note"}
-          {bookmark ? " · Bookmarked" : ""}
-        </Button>
+      <div className="mt-3 flex items-center gap-1 border-t border-border/50 pt-3">
+        <Button asChild variant="ghost" size="sm" className="px-2 text-primary hover:text-primary"><a href={resource.url} target="_blank" rel="noreferrer"><ExternalLink className="size-4" />Open</a></Button>
+        <Button variant="ghost" size="icon" aria-label={bookmark ? "Bookmarked" : "Bookmark available in notes"} onClick={onToggleNote}><Bookmark className={bookmark ? "fill-current text-primary" : ""} /></Button>
+        <Button variant="ghost" size="icon" aria-label={noteOpen ? "Hide notes" : "Add note"} onClick={onToggleNote}><FileText /></Button>
+        <span className="ml-auto text-[0.6875rem] text-muted-foreground">Verified <time dateTime={resource.lastVerified}>{new Date(resource.lastVerified).toLocaleDateString(undefined, { month: "short", year: "numeric" })}</time></span>
       </div>
-      {noteOpen ? (
-        <AnnotationPanel
-          className="mt-5"
-          target={target}
-          title="Resource notes and bookmark"
-          description="Saved on this device and shown in your Bookmarks view."
-        />
-      ) : null}
+      {noteOpen ? <AnnotationPanel className="mt-4" target={target} title="Resource notes and bookmark" description="Saved on this device and shown in your Bookmarks view." /> : null}
     </article>
   );
 }
