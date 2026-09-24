@@ -84,12 +84,12 @@ export const Route = createFileRoute("/practice")({
       {
         name: "description",
         content:
-          "Practice tasks for every certification, evaluated against visible criteria and saved as attempts.",
+          "Applied practice tasks across the curriculum, evaluated against visible criteria and saved as attempts.",
       },
       { property: "og:title", content: "Practice | IT PATH" },
       {
         property: "og:description",
-        content: "Applied IT practice grouped by certification, with honest evaluation and review.",
+        content: "Applied IT practice grouped by skill area, with honest evaluation and review.",
       },
     ],
   }),
@@ -224,7 +224,7 @@ function PracticePage() {
       </section>
 
       <section className="mt-6">
-        <h2 className="font-display text-base font-semibold">Certification</h2>
+        <h2 className="font-display text-base font-semibold">Skill area</h2>
         <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
           {groups.map((entry) => (
             <Button key={entry.id} size="sm" className="shrink-0 rounded-full" variant={entry.id === activeGroup?.id ? "default" : "outline"} onClick={() => { setGroup(entry.id); setSelectedId(""); }}>
