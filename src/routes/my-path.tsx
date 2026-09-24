@@ -1,10 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Award, Lock } from "lucide-react";
+import {
+  Award,
+  BookOpen,
+  Boxes,
+  Briefcase,
+  Check,
+  ChevronRight,
+  HardDrive,
+  Laptop,
+  Lock,
+  Map,
+  Monitor,
+  Network,
+  Settings,
+  Shield,
+  Target,
+  Terminal,
+  Trophy,
+  Wrench,
+} from "lucide-react";
 
 import { GaylPathNote } from "@/components/gayl/gayl-insights";
 import { TopicRowMenu } from "@/components/learning/topic-row-menu";
-import { LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
-import { Badge } from "@/components/ui/badge";
+import { LearnerPageSkeleton } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { topics } from "@/data/static-content";
 import {
@@ -13,12 +31,11 @@ import {
   certificationsByLevel,
 } from "@/lib/cert-path";
 import { useAppState, useStats } from "@/state/app-state";
-import { adaptivePath, experienceStartBlurb } from "@/lib/adaptive-path";
+import { adaptivePath } from "@/lib/adaptive-path";
 import { adaptiveQueue } from "@/lib/adaptive-engine";
-import { currentJourneyTopic } from "@/lib/journey-order";
+import { currentJourneyTopic, hasTopicActivity, isMastered } from "@/lib/journey-order";
 import { useDismissable } from "@/hooks/use-dismissable";
-import { SectionTabs, PATH_TABS } from "@/components/layout/section-tabs";
-import { CompactStat, CompactStats, ContentRow, ProgressLine } from "@/components/learner-ui";
+import { CompactStat, CompactStats, ContentRow } from "@/components/learner-ui";
 import { topicScopeProgress } from "@/lib/scope-progress";
 import { accentFill, journeyAccent } from "@/lib/visual-accents";
 import { cn } from "@/lib/utils";
@@ -43,6 +60,38 @@ export const Route = createFileRoute("/my-path")({
   }),
   component: MyPath,
 });
+
+function getTopicIcon(topic: { id: string; title: string }) {
+  const text = `${topic.id} ${topic.title}`.toLowerCase();
+  if (text.includes("hardware") || text.includes("computer") || text.includes("pc") || text.includes("peripherals")) return Monitor;
+  if (text.includes("operating system") || text.includes("configuration")) return Settings;
+  if (text.includes("network") || text.includes("lan") || text.includes("ip") || text.includes("router")) return Network;
+  if (text.includes("command") || text.includes("terminal") || text.includes("cli") || text.includes("shell") || text.includes("bash")) return Terminal;
+  if (text.includes("virtual") || text.includes("cloud") || text.includes("vm") || text.includes("hypervisor")) return Boxes;
+  if (text.includes("career") || text.includes("work") || text.includes("professional") || text.includes("skills")) return Briefcase;
+  if (text.includes("security") || text.includes("threat") || text.includes("firewall") || text.includes("malware")) return Shield;
+  if (text.includes("storage") || text.includes("drive") || text.includes("raid") || text.includes("backup")) return HardDrive;
+  if (text.includes("troubleshoot") || text.includes("repair") || text.includes("diagnostic")) return Wrench;
+  return Laptop;
+}
+
+function topicStatusMetadata(
+  entry: ReturnType<typeof adaptiveQueue>["entries"][number],
+  user: Parameters<typeof isMastered>[0],
+  isFeatured: boolean,
+) {
+  const stage = entry.topic.difficulty === "gentle" ? "Foundation" : entry.topic.difficulty === "standard" ? "Core" : "Advanced";
+  const mastered = isMastered(user, entry.topic.id);
+  const active = hasTopicActivity(user, entry.topic.id) || entry.mastery > 0;
+  let status = "Not started";
+  if (!entry.unlocked) status = "Locked until previous";
+  else if (mastered) status = "Complete";
+  else if (entry.openMistakes > 0) status = `${entry.openMistakes} open mistake${entry.openMistakes === 1 ? "" : "s"}`;
+  else if (entry.dueReviews > 0) status = `${entry.dueReviews} review${entry.dueReviews === 1 ? "" : "s"} due`;
+  else if (active) status = "In progress";
+  else if (!isFeatured) status = "Up next";
+  return `${stage} · ${status}`;
+}
 
 function MyPath() {
   const stats = useStats();
@@ -69,84 +118,208 @@ function MyPath() {
 
   return (
     <>
-      <PageHeader
-        title="My Path"
-        description="Your learning journey from foundational to advanced."
-      />
-      <SectionTabs tabs={PATH_TABS} />
+      <header className="mb-4">
+        <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">My Path</h1>
+      </header>
 
-      {startHere && !startHereCleared ? (
-        <Panel
-          className="mb-4"
-          title={`${path.certification.title}: your starting point`}
-          description={`${experienceStartBlurb(user.settings.experienceLevel)} This is the first thing in the order below.`}
+      <nav
+        aria-label="Path view"
+        className="mb-3 flex h-[3.25rem] w-full max-w-md items-center rounded-full border border-border/80 bg-card/60 p-1 shadow-sm backdrop-blur-sm"
+      >
+        <Link
+          to="/my-path"
+          aria-current="page"
+          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-[background-color,color] motion-safe:duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm font-medium">{startHere.topic.title}</p>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={clearStartHere}>
-                Not now
-              </Button>
-              <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: startHere.topic.id }}>Start here <ArrowRight /></Link></Button>
-            </div>
-          </div>
-        </Panel>
-      ) : startHere ? (
-        <div className="mb-4 flex justify-end">
-          <Button variant="ghost" size="sm" onClick={restoreStartHere}>
-            Show my starting point
-          </Button>
-        </div>
-      ) : null}
+          <BookOpen className="size-4 shrink-0" aria-hidden />
+          <span>My Path</span>
+        </Link>
+        <Link
+          to="/journey"
+          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors motion-safe:duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Map className="size-4 shrink-0" aria-hidden />
+          <span>Journey Map</span>
+        </Link>
+      </nav>
 
+      <div className="mb-4 flex justify-end">
+        {startHere && startHereCleared ? (
+          <button
+            type="button"
+            onClick={restoreStartHere}
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <Target className="size-3.5 shrink-0" aria-hidden />
+            <span>Show my starting point</span>
+          </button>
+        ) : startHere ? (
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <span className="inline-flex min-h-11 items-center gap-1.5 text-xs font-medium text-primary/80">
+              <Target className="size-3.5 shrink-0 text-primary" aria-hidden />
+              <span>Starting point: {startHere.topic.title}</span>
+            </span>
+            <Button variant="ghost" size="sm" onClick={clearStartHere}>Hide</Button>
+          </div>
+        ) : null}
+      </div>
 
       <GaylPathNote className="mb-4" {...(current ? { topicId: current.id } : {})} />
 
-      <Panel
-        className="mb-4"
-        title="Your order"
-        description="Work through the topics in the order shown. Anything you owe (due reviews and open mistakes) is lifted to the top."
-      >
-        <ul className="space-y-2">
-          {queue.entries.slice(0, 6).map((entry) => (
-            <li
-              key={entry.topic.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 rounded-lg border border-border bg-background/40 p-3"
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{entry.topic.title}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {entry.reason} {entry.mastery}% recorded.
-                </p>
-              </div>
-              {entry.unlocked ? (
-                <>
-                  <Button asChild size="sm" variant="secondary">
-                    <Link to="/topics/$topicId" params={{ topicId: entry.topic.id }}>
-                      Open
-                    </Link>
-                  </Button>
-                  <TopicRowMenu topicId={entry.topic.id} title={entry.topic.title} />
-                </>
-              ) : (
-                <>
-                  <span className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">
-                    <Lock className="size-3" aria-hidden />
-                    Locked
-                  </span>
-                  <span />
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-        <p className="mt-3 text-xs text-muted-foreground">
-          {queue.hasData
-            ? "A topic opens once the one before it is mastered."
-            : "Reviews and open mistakes move to the top once you have recorded some work."}
-        </p>
-      </Panel>
+      <section className="mb-6" aria-labelledby="your-order-heading">
+        <div className="mb-4">
+          <h2 id="your-order-heading" className="font-display text-2xl font-bold tracking-tight text-foreground">Your order</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {queue.entries.slice(0, 6).length} topics · Work through these in order.
+          </p>
+        </div>
 
+        <div className="relative space-y-4">
+          {queue.entries.slice(0, 6).map((entry, idx, displayedEntries) => {
+            const isLast = idx === displayedEntries.length - 1;
+            const isFeatured = entry.topic.id === (queue.next?.topic.id ?? displayedEntries[0]?.topic.id);
+            const isCompleted = isMastered(user, entry.topic.id);
+            const hasActivity = hasTopicActivity(user, entry.topic.id) || entry.mastery > 0;
+            const TopicIcon = getTopicIcon(entry.topic);
+            const metadata = topicStatusMetadata(entry, user, isFeatured);
+            const stepNumber = idx + 1;
+
+            return (
+              <div key={entry.topic.id} className="relative flex items-center gap-3 sm:gap-4">
+                <div className="relative flex w-10 shrink-0 flex-col items-center self-stretch">
+                  {!isLast ? (
+                    <div
+                      aria-hidden
+                      className={cn(
+                        "absolute bottom-[-1.25rem] top-5 w-0.5",
+                        isCompleted || isFeatured ? "bg-primary/80" : "bg-border/60",
+                      )}
+                    />
+                  ) : null}
+                  <div className="relative z-10 my-auto">
+                    {isFeatured ? (
+                      <div className="flex size-10 items-center justify-center rounded-full border-2 border-primary bg-background text-sm font-bold text-primary ring-4 ring-primary/20">
+                        {stepNumber}
+                      </div>
+                    ) : isCompleted ? (
+                      <div className="flex size-8 items-center justify-center rounded-full border border-primary/50 bg-primary/15 text-primary">
+                        <Check className="size-4 stroke-[2.5]" aria-hidden />
+                        <span className="sr-only">Complete</span>
+                      </div>
+                    ) : entry.unlocked ? (
+                      <div className="flex size-8 items-center justify-center rounded-full border border-border/80 bg-secondary/60 text-xs font-semibold text-foreground/80">
+                        {stepNumber}
+                      </div>
+                    ) : (
+                      <div className="flex size-8 items-center justify-center rounded-full border border-border/40 bg-secondary/30 text-xs font-medium text-muted-foreground/50">
+                        {stepNumber}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  {isFeatured ? (
+                    <div className="relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-card/95 via-card/90 to-secondary/30 p-4 shadow-lg sm:p-5">
+                      <div className="mb-2 flex items-center gap-1.5 text-[0.625rem] font-bold uppercase tracking-[0.18em] text-primary">
+                        <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" aria-hidden />
+                        <span>Next up</span>
+                      </div>
+                      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-4">
+                        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary">
+                          <TopicIcon className="size-6" aria-hidden />
+                        </div>
+                        <div className="min-w-0">
+                          <Link
+                            to="/topics/$topicId"
+                            params={{ topicId: entry.topic.id }}
+                            className="line-clamp-2 font-display text-base font-semibold text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:text-lg"
+                          >
+                            {entry.topic.title}
+                          </Link>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{metadata}</p>
+                        </div>
+                        <Button asChild size="sm" className="col-span-2 h-10 rounded-xl font-semibold sm:col-span-1">
+                          <Link to="/topics/$topicId" params={{ topicId: entry.topic.id }}>
+                            {hasActivity ? "Continue" : "Start"}
+                            <ChevronRight className="ml-1 size-4" aria-hidden />
+                          </Link>
+                        </Button>
+                      </div>
+                      <div className="mt-3 flex items-center gap-3">
+                        <div
+                          className="h-1 flex-1 overflow-hidden rounded-full bg-secondary/80"
+                          role="progressbar"
+                          aria-label={`${entry.topic.title} progress`}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={entry.mastery}
+                        >
+                          <div
+                            className="h-full bg-primary motion-safe:transition-[width] motion-safe:duration-300"
+                            style={{ width: `${Math.min(100, Math.max(0, entry.mastery))}%` }}
+                          />
+                        </div>
+                        <span className="shrink-0 font-display text-xs tabular-nums text-muted-foreground">{entry.mastery}%</span>
+                      </div>
+                    </div>
+                  ) : entry.unlocked ? (
+                    <div className="group relative flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/60 p-3 transition-colors hover:border-border hover:bg-card/90 sm:p-3.5">
+                      <Link
+                        to="/topics/$topicId"
+                        params={{ topicId: entry.topic.id }}
+                        className="grid min-h-11 min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      >
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-secondary/50 text-muted-foreground">
+                          <TopicIcon className="size-5" aria-hidden />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="line-clamp-2 text-sm font-medium text-foreground transition-colors group-hover:text-primary">{entry.topic.title}</p>
+                          <p className="truncate text-xs text-muted-foreground">{metadata}</p>
+                        </div>
+                      </Link>
+                      <div className="flex shrink-0 items-center gap-1">
+                        <TopicRowMenu topicId={entry.topic.id} title={entry.topic.title} className="opacity-60 hover:opacity-100" />
+                        <ChevronRight className="size-5 text-muted-foreground transition-transform motion-safe:group-hover:translate-x-0.5" aria-hidden />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-border/40 bg-card/30 p-3 opacity-75 sm:p-3.5">
+                      <div className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/30 bg-secondary/30 text-muted-foreground/50">
+                          <TopicIcon className="size-5" aria-hidden />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="line-clamp-2 text-sm font-medium text-muted-foreground/80">{entry.topic.title}</p>
+                          <p className="truncate text-xs text-muted-foreground/50">{metadata}</p>
+                        </div>
+                      </div>
+                      <div className="flex size-8 shrink-0 items-center justify-center text-muted-foreground/50">
+                        <Lock className="size-4" aria-hidden />
+                        <span className="sr-only">Locked</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex items-center gap-3.5 rounded-2xl border border-border/60 bg-card/50 p-4">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-feature-amber/25 bg-feature-amber/10 text-feature-amber">
+            <Trophy className="size-5" aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-display text-sm font-semibold text-foreground">Complete in order</h3>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+              {queue.hasData
+                ? "A topic opens once the one before it is mastered. Reviews and open mistakes are lifted to the top when they are due."
+                : "Reviews and open mistakes move to the top once you have recorded some work."}
+            </p>
+          </div>
+        </div>
+      </section>
 
       <CompactStats className="grid-cols-4"><CompactStat label="Certifications" value={certCount} /><CompactStat label="Topics" value={topics.length} /><CompactStat label="Completed" value={stats.topicsCompleted} /><CompactStat label="Mastered" value={stats.topicsMastered} /></CompactStats>
 
