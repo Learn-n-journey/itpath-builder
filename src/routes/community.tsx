@@ -28,6 +28,8 @@ import { GENERAL_ROOM, isValidRoom, roomTitle, topicForRoom } from "@/lib/commun
 import { currentJourneyTopic, journeyTopics } from "@/lib/journey-order";
 import { cn } from "@/lib/utils";
 
+// Community workspace: responsive room navigation, conversation feed, and study context.
+
 export const Route = createFileRoute("/community")({
   staticData: { sitemap: false },
   validateSearch: (search: Record<string, unknown>) => ({
