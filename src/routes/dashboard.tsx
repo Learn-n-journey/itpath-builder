@@ -256,45 +256,76 @@ function Dashboard() {
         </div>
       </header>
 
-      <nav aria-label="Learning Journey" className="mb-6 rounded-xl border border-border/50 bg-card/40 p-3.5 shadow-sm sm:p-5">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Your Learning Journey</span>
+      <nav
+        aria-label="Learning Journey"
+        className="relative mb-6 rounded-2xl border border-border/40 bg-card/30 p-4 shadow-sm backdrop-blur-sm sm:p-5 md:p-6"
+      >
+        <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4">
+          <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground/80">
+            Your Learning Journey
+          </span>
           <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
             Step {Math.min(courseTopicIndex + 1, journeyCourse.length)} of {journeyCourse.length}
           </span>
         </div>
-        <div className="relative">
-          <div className="absolute left-6 right-6 top-4 h-[2px] bg-border/60" aria-hidden />
+
+        <div className="relative pt-1">
           <div
-            className="absolute left-6 top-4 h-[2px] bg-gradient-to-r from-primary/80 to-primary shadow-sm motion-safe:transition-[width] motion-safe:duration-300 motion-reduce:transition-none"
-            style={{ width: `calc((100% - 3rem) * ${journeyFillPercent / 100})` }}
-            aria-hidden
+            className="pointer-events-none absolute left-[10%] right-[10%] top-[2.25rem] h-[2px] bg-border/40 sm:top-[2.375rem]"
+            aria-hidden="true"
           />
-          <div className="relative z-10 flex items-start justify-between gap-1 overflow-x-auto pb-1 sm:gap-2">
+          <div
+            className="pointer-events-none absolute left-[10%] top-[2.25rem] h-[2px] bg-gradient-to-r from-primary/80 via-primary to-primary shadow-sm shadow-primary/30 motion-safe:transition-[width] motion-safe:duration-300 motion-reduce:transition-none sm:top-[2.375rem]"
+            style={{ width: `calc(80% * ${journeyFillPercent / 100})` }}
+            aria-hidden="true"
+          />
+
+          <div className="relative z-10 flex w-full items-start justify-between gap-1 sm:gap-2">
             {journeyWindow.map((step) => {
               const node = (
-                <>
+                <div className="flex w-full min-w-0 flex-col items-center">
+                  <div className="flex h-5 items-center justify-center">
+                    {step.isCurrent ? (
+                      <span className="inline-flex whitespace-nowrap rounded-full border border-primary/40 bg-primary/20 px-1.5 py-0.5 text-[0.5rem] font-bold uppercase tracking-wider text-primary shadow-sm shadow-primary/25 sm:px-2 sm:text-[0.625rem]">
+                        <span className="sm:hidden">Here</span>
+                        <span className="hidden sm:inline">You Are Here</span>
+                      </span>
+                    ) : (
+                      <span className="h-5" aria-hidden="true" />
+                    )}
+                  </div>
+
+                  <div className="mt-1 flex items-center justify-center">
+                    <span
+                      className={
+                        step.isCurrent
+                          ? "grid size-8 place-items-center rounded-full bg-primary font-display text-xs font-bold text-primary-foreground ring-4 ring-primary/25 shadow-lg shadow-primary/30 motion-safe:transition-transform motion-safe:duration-150 group-active:scale-95 motion-reduce:transition-none sm:size-9 sm:text-sm"
+                          : step.isCompleted
+                            ? "grid size-7 place-items-center rounded-full border border-primary/50 bg-primary/15 text-xs font-semibold text-primary shadow-sm motion-safe:transition-all motion-safe:duration-150 group-hover:scale-105 group-hover:border-primary/80 motion-reduce:transition-none sm:size-8"
+                            : "grid size-7 place-items-center rounded-full border border-border/80 bg-secondary/50 font-display text-xs font-medium text-muted-foreground/50 sm:size-8"
+                      }
+                      aria-hidden="true"
+                    >
+                      {step.isCompleted ? (
+                        <Check className="size-3.5 stroke-[2.5]" />
+                      ) : (
+                        <span>{step.index}</span>
+                      )}
+                    </span>
+                  </div>
+
                   <span
-                    className={
+                    className={`mt-2 block max-w-[3.75rem] truncate text-center sm:max-w-[6.5rem] ${
                       step.isCurrent
-                        ? "grid size-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground ring-4 ring-primary/25 shadow-md shadow-primary/20 motion-safe:transition-transform motion-safe:duration-150 group-active:scale-95 motion-reduce:transition-none sm:size-9"
+                        ? "font-display text-[0.6875rem] font-bold text-foreground sm:text-sm"
                         : step.isCompleted
-                          ? "grid size-7 place-items-center rounded-full border border-primary/40 bg-primary/15 text-xs font-semibold text-primary motion-safe:transition-all motion-safe:duration-150 group-hover:scale-105 group-hover:border-primary/80 motion-reduce:transition-none sm:size-8"
-                          : "grid size-7 place-items-center rounded-full border border-border/80 bg-secondary/60 text-xs font-medium text-muted-foreground/60 sm:size-8"
-                    }
-                    aria-hidden
+                          ? "text-[0.625rem] font-medium text-muted-foreground/80 motion-safe:transition-colors group-hover:text-foreground sm:text-xs"
+                          : "text-[0.625rem] font-medium text-muted-foreground/50 sm:text-xs"
+                    }`}
                   >
-                    {step.isCompleted ? <Check className="size-3.5 stroke-[2.5]" /> : <span className="font-display font-bold">{step.index}</span>}
-                  </span>
-                  {step.isCurrent ? (
-                    <span className="mt-1 inline-flex items-center rounded-full bg-primary/15 px-1.5 py-0.5 text-[0.5625rem] font-bold uppercase tracking-widest text-primary">Here</span>
-                  ) : (
-                    <span className="mt-1 h-3.5" aria-hidden />
-                  )}
-                  <span className={`mt-0.5 block max-w-[4.5rem] truncate text-center ${step.isCurrent ? "font-display text-xs font-semibold text-foreground" : "text-[0.6875rem] font-medium text-muted-foreground/70 group-hover:text-foreground"} sm:max-w-[6.5rem]`}>
                     {step.topic.title}
                   </span>
-                </>
+                </div>
               );
 
               return step.isOpen ? (
@@ -303,8 +334,14 @@ function Dashboard() {
                   to="/topics/$topicId"
                   params={{ topicId: step.topic.id }}
                   aria-current={step.isCurrent ? "step" : undefined}
-                  aria-label={step.isCompleted ? `Completed: ${step.topic.title}` : step.isCurrent ? `Current: ${step.topic.title}` : step.topic.title}
-                  className="group flex min-h-12 min-w-[4.25rem] flex-1 flex-col items-center rounded-lg py-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:min-w-[6.5rem]"
+                  aria-label={
+                    step.isCompleted
+                      ? `Completed: ${step.topic.title}`
+                      : step.isCurrent
+                        ? `Current: ${step.topic.title}`
+                        : step.topic.title
+                  }
+                  className="group flex min-h-12 min-w-0 flex-1 flex-col items-center rounded-lg py-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   {node}
                 </Link>
@@ -312,8 +349,14 @@ function Dashboard() {
                 <div
                   key={step.topic.id}
                   aria-current={step.isCurrent ? "step" : undefined}
-                  aria-label={step.isCompleted ? `Completed: ${step.topic.title}` : step.isCurrent ? `Current: ${step.topic.title}` : `Locked: ${step.topic.title}`}
-                  className="group flex min-h-12 min-w-[4.25rem] flex-1 flex-col items-center rounded-lg py-1 text-center sm:min-w-[6.5rem]"
+                  aria-label={
+                    step.isCompleted
+                      ? `Completed: ${step.topic.title}`
+                      : step.isCurrent
+                        ? `Current: ${step.topic.title}`
+                        : `Locked: ${step.topic.title}`
+                  }
+                  className="group flex min-h-12 min-w-0 flex-1 flex-col items-center rounded-lg py-1 text-center opacity-70"
                 >
                   {node}
                 </div>
