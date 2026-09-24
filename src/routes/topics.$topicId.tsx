@@ -188,7 +188,6 @@ function TopicPage() {
       <Panel
         className="mb-4"
         title="Quick links"
-        description="Jump straight to a learning stage."
       >
         <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {TOPIC_SHORTCUTS.filter((shortcut) => shortcut.when(topic)).map((shortcut) => (
@@ -206,7 +205,7 @@ function TopicPage() {
       <TopicLearningExperience topic={topic} />
 
       {mastered ? (
-        <Panel className="mt-5 border-success/40" title={`${topic.title} mastered`} description="Your recorded evidence meets this topic's mastery requirements.">
+        <Panel className="mt-5 border-success/40" title={`${topic.title} mastered`}>
           <div className="flex flex-wrap gap-2">
             {next ? <Button asChild><Link to="/topics/$topicId" params={{ topicId: next.id }}>Next topic <ArrowRight /></Link></Button> : <Button asChild><Link to="/my-path">Continue path <ArrowRight /></Link></Button>}
             <Button asChild variant="secondary"><Link to="/review">Review mistakes</Link></Button>

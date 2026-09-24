@@ -135,7 +135,7 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
 
   return (
     <div className="space-y-4">
-      <Panel title="Start here" description={`Read it at your own pace, in ${lesson.sections.length} short parts.`}>
+      <Panel title="Start here">
         <div className="space-y-4 text-sm leading-7 text-muted-foreground">
           {lesson.plain ? (
             <p className="rounded-lg border border-border/70 bg-secondary/25 p-4 text-foreground">
@@ -161,7 +161,7 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
 
       <Panel
         title="The lesson, part by part"
-        description="Open one part at a time. Each part stands on its own, so you can stop and come back."
+        help="Open one part at a time. Your place is saved so you can stop and return."
       >
         {saved && !hashPresent ? <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-secondary/25 p-3"><p className="text-sm text-muted-foreground">Continue at {lessonConceptSectionsLabel(saved.sectionId, lesson)}.</p><Button size="sm" variant="outline" onClick={resume}><Play aria-hidden />Continue where you left off</Button></div> : null}
         <Accordion

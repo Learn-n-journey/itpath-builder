@@ -47,7 +47,7 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
   return (
     <Panel
       title="What opens the next section"
-      description="The 20-question topic quiz, passed at 80 or better. The try-it work and the lab are practice — take them whenever you want, they never hold you back."
+      help="Score 80% or better on every required activity. Practice work and labs never hold you back."
     >
       <ul className="space-y-3">
         {required.map((item) => (
@@ -103,7 +103,6 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
           </ul>
         </div>
       ) : null}
-      <p className="mt-4 text-xs text-muted-foreground">{gate.summary}</p>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button asChild size="sm" variant="secondary">
           <Link to="/section-quiz/$topicId" params={{ topicId }}>
