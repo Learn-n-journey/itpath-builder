@@ -1,16 +1,19 @@
 /**
  * The mastery gate.
  *
- * A section opens the next one on one thing only:
- *
- *   Knowledge check      the 20-question topic quiz, passed at 80 or better
- *
- * Everything else a topic offers — the try-it practice, recall prompts, the
- * teach-back brief, the real-world scenario and the hands-on lab — is practice.
- * It is there whenever the learner wants it and never stands between sections.
+ * A section opens the next one only when every graded Prove It activity is at
+ * 80 or better: the 20-question quiz, every recall question, every practice
+ * question, the teach back and the real-world scenario. Labs stay optional.
  */
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { topicEvidence, type EvidenceItem, type ScopeDimensionKey } from "@/lib/scope-progress";
+import { getPracticeActivities, getRealWorldScenario, getRecallQuestions } from "@/data/learning-content";
+
+/**
+ * Sections whose quiz was passed before this moment stay open: they were
+ * proven under the earlier quiz-only rule and nobody loses access.
+ */
+export const PROVE_ALL_SINCE = "2026-09-24T01:00:00.000Z";
 
 const PASS = 80;
 
@@ -57,11 +60,11 @@ const LABELS: Record<CompetencyKey, { label: string; requirement: string }> = {
   },
   recall: {
     label: "Recall practice",
-    requirement: "Answer from memory. Practice only.",
+    requirement: "Answer every recall question correctly from memory.",
   },
   application: {
     label: "Real-world scenario",
-    requirement: "Work through the scenario. Practice only.",
+    requirement: "Reason through the scenario and meet its criteria.",
   },
   practicalAbility: {
     label: "Lab (optional)",
@@ -73,7 +76,7 @@ const LABELS: Record<CompetencyKey, { label: string; requirement: string }> = {
   },
   understanding: {
     label: "Teach back",
-    requirement: "Explain the idea in your own words. Practice only.",
+    requirement: "Explain the idea in your own words, marked 80 or better.",
   },
 };
 
@@ -86,7 +89,7 @@ function bestOf(item: EvidenceItem): number | undefined {
   return Math.max(...item.attempts.map((row) => row.score));
 }
 
-function buildCompetency(key: CompetencyKey, items: EvidenceItem[]): Competency {
+function buildCompetency(key: CompetencyKey, items: EvidenceItem[], required = false): Competency {
   const { label, requirement } = LABELS[key];
   const available = items.length;
   const scores = items.map(bestOf);
@@ -101,8 +104,8 @@ function buildCompetency(key: CompetencyKey, items: EvidenceItem[]): Competency 
     key,
     label,
     requirement,
-    required: false,
-    optional: true,
+    required: required && available > 0,
+    optional: !required,
     met,
     available,
     passed,
@@ -113,7 +116,9 @@ function buildCompetency(key: CompetencyKey, items: EvidenceItem[]): Competency 
         ? "Not in this section."
         : met
           ? `Done, ${passed} of ${available} passed.`
-          : "Open whenever you want the hands-on practice.",
+          : required
+            ? `${passed} of ${available} at 80 or better.`
+            : "Open whenever you want the hands-on practice.",
   };
 }
 
@@ -148,12 +153,46 @@ function knowledgeCompetency(user: UserData, topicId: EntityId): Competency {
 export function masteryGate(user: UserData, topicId: EntityId, _now: Date = new Date()): MasteryGate {
   const evidence = topicEvidence(user, topicId);
   const practical = evidence.filter((item) => item.dimension === "practicalAbility");
+  const pick = (id: string, fallback: EvidenceItem["dimension"], reading: EvidenceItem["reading"] = "best"): EvidenceItem =>
+    evidence.find((item) => item.id === id) ?? { id, dimension: fallback, reading, attempts: [] };
+
+  const toTime = (at: string) => new Date(at).getTime();
+  const recallItems: EvidenceItem[] = getRecallQuestions(topicId).map((question) => ({
+    id: question.id,
+    dimension: "recall",
+    reading: "latest",
+    attempts: user.recallResponses
+      .filter((row) => row.topicId === topicId && row.questionId === question.id)
+      .map((row) => ({ at: toTime(row.createdAt), score: row.correct ? 100 : 0 })),
+  }));
+  const practiceItems: EvidenceItem[] = getPracticeActivities(topicId).map((activity) => ({
+    id: activity.id,
+    dimension: "application",
+    reading: "best",
+    attempts: user.practiceResponses
+      .filter((row) => row.topicId === topicId && row.activityId === activity.id)
+      .map((row) => ({ at: toTime(row.createdAt), score: row.correct ? 100 : 0 })),
+  }));
+  const scenario = getRealWorldScenario(topicId);
+  const scenarioItems = scenario ? [pick(scenario.id, "application")] : [];
 
   const quiz = knowledgeCompetency(user, topicId);
-  const competencies: Competency[] = [quiz, buildCompetency("practicalAbility", practical)];
+  const practice = { ...buildCompetency("application", practiceItems, true), label: "Practice questions", requirement: "Get every practice question right." };
+  const competencies: Competency[] = [
+    quiz,
+    buildCompetency("recall", recallItems, true),
+    practice,
+    buildCompetency("understanding", [pick(`teach-back-${topicId}`, "understanding")], true),
+    ...(scenarioItems.length ? [buildCompetency("application", scenarioItems, true)] : []).map((item) => ({ ...item, label: LABELS.application.label, requirement: LABELS.application.requirement })),
+    buildCompetency("practicalAbility", practical),
+  ];
+
+  // Sections proven under the earlier quiz-only rule stay open.
+  const passedAt = user.quizPasses?.[`section-quiz-${topicId}`]?.passedAt;
+  const grandfathered = Boolean(passedAt && passedAt < PROVE_ALL_SINCE);
 
   const required = competencies.filter((item) => item.required);
-  const outstanding = required.filter((item) => !item.met);
+  const outstanding = grandfathered ? [] : required.filter((item) => !item.met);
   const met = outstanding.length === 0;
   const weakest = outstanding[0];
 
@@ -164,7 +203,7 @@ export function masteryGate(user: UserData, topicId: EntityId, _now: Date = new 
     outstanding,
     weakest,
     summary: met
-      ? "Topic quiz passed. The next section is open."
-      : "Pass the 20-question topic quiz at 80 or better to open the next section.",
+      ? "Section proven. The next section is open."
+      : "Score 80 or better on the quiz, recall, practice, teach back and scenario to open the next section.",
   };
 }
