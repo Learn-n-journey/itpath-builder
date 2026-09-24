@@ -6,7 +6,7 @@ import { useMemo } from "react";
 import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { certifications, topics } from "@/data/static-content";
+import { topics } from "@/data/static-content";
 import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
 import { ContentRow, SectionHeading } from "@/components/learner-ui";
@@ -37,8 +37,7 @@ function Learn() {
     const ordered = focusedTopicsFirst(user);
     if (!needle) return ordered;
     return ordered.filter((topic) => {
-      const certification = certifications.find((item) => item.id === topic.certificationId);
-      return [topic.title, topic.summary, certification?.title ?? "", ...topic.learningObjectives]
+      return [topic.title, topic.summary, ...topic.learningObjectives]
         .join(" ")
         .toLowerCase()
         .includes(needle);
@@ -73,8 +72,7 @@ function Learn() {
         ) : (
           <div className="divide-y divide-border/70">
             {filteredTopics.map((topic) => {
-              const certification = certifications.find((item) => item.id === topic.certificationId);
-              const progress = topicScopeProgress(user, topic.id).overall;
+                    const progress = topicScopeProgress(user, topic.id).overall;
               return <Link key={topic.id} to="/topics/$topicId" params={{ topicId: topic.id }} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><ContentRow icon={BookOpen} eyebrow={topic.id === path.recommendedTopic?.id ? "Recommended" : undefined} title={topic.title} description={topic.summary} metadata={topic.difficulty === "gentle" ? "Foundation" : topic.difficulty === "standard" ? "Core" : "Advanced"} progress={progress} /></Link>;
             })}
           </div>
