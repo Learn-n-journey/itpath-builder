@@ -42,7 +42,7 @@ export const Route = createFileRoute("/topics/$topicId")({
 });
 
 const TOPIC_SHORTCUTS = [
-  { label: "Read It", target: "#read-it" },
+  { label: "Learn It", target: "#read-it" },
   { label: "See It", target: "#see-it" },
   { label: "Try It", target: "#try-it" },
   { label: "Prove It", target: "#prove-it" },
