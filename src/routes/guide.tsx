@@ -30,7 +30,7 @@ export const Route = createFileRoute("/guide")({
 const STEPS: Array<{ title: string; body: string; to: string; cta: string }> = [
   {
     title: "1. Set your goal",
-    body: "Choose your certification target, experience level, study days and session length. Everything else is ordered around those answers.",
+    body: "Choose your experience level, study days and session length. Everything else is ordered around your progress.",
     to: "/settings",
     cta: "Open Settings",
   },
@@ -85,10 +85,6 @@ const VOCABULARY: Array<[string, string]> = [
     "You completed the lab and wrote a reflection that shows you understood why the steps worked.",
   ],
   [
-    "Certification readiness",
-    "A weighted figure from topic scores, quizzes, labs and practice for that certification's topics only.",
-  ],
-  [
     "Career readiness",
     "Skills are scored from evidence across every activity, then weighted for each job track.",
   ],
@@ -115,11 +111,10 @@ function GuidePage() {
 
       <Panel title="Who IT PATH is for">
         <p className="text-sm text-muted-foreground">
-          IT PATH is built to help students study for IT and cybersecurity certifications, but the
-          same material is useful if you just want to understand the devices, networks and accounts
-          you interact with every day. Whether you are preparing for an exam or simply tired of
-          feeling mystified by technology, the lessons, labs and practice activities start from the
-          basics and build from there.
+          IT PATH is built to teach IT and cybersecurity from the ground up through practical work.
+          Whether you are preparing for a technology career or simply want to understand the devices,
+          networks and systems you use every day, the lessons, labs and practice activities start from
+          the basics and build toward advanced applied skills.
         </p>
       </Panel>
 
@@ -204,9 +199,8 @@ function GuidePage() {
               done nothing yet, everything reads zero, that is correct, not a fault.
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
-              IT PATH does not issue certificates and is not affiliated with any exam vendor. Readiness
-              is an estimate of your preparation, not a qualification or a guarantee of passing the
-              real exam.
+              Progress and mastery are evidence-based views of the work you have actually completed.
+              They are learning measures, not credentials or qualifications.
             </p>
           </Panel>
         </div>
