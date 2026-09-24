@@ -76,7 +76,7 @@ const allNavItems: NavItem[] = [
     to: "/my-path",
     icon: RouteIcon,
     group: "Study",
-    description: "Your route through the certification, as a list or a map.",
+    description: "Your route through the curriculum, as a list or a map.",
   },
   {
     label: "Study Plan",
@@ -133,7 +133,7 @@ const allNavItems: NavItem[] = [
     to: "/quiz-me",
     icon: HelpCircle,
     group: "Practice",
-    description: "Randomised exam-style questions on any topic or certification.",
+    description: "Randomised challenge questions on any topic or skill area.",
   },
   {
     label: "Troubleshoot",
@@ -151,11 +151,11 @@ const allNavItems: NavItem[] = [
     description: "A simulated support queue across five job roles.",
   },
   {
-    label: "Exam Simulator",
+    label: "Challenge Simulator",
     to: "/exam",
     icon: AlarmClock,
     group: "Practice",
-    description: "A full-length timed mock exam with a pass or fail report.",
+    description: "A full-length timed knowledge challenge with a detailed performance report.",
     pro: true,
   },
   {
@@ -231,19 +231,12 @@ const allNavItems: NavItem[] = [
     description: "Spaced repetition, your mistake log and a quiz on your weak areas.",
   },
   {
-    label: "Certifications",
-    to: "/certifications",
-    icon: Award,
-    group: "Career",
-    description: "Readiness per certification and the material behind it.",
-  },
-  {
     label: "Tech Jobs",
     feed: "jobs",
     to: "/tech-jobs",
     icon: Building2,
     group: "Career",
-    description: "Live IT job listings, filtered by location and certification.",
+    description: "Live IT job listings, filtered by location and role.",
   },
   {
     label: "Portfolio",
@@ -257,7 +250,7 @@ const allNavItems: NavItem[] = [
     to: "/achievements",
     icon: Medal,
     group: "You",
-    description: "Exam readiness, your streak and every badge earned from recorded work.",
+    description: "Skill progress, your streak and every badge earned from recorded work.",
   },
   {
     label: "AI Tutor",
