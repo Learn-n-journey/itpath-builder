@@ -9,7 +9,7 @@ import type { WorkedExample } from "@/data/worked-examples";
 export function WorkedExamples({
   examples,
   title = "Worked examples",
-  description = "Each calculation is shown one step at a time, then you try it yourself before revealing the answer.",
+  description,
 }: {
   examples: WorkedExample[];
   title?: string;
@@ -18,7 +18,7 @@ export function WorkedExamples({
   if (examples.length === 0) return null;
 
   return (
-    <Panel title={title} description={description}>
+    <Panel title={title} help={description}>
       <div className="space-y-6">
         {examples.map((example) => (
           <ExampleBlock key={example.id} example={example} />

@@ -346,7 +346,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <div id="lesson-reading" className="scroll-mt-24 space-y-4">
         {deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}
         {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "key-ideas"))} className="scroll-mt-24"><LessonKeyIdeas depth={deepLesson.depth} /></div> : null}
-        <div id={lessonConceptAnchor(lessonSectionId(topic.id, "core"))} className="scroll-mt-24"><Panel title={deepLesson ? "Core lesson summary" : lesson.title} description={deepLesson ? "The essential explanation and context in one place." : lesson.body}>
+        <div id={lessonConceptAnchor(lessonSectionId(topic.id, "core"))} className="scroll-mt-24"><Panel title={deepLesson ? "Core lesson summary" : lesson.title}>
           <div className="space-y-7 text-sm leading-7 text-muted-foreground">
             <ContentSection title="What It Is" text={lesson.definition} />
             <ContentSection title="Why It Matters" text={lesson.whyItMatters} />
@@ -363,7 +363,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         <WorkedExamples examples={getWorkedExamples(topic.id)} />
         {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "walkthrough"))} className="scroll-mt-24"><LessonWalkthroughPanel depth={deepLesson.depth} /></div> : null}
         {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "misconceptions"))} className="scroll-mt-24"><LessonMisconceptions depth={deepLesson.depth} /></div> : null}
-        <Panel title="Apply the pattern" description="Connect the concept to failures, troubleshooting, and exam wording.">
+        <Panel title="Apply the pattern">
           <div className="space-y-7 text-sm leading-7 text-muted-foreground">
             <ListSection title="Examples" items={lesson.realWorldExamples} />
             <div id={lessonConceptAnchor(lessonSectionId(topic.id, "problems"))} className="scroll-mt-24"><ListSection title="What goes wrong" items={[...module.commonProblems, ...module.howItFails]} /></div>
@@ -409,7 +409,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         {scenario ? <TabsContent value="scenario"><div id="scenario" className="scroll-mt-24"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}{savedScenario && !savedScenario.meetsCriteria && (() => { const sectionId = scenario.lessonSectionId ?? (scenario.id.includes("owner") || scenario.id.includes("work") ? undefined : lessonSectionId(topic.id, "troubleshooting")); const mapped = resolveLessonSection(topic.id, sectionId, deepLesson); return mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={scenario.conceptId ?? `${topic.id}:scenario:${scenario.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="scenario" sourceItemId={scenario.id} /> : null; })()}<AiFeedback state={scenarioMarking} /></Panel></div></TabsContent> : null}
       </Tabs>
       <MasteryChecklist topicId={topic.id} />
-      <div id="section-quiz" className="scroll-mt-24"><Panel title="Section quiz" description="20 questions. 80% to pass."><Button asChild><Link to="/section-quiz/$topicId" params={{ topicId: topic.id }}>Take the section quiz</Link></Button></Panel></div>
+      <div id="section-quiz" className="scroll-mt-24"><Panel title="Section quiz" help="The quiz has 20 questions. Score 80% or better to pass."><Button asChild><Link to="/section-quiz/$topicId" params={{ topicId: topic.id }}>Take the section quiz</Link></Button></Panel></div>
       <Panel title="Where you stand in this section"><div className="grid gap-5 sm:grid-cols-2"><div><div className="mb-1.5 flex justify-between text-sm"><span>Learning progress</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.learningProgress}%</span></div><Progress value={sectionMeasures.learningProgress} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.activitiesCompleted} of {sectionMeasures.activitiesTotal} activities done</p></div><div><div className="mb-1.5 flex justify-between text-sm"><span>Overall mastery</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.overallMastery}%</span></div><Progress value={sectionMeasures.overallMastery} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.assessmentsTaken > 0 ? "Your best result on the final section quiz." : "Take the final section quiz to set this."}</p></div></div></Panel>
     </LearningStage>
 
@@ -420,7 +420,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       </div>
       <Panel title="Interview Questions"><ListSection title="Questions to rehearse" items={module.interviewQuestions} /></Panel>
       <TopicKnowledgePanel topicId={topic.id} />
-      <AnnotationPanel target={{ kind: "lesson", id: lesson.id, label: topic.title, href: `/topics/${topic.id}` }} title="Lesson notes and bookmark" description="Notes and bookmarks for this lesson, saved with everything else you have marked." />
+      <AnnotationPanel target={{ kind: "lesson", id: lesson.id, label: topic.title, href: `/topics/${topic.id}` }} title="Lesson notes and bookmark" description="" />
       <ContentReportButton kind="lesson" refId={topic.id} label={topic.title} />
       <LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} />
     </LearningStage>

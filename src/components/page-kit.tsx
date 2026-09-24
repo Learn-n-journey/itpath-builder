@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { HelpTip } from "@/components/help-tip";
 
 export function PageHeader({
   title,
@@ -29,12 +30,14 @@ export function PageHeader({
 export function Panel({
   title,
   description,
+  help,
   children,
   className,
   id,
 }: {
   title?: string;
   description?: string;
+  help?: ReactNode;
   children?: ReactNode;
   className?: string | undefined;
   /** Lets other parts of the page link straight to this panel. */
@@ -42,7 +45,7 @@ export function Panel({
 }) {
   return (
     <section id={id} className={cn("scroll-mt-24 border-t border-border/60 pt-4", className)}>
-      {title ? <h2 className="font-display text-lg font-semibold">{title}</h2> : null}
+      {title ? <div className="flex items-center gap-1.5"><h2 className="font-display text-lg font-semibold">{title}</h2>{help ? <HelpTip label={`About ${title}`}>{help}</HelpTip> : null}</div> : null}
       {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       {children ? <div className={title ? "mt-3" : undefined}>{children}</div> : null}
     </section>
