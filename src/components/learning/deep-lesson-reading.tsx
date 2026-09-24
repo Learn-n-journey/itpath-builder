@@ -187,7 +187,7 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <span className="font-medium">{section.heading}</span>
-                  <Badge variant="outline" className="ml-auto shrink-0">{reviewed ? "Reviewed" : `Part ${index + 1} of ${lesson.sections.length}`}</Badge>
+                   {reviewed ? <Badge variant="outline" className="ml-auto shrink-0">Reviewed</Badge> : null}
                 </span>
               </AccordionTrigger>
               <AccordionContent>
