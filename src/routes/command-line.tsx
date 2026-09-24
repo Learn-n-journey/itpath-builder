@@ -351,7 +351,6 @@ function CommandLinePage() {
       <PageHeader
         title="Command-line simulator"
         description="Switch between safe virtual Mac/Linux, Windows, Android and iPhone devices. Your commands never affect your real device."
-        descriptionVisibility="visible"
         actions={<Badge variant="outline"><ShieldCheck className="mr-1 size-3" aria-hidden /> Isolated</Badge>}
       />
 
