@@ -14,6 +14,12 @@ import {
   Save,
   Send,
   ShieldCheck,
+  ArrowRight,
+  Clock3,
+  ListChecks,
+  PlayCircle,
+  Star,
+  Trophy,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -35,7 +41,8 @@ import { projectFromLabAttempt } from "@/lib/portfolio-engine";
 import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 import { adaptivePath } from "@/lib/adaptive-path";
-import { CompactStat, CompactStats, ContentRow } from "@/components/learner-ui";
+import { cn } from "@/lib/utils";
+import { accentSurface } from "@/lib/visual-accents";
 import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 import { learnerStatusLabel } from "@/lib/learner-status";
@@ -111,6 +118,12 @@ function LabsPage() {
   const latest = lab ? attempts.find((attempt) => attempt.labId === lab.id) : undefined;
   // Arriving from a section opens that one lab on its own, not the whole menu.
   const focused = Boolean(requestedLabId) && lab?.id === requestedLabId;
+  const inProgressCount = attempts.filter((item) => item.status === "in_progress").length;
+  const reviewCount = attempts.filter((item) => item.status === "needs_review").length;
+  const completedCount = attempts.filter((item) => item.status === "completed" || item.status === "mastered").length;
+  const recommended = shuffled.find((item) => !attempts.some((attempt) => attempt.labId === item.id && (attempt.status === "completed" || attempt.status === "mastered"))) ?? shuffled[0];
+  const recommendedTopic = recommended ? topics.find((item) => item.id === recommended.topicId) : undefined;
+  const categories = Array.from(new Set(shuffled.map((item) => item.category)));
 
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} detail />;
 
@@ -141,42 +154,88 @@ function LabsPage() {
   }
 
   return (
-    <>
+    <div>
       <PageHeader
         title="Labs"
         description="Hands-on practice in a safe environment."
-        actions={
-          <Button variant="outline" onClick={() => { reshuffle(); setSelectedId(""); }}>
-            <RefreshCw /> Shuffle
-          </Button>
-        }
+        actions={<Button variant="outline" onClick={() => { reshuffle(); setSelectedId(""); }}><RefreshCw /> Shuffle</Button>}
       />
-      <CompactStats className="grid-cols-4"><CompactStat label="Available" value={labs.length} /><CompactStat label="In progress" value={attempts.filter((item) => item.status === "in_progress").length} /><CompactStat label="Review" value={attempts.filter((item) => item.status === "needs_review").length} /><CompactStat label="Completed" value={attempts.filter((item) => item.status === "completed" || item.status === "mastered").length} /></CompactStats>
 
-      <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
-        <Panel
-          title="Lab library"
-        >
-          <div>
-            {shuffled.map((item) => {
-              const itemAttempt = attempts.find((attempt) => attempt.labId === item.id);
-              return (
-                <button
-                  key={item.id}
-                  className="block w-full"
-                  onClick={() => setSelectedId(item.id)}
-                >
-                   <ContentRow icon={categoryVisuals[item.category].icon} accent={categoryVisuals[item.category].accent} eyebrow={categoryLabels[item.category]} title={item.title} metadata={learnerStatusLabel(itemAttempt?.status)} selected={item.id === lab?.id} />
-                </button>
-              );
-            })}
+      {recommended ? (
+        <section className="relative mt-2 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
+          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+          <div className="relative">
+            <div className="flex items-center justify-between gap-3">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Star className="size-4 fill-current" aria-hidden />Recommended Lab</p>
+              <p className="max-w-[48%] truncate text-xs font-medium text-primary">{categoryLabels[recommended.category]}</p>
+            </div>
+            <h2 className="mt-3 max-w-2xl font-display text-xl font-semibold sm:text-2xl">{recommended.title}</h2>
+            <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{recommendedTopic?.title}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Badge variant="outline">{categoryLabels[recommended.category]}</Badge>
+              <Badge variant="outline"><Clock3 className="mr-1 size-3" />Hands-on lab</Badge>
+            </div>
+            <Button className="mt-4 w-full sm:w-auto" onClick={() => setSelectedId(recommended.id)}>Start Lab <ArrowRight /></Button>
           </div>
-        </Panel>
-        {lab ? (
+        </section>
+      ) : null}
+
+      <section className="mt-4 grid grid-cols-4 gap-2" aria-label="Lab progress">
+        <LabStat icon={ListChecks} value={labs.length} label="Available" />
+        <LabStat icon={PlayCircle} value={inProgressCount} label="In Progress" />
+        <LabStat icon={RotateCcw} value={reviewCount} label="Review" />
+        <LabStat icon={Trophy} value={completedCount} label="Completed" />
+      </section>
+
+      <section className="mt-6">
+        <div className="flex items-end justify-between gap-3">
+          <div><h2 className="font-display text-lg font-semibold">Lab Library</h2><p className="text-xs text-muted-foreground">{labs.length} hands-on labs</p></div>
+          <Button variant="outline" size="sm" onClick={() => { reshuffle(); setSelectedId(""); }}><RefreshCw className="size-4" />Shuffle</Button>
+        </div>
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          <Badge className="shrink-0 rounded-full px-3 py-1.5">All</Badge>
+          {categories.map((category) => <Badge key={category} variant="outline" className="shrink-0 rounded-full px-3 py-1.5">{categoryLabels[category]}</Badge>)}
+        </div>
+
+        <div className="mt-3 space-y-2">
+          {shuffled.slice(0, 50).map((item) => {
+            const itemAttempt = attempts.find((attempt) => attempt.labId === item.id);
+            const visual = categoryVisuals[item.category];
+            const Icon = visual.icon;
+            const topic = topics.find((entry) => entry.id === item.topicId);
+            return (
+              <button key={item.id} type="button" onClick={() => setSelectedId(item.id)} className={cn("group flex w-full items-center gap-3 rounded-xl border bg-card/70 p-3 text-left transition-colors hover:bg-accent/50", item.id === lab?.id ? "border-primary/55 shadow-sm" : "border-border/70")}>
+                <span className={cn("grid size-12 shrink-0 place-items-center rounded-lg ring-1 ring-inset", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{categoryLabels[item.category]}</span>
+                  <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
+                  <span className="mt-1 block truncate text-xs text-muted-foreground">{topic?.title ?? learnerStatusLabel(itemAttempt?.status)}{itemAttempt ? ` · ${learnerStatusLabel(itemAttempt.status)}` : " · Not started"}</span>
+                </span>
+                <span className="hidden shrink-0 text-xs font-medium text-primary sm:inline">{itemAttempt?.status === "in_progress" ? "Continue" : "Start"}</span>
+                <ArrowRight className="size-4 shrink-0 text-primary" aria-hidden />
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {lab ? (
+        <div className="mt-7 border-t border-border pt-6">
           <LabWorkspace key={lab.id} lab={lab} {...(latest ? { latestAttempt: latest } : {})} />
-        ) : null}
-      </div>
-    </>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+
+function LabStat({ icon: Icon, value, label }: { icon: LucideIcon; value: number; label: string }) {
+  return (
+    <div className="min-w-0 rounded-xl border border-border/70 bg-card/70 px-2 py-3 text-center">
+      <Icon className="mx-auto size-4 text-primary" aria-hidden />
+      <p className="mt-1 font-display text-lg font-semibold tabular-nums">{value}</p>
+      <p className="truncate text-[0.625rem] text-muted-foreground sm:text-xs">{label}</p>
+    </div>
   );
 }
 
