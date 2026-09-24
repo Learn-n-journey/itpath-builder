@@ -81,10 +81,13 @@ const previewGroups: Array<{
   detail: string;
   kinds: StudyTaskKind[];
   icon: typeof BookOpen;
+  tone: string;
+  iconTone: string;
+  stepTone: string;
 }> = [
-  { title: "Learn", detail: "New or incomplete topics", kinds: ["new_material", "weak_topic"], icon: BookOpen },
-  { title: "Practice", detail: "Hands-on labs or scenarios", kinds: ["lab", "assignment"], icon: Cpu },
-  { title: "Review", detail: "Reinforce and check mastery", kinds: ["review", "quiz"], icon: TrendingUp },
+  { title: "Learn", detail: "New or incomplete topics", kinds: ["new_material", "weak_topic"], icon: BookOpen, tone: "border-feature-blue/35 bg-feature-blue/10", iconTone: "bg-feature-blue/15 text-feature-blue", stepTone: "border-feature-blue/50 text-feature-blue" },
+  { title: "Practice", detail: "Hands-on labs or scenarios", kinds: ["lab", "assignment"], icon: Cpu, tone: "border-feature-amber/35 bg-feature-amber/10", iconTone: "bg-feature-amber/15 text-feature-amber", stepTone: "border-feature-amber/50 text-feature-amber" },
+  { title: "Review", detail: "Reinforce and check mastery", kinds: ["review", "quiz"], icon: TrendingUp, tone: "border-feature-green/35 bg-feature-green/10", iconTone: "bg-feature-green/15 text-feature-green", stepTone: "border-feature-green/50 text-feature-green" },
 ];
 
 function StudyPlanPage() {
@@ -192,15 +195,15 @@ function StudyPlanPage() {
                       <div
                         className={cn(
                           "relative flex min-h-24 w-28 flex-col items-center rounded-xl border px-2.5 pb-4 pt-3 text-center sm:w-32",
-                          included ? "border-border bg-card shadow-sm" : "border-border/70 bg-card/60 opacity-55",
+                          included ? cn(group.tone, "shadow-sm") : "border-border/70 bg-card/60 opacity-55",
                         )}
                       >
-                        <span className={cn("flex size-6 items-center justify-center rounded-md bg-secondary/50", included ? "text-primary" : "text-muted-foreground")}>
+                        <span className={cn("flex size-6 items-center justify-center rounded-md", included ? group.iconTone : "bg-secondary/50 text-muted-foreground")}>
                           <Icon className="size-3.5" strokeWidth={1.8} aria-hidden />
                         </span>
                         <p className="mt-1.5 text-xs font-semibold text-foreground">{group.title}</p>
                         <p className="mt-0.5 text-[10px] leading-3.5 text-muted-foreground">{group.detail}</p>
-                        <span className={cn("absolute -bottom-2.5 left-1/2 flex size-5 -translate-x-1/2 items-center justify-center rounded-full border bg-background text-[10px] font-bold shadow-sm", included ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>
+                        <span className={cn("absolute -bottom-2.5 left-1/2 flex size-5 -translate-x-1/2 items-center justify-center rounded-full border bg-background text-[10px] font-bold shadow-sm", included ? group.stepTone : "border-border text-muted-foreground")}>
                           {index + 1}
                         </span>
                       </div>
