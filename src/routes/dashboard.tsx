@@ -15,7 +15,7 @@ import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismiss
 import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import { resumeTarget} from "@/lib/resume";
-import { currentJourneyTopic } from "@/lib/journey-order";
+import { currentJourneyTopic, isTopicOpen, journeyTopics } from "@/lib/journey-order";
 import { certificationTopics } from "@/lib/cert-path";
 import { certifications } from "@/data/static-content";
 import { overallMeasures } from "@/lib/mastery-summary";
@@ -184,10 +184,14 @@ function Dashboard() {
   }, [user, reviewTopics]);
 
   const journeyTopic = currentJourneyTopic(user);
-  // Count sections within the certification the current topic actually belongs to.
-  const journeyCourse = journeyTopic ? certificationTopics(journeyTopic.certificationId) : path.topics;
-  const journeyCertification = (journeyTopic && certifications.find((c) => c.id === journeyTopic.certificationId)) || path.certification;
-  const courseTopicIndex = journeyTopic ? Math.max(0, journeyCourse.findIndex((topic) => topic.id === journeyTopic.id)) : 0;
+  // Count sections in journey order, and prefer the topic the learner is
+  // actually working on (most recently touched, open and not yet mastered).
+  const journeyList = journeyTopics(user);
+  const lastTouched = Object.values(user.topicProgress).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+  const activeTopic = (lastTouched && journeyList.find((topic) => topic.id === lastTouched.topicId && isTopicOpen(user, topic.id) && !isMastered(user, topic.id))) || journeyTopic;
+  const journeyCourse = activeTopic && journeyList.some((topic) => topic.id === activeTopic.id) ? journeyList : activeTopic ? certificationTopics(activeTopic.certificationId) : path.topics;
+  const journeyCertification = (activeTopic && certifications.find((c) => c.id === activeTopic.certificationId)) || path.certification;
+  const courseTopicIndex = activeTopic ? Math.max(0, journeyCourse.findIndex((topic) => topic.id === activeTopic.id)) : 0;
   const currentStage = journeyTopic?.difficulty === "challenging" ? "Advanced" : journeyTopic?.difficulty === "standard" ? "Core" : "Foundation";
   const primary: { to: string; params?: Record<string, string>; search?: unknown; title: string; detail: string } | null =
     resume
