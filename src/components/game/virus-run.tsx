@@ -305,6 +305,15 @@ export function VirusRun() {
   const resume = useCallback(() => setPhaseBoth("playing"), [setPhaseBoth]);
   const pause = useCallback(() => setPhaseBoth("paused"), [setPhaseBoth]);
 
+  // Open directly into a playable run. The old menu left the canvas with no
+  // maze, packets, guards, or player until Start was pressed.
+  const autoStartedRef = useRef(false);
+  useEffect(() => {
+    if (autoStartedRef.current) return;
+    autoStartedRef.current = true;
+    startRun();
+  }, [startRun]);
+
   // --- Input ---
   useEffect(() => {
     const DIRS: Record<string, string> = {
