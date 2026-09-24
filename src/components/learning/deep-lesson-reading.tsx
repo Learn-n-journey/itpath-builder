@@ -186,8 +186,8 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <span className="min-w-0 font-medium">{section.heading}</span>
-                  {reviewed ? <Check aria-hidden className="ml-auto size-4 shrink-0 self-center text-success" /> : null}
                 </span>
+                {reviewed ? <Check aria-hidden className="ml-auto mr-2 size-4 shrink-0 text-success" /> : null}
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4 text-sm leading-7 text-muted-foreground">
