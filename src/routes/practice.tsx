@@ -35,7 +35,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { assignments, certifications, topics } from "@/data/static-content";
+import { assignments, topics } from "@/data/static-content";
+import { journeyPhases } from "@/data/journey-phases";
 import type {
   Assignment,
   AssignmentAttempt,
@@ -45,7 +46,6 @@ import type {
 import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
 import { answerMatches, matchesConcept } from "@/lib/fuzzy-match";
 import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
-import { selectedCertification } from "@/lib/adaptive-path";
 
 /**
  * A criterion passes when the written response carries the correct idea.
@@ -128,12 +128,6 @@ const typeVisuals: Record<Assignment["type"], { icon: LucideIcon; accent: Visual
   capstone: { icon: Hammer, accent: "violet" },
 };
 
-const OTHER = "other";
-
-function certificationIdFor(assignment: Assignment): string {
-  return topics.find((topic) => topic.id === assignment.topicId)?.certificationId ?? OTHER;
-}
-
 function PracticePage() {
   const { user, hydrated } = useAppState();
   const { assignment: requestedAssignmentId } = Route.useSearch();
@@ -142,29 +136,27 @@ function PracticePage() {
     : undefined;
   const [seed, reshuffle] = useShuffleSeed();
   const [selectedId, setSelectedId] = useUiPreference("practice.item", requested?.id ?? "", isStringPreference);
-  const [group, setGroup] = useUiPreference("practice.certification", requested ? certificationIdFor(requested) : selectedCertification(user.settings).id, isStringPreference);
+  const requestedPhase = requested ? journeyPhases.find((phase) => phase.topics.some((topic) => topic.id === requested.topicId)) : undefined;
+  const [group, setGroup] = useUiPreference("practice.skill-area", requestedPhase?.stage ?? journeyPhases[0]?.stage ?? "", isStringPreference);
 
   useEffect(() => {
     if (!requested) return;
     setSelectedId(requested.id);
-    setGroup(certificationIdFor(requested));
+    const phase = journeyPhases.find((entry) => entry.topics.some((topic) => topic.id === requested.topicId));
+    if (phase) setGroup(phase.stage);
   }, [requested]);
 
   const groups = useMemo(() => {
     const shuffled = shuffleWithSeed(assignments, seed);
-    return certifications
-      .map((certification) => ({
-        id: certification.id,
-        title: certification.title,
-        items: shuffled.filter((item) => certificationIdFor(item) === certification.id),
-      }))
-      .concat([
-        {
-          id: OTHER,
-          title: "General practice",
-          items: shuffled.filter((item) => certificationIdFor(item) === OTHER),
-        },
-      ])
+    return journeyPhases
+      .map((phase) => {
+        const topicIds = new Set(phase.topics.map((topic) => topic.id));
+        return {
+          id: phase.stage,
+          title: phase.title,
+          items: shuffled.filter((item) => topicIds.has(item.topicId)),
+        };
+      })
       .filter((entry) => entry.items.length > 0);
   }, [seed]);
 
