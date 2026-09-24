@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Bell, CloudRain, ExternalLink, Headphones, Music2, Pause, Play, RotateCcw, Volume2, Wind } from "lucide-react";
+import { CloudRain, ExternalLink, Headphones, Pause, Play, RotateCcw, Volume2, Wind } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,6 @@ const BREATH_SECONDS = 16;
 const sounds = [
   { id: "rain", label: "Rain", icon: CloudRain },
   { id: "noise", label: "Soft noise", icon: Headphones },
-  { id: "music", label: "Calm music", icon: Music2 },
 ] as const;
 
 function MeditationPage() {
@@ -30,10 +29,6 @@ function MeditationPage() {
   const audioRef = useRef<AudioContext | null>(null);
   const noiseRef = useRef<AudioBufferSourceNode | null>(null);
   const gainRef = useRef<GainNode | null>(null);
-  const musicTimerRef = useRef<number | null>(null);
-  const [bells, setBells] = useState(true);
-  const bellContextRef = useRef<AudioContext | null>(null);
-  const lastBellPhaseRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!running) return;
@@ -41,114 +36,46 @@ function MeditationPage() {
     return () => window.clearInterval(id);
   }, [running]);
 
-  useEffect(() => () => { stopSound(); if (bellContextRef.current) void bellContextRef.current.close(); }, []);
-
-  useEffect(() => {
-    if (!running || !bells) return;
-    const phaseName = elapsed % BREATH_SECONDS < 4 ? "inhale" : elapsed % BREATH_SECONDS < 8 ? "hold" : elapsed % BREATH_SECONDS < 12 ? "exhale" : "rest";
-    if ((phaseName === "inhale" || phaseName === "exhale") && lastBellPhaseRef.current !== phaseName) playBell(phaseName);
-    lastBellPhaseRef.current = phaseName;
-  }, [running, elapsed, bells]);
+  useEffect(() => () => stopSound(), []);
 
   function stopSound() {
     try { noiseRef.current?.stop(); } catch {}
     noiseRef.current = null;
     gainRef.current?.disconnect();
     gainRef.current = null;
-    if (musicTimerRef.current !== null) window.clearInterval(musicTimerRef.current);
-    musicTimerRef.current = null;
     if (audioRef.current) void audioRef.current.close();
     audioRef.current = null;
   }
 
-  async function toggleSound(next: (typeof sounds)[number]["id"]) {
+  function toggleSound(next: (typeof sounds)[number]["id"]) {
     if (sound === next) {
       stopSound();
       setSound(null);
       return;
     }
     stopSound();
-    const AudioContextCtor = window.AudioContext ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextCtor) return;
+    const AudioContextCtor = window.AudioContext;
     const context = new AudioContextCtor();
-    if (context.state === "suspended") {
-      const unlock = context.createOscillator();
-      const unlockGain = context.createGain();
-      unlockGain.gain.value = 0.0001;
-      unlock.connect(unlockGain).connect(context.destination);
-      unlock.start();
-      unlock.stop(context.currentTime + 0.02);
-      await context.resume();
+    const seconds = 2;
+    const buffer = context.createBuffer(1, context.sampleRate * seconds, context.sampleRate);
+    const data = buffer.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < data.length; i += 1) {
+      const white = Math.random() * 2 - 1;
+      last = next === "rain" ? (last * 0.88 + white * 0.12) : (last * 0.96 + white * 0.04);
+      data[i] = last * (next === "rain" ? 0.32 : 0.24);
     }
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
     const gain = context.createGain();
-    gain.gain.value = next === "music" ? 0.22 : 0.14;
-    gain.connect(context.destination);
+    gain.gain.value = 0.14;
+    source.connect(gain).connect(context.destination);
+    source.start();
     audioRef.current = context;
+    noiseRef.current = source;
     gainRef.current = gain;
-
-    if (next === "music") {
-      const notes = [261.63, 293.66, 329.63, 392, 349.23, 293.66];
-      let noteIndex = 0;
-      const playPad = () => {
-        const now = context.currentTime;
-        const root = notes[noteIndex % notes.length];
-        noteIndex += 1;
-        [root, root * 1.25, root * 1.5].forEach((frequency, voice) => {
-          const oscillator = context.createOscillator();
-          const envelope = context.createGain();
-          oscillator.type = voice === 0 ? "sine" : "triangle";
-          oscillator.frequency.value = frequency;
-          envelope.gain.setValueAtTime(0, now);
-          envelope.gain.linearRampToValueAtTime(voice === 0 ? 0.18 : 0.1, now + 0.35);
-          envelope.gain.exponentialRampToValueAtTime(0.001, now + 6.5);
-          oscillator.connect(envelope).connect(gain);
-          oscillator.start(now);
-          oscillator.stop(now + 7);
-        });
-      };
-      playPad();
-      musicTimerRef.current = window.setInterval(playPad, 5000);
-    } else {
-      const seconds = 2;
-      const buffer = context.createBuffer(1, context.sampleRate * seconds, context.sampleRate);
-      const data = buffer.getChannelData(0);
-      let last = 0;
-      for (let i = 0; i < data.length; i += 1) {
-        const white = Math.random() * 2 - 1;
-        last = next === "rain" ? (last * 0.88 + white * 0.12) : (last * 0.96 + white * 0.04);
-        data[i] = last * (next === "rain" ? 0.32 : 0.24);
-      }
-      const source = context.createBufferSource();
-      source.buffer = buffer;
-      source.loop = true;
-      source.connect(gain);
-      source.start();
-      noiseRef.current = source;
-    }
     setSound(next);
-  }
-
-  function playBell(kind: "inhale" | "exhale") {
-    const AudioContextCtor = window.AudioContext ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextCtor) return;
-    const context = bellContextRef.current ?? new AudioContextCtor();
-    bellContextRef.current = context;
-    if (context.state === "suspended") void context.resume();
-    const now = context.currentTime;
-    const base = kind === "inhale" ? 659.25 : 523.25;
-    const variation = 0.96 + Math.random() * 0.08;
-    [1, 2.01].forEach((multiple, index) => {
-      const oscillator = context.createOscillator();
-      const envelope = context.createGain();
-      oscillator.type = "sine";
-      oscillator.frequency.value = base * variation * multiple;
-      envelope.gain.setValueAtTime(0, now);
-      envelope.gain.linearRampToValueAtTime(index === 0 ? 0.075 : 0.025, now + 0.025);
-      envelope.gain.exponentialRampToValueAtTime(0.001, now + 1.8 + Math.random() * 0.5);
-      oscillator.connect(envelope).connect(context.destination);
-      oscillator.start(now);
-      oscillator.stop(now + 2.5);
-    });
   }
 
   const phase = elapsed % BREATH_SECONDS;
@@ -174,7 +101,7 @@ function MeditationPage() {
           <h2 className="mt-2 font-display text-2xl font-semibold">{running ? instruction : "Ready when you are"}</h2>
           <p className="mt-1 font-mono text-sm tabular-nums text-muted-foreground">{minutes}:{seconds}</p>
           <div className="mt-5 flex gap-2">
-            <Button onClick={() => { if (!running && bells) playBell("inhale"); lastBellPhaseRef.current = !running ? "inhale" : null; setRunning((value) => !value); }} className="min-w-32 rounded-xl">
+            <Button onClick={() => setRunning((value) => !value)} className="min-w-32 rounded-xl">
               {running ? <Pause aria-hidden /> : <Play aria-hidden />}
               {running ? "Pause" : "Start breathing"}
             </Button>
@@ -192,7 +119,7 @@ function MeditationPage() {
           <h2 className="font-display text-lg font-semibold">Focus sounds</h2>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">Simple generated background sound. Nothing streams or needs an account.</p>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-2 gap-3">
           {sounds.map((item) => {
             const Icon = item.icon;
             const active = sound === item.id;
@@ -204,10 +131,6 @@ function MeditationPage() {
             );
           })}
         </div>
-        <button type="button" onClick={() => setBells((value) => !value)} className={cn("mt-3 flex w-full items-center justify-between rounded-xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary", bells ? "border-primary/35 bg-primary/5" : "border-border/70 bg-secondary/30")}>
-          <span className="flex items-center gap-3"><Bell className={cn("size-4", bells ? "text-primary" : "text-muted-foreground")} aria-hidden /><span><span className="block text-sm font-semibold">Breathing bells</span><span className="block text-xs text-muted-foreground">A soft, slightly varied chime at each inhale and exhale.</span></span></span>
-          <span className="text-xs font-semibold text-muted-foreground">{bells ? "On" : "Off"}</span>
-        </button>
       </section>
 
       <section className="mt-5 border-t border-border/60 pt-5">
