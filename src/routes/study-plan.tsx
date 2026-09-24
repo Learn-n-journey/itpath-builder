@@ -1,13 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowRight,
+  BarChart2,
+  BookOpen,
+  CalendarDays,
+  ChevronDown,
+  Clock3,
+  FileText,
+  HelpCircle,
+  Pencil,
+  Settings,
+  Sparkles,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
 import { toast } from "sonner";
 
-import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
+import { StudyDurationPicker } from "@/components/study/study-duration-picker";
+import { LearnerPageSkeleton, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  STUDY_DURATIONS,
   completeTask,
   finishPlan,
   formatDuration,
@@ -19,17 +34,10 @@ import {
   startPlan,
   studyTaskKindLabels,
 } from "@/lib/study-engine";
-import type { StudyPlan } from "@/lib/app-data/types";
+import { streakSummary } from "@/lib/streak-engine";
+import type { StudyPlan, StudyTaskKind } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
-import { CompactStat, CompactStats } from "@/components/learner-ui";
-
-function durationOptions(sessionLengthMinutes: number): number[] {
-  const set = new Set<number>(STUDY_DURATIONS);
-  const options = set.has(sessionLengthMinutes)
-    ? [...STUDY_DURATIONS]
-    : [...STUDY_DURATIONS, sessionLengthMinutes].sort((a, b) => a - b);
-  return options;
-}
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/study-plan")({
   staticData: { sitemap: false },
@@ -45,7 +53,7 @@ export const Route = createFileRoute("/study-plan")({
       { property: "og:title", content: "Study Plan | IT PATH" },
       {
         property: "og:description",
-        content: "Generate a 30, 60, 90 or 120 minute study session from your own IT PATH progress and log the time you spend.",
+        content: "Generate a focused study session from your own IT PATH progress and log the time you spend.",
       },
     ],
   }),
@@ -60,10 +68,6 @@ function taskSearch(task: StudyPlan["tasks"][number]): Record<string, string> | 
   return undefined;
 }
 
-function durationLabel(minutes: number): string {
-  return minutes >= 120 ? "2 hours" : `${minutes} min`;
-}
-
 function useTicker(active: boolean) {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -73,19 +77,32 @@ function useTicker(active: boolean) {
   }, [active]);
 }
 
+const previewGroups: Array<{
+  title: string;
+  detail: string;
+  kinds: StudyTaskKind[];
+  icon: typeof BookOpen;
+}> = [
+  { title: "Learn", detail: "New or incomplete topics", kinds: ["new_material", "weak_topic"], icon: BookOpen },
+  { title: "Recall", detail: "Quick practice questions", kinds: ["practice"], icon: FileText },
+  { title: "Practice", detail: "Hands-on labs or scenarios", kinds: ["lab", "assignment"], icon: Settings },
+  { title: "Review", detail: "Reinforce and check mastery", kinds: ["review", "quiz"], icon: TrendingUp },
+];
+
 function StudyPlanPage() {
   const { user, actions, hydrated } = useAppState();
-  const options = useMemo(() => durationOptions(user.settings.sessionLengthMinutes), [user.settings.sessionLengthMinutes]);
   const [minutes, setMinutes] = useState(String(user.settings.sessionLengthMinutes));
   const [target, setTarget] = useState<number>(user.settings.sessionLengthMinutes);
+  const [logOpen, setLogOpen] = useState(false);
+  const [finishedOpen, setFinishedOpen] = useState(true);
 
   const activePlan: StudyPlan | undefined = user.studyPlans.find((plan) => plan.status !== "completed");
   useTicker(activePlan?.status === "active");
 
-  const totalLoggedMinutes = useMemo(
-    () => user.studySessions.reduce((sum, s) => sum + s.minutes, 0),
-    [user.studySessions],
-  );
+  const completedPlans = user.studyPlans.filter((plan) => plan.status === "completed");
+  const weekMinutes = streakSummary(user).minutesLast7;
+  const previewPlan = useMemo(() => activePlan ?? generateStudyPlan(user, target), [activePlan, target, user]);
+  const previewKinds = useMemo(() => new Set(previewPlan.tasks.map((task) => task.kind)), [previewPlan]);
 
   function logSession() {
     const value = Number(minutes);
@@ -107,7 +124,6 @@ function StudyPlanPage() {
       toast.error("There is nothing to schedule yet. Open a topic first.");
       return;
     }
-    // Start tracking straight away so time is counted without an extra tap.
     actions.addStudyPlan(startPlan(plan));
     toast.success(`Session started with ${plan.tasks.length} task(s). Time is tracking now.`);
   }
@@ -123,106 +139,157 @@ function StudyPlanPage() {
     }
   }
 
-  const completedPlans = user.studyPlans.filter((plan) => plan.status === "completed");
-
   if (!hydrated) return <LearnerPageSkeleton rows={4} metrics={4} />;
 
   return (
     <>
-      <PageHeader
-        title="Study Plan"
-        description="Build a focused study session from your own data."
-      />
+      <PageHeader title="Study Plan" description="Build a focused study session from your own data." />
 
-      <CompactStats className="grid-cols-4"><CompactStat label="Session" value={`${user.settings.sessionLengthMinutes}m`} /><CompactStat label="Logged" value={`${Math.round((totalLoggedMinutes / 60) * 10) / 10}h`} /><CompactStat label="Sessions" value={user.studySessions.length} /><CompactStat label="Finished" value={completedPlans.length} /></CompactStats>
+      <div className="grid grid-cols-4 divide-x divide-border border-y border-border py-3">
+        <StudyStat icon={Clock3} value={`${target}m`} label="Today" />
+        <StudyStat icon={CalendarDays} value={formatHours(weekMinutes)} label="This week" />
+        <StudyStat icon={BarChart2} value={user.studySessions.length} label="Sessions" />
+        <StudyStat icon={Trophy} value={completedPlans.length} label="Finished" />
+      </div>
 
-      <Panel
-        className="mt-4"
-        title="Today's study session"
-      >
+      <section className="mt-5 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
         {!activePlan ? (
           <div className="space-y-4">
-            <div>
-              <Label>Session length</Label>
-              <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
-                {options.map((option) => (
-                  <Button
-                    key={option}
-                    type="button"
-                    variant={target === option ? "default" : "secondary"}
-                    onClick={() => setTarget(option)}
-                  >
-                    {durationLabel(option)}
-                  </Button>
-                ))}
+            <div className="flex items-start gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary">
+                <Clock3 className="size-5" aria-hidden />
+              </span>
+              <div>
+                <h2 className="font-display text-lg font-semibold text-foreground">Session length</h2>
+                <p className="text-sm text-muted-foreground">Scroll to choose how much time you have.</p>
               </div>
             </div>
-            <Button onClick={generate}>Generate session</Button>
+
+            <StudyDurationPicker value={target} onChange={setTarget} />
+
+            <div className="flex items-start gap-2.5 rounded-lg border border-border/50 bg-secondary/40 p-3 text-xs leading-5 text-muted-foreground">
+              <HelpCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
+              <p>The study plan will automatically fill this time with the best mix of lessons, practice, and review based on your progress.</p>
+            </div>
+
+            <Button className="h-12 w-full rounded-xl text-sm font-semibold sm:text-base" onClick={generate}>
+              <Sparkles className="size-4" aria-hidden />
+              <span>Generate {target}-minute session</span>
+              <ArrowRight className="size-4" aria-hidden />
+            </Button>
+
+            <div>
+              <div className="mb-3 flex items-center gap-2">
+                <h2 className="font-display text-base font-semibold">What your session will include</h2>
+                <HelpCircle className="size-4 text-muted-foreground" aria-hidden />
+              </div>
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {previewGroups.map((group, index) => {
+                  const Icon = group.icon;
+                  const included = group.kinds.some((kind) => previewKinds.has(kind));
+                  return (
+                    <div
+                      key={group.title}
+                      className={cn(
+                        "relative min-h-36 min-w-32 flex-1 rounded-xl border p-3 text-center",
+                        included ? "border-primary/35 bg-primary/5" : "border-border/70 bg-background/30 opacity-60",
+                      )}
+                    >
+                      <Icon className={cn("mx-auto size-5", included ? "text-primary" : "text-muted-foreground")} aria-hidden />
+                      <p className="mt-2 font-semibold text-foreground">{group.title}</p>
+                      <p className="mt-1 text-xs leading-4 text-muted-foreground">{group.detail}</p>
+                      <span className={cn("absolute -bottom-2 left-1/2 flex size-6 -translate-x-1/2 items-center justify-center rounded-full border bg-card text-xs font-semibold", included ? "border-primary text-primary" : "border-border text-muted-foreground")}>
+                        {index + 1}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+              {previewPlan.tasks.length === 0 ? (
+                <p className="mt-2 text-xs text-muted-foreground">Open a topic to give the study planner material to schedule.</p>
+              ) : null}
+            </div>
           </div>
         ) : (
           <ActivePlan plan={activePlan} onUpdate={actions.updateStudyPlan} onFinish={() => finish(activePlan)} />
         )}
-      </Panel>
+      </section>
 
-      <Panel className="mt-4" title="Log a study session" description="Saved instantly to this device.">
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="grow">
-            <Label htmlFor="minutes">Minutes</Label>
-            <Input
-              id="minutes"
-              inputMode="numeric"
-              value={minutes}
-              onChange={(e) => setMinutes(e.target.value)}
-              className="mt-1.5"
-            />
+      <section className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-card">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+          onClick={() => setLogOpen((open) => !open)}
+          aria-expanded={logOpen}
+        >
+          <span className="flex items-center gap-3 font-semibold"><Pencil className="size-5 text-muted-foreground" aria-hidden />Log time manually</span>
+          <ChevronDown className={cn("size-5 text-muted-foreground transition-transform", logOpen && "rotate-180")} aria-hidden />
+        </button>
+        {logOpen ? (
+          <div className="border-t border-border p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+              <div className="grow">
+                <Label htmlFor="minutes">Minutes</Label>
+                <Input id="minutes" inputMode="numeric" value={minutes} onChange={(e) => setMinutes(e.target.value)} className="mt-1.5" />
+              </div>
+              <Button onClick={logSession}>Log session</Button>
+            </div>
           </div>
-          <Button onClick={logSession}>Log session</Button>
-        </div>
-      </Panel>
+        ) : null}
+      </section>
 
-      <Panel className="mt-4" title="Finished sessions">
-        {completedPlans.length === 0 ? (
-          <EmptyState title="No finished sessions" body="Your completed study plans will appear here." />
-        ) : (
-          <ul className="divide-y divide-border text-sm">
-            {completedPlans.slice(0, 8).map((plan) => {
-              const done = plan.tasks.filter((t) => t.status === "completed").length;
-              const skipped = plan.tasks.filter((t) => t.status === "skipped").length;
-              return (
-                <li key={plan.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-                  <span className="text-muted-foreground">
-                    {new Date(plan.completedAt ?? plan.createdAt).toLocaleString()} ·{" "}
-                    Current plan
-                  </span>
-                  <span className="tabular-nums">
-                    {formatDuration(plan.trackedSeconds)} tracked · {done} done · {skipped} skipped
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </Panel>
-
-      <Panel className="mt-4" title="Recent logged time">
-        {user.studySessions.length === 0 ? (
-          <EmptyState title="No study sessions logged yet." body="Finish a session or log minutes manually." />
-        ) : (
-          <ul className="divide-y divide-border text-sm">
-            {user.studySessions.slice(0, 10).map((s) => (
-              <li key={s.id} className="flex items-center justify-between py-2">
-                <span className="text-muted-foreground">
-                  {new Date(s.startedAt).toLocaleString()}
-                  {s.studyPlanId ? " · generated session" : ""}
-                </span>
-                <span className="tabular-nums">{s.minutes} min</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
+      <section className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-card">
+        <button
+          type="button"
+          className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
+          onClick={() => setFinishedOpen((open) => !open)}
+          aria-expanded={finishedOpen}
+        >
+          <span className="flex items-center gap-3 font-semibold"><Trophy className="size-5 text-muted-foreground" aria-hidden />Finished sessions</span>
+          <ChevronDown className={cn("size-5 text-muted-foreground transition-transform", finishedOpen && "rotate-180")} aria-hidden />
+        </button>
+        {finishedOpen ? (
+          <div className="border-t border-border p-4">
+            {completedPlans.length === 0 ? (
+              <div className="py-5 text-center">
+                <Trophy className="mx-auto size-5 text-muted-foreground" aria-hidden />
+                <p className="mt-2 text-sm font-semibold">No finished sessions</p>
+                <p className="mt-1 text-xs text-muted-foreground">Your completed study plans will appear here.</p>
+              </div>
+            ) : (
+              <ul className="divide-y divide-border text-sm">
+                {completedPlans.slice(0, 8).map((plan) => {
+                  const done = plan.tasks.filter((task) => task.status === "completed").length;
+                  const skipped = plan.tasks.filter((task) => task.status === "skipped").length;
+                  return (
+                    <li key={plan.id} className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
+                      <span className="text-muted-foreground">{new Date(plan.completedAt ?? plan.createdAt).toLocaleString()}</span>
+                      <span className="tabular-nums">{formatDuration(plan.trackedSeconds)} tracked · {done} done · {skipped} skipped</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        ) : null}
+      </section>
     </>
   );
+}
+
+function StudyStat({ icon: Icon, value, label }: { icon: typeof Clock3; value: string | number; label: string }) {
+  return (
+    <div className="min-w-0 px-2 sm:px-4">
+      <Icon className="mb-1 size-4 text-primary" aria-hidden />
+      <div className="truncate text-lg font-semibold tabular-nums text-foreground sm:text-xl">{value}</div>
+      <div className="truncate text-[11px] text-muted-foreground sm:text-xs">{label}</div>
+    </div>
+  );
+}
+
+function formatHours(minutes: number): string {
+  const hours = Math.round((minutes / 60) * 10) / 10;
+  return `${hours}h`;
 }
 
 function ActivePlan({
@@ -235,58 +302,31 @@ function ActivePlan({
   onFinish: () => void;
 }) {
   const tracked = liveTrackedSeconds(plan);
-  
   const remaining = plan.tasks.filter((task) => task.status === "pending" || task.status === "active");
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <span className="rounded-md bg-secondary px-3 py-1.5 text-sm text-muted-foreground">
-          {plan.tasks.length} tasks planned
-        </span>
-        <span className="rounded-md bg-primary/15 px-3 py-1.5 text-sm font-medium tabular-nums text-primary">
-          {formatDuration(tracked)} tracked
-        </span>
+        <span className="rounded-md bg-secondary px-3 py-1.5 text-sm text-muted-foreground">{plan.tasks.length} tasks planned</span>
+        <span className="rounded-md bg-primary/15 px-3 py-1.5 text-sm font-medium tabular-nums text-primary">{formatDuration(tracked)} tracked</span>
         <span className="text-sm capitalize text-muted-foreground">{plan.status}</span>
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {plan.status === "planned" ? (
-          <Button onClick={() => onUpdate(startPlan(plan))} disabled={remaining.length === 0}>
-            Start
-          </Button>
-        ) : null}
-        {plan.status === "active" ? (
-          <Button variant="secondary" onClick={() => onUpdate(pausePlan(plan))}>
-            Pause
-          </Button>
-        ) : null}
+        {plan.status === "planned" ? <Button onClick={() => onUpdate(startPlan(plan))} disabled={remaining.length === 0}>Start</Button> : null}
+        {plan.status === "active" ? <Button variant="secondary" onClick={() => onUpdate(pausePlan(plan))}>Pause</Button> : null}
         {plan.status === "paused" ? <Button onClick={() => onUpdate(resumePlan(plan))}>Resume</Button> : null}
-        <Button variant="secondary" onClick={onFinish}>
-          Finish session
-        </Button>
+        <Button variant="secondary" onClick={onFinish}>Finish session</Button>
       </div>
 
       <ul className="space-y-3">
         {plan.tasks.map((task, index) => {
           const isActive = task.status === "active";
           return (
-             <li
-              key={task.id}
-              className={
-                isActive
-                  ? "border-l-2 border-primary bg-primary/5 px-3 py-3"
-                  : "border-l-2 border-border px-3 py-3"
-              }
-            >
+            <li key={task.id} className={isActive ? "border-l-2 border-primary bg-primary/5 px-3 py-3" : "border-l-2 border-border px-3 py-3"}>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                  {index + 1}. {studyTaskKindLabels[task.kind]}
-                </span>
-                
-                <span className="text-xs tabular-nums text-muted-foreground">
-                  {formatDuration(task.trackedSeconds)} tracked
-                </span>
+                <span className="rounded bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">{index + 1}. {studyTaskKindLabels[task.kind]}</span>
+                <span className="text-xs tabular-nums text-muted-foreground">{formatDuration(task.trackedSeconds)} tracked</span>
                 <span className="text-xs capitalize text-muted-foreground">{task.status}</span>
               </div>
               <h3 className="mt-2 text-base font-semibold">{task.title}</h3>
@@ -294,22 +334,12 @@ function ActivePlan({
               <p className="mt-1 text-xs text-muted-foreground">Why: {task.reason}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button asChild size="sm" variant="secondary">
-                  <Link
-                    to={task.to as never}
-                    {...(task.params ? { params: task.params as never } : {})}
-                    {...(taskSearch(task) ? { search: taskSearch(task) as never } : {})}
-                  >
-                    Open
-                  </Link>
+                  <Link to={task.to as never} {...(task.params ? { params: task.params as never } : {})} {...(taskSearch(task) ? { search: taskSearch(task) as never } : {})}>Open</Link>
                 </Button>
                 {task.status === "pending" || task.status === "active" ? (
                   <>
-                    <Button size="sm" onClick={() => onUpdate(completeTask(plan, task.id))}>
-                      Complete
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => onUpdate(skipTask(plan, task.id))}>
-                      Skip
-                    </Button>
+                    <Button size="sm" onClick={() => onUpdate(completeTask(plan, task.id))}>Complete</Button>
+                    <Button size="sm" variant="ghost" onClick={() => onUpdate(skipTask(plan, task.id))}>Skip</Button>
                   </>
                 ) : null}
               </div>
