@@ -1,16 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, CheckCircle2, RotateCcw, Save, Send, Terminal } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Clock3, RotateCcw, Save, Send, Sparkles, Terminal, Trophy } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { GaylNote } from "@/components/gayl/gayl-note";
 import { troubleshootingInsight } from "@/lib/gayl/insights";
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { PageHeader, Panel } from "@/components/page-kit";
 import { ProGate } from "@/components/pro-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { incidents } from "@/data/static-content";
@@ -69,24 +68,13 @@ const METHOD = [
 function TroubleshootPage() {
   const { user } = useAppState();
   const [selectedId, setSelectedId] = useState("");
-  const [query, setQuery] = useState("");
   const ordered = useMemo(() => {
     const focusIds = new Set(adaptivePath(user).topics.map((topic) => topic.id));
     return [...incidents].sort(
       (a, b) => Number(focusIds.has(b.topicId)) - Number(focusIds.has(a.topicId)),
     );
   }, [user]);
-  const visible = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    if (!needle) return ordered;
-    return ordered.filter((item) =>
-      [item.title, item.report, incidentCategoryLabels[item.category]]
-        .join(" ")
-        .toLowerCase()
-        .includes(needle),
-    );
-  }, [ordered, query]);
-  const incident = ordered.find((item) => item.id === selectedId) ?? visible[0] ?? ordered[0];
+  const incident = ordered.find((item) => item.id === selectedId);
   const attempts = user.incidentAttempts;
   const latest = incident
     ? attempts.find((attempt) => attempt.incidentId === incident.id)
@@ -99,87 +87,116 @@ function TroubleshootPage() {
         )
       : 0;
 
+  const recommended = ordered.find((item) => {
+    const attempt = attempts.find((candidate) => candidate.incidentId === item.id);
+    return attempt?.status !== "submitted";
+  }) ?? ordered[0];
+  const recommendedAttempt = recommended
+    ? attempts.find((attempt) => attempt.incidentId === recommended.id)
+    : undefined;
+  const categories = Array.from(new Set(ordered.map((item) => item.category)));
+
   return (
     <>
       <PageHeader
         title="Troubleshoot"
-        description="Realistic incidents worked the way a technician works them: gather evidence, diagnose, fix, verify and document. IT PATH simulates the findings; it never touches real equipment."
+        description="Build diagnostic thinking with realistic incidents."
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Incidents" value={incidents.length} />
-        <StatCard
-          label="In progress"
-          value={attempts.filter((attempt) => attempt.status === "in_progress").length}
-        />
-        <StatCard label="Resolved" value={resolved.length} />
-        <StatCard label="Average score" value={resolved.length ? `${averageScore}%` : "-"} />
-      </div>
-
-      <div className="mt-6 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
-        <div className="space-y-5">
-          <Panel
-            title="Incident queue"
-            description={`${visible.length} of ${incidents.length} incidents shown. Ones matching your certification come first.`}
-          >
-            <Input
-              aria-label="Search incidents"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by symptom or category"
-              className="mb-3"
-            />
-            <div className="max-h-[28rem] space-y-2 overflow-y-auto pr-1">
-              {visible.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No incident matches that search.</p>
-              ) : null}
-              {visible.map((item) => {
-                const itemAttempt = attempts.find((attempt) => attempt.incidentId === item.id);
-                return (
-                  <Button
-                    key={item.id}
-                    variant={item.id === incident?.id ? "secondary" : "ghost"}
-                    className="h-auto w-full justify-start whitespace-normal px-3 py-3 text-left"
-                    onClick={() => setSelectedId(item.id)}
-                  >
-                    <span className="min-w-0">
-                      <span className="block text-xs text-primary">
-                        {incidentCategoryLabels[item.category]}
-                      </span>
-                      <span className="mt-1 block">{item.title}</span>
-                      <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                        {incidentStatusLabel(itemAttempt)}
-                        {itemAttempt?.status === "submitted" && itemAttempt.totalScore != null
-                          ? ` · ${itemAttempt.totalScore}%`
-                          : ""}
-                      </span>
-                    </span>
-                  </Button>
-                );
-              })}
+      {recommended ? (
+        <section className="relative mt-2 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
+          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+          <div className="relative">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              <Sparkles className="size-4" aria-hidden />Recommended incident
+            </p>
+            <h2 className="mt-3 max-w-2xl font-display text-xl font-semibold sm:text-2xl">{recommended.title}</h2>
+            <p className="mt-2 line-clamp-2 max-w-2xl text-sm leading-6 text-muted-foreground">{recommended.report}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Badge variant="outline">{incidentCategoryLabels[recommended.category]}</Badge>
+              <Badge variant="outline"><Clock3 className="mr-1 size-3" />Diagnostic scenario</Badge>
             </div>
-          </Panel>
-          <Panel title="The method you use every time">
-            <ol className="space-y-2 text-sm text-muted-foreground">
-              {METHOD.map((step, i) => (
-                <li key={step} className="flex gap-3">
-                  <span className="font-mono text-primary">{i + 1}</span>
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ol>
-          </Panel>
+            <Button className="mt-4 w-full sm:w-auto" onClick={() => setSelectedId(recommended.id)}>
+              {recommendedAttempt?.status === "in_progress" ? "Continue Incident" : "View Incident"} <ArrowRight />
+            </Button>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="mt-4 grid grid-cols-4 divide-x divide-border border-y border-border py-3" aria-label="Troubleshooting progress">
+        <TroubleshootStat value={incidents.length} label="Available" />
+        <TroubleshootStat value={attempts.filter((attempt) => attempt.status === "in_progress").length} label="Active" />
+        <TroubleshootStat value={resolved.length} label="Resolved" />
+        <TroubleshootStat value={resolved.length ? `${averageScore}%` : "—"} label="Average" />
+      </section>
+
+      <section className="mt-6">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <h2 className="font-display text-lg font-semibold">Incident Library</h2>
+            <p className="mt-1 text-xs text-muted-foreground">Recommended incidents appear first based on your current learning path.</p>
+          </div>
+          <Trophy className="size-5 text-primary" aria-hidden />
+        </div>
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          <Badge className="shrink-0 rounded-full px-3 py-1.5">All</Badge>
+          {categories.map((category) => (
+            <Badge key={category} variant="outline" className="shrink-0 rounded-full px-3 py-1.5">
+              {incidentCategoryLabels[category]}
+            </Badge>
+          ))}
         </div>
 
-        {incident ? (
-          <IncidentWorkspace
-            key={incident.id}
-            incident={incident}
-            {...(latest ? { latestAttempt: latest } : {})}
-          />
-        ) : null}
-      </div>
+        <div className="mt-3 space-y-2">
+          {ordered.map((item) => {
+            const itemAttempt = attempts.find((attempt) => attempt.incidentId === item.id);
+            const selected = item.id === incident?.id;
+            const topic = topics.find((candidate) => candidate.id === item.topicId);
+            return (
+              <div key={item.id} className={`overflow-hidden rounded-xl border bg-card/70 transition-colors ${selected ? "border-primary/55 shadow-sm" : "border-border/70"}`}>
+                <button type="button" aria-expanded={selected} onClick={() => setSelectedId(selected ? "" : item.id)} className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-accent/50">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
+                    <AlertTriangle className="size-4" aria-hidden />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{incidentCategoryLabels[item.category]}</span>
+                    <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">
+                      {topic?.title ?? "Technical troubleshooting"} · {incidentStatusLabel(itemAttempt)}
+                    </span>
+                  </span>
+                  <ChevronRight className={`size-4 shrink-0 text-primary transition-transform ${selected ? "rotate-90" : ""}`} aria-hidden />
+                </button>
+                {selected ? (
+                  <div className="border-t border-border/70 bg-muted/20 px-4 py-4">
+                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">Incident report</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.report}</p>
+                    <p className="mt-3 text-xs text-muted-foreground"><span className="font-medium text-foreground">Environment:</span> {item.environment}</p>
+                    <Button className="mt-4 w-full sm:w-auto" onClick={() => document.getElementById("active-incident-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" })}>
+                      {itemAttempt?.status === "in_progress" ? "Continue Incident" : itemAttempt?.status === "submitted" ? "Review Incident" : "Start Incident"} <ArrowRight />
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {incident ? (
+        <div id="active-incident-workspace" className="mt-7 scroll-mt-24 border-t border-border pt-6">
+          <IncidentWorkspace key={incident.id} incident={incident} {...(latest ? { latestAttempt: latest } : {})} />
+        </div>
+      ) : null}
     </>
+}
+
+function TroubleshootStat({ value, label }: { value: string | number; label: string }) {
+  return (
+    <div className="min-w-0 px-2 text-center">
+      <p className="font-display text-lg font-semibold tabular-nums sm:text-xl">{value}</p>
+      <p className="mt-1 truncate text-[0.625rem] text-muted-foreground sm:text-xs">{label}</p>
+    </div>
   );
 }
 
@@ -396,7 +413,7 @@ function IncidentWorkspace({
         </p>
       </Panel>
 
-      <Panel title="Diagnose" description="Name the root cause. A wrong choice narrows the search but never reveals the answer." descriptionVisibility="visible">
+      <Panel title="Diagnose" description="Name the root cause. A wrong choice narrows the search but never reveals the answer.">
         <div className="space-y-2">
           {incident.causes.map((cause) => (
             <Button
@@ -421,7 +438,7 @@ function IncidentWorkspace({
         </p>
       </Panel>
 
-      <Panel title="Explain your reasoning" description="Which findings led you here, and which possibilities did they rule out?" descriptionVisibility="visible">
+      <Panel title="Explain your reasoning" description="Which findings led you here, and which possibilities did they rule out?">
         <Textarea
           value={reasoning}
           onChange={(event) => setReasoning(event.target.value)}
@@ -431,7 +448,7 @@ function IncidentWorkspace({
         />
       </Panel>
 
-      <Panel title="Fix" description="Choose the action proportionate to the cause." descriptionVisibility="visible">
+      <Panel title="Fix" description="Choose the action proportionate to the cause.">
         <div className="space-y-2">
           {incident.fixes.map((fix) => (
             <Button
@@ -452,7 +469,7 @@ function IncidentWorkspace({
         ) : null}
       </Panel>
 
-      <Panel title="Verify" description="Select every check that proves full functionality is restored." descriptionVisibility="visible">
+      <Panel title="Verify" description="Select every check that proves full functionality is restored.">
         <div className="space-y-3">
           {incident.verifications.map((item) => (
             <label key={item.id} className="flex items-start gap-3 text-sm">
@@ -467,7 +484,7 @@ function IncidentWorkspace({
         </div>
       </Panel>
 
-      <Panel title="Document" description="Write the ticket note: symptom, evidence, cause, action taken and verification." descriptionVisibility="visible">
+      <Panel title="Document" description="Write the ticket note: symptom, evidence, cause, action taken and verification.">
         <Textarea
           value={documentation}
           onChange={(event) => setDocumentation(event.target.value)}
