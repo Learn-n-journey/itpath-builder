@@ -63,7 +63,7 @@ export const tracks: Track[] = [
 ];
 
 
-const authoredTopics: Topic[] = [
+const authoredTopicsIncludingRetired: Topic[] = [
   {
     id: "topic-computer-hardware-basics",
     trackId: "track-year-1-foundations",
@@ -208,7 +208,7 @@ const authoredTopics: Topic[] = [
     month: 1,
     week: 4,
     difficulty: "standard",
-    prerequisiteTopicIds: ["topic-networking-basics"],
+    prerequisiteTopicIds: ["topic-basic-networking-concepts"],
     learningObjectives: [
       "Describe recursive and authoritative DNS resolution.",
       "Recognize A, AAAA, CNAME, MX, NS, TXT, and PTR records.",
@@ -218,6 +218,16 @@ const authoredTopics: Topic[] = [
   },
   ...expansionTopics,
 ];
+
+/**
+ * Networking Basics was folded into Basic Networking Concepts. Keep its old
+ * identifier out of the live course while spreadsheet number 7 remains
+ * reserved, so every workbook numbered 8 and above keeps its original topic.
+ */
+const RETIRED_TOPIC_IDS = new Set(["topic-networking-basics"]);
+const authoredTopics: Topic[] = authoredTopicsIncludingRetired.filter(
+  (topic) => !RETIRED_TOPIC_IDS.has(topic.id),
+);
 
 /** The live subject's sections: the active package when one is generated, the authored ones otherwise. */
 export const topics: Topic[] = domainOverlay?.topics ?? authoredTopics;
@@ -546,7 +556,9 @@ const authoredLessons: Lesson[] = [
   ...expansionLessons,
 ];
 
-export const lessons: Lesson[] = domainOverlay?.lessons ?? authoredLessons;
+export const lessons: Lesson[] = domainOverlay?.lessons ?? authoredLessons.filter(
+  (lesson) => !RETIRED_TOPIC_IDS.has(lesson.topicId),
+);
 const authoredResources: Resource[] = [
   {
     id: "resource-comptia-a-plus-core-1",
