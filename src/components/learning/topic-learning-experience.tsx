@@ -353,8 +353,8 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <ul className="space-y-3">{topic.learningObjectives.map((objective) => <li key={objective} className="flex gap-3 text-sm text-muted-foreground"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" /><span>{objective}</span></li>)}</ul>
     </Panel>
 
-    <LearningStage id="read-it" number="01" title="Learn It" icon={<BookOpen />}>
-      <div id="lesson-reading" className="scroll-mt-24 space-y-4">
+    <section id="read-it" className="scroll-mt-24">
+      <div id="lesson-reading" className="space-y-4">
         {deepLesson ? <DeepLessonReading lesson={deepLesson} difficulty={topic.difficulty} /> : null}
         {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "key-ideas"))} className="scroll-mt-24"><LessonKeyIdeas depth={deepLesson.depth} /></div> : null}
         <div id={lessonConceptAnchor(lessonSectionId(topic.id, "core"))} className="scroll-mt-24"><Panel title={deepLesson ? "Core lesson summary" : lesson.title}>
@@ -367,7 +367,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
           </div>
         </Panel></div>
       </div>
-    </LearningStage>
+    </section>
 
     <LearningStage id="see-it" number="02" title="See It" icon={<Eye />}>
       <div id="worked-examples" className="scroll-mt-24 space-y-4">
