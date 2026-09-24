@@ -50,7 +50,7 @@ export const Route = createFileRoute("/dashboard")({
 function Meter({ value }: { value: number }) {
   return (
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary" aria-hidden>
-      <div className="h-full rounded-full bg-progress transition-[width] duration-700 ease-out" style={{ width: `${value}%` }} />
+      <div className="h-full rounded-full bg-progress motion-safe:transition-[width] motion-safe:duration-700 motion-safe:ease-out motion-reduce:transition-none" style={{ width: `${value}%` }} />
     </div>
   );
 }
@@ -74,7 +74,7 @@ function TodayChip({
     <Link
       to={to}
       {...(params ? { params: params as never } : {})}
-      className="flex min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-md bg-secondary/50 px-3 py-2 hover:bg-secondary"
+      className="flex min-h-11 min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-md bg-secondary/50 px-3 py-2 motion-safe:transition-all motion-safe:duration-150 hover:bg-secondary active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
     >
        <Icon className="size-4 shrink-0 text-feature-amber" aria-hidden />
       <span className="min-w-0">
@@ -236,7 +236,7 @@ function Dashboard() {
     <div className="mx-auto max-w-4xl pb-8">
       <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border/60 pb-5">
         <div className="min-w-0">
-          <Link to="/settings" className="group inline-flex max-w-full items-center gap-1.5 font-display text-base font-semibold tracking-tight text-foreground transition-colors hover:text-primary sm:text-lg">
+          <Link to="/settings" className="group inline-flex max-w-full items-center gap-1.5 font-display text-base font-semibold tracking-tight text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-lg">
             <span className="truncate">{path.certification.title}</span>
             <ChevronDown className="size-4 shrink-0 text-primary motion-safe:transition-transform motion-safe:duration-150 group-hover:translate-y-0.5 motion-reduce:transition-none" aria-hidden />
           </Link>
@@ -324,7 +324,7 @@ function Dashboard() {
           <img
             src={courseArtwork.src}
             alt=""
-            className="h-full w-full object-cover object-right opacity-30 mix-blend-luminosity [mask-image:linear-gradient(to_left,rgba(0,0,0,0.85)_10%,rgba(0,0,0,0.4)_40%,transparent_85%)] sm:opacity-40"
+            className="h-full w-full object-cover object-right opacity-25 mix-blend-luminosity [mask-image:linear-gradient(to_left,rgba(0,0,0,0.85)_10%,rgba(0,0,0,0.4)_40%,transparent_85%)] sm:opacity-40"
           />
         </div>
         <div className="pointer-events-none absolute -right-12 -top-12 size-64 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
@@ -352,6 +352,7 @@ function Dashboard() {
               <Button asChild size="lg" className="h-12 w-full px-6 font-semibold shadow-md shadow-primary/20 motion-safe:transition-all motion-safe:duration-150 motion-safe:ease-out active:scale-[0.985] active:shadow-inner motion-reduce:transition-none sm:w-auto">
                 <Link
                   to={primary.to}
+                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   {...(primary.params ? { params: primary.params as never } : {})}
                   {...(primary.search ? { search: primary.search as never } : {})}
                 >
@@ -359,7 +360,7 @@ function Dashboard() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="h-12 w-full border-border/70 bg-card/60 px-5 backdrop-blur-sm motion-safe:transition-all motion-safe:duration-150 active:scale-[0.985] motion-reduce:transition-none hover:bg-secondary sm:w-auto">
-                <Link to="/study-plan">
+                <Link to="/study-plan" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
                   <BookOpen className="size-4 text-primary" aria-hidden />
                   Study plan
                 </Link>
@@ -384,9 +385,9 @@ function Dashboard() {
 
         {d.hasAnyActivity && (actions.length > 0 || todayChips.length > 0) ? (
           <details className="group relative z-10 mt-5 border-t border-border/40 pt-3">
-            <summary className="flex min-h-11 w-fit cursor-pointer list-none items-center gap-1.5 text-xs font-medium text-muted-foreground motion-safe:transition-colors motion-safe:duration-150 hover:text-foreground active:opacity-80 motion-reduce:transition-none [&::-webkit-details-marker]:hidden">
+            <summary className="flex min-h-11 w-fit cursor-pointer list-none items-center gap-1.5 text-xs font-medium text-muted-foreground motion-safe:transition-colors motion-safe:duration-150 hover:text-foreground active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none [&::-webkit-details-marker]:hidden">
               Other suggestions ({actions.length + todayChips.length})
-              <ChevronRight className="size-4 transition-transform group-open:rotate-90" aria-hidden />
+              <ChevronRight className="size-4 motion-safe:transition-transform motion-safe:duration-150 group-open:rotate-90 motion-reduce:transition-none" aria-hidden />
             </summary>
             <div className="mt-3 space-y-3">
               <TodayStrip chips={todayChips} />
@@ -397,8 +398,8 @@ function Dashboard() {
 
         {!d.hasAnyActivity ? (
           <div className="relative z-10 mt-4 flex flex-wrap gap-4 border-t border-border/60 pt-3 text-sm">
-            <Link to="/settings" className="text-muted-foreground hover:text-foreground">Check my goal</Link>
-            <Link to="/guide" className="text-muted-foreground hover:text-foreground">How IT PATH works</Link>
+            <Link to="/settings" className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Check my goal</Link>
+            <Link to="/guide" className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">How IT PATH works</Link>
           </div>
         ) : null}
       </section>
@@ -442,7 +443,7 @@ function Dashboard() {
           </div>
         </div>
         <details className="mt-1">
-          <summary className="inline-block cursor-pointer list-none py-2.5 text-xs font-semibold text-primary hover:underline [&::-webkit-details-marker]:hidden">
+          <summary className="inline-block min-h-11 cursor-pointer list-none py-2.5 text-xs font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background [&::-webkit-details-marker]:hidden">
             View progress details →
           </summary>
           <div className="grid grid-cols-2 gap-x-6 sm:grid-cols-4">
@@ -463,7 +464,7 @@ function Dashboard() {
       <div>
         <Panel title="Due for review" className="border-t-0 py-5">
           {reviewTopics.length === 0 ? (
-             <div className="flex items-start gap-4 text-muted-foreground"><CalendarDays className="mt-0.5 size-6 shrink-0 text-feature-amber" aria-hidden /><div><p className="text-sm text-foreground/85">Nothing due right now.</p><p className="mt-0.5 text-sm">We’ll show topics here as they become due.</p></div></div>
+             <div className="flex items-start gap-4 text-muted-foreground"><CalendarDays className="mt-0.5 size-6 shrink-0 text-feature-amber/80" aria-hidden /><div><p className="text-sm text-foreground/85">Nothing due right now.</p><p className="mt-0.5 text-sm">We’ll show topics here as they become due.</p></div></div>
           ) : (
             <ul className="divide-y divide-border/60 text-sm">
               {reviewTopics.map((item) => (
@@ -471,7 +472,7 @@ function Dashboard() {
                   <Link
                     to="/review"
                     {...(missedAnchors[item.topicId] ? { hash: missedAnchors[item.topicId] as string } : {})}
-                    className="min-w-0"
+                    className="min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     <span className="block truncate hover:underline">{item.title}</span>
                     <span className="block truncate text-xs text-muted-foreground">{item.reason}</span>
@@ -480,7 +481,7 @@ function Dashboard() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="min-h-9 min-w-16 shrink-0 px-2 text-xs motion-safe:transition-transform motion-safe:duration-150 active:scale-95 motion-reduce:transition-none"
+                    className="min-h-9 min-w-16 shrink-0 px-2 text-xs motion-safe:transition-transform motion-safe:duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
                     onClick={() => markReviewDone(item)}
                     aria-label={`Mark ${item.title} as done`}
                   >
@@ -492,7 +493,7 @@ function Dashboard() {
           )}
           {reviewTopics.length > 0 ? (
             <div className="mt-3 text-sm">
-              <Link to="/review" className="text-primary hover:underline">Open Review</Link>
+              <Link to="/review" className="rounded-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Open Review</Link>
             </div>
           ) : null}
         </Panel>
@@ -504,7 +505,7 @@ function Dashboard() {
             <ul className="divide-y divide-border/60">
               {d.todaysTasks.map((task) => (
                 <li key={task.id}>
-                  <Link to={task.to} params={task.params as never} className="grid min-h-11 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 motion-reduce:transition-none">
+                  <Link to={task.to} params={task.params as never} className="grid min-h-11 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none">
                     <span className="min-w-0">
                       <span className="block truncate text-sm">{task.label}</span>
                       <span className="block truncate text-xs text-muted-foreground">{task.detail}</span>
@@ -518,10 +519,10 @@ function Dashboard() {
         </Panel>
 
         <Panel title="Certifications" className="relative py-5">
-          <Link to="/certifications" className="absolute right-0 top-5 text-sm text-primary hover:underline">View all →</Link>
+          <Link to="/certifications" className="absolute right-0 top-5 rounded-sm text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">View all →</Link>
           <ul className="divide-y divide-border/60">
             {d.certificationReadiness.map((cert) => (
-              <li key={cert.id} className="group grid min-h-11 grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 motion-reduce:transition-none sm:grid-cols-[minmax(0,1fr)_7rem_auto]">
+              <li key={cert.id} className="group grid min-h-11 grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 active:scale-[0.995] motion-reduce:transition-none sm:grid-cols-[minmax(0,1fr)_7rem_auto]">
                 <p className="min-w-0 truncate text-sm">{cert.title}</p>
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><Meter value={cert.overall} /><span className="text-sm font-semibold tabular-nums">{cert.overall}%</span></div>
                 <ChevronRight className="size-4 text-muted-foreground motion-safe:transition-all motion-safe:duration-150 group-hover:translate-x-0.5 group-hover:text-primary motion-reduce:transition-none" aria-hidden />
@@ -534,7 +535,7 @@ function Dashboard() {
           <Link to="/career-skills" className="absolute right-0 top-5 text-sm text-primary hover:underline">View all →</Link>
           <div className="divide-y divide-border/60">
             {d.careerReadiness.map((track) => (
-              <div key={track.track} className="group grid min-h-11 grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 motion-reduce:transition-none sm:grid-cols-[minmax(0,1fr)_7rem_auto]">
+              <div key={track.track} className="group grid min-h-11 grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 active:scale-[0.995] motion-reduce:transition-none sm:grid-cols-[minmax(0,1fr)_7rem_auto]">
                 <p className="truncate text-sm">{track.label}</p>
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><Meter value={track.score} /><span className="text-sm font-semibold tabular-nums">{track.score}%</span></div>
                 <ChevronRight className="size-4 text-muted-foreground motion-safe:transition-all motion-safe:duration-150 group-hover:translate-x-0.5 group-hover:text-primary motion-reduce:transition-none" aria-hidden />
@@ -545,7 +546,7 @@ function Dashboard() {
       </div>
 
       <p className="mt-8 text-xs text-muted-foreground">
-        <Link to="/guide" className="hover:text-foreground hover:underline">How scores are calculated</Link>
+        <Link to="/guide" className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">How scores are calculated</Link>
       </p>
     </div>
   );
