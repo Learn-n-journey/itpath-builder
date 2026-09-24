@@ -177,7 +177,6 @@ function TopicPage() {
             <TopicIcon className="size-6" aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Stage 01 · Learn It</p>
             <h1 className="mt-0.5 font-display text-xl font-bold leading-tight text-foreground sm:text-2xl">{topic.title}</h1>
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">{topic.summary}</p>
           </div>
