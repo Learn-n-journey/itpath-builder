@@ -206,7 +206,7 @@ function Dashboard() {
 
   return (
     <div className="mx-auto max-w-4xl pb-8">
-      <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border pb-5">
+      <header className="relative mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 overflow-hidden rounded-xl border border-border bg-secondary/30 p-5 shadow-sm before:absolute before:inset-x-0 before:top-0 before:h-1 before:bg-primary">
         <div className="min-w-0">
           <Link to="/settings" className="inline-flex max-w-full items-center gap-1 font-display text-lg font-semibold hover:text-primary">
             <span className="truncate">{path.certification.title}</span>
