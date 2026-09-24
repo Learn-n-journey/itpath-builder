@@ -326,6 +326,11 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     (item, index, items) => items.findIndex((candidate) => candidate.trim().toLowerCase() === item.trim().toLowerCase()) === index,
   );
 
+  const topicMedia = mediaFor(topic);
+  const mediaVideos = topicMedia.filter((resource) => resource.kind === "video");
+  const mediaReading = topicMedia.filter((resource) => resource.kind !== "video");
+  const extraStages = (mediaReading.length > 0 ? 1 : 0) + (mediaVideos.length > 0 ? 1 : 0);
+  const stageNo = (base: number) => String(base + extraStages).padStart(2, "0");
   return <div className="space-y-4">
     <ReturnToActivity topicId={topic.id} />
     <Panel title="Learning objectives">
@@ -364,7 +369,15 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       </div>
     </LearningStage>
 
-    <LearningStage id="try-it" number="03" title="Try It" description="Low-stakes practice. Mistakes here are part of learning and do not prove mastery." icon={<Wrench />} tone="practice">
+    {mediaReading.length > 0 ? <LearningStage id="read-more" number="03" title="Read It" description="Verified reading and courses for this topic. Links open in a new tab." icon={<FileText />}>
+      <MediaGroup title="Reading and courses" items={mediaReading} />
+    </LearningStage> : null}
+
+    {mediaVideos.length > 0 ? <LearningStage id="watch-it" number={mediaReading.length > 0 ? "04" : "03"} title="Watch It" description="Verified video training for this topic. Links open in a new tab." icon={<PlayCircle />}>
+      <MediaGroup title="Video training" items={mediaVideos} video />
+    </LearningStage> : null}
+
+    <LearningStage id="try-it" number={stageNo(3)} title="Try It" description="Low-stakes practice. Mistakes here are part of learning and do not prove mastery." icon={<Wrench />} tone="practice">
       {deepLesson?.depth ? <LessonCheckYourself depth={deepLesson.depth} topicId={topic.id} /> : null}
       <Tabs value={tryTab} onValueChange={setTryTab} className="space-y-4">
         <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
@@ -388,7 +401,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <ObdPracticePanel topicId={topic.id} topicTitle={topic.title} />
     </LearningStage>
 
-    <LearningStage id="prove-it" number="04" title="Prove It" description="Demonstrate what you can explain and apply. Only the section quiz controls mastery." icon={<ShieldCheck />} tone="proof">
+    <LearningStage id="prove-it" number={stageNo(4)} title="Prove It" description="Demonstrate what you can explain and apply. Only the section quiz controls mastery." icon={<ShieldCheck />} tone="proof">
       <Tabs value={proveTab} onValueChange={setProveTab} className="space-y-4">
         <TabsList className="h-auto w-full justify-start overflow-x-auto p-1"><TabsTrigger value="teach-back">Teach Back</TabsTrigger>{scenario ? <TabsTrigger value="scenario">Real-World Scenario</TabsTrigger> : null}</TabsList>
         <TabsContent value="teach-back"><div id="teach-back" className="scroll-mt-24"><Panel title="Teach Back" description={ownerTeachBack?.prompt || "Explain this topic in your own words. GAYL reads it back and tells you what your explanation shows."}>{teachBackEditing ? <><Label htmlFor="teach-back-answer">Your explanation</Label><Textarea id="teach-back-answer" className="mt-2" rows={7} value={teachBack} onChange={(event) => setTeachBack(event.target.value)} /><div className="mt-3 flex flex-wrap gap-2"><Button disabled={teachBackMarking.busy} onClick={() => void saveTeachBack()}><Save />{teachBackMarking.busy ? "GAYL is reading…" : "Save"}</Button>{savedTeachBack ? <Button variant="outline" onClick={() => { setTeachBack(savedTeachBack.body); setTeachBackEditing(false); }}><FileText />Review saved response</Button> : null}</div></> : <><div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">{savedTeachBack?.body}</div><Button className="mt-3" variant="outline" onClick={() => setTeachBackEditing(true)}><Edit3 />Edit</Button></>}<AiFeedback state={teachBackMarking} /></Panel></div></TabsContent>
@@ -399,13 +412,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <Panel title="Where you stand in this section" description="Practice progress is separate from the section quiz result that proves mastery."><div className="grid gap-5 sm:grid-cols-2"><div><div className="mb-1.5 flex justify-between text-sm"><span>Learning progress</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.learningProgress}%</span></div><Progress value={sectionMeasures.learningProgress} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.activitiesCompleted} of {sectionMeasures.activitiesTotal} activities done</p></div><div><div className="mb-1.5 flex justify-between text-sm"><span>Overall mastery</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.overallMastery}%</span></div><Progress value={sectionMeasures.overallMastery} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.assessmentsTaken > 0 ? "Your best result on the final section quiz." : "Take the final section quiz to set this."}</p></div></div></Panel>
     </LearningStage>
 
-    <LearningStage id="keep-handy" number="05" title="Keep Handy" description="Lookup material, trusted sources, and your own notes—available without interrupting the lesson." icon={<Sparkles />}>
+    <LearningStage id="keep-handy" number={stageNo(5)} title="Keep Handy" description="Lookup material, trusted sources, and your own notes—available without interrupting the lesson." icon={<Sparkles />}>
       <div className="grid gap-4 lg:grid-cols-2">
         <div id={lessonConceptAnchor(lessonSectionId(topic.id, "key-terms"))} className="scroll-mt-24"><Panel title="Key Terms"><dl className="divide-y divide-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 text-sm sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd className="leading-7 text-muted-foreground">{item.meaning}</dd></div>)}</dl></Panel></div>
         {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "reference"))} className="scroll-mt-24"><LessonReferencePanel depth={deepLesson.depth} /></div> : null}
       </div>
       <Panel title="Interview Questions" description="Useful prompts for review and career conversations."><ListSection title="Questions to rehearse" items={module.interviewQuestions} /></Panel>
-      <MediaPanel topic={topic} />
       <TopicKnowledgePanel topicId={topic.id} />
       <AnnotationPanel target={{ kind: "lesson", id: lesson.id, label: topic.title, href: `/topics/${topic.id}` }} title="Lesson notes and bookmark" description="Notes and bookmarks for this lesson, saved with everything else you have marked." />
       <ContentReportButton kind="lesson" refId={topic.id} label={topic.title} />
@@ -420,14 +432,18 @@ function LearningStage({ id, number, title, description, icon, tone, children }:
 
 const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
 
-function MediaPanel({ topic }: { topic: Topic }) {
-  const media = useMemo(() => {
+function mediaFor(topic: Topic): Resource[] {
+  {
     const direct = resources.filter((resource) => resource.topicIds.includes(topic.id));
     const related = resources.filter(
       (resource) => !direct.includes(resource) && resource.certificationId === topic.certificationId,
     );
     return [...direct, ...related.slice(0, Math.max(0, 4 - direct.length))];
-  }, [topic.id, topic.certificationId]);
+  }
+}
+
+function UnusedMediaPanel() {
+  const media: Resource[] = [];
 
   const videos = media.filter((resource) => resource.kind === "video");
   const reading = media.filter((resource) => resource.kind !== "video");
