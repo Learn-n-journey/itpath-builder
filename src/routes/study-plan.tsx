@@ -9,9 +9,9 @@ import {
   Clock3,
   HelpCircle,
   Pencil,
-  Wrench,
+  Cpu,
   Sparkles,
-  RotateCcw,
+  TrendingUp,
   Trophy,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -83,8 +83,8 @@ const previewGroups: Array<{
   icon: typeof BookOpen;
 }> = [
   { title: "Learn", detail: "New or incomplete topics", kinds: ["new_material", "weak_topic"], icon: BookOpen },
-  { title: "Practice", detail: "Hands-on labs or scenarios", kinds: ["lab", "assignment"], icon: Wrench },
-  { title: "Review", detail: "Reinforce and check mastery", kinds: ["review", "quiz"], icon: RotateCcw },
+  { title: "Practice", detail: "Hands-on labs or scenarios", kinds: ["lab", "assignment"], icon: Cpu },
+  { title: "Review", detail: "Reinforce and check mastery", kinds: ["review", "quiz"], icon: TrendingUp },
 ];
 
 function StudyPlanPage() {
@@ -191,14 +191,14 @@ function StudyPlanPage() {
                     <div key={group.title} className="flex shrink-0 items-center">
                       <div
                         className={cn(
-                          "relative flex min-h-36 w-32 flex-col items-center rounded-2xl border px-3 pb-6 pt-5 text-center sm:w-36",
+                          "relative flex min-h-32 w-32 flex-col items-center rounded-2xl border px-3 pb-6 pt-4 text-center sm:w-36",
                           included ? "border-border bg-card shadow-sm" : "border-border/70 bg-card/60 opacity-55",
                         )}
                       >
-                        <span className={cn("flex size-10 items-center justify-center rounded-xl bg-secondary/70", included ? "text-primary" : "text-muted-foreground")}>
-                          <Icon className="size-5" aria-hidden />
+                        <span className={cn("flex size-8 items-center justify-center rounded-lg bg-secondary/60", included ? "text-primary" : "text-muted-foreground")}>
+                          <Icon className="size-4" strokeWidth={1.8} aria-hidden />
                         </span>
-                        <p className="mt-3 text-sm font-semibold text-foreground">{group.title}</p>
+                        <p className="mt-2.5 text-sm font-semibold text-foreground">{group.title}</p>
                         <p className="mt-1 text-[11px] leading-4 text-muted-foreground">{group.detail}</p>
                         <span className={cn("absolute -bottom-3 left-1/2 flex size-7 -translate-x-1/2 items-center justify-center rounded-full border bg-background text-xs font-bold shadow-sm", included ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>
                           {index + 1}
