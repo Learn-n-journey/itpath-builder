@@ -9,7 +9,7 @@ import {
   HardDrive,
   Laptop,
   Lock,
-  Map,
+  Map as MapIcon,
   Monitor,
   Network,
   Settings,
@@ -138,7 +138,7 @@ function MyPath() {
           to="/journey"
           className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors motion-safe:duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <Map className="size-4 shrink-0" aria-hidden />
+          <MapIcon className="size-4 shrink-0" aria-hidden />
           <span>Journey Map</span>
         </Link>
       </nav>
