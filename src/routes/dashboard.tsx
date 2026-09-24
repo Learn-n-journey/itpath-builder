@@ -221,7 +221,7 @@ function Dashboard() {
         </div>
       </header>
 
-      <section aria-labelledby="continue-heading" className="relative overflow-hidden border-b border-border pb-6">
+      <section aria-labelledby="continue-heading" className="relative overflow-hidden rounded-xl border border-border bg-secondary/30 px-4 py-5 shadow-sm sm:px-6 sm:py-6">
         <div className="relative z-10 max-w-[72%] sm:max-w-[68%]">
           <h1 className="text-base font-medium">
             {d.hasAnyActivity ? "Continue learning" : "Start learning"}
