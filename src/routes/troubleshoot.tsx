@@ -104,7 +104,6 @@ function TroubleshootPage() {
       <PageHeader
         title="Troubleshoot"
         description="Realistic incidents worked the way a technician works them: gather evidence, diagnose, fix, verify and document. IT PATH simulates the findings; it never touches real equipment."
-        descriptionVisibility="visible"
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -360,7 +359,6 @@ function IncidentWorkspace({
       <Panel
         title="Diagnostic actions"
         description="Each step returns its own finding. Choosing everything costs efficiency; choosing nothing costs accuracy."
-        descriptionVisibility="visible"
       >
         <div className="space-y-3">
           {incident.actions.map((action) => {
