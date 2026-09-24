@@ -151,7 +151,7 @@ const allNavItems: NavItem[] = [
     description: "A simulated support queue across five job roles.",
   },
   {
-    label: "Challenge Simulator",
+    label: "Exam Simulator",
     to: "/exam",
     icon: AlarmClock,
     group: "Practice",
