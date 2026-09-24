@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BarChart3, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Flame, Play, SlidersHorizontal, Wrench } from "lucide-react";
+import { BarChart3, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Flame, Play, SlidersHorizontal, Sparkles, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
 import { LearnerPageSkeleton, Panel, StatCard } from "@/components/page-kit";
@@ -466,6 +466,22 @@ function Dashboard() {
           </div>
         ) : null}
       </section>
+
+      <Link
+        to="/meditation"
+        className="group mb-6 flex min-h-20 items-center justify-between gap-4 rounded-xl border border-border/50 bg-card/40 p-4 shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
+        <span className="flex min-w-0 items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-feature-violet/15 text-feature-violet">
+            <Sparkles className="size-4" aria-hidden />
+          </span>
+          <span className="min-w-0">
+            <span className="block font-display text-sm font-semibold text-foreground">Meditation & Focus</span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">Breathing, calming sounds, and a quick mental reset.</span>
+          </span>
+        </span>
+        <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" aria-hidden />
+      </Link>
 
       <section className="border-b border-border/60 py-6">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
