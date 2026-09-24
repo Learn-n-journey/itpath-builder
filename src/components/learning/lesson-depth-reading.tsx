@@ -1,3 +1,5 @@
+import { Textarea } from "@/components/ui/textarea";
+import { answerMatches, conceptCoverage } from "@/lib/fuzzy-match";
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, Key, ListChecks, Wrench } from "lucide-react";
 
@@ -68,31 +70,34 @@ export function LessonMisconceptions({ depth }: { depth: LessonDepth }) {
 
 export function LessonCheckYourself({ depth, topicId }: { depth: LessonDepth; topicId?: string }) {
   if (depth.checkYourself.length === 0) return null;
-  return <div id="check-yourself" className="scroll-mt-24"><Panel title="Check yourself" description="Answer in your head first, then reveal. This is practice, not mastery proof."><ul className="space-y-3">{depth.checkYourself.map((check, index) => <CheckRow key={check.question} check={check} index={index} {...(topicId ? { topicId } : {})} />)}</ul></Panel></div>;
+  return <div id="check-yourself" className="scroll-mt-24"><Panel title="Check yourself"><ul className="space-y-3">{depth.checkYourself.map((check, index) => <CheckRow key={check.question} check={check} index={index} {...(topicId ? { topicId } : {})} />)}</ul></Panel></div>;
 }
 
 function CheckRow({ check, index, topicId }: { check: LessonDepth["checkYourself"][number]; index: number; topicId?: string }) {
-  const [shown, setShown] = useState(false);
+  const [answer, setAnswer] = useState("");
+  const [result, setResult] = useState<boolean | null>(null);
   const sectionId = topicId ? check.lessonSectionId ?? lessonSectionId(topicId, "core") : undefined;
   const mapped = topicId && sectionId ? resolveLessonSection(topicId, sectionId, getDeepLesson(topicId)) : undefined;
+  const submit = () => {
+    const text = answer.trim();
+    if (text.split(/\s+/).length < 2) { setResult(false); return; }
+    setResult(answerMatches(text, check.answer) || conceptCoverage(check.answer, text) >= 0.4);
+  };
   return (
     <li className="rounded-lg border border-border p-3">
-      <div className="flex items-start justify-between gap-3">
-        <p className="flex gap-3 text-sm leading-7 text-foreground">
-          <ListChecks aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
-          <span>{check.question}</span>
-        </p>
-        <Button variant="ghost" size="sm" onClick={() => setShown((value) => !value)}>
-          {shown ? "Hide" : "Show answer"}
-        </Button>
-      </div>
-      {shown ? (
-        <p className="mt-2 flex gap-3 pl-7 text-sm leading-7 text-muted-foreground">
-          <Wrench aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
-          <span>{check.answer}</span>
-        </p>
+      <p className="flex gap-3 text-sm leading-7 text-foreground">
+        <ListChecks aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" />
+        <span>{check.question}</span>
+      </p>
+      <Textarea aria-label={`Your answer to check ${index + 1}`} className="mt-2" rows={3} value={answer} onChange={(event) => { setAnswer(event.target.value); setResult(null); }} />
+      <Button className="mt-2" size="sm" onClick={submit} disabled={!answer.trim()}>Check answer</Button>
+      {result !== null ? (
+        <div role="status" className="mt-2 space-y-1 pl-1 text-sm leading-7">
+          <p className={result ? "text-success" : "text-muted-foreground"}>{result ? "That matches the idea." : "Not quite the idea yet. Try again."}</p>
+          {result ? <p className="flex gap-3 text-muted-foreground"><Wrench aria-hidden className="mt-1.5 size-4 shrink-0 text-primary" /><span>{check.answer}</span></p> : null}
+        </div>
       ) : null}
-      {shown && mapped && topicId && sectionId ? <ReviewConceptLink topicId={topicId} conceptId={check.conceptId ?? `${topicId}:check:${index + 1}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="check-yourself" sourceItemId={`check-${index + 1}`} /> : null}
+      {result === false && mapped && topicId && sectionId ? <ReviewConceptLink topicId={topicId} conceptId={check.conceptId ?? `${topicId}:check:${index + 1}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="check-yourself" sourceItemId={`check-${index + 1}`} /> : null}
     </li>
   );
 }

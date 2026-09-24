@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 
 
 
+import { HelpTip } from "@/components/help-tip";
 import { MasteryChecklist } from "@/components/learning/mastery-checklist";
 import { AnnotationPanel } from "@/components/annotations/annotation-panel";
 import { AiFeedback, useAiMarking } from "@/components/learning/ai-marking";
@@ -157,16 +158,15 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
    * Which practice tab is open. Shortcuts elsewhere on the page can open a tab
    * directly by setting the address hash, for example #teach-back.
    */
-  const [tryTab, setTryTab] = useState(visibleRecall.length > 0 ? "recall" : "practice");
-  const [proveTab, setProveTab] = useState("teach-back");
+  const [proveTab, setProveTab] = useState(visibleRecall.length > 0 ? "recall" : "teach-back");
   useEffect(() => {
     const applyHash = () => {
       const hash = window.location.hash.replace("#", "");
-      if (["recall", "practice"].includes(hash)) setTryTab(hash);
+      if (hash === "recall") setProveTab("recall");
       else if (["teach-back", "scenario"].includes(hash)) setProveTab(hash);
       else return;
       window.requestAnimationFrame(() => {
-        document.getElementById(["recall", "practice"].includes(hash) ? "try-it" : "prove-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.getElementById(hash === "practice" ? "try-it" : "prove-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     };
     applyHash();
@@ -284,7 +284,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       expectedPoints: ownerTeachBack?.expectedPoints.length
         ? ownerTeachBack.expectedPoints
         : topic.learningObjectives,
-    });
+    }, topic.id);
+    if (!graded) {
+      const expected = ownerTeachBack?.expectedPoints.length ? ownerTeachBack.expectedPoints : topic.learningObjectives;
+      const ok = passesOffline(body, expected, `${lesson?.definition ?? ""} ${lesson?.whyItMatters ?? ""}`.trim() || topic.summary);
+      actions.addLearnerSignal({ topicId: topic.id, kind: "ai_grading", correct: ok, score: ok ? 1 : 0.4 });
+    }
     // Understanding rises with the quality of the explanation, never just for saving it.
     const understanding = graded ? Math.max(25, Math.round(graded.score * 0.8)) : 25;
     raiseProgress({ understanding: Math.max(progress.understanding, understanding), retention: Math.max(progress.retention, graded?.correct ? 25 : 10) });
@@ -377,39 +382,35 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       <MediaGroup title="Video training" items={mediaVideos} video />
     </LearningStage> : null}
 
-    <LearningStage id="try-it" number={stageNo(3)} title="Try It" description="Low-stakes practice. Mistakes here are part of learning and do not prove mastery." icon={<Wrench />} tone="practice">
+    <LearningStage id="practice-it" number={stageNo(3)} title="Practice It" description="Low-stakes practice. It never counts toward mastery." icon={<Wrench />} tone="practice">
+      <div id="try-it" className="scroll-mt-24 space-y-4">
       {deepLesson?.depth ? <LessonCheckYourself depth={deepLesson.depth} topicId={topic.id} /> : null}
-      <Tabs value={tryTab} onValueChange={setTryTab} className="space-y-4">
-        <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">
-          {visibleRecall.length > 0 ? <TabsTrigger value="recall">Recall</TabsTrigger> : null}
-          {practice ? <TabsTrigger value="practice">Practice</TabsTrigger> : null}
-        </TabsList>
+        {practice ? <div id="practice" className="scroll-mt-24 space-y-4">{practiceActivities.map((activity, index) => {
+          const chosen = practiceChoices[activity.id]; const feedback = practiceFeedback[activity.id];
+          const incorrect = feedback?.startsWith("Not yet.") ?? false;
+          const sectionId = activity.lessonSectionId ?? (activity.id.includes("owner") ? undefined : lessonSectionId(topic.id, "core"));
+          const mapped = resolveLessonSection(topic.id, sectionId, deepLesson);
+          return <Panel key={activity.id} title={`Practice ${index + 1}: ${activity.title}`} description={activity.prompt}><div className="grid gap-2">{activity.choices.map((choice, choiceIndex) => <Button key={choice} variant={chosen === choiceIndex ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" onClick={() => setPracticeChoices((current) => ({ ...current, [activity.id]: choiceIndex }))}>{choice}</Button>)}</div><Button className="mt-4" onClick={() => submitPractice(activity.id)}>Check decision</Button>{feedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{feedback}</p> : null}{incorrect && mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={activity.conceptId ?? `${topic.id}:practice:${activity.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="practice" sourceItemId={activity.id} /> : null}</Panel>;
+        })}</div> : null}
+      <ObdPracticePanel topicId={topic.id} topicTitle={topic.title} />
+      </div>
+    </LearningStage>
+
+    <LearningStage id="prove-it" number={stageNo(4)} title="Prove It" description="Every activity here counts. Score 80 or better on all of them to open the next section." icon={<ShieldCheck />} tone="proof">
+      <Tabs value={proveTab} onValueChange={setProveTab} className="space-y-4">
+        <TabsList className="h-auto w-full justify-start overflow-x-auto p-1">{visibleRecall.length > 0 ? <TabsTrigger value="recall">Recall</TabsTrigger> : null}<TabsTrigger value="teach-back">Teach Back</TabsTrigger>{scenario ? <TabsTrigger value="scenario">Real-World Scenario</TabsTrigger> : null}</TabsList>
         {visibleRecall.length > 0 ? <TabsContent value="recall"><div id="recall" className="scroll-mt-24 space-y-4">{visibleRecall.map((question, index) => {
           const feedback = recallFeedback[question.id];
           const sectionId = question.lessonSectionId ?? (question.id.includes("owner") || question.id.includes("work") ? undefined : lessonSectionId(topic.id, "core"));
           const mapped = resolveLessonSection(topic.id, sectionId, deepLesson);
           return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={`recall-${question.id}`}>Answer from memory</Label><Textarea id={`recall-${question.id}`} className="mt-2" rows={5} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy && markedRecallId === question.id} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "GAYL is reading…" : "Check recall"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-success" : "text-muted-foreground"}`}>{feedback.correct ? "Correct. " : "Keep building it. "}{feedback.message}</p> : null}{feedback && !feedback.correct && mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={question.conceptId ?? `${topic.id}:recall:${question.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="recall" sourceItemId={question.id} /> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
         })}</div></TabsContent> : null}
-        {practice ? <TabsContent value="practice"><div id="practice" className="scroll-mt-24 space-y-4">{practiceActivities.map((activity, index) => {
-          const chosen = practiceChoices[activity.id]; const feedback = practiceFeedback[activity.id];
-          const incorrect = feedback?.startsWith("Not yet.") ?? false;
-          const sectionId = activity.lessonSectionId ?? (activity.id.includes("owner") ? undefined : lessonSectionId(topic.id, "core"));
-          const mapped = resolveLessonSection(topic.id, sectionId, deepLesson);
-          return <Panel key={activity.id} title={`Practice ${index + 1}: ${activity.title}`} description={activity.prompt}><div className="grid gap-2">{activity.choices.map((choice, choiceIndex) => <Button key={choice} variant={chosen === choiceIndex ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" onClick={() => setPracticeChoices((current) => ({ ...current, [activity.id]: choiceIndex }))}>{choice}</Button>)}</div><Button className="mt-4" onClick={() => submitPractice(activity.id)}>Check decision</Button>{feedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{feedback}</p> : null}{incorrect && mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={activity.conceptId ?? `${topic.id}:practice:${activity.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="practice" sourceItemId={activity.id} /> : null}</Panel>;
-        })}</div></TabsContent> : null}
-      </Tabs>
-      <ObdPracticePanel topicId={topic.id} topicTitle={topic.title} />
-    </LearningStage>
-
-    <LearningStage id="prove-it" number={stageNo(4)} title="Prove It" description="Demonstrate what you can explain and apply. Only the section quiz controls mastery." icon={<ShieldCheck />} tone="proof">
-      <Tabs value={proveTab} onValueChange={setProveTab} className="space-y-4">
-        <TabsList className="h-auto w-full justify-start overflow-x-auto p-1"><TabsTrigger value="teach-back">Teach Back</TabsTrigger>{scenario ? <TabsTrigger value="scenario">Real-World Scenario</TabsTrigger> : null}</TabsList>
         <TabsContent value="teach-back"><div id="teach-back" className="scroll-mt-24"><Panel title="Teach Back" description={ownerTeachBack?.prompt || "Explain this topic in your own words. GAYL reads it back and tells you what your explanation shows."}>{teachBackEditing ? <><Label htmlFor="teach-back-answer">Your explanation</Label><Textarea id="teach-back-answer" className="mt-2" rows={7} value={teachBack} onChange={(event) => setTeachBack(event.target.value)} /><div className="mt-3 flex flex-wrap gap-2"><Button disabled={teachBackMarking.busy} onClick={() => void saveTeachBack()}><Save />{teachBackMarking.busy ? "GAYL is reading…" : "Save"}</Button>{savedTeachBack ? <Button variant="outline" onClick={() => { setTeachBack(savedTeachBack.body); setTeachBackEditing(false); }}><FileText />Review saved response</Button> : null}</div></> : <><div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">{savedTeachBack?.body}</div><Button className="mt-3" variant="outline" onClick={() => setTeachBackEditing(true)}><Edit3 />Edit</Button></>}<AiFeedback state={teachBackMarking} /></Panel></div></TabsContent>
         {scenario ? <TabsContent value="scenario"><div id="scenario" className="scroll-mt-24"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}{savedScenario && !savedScenario.meetsCriteria && (() => { const sectionId = scenario.lessonSectionId ?? (scenario.id.includes("owner") || scenario.id.includes("work") ? undefined : lessonSectionId(topic.id, "troubleshooting")); const mapped = resolveLessonSection(topic.id, sectionId, deepLesson); return mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={scenario.conceptId ?? `${topic.id}:scenario:${scenario.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="scenario" sourceItemId={scenario.id} /> : null; })()}<AiFeedback state={scenarioMarking} /></Panel></div></TabsContent> : null}
       </Tabs>
       <MasteryChecklist topicId={topic.id} />
-      <div id="section-quiz" className="scroll-mt-24"><Panel title="Section quiz" description="Twenty questions on this section alone, part multiple choice and part written in your own words. Eighty percent is a pass."><Button asChild><Link to="/section-quiz/$topicId" params={{ topicId: topic.id }}>Take the section quiz</Link></Button></Panel></div>
-      <Panel title="Where you stand in this section" description="Practice progress is separate from the section quiz result that proves mastery."><div className="grid gap-5 sm:grid-cols-2"><div><div className="mb-1.5 flex justify-between text-sm"><span>Learning progress</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.learningProgress}%</span></div><Progress value={sectionMeasures.learningProgress} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.activitiesCompleted} of {sectionMeasures.activitiesTotal} activities done</p></div><div><div className="mb-1.5 flex justify-between text-sm"><span>Overall mastery</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.overallMastery}%</span></div><Progress value={sectionMeasures.overallMastery} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.assessmentsTaken > 0 ? "Your best result on the final section quiz." : "Take the final section quiz to set this."}</p></div></div></Panel>
+      <div id="section-quiz" className="scroll-mt-24"><Panel title="Section quiz" description="20 questions. 80% to pass."><Button asChild><Link to="/section-quiz/$topicId" params={{ topicId: topic.id }}>Take the section quiz</Link></Button></Panel></div>
+      <Panel title="Where you stand in this section"><div className="grid gap-5 sm:grid-cols-2"><div><div className="mb-1.5 flex justify-between text-sm"><span>Learning progress</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.learningProgress}%</span></div><Progress value={sectionMeasures.learningProgress} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.activitiesCompleted} of {sectionMeasures.activitiesTotal} activities done</p></div><div><div className="mb-1.5 flex justify-between text-sm"><span>Overall mastery</span><span className="tabular-nums text-muted-foreground">{sectionMeasures.overallMastery}%</span></div><Progress value={sectionMeasures.overallMastery} /><p className="mt-1.5 text-xs text-muted-foreground">{sectionMeasures.assessmentsTaken > 0 ? "Your best result on the final section quiz." : "Take the final section quiz to set this."}</p></div></div></Panel>
     </LearningStage>
 
     <LearningStage id="keep-handy" number={stageNo(5)} title="Keep Handy" description="Lookup material, trusted sources, and your own notes—available without interrupting the lesson." icon={<Sparkles />}>
@@ -417,7 +418,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
         <div id={lessonConceptAnchor(lessonSectionId(topic.id, "key-terms"))} className="scroll-mt-24"><Panel title="Key Terms"><dl className="divide-y divide-border">{keywords.map((item) => <div key={item.term} className="grid gap-1 py-3 text-sm sm:grid-cols-[9rem_1fr] sm:gap-4"><dt className="font-medium text-foreground">{item.term}</dt><dd className="leading-7 text-muted-foreground">{item.meaning}</dd></div>)}</dl></Panel></div>
         {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "reference"))} className="scroll-mt-24"><LessonReferencePanel depth={deepLesson.depth} /></div> : null}
       </div>
-      <Panel title="Interview Questions" description="Useful prompts for review and career conversations."><ListSection title="Questions to rehearse" items={module.interviewQuestions} /></Panel>
+      <Panel title="Interview Questions"><ListSection title="Questions to rehearse" items={module.interviewQuestions} /></Panel>
       <TopicKnowledgePanel topicId={topic.id} />
       <AnnotationPanel target={{ kind: "lesson", id: lesson.id, label: topic.title, href: `/topics/${topic.id}` }} title="Lesson notes and bookmark" description="Notes and bookmarks for this lesson, saved with everything else you have marked." />
       <ContentReportButton kind="lesson" refId={topic.id} label={topic.title} />
@@ -427,7 +428,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 }
 
 function LearningStage({ id, number, title, description, icon, tone, children }: { id: string; number: string; title: string; description: string; icon: ReactNode; tone?: "practice" | "proof"; children: ReactNode }) {
-  return <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24 overflow-hidden rounded-xl border border-border bg-card shadow-sm"><header className={`border-b border-border p-4 sm:p-6 ${tone === "practice" ? "bg-primary/5" : tone === "proof" ? "bg-success/5" : "bg-secondary/20"}`}><div className="flex items-start gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-primary/30 bg-primary/10 text-primary [&>svg]:size-5" aria-hidden>{icon}</span><div className="min-w-0"><p className="font-mono text-xs font-semibold tracking-[0.16em] text-primary">STAGE {number}</p><h2 id={`${id}-title`} className="font-display text-xl font-semibold text-foreground sm:text-2xl">{title}</h2><p className="mt-1 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p></div></div></header><div className="space-y-4 p-3 sm:p-5">{children}</div></section>;
+  return <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24 overflow-hidden rounded-xl border border-border bg-card shadow-sm"><header className={`border-b border-border p-4 sm:p-6 ${tone === "practice" ? "bg-primary/5" : tone === "proof" ? "bg-success/5" : "bg-secondary/20"}`}><div className="flex items-start gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-primary/30 bg-primary/10 text-primary [&>svg]:size-5" aria-hidden>{icon}</span><div className="min-w-0"><p className="font-mono text-xs font-semibold tracking-[0.16em] text-primary">STAGE {number}</p><div className="flex items-center gap-1.5"><h2 id={`${id}-title`} className="font-display text-xl font-semibold text-foreground sm:text-2xl">{title}</h2><HelpTip label={`About ${title}`}>{description}</HelpTip></div></div></div></header><div className="space-y-4 p-3 sm:p-5">{children}</div></section>;
 }
 
 const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };

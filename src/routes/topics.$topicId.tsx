@@ -46,7 +46,7 @@ const TOPIC_SHORTCUTS = [
   { label: "See It", target: "#see-it", when: () => true },
   { label: "Read It", target: "#read-more", when: (topic: Topic) => mediaFor(topic).some((resource) => resource.kind !== "video") },
   { label: "Watch It", target: "#watch-it", when: (topic: Topic) => mediaFor(topic).some((resource) => resource.kind === "video") },
-  { label: "Try It", target: "#try-it", when: () => true },
+  { label: "Practice It", target: "#try-it", when: () => true },
   { label: "Prove It", target: "#prove-it", when: () => true },
 ] as const;
 
