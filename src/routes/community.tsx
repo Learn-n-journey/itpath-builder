@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flag, MessagesSquare, Send, Trash2, Users } from "lucide-react";
+import { Flag, Hash, MessagesSquare, Send, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
@@ -173,29 +173,37 @@ function CommunityPage() {
         </Panel>
       ) : null}
 
-      <Panel
-        title="Rooms"
-        description="General chat, then one room for each section of your certificate."
-        className="mb-6"
-      >
-        <div className="flex flex-wrap gap-2">
+      <section className="mb-6 overflow-hidden rounded-xl border border-border/70 bg-card/30">
+        <div className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold">Study rooms</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Choose a conversation</p>
+          </div>
+          <span className="text-xs tabular-nums text-muted-foreground">{rooms.length} rooms</span>
+        </div>
+        <div className="flex gap-2 overflow-x-auto p-3">
           {rooms.map((entry) => (
             <button
               key={entry.id}
               type="button"
               onClick={() => void navigate({ search: { room: entry.id } })}
               className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                "flex shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
                 entry.id === room
                   ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:text-foreground",
+                  : "border-border/70 bg-background/40 text-muted-foreground hover:bg-secondary hover:text-foreground",
               )}
             >
+              {entry.id === GENERAL_ROOM ? (
+                <Users className="size-4" aria-hidden />
+              ) : (
+                <Hash className="size-4" aria-hidden />
+              )}
               {entry.label}
             </button>
           ))}
         </div>
-      </Panel>
+      </section>
 
       <Panel
         title={title}
