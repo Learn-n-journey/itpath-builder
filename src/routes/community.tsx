@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Flag, Hash, MessagesSquare, Send, Trash2, Users } from "lucide-react";
+import { Flag, Hash, MessagesSquare, Pencil, Send, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
@@ -205,13 +205,17 @@ function CommunityPage() {
         </div>
       </section>
 
-      <Panel
-        title={title}
-        description={
-          displayName ? `Posting as ${displayName}.` : "Set a name above before posting."
-        }
-      >
-        <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
+      <section className="overflow-hidden rounded-xl border border-border/70 bg-card/20">
+        <header className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3 sm:px-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              {sectionId ? <Hash className="size-4" aria-hidden /> : <Users className="size-4" aria-hidden />}
+            </div>
+            <div className="min-w-0"><h2 className="truncate font-display text-lg font-semibold">{title}</h2><p className="text-xs text-muted-foreground">{sectionId ? "Study room" : "Community conversation"}</p></div>
+          </div>
+          {displayName && !editingName ? <Button type="button" variant="ghost" size="icon" aria-label="Change display name" onClick={() => setEditingName(true)}><Pencil className="size-4" aria-hidden /></Button> : null}
+        </header>
+        <div className="flex flex-wrap items-center justify-end gap-2 border-b border-border/70 px-4 py-2">
           {sectionId ? (
             <Button asChild variant="ghost" size="sm">
               <Link to="/topics/$topicId" params={{ topicId: sectionId }}>
@@ -228,7 +232,7 @@ function CommunityPage() {
 
         <div
           ref={listRef}
-          className="max-h-[52vh] min-h-[16rem] space-y-4 overflow-y-auto rounded-lg border border-border/70 bg-card/40 p-4"
+          className="h-[52vh] min-h-[24rem] space-y-1 overflow-y-auto px-3 py-4 sm:px-5"
         >
           {loading ? (
             <p className="text-sm text-muted-foreground">Loading the room.</p>
@@ -249,7 +253,7 @@ function CommunityPage() {
             messages.map((message) => {
               const mine = message.userId === userId;
               return (
-                <div key={message.id} className="group flex flex-col gap-1">
+                <div key={message.id} className="group rounded-lg px-3 py-3 transition-colors hover:bg-secondary/30">
                   <div className="flex items-baseline gap-2">
                     <span className={mine ? "text-sm font-semibold text-primary" : "text-sm font-semibold"}>
                       {mine ? "You" : message.displayName}
@@ -297,7 +301,7 @@ function CommunityPage() {
           )}
         </div>
 
-        <form onSubmit={handleSend} className="mt-4 space-y-3">
+        <form onSubmit={handleSend} className="border-t border-border/70 bg-background/30 p-3 sm:p-4">
           <Label htmlFor="communityMessage" className="sr-only">
             Your message
           </Label>
@@ -305,10 +309,10 @@ function CommunityPage() {
             id="communityMessage"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
-            placeholder={displayName ? "Write a message" : "Set your chat name first"}
+            placeholder={displayName ? `Message ${title}` : "Choose your display name to join"}
             disabled={!displayName}
             maxLength={1000}
-            rows={3}
+            rows={2}
             onKeyDown={(event) => {
               if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
                 event.preventDefault();
@@ -326,7 +330,7 @@ function CommunityPage() {
             </Button>
           </div>
         </form>
-      </Panel>
+      </section>
     </>
   );
 }
