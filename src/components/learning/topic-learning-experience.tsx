@@ -439,7 +439,25 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 }
 
 function LearningStage({ id, number, title, help, icon, tone, children }: { id: string; number: string; title: string; help?: string; icon: ReactNode; tone?: "practice" | "proof"; children: ReactNode }) {
-  return <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24 overflow-hidden rounded-xl border border-border bg-card shadow-sm"><header className={`border-b border-border p-4 sm:p-6 ${tone === "practice" ? "bg-primary/5" : tone === "proof" ? "bg-success/5" : "bg-secondary/20"}`}><div className="flex items-start gap-3"><span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-primary/30 bg-primary/10 text-primary [&>svg]:size-5" aria-hidden>{icon}</span><div className="min-w-0"><p className="font-mono text-xs font-semibold tracking-[0.16em] text-primary">STAGE {number}</p><div className="flex items-center gap-1.5"><h2 id={`${id}-title`} className="font-display text-xl font-semibold text-foreground sm:text-2xl">{title}</h2>{help ? <HelpTip label={`${title} passing requirement`}>{help}</HelpTip> : null}</div></div></div></header><div className="space-y-4 p-3 sm:p-5">{children}</div></section>;
+  return (
+    <section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24">
+      <div className="mb-4 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          <span className={`flex size-12 shrink-0 items-center justify-center rounded-xl border text-primary [&>svg]:size-6 ${tone === "proof" ? "border-success/30 bg-success/10" : "border-primary/20 bg-primary/10"}`} aria-hidden>
+            {icon}
+          </span>
+          <div className="min-w-0">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Stage {number}</p>
+            <div className="flex items-center gap-1.5">
+              <h2 id={`${id}-title`} className="font-display text-2xl font-bold text-foreground">{title}</h2>
+              {help ? <HelpTip label={`${title} passing requirement`}>{help}</HelpTip> : null}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="space-y-4">{children}</div>
+    </section>
+  );
 }
 
 const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
