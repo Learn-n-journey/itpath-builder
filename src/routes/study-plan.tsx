@@ -143,36 +143,38 @@ function StudyPlanPage() {
 
   return (
     <>
-      <PageHeader title="Study Plan" description="Build a focused study session from your own data." />
+      <div className="mb-5 border-b border-border pb-5">
+        <PageHeader title="Study Plan" description="Build a focused study session from your own data." />
+      </div>
 
-      <div className="grid grid-cols-4 divide-x divide-border border-y border-border py-3">
+      <div className="grid grid-cols-4 overflow-hidden rounded-xl border border-border/70 bg-card/60 py-4">
         <StudyStat icon={Clock3} value={`${target}m`} label="Today" />
         <StudyStat icon={CalendarDays} value={formatHours(weekMinutes)} label="This week" />
         <StudyStat icon={BarChart2} value={user.studySessions.length} label="Sessions" />
         <StudyStat icon={Trophy} value={completedPlans.length} label="Finished" />
       </div>
 
-      <section className="mt-5 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
+      <section className="mt-5 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-6">
         {!activePlan ? (
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-primary">
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
                 <Clock3 className="size-5" aria-hidden />
               </span>
               <div>
-                <h2 className="font-display text-lg font-semibold text-foreground">Session length</h2>
+                <h2 className="font-display text-xl font-semibold text-foreground">Session length</h2>
                 <p className="text-sm text-muted-foreground">Scroll to choose how much time you have.</p>
               </div>
             </div>
 
-            <StudyDurationPicker value={target} onChange={setTarget} />
+            <StudyDurationPicker value={target} onChange={setTarget} className="mx-auto max-w-xl" />
 
-            <div className="flex items-start gap-2.5 rounded-lg border border-border/50 bg-secondary/40 p-3 text-xs leading-5 text-muted-foreground">
+            <div className="flex items-start gap-2.5 rounded-xl border border-primary/15 bg-primary/5 p-3.5 text-xs leading-5 text-muted-foreground">
               <HelpCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
               <p>The study plan will automatically fill this time with the best mix of lessons, practice, and review based on your progress.</p>
             </div>
 
-            <Button className="h-12 w-full rounded-xl text-sm font-semibold sm:text-base" onClick={generate}>
+            <Button className="h-12 w-full rounded-xl text-sm font-semibold shadow-sm sm:text-base" onClick={generate}>
               <Sparkles className="size-4" aria-hidden />
               <span>Generate {target}-minute session</span>
               <ArrowRight className="size-4" aria-hidden />
@@ -183,24 +185,28 @@ function StudyPlanPage() {
                 <h2 className="font-display text-base font-semibold">What your session will include</h2>
                 <HelpCircle className="size-4 text-muted-foreground" aria-hidden />
               </div>
-              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="-mx-1 flex items-stretch gap-2 overflow-x-auto px-1 pb-4 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {previewGroups.map((group, index) => {
                   const Icon = group.icon;
                   const included = group.kinds.some((kind) => previewKinds.has(kind));
                   return (
-                    <div
-                      key={group.title}
-                      className={cn(
-                        "relative min-h-36 min-w-32 flex-1 rounded-xl border p-3 text-center",
-                        included ? "border-primary/35 bg-primary/5" : "border-border/70 bg-background/30 opacity-60",
-                      )}
-                    >
-                      <Icon className={cn("mx-auto size-5", included ? "text-primary" : "text-muted-foreground")} aria-hidden />
-                      <p className="mt-2 font-semibold text-foreground">{group.title}</p>
-                      <p className="mt-1 text-xs leading-4 text-muted-foreground">{group.detail}</p>
-                      <span className={cn("absolute -bottom-2 left-1/2 flex size-6 -translate-x-1/2 items-center justify-center rounded-full border bg-card text-xs font-semibold", included ? "border-primary text-primary" : "border-border text-muted-foreground")}>
-                        {index + 1}
-                      </span>
+                    <div key={group.title} className="flex shrink-0 items-center">
+                      <div
+                        className={cn(
+                          "relative flex min-h-32 w-32 flex-col items-center rounded-xl border px-3 pb-5 pt-4 text-center sm:w-36",
+                          included ? "border-primary/35 bg-primary/5" : "border-border/70 bg-background/30 opacity-55",
+                        )}
+                      >
+                        <span className={cn("flex size-9 items-center justify-center rounded-lg border", included ? "border-primary/25 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground")}>
+                          <Icon className="size-5" aria-hidden />
+                        </span>
+                        <p className="mt-2 font-semibold text-foreground">{group.title}</p>
+                        <p className="mt-1 text-[11px] leading-4 text-muted-foreground">{group.detail}</p>
+                        <span className={cn("absolute -bottom-3 left-1/2 flex size-7 -translate-x-1/2 items-center justify-center rounded-full border-2 bg-card text-xs font-bold", included ? "border-primary text-primary" : "border-border text-muted-foreground")}>
+                          {index + 1}
+                        </span>
+                      </div>
+                      {index < previewGroups.length - 1 ? <ArrowRight className="mx-1 size-4 shrink-0 text-muted-foreground/60" aria-hidden /> : null}
                     </div>
                   );
                 })}
@@ -215,7 +221,7 @@ function StudyPlanPage() {
         )}
       </section>
 
-      <section className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-card">
+      <section className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
         <button
           type="button"
           className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
@@ -238,7 +244,7 @@ function StudyPlanPage() {
         ) : null}
       </section>
 
-      <section className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-card">
+      <section className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
         <button
           type="button"
           className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
@@ -279,10 +285,10 @@ function StudyPlanPage() {
 
 function StudyStat({ icon: Icon, value, label }: { icon: typeof Clock3; value: string | number; label: string }) {
   return (
-    <div className="min-w-0 px-2 sm:px-4">
-      <Icon className="mb-1 size-4 text-primary" aria-hidden />
-      <div className="truncate text-lg font-semibold tabular-nums text-foreground sm:text-xl">{value}</div>
-      <div className="truncate text-[11px] text-muted-foreground sm:text-xs">{label}</div>
+    <div className="min-w-0 px-1 text-center sm:px-4">
+      <Icon className="mx-auto mb-1.5 size-4 text-primary" aria-hidden />
+      <div className="truncate text-xl font-bold tabular-nums text-foreground sm:text-2xl">{value}</div>
+      <div className="mt-0.5 truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">{label}</div>
     </div>
   );
 }
