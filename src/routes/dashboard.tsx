@@ -355,7 +355,7 @@ function Dashboard() {
 
               <h1
                 id="continue-heading"
-                className="mt-2.5 max-w-xl font-display text-2xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-3xl lg:text-4xl"
+                className="mt-2.5 max-w-xl font-serif text-3xl font-semibold leading-[1.05] tracking-[-0.025em] text-foreground sm:text-4xl lg:text-5xl"
               >
                 {primary.title}
               </h1>
