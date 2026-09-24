@@ -143,26 +143,22 @@ function CommunityPage() {
         </section>
       ) : null}
 
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-        {rooms.map((entry) => (
-          <button
-            key={entry.id}
-            type="button"
-            onClick={() => void navigate({ search: { room: entry.id } })}
-            className={cn(
-              "flex min-w-[9rem] shrink-0 items-center gap-3 rounded-xl border px-3 py-3 text-left transition-colors",
-              entry.id === room ? "border-primary bg-primary/10 text-foreground" : "border-border/70 bg-card/30 text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
-            )}
-          >
-            <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg", entry.id === room ? "bg-primary text-primary-foreground" : "bg-secondary")}>
-              {entry.id === GENERAL_ROOM ? <Users className="size-4" aria-hidden /> : <Hash className="size-4" aria-hidden />}
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold">{entry.label}</span>
-              <span className="block text-[11px] opacity-70">{entry.id === GENERAL_ROOM ? "Public room" : "Study room"}</span>
-            </span>
-          </button>
-        ))}
+      <div className="mb-4 rounded-xl border border-border/70 bg-card/30 p-3">
+        <Label htmlFor="communityRoom" className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Study room
+        </Label>
+        <select
+          id="communityRoom"
+          value={room}
+          onChange={(event) => void navigate({ search: { room: event.target.value } })}
+          className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
+        >
+          {rooms.map((entry) => (
+            <option key={entry.id} value={entry.id}>
+              {entry.id === GENERAL_ROOM ? "General — Public room" : entry.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[15rem_minmax(0,1fr)_16rem]">
