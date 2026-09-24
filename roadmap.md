@@ -185,3 +185,8 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Define persistent semantic feature and activity accent colors
 - [x] Apply consistent colored technical icons to Dashboard, Practice, Labs, and More
 - [x] Compare mobile results directly with the supplied reference while preserving the dark base theme
+
+## Combined practice + proof
+- [ ] Merge Try It into Prove It; quiz in Prove It; all activities need 80%+ for mastery
+- [ ] Try It: replace Show answer with written box marked on general idea (offline)
+- [ ] Confirm written answers mark without AI
