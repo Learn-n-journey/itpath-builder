@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, RotateCcw, Save, Send } from "lucide-react";
+import { CheckCircle2, ChevronRight, Clock3, RotateCcw, Save, Send } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -76,70 +76,80 @@ function CareerMode() {
         )
       : 0;
 
+  const activeCount = attempts.filter((attempt) => attempt.status === "in_progress").length;
+
   return (
     <>
       <PageHeader
         title="Career Mode"
-        description="A simulated support queue across five career tracks. Each ticket is worked the way the job works it: investigate, diagnose, resolve, verify, document. IT PATH simulates the findings; it never touches real systems."
+        description="Work realistic IT tickets from intake to resolution. Choose a case, investigate the evidence, make the call, and document the fix."
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Tickets in queue" value={tickets.length} />
-        <StatCard
-          label="In progress"
-          value={attempts.filter((attempt) => attempt.status === "in_progress").length}
-        />
-        <StatCard label="Closed" value={closed.length} />
-        <StatCard label="Average score" value={submitted.length ? `${average}%` : "-"} />
+      <div className="border-y border-border/70">
+        <div className="grid grid-cols-4 divide-x divide-border/70">
+          <CareerStat label="Queue" value={tickets.length} />
+          <CareerStat label="Active" value={activeCount} />
+          <CareerStat label="Closed" value={closed.length} />
+          <CareerStat label="Average" value={submitted.length ? `${average}%` : "—"} />
+        </div>
       </div>
 
-      <div className="mt-6 grid items-start gap-5 xl:grid-cols-[21rem_minmax(0,1fr)]">
-        <div className="space-y-5">
-          {trackOrder.map((track) => {
-            const trackTickets = tickets.filter((item) => item.track === track);
-            if (trackTickets.length === 0) return null;
-            return (
-              <Panel key={track} title={careerTrackLabels[track]}>
-                <div className="space-y-2">
+      <div className="mt-6 grid items-start gap-6 xl:grid-cols-[22rem_minmax(0,1fr)]">
+        <aside className="min-w-0">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <div>
+              <h2 className="font-display text-lg font-semibold">Ticket queue</h2>
+              <p className="text-xs text-muted-foreground">Choose a ticket to open its workspace.</p>
+            </div>
+            <Badge variant="outline">{tickets.length}</Badge>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-border/70 bg-card/30">
+            {trackOrder.map((track) => {
+              const trackTickets = tickets.filter((item) => item.track === track);
+              if (trackTickets.length === 0) return null;
+              return (
+                <section key={track} className="border-b border-border/70 last:border-b-0">
+                  <div className="flex items-center justify-between px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{careerTrackLabels[track]}</p>
+                    <span className="text-[11px] tabular-nums text-muted-foreground">{trackTickets.length}</span>
+                  </div>
                   {trackTickets.map((item) => {
                     const itemAttempt = attempts.find((attempt) => attempt.ticketId === item.id);
+                    const selected = item.id === ticket?.id;
                     return (
-                      <Button
-                        key={item.id}
-                        variant={item.id === ticket?.id ? "secondary" : "ghost"}
-                        className="h-auto w-full justify-start whitespace-normal px-3 py-3 text-left"
-                        onClick={() => setSelectedId(item.id)}
-                      >
-                        <span className="min-w-0">
-                          <span className="block text-xs text-primary">
-                            {priorityLabels[item.priority]} priority
-                          </span>
-                          <span className="mt-1 block">{item.title}</span>
-                          <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                            {ticketStatusLabel(itemAttempt)}
-                            {itemAttempt?.status === "submitted" && itemAttempt.totalScore != null
-                              ? ` · ${itemAttempt.totalScore}%`
-                              : ""}
+                      <button key={item.id} type="button" onClick={() => setSelectedId(item.id)}
+                        className={`flex w-full items-center gap-3 border-t border-border/50 px-3 py-3 text-left transition-colors hover:bg-secondary/50 ${selected ? "bg-secondary/70" : ""}`}>
+                        <span className={`size-2 shrink-0 rounded-full ${item.priority === "urgent" || item.priority === "high" ? "bg-destructive" : item.priority === "medium" ? "bg-primary" : "bg-muted-foreground/50"}`} aria-hidden />
+                        <span className="min-w-0 flex-1">
+                          <span className="line-clamp-2 block text-sm font-medium leading-snug">{item.title}</span>
+                          <span className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>{priorityLabels[item.priority]}</span><span aria-hidden>·</span><span>{ticketStatusLabel(itemAttempt)}</span>
+                            {itemAttempt?.status === "submitted" && itemAttempt.totalScore != null ? <><span aria-hidden>·</span><span>{itemAttempt.totalScore}%</span></> : null}
                           </span>
                         </span>
-                      </Button>
+                        <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+                      </button>
                     );
                   })}
-                </div>
-              </Panel>
-            );
-          })}
-        </div>
-
-        {ticket ? (
-          <TicketWorkspace
-            key={ticket.id}
-            ticket={ticket}
-            {...(latest ? { latestAttempt: latest } : {})}
-          />
-        ) : null}
+                </section>
+              );
+            })}
+          </div>
+        </aside>
+        <main className="min-w-0">
+          {ticket ? <TicketWorkspace key={ticket.id} ticket={ticket} {...(latest ? { latestAttempt: latest } : {})} /> : null}
+        </main>
       </div>
     </>
+  );
+}
+
+function CareerStat({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="min-w-0 px-2 py-3 text-center sm:px-4 sm:py-4">
+      <p className="text-xl font-semibold tabular-nums sm:text-2xl">{value}</p>
+      <p className="mt-1 truncate text-[10px] uppercase tracking-wider text-muted-foreground sm:text-xs">{label}</p>
+    </div>
   );
 }
 
@@ -293,28 +303,30 @@ function TicketWorkspace({
 
   if (!attempt) {
     return (
-      <Panel title={ticket.title} description={careerTrackLabels[ticket.track]}>
-        <p className="text-sm text-muted-foreground">{ticket.report}</p>
-        <p className="mt-3 text-sm text-muted-foreground">
-          <span className="text-foreground">Requester: </span>
-          {ticket.requester}
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          <span className="text-foreground">Environment: </span>
-          {ticket.environment}
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">{ticket.slaNote}</p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {ticketStageOrder.map((stage) => (
-            <Badge key={stage} variant="outline">
-              {ticketStageLabels[stage]}
-            </Badge>
-          ))}
+      <div className="overflow-hidden rounded-xl border border-border/70 bg-card/30">
+        <div className="border-b border-border/70 p-5 sm:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant="outline">{careerTrackLabels[ticket.track]}</Badge>
+            <Badge variant="outline">{priorityLabels[ticket.priority]} priority</Badge>
+          </div>
+          <h2 className="mt-4 max-w-3xl font-display text-2xl font-semibold leading-tight sm:text-3xl">{ticket.title}</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">{ticket.report}</p>
         </div>
-        <Button className="mt-5" onClick={() => start()}>
-          Accept ticket
-        </Button>
-      </Panel>
+        <div className="grid border-b border-border/70 sm:grid-cols-2">
+          <div className="p-5 sm:p-6"><p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Requester</p><p className="mt-1 text-sm">{ticket.requester}</p></div>
+          <div className="border-t border-border/70 p-5 sm:border-l sm:border-t-0 sm:p-6"><p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Environment</p><p className="mt-1 text-sm leading-6">{ticket.environment}</p></div>
+        </div>
+        <div className="p-5 sm:p-6">
+          <div className="flex items-start gap-3 rounded-lg border border-border/60 bg-background/40 p-3"><Clock3 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><p className="text-sm text-muted-foreground">{ticket.slaNote}</p></div>
+          <div className="mt-5">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Ticket workflow</p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              {ticketStageOrder.map((stage, index) => <div key={stage} className="flex items-center gap-2"><Badge variant="outline">{index + 1}. {ticketStageLabels[stage]}</Badge>{index < ticketStageOrder.length - 1 ? <ChevronRight className="size-3 text-muted-foreground" aria-hidden /> : null}</div>)}
+            </div>
+          </div>
+          <Button className="mt-6" onClick={() => start()}>Accept ticket <ChevronRight className="size-4" aria-hidden /></Button>
+        </div>
+      </div>
     );
   }
 
