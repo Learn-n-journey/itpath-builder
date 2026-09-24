@@ -61,7 +61,11 @@ function ResourcesPage() {
     });
   }, [filters, query]);
 
-  const currentTopicId = user.activeTopicId;
+  const latestProgress = Object.values(user.topicProgress).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+  const latestReading = Object.values(user.readingPositions).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+  const currentTopicId = latestReading && (!latestProgress || latestReading.updatedAt > latestProgress.updatedAt)
+    ? latestReading.topicId
+    : latestProgress?.topicId;
   const currentTopic = topics.find((topic) => topic.id === currentTopicId);
   const currentTopicResources = currentTopicId
     ? filteredResources.filter((resource) => resource.topicIds.includes(currentTopicId)).slice(0, 3)

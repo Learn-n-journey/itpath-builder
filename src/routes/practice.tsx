@@ -488,7 +488,7 @@ function AssignmentWorkspace({
         </Panel>
       ) : (
         <>
-          <Panel title="Response" description={assignment.responsePrompt}>
+          <Panel title="Response" description={assignment.responsePrompt} descriptionVisibility="visible">
             <Textarea
               aria-label="Assignment response"
               rows={9}

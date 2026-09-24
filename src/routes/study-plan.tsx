@@ -7,7 +7,6 @@ import {
   CalendarDays,
   ChevronDown,
   Clock3,
-  HelpCircle,
   Pencil,
   Cpu,
   Sparkles,
@@ -17,6 +16,7 @@ import {
 import { toast } from "sonner";
 
 import { StudyDurationPicker } from "@/components/study/study-duration-picker";
+import { HelpTip } from "@/components/help-tip";
 import { LearnerPageSkeleton, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -162,18 +162,13 @@ function StudyPlanPage() {
               <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
                 <Clock3 className="size-5" aria-hidden />
               </span>
-              <div>
+              <div className="flex items-center gap-1.5">
                 <h2 className="font-display text-xl font-semibold text-foreground">Session length</h2>
-                <p className="text-sm text-muted-foreground">Scroll to choose how much time you have.</p>
+                <HelpTip label="About session length">Scroll to choose how much time you have. The study plan will fill this time with the best mix of lessons, practice, and review based on your progress.</HelpTip>
               </div>
             </div>
 
             <StudyDurationPicker value={target} onChange={setTarget} className="mx-auto max-w-xl" />
-
-            <div className="flex items-start gap-2.5 rounded-xl border border-primary/15 bg-primary/5 p-3.5 text-xs leading-5 text-muted-foreground">
-              <HelpCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
-              <p>The study plan will automatically fill this time with the best mix of lessons, practice, and review based on your progress.</p>
-            </div>
 
             <Button className="h-12 w-full rounded-xl text-sm font-semibold shadow-sm sm:text-base" onClick={generate}>
               <Sparkles className="size-4" aria-hidden />
@@ -184,7 +179,7 @@ function StudyPlanPage() {
             <div>
               <div className="mb-3 flex items-center gap-2">
                 <h2 className="font-display text-base font-semibold">What your session will include</h2>
-                <HelpCircle className="size-4 text-muted-foreground" aria-hidden />
+                <HelpTip label="About session contents">This preview comes from the activities currently selected for your generated session.</HelpTip>
               </div>
               <div className="-mx-1 flex items-stretch gap-2 overflow-x-auto px-1 pb-4 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {previewGroups.map((group, index) => {
@@ -202,7 +197,7 @@ function StudyPlanPage() {
                           <Icon className="size-3.5" strokeWidth={1.8} aria-hidden />
                         </span>
                         <p className="mt-1.5 text-xs font-semibold text-foreground">{group.title}</p>
-                        <p className="mt-0.5 text-[10px] leading-3.5 text-muted-foreground">{group.detail}</p>
+                        <HelpTip label={`About ${group.title}`}>{group.detail}</HelpTip>
                         <span className={cn("absolute -bottom-2.5 left-1/2 flex size-5 -translate-x-1/2 items-center justify-center rounded-full border bg-background text-[10px] font-bold shadow-sm", included ? group.stepTone : "border-border text-muted-foreground")}>
                           {index + 1}
                         </span>

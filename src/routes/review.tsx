@@ -279,12 +279,8 @@ function Review() {
           )}
         </Panel>
 
-        <Panel title="Prerequisite map">
-          <p className="text-sm text-muted-foreground">
-            Recommendations always move backwards along these dependencies, never forwards into more
-            advanced material.
-          </p>
-          <ul className="mt-3 space-y-2 text-sm">
+        <Panel title="Prerequisite map" description="Recommendations always move backwards along these dependencies, never forwards into more advanced material.">
+          <ul className="space-y-2 text-sm">
             {skillNodes.map((skill) => (
               <li key={skill.id} className="flex flex-wrap gap-x-2 gap-y-1">
                 <span className="font-medium">{skill.title}</span>

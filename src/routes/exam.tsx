@@ -205,11 +205,6 @@ function ExamPage() {
               </>
             ) : null}
           </div>
-          <p className="mt-4 text-sm text-muted-foreground">
-            {mode === "final"
-              ? `The final exam draws ${Math.min(FINAL_EXAM_SIZE, finalPoolSize)} questions from the whole ${domain.appName} course — every certification, including your spreadsheet questions.`
-              : `Questions come from the ${certification ? certification.title : "certification"} bank.`}
-          </p>
           {poolSize === 0 ? (
             <p className="mt-4 text-sm text-destructive">
               There are no questions here yet. Pick another certification.

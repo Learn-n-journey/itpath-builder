@@ -8,19 +8,22 @@ import { HelpTip } from "@/components/help-tip";
 export function PageHeader({
   title,
   description,
+  descriptionVisibility = "help",
   actions,
 }: {
   title: string;
   description?: string;
+  descriptionVisibility?: "help" | "visible";
   actions?: ReactNode;
 }) {
   return (
     <header className="motion-content-enter mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:mb-6">
       <div className="min-w-0">
-        <h1 className="font-display text-2xl font-semibold leading-tight sm:text-3xl">{title}</h1>
-        {description ? (
-          <p className="mt-1 max-w-2xl text-sm leading-5 text-muted-foreground">{description}</p>
-        ) : null}
+        <div className="flex items-center gap-1.5">
+          <h1 className="font-display text-2xl font-semibold leading-tight sm:text-3xl">{title}</h1>
+          {description && descriptionVisibility === "help" ? <HelpTip label={`About ${title}`}>{description}</HelpTip> : null}
+        </div>
+        {description && descriptionVisibility === "visible" ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       </div>
       {actions ? <div className="shrink-0">{actions}</div> : null}
     </header>
@@ -30,6 +33,7 @@ export function PageHeader({
 export function Panel({
   title,
   description,
+  descriptionVisibility = "help",
   help,
   children,
   className,
@@ -37,16 +41,19 @@ export function Panel({
 }: {
   title?: string;
   description?: string;
+  descriptionVisibility?: "help" | "visible";
   help?: ReactNode;
   children?: ReactNode;
   className?: string | undefined;
   /** Lets other parts of the page link straight to this panel. */
   id?: string;
 }) {
+  const helpContent = help && description && descriptionVisibility === "help" ? <><span>{description}</span><span className="mt-2 block">{help}</span></> : help ?? (descriptionVisibility === "help" ? description : undefined);
   return (
     <section id={id} className={cn("scroll-mt-24 border-t border-border/60 pt-4", className)}>
-      {title ? <div className="flex items-center gap-1.5"><h2 className="font-display text-lg font-semibold">{title}</h2>{help ? <HelpTip label={`About ${title}`}>{help}</HelpTip> : null}</div> : null}
-      {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
+      {title ? <div className="flex items-center gap-1.5"><h2 className="font-display text-lg font-semibold">{title}</h2>{helpContent ? <HelpTip label={`About ${title}`}>{helpContent}</HelpTip> : null}</div> : null}
+      {title && description && descriptionVisibility === "visible" ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
+      {!title && description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       {children ? <div className={title ? "mt-3" : undefined}>{children}</div> : null}
     </section>
   );
@@ -66,8 +73,10 @@ export function StatCard({
   return (
     <div className="min-w-0 py-1.5" data-icon={Icon ? "1" : undefined}>
       <p className="font-display text-xl font-semibold tabular-nums">{value}</p>
-      <p className="mt-0.5 text-xs text-foreground/80">{label}</p>
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
+      <div className="mt-0.5 flex items-center gap-0.5 text-xs text-foreground/80">
+        <span>{label}</span>
+        {hint ? <HelpTip label={`About ${label}`}>{hint}</HelpTip> : null}
+      </div>
     </div>
   );
 }

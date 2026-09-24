@@ -512,11 +512,11 @@ export function VirusRun() {
       ctx2.fillRect(0, 0, rect.width, rect.height);
 
       // Layered system substrate: faint traces and moving data current.
-      const field = ctx2.createRadialGradient(rect.width * 0.5, rect.height * 0.45, 0, rect.width * 0.5, rect.height * 0.45, rect.width * 0.7);
-      field.addColorStop(0, "rgba(45,212,191,0.08)");
-      field.addColorStop(0.55, "rgba(20,184,166,0.025)");
-      field.addColorStop(1, "rgba(0,0,0,0.3)");
-      ctx2.fillStyle = field;
+      const fieldGradient = ctx2.createRadialGradient(rect.width * 0.5, rect.height * 0.45, 0, rect.width * 0.5, rect.height * 0.45, rect.width * 0.7);
+      fieldGradient.addColorStop(0, "rgba(45,212,191,0.08)");
+      fieldGradient.addColorStop(0.55, "rgba(20,184,166,0.025)");
+      fieldGradient.addColorStop(1, "rgba(0,0,0,0.3)");
+      ctx2.fillStyle = fieldGradient;
       ctx2.fillRect(0, 0, rect.width, rect.height);
       ctx2.strokeStyle = "rgba(148,163,184,0.045)";
       ctx2.lineWidth = 1;

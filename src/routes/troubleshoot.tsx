@@ -104,6 +104,7 @@ function TroubleshootPage() {
       <PageHeader
         title="Troubleshoot"
         description="Realistic incidents worked the way a technician works them: gather evidence, diagnose, fix, verify and document. IT PATH simulates the findings; it never touches real equipment."
+        descriptionVisibility="visible"
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -359,6 +360,7 @@ function IncidentWorkspace({
       <Panel
         title="Diagnostic actions"
         description="Each step returns its own finding. Choosing everything costs efficiency; choosing nothing costs accuracy."
+        descriptionVisibility="visible"
       >
         <div className="space-y-3">
           {incident.actions.map((action) => {
@@ -396,7 +398,7 @@ function IncidentWorkspace({
         </p>
       </Panel>
 
-      <Panel title="Diagnose" description="Name the root cause. A wrong choice narrows the search but never reveals the answer.">
+      <Panel title="Diagnose" description="Name the root cause. A wrong choice narrows the search but never reveals the answer." descriptionVisibility="visible">
         <div className="space-y-2">
           {incident.causes.map((cause) => (
             <Button
@@ -421,7 +423,7 @@ function IncidentWorkspace({
         </p>
       </Panel>
 
-      <Panel title="Explain your reasoning" description="Which findings led you here, and which possibilities did they rule out?">
+      <Panel title="Explain your reasoning" description="Which findings led you here, and which possibilities did they rule out?" descriptionVisibility="visible">
         <Textarea
           value={reasoning}
           onChange={(event) => setReasoning(event.target.value)}
@@ -431,7 +433,7 @@ function IncidentWorkspace({
         />
       </Panel>
 
-      <Panel title="Fix" description="Choose the action proportionate to the cause.">
+      <Panel title="Fix" description="Choose the action proportionate to the cause." descriptionVisibility="visible">
         <div className="space-y-2">
           {incident.fixes.map((fix) => (
             <Button
@@ -452,7 +454,7 @@ function IncidentWorkspace({
         ) : null}
       </Panel>
 
-      <Panel title="Verify" description="Select every check that proves full functionality is restored.">
+      <Panel title="Verify" description="Select every check that proves full functionality is restored." descriptionVisibility="visible">
         <div className="space-y-3">
           {incident.verifications.map((item) => (
             <label key={item.id} className="flex items-start gap-3 text-sm">
@@ -467,7 +469,7 @@ function IncidentWorkspace({
         </div>
       </Panel>
 
-      <Panel title="Document" description="Write the ticket note: symptom, evidence, cause, action taken and verification.">
+      <Panel title="Document" description="Write the ticket note: symptom, evidence, cause, action taken and verification." descriptionVisibility="visible">
         <Textarea
           value={documentation}
           onChange={(event) => setDocumentation(event.target.value)}
