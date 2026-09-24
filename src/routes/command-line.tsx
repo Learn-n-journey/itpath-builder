@@ -351,6 +351,7 @@ function CommandLinePage() {
       <PageHeader
         title="Command-line simulator"
         description="Switch between safe virtual Mac/Linux, Windows, Android and iPhone devices. Your commands never affect your real device."
+        descriptionVisibility="visible"
         actions={<Badge variant="outline"><ShieldCheck className="mr-1 size-3" aria-hidden /> Isolated</Badge>}
       />
 
@@ -500,7 +501,7 @@ function CommandLinePage() {
             </section>
 
             {isFree ? null : (
-            <Panel title="Your diagnosis" description="Explain the cause, the evidence you found, the repair, and how you verified it.">
+            <Panel title="Your diagnosis" description="Explain the cause, the evidence you found, the repair, and how you verified it." descriptionVisibility="visible">
               <Textarea value={reasoning} onChange={(event) => setReasoning(event.target.value)} disabled={attempt.status === "submitted"} rows={5} placeholder="The evidence showed… I fixed it by… I verified…" />
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button variant="outline" onClick={saveReasoning} disabled={attempt.status === "submitted"}>Save progress</Button>

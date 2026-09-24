@@ -14,6 +14,7 @@ import {
   type AnnotationTarget,
 } from "@/lib/annotations";
 import { cn } from "@/lib/utils";
+import { HelpTip } from "@/components/help-tip";
 
 /**
  * The single notes and bookmark control used across lessons, resources, labs,
@@ -77,9 +78,9 @@ export function AnnotationPanel({
       aria-label={`${title} for ${target.label}`}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
+        <div className="flex min-w-0 items-center gap-1.5">
           <h2 className="font-display text-base font-semibold">{title}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          {description ? <HelpTip label={`About ${title}`}>{description}</HelpTip> : null}
         </div>
         <Button
           variant={bookmark ? "secondary" : "outline"}

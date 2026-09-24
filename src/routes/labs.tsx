@@ -134,6 +134,7 @@ function LabsPage() {
         <PageHeader
           title={lab.title}
           description={lab.objective}
+          descriptionVisibility="visible"
           actions={
             <Button
               variant="outline"
@@ -372,7 +373,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
       <Panel title="Prerequisites">
         <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">{lab.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul>
       </Panel>
-      <Panel title="Instructions" description="Perform these steps yourself in the stated environment. IT PATH does not execute or verify external commands.">
+      <Panel title="Instructions" description="Perform these steps yourself in the stated environment. IT PATH does not execute or verify external commands." descriptionVisibility="visible">
         <ol className="list-decimal space-y-3 pl-5 text-sm text-muted-foreground">{lab.instructions.map((item) => <li key={item}>{item}</li>)}</ol>
       </Panel>
 
@@ -384,7 +385,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
         </Panel>
       ) : (
         <>
-          <Panel title="Checklist" description="Confirm only steps you personally completed and verified.">
+          <Panel title="Checklist" description="Confirm only steps you personally completed and verified." descriptionVisibility="visible">
             <div className="space-y-3">
               {lab.checklist.map((item) => (
                 <Label key={item.id} className="flex items-start gap-3 rounded-md border border-border p-3">
@@ -404,7 +405,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
             </div>
           </Panel>
 
-          <Panel title="Reflection" description={lab.reflectionPrompt}>
+          <Panel title="Reflection" description={lab.reflectionPrompt} descriptionVisibility="visible">
             <Textarea aria-label="Lab reflection" rows={6} value={reflection} onChange={(event) => setReflection(event.target.value)} disabled={!canEdit} placeholder="Explain your observations, reasoning, and what you would verify next." />
             <p className="mt-2 text-xs text-muted-foreground">A complete submission requires every checklist item and a substantive reflection of at least 40 characters.</p>
             <div className="mt-4 flex flex-wrap gap-2">
