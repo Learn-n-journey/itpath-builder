@@ -51,6 +51,7 @@ import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { activeDomainKey, domainOptions, setDomainOverride } from "@/lib/active-domain";
 import { ACTIVE_PACKAGE } from "@/domain/registry";
+import { certifications } from "@/data/static-content";
 import { useTheme } from "@/state/theme";
 import type { ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 
@@ -89,6 +90,28 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 ];
 
 
+
+const LEARNING_FOCUS_NAMES: Record<string, string> = {
+  "cert-comptia-tech-plus": "Technology Foundations",
+  "cert-comptia-a-plus": "Computer Systems & Support",
+  "cert-comptia-network-plus": "Networking & Infrastructure",
+  "cert-comptia-security-plus": "Cybersecurity Foundations",
+  "cert-comptia-linux-plus": "Linux Systems Administration",
+  "cert-comptia-server-plus": "Server Administration",
+  "cert-comptia-cloud-plus": "Cloud Infrastructure",
+  "cert-comptia-cysa-plus": "Security Analysis & Defense",
+  "cert-comptia-pentest-plus": "Offensive Security",
+  "cert-comptia-security-x": "Advanced Security Engineering",
+  "cert-cisco-ccna": "Network Engineering",
+  "cert-isc2-cissp": "Security Architecture & Leadership",
+};
+
+function learningFocusName(id: string, fallback: string): string {
+  return LEARNING_FOCUS_NAMES[id] ?? fallback
+    .replace(/^CompTIA\s+/i, "")
+    .replace(/^Cisco\s+/i, "")
+    .replace(/^ISC2\s+/i, "");
+}
 
 function SettingsPage() {
   const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
@@ -192,6 +215,28 @@ function SettingsPage() {
           ) : null}
         </Panel>
         ) : null}
+
+        <Panel
+          title="Learning focus"
+          description="Choose the part of the IT PATH curriculum you want the app to prioritize."
+        >
+          <Label htmlFor="learning-focus-select">Path</Label>
+          <Select
+            value={s.certificationTarget}
+            onValueChange={(value) => updateSettings({ certificationTarget: value })}
+          >
+            <SelectTrigger id="learning-focus-select" className="mt-1.5 w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {certifications.map((certification) => (
+                <SelectItem key={certification.id} value={certification.title}>
+                  {learningFocusName(certification.id, certification.title)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Panel>
 
         <Panel
           title="Appearance"
