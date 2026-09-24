@@ -157,8 +157,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
    * Which practice tab is open. Shortcuts elsewhere on the page can open a tab
    * directly by setting the address hash, for example #teach-back.
    */
-  const [tryTab, setTryTab] = useState(visibleRecall.length > 0 ? "recall" : "practice");
-  const [proveTab, setProveTab] = useState("teach-back");
+  const [proveTab, setProveTab] = useState(visibleRecall.length > 0 ? "recall" : "teach-back");
   useEffect(() => {
     const applyHash = () => {
       const hash = window.location.hash.replace("#", "");
