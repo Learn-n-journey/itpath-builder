@@ -442,23 +442,6 @@ function mediaFor(topic: Topic): Resource[] {
   }
 }
 
-function UnusedMediaPanel() {
-  const media: Resource[] = [];
-
-  const videos = media.filter((resource) => resource.kind === "video");
-  const reading = media.filter((resource) => resource.kind !== "video");
-  if (media.length === 0) return null;
-
-  return (
-    <Panel title="Watch and read" description="Verified official and reputable sources for this topic. Links open in a new tab.">
-      <div className="space-y-6">
-        {videos.length > 0 ? <MediaGroup title="Video training" items={videos} video /> : null}
-        {reading.length > 0 ? <MediaGroup title="Reading and courses" items={reading} /> : null}
-      </div>
-    </Panel>
-  );
-}
-
 function MediaGroup({ title, items, video = false }: { title: string; items: Resource[]; video?: boolean }) {
   const Icon = video ? PlayCircle : FileText;
   return (
