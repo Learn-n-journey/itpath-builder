@@ -189,6 +189,7 @@ function TroubleshootPage() {
         </div>
       ) : null}
     </>
+  );
 }
 
 function TroubleshootStat({ value, label }: { value: string | number; label: string }) {
