@@ -81,7 +81,7 @@ function offlineHints(answer: string, concepts: string[]): string[] {
 
 
 
-export function TopicLearningExperience({ topic }: { topic: Topic }) {
+export function TopicLearningExperience({ topic, view = "learning" }: { topic: Topic; view?: "learning" | "resources" | "notes" }) {
   const { user, actions } = useAppState();
   const lesson = lessons.find((item) => item.topicId === topic.id);
   const module = getLearningModule(topic.id);
@@ -347,6 +347,26 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   const mediaReading = topicMedia.filter((resource) => resource.kind !== "video");
   const extraStages = (mediaReading.length > 0 ? 1 : 0) + (mediaVideos.length > 0 ? 1 : 0);
   const stageNo = (base: number) => String(base + extraStages).padStart(2, "0");
+
+  if (view === "resources") {
+    return (
+      <div className="space-y-4">
+        {mediaReading.length > 0 ? <MediaGroup title="Reading and courses" items={mediaReading} /> : null}
+        {mediaVideos.length > 0 ? <MediaGroup title="Video training" items={mediaVideos} video /> : null}
+        <LessonSources resources={[...resources, ...ownerLessonSourcesFor(topic.id)]} topicId={topic.id} />
+      </div>
+    );
+  }
+
+  if (view === "notes") {
+    return (
+      <AnnotationPanel
+        target={{ kind: "lesson", id: lesson.id, label: topic.title, href: `/topics/${topic.id}` }}
+        title="Lesson notes and bookmark"
+        description=""
+      />
+    );
+  }
   return <div className="space-y-4">
     <ReturnToActivity topicId={topic.id} />
     <Panel title="Learning objectives">
