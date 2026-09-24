@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { blockingTopic, isMastered, nextJourneyTopic } from "@/lib/journey-order";
 
-import { TopicLearningExperience } from "@/components/learning/topic-learning-experience";
+import { TopicLearningExperience, mediaFor } from "@/components/learning/topic-learning-experience";
 import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { certifications, lessons, topics } from "@/data/static-content";
+import { certifications, lessons, topics, type Topic } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
 import { activeDomainKey } from "@/lib/active-domain";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
@@ -190,8 +190,8 @@ function TopicPage() {
         title="Quick links"
         description="Jump straight to a learning stage."
       >
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {TOPIC_SHORTCUTS.map((shortcut) => (
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {TOPIC_SHORTCUTS.filter((shortcut) => shortcut.when(topic)).map((shortcut) => (
             <li key={shortcut.label}>
               <a href={shortcut.target} className="flex h-full items-center justify-between gap-2 rounded-lg border border-border bg-secondary/20 p-3 text-sm font-medium text-foreground transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 {shortcut.label}
