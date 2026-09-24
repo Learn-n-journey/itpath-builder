@@ -70,7 +70,7 @@ export function LessonMisconceptions({ depth }: { depth: LessonDepth }) {
 
 export function LessonCheckYourself({ depth, topicId }: { depth: LessonDepth; topicId?: string }) {
   if (depth.checkYourself.length === 0) return null;
-  return <div id="check-yourself" className="scroll-mt-24"><Panel title="Check yourself" description="Write your answer. It is checked on the general idea. Practice only."><ul className="space-y-3">{depth.checkYourself.map((check, index) => <CheckRow key={check.question} check={check} index={index} {...(topicId ? { topicId } : {})} />)}</ul></Panel></div>;
+  return <div id="check-yourself" className="scroll-mt-24"><Panel title="Check yourself"><ul className="space-y-3">{depth.checkYourself.map((check, index) => <CheckRow key={check.question} check={check} index={index} {...(topicId ? { topicId } : {})} />)}</ul></Panel></div>;
 }
 
 function CheckRow({ check, index, topicId }: { check: LessonDepth["checkYourself"][number]; index: number; topicId?: string }) {
