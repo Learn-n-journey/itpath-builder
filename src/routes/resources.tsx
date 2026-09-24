@@ -25,7 +25,7 @@ export const Route = createFileRoute("/resources")({
       { title: "Resources | IT PATH" },
       { name: "description", content: "Search verified IT learning resources and save bookmarks and notes." },
       { property: "og:title", content: "Resources | IT PATH" },
-      { property: "og:description", content: "Verified technical learning resources organized by topic and certification." },
+      { property: "og:description", content: "Verified technical learning resources organized by topic and skill area." },
     ],
   }),
   component: ResourcesPage,
@@ -85,12 +85,11 @@ function ResourcesPage() {
       <section>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <Input aria-label="Search resources" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search titles, providers, topics, or certifications" className="pl-9 pr-10" />
+          <Input aria-label="Search resources" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search titles, providers, or topics" className="pl-9 pr-10" />
           {query ? <Button aria-label="Clear search" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setQuery("")}><X /></Button> : null}
         </div>
         <details className="group mt-3 border-b border-border pb-3"><summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-medium [&::-webkit-details-marker]:hidden"><SlidersHorizontal className="size-4 text-primary" />Filters</summary><div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <ResourceFilter label="Topic" allLabel="All topics" value={filters.topic} onChange={(value) => updateFilter("topic", value)} options={topics.map((topic) => ({ value: topic.id, label: topic.title }))} />
-          <ResourceFilter label="Certification" allLabel="All certifications" value={filters.certification} onChange={(value) => updateFilter("certification", value)} options={certifications.map((certification) => ({ value: certification.id, label: certification.title }))} />
           <ResourceFilter label="Type" allLabel="All types" value={filters.kind} onChange={(value) => updateFilter("kind", value)} options={Object.entries(kindLabels).map(([value, label]) => ({ value, label }))} />
           <ResourceFilter label="Access" allLabel="All access" value={filters.access} onChange={(value) => updateFilter("access", value)} options={[{ value: "free", label: "Free" }, { value: "paid", label: "Paid" }]} />
         </div></details>
