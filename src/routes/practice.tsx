@@ -14,6 +14,13 @@ import {
   FileText,
   RefreshCw,
   RotateCcw,
+  ArrowRight,
+  Clock3,
+  ListChecks,
+  PlayCircle,
+  Star,
+  Target,
+  Trophy,
   Save,
   Send,
 } from "lucide-react";
@@ -56,7 +63,8 @@ function criterionPassed(
   return false;
 }
 import { useAppState } from "@/state/app-state";
-import { CompactStat, CompactStats, ContentRow } from "@/components/learner-ui";
+import { cn } from "@/lib/utils";
+import { accentSurface, featureAccent } from "@/lib/visual-accents";
 import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 import { learnerStatusLabel } from "@/lib/learner-status";
@@ -173,65 +181,104 @@ function PracticePage() {
   const latest = assignment
     ? attempts.find((attempt) => attempt.assignmentId === assignment.id)
     : undefined;
+  const startedCount = attempts.filter((item) => item.status === "started").length;
+  const completedCount = attempts.filter((item) => item.status === "completed").length;
+  const reviewCount = attempts.filter((item) => item.status === "submitted" || item.status === "evaluated").length;
+  const recommended = activeGroup?.items.find((item) => !attempts.some((attempt) => attempt.assignmentId === item.id && attempt.status === "completed")) ?? activeGroup?.items[0];
+  const recommendedTopic = recommended ? topics.find((item) => item.id === recommended.topicId) : undefined;
+  const visibleItems = activeGroup?.items.slice(0, 40) ?? [];
 
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} detail />;
 
   return (
-    <>
+    <div>
       <PageHeader
         title="Practice"
-        description="Applied tasks to reinforce your knowledge."
-        actions={
-          <Button variant="outline" onClick={refresh}>
-            <RefreshCw /> Shuffle
-          </Button>
-        }
+        description="Build skill through applied work."
+        actions={<Button variant="outline" onClick={refresh}><RefreshCw /> Shuffle</Button>}
       />
-      <CompactStats className="grid-cols-4"><CompactStat label="Available" value={assignments.length} /><CompactStat label="Started" value={attempts.filter((a) => a.status === "started").length} /><CompactStat label="Submitted" value={attempts.filter((a) => a.status === "submitted" || a.status === "evaluated").length} /><CompactStat label="Completed" value={attempts.filter((a) => a.status === "completed").length} /></CompactStats>
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-        {groups.map((entry) => (
-          <Button
-            key={entry.id}
-            size="sm"
-            variant={entry.id === activeGroup?.id ? "secondary" : "outline"}
-            onClick={() => {
-              setGroup(entry.id);
-              setSelectedId("");
-            }}
-          >
-            {entry.title}
-            <span className="ml-1 text-xs text-muted-foreground">{entry.items.length}</span>
-          </Button>
-        ))}
-      </div>
-      <div className="mt-4 grid items-start gap-5 xl:grid-cols-[20rem_minmax(0,1fr)]">
-        <Panel
-          title={activeGroup?.title ?? "Practice library"}
-        >
-          <div className="max-h-[32rem] overflow-y-auto pr-1">
-            {activeGroup?.items.map((item) => {
-              const itemAttempt = attempts.find((attempt) => attempt.assignmentId === item.id);
-              return (
-                <button
-                  key={item.id}
-                  className="block w-full"
-                  onClick={() => setSelectedId(item.id)}
-                >
-                   <ContentRow icon={typeVisuals[item.type].icon} accent={typeVisuals[item.type].accent} eyebrow={typeLabels[item.type]} title={item.title} metadata={learnerStatusLabel(itemAttempt?.status)} selected={item.id === assignment?.id} />
-                </button>
-              );
-            })}
+
+      {recommended ? (
+        <section className="relative mt-2 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
+          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+          <div className="relative">
+            <div className="flex items-center justify-between gap-3">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Star className="size-4 fill-current" aria-hidden />Up next</p>
+              <p className="max-w-[55%] truncate text-xs font-medium text-primary">{recommendedTopic?.title ?? activeGroup?.title}</p>
+            </div>
+            <h2 className="mt-3 max-w-2xl font-display text-xl font-semibold sm:text-2xl">{recommended.title}</h2>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Badge variant="outline">{typeLabels[recommended.type]}</Badge>
+              <Badge variant="outline"><Clock3 className="mr-1 size-3" />Practice task</Badge>
+            </div>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">Recommended from your current practice queue. Complete it, then move directly to the next useful task.</p>
+            <Button className="mt-4 w-full sm:w-auto" onClick={() => setSelectedId(recommended.id)}>Start Practice <ArrowRight /></Button>
           </div>
-        </Panel>
-        {assignment ? (
-          <AssignmentWorkspace
-            key={assignment.id}
-            assignment={assignment}
-            {...(latest ? { latestAttempt: latest } : {})}
-          />
-        ) : null}
-      </div>
-    </>
+        </section>
+      ) : null}
+
+      <section className="mt-4 grid grid-cols-4 gap-2" aria-label="Practice progress">
+        <PracticeStat icon={ListChecks} value={assignments.length} label="Available" />
+        <PracticeStat icon={PlayCircle} value={startedCount} label="In Progress" />
+        <PracticeStat icon={Trophy} value={completedCount} label="Completed" />
+        <PracticeStat icon={RotateCcw} value={reviewCount} label="Needs Review" />
+      </section>
+
+      <section className="mt-6">
+        <h2 className="font-display text-base font-semibold">Certification</h2>
+        <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+          {groups.map((entry) => (
+            <Button key={entry.id} size="sm" className="shrink-0 rounded-full" variant={entry.id === activeGroup?.id ? "default" : "outline"} onClick={() => { setGroup(entry.id); setSelectedId(""); }}>
+              {entry.title}<span className="ml-1 text-xs opacity-70">{entry.items.length}</span>
+            </Button>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-5">
+        <div className="flex items-end justify-between gap-3">
+          <div><h2 className="font-display text-lg font-semibold">Practice Tasks</h2><p className="text-xs text-muted-foreground">{activeGroup?.items.length ?? 0} tasks</p></div>
+          <Button variant="outline" size="sm" onClick={refresh}><RefreshCw className="size-4" />Most Relevant</Button>
+        </div>
+        <div className="mt-3 space-y-2">
+          {visibleItems.map((item) => {
+            const itemAttempt = attempts.find((attempt) => attempt.assignmentId === item.id);
+            const visual = typeVisuals[item.type];
+            const Icon = visual.icon;
+            const topic = topics.find((entry) => entry.id === item.topicId);
+            return (
+              <button key={item.id} type="button" onClick={() => setSelectedId(item.id)} className={cn("group flex w-full items-center gap-3 rounded-xl border bg-card/70 p-3 text-left transition-colors hover:bg-accent/50", item.id === assignment?.id ? "border-primary/55 shadow-sm" : "border-border/70")}>
+                <span className={cn("grid size-12 shrink-0 place-items-center rounded-lg ring-1 ring-inset", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{typeLabels[item.type]}</span>
+                  <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
+                  <span className="mt-1 block truncate text-xs text-muted-foreground">{topic?.title ?? learnerStatusLabel(itemAttempt?.status)}</span>
+                </span>
+                <span className="hidden shrink-0 sm:block"><Button asChild size="sm" variant="outline"><span>Start <ArrowRight className="size-4" /></span></Button></span>
+                <ArrowRight className="size-4 shrink-0 text-primary sm:hidden" aria-hidden />
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {assignment ? (
+        <div className="mt-7 border-t border-border pt-6">
+          <AssignmentWorkspace key={assignment.id} assignment={assignment} {...(latest ? { latestAttempt: latest } : {})} />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+
+function PracticeStat({ icon: Icon, value, label }: { icon: LucideIcon; value: number; label: string }) {
+  return (
+    <div className="min-w-0 rounded-xl border border-border/70 bg-card/70 px-2 py-3 text-center">
+      <Icon className="mx-auto size-4 text-primary" aria-hidden />
+      <p className="mt-1 font-display text-lg font-semibold tabular-nums">{value}</p>
+      <p className="truncate text-[0.625rem] text-muted-foreground sm:text-xs">{label}</p>
+    </div>
   );
 }
 
