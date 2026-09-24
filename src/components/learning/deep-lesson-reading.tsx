@@ -1,4 +1,4 @@
-import { BookOpen, MapPin, Play } from "lucide-react";
+import { BookOpen, Check, MapPin, Play } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Panel } from "@/components/page-kit";
@@ -11,7 +11,6 @@ import {
 import type { DeepLesson } from "@/data/deep-lessons";
 import { lessonPartAnchor } from "@/lib/lesson-anchor";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { contentFingerprint, deepSectionId, lessonConceptAnchor } from "@/lib/lesson-concepts";
 import { useAppState } from "@/state/app-state";
 
@@ -187,7 +186,7 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <span className="font-medium">{section.heading}</span>
-                   {reviewed ? <Badge variant="outline" className="ml-auto shrink-0">Reviewed</Badge> : null}
+                   {reviewed ? <Check aria-hidden className="ml-auto size-4 shrink-0 self-center text-success" /> : null}
                 </span>
               </AccordionTrigger>
               <AccordionContent>
