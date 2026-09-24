@@ -474,7 +474,7 @@ function Dashboard() {
 
       <Link
         to="/meditation"
-        className="group mb-6 flex min-h-20 items-center justify-between gap-4 rounded-xl border border-border/50 bg-card/40 p-4 shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="group mb-8 flex min-h-20 items-center justify-between gap-4 rounded-xl border border-border/50 bg-card/40 p-4 shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <span className="flex min-w-0 items-center gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-feature-violet/15 text-feature-violet">
@@ -528,14 +528,14 @@ function Dashboard() {
           <summary className="inline-block min-h-11 cursor-pointer list-none py-2.5 text-xs font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background [&::-webkit-details-marker]:hidden">
             View progress details →
           </summary>
-          <div className="grid grid-cols-2 gap-x-6 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
             <StatCard label="Practice" value={`${d.assignmentsCompleted}/${d.assignmentsTotal}`} />
             <StatCard label="Labs" value={`${d.labsCompleted}/${d.labsTotal}`} />
             <StatCard label="Activities" value={`${measures.activitiesCompleted}/${measures.activitiesTotal}`} />
             <StatCard label="Final assessments" value={`${measures.assessmentsTaken}/${measures.assessmentsTotal}`} />
           </div>
           {d.hasAnyActivity ? (
-            <div className="mt-4 grid gap-6 lg:grid-cols-2">
+            <div className="mt-7 grid gap-7 lg:grid-cols-2">
               <StreakPanel />
             </div>
           ) : null}
@@ -613,7 +613,7 @@ function Dashboard() {
         </Panel>
       </div>
 
-      <p className="mt-8 text-xs text-muted-foreground">
+      <p className="mt-12 text-xs text-muted-foreground">
         <Link to="/guide" className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">How scores are calculated</Link>
       </p>\n      </div>
     </div>
