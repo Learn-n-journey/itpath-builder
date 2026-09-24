@@ -161,8 +161,7 @@ function PracticePage() {
   }, [seed]);
 
   const activeGroup = groups.find((entry) => entry.id === group) ?? groups[0];
-  const assignment =
-    activeGroup?.items.find((item) => item.id === selectedId) ?? activeGroup?.items[0];
+  const assignment = activeGroup?.items.find((item) => item.id === selectedId);
 
   function refresh() {
     reshuffle();
@@ -237,24 +236,40 @@ function PracticePage() {
             const visual = typeVisuals[item.type];
             const Icon = visual.icon;
             const topic = topics.find((entry) => entry.id === item.topicId);
+            const selected = item.id === assignment?.id;
             return (
-              <button key={item.id} type="button" onClick={() => setSelectedId(item.id)} className={cn("group flex w-full items-center gap-3 rounded-xl border bg-card/70 p-3 text-left transition-colors hover:bg-accent/50", item.id === assignment?.id ? "border-primary/55 shadow-sm" : "border-border/70")}>
-                <span className={cn("grid size-12 shrink-0 place-items-center rounded-lg ring-1 ring-inset", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{typeLabels[item.type]}</span>
-                  <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
-                  <span className="mt-1 block truncate text-xs text-muted-foreground">{topic?.title ?? learnerStatusLabel(itemAttempt?.status)}</span>
-                </span>
-                <span className="hidden shrink-0 sm:block"><Button asChild size="sm" variant="outline"><span>Start <ArrowRight className="size-4" /></span></Button></span>
-                <ArrowRight className="size-4 shrink-0 text-primary sm:hidden" aria-hidden />
-              </button>
+              <div key={item.id} className={cn("overflow-hidden rounded-xl border bg-card/70 transition-colors", selected ? "border-primary/55 shadow-sm" : "border-border/70")}>
+                <button type="button" aria-expanded={selected} onClick={() => setSelectedId(selected ? "" : item.id)} className="group flex w-full items-center gap-3 p-3 text-left hover:bg-accent/50">
+                  <span className={cn("grid size-12 shrink-0 place-items-center rounded-lg ring-1 ring-inset", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{typeLabels[item.type]}</span>
+                    <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">{topic?.title ?? learnerStatusLabel(itemAttempt?.status)}</span>
+                  </span>
+                  <ArrowRight className={cn("size-4 shrink-0 text-primary transition-transform", selected && "rotate-90")} aria-hidden />
+                </button>
+                {selected ? (
+                  <div className="border-t border-border/70 bg-muted/20 px-4 py-4">
+                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">What you'll do</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.brief}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <Badge variant="outline">{typeLabels[item.type]}</Badge>
+                      {topic ? <Badge variant="outline">{topic.title}</Badge> : null}
+                      <Badge variant="outline">{learnerStatusLabel(itemAttempt?.status)}</Badge>
+                    </div>
+                    <Button className="mt-4 w-full sm:w-auto" onClick={(event) => { event.stopPropagation(); document.getElementById("selected-practice-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
+                      {itemAttempt?.status === "started" ? "Continue Practice" : "Start Practice"} <ArrowRight />
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
             );
           })}
         </div>
       </section>
 
       {assignment ? (
-        <div className="mt-7 border-t border-border pt-6">
+        <div id="selected-practice-workspace" className="mt-7 scroll-mt-24 border-t border-border pt-6">
           <AssignmentWorkspace key={assignment.id} assignment={assignment} {...(latest ? { latestAttempt: latest } : {})} />
         </div>
       ) : null}
