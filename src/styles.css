@@ -470,6 +470,30 @@ html.light[data-subject="auto-repair"] {
     0 18px 48px -32px color-mix(in oklab, var(--color-background) 88%, transparent);
 }
 
+/* App artwork sits on its own fixed layer beneath every glass surface. */
+.app-background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.app-background-shade {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--color-background) 10%, transparent),
+    color-mix(in oklab, var(--color-background) 20%, transparent) 55%,
+    color-mix(in oklab, var(--color-background) 45%, transparent)
+  );
+}
+
 /* Global glass shell. Background artwork will be layered underneath this system later. */
 body {
   background-image:
