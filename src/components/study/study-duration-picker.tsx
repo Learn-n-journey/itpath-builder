@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 
-const ITEM_HEIGHT = 48;
+const ITEM_HEIGHT = 52;
 const VISIBLE_ITEMS = 5;
 const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
 const SPACER_HEIGHT = (PICKER_HEIGHT - ITEM_HEIGHT) / 2;
@@ -76,9 +76,9 @@ export function StudyDurationPicker({
   }
 
   return (
-    <div className={cn("relative overflow-hidden rounded-xl border border-border/70 bg-background/40", className)}>
+    <div className={cn("relative overflow-hidden rounded-2xl border border-border/60 bg-background/50 shadow-inner", className)}>
       <div
-        className="pointer-events-none absolute inset-x-0 top-1/2 z-10 h-12 -translate-y-1/2 border-y border-primary/50 bg-primary/5"
+        className="pointer-events-none absolute inset-x-4 top-1/2 z-10 h-[52px] -translate-y-1/2 rounded-lg border-y border-primary/60 bg-primary/10 shadow-sm"
         aria-hidden
       />
       <div
@@ -105,10 +105,10 @@ export function StudyDurationPicker({
               className={cn(
                 "flex w-full snap-center items-center justify-center tabular-nums transition-all",
                 distance === 0
-                  ? "text-2xl font-bold text-foreground sm:text-3xl"
+                  ? "text-3xl font-bold text-foreground sm:text-4xl"
                   : distance === 1
-                    ? "text-lg text-muted-foreground opacity-60"
-                    : "text-base text-muted-foreground opacity-30",
+                    ? "text-xl font-medium text-muted-foreground opacity-55"
+                    : "text-lg text-muted-foreground opacity-20",
               )}
               style={{ height: ITEM_HEIGHT }}
               onClick={() => selectIndex(index)}
@@ -121,8 +121,8 @@ export function StudyDurationPicker({
         })}
         <div aria-hidden style={{ height: SPACER_HEIGHT }} />
       </div>
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-14 bg-gradient-to-b from-card to-transparent" aria-hidden />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-14 bg-gradient-to-t from-card to-transparent" aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-30 h-20 bg-gradient-to-b from-card via-card/70 to-transparent" aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 h-20 bg-gradient-to-t from-card via-card/70 to-transparent" aria-hidden />
     </div>
   );
 }
