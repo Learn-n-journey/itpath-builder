@@ -136,7 +136,7 @@ function MyPath() {
 
       <nav
         aria-label="Path view"
-        className="mb-3 flex h-[3.25rem] w-full max-w-md items-center rounded-full border border-border/80 bg-card/60 p-1 shadow-sm backdrop-blur-sm"
+        className="glass-surface mb-3 flex h-[3.25rem] w-full max-w-md items-center rounded-full border border-border/80 p-1 shadow-sm"
       >
         <Link
           to="/my-path"
@@ -232,7 +232,7 @@ function MyPath() {
 
                 <div className="min-w-0 flex-1">
                   {isFeatured ? (
-                    <div className="relative overflow-hidden rounded-2xl border border-primary/40 bg-gradient-to-br from-card/95 via-card/90 to-secondary/30 p-4 shadow-lg sm:p-5">
+                    <div className="glass-surface relative overflow-hidden rounded-2xl border border-primary/40 p-4 sm:p-5">
                       <div className="mb-2 flex items-center gap-1.5 text-[0.625rem] font-bold uppercase tracking-[0.18em] text-primary">
                         <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" aria-hidden />
                         <span>Next up</span>
