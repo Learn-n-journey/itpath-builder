@@ -10,7 +10,7 @@ export const networkAndSecuritySeeds: TopicSeed[] = [
     title: "The OSI Model and Encapsulation",
     summary: "Use layered models to localise faults and explain exactly where each protocol, device, and header operates.",
     cert: N, month: 8, week: 1, difficulty: "standard", minutes: 50,
-    prereqs: ["basic-networking-concepts", "networking-basics"],
+    prereqs: ["basic-networking-concepts"],
     objectives: [
       "Describe each OSI layer's responsibility and typical protocols.",
       "Explain encapsulation and decapsulation as data crosses layers.",
@@ -172,7 +172,7 @@ export const networkAndSecuritySeeds: TopicSeed[] = [
     title: "IP Addressing and Subnetting",
     summary: "Plan and calculate IPv4 and IPv6 addressing, subnet boundaries, and host capacity confidently.",
     cert: N, month: 9, week: 1, difficulty: "challenging", minutes: 60,
-    prereqs: ["binary-and-number-systems", "networking-basics"],
+    prereqs: ["binary-and-number-systems", "basic-networking-concepts"],
     objectives: [
       "Calculate network, broadcast, and usable host ranges for any IPv4 prefix.",
       "Design a subnet plan that matches host counts to prefix lengths.",

@@ -25,7 +25,9 @@ const T = {
   cli: "topic-command-line-fundamentals",
   virt: "topic-virtualization-basics",
   career: "topic-it-career-overview",
-  net: "topic-networking-basics",
+  // Networking Basics was merged into Basic Networking Concepts. Keep every
+  // certification objective attached to the surviving topic.
+  net: "topic-basic-networking-concepts",
   dns: "topic-dns-fundamentals",
   binary: "topic-binary-and-number-systems",
   method: "topic-troubleshooting-methodology",
