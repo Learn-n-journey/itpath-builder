@@ -819,43 +819,30 @@ export function VirusRun() {
 
   return (
     <div className="virus-game mx-auto w-full max-w-5xl">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/70 bg-card/65 p-3 shadow-lg backdrop-blur-xl sm:p-4">
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">
-            {run ? `System ${run.level} · ${hud.system}` : "Virus Run"}
-          </p>
-          <p className="truncate text-sm font-medium">
-            {run ? hud.hint : "Play as the virus and see how deep you get."}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 font-mono text-sm">
-          <span className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-border/60 bg-background/45 px-3" title="Integrity">
-            {Array.from({ length: MAX_INTEGRITY }).map((_, i) => (
-              <Heart
-                key={i}
-                 className={cn("size-4", i < hud.integrity ? "fill-destructive text-destructive" : "text-muted-foreground/40")}
-                aria-hidden
-              />
-            ))}
-          </span>
-          <span className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-border/60 bg-background/45 px-3" title="Data packets">
-            <Package className="size-4 text-progress" aria-hidden />
-            {hud.collected}/{hud.required}
-          </span>
-          <span className="inline-flex min-h-9 items-center gap-1.5 rounded-md border border-border/60 bg-background/45 px-3" title="Deepest breach">
-            <Shield className="size-4 text-muted-foreground" aria-hidden />
-            {hud.bestLevel}
-          </span>
+      <div className="mb-3 overflow-hidden rounded-xl border border-primary/25 bg-background/80 shadow-2xl backdrop-blur-xl">
+        <div className="flex items-center justify-between gap-3 border-b border-primary/15 px-3 py-2.5 sm:px-4">
+          <div className="min-w-0">
+            <p className="font-display text-lg font-bold uppercase tracking-[0.12em] text-primary">Virus Run</p>
+            <p className="truncate text-xs text-muted-foreground">Collect data · Avoid detection · Reach the exit</p>
+          </div>
           {(phase === "playing" || phase === "paused") && (
-            <Button
-              onClick={phase === "playing" ? pause : resume}
-              aria-label={phase === "playing" ? "Pause" : "Resume"}
-              variant="outline"
-              size="icon"
-            >
-              <Pause className="size-4" aria-hidden />
+            <Button onClick={phase === "playing" ? pause : resume} aria-label={phase === "playing" ? "Pause" : "Resume"} variant="outline" size="icon" className="shrink-0">
+              {phase === "playing" ? <Pause className="size-4" aria-hidden /> : <Play className="size-4" aria-hidden />}
             </Button>
           )}
+        </div>
+        <div className="grid grid-cols-4 divide-x divide-primary/15">
+          <GameStat label="Level" value={hud.level} />
+          <GameStat label="System" value={hud.system || "—"} accent />
+          <GameStat label="Packets" value={`${hud.collected}/${hud.required}`} />
+          <div className="px-2 py-2.5 sm:px-4">
+            <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">Integrity</p>
+            <div className="mt-1 flex gap-1">
+              {Array.from({ length: MAX_INTEGRITY }).map((_, i) => (
+                <Heart key={i} className={cn("size-4", i < hud.integrity ? "fill-destructive text-destructive" : "text-muted-foreground/30")} aria-hidden />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -885,6 +872,15 @@ export function VirusRun() {
           <span />
         </div>
       </div>
+    </div>
+  );
+}
+
+function GameStat({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
+  return (
+    <div className="min-w-0 px-2 py-2.5 sm:px-4">
+      <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">{label}</p>
+      <p className={cn("mt-1 truncate font-mono text-xs font-bold sm:text-sm", accent && "text-primary")}>{value}</p>
     </div>
   );
 }
