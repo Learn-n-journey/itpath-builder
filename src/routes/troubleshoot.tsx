@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Clock3, RotateCcw, Save, Send, Sparkles, Terminal, Trophy } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, ChevronRight, Clock3, Cloud, HardDrive, KeyRound, Laptop, Network, RotateCcw, Save, Send, ServerCog, ShieldAlert, Sparkles, Terminal, Trophy, Wifi } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -64,6 +64,18 @@ const METHOD = [
   "Verify full functionality",
   "Document findings, actions and outcomes",
 ];
+
+const incidentCategoryIcons = {
+  hardware: HardDrive,
+  windows: Laptop,
+  networking: Network,
+  dns: ServerCog,
+  dhcp: Wifi,
+  linux: Terminal,
+  security: ShieldAlert,
+  cloud: Cloud,
+  authentication: KeyRound,
+} satisfies Record<Incident["category"], typeof AlertTriangle>;
 
 function TroubleshootPage() {
   const { user } = useAppState();
@@ -152,11 +164,12 @@ function TroubleshootPage() {
             const itemAttempt = attempts.find((attempt) => attempt.incidentId === item.id);
             const selected = item.id === incident?.id;
             const topic = topics.find((candidate) => candidate.id === item.topicId);
+            const IncidentIcon = incidentCategoryIcons[item.category];
             return (
               <div key={item.id} className={`overflow-hidden rounded-xl border bg-card/70 transition-colors ${selected ? "border-primary/55 shadow-sm" : "border-border/70"}`}>
                 <button type="button" aria-expanded={selected} onClick={() => setSelectedId(selected ? "" : item.id)} className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-accent/50">
                   <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/20">
-                    <AlertTriangle className="size-4" aria-hidden />
+                    <IncidentIcon className="size-4" aria-hidden />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{incidentCategoryLabels[item.category]}</span>
