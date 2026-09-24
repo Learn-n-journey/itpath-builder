@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BarChart3, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Flame, PlayCircle, SlidersHorizontal, Wrench } from "lucide-react";
+import { BarChart3, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Flame, Play, SlidersHorizontal, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
 import { LearnerPageSkeleton, Panel, StatCard } from "@/components/page-kit";
@@ -19,6 +19,7 @@ import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics } from "@/l
 import { certificationTopics } from "@/lib/cert-path";
 import { certifications } from "@/data/static-content";
 import { overallMeasures } from "@/lib/mastery-summary";
+import { topicScopeProgress } from "@/lib/scope-progress";
 import { useAppState } from "@/state/app-state";
 import itPathArtwork from "@/assets/path-it.jpg";
 import autoPathArtwork from "@/assets/path-auto.jpg";
@@ -202,6 +203,12 @@ function Dashboard() {
           ? { to: "/topics/$topicId", params: { topicId: path.recommendedTopic.id }, title: path.recommendedTopic.title, detail: "Recommended next" }
           : null;
 
+  const currentTopicPercent = activeTopic
+    ? Math.min(100, Math.round(topicScopeProgress(user, activeTopic.id).overall))
+    : 0;
+  const currentTopicSummary =
+    activeTopic?.summary || primary?.detail || "Continue where you left off";
+
   const journeyWindow = useMemo(() => {
     if (journeyCourse.length === 0) return [];
     const total = journeyCourse.length;
@@ -318,76 +325,128 @@ function Dashboard() {
 
       <section
         aria-labelledby="continue-heading"
-        className="relative mb-6 overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-card/95 via-card/85 to-secondary/40 p-5 shadow-xl shadow-black/30 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent sm:p-7"
+        className="relative mb-6 overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-card via-card/95 to-background p-5 shadow-2xl shadow-black/50 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent sm:rounded-3xl sm:p-7 md:p-9"
       >
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-3/5 overflow-hidden sm:w-1/2" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute -right-16 -top-16 size-80 rounded-full bg-primary/15 blur-3xl"
+          aria-hidden="true"
+        />
+
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 w-full overflow-hidden sm:w-3/5 lg:w-[55%]"
+          aria-hidden="true"
+        >
           <img
             src={courseArtwork.src}
             alt=""
-            className="h-full w-full object-cover object-right opacity-25 mix-blend-luminosity [mask-image:linear-gradient(to_left,rgba(0,0,0,0.85)_10%,rgba(0,0,0,0.4)_40%,transparent_85%)] sm:opacity-40"
+            className="h-full w-full object-cover object-right opacity-80 [mask-image:linear-gradient(to_bottom,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.3)_60%,transparent_100%)] sm:opacity-95 sm:[mask-image:linear-gradient(to_right,transparent_0%,rgba(0,0,0,0.35)_18%,rgba(0,0,0,0.85)_60%,black_100%)]"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/70 to-transparent sm:bg-gradient-to-r sm:from-card sm:via-card/60 sm:to-transparent" aria-hidden="true" />
         </div>
-        <div className="pointer-events-none absolute -right-12 -top-12 size-64 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
 
         {primary ? (
           <>
-            <div className="relative z-10 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md border border-primary/25 bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-wider text-primary">
-                <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse motion-reduce:animate-none" aria-hidden />
-                {d.hasAnyActivity ? "Continue Learning" : "Start Learning"}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {journeyCertification.title} · Section {Math.min(courseTopicIndex + 1, journeyCourse.length)} of {journeyCourse.length}
-              </span>
-            </div>
+            <div className="relative z-10 max-w-xl">
+              <div className="flex items-center gap-2">
+                <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-primary">
+                  {d.hasAnyActivity ? "Continue Learning" : "Start Learning"}
+                </span>
+              </div>
 
-            <div className="relative z-10 mt-3 max-w-[85%] sm:max-w-[70%]">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{primary.detail}</p>
-              <h1 id="continue-heading" className="mt-1 max-w-[85%] font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl lg:text-4xl">
+              <h1
+                id="continue-heading"
+                className="mt-2.5 max-w-xl font-display text-2xl font-bold leading-[1.15] tracking-tight text-foreground sm:text-3xl lg:text-4xl"
+              >
                 {primary.title}
               </h1>
-            </div>
 
-            <div className="relative z-10 mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
-              <Button asChild size="lg" className="h-12 w-full px-6 font-semibold shadow-md shadow-primary/20 motion-safe:transition-all motion-safe:duration-150 motion-safe:ease-out active:scale-[0.985] active:shadow-inner motion-reduce:transition-none sm:w-auto">
-                <Link
-                  to={primary.to}
-                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  {...(primary.params ? { params: primary.params as never } : {})}
-                  {...(primary.search ? { search: primary.search as never } : {})}
+              <p className="mt-2 max-w-lg line-clamp-2 text-xs leading-relaxed text-muted-foreground/90 sm:line-clamp-none sm:text-sm">
+                {currentTopicSummary}
+              </p>
+
+              <div className="mt-5 max-w-md">
+                <div className="mb-2 flex items-center justify-between text-xs sm:text-sm">
+                  <span className="font-display font-medium text-foreground/85">
+                    Section {Math.min(courseTopicIndex + 1, journeyCourse.length)} of {journeyCourse.length}
+                  </span>
+                  <span className="font-display font-bold tabular-nums text-foreground">
+                    {currentTopicPercent}%
+                  </span>
+                </div>
+                <div
+                  className="h-1.5 w-full overflow-hidden rounded-full bg-secondary/80"
+                  role="progressbar"
+                  aria-label="Current topic progress"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={currentTopicPercent}
                 >
-                  <PlayCircle className="size-4 stroke-[2.2]" aria-hidden /> Continue
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="h-12 w-full border-border/70 bg-card/60 px-5 backdrop-blur-sm motion-safe:transition-all motion-safe:duration-150 active:scale-[0.985] motion-reduce:transition-none hover:bg-secondary sm:w-auto">
-                <Link to="/study-plan" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-                  <BookOpen className="size-4 text-primary" aria-hidden />
-                  Study plan
-                </Link>
-              </Button>
+                  <div
+                    className="h-full rounded-full bg-primary shadow-md shadow-primary/25 motion-safe:transition-[width] motion-safe:duration-500 motion-safe:ease-out motion-reduce:transition-none"
+                    style={{ width: `${currentTopicPercent}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Button
+                  asChild
+                  size="lg"
+                  className="h-12 w-full rounded-xl bg-primary px-7 font-semibold text-primary-foreground shadow-lg shadow-primary/25 motion-safe:transition-all motion-safe:duration-150 hover:bg-primary/90 active:translate-y-px active:scale-[0.985] motion-reduce:transition-none sm:w-auto sm:px-8"
+                >
+                  <Link
+                    to={primary.to}
+                    className="inline-flex items-center justify-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    {...(primary.params ? { params: primary.params as never } : {})}
+                    {...(primary.search ? { search: primary.search as never } : {})}
+                  >
+                    <Play className="size-4 fill-current stroke-none" aria-hidden="true" />
+                    <span>Continue Learning</span>
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="h-12 w-full rounded-xl border-border/60 bg-card/50 px-6 font-semibold text-foreground backdrop-blur-sm motion-safe:transition-all motion-safe:duration-150 hover:bg-secondary/70 active:scale-[0.985] motion-reduce:transition-none sm:w-auto"
+                >
+                  <Link
+                    to="/study-plan"
+                    className="inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <BookOpen className="size-4 text-muted-foreground" aria-hidden="true" />
+                    <span>Study Plan</span>
+                  </Link>
+                </Button>
+              </div>
             </div>
           </>
         ) : (
-          <>
-            <div className="relative z-10">
-              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-medium text-primary">
-                Start Learning
-              </span>
-              <h1 id="continue-heading" className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                Choose a topic
-              </h1>
-              <Button asChild className="mt-4">
-                <Link to="/learn">Choose a topic</Link>
-              </Button>
-            </div>
-          </>
+          <div className="relative z-10 max-w-md">
+            <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-primary">
+              Start Learning
+            </span>
+            <h1 id="continue-heading" className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              Choose a topic
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Select your first topic from the curriculum to begin your path.
+            </p>
+            <Button asChild className="mt-5 h-12 rounded-xl px-6 font-semibold">
+              <Link to="/learn">Choose a topic</Link>
+            </Button>
+          </div>
         )}
 
         {d.hasAnyActivity && (actions.length > 0 || todayChips.length > 0) ? (
-          <details className="group relative z-10 mt-5 border-t border-border/40 pt-3">
+          <details className="group relative z-10 mt-6 border-t border-border/30 pt-3.5">
             <summary className="flex min-h-11 w-fit cursor-pointer list-none items-center gap-1.5 text-xs font-medium text-muted-foreground motion-safe:transition-colors motion-safe:duration-150 hover:text-foreground active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none [&::-webkit-details-marker]:hidden">
               Other suggestions ({actions.length + todayChips.length})
-              <ChevronRight className="size-4 motion-safe:transition-transform motion-safe:duration-150 group-open:rotate-90 motion-reduce:transition-none" aria-hidden />
+              <ChevronRight
+                className="size-4 motion-safe:transition-transform motion-safe:duration-150 group-open:rotate-90 motion-reduce:transition-none"
+                aria-hidden="true"
+              />
             </summary>
             <div className="mt-3 space-y-3">
               <TodayStrip chips={todayChips} />
@@ -397,9 +456,13 @@ function Dashboard() {
         ) : null}
 
         {!d.hasAnyActivity ? (
-          <div className="relative z-10 mt-4 flex flex-wrap gap-4 border-t border-border/60 pt-3 text-sm">
-            <Link to="/settings" className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Check my goal</Link>
-            <Link to="/guide" className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">How IT PATH works</Link>
+          <div className="relative z-10 mt-5 flex flex-wrap gap-4 border-t border-border/40 pt-3.5 text-sm">
+            <Link to="/settings" className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+              Check my goal
+            </Link>
+            <Link to="/guide" className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+              How IT PATH works
+            </Link>
           </div>
         ) : null}
       </section>
