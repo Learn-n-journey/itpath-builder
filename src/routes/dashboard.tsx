@@ -542,7 +542,7 @@ function Dashboard() {
         </details>
       </section>
 
-      <div>
+      <div className="grid gap-6 sm:gap-7">
         <Panel title="Due for review" className="border-t-0 py-5">
           {reviewTopics.length === 0 ? (
              <div className="flex items-start gap-4 text-muted-foreground"><CalendarDays className="mt-0.5 size-6 shrink-0 text-feature-amber/80" aria-hidden /><div><p className="text-sm text-foreground/85">Nothing due right now.</p><p className="mt-0.5 text-sm">We’ll show topics here as they become due.</p></div></div>
