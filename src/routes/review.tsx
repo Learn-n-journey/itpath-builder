@@ -1,30 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
-import { RotateCcw } from "lucide-react";
+import { ArrowRight, CalendarClock, CheckCircle2, Clock3, RotateCcw, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { EmptyState, LearnerPageSkeleton, PageHeader, Panel, StatCard } from "@/components/page-kit";
-import { MissedQuestionsPanel } from "@/components/review/missed-questions-panel";
+import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getSkill, skillNodes } from "@/data/prerequisite-graph";
 import { getTopic } from "@/lib/app-data/selectors";
-import type { MistakeCause, Review as ReviewType } from "@/lib/app-data/types";
-import {
-  mistakeActivityLabels,
-  mistakeCauseLabels,
-  summarizeMistakes,
-} from "@/lib/mistake-engine";
+import type { Review as ReviewType } from "@/lib/app-data/types";
 import {
   REVIEW_INTERVALS,
   bucketReviews,
   describeSchedule,
   recentlyFailed,
 } from "@/lib/review-engine";
-import { missedQuestionCount, missedQuestions, type MissedQuestion } from "@/lib/missed-questions";
 import { useAppState } from "@/state/app-state";
 import { SectionTabs, REVIEW_TABS } from "@/components/layout/section-tabs";
-import { isBooleanPreference, isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 
 export const Route = createFileRoute("/review")({
   staticData: { sitemap: false },
@@ -47,38 +38,10 @@ function topicTitle(topicId: string) {
 
 function Review() {
   const { user, actions, hydrated } = useAppState();
-  const [categoryFilter, setCategoryFilter] = useUiPreference<MistakeCause | "all">("review.category", "all", (value): value is MistakeCause | "all" => isStringPreference(value));
-  const [showResolved, setShowResolved] = useUiPreference("review.resolved", false, isBooleanPreference);
-
-  const summary = useMemo(() => summarizeMistakes(user), [user]);
   const buckets = useMemo(() => bucketReviews(user.reviews), [user.reviews]);
   const failed = useMemo(() => recentlyFailed(user), [user]);
-  const missed = useMemo(() => missedQuestions(user), [user]);
-  const missedCount = useMemo(() => missedQuestionCount(user), [user]);
-  const weakConcepts = useMemo(() => {
-    const byTopic = new Map<string, { topicId: string; quiz: number; practice: number; recall: number }>();
-    const topicIdOf = (item: MissedQuestion) =>
-      item.kind === "quiz"
-        ? item.question.topicId
-        : item.kind === "practice"
-          ? item.assignment.topicId
-          : item.recall.topicId;
-    for (const item of missed) {
-      const topicId = topicIdOf(item);
-      const entry = byTopic.get(topicId) ?? { topicId, quiz: 0, practice: 0, recall: 0 };
-      entry[item.kind] += 1;
-      byTopic.set(topicId, entry);
-    }
-    return [...byTopic.values()].sort(
-      (a, b) => b.quiz + b.practice + b.recall - (a.quiz + a.practice + a.recall),
-    );
-  }, [missed]);
-
-  const mistakes = user.mistakes.filter(
-    (mistake) =>
-      (showResolved || !mistake.resolved) &&
-      (categoryFilter === "all" || mistake.category === categoryFilter),
-  );
+  const nextReview = buckets.overdue[0] ?? buckets.dueToday[0];
+  const dueNow = buckets.overdue.length + buckets.dueToday.length;
 
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={2} />;
 
@@ -86,217 +49,123 @@ function Review() {
     <>
       <SectionTabs tabs={REVIEW_TABS} variant="segmented" />
       <PageHeader
-        title="Review"
-        description="Retry missed questions, revisit weak concepts, and practise topics that are due."
+        title="Review Schedule"
+        description="Keep important concepts from fading with reviews that return when you need them."
       />
 
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard label="To work on" value={missedCount} />
-        <StatCard label="Mastered" value={buckets.mastered.length} />
-      </div>
+      <section className="grid grid-cols-4 divide-x divide-border border-y border-border py-3" aria-label="Review schedule summary">
+        <ReviewStat value={buckets.dueToday.length} label="Today" />
+        <ReviewStat value={buckets.overdue.length} label="Overdue" />
+        <ReviewStat value={buckets.upcoming.length} label="Upcoming" />
+        <ReviewStat value={buckets.mastered.length} label="Retained" />
+      </section>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <Panel title="Weak concepts">
-          {weakConcepts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No weak concepts yet. They appear here when you miss quiz or practice questions.
+      {nextReview ? (
+        <section className="relative mt-5 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
+          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+          <div className="relative">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              <Sparkles className="size-4" aria-hidden />Review now
             </p>
-          ) : (
-            <ul className="space-y-3 text-sm">
-              {weakConcepts.map((entry) => (
-                <li key={entry.topicId} className="rounded-lg border border-border p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-medium">{topicTitle(entry.topicId)}</span>
-                    <span className="flex flex-wrap gap-1">
-                      {entry.quiz > 0 ? (
-                        <Badge variant="outline">
-                          {entry.quiz} missed quiz {entry.quiz === 1 ? "question" : "questions"}
-                        </Badge>
-                      ) : null}
-                      {entry.practice > 0 ? (
-                        <Badge variant="outline">
-                          {entry.practice} failed practice {entry.practice === 1 ? "task" : "tasks"}
-                        </Badge>
-                      ) : null}
-                      {entry.recall > 0 ? (
-                        <Badge variant="outline">
-                          {entry.recall} missed recall {entry.recall === 1 ? "question" : "questions"}
-                        </Badge>
-                      ) : null}
-                    </span>
-                  </div>
-                  <Button asChild size="sm" variant="secondary" className="mt-2">
-                    <Link to="/topics/$topicId" params={{ topicId: entry.topicId }}>
-                      Open {topicTitle(entry.topicId)}
-                    </Link>
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel title="Mistake categories">
-          {summary.byCategory.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No open mistakes recorded yet.</p>
-          ) : (
-            <ul className="divide-y divide-border text-sm">
-              {summary.byCategory.map((entry) => (
-                <li key={entry.category} className="flex justify-between py-2">
-                  <span>{mistakeCauseLabels[entry.category]}</span>
-                  <span className="text-muted-foreground">{entry.count}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-      </div>
-
-      <div className="mt-4 grid gap-4">
-        <MissedQuestionsPanel />
-
-        <Panel title="Mistake log">
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              size="sm"
-              variant={categoryFilter === "all" ? "default" : "outline"}
-              onClick={() => setCategoryFilter("all")}
-            >
-              All causes
-            </Button>
-            {(Object.keys(mistakeCauseLabels) as MistakeCause[]).map((cause) => (
-              <Button
-                key={cause}
-                size="sm"
-                variant={categoryFilter === cause ? "default" : "outline"}
-                onClick={() => setCategoryFilter(cause)}
-              >
-                {mistakeCauseLabels[cause]}
-              </Button>
-            ))}
-            <Button size="sm" variant="ghost" onClick={() => setShowResolved((v) => !v)}>
-              {showResolved ? "Hide resolved" : "Show resolved"}
+            <h2 className="mt-3 font-display text-xl font-semibold sm:text-2xl">{topicTitle(nextReview.topicId)}</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {buckets.overdue.some((item) => item.id === nextReview.id)
+                ? "This review is overdue. A quick check now will update its retention schedule."
+                : "This concept is due today. Review it, then grade how well you recalled it."}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Badge variant="outline"><Clock3 className="mr-1 size-3" />{describeSchedule(nextReview)}</Badge>
+              <Badge variant="outline">{nextReview.totalReviews > 0 ? `${nextReview.totalReviews} graded` : "First review"}</Badge>
+            </div>
+            <Button asChild className="mt-4 w-full sm:w-auto">
+              <Link to="/topics/$topicId" params={{ topicId: nextReview.topicId }}>
+                Review concept <ArrowRight />
+              </Link>
             </Button>
           </div>
+        </section>
+      ) : user.reviews.length === 0 ? (
+        <EmptyState
+          icon={RotateCcw}
+          title="Nothing scheduled yet"
+          body="Reviews are added automatically as you learn, practice, and expose gaps."
+        />
+      ) : (
+        <section className="mt-5 rounded-xl border border-border/70 bg-card/70 p-4">
+          <div className="flex items-center gap-3">
+            <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary"><CheckCircle2 className="size-4" aria-hidden /></span>
+            <div>
+              <h2 className="font-display text-base font-semibold">You're caught up</h2>
+              <p className="mt-1 text-xs text-muted-foreground">No reviews are due right now. Upcoming work is already scheduled.</p>
+            </div>
+          </div>
+        </section>
+      )}
 
-          {mistakes.length === 0 ? (
-            <p className="mt-4 text-sm text-muted-foreground">
-              No mistakes match this filter.
-            </p>
-          ) : (
-            <ul className="mt-4 space-y-3 text-sm">
-              {mistakes.map((mistake) => (
-                <li key={mistake.id} className="rounded-lg border border-border p-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium">{topicTitle(mistake.topicId)}</span>
-                    <Badge variant="outline">{mistakeActivityLabels[mistake.activity]}</Badge>
-                    <Badge variant="outline">{mistakeCauseLabels[mistake.category]}</Badge>
-                    <Badge variant={mistake.severity === "high" ? "destructive" : "secondary"}>
-                      {mistake.severity} severity
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(mistake.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  {mistake.recommendedSkillIds.length > 0 ? (
-                    <p className="mt-2 text-muted-foreground">
-                      Recommended review:{" "}
-                      {mistake.recommendedSkillIds
-                        .map((id) => getSkill(id)?.title ?? id)
-                        .join(", ")}
-                    </p>
-                  ) : null}
-                  <Button
-                    size="sm"
-                    variant={mistake.resolved ? "outline" : "secondary"}
-                    className="mt-2"
-                    onClick={() => actions.setMistakeResolved(mistake.id, !mistake.resolved)}
-                  >
-                    {mistake.resolved ? "Reopen" : "Mark resolved"}
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
+      {user.reviews.length > 0 ? (
+        <div className="mt-6 space-y-4">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h2 className="font-display text-lg font-semibold">Your schedule</h2>
+              <p className="mt-1 text-xs text-muted-foreground">{dueNow > 0 ? `${dueNow} ready to review now` : "Everything is on schedule"}</p>
+            </div>
+            <CalendarClock className="size-5 text-primary" aria-hidden />
+          </div>
 
-        {user.reviews.length === 0 ? (
-          <EmptyState
-            icon={RotateCcw}
-            title="Nothing scheduled for review"
-            body="Reviews are scheduled automatically when a quiz, recall check, or assignment exposes a gap."
+          <ReviewQueue
+            title="Due today"
+            description="Review these now, then grade your recall honestly."
+            reviews={buckets.dueToday}
+            empty="Nothing is due today."
           />
-        ) : (
-          <>
-            <ReviewQueue
-              title="Due today"
-              description="Grade each item honestly. Opening a topic does not count as a successful review."
-              reviews={buckets.dueToday}
-              empty="Nothing is due today."
-            />
-            <ReviewQueue
-              title="Overdue"
-              description="Topics and questions that are past their scheduled practice date."
-              reviews={buckets.overdue}
-              empty="Nothing is overdue."
-              tone="overdue"
-            />
-            <ReviewQueue
-              title="Upcoming"
-              description="Scheduled ahead. These cannot be graded until they come due."
-              reviews={buckets.upcoming}
-              empty="Nothing scheduled ahead yet."
-              gradable={false}
-            />
-            <ReviewQueue
-              title="Mastered"
-              description="Passed at the 90-day interval. Retention is holding."
-              reviews={buckets.mastered}
-              empty="No topic has reached the 90-day interval yet."
-              gradable={false}
-            />
-          </>
-        )}
+          <ReviewQueue
+            title="Overdue"
+            description="These are past their scheduled review date."
+            reviews={buckets.overdue}
+            empty="Nothing is overdue."
+            tone="overdue"
+          />
+          <ReviewQueue
+            title="Upcoming"
+            description="Scheduled ahead. They become gradable when they come due."
+            reviews={buckets.upcoming}
+            empty="Nothing scheduled ahead yet."
+            gradable={false}
+          />
+          <ReviewQueue
+            title="Retained"
+            description="Concepts that have held through the longest review interval."
+            reviews={buckets.mastered}
+            empty="Nothing has reached long-term retention yet."
+            gradable={false}
+          />
 
-        <Panel
-          title="Recently failed"
-          description="Every graded review is stored. Failures shorten the interval so the topic comes back sooner."
-        >
-          {failed.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No failed reviews recorded.</p>
-          ) : (
-            <ul className="divide-y divide-border text-sm">
-              {failed.map((attempt) => (
-                <li key={attempt.id} className="flex flex-wrap justify-between gap-2 py-2">
-                  <span className="font-medium">{topicTitle(attempt.topicId)}</span>
-                  <span className="text-muted-foreground">
-                    {attempt.intervalBefore}d → {attempt.intervalAfter}d ·{" "}
-                    {new Date(attempt.createdAt).toLocaleDateString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-        <Panel title="Prerequisite map" description="Recommendations always move backwards along these dependencies, never forwards into more advanced material.">
-          <ul className="space-y-2 text-sm">
-            {skillNodes.map((skill) => (
-              <li key={skill.id} className="flex flex-wrap gap-x-2 gap-y-1">
-                <span className="font-medium">{skill.title}</span>
-                <span className="text-muted-foreground">
-                  {skill.prerequisiteSkillIds.length === 0
-                    ? "no prerequisites"
-                    : `needs ${skill.prerequisiteSkillIds
-                        .map((id) => getSkill(id)?.title ?? id)
-                        .join(", ")}`}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      </div>
+          {failed.length > 0 ? (
+            <Panel title="Recent misses" description="A missed review returns sooner so you can reinforce it.">
+              <ul className="divide-y divide-border text-sm">
+                {failed.slice(0, 6).map((attempt) => (
+                  <li key={attempt.id} className="flex flex-wrap justify-between gap-2 py-2">
+                    <span className="font-medium">{topicTitle(attempt.topicId)}</span>
+                    <span className="text-muted-foreground">
+                      {attempt.intervalBefore}d → {attempt.intervalAfter}d · {new Date(attempt.createdAt).toLocaleDateString()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          ) : null}
+        </div>
+      ) : null}
     </>
+  );
+}
+
+function ReviewStat({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="min-w-0 px-2 text-center">
+      <p className="font-display text-lg font-semibold tabular-nums sm:text-xl">{value}</p>
+      <p className="mt-1 truncate text-[0.625rem] text-muted-foreground sm:text-xs">{label}</p>
+    </div>
   );
 }
 
