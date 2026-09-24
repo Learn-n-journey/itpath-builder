@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AlarmClock, ClipboardCheck, RefreshCw } from "lucide-react";
+import { AlarmClock, CheckCircle2, ClipboardCheck, RefreshCw, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { PageHeader } from "@/components/page-kit";
 import { ProGate } from "@/components/pro-gate";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { Button } from "@/components/ui/button";
@@ -95,6 +95,15 @@ function ExamTimer({ seconds, onExpire }: { seconds: number; onExpire: () => voi
   );
 }
 
+function ExamStat({ value, label }: { value: string | number; label: string }) {
+  return (
+    <div className="min-w-0 px-2 text-center">
+      <p className="font-display text-lg font-semibold tabular-nums sm:text-xl">{value}</p>
+      <p className="mt-1 truncate text-[0.625rem] text-muted-foreground sm:text-xs">{label}</p>
+    </div>
+  );
+}
+
 function ExamPage() {
   const { user } = useAppState();
   const [seed, reshuffle] = useShuffleSeed();
@@ -145,20 +154,25 @@ function ExamPage() {
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Question bank" value={poolSize} hint={mode === "final" || !certification ? "Whole course" : certification.title} />
-        <StatCard label="This exam" value={questionCount} />
-        <StatCard label="Time allowed" value={`${Math.round(totalSeconds / 60)} min`} />
-        <StatCard label="Pass mark" value={`${PASS_SCORE}%`} />
-      </div>
+      <section className="grid grid-cols-4 divide-x divide-border border-y border-border py-3" aria-label="Exam summary">
+        <ExamStat value={poolSize} label="Bank" />
+        <ExamStat value={questionCount} label="Questions" />
+        <ExamStat value={`${Math.round(totalSeconds / 60)}m`} label="Time" />
+        <ExamStat value={`${PASS_SCORE}%`} label="Pass" />
+      </section>
 
       {!started ? (
-        <Panel
-          className="mt-6"
-          title="Set up your exam"
-          description="Question order, choice order and the selection itself change every time."
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
+        <section className="relative mt-5 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
+          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+          <div className="relative">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              <Sparkles className="size-4" aria-hidden />Build your exam
+            </p>
+            <h2 className="mt-3 font-display text-xl font-semibold sm:text-2xl">Choose your challenge</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Pick the coverage and length. Every run reshuffles the questions and answer choices.
+            </p>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="exam-mode">Exam type</Label>
               <Select value={mode} onValueChange={(value) => setMode(value as "mock" | "final")}>
@@ -205,16 +219,21 @@ function ExamPage() {
               </>
             ) : null}
           </div>
-          {poolSize === 0 ? (
-            <p className="mt-4 text-sm text-destructive">
-              There are no questions here yet. Pick another certification.
-            </p>
-          ) : (
-            <Button className="mt-5" onClick={start}>
-              <ClipboardCheck /> {mode === "final" ? "Start final exam" : "Start timed exam"}
-            </Button>
-          )}
-        </Panel>
+            {poolSize === 0 ? (
+              <p className="mt-4 text-sm text-destructive">
+                There are no questions available for this selection yet.
+              </p>
+            ) : (
+              <Button className="mt-5 w-full sm:w-auto" onClick={start}>
+                <ClipboardCheck /> {mode === "final" ? "Start final exam" : "Start timed exam"}
+              </Button>
+            )}
+            <div className="mt-5 flex items-center gap-2 border-t border-border/70 pt-4 text-xs text-muted-foreground">
+              <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden />
+              <span>{questionCount} questions · {Math.round(totalSeconds / 60)} minutes · {PASS_SCORE}% to pass</span>
+            </div>
+          </div>
+        </section>
       ) : exam ? (
         <div className="mt-6 space-y-4">
           <div className="panel flex flex-wrap items-center justify-between gap-3 p-4">
