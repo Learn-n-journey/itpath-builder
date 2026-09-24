@@ -202,6 +202,28 @@ function Dashboard() {
           ? { to: "/topics/$topicId", params: { topicId: path.recommendedTopic.id }, title: path.recommendedTopic.title, detail: "Recommended next" }
           : null;
 
+  const journeyWindow = useMemo(() => {
+    if (journeyCourse.length === 0) return [];
+    const total = journeyCourse.length;
+    let start = Math.max(0, courseTopicIndex - 2);
+    const end = Math.min(total, start + 5);
+    if (end - start < 5) start = Math.max(0, end - 5);
+
+    return journeyCourse.slice(start, end).map((topic, idx) => {
+      const originalIndex = start + idx;
+      const isCompleted = isMastered(user, topic.id);
+      const isCurrent = originalIndex === courseTopicIndex;
+      return {
+        topic,
+        index: originalIndex + 1,
+        isCompleted,
+        isCurrent,
+        isUpcoming: !isCompleted && !isCurrent,
+        isOpen: isTopicOpen(user, topic.id),
+      };
+    });
+  }, [journeyCourse, courseTopicIndex, user]);
+
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} />;
 
   return (
@@ -221,28 +243,116 @@ function Dashboard() {
         </div>
       </header>
 
-      <section aria-labelledby="continue-heading" className="relative overflow-hidden rounded-xl border border-border bg-secondary/30 px-4 py-5 shadow-sm sm:px-6 sm:py-6">
-        <div className="relative z-10 max-w-[72%] sm:max-w-[68%]">
-          <h1 className="text-base font-medium">
-            {d.hasAnyActivity ? "Continue learning" : "Start learning"}
-          </h1>
+      <nav aria-label="Learning Journey" className="mb-5 border-b border-border pb-5">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your Learning Journey</span>
+          <span className="shrink-0 text-xs text-muted-foreground">
+            Step {Math.min(courseTopicIndex + 1, journeyCourse.length)} of {journeyCourse.length}
+          </span>
         </div>
+        <div className="relative">
+          <div className="absolute left-4 right-4 top-4 h-0.5 bg-border" aria-hidden />
+          <div className="relative z-10 flex items-start justify-between gap-1 overflow-x-auto pb-1 sm:gap-2">
+            {journeyWindow.map((step) => {
+              const node = (
+                <>
+                  <span
+                    className={
+                      step.isCurrent
+                        ? "grid size-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground ring-4 ring-primary/20 shadow-sm"
+                        : step.isCompleted
+                          ? "grid size-7 place-items-center rounded-full border border-primary/50 bg-primary/20 text-xs font-semibold text-primary"
+                          : "grid size-7 place-items-center rounded-full border border-border bg-secondary text-xs text-muted-foreground/70"
+                    }
+                    aria-hidden
+                  >
+                    {step.isCompleted ? <Check className="size-3.5 stroke-[2.5]" /> : step.index}
+                  </span>
+                  {step.isCurrent ? (
+                    <span className="mt-1 text-[0.625rem] font-bold uppercase tracking-wider text-primary">Here</span>
+                  ) : (
+                    <span className="mt-1 h-3" aria-hidden />
+                  )}
+                  <span
+                    className={`mt-0.5 block max-w-[4rem] truncate text-center ${
+                      step.isCurrent ? "text-xs font-medium text-foreground" : "text-[0.6875rem] text-muted-foreground"
+                    } sm:max-w-[6.5rem]`}
+                  >
+                    {step.topic.title}
+                  </span>
+                </>
+              );
+
+              return step.isOpen ? (
+                <Link
+                  key={step.topic.id}
+                  to="/topics/$topicId"
+                  params={{ topicId: step.topic.id }}
+                  aria-current={step.isCurrent ? "step" : undefined}
+                  aria-label={
+                    step.isCompleted
+                      ? `Completed: ${step.topic.title}`
+                      : step.isCurrent
+                        ? `Current: ${step.topic.title}`
+                        : step.topic.title
+                  }
+                  className="flex min-w-[4rem] flex-1 flex-col items-center text-center sm:min-w-[6.5rem]"
+                >
+                  {node}
+                </Link>
+              ) : (
+                <div
+                  key={step.topic.id}
+                  aria-current={step.isCurrent ? "step" : undefined}
+                  aria-label={
+                    step.isCompleted
+                      ? `Completed: ${step.topic.title}`
+                      : step.isCurrent
+                        ? `Current: ${step.topic.title}`
+                        : `Locked: ${step.topic.title}`
+                  }
+                  className="flex min-w-[4rem] flex-1 flex-col items-center text-center sm:min-w-[6.5rem]"
+                >
+                  {node}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </nav>
+
+      <section
+        aria-labelledby="continue-heading"
+        className="relative mb-6 overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card/90 via-card/60 to-secondary/30 p-4 shadow-sm sm:p-6"
+      >
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 overflow-hidden sm:w-7/12" aria-hidden="true">
+          <img
+            src={courseArtwork.src}
+            alt=""
+            className="h-full w-full object-cover object-center opacity-25 mix-blend-luminosity [mask-image:linear-gradient(to_left,black_20%,transparent_90%)] sm:opacity-40"
+          />
+        </div>
+
         {primary ? (
           <>
-            <div className="relative z-10 mt-3 max-w-[72%] sm:max-w-[68%]">
-              <p className="text-sm text-muted-foreground">{primary.detail}</p>
-              <h2 id="continue-heading" className="mt-1 font-display text-2xl font-semibold leading-tight sm:text-3xl">{primary.title}</h2>
-              <p className="mt-2 text-sm text-muted-foreground">
+            <div className="relative z-10 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-medium text-primary">
+                {d.hasAnyActivity ? "Continue Learning" : "Start Learning"}
+              </span>
+              <span className="text-xs text-muted-foreground">
                 {journeyCertification.title} · Section {Math.min(courseTopicIndex + 1, journeyCourse.length)} of {journeyCourse.length}
-              </p>
+              </span>
             </div>
-            <img
-              src={courseArtwork.src}
-              alt={courseArtwork.alt}
-              className="pointer-events-none absolute -right-10 top-6 h-44 w-48 object-cover object-right opacity-90 [mask-image:linear-gradient(to_right,transparent,black_35%)] sm:right-0 sm:h-48 sm:w-64"
-            />
-            <div className="relative z-10 mt-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2 sm:max-w-xl">
-              <Button asChild size="lg" className="w-full">
+
+            <div className="relative z-10 mt-3 max-w-[85%] sm:max-w-[70%]">
+              <p className="text-xs font-medium text-muted-foreground">{primary.detail}</p>
+              <h1 id="continue-heading" className="mt-1 font-display text-2xl font-bold leading-tight tracking-tight text-foreground sm:text-3xl">
+                {primary.title}
+              </h1>
+            </div>
+
+            <div className="relative z-10 mt-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Button asChild size="lg" className="w-full px-6 font-semibold sm:w-auto">
                 <Link
                   to={primary.to}
                   {...(primary.params ? { params: primary.params as never } : {})}
@@ -251,18 +361,32 @@ function Dashboard() {
                   <PlayCircle className="size-4" aria-hidden /> Continue
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="px-4">
-                <Link to="/study-plan"><BookOpen className="size-4 text-primary" aria-hidden /><span className="hidden xs:inline">Study plan</span></Link>
+              <Button asChild variant="outline" size="lg" className="w-full border-border/80 bg-background/50 hover:bg-background sm:w-auto">
+                <Link to="/study-plan">
+                  <BookOpen className="size-4 text-primary" aria-hidden />
+                  Study plan
+                </Link>
               </Button>
             </div>
           </>
         ) : (
-          <Button asChild className="mt-3">
-            <Link to="/learn">Choose a topic</Link>
-          </Button>
+          <>
+            <div className="relative z-10">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-medium text-primary">
+                Start Learning
+              </span>
+              <h1 id="continue-heading" className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                Choose a topic
+              </h1>
+              <Button asChild className="mt-4">
+                <Link to="/learn">Choose a topic</Link>
+              </Button>
+            </div>
+          </>
         )}
+
         {d.hasAnyActivity && (actions.length > 0 || todayChips.length > 0) ? (
-          <details className="group relative z-10 mt-3">
+          <details className="group relative z-10 mt-4">
             <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground [&::-webkit-details-marker]:hidden">
               Other suggestions ({actions.length + todayChips.length})
               <ChevronRight className="size-4 transition-transform group-open:rotate-90" aria-hidden />
@@ -273,8 +397,9 @@ function Dashboard() {
             </div>
           </details>
         ) : null}
+
         {!d.hasAnyActivity ? (
-          <div className="mt-4 flex flex-wrap gap-4 border-t border-border/60 pt-3 text-sm">
+          <div className="relative z-10 mt-4 flex flex-wrap gap-4 border-t border-border/60 pt-3 text-sm">
             <Link to="/settings" className="text-muted-foreground hover:text-foreground">Check my goal</Link>
             <Link to="/guide" className="text-muted-foreground hover:text-foreground">How IT PATH works</Link>
           </div>
