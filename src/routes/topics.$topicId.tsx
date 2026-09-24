@@ -1,11 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowRight, BookOpen, Layers, Lock, MessagesSquare, RefreshCw } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, Clock, Layers, Lock, MessageSquare, Monitor, Network, RefreshCw, Settings, Shield, Terminal, Boxes, Briefcase, HardDrive, Laptop, Wrench } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { blockingTopic, isMastered, nextJourneyTopic } from "@/lib/journey-order";
 
 import { TopicLearningExperience, mediaFor } from "@/components/learning/topic-learning-experience";
+import { TopicRowMenu } from "@/components/learning/topic-row-menu";
+import { TopicQuickLinks } from "@/components/learning/topic-quick-links";
+import { TopicSubnav, type TopicTab } from "@/components/learning/topic-subnav";
 import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { certifications, lessons, topics, type Topic } from "@/data/static-content";
@@ -50,6 +53,20 @@ const TOPIC_SHORTCUTS = [
   { label: "Prove It", target: "#prove-it", when: () => true },
 ] as const;
 
+function getTopicIcon(topic: { id: string; title: string }) {
+  const text = `${topic.id} ${topic.title}`.toLowerCase();
+  if (text.includes("hardware") || text.includes("computer") || text.includes("pc") || text.includes("peripherals")) return Monitor;
+  if (text.includes("operating system") || text.includes("configuration")) return Settings;
+  if (text.includes("network") || text.includes("lan") || text.includes("ip") || text.includes("router")) return Network;
+  if (text.includes("command") || text.includes("terminal") || text.includes("cli") || text.includes("shell") || text.includes("bash")) return Terminal;
+  if (text.includes("virtual") || text.includes("cloud") || text.includes("vm") || text.includes("hypervisor")) return Boxes;
+  if (text.includes("career") || text.includes("work") || text.includes("professional") || text.includes("skills")) return Briefcase;
+  if (text.includes("security") || text.includes("threat") || text.includes("firewall") || text.includes("malware")) return Shield;
+  if (text.includes("storage") || text.includes("drive") || text.includes("raid") || text.includes("backup")) return HardDrive;
+  if (text.includes("troubleshoot") || text.includes("repair") || text.includes("diagnostic")) return Wrench;
+  return Laptop;
+}
+
 function TopicPage() {
   const { topicId } = Route.useParams();
   const topic = getTopic(topicId);
@@ -57,6 +74,7 @@ function TopicPage() {
   const { email } = useAuth();
   const refresh = useServerFn(refreshTopic);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<TopicTab>("overview");
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
 
   // Count that a lesson opened, and whether it had teaching to show.
@@ -143,64 +161,88 @@ function TopicPage() {
     }
   }
 
+  const TopicIcon = getTopicIcon(topic);
+  const status = mastered ? "Passed" : progress ? "In progress" : "Not started";
+  const availableTargets = new Set(
+    TOPIC_SHORTCUTS.filter((shortcut) => shortcut.when(topic)).map((shortcut) => shortcut.target),
+  );
+
   return (
-    <article>
+    <article className="mx-auto w-full max-w-4xl">
       <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, ...(certification ? [{ label: certification.title, to: "/certifications/$certId", params: { certId: certification.id } }] : []), { label: topic.title }]} />
 
-      <PageHeader title={topic.title} description={topic.summary} />
-
-      <div className="mb-6 flex flex-wrap gap-2">
-        {isOwner ? (
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
-            <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden />
-            {refreshing ? "Refreshing…" : "Refresh topic"}
-          </Button>
-        ) : null}
-        <Button asChild variant="secondary" size="sm">
-          <Link to="/flashcards/$topicId" params={{ topicId: topic.id }}>
-            <Layers aria-hidden />
-            Flashcards
-          </Link>
-        </Button>
-        <Button asChild variant="ghost" size="sm">
-          <Link to="/community" search={{ room: topic.id }}>
-            <MessagesSquare aria-hidden />
-            Discuss this section
-          </Link>
-        </Button>
-      </div>
-
-      <dl className="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-3">
-        {[
-          ["Certification", certification?.title ?? "General IT"],
-          ["Status", progress ? "In progress" : "Not started"],
-        ].map(([label, value], index) => (
-          <div
-            key={label}
-            className={index === 2 ? "col-span-2 min-w-0 bg-card p-4 sm:col-span-1" : "min-w-0 bg-card p-4"}
-          >
-            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</dt>
-            <dd className="mt-1 break-words text-sm font-medium">{value}</dd>
+      <section className="mb-4 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 text-primary">
+            <TopicIcon className="size-6" aria-hidden />
           </div>
-        ))}
-      </dl>
+          <div className="min-w-0 flex-1">
+            <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">Stage 01 · Learn It</p>
+            <h1 className="mt-0.5 font-display text-xl font-bold leading-tight text-foreground sm:text-2xl">{topic.title}</h1>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">{topic.summary}</p>
+          </div>
+        </div>
 
-      <Panel
-        className="mb-4"
-        title="Quick links"
-      >
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {TOPIC_SHORTCUTS.filter((shortcut) => shortcut.when(topic)).map((shortcut) => (
-            <li key={shortcut.label}>
-              <a href={shortcut.target} className="flex h-full items-center justify-between gap-2 rounded-lg border border-border bg-secondary/20 p-3 text-sm font-medium text-foreground transition-colors hover:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                {shortcut.label}
-                <ArrowRight className="size-4 shrink-0 text-primary" aria-hidden />
-              </a>
-            </li>
-          ))}
-        </ul>
-      </Panel>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {isOwner ? (
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+              <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden />
+              {refreshing ? "Refreshing…" : "Refresh topic"}
+            </Button>
+          ) : null}
+          <Button asChild variant="secondary" size="sm">
+            <Link to="/flashcards/$topicId" params={{ topicId: topic.id }}><Layers aria-hidden />Flashcards</Link>
+          </Button>
+          <TopicRowMenu topicId={topic.id} title={topic.title} />
+        </div>
 
+        <Button asChild variant="ghost" className="mt-2.5 h-11 w-full justify-between rounded-lg border border-border/60 bg-muted/20 px-3.5">
+          <Link to="/community" search={{ room: topic.id }}>
+            <span className="flex items-center gap-2"><MessageSquare className="size-4 text-primary" aria-hidden />Discuss this section</span>
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
+        </Button>
+
+        <dl className="mt-3 grid grid-cols-2 gap-2">
+          <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5">
+            <Shield className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <div className="min-w-0"><dt className="font-mono text-[10px] uppercase text-muted-foreground">Certification</dt><dd className="truncate text-xs font-semibold text-foreground">{certification?.title ?? "General IT"}</dd></div>
+          </div>
+          <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5">
+            {mastered ? <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden /> : <Clock className="size-4 shrink-0 text-primary" aria-hidden />}
+            <div className="min-w-0"><dt className="font-mono text-[10px] uppercase text-muted-foreground">Status</dt><dd className="truncate text-xs font-semibold text-foreground">{status}</dd></div>
+          </div>
+        </dl>
+      </section>
+
+      <TopicSubnav activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {activeTab === "overview" ? (
+        <>
+          <TopicQuickLinks availableTargets={availableTargets} />
+          <section className="mb-5 border-t border-border/60 pt-4">
+            <h2 className="mb-3 font-display text-lg font-bold text-foreground">Learning objectives</h2>
+            <ul className="space-y-3">
+              {topic.learningObjectives.map((objective) => (
+                <li key={objective} className="flex gap-3 text-sm leading-relaxed text-muted-foreground">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{objective}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </>
+      ) : activeTab === "objectives" ? (
+        <section className="mb-5 rounded-xl border border-border/70 bg-card p-4">
+          <h2 className="mb-3 font-display text-lg font-bold text-foreground">Learning objectives</h2>
+          <ul className="space-y-3">{topic.learningObjectives.map((objective) => <li key={objective} className="flex gap-3 text-sm text-muted-foreground"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{objective}</span></li>)}</ul>
+        </section>
+      ) : (
+        <div className="mb-5 rounded-xl border border-border/70 bg-card p-4 text-sm text-muted-foreground">
+          {activeTab === "resources"
+            ? "Resources, reading, videos, and sources remain available in the learning stages below."
+            : "Your lesson notes and bookmarks remain available in Keep Handy below."}
+        </div>
+      )}
 
       <TopicLearningExperience topic={topic} />
 
@@ -214,58 +256,10 @@ function TopicPage() {
       ) : null}
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-          <Panel title="Prerequisites">
-            {prerequisites.length === 0 ? (
-              <p className="text-sm text-muted-foreground">None. This topic starts from first principles.</p>
-            ) : (
-              <ul className="space-y-2">
-                {prerequisites.map((prerequisite) => (
-                  <li key={prerequisite.id}>
-                    <Link
-                      to="/topics/$topicId"
-                      params={{ topicId: prerequisite.id }}
-                      className="text-sm font-medium text-primary hover:underline"
-                    >
-                      {prerequisite.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Panel>
-
-          {topicLessons.map((lesson) => (
-            <Panel key={`${lesson.id}-next`} title="Next steps">
-              <ol className="space-y-3 text-sm text-muted-foreground">
-                {lesson.nextSteps.map((step, index) => {
-                  const marker = "Hardware Explorer";
-                  const at = step.indexOf(marker);
-                  return (
-                    <li key={step} className="flex gap-3">
-                      <span className="font-mono text-primary">{String(index + 1).padStart(2, "0")}</span>
-                      <span>
-                        {at === -1 ? (
-                          step
-                        ) : (
-                          <>
-                            {step.slice(0, at)}
-                            <Link
-                              to="/explore-hardware"
-                              className="font-medium text-primary hover:underline"
-                            >
-                              {marker}
-                            </Link>
-                            {step.slice(at + marker.length)}
-                          </>
-                        )}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
-            </Panel>
-          ))}
+        <Panel title="Prerequisites">
+          {prerequisites.length === 0 ? <p className="text-sm text-muted-foreground">None. This topic starts from first principles.</p> : <ul className="space-y-2">{prerequisites.map((prerequisite) => <li key={prerequisite.id}><Link to="/topics/$topicId" params={{ topicId: prerequisite.id }} className="text-sm font-medium text-primary hover:underline">{prerequisite.title}</Link></li>)}</ul>}
+        </Panel>
+        {topicLessons.map((lesson) => <Panel key={`${lesson.id}-next`} title="Next steps"><ol className="space-y-3 text-sm text-muted-foreground">{lesson.nextSteps.map((step, index) => <li key={step} className="flex gap-3"><span className="font-mono text-primary">{String(index + 1).padStart(2, "0")}</span><span>{step}</span></li>)}</ol></Panel>)}
       </div>
     </article>
-  );
-}
+  );}
