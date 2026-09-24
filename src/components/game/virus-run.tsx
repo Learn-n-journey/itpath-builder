@@ -533,6 +533,36 @@ export function VirusRun() {
         ctx2.stroke();
       }
 
+      // Moving circuit current and system-specific board accents.
+      ctx2.save();
+      for (let lane = 0; lane < 6; lane++) {
+        const y = offY + cell * (1.5 + lane * 2.6);
+        const travel = ((time / (18 + lane * 3)) % (cell * COLS + cell * 4)) - cell * 2;
+        ctx2.strokeStyle = lane % 2 === 0 ? "rgba(56,189,248,0.12)" : "rgba(45,212,191,0.10)";
+        ctx2.lineWidth = Math.max(0.6, cell * 0.035);
+        ctx2.beginPath();
+        ctx2.moveTo(offX, y);
+        ctx2.lineTo(offX + cell * COLS, y);
+        ctx2.stroke();
+        ctx2.fillStyle = lane % 2 === 0 ? "rgba(125,211,252,0.75)" : "rgba(94,234,212,0.7)";
+        ctx2.shadowColor = ctx2.fillStyle;
+        ctx2.shadowBlur = cell * 0.5;
+        ctx2.fillRect(offX + travel, y - cell * 0.045, cell * 0.65, cell * 0.09);
+      }
+      ctx2.restore();
+
+      if (run.theme.system === "CPU Cache" || run.theme.system === "System RAM" || run.theme.system === "GPU Memory") {
+        ctx2.save();
+        ctx2.globalAlpha = 0.12;
+        ctx2.strokeStyle = run.theme.wallEdge;
+        ctx2.lineWidth = Math.max(1, cell * 0.06);
+        for (let bank = 0; bank < 4; bank++) {
+          const bx = offX + cell * (3 + bank * 5.4);
+          ctx2.strokeRect(bx, offY + cell * 1.2, cell * 2.5, cell * 0.75);
+        }
+        ctx2.restore();
+      }
+
       // Walls as dimensional security architecture with illuminated traces.
       const pad = cell * 0.08;
       for (let y = 0; y < ROWS; y++) {
