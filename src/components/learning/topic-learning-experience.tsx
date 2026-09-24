@@ -96,22 +96,31 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
     // Owner content versions intentionally refresh workbook-backed questions.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topic.id, ownerVersion]);
-  const pickedRecall = useRef<{ topicId: string; ids: string[] } | null>(null);
-  const visibleRecall = useMemo(() => {
-    if (pickedRecall.current?.topicId === topic.id) {
-      const kept = pickedRecall.current.ids
-        .map((id) => recallQuestions.find((item) => item.id === id))
-        .filter((item): item is (typeof recallQuestions)[number] => Boolean(item));
-      if (kept.length > 0) return kept;
+  // Recall shown two at a time, required questions first, in a stable order for this visit.
+  const [recallPage, setRecallPage] = useState(0);
+  const recallOrder = useRef<{ topicId: string; ids: string[] } | null>(null);
+  const recallPool = useMemo(() => {
+    if (recallOrder.current?.topicId !== topic.id) {
+      const answeredWell = new Set(
+        user.recallResponses.filter((item) => item.topicId === topic.id && item.correct).map((item) => item.questionId),
+      );
+      const required = getRecallQuestions(topic.id);
+      const requiredIds = new Set(required.map((item) => item.id));
+      const extra = recallQuestions.filter((item) => !requiredIds.has(item.id));
+      const allRequiredDone = required.every((item) => answeredWell.has(item.id));
+      const ordered = required.length === 0 || allRequiredDone
+        ? [...recallQuestions.filter((item) => !answeredWell.has(item.id)), ...recallQuestions.filter((item) => answeredWell.has(item.id))]
+        : [...required.filter((item) => !answeredWell.has(item.id)), ...required.filter((item) => answeredWell.has(item.id)), ...extra];
+      recallOrder.current = { topicId: topic.id, ids: ordered.map((item) => item.id) };
     }
-    const answeredWell = new Set(
-      user.recallResponses.filter((item) => item.topicId === topic.id && item.correct).map((item) => item.questionId),
-    );
-    const fresh = recallQuestions.filter((item) => !answeredWell.has(item.id));
-    const chosen = fresh.length > 0 ? fresh.slice(0, 2) : recallQuestions.slice(0, 2);
-    pickedRecall.current = { topicId: topic.id, ids: chosen.map((item) => item.id) };
-    return chosen;
-  }, [recallQuestions, user.recallResponses, topic.id]);
+    return recallOrder.current.ids
+      .map((id) => recallQuestions.find((item) => item.id === id))
+      .filter((item): item is (typeof recallQuestions)[number] => Boolean(item));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recallQuestions, topic.id]);
+  const recallPageCount = Math.max(1, Math.ceil(recallPool.length / 2));
+  const safeRecallPage = Math.min(recallPage, recallPageCount - 1);
+  const visibleRecall = recallPool.slice(safeRecallPage * 2, safeRecallPage * 2 + 2);
 
   const practiceActivities = getPracticeActivities(topic.id);
   const practice = practiceActivities[0];
@@ -164,14 +173,16 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       const hash = window.location.hash.replace("#", "");
       if (hash === "recall") setProveTab("recall");
       else if (["teach-back", "scenario"].includes(hash)) setProveTab(hash);
-      else return;
+      else if (hash !== "practice") return;
       window.requestAnimationFrame(() => {
         document.getElementById(hash === "practice" ? "try-it" : "prove-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     };
     applyHash();
+    const onClickHash = () => window.setTimeout(applyHash, 0);
     window.addEventListener("hashchange", applyHash);
-    return () => window.removeEventListener("hashchange", applyHash);
+    window.addEventListener("itpath:hash", onClickHash);
+    return () => { window.removeEventListener("hashchange", applyHash); window.removeEventListener("itpath:hash", onClickHash); };
   }, []);
   const recallMarking = useAiMarking();
   const [markedRecallId, setMarkedRecallId] = useState<string | null>(null);
@@ -403,8 +414,8 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
           const feedback = recallFeedback[question.id];
           const sectionId = question.lessonSectionId ?? (question.id.includes("owner") || question.id.includes("work") ? undefined : lessonSectionId(topic.id, "core"));
           const mapped = resolveLessonSection(topic.id, sectionId, deepLesson);
-          return <Panel key={question.id} title={`Recall ${index + 1}`} description={question.prompt}><Label htmlFor={`recall-${question.id}`}>Answer from memory</Label><Textarea id={`recall-${question.id}`} className="mt-2" rows={5} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy && markedRecallId === question.id} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "GAYL is reading…" : "Check recall"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-success" : "text-muted-foreground"}`}>{feedback.correct ? "Correct. " : "Keep building it. "}{feedback.message}</p> : null}{feedback && !feedback.correct && mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={question.conceptId ?? `${topic.id}:recall:${question.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="recall" sourceItemId={question.id} /> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
-        })}</div></TabsContent> : null}
+          return <Panel key={question.id} title={`Recall ${safeRecallPage * 2 + index + 1}`} description={question.prompt}><Label htmlFor={`recall-${question.id}`}>Answer from memory</Label><Textarea id={`recall-${question.id}`} className="mt-2" rows={5} value={recallAnswers[question.id] ?? ""} onChange={(event) => setRecallAnswers((current) => ({ ...current, [question.id]: event.target.value }))} /><Button className="mt-3" disabled={recallMarking.busy && markedRecallId === question.id} onClick={() => void submitRecall(question.id)}>{recallMarking.busy && markedRecallId === question.id ? "GAYL is reading…" : "Check recall"}</Button>{feedback ? <p role="status" className={`mt-3 text-sm ${feedback.correct ? "text-success" : "text-muted-foreground"}`}>{feedback.correct ? "Correct. " : "Keep building it. "}{feedback.message}</p> : null}{feedback && !feedback.correct && mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={question.conceptId ?? `${topic.id}:recall:${question.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="recall" sourceItemId={question.id} /> : null}{markedRecallId === question.id ? <AiFeedback state={recallMarking} /> : null}</Panel>;
+        })}{recallPageCount > 1 ? <div className="flex flex-wrap items-center justify-between gap-2"><Button variant="outline" disabled={safeRecallPage === 0} onClick={() => setRecallPage(safeRecallPage - 1)}>Previous 2</Button><span className="text-sm text-muted-foreground">{safeRecallPage * 2 + 1}–{Math.min(recallPool.length, safeRecallPage * 2 + 2)} of {recallPool.length}</span><Button variant="outline" disabled={safeRecallPage >= recallPageCount - 1} onClick={() => { setRecallPage(safeRecallPage + 1); document.getElementById("recall")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Next 2</Button></div> : null}</div></TabsContent> : null}
         <TabsContent value="teach-back"><div id="teach-back" className="scroll-mt-24"><Panel title="Teach Back" description={ownerTeachBack?.prompt || "Explain this topic in your own words. GAYL reads it back and tells you what your explanation shows."}>{teachBackEditing ? <><Label htmlFor="teach-back-answer">Your explanation</Label><Textarea id="teach-back-answer" className="mt-2" rows={7} value={teachBack} onChange={(event) => setTeachBack(event.target.value)} /><div className="mt-3 flex flex-wrap gap-2"><Button disabled={teachBackMarking.busy} onClick={() => void saveTeachBack()}><Save />{teachBackMarking.busy ? "GAYL is reading…" : "Save"}</Button>{savedTeachBack ? <Button variant="outline" onClick={() => { setTeachBack(savedTeachBack.body); setTeachBackEditing(false); }}><FileText />Review saved response</Button> : null}</div></> : <><div className="whitespace-pre-wrap rounded-lg border border-border bg-secondary/30 p-4 text-sm text-muted-foreground">{savedTeachBack?.body}</div><Button className="mt-3" variant="outline" onClick={() => setTeachBackEditing(true)}><Edit3 />Edit</Button></>}<AiFeedback state={teachBackMarking} /></Panel></div></TabsContent>
         {scenario ? <TabsContent value="scenario"><div id="scenario" className="scroll-mt-24"><Panel title={scenario.title} description={scenario.situation}><p className="mb-4 text-sm font-medium">{scenario.decisionPrompt}</p><Label htmlFor="scenario-answer">Your decision and reasoning</Label><Textarea id="scenario-answer" className="mt-2" rows={6} value={scenarioAnswer} onChange={(event) => setScenarioAnswer(event.target.value)} /><Button className="mt-3" disabled={scenarioMarking.busy} onClick={() => void submitScenario()}>{scenarioMarking.busy ? "GAYL is reading…" : "Evaluate reasoning"}</Button>{scenarioFeedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{scenarioFeedback}</p> : null}{savedScenario && !savedScenario.meetsCriteria && (() => { const sectionId = scenario.lessonSectionId ?? (scenario.id.includes("owner") || scenario.id.includes("work") ? undefined : lessonSectionId(topic.id, "troubleshooting")); const mapped = resolveLessonSection(topic.id, sectionId, deepLesson); return mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={scenario.conceptId ?? `${topic.id}:scenario:${scenario.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="scenario" sourceItemId={scenario.id} /> : null; })()}<AiFeedback state={scenarioMarking} /></Panel></div></TabsContent> : null}
       </Tabs>

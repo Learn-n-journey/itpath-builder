@@ -18,15 +18,29 @@ const ROW = "flex gap-3 rounded-md p-1 -m-1 transition-colors hover:bg-muted/50"
 function CompetencyLink({
   topicId,
   competencyKey,
+  required,
   children,
 }: {
   topicId: string;
   competencyKey: string;
+  required?: boolean;
   children: React.ReactNode;
 }) {
   if (competencyKey === "practicalAbility") {
     return (
       <Link to="/labs" search={{ lab: identificationLabId(topicId) }} className={ROW}>
+        {children}
+      </Link>
+    );
+  }
+  const hash = competencyKey === "recall" ? "recall"
+    : competencyKey === "understanding" ? "teach-back"
+    : competencyKey === "application" ? (required ? "scenario" : "practice")
+    : undefined;
+  if (hash) {
+    return (
+      <Link to="/topics/$topicId" params={{ topicId }} hash={hash} className={ROW}
+        onClick={() => window.dispatchEvent(new Event("itpath:hash"))}>
         {children}
       </Link>
     );
@@ -52,7 +66,7 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
       <ul className="space-y-3">
         {required.map((item) => (
           <li key={item.key} className="text-sm">
-            <CompetencyLink topicId={topicId} competencyKey={item.key}>
+            <CompetencyLink topicId={topicId} competencyKey={item.key} required>
               <span
                 className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border ${
                   item.met
@@ -71,7 +85,7 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
                   {item.met ? item.detail : `${item.requirement} ${item.detail}`}
                 </span>
                 <span className="mt-1 block text-xs font-medium text-primary">
-                  {item.met ? "Open it again" : "Open the quiz"}
+                  {item.met ? "Open it again" : item.key === "knowledge" ? "Open the quiz" : "Open it"}
                 </span>
               </span>
             </CompetencyLink>
