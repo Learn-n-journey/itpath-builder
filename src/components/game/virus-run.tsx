@@ -643,6 +643,20 @@ export function VirusRun() {
         ctx2.restore();
       }
 
+      // Runner trail: dissolving data fragments imply motion through the system.
+      const trailX = offX + (run.player.x + 0.5) * cell;
+      const trailY = offY + (run.player.y + 0.5) * cell;
+      ctx2.save();
+      for (let i = 0; i < 5; i++) {
+        const angle = time / 420 + i * 1.7;
+        const distance = cell * (0.55 + i * 0.24);
+        const size = Math.max(1.5, cell * (0.11 - i * 0.012));
+        ctx2.globalAlpha = 0.32 - i * 0.045;
+        ctx2.fillStyle = i % 2 === 0 ? "#5eead4" : "#38bdf8";
+        ctx2.fillRect(trailX - Math.cos(angle) * distance - size / 2, trailY - Math.sin(angle) * distance - size / 2, size, size);
+      }
+      ctx2.restore();
+
       // Player: layered bio-digital organism with nucleus, membrane and orbit.
       const pcx = offX + (run.player.x + 0.5) * cell;
       const pcy = offY + (run.player.y + 0.5) * cell;
