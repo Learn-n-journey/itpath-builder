@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, ClipboardList, LayoutDashboard, Menu, Route as RouteIcon } from "lucide-react";
+import { CalendarCheck2, ClipboardList, LayoutDashboard, Menu, Route as RouteIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { accentText, featureAccent } from "@/lib/visual-accents";
@@ -7,7 +7,7 @@ import { accentText, featureAccent } from "@/lib/visual-accents";
 const items = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "My Path", to: "/my-path", icon: RouteIcon },
-  { label: "Learn", to: "/learn", icon: BookOpen },
+  { label: "Study Plan", to: "/study-plan", icon: CalendarCheck2 },
   { label: "Practice", to: "/practice", icon: ClipboardList },
 ] as const;
 
