@@ -187,7 +187,7 @@ function MyPath() {
             const hasActivity = hasTopicActivity(user, entry.topic.id) || entry.mastery > 0;
             const TopicIcon = getTopicIcon(entry.topic);
             const metadata = topicStatusMetadata(entry, user, isFeatured);
-            const stepNumber = idx + 1;
+            const stepNumber = visibleStartIndex + idx + 1;
 
             return (
               <div key={entry.topic.id} className="relative flex items-center gap-3 sm:gap-4">
