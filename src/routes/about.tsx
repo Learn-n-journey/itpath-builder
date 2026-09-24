@@ -17,13 +17,13 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "IT PATH is a serious, certification-based study platform for IT and cybersecurity beginners. Created by David Boley.",
+          "IT PATH is a structured, practical learning platform for IT and cybersecurity beginners. Created by David Boley.",
       },
       { property: "og:title", content: "About IT PATH" },
       {
         property: "og:description",
         content:
-          "A structured, certification-based path from IT beginner to cybersecurity professional.",
+          "A structured path from IT beginner to advanced technical skills.",
       },
     ],
   }),
@@ -50,7 +50,7 @@ function AboutPage() {
             I built IT PATH for beginners who want a clear route into IT and cybersecurity, with
             studying that feels active rather than an endless playlist. Each topic brings together
             lessons, recall, practice tasks, labs, quizzes, troubleshooting and teach-back. It suits
-            certification students, and anyone curious how the devices and networks they use every
+            beginners, career changers, and anyone curious how the devices and networks they use every
             day actually work.
           </p>
           <p className="mt-3 text-sm text-muted-foreground">
