@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CircuitBoard, MousePointerClick, Cpu } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, CircuitBoard, Cpu, MousePointerClick, RotateCcw, Trophy } from "lucide-react";
 
-import { PageHeader, Panel } from "@/components/page-kit";
 import { hardwareComponents, type HardwarePart } from "@/data/hardware-explorer";
 import { hardwarePhotos } from "@/components/hardware/photos";
 import { cn } from "@/lib/utils";
@@ -11,17 +10,8 @@ export const Route = createFileRoute("/explore-hardware")({
   head: () => ({
     meta: [
       { title: "Explore Hardware | IT PATH" },
-      {
-        name: "description",
-        content:
-          "Interactive diagrams of a motherboard, RAM, graphics card and NVMe SSD. Tap any part to learn what it is and what it does.",
-      },
+      { name: "description", content: "Explore computer hardware, learn its parts step by step, and test yourself with visual identification questions." },
       { property: "og:title", content: "Explore Hardware | IT PATH" },
-      {
-        property: "og:description",
-        content:
-          "Interactive diagrams of a motherboard, RAM, graphics card and NVMe SSD. Tap any part to learn what it is and what it does.",
-      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -30,161 +20,190 @@ export const Route = createFileRoute("/explore-hardware")({
   component: ExploreHardwarePage,
 });
 
+type Mode = "explore" | "learn" | "quiz";
+
 function ExploreHardwarePage() {
   const [componentId, setComponentId] = useState(hardwareComponents[0]!.id);
   const [partId, setPartId] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>("explore");
+  const [learnStep, setLearnStep] = useState(0);
+  const [quizStep, setQuizStep] = useState(0);
+  const [quizAnswer, setQuizAnswer] = useState<string | null>(null);
+  const [quizScore, setQuizScore] = useState(0);
 
   const component = hardwareComponents.find((c) => c.id === componentId)!;
   const photo = hardwarePhotos[component.id]!;
   const selected: HardwarePart | null = component.parts.find((p) => p.id === partId) ?? null;
+  const lessonPart = component.parts[learnStep % component.parts.length]!;
+  const quizPart = component.parts[quizStep % component.parts.length]!;
+  const quizChoices = component.parts.slice(0, Math.min(4, component.parts.length));
+  const choices = quizChoices.some((p) => p.id === quizPart.id)
+    ? quizChoices
+    : [quizPart, ...quizChoices.slice(0, 3)];
 
   const pickComponent = (id: string) => {
     setComponentId(id);
     setPartId(null);
+    setLearnStep(0);
+    setQuizStep(0);
+    setQuizAnswer(null);
+    setQuizScore(0);
+  };
+
+  const chooseQuiz = (id: string) => {
+    if (quizAnswer) return;
+    setQuizAnswer(id);
+    if (id === quizPart.id) setQuizScore((score) => score + 1);
+  };
+
+  const nextQuiz = () => {
+    setQuizStep((step) => (step + 1) % component.parts.length);
+    setQuizAnswer(null);
   };
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-6 sm:px-6">
-      <PageHeader
-        title="Explore Hardware"
-        description="Tap the numbered markers on each photo to see what that part is and what it does."
-      />
+    <div className="mx-auto w-full max-w-6xl px-4 pb-24 pt-6 sm:px-6">
+      <header className="mb-5 flex flex-col gap-4 border-b border-border/70 pb-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Explore Hardware</h1>
+            <CircuitBoard className="size-5 text-primary" aria-hidden />
+          </div>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            Click a part to learn what it does, see how it fits into the system, then test yourself.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 rounded-lg border border-border/70 bg-card/40 p-1">
+          <ModeButton active={mode === "explore"} onClick={() => setMode("explore")} icon={<Cpu className="size-4" />}>Explore</ModeButton>
+          <ModeButton active={mode === "learn"} onClick={() => setMode("learn")} icon={<BookOpen className="size-4" />}>Learn</ModeButton>
+          <ModeButton active={mode === "quiz"} onClick={() => setMode("quiz")} icon={<Trophy className="size-4" />}>Quiz</ModeButton>
+        </div>
+      </header>
 
-      <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Hardware components">
-        {hardwareComponents.map((c) => (
-          <button
-            key={c.id}
-            role="tab"
-            aria-selected={c.id === componentId}
-            onClick={() => pickComponent(c.id)}
-            className={cn(
-              "motion-press rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-              c.id === componentId
-                ? "border-primary bg-primary/10 text-primary"
-                : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground",
-            )}
-          >
-            {c.name}
+      <div className="mb-5 flex flex-wrap gap-2" role="tablist" aria-label="Hardware components">
+        {hardwareComponents.map((item) => (
+          <button key={item.id} role="tab" aria-selected={item.id === componentId} onClick={() => pickComponent(item.id)}
+            className={cn("motion-press rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+              item.id === componentId ? "border-primary bg-primary text-primary-foreground" : "border-border/70 bg-card/30 text-muted-foreground hover:text-foreground")}>
+            {item.name}
           </button>
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <Panel title={component.name} description={component.tagline}>
-          <div className="relative mx-auto mt-2 max-w-xl">
-            <img
-              src={photo.src}
-              alt={photo.alt}
-              width={photo.width}
-              height={photo.height}
-              loading="lazy"
-              className="w-full rounded-lg border border-border"
-            />
-            {component.parts.map((p, i) => {
-              const active = p.id === partId;
-              return (
-                <button
-                  key={p.id}
-                  onClick={() => setPartId(active ? null : p.id)}
-                  aria-label={`Part ${i + 1}: ${p.name}`}
-                  aria-pressed={active}
-                  style={{ left: `${p.x}%`, top: `${p.y}%` }}
-                  className={cn(
-                    "motion-press absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border text-sm font-bold shadow-lg ring-2 backdrop-blur-[2px] transition-all",
-                    active
-                      ? "scale-110 border-primary bg-primary text-primary-foreground ring-primary/60"
-                      : "border-primary/70 bg-background/85 text-primary ring-background/40 hover:scale-110 hover:bg-primary hover:text-primary-foreground",
-                  )}
-                >
-                  {i + 1}
+      {mode === "explore" ? (
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,1fr)]">
+          <HardwareImage component={component} photo={photo} activeId={partId} onPick={(id) => setPartId(id === partId ? null : id)} />
+          <div className="overflow-hidden rounded-xl border border-border/70 bg-card/30">
+            {selected ? <PartDetail part={selected} index={component.parts.findIndex((p) => p.id === selected.id) + 1} /> : (
+              <div className="flex min-h-40 flex-col items-center justify-center gap-3 border-b border-border/70 p-6 text-center text-sm text-muted-foreground">
+                <Cpu className="size-8 text-primary" aria-hidden />
+                <p>Pick a numbered marker or choose a part below.</p>
+              </div>
+            )}
+            <div className="p-3">
+              <h2 className="px-2 pb-2 font-display text-base font-semibold">Part list</h2>
+              {component.parts.map((part, index) => (
+                <button key={part.id} onClick={() => setPartId(part.id)}
+                  className={cn("flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition-colors hover:bg-secondary/60", part.id === partId && "bg-secondary")}>
+                  <span className={cn("flex size-6 shrink-0 items-center justify-center rounded-full border text-xs font-semibold", part.id === partId ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground")}>{index + 1}</span>
+                  <span className="min-w-0 flex-1">{part.name}</span>
+                  <ChevronRight className="size-4 text-muted-foreground" aria-hidden />
                 </button>
-              );
-            })}
-          </div>
-          <p className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <MousePointerClick className="h-3.5 w-3.5" aria-hidden />
-            Tap a number to inspect that part
-          </p>
-        </Panel>
-
-        <div className="space-y-4">
-          {selected ? (
-            <Panel className="motion-surface border-primary/40">
-              <div className="flex items-center gap-2">
-                <span className="h-3 w-0.5 shrink-0 bg-primary" aria-hidden />
-                <h2 className="font-display text-base font-semibold">{selected.name}</h2>
-              </div>
-              <div className="mt-4 space-y-4 text-sm leading-relaxed">
-                <div>
-                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    What it is
-                  </p>
-                  <p>{selected.whatItIs}</p>
-                </div>
-                <div>
-                  <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    What it does
-                  </p>
-                  <p>{selected.whatItDoes}</p>
-                </div>
-                <div className="rounded-md border border-primary/30 bg-primary/5 p-3">
-                  <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-primary">
-                    <CircuitBoard className="h-3.5 w-3.5" aria-hidden />
-                    Worth remembering
-                  </p>
-                  <p className="text-muted-foreground">{selected.gaylNote}</p>
-                </div>
-              </div>
-            </Panel>
-          ) : (
-            <Panel className="text-sm text-muted-foreground">
-              <div className="flex flex-col items-center gap-3 py-8 text-center">
-                <Cpu className="h-8 w-8 text-primary/60" aria-hidden />
-                <p>
-                  Pick a numbered marker on the {component.name.toLowerCase()} and the part's
-                  story shows up here.
-                </p>
-              </div>
-            </Panel>
-          )}
-
-          <Panel title="Part list">
-            <ol className="space-y-1.5 text-sm">
-              {component.parts.map((p, i) => (
-                <li key={p.id}>
-                  <button
-                    onClick={() => setPartId(p.id)}
-                    className={cn(
-                      "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-muted/60",
-                      p.id === partId && "bg-primary/10 text-primary",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold",
-                        p.id === partId
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-border text-muted-foreground",
-                      )}
-                    >
-                      {i + 1}
-                    </span>
-                    {p.name}
-                  </button>
-                </li>
               ))}
-            </ol>
-          </Panel>
-
-          <p className="text-xs text-muted-foreground">
-            Learning the theory? Pair this with the{" "}
-            <Link to="/topics/$topicId" params={{ topicId: "topic-computer-hardware-basics" }} className="text-primary underline-offset-2 hover:underline">
-              Computer Hardware Basics
-            </Link>{" "}
-            lesson.
-          </p>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : null}
+
+      {mode === "learn" ? (
+        <div className="grid gap-5 lg:grid-cols-[minmax(18rem,2fr)_minmax(0,3fr)]">
+          <div className="rounded-xl border border-border/70 bg-card/30 p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div><p className="text-xs font-semibold uppercase tracking-wider text-primary">Step {learnStep + 1}</p><h2 className="mt-1 font-display text-2xl font-semibold">{lessonPart.name}</h2></div>
+              <span className="text-sm text-muted-foreground">{learnStep + 1} / {component.parts.length}</span>
+            </div>
+            <div className="mt-4 h-1 overflow-hidden rounded-full bg-secondary"><div className="h-full bg-primary" style={{ width: `${((learnStep + 1) / component.parts.length) * 100}%` }} /></div>
+            <div className="mt-6 space-y-5 text-sm leading-6">
+              <section><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">What it is</p><p className="mt-1">{lessonPart.whatItIs}</p></section>
+              <section><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">What it does</p><p className="mt-1">{lessonPart.whatItDoes}</p></section>
+              <section className="rounded-lg border border-primary/30 bg-primary/5 p-4"><p className="text-xs font-semibold uppercase tracking-wider text-primary">Why it matters</p><p className="mt-1 text-muted-foreground">{lessonPart.gaylNote}</p></section>
+            </div>
+            <div className="mt-6 flex gap-2">
+              <button disabled={learnStep === 0} onClick={() => setLearnStep((s) => Math.max(0, s - 1))} className="rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-40"><ChevronLeft className="size-4" /></button>
+              <button onClick={() => setLearnStep((s) => (s + 1) % component.parts.length)} className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Next step <ChevronRight className="size-4" /></button>
+            </div>
+          </div>
+          <HardwareImage component={component} photo={photo} activeId={lessonPart.id} onPick={(id) => setLearnStep(Math.max(0, component.parts.findIndex((p) => p.id === id)))} />
+        </div>
+      ) : null}
+
+      {mode === "quiz" ? (
+        <div className="grid gap-5 lg:grid-cols-[minmax(18rem,3fr)_minmax(18rem,2fr)]">
+          <div className="rounded-xl border border-border/70 bg-card/30 p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="h-1 flex-1 overflow-hidden rounded-full bg-secondary"><div className="h-full bg-primary" style={{ width: `${((quizStep + 1) / component.parts.length) * 100}%` }} /></div>
+              <span className="text-xs text-muted-foreground">Question {quizStep + 1} of {component.parts.length}</span>
+            </div>
+            <h2 className="mt-6 font-display text-xl font-semibold">Which part is marker {component.parts.findIndex((p) => p.id === quizPart.id) + 1}?</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Identify the highlighted hardware component.</p>
+            <div className="mt-5 space-y-2">
+              {choices.map((choice, index) => {
+                const answered = quizAnswer !== null;
+                const correct = choice.id === quizPart.id;
+                const picked = choice.id === quizAnswer;
+                return <button key={choice.id} onClick={() => chooseQuiz(choice.id)}
+                  className={cn("flex w-full items-center gap-3 rounded-lg border border-border/70 px-4 py-3 text-left text-sm transition-colors",
+                    answered && correct && "border-primary bg-primary/10 text-primary",
+                    answered && picked && !correct && "border-destructive bg-destructive/10")}>
+                  <span className="flex size-6 items-center justify-center rounded-full bg-secondary text-xs font-semibold">{String.fromCharCode(65 + index)}</span>{choice.name}
+                </button>;
+              })}
+            </div>
+            {quizAnswer ? (
+              <div className={cn("mt-5 rounded-lg border p-4", quizAnswer === quizPart.id ? "border-primary/40 bg-primary/5" : "border-destructive/40 bg-destructive/5")}>
+                <p className="font-semibold">{quizAnswer === quizPart.id ? "Correct." : `The answer is ${quizPart.name}.`}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{quizPart.whatItDoes}</p>
+                <button onClick={nextQuiz} className="mt-4 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Next question <ChevronRight className="size-4" /></button>
+              </div>
+            ) : null}
+          </div>
+          <div>
+            <HardwareImage component={component} photo={photo} activeId={quizPart.id} onPick={() => {}} interactive={false} />
+            <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground"><span>Score: {quizScore}</span><button onClick={() => { setQuizStep(0); setQuizScore(0); setQuizAnswer(null); }} className="flex items-center gap-1 hover:text-foreground"><RotateCcw className="size-4" /> Reset quiz</button></div>
+          </div>
+        </div>
+      ) : null}
+
+      <p className="mt-6 text-xs text-muted-foreground">Want the full theory? Continue with the{" "}
+        <Link to="/topics/$topicId" params={{ topicId: "topic-computer-hardware-basics" }} className="text-primary hover:underline">Computer Hardware Basics</Link> lesson.
+      </p>
     </div>
   );
+}
+
+function ModeButton({ active, onClick, icon, children }: { active: boolean; onClick: () => void; icon: React.ReactNode; children: React.ReactNode }) {
+  return <button type="button" onClick={onClick} className={cn("flex items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors", active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-secondary hover:text-foreground")}>{icon}{children}</button>;
+}
+
+function HardwareImage({ component, photo, activeId, onPick, interactive = true }: { component: (typeof hardwareComponents)[number]; photo: (typeof hardwarePhotos)[string]; activeId: string | null; onPick: (id: string) => void; interactive?: boolean }) {
+  return <div className="overflow-hidden rounded-xl border border-border/70 bg-card/30">
+    <div className="flex items-center justify-between border-b border-border/70 px-4 py-3"><div><h2 className="font-display font-semibold">{component.name}</h2><p className="text-xs text-muted-foreground">{component.tagline}</p></div><span className="text-xs text-muted-foreground">{component.parts.length} parts</span></div>
+    <div className="p-3 sm:p-4"><div className="relative mx-auto">
+      <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className="w-full rounded-lg border border-border" />
+      {component.parts.map((part, index) => {
+        const active = part.id === activeId;
+        return <button key={part.id} type="button" disabled={!interactive} onClick={() => onPick(part.id)} aria-label={`Part ${index + 1}: ${part.name}`} style={{ left: `${part.x}%`, top: `${part.y}%` }}
+          className={cn("absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border text-xs font-bold shadow-lg ring-2 ring-background transition-all",
+            active ? "scale-110 border-primary bg-primary text-primary-foreground" : "border-primary bg-background/90 text-primary", interactive && !active && "hover:scale-110")}>{index + 1}</button>;
+      })}
+    </div></div>
+    <div className="flex items-center justify-center gap-2 border-t border-border/70 px-4 py-3 text-xs text-muted-foreground"><MousePointerClick className="size-4" aria-hidden />{interactive ? "Tap a numbered marker to inspect that part" : "Identify the highlighted marker"}</div>
+  </div>;
+}
+
+function PartDetail({ part, index }: { part: HardwarePart; index: number }) {
+  return <div className="border-b border-border/70 p-5">
+    <div className="flex items-start gap-3"><span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-primary bg-primary/10 font-semibold text-primary">{index}</span><div><h2 className="font-display text-xl font-semibold">{part.name}</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">{part.whatItIs}</p></div></div>
+    <div className="mt-5 space-y-4 text-sm leading-6"><section><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">How it works</p><p className="mt-1">{part.whatItDoes}</p></section><section className="rounded-lg border border-primary/30 bg-primary/5 p-3"><p className="text-xs font-semibold uppercase tracking-wider text-primary">Worth remembering</p><p className="mt-1 text-muted-foreground">{part.gaylNote}</p></section></div>
+  </div>;
 }
