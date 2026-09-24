@@ -113,7 +113,7 @@ function LabsPage() {
     const focusIds = new Set(focus.topics.map((topic) => topic.id));
     return shuffleWithSeed(labs, seed).sort((a, b) => Number(focusIds.has(b.topicId)) - Number(focusIds.has(a.topicId)));
   }, [focus.topics, seed]);
-  const lab = shuffled.find((item) => item.id === selectedId) ?? shuffled[0];
+  const lab = shuffled.find((item) => item.id === selectedId);
   const attempts = user.labAttempts;
   const latest = lab ? attempts.find((attempt) => attempt.labId === lab.id) : undefined;
   // Arriving from a section opens that one lab on its own, not the whole menu.
@@ -204,24 +204,43 @@ function LabsPage() {
             const visual = categoryVisuals[item.category];
             const Icon = visual.icon;
             const topic = topics.find((entry) => entry.id === item.topicId);
+            const selected = item.id === lab?.id;
             return (
-              <button key={item.id} type="button" onClick={() => setSelectedId(item.id)} className={cn("group flex w-full items-center gap-3 rounded-xl border bg-card/70 p-3 text-left transition-colors hover:bg-accent/50", item.id === lab?.id ? "border-primary/55 shadow-sm" : "border-border/70")}>
-                <span className={cn("grid size-12 shrink-0 place-items-center rounded-lg ring-1 ring-inset", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{categoryLabels[item.category]}</span>
-                  <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
-                  <span className="mt-1 block truncate text-xs text-muted-foreground">{topic?.title ?? learnerStatusLabel(itemAttempt?.status)}{itemAttempt ? ` · ${learnerStatusLabel(itemAttempt.status)}` : " · Not started"}</span>
-                </span>
-                <span className="hidden shrink-0 text-xs font-medium text-primary sm:inline">{itemAttempt?.status === "in_progress" ? "Continue" : "Start"}</span>
-                <ArrowRight className="size-4 shrink-0 text-primary" aria-hidden />
-              </button>
+              <div key={item.id} className={cn("overflow-hidden rounded-xl border bg-card/70 transition-colors", selected ? "border-primary/55 shadow-sm" : "border-border/70")}>
+                <button type="button" aria-expanded={selected} onClick={() => setSelectedId(selected ? "" : item.id)} className="group flex w-full items-center gap-3 p-3 text-left hover:bg-accent/50">
+                  <span className={cn("grid size-12 shrink-0 place-items-center rounded-lg ring-1 ring-inset", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{categoryLabels[item.category]}</span>
+                    <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
+                    <span className="mt-1 block truncate text-xs text-muted-foreground">{topic?.title ?? learnerStatusLabel(itemAttempt?.status)}{itemAttempt ? ` · ${learnerStatusLabel(itemAttempt.status)}` : " · Not started"}</span>
+                  </span>
+                  <ArrowRight className={cn("size-4 shrink-0 text-primary transition-transform", selected && "rotate-90")} aria-hidden />
+                </button>
+                {selected ? (
+                  <div className="border-t border-border/70 bg-muted/20 px-4 py-4">
+                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">Lab objective</p>
+                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.objective}</p>
+                    <div className="mt-4">
+                      <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">You'll practice</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <Badge variant="outline">{categoryLabels[item.category]}</Badge>
+                        {topic ? <Badge variant="outline">{topic.title}</Badge> : null}
+                        <Badge variant="outline">{item.environment}</Badge>
+                      </div>
+                    </div>
+                    <Button className="mt-4 w-full sm:w-auto" onClick={(event) => { event.stopPropagation(); document.getElementById("selected-lab-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
+                      {itemAttempt?.status === "in_progress" ? "Continue Lab" : "Start Lab"} <ArrowRight />
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
             );
           })}
         </div>
       </section>
 
       {lab ? (
-        <div className="mt-7 border-t border-border pt-6">
+        <div id="selected-lab-workspace" className="mt-7 scroll-mt-24 border-t border-border pt-6">
           <LabWorkspace key={lab.id} lab={lab} {...(latest ? { latestAttempt: latest } : {})} />
         </div>
       ) : null}
