@@ -28,7 +28,16 @@ export const Route = createFileRoute("/meditation")({
   component: MeditationPage,
 });
 
-const BREATH_SECONDS = 16;
+const breathingExercises = [
+  { id: "box", label: "Box Breathing", detail: "Calm & focused", inhale: 4, hold: 4, exhale: 4, rest: 4 },
+  { id: "relax", label: "Relax & Unwind", detail: "Longer exhale", inhale: 4, hold: 2, exhale: 6, rest: 2 },
+  { id: "balanced", label: "Balanced", detail: "Smooth & steady", inhale: 5, hold: 0, exhale: 5, rest: 0 },
+  { id: "deep", label: "4-7-8 Breathing", detail: "Slow & deliberate", inhale: 4, hold: 7, exhale: 8, rest: 0 },
+  { id: "coherent", label: "Coherent Breathing", detail: "Gentle rhythm", inhale: 5, hold: 0, exhale: 5, rest: 0 },
+] as const;
+
+type BreathingExercise = (typeof breathingExercises)[number];
+
 const sessions = [5, 10, 15, 20] as const;
 const sounds = [
   { id: "rain", label: "Rain", detail: "Natural rain ambience", icon: CloudRain, src: "/audio/meditation/rain.mp3" },
@@ -39,6 +48,7 @@ function MeditationPage() {
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [sessionMinutes, setSessionMinutes] = useState<number | null>(10);
+  const [exerciseId, setExerciseId] = useState<BreathingExercise["id"]>("box");
   const [sound, setSound] = useState<(typeof sounds)[number]["id"] | null>(null);
   const [bellsEnabled, setBellsEnabled] = useState(true);
   const [volume, setVolume] = useState(45);
@@ -91,14 +101,17 @@ function MeditationPage() {
       lastBreathCueRef.current = null;
       return;
     }
-    const phase = elapsed % BREATH_SECONDS;
-    const cue = phase < 4 ? "inhale" : phase >= 8 && phase < 12 ? "exhale" : null;
+    const exercise = breathingExercises.find((item) => item.id === exerciseId) ?? breathingExercises[0];
+    const cycleSeconds = exercise.inhale + exercise.hold + exercise.exhale + exercise.rest;
+    const phase = elapsed % cycleSeconds;
+    const exhaleStart = exercise.inhale + exercise.hold;
+    const cue = phase < exercise.inhale ? "inhale" : phase >= exhaleStart && phase < exhaleStart + exercise.exhale ? "exhale" : null;
     if (cue && cue !== lastBreathCueRef.current) {
       playBell(cue);
       lastBreathCueRef.current = cue;
     }
     if (!cue) lastBreathCueRef.current = null;
-  }, [bellsEnabled, elapsed, running]);
+  }, [bellsEnabled, elapsed, exerciseId, running]);
 
   function stopSound() {
     backgroundAudioRef.current?.pause();
@@ -151,9 +164,22 @@ function MeditationPage() {
     setSound(null);
   }
 
-  const phase = elapsed % BREATH_SECONDS;
-  const instruction = phase < 4 ? "Inhale" : phase < 8 ? "Hold" : phase < 12 ? "Exhale" : "Rest";
-  const phaseSeconds = 4 - (phase % 4);
+  const exercise = breathingExercises.find((item) => item.id === exerciseId) ?? breathingExercises[0];
+  const cycleSeconds = exercise.inhale + exercise.hold + exercise.exhale + exercise.rest;
+  const phase = elapsed % cycleSeconds;
+  const inhaleEnd = exercise.inhale;
+  const holdEnd = inhaleEnd + exercise.hold;
+  const exhaleEnd = holdEnd + exercise.exhale;
+  const instruction = phase < inhaleEnd
+    ? "Inhale"
+    : exercise.hold > 0 && phase < holdEnd
+      ? "Hold"
+      : phase < exhaleEnd
+        ? "Exhale"
+        : "Rest";
+  const phaseStart = instruction === "Inhale" ? 0 : instruction === "Hold" ? inhaleEnd : instruction === "Exhale" ? holdEnd : exhaleEnd;
+  const phaseDuration = instruction === "Inhale" ? exercise.inhale : instruction === "Hold" ? exercise.hold : instruction === "Exhale" ? exercise.exhale : exercise.rest;
+  const phaseSeconds = Math.max(1, phaseDuration - (phase - phaseStart));
   const minutes = Math.floor(elapsed / 60);
   const seconds = String(elapsed % 60).padStart(2, "0");
 
@@ -187,11 +213,40 @@ function MeditationPage() {
                 <Wind className="size-4 text-feature-cyan" aria-hidden />
                 <h2 className="font-semibold">Breathing Exercise</h2>
               </div>
-              <div className="rounded-xl border border-primary/50 bg-primary/10 p-4">
-                <p className="font-mono text-lg font-semibold">4 · 4 · 4 · 4</p>
-                <p className="text-xs text-muted-foreground">Calm & focused</p>
+              <div className="space-y-2">
+                {breathingExercises.map((item) => {
+                  const active = exerciseId === item.id;
+                  const timing = [item.inhale, item.hold, item.exhale, item.rest].filter((value) => value > 0).join(" · ");
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => {
+                        setExerciseId(item.id);
+                        setElapsed(0);
+                        stopBell();
+                        lastBreathCueRef.current = null;
+                      }}
+                      className={cn(
+                        "w-full rounded-xl border px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                        active ? "border-primary/60 bg-primary/10" : "border-white/15 bg-background/20 hover:bg-background/35",
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span>
+                          <span className="block text-sm font-semibold">{item.label}</span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground">{item.detail}</span>
+                        </span>
+                        <span className="shrink-0 font-mono text-xs text-white/70">{timing}</span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              <p className="mt-3 text-xs leading-5 text-muted-foreground">Inhale for 4 seconds, hold for 4, exhale for 4, then rest for 4.</p>
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                {exercise.inhale}s inhale{exercise.hold ? ` · ${exercise.hold}s hold` : ""} · {exercise.exhale}s exhale{exercise.rest ? ` · ${exercise.rest}s rest` : ""}
+              </p>
             </div>
 
             <div className="flex flex-col items-center">
