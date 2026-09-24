@@ -135,7 +135,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <MaintenanceGate pathname={pathname}>
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background">
+      <div className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png')" }} aria-hidden />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-background/55" aria-hidden />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-background/15 via-background/35 to-background/80" aria-hidden />
       <StudyReminder />
       <WelcomeTour />
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
@@ -179,7 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Button>
       </header>
 
-      <main className={cn("pb-16 lg:pl-68 lg:pb-0")}>
+      <main className={cn("relative z-10 pb-16 lg:pl-68 lg:pb-0")}>
         <div className="mx-auto w-full max-w-6xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
           <StudyTabs />
           <div key={pathname} className="page-enter" data-page-content>
