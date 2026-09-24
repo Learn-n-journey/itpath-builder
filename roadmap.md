@@ -192,3 +192,5 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Confirm written answers mark without AI
 - [x] Practice It stage above Prove It (practice + check yourself), not counted toward mastery
 - [x] Replace self-explanatory lesson captions with tap/hover ? help
+
+28. [ ] Move nonessential learner-page captions behind accessible question-mark help controls; preserve essential instructions, status, feedback, and learning content.
