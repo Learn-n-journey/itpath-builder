@@ -15,7 +15,7 @@ export function SectionTabs({ tabs, variant = "pills" }: { tabs: SectionTab[]; v
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <nav className={cn("mb-5", variant === "segmented" ? "grid w-full max-w-md grid-cols-2 rounded-full border border-border bg-card p-1" : "flex gap-2 overflow-x-auto pb-1")} aria-label="Section views">
+    <nav className={cn("mb-5", variant === "segmented" ? "grid w-full grid-cols-2 overflow-hidden rounded-full border border-border bg-card/70" : "flex gap-2 overflow-x-auto pb-1")} aria-label="Section views">
       {tabs.map((tab) => {
         const active = pathname === tab.to;
         return (
@@ -25,10 +25,10 @@ export function SectionTabs({ tabs, variant = "pills" }: { tabs: SectionTab[]; v
             aria-current={active ? "page" : undefined}
             className={cn(
               variant === "segmented"
-                ? "min-w-0 rounded-full px-3 py-2.5 text-center text-sm font-medium transition-[color,background-color,transform] duration-150 active:scale-[0.98]"
+                ? "min-w-0 px-3 py-2.5 text-center text-sm font-medium transition-[color,background-color,transform] duration-150 first:border-r first:border-border active:scale-[0.98]"
                 : "shrink-0 rounded-full border px-3.5 py-1.5 text-sm transition-[color,background-color,border-color,transform] duration-150 active:scale-[0.98]",
               active
-                ? variant === "segmented" ? "bg-primary text-primary-foreground shadow-sm" : "border-primary bg-primary text-primary-foreground shadow-sm"
+                ? variant === "segmented" ? "bg-primary text-primary-foreground" : "border-primary bg-primary text-primary-foreground shadow-sm"
                 : variant === "segmented" ? "text-muted-foreground hover:text-foreground" : "border-border bg-card/70 text-muted-foreground hover:text-foreground",
             )}
           >
@@ -49,7 +49,7 @@ export const PROGRESS_TABS: SectionTab[] = [
 
 export const REVIEW_TABS: SectionTab[] = [
   { to: "/review", label: "Review schedule" },
-  { to: "/weak-areas", label: "Quiz my weak areas" },
+  { to: "/weak-areas", label: "Weak areas" },
 ];
 
 export const PATH_TABS: SectionTab[] = [
