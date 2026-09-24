@@ -191,3 +191,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Try It: replace Show answer with written box marked on general idea (offline)
 - [ ] Confirm written answers mark without AI
 - [ ] Practice It stage above Prove It (practice + check yourself), not counted toward mastery
+- [ ] Replace self-explanatory lesson captions with tap/hover ? help
