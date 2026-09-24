@@ -7,7 +7,6 @@ import {
   CalendarDays,
   ChevronDown,
   Clock3,
-  Brain,
   HelpCircle,
   Pencil,
   Wrench,
@@ -84,7 +83,6 @@ const previewGroups: Array<{
   icon: typeof BookOpen;
 }> = [
   { title: "Learn", detail: "New or incomplete topics", kinds: ["new_material", "weak_topic"], icon: BookOpen },
-  { title: "Recall", detail: "Quick practice questions", kinds: ["practice"], icon: Brain },
   { title: "Practice", detail: "Hands-on labs or scenarios", kinds: ["lab", "assignment"], icon: Wrench },
   { title: "Review", detail: "Reinforce and check mastery", kinds: ["review", "quiz"], icon: RotateCcw },
 ];
