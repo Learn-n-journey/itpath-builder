@@ -32,7 +32,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           </p>
           <ul className="space-y-0.5">
             {navItems
-              .filter((item) => item.group === group)
+              .filter((item) => item.group === group && item.to !== "/learn")
               .map((item) => {
                 const needsAttention = attention.get(item.to);
                 return (
