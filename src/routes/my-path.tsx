@@ -150,35 +150,67 @@ function MyPath() {
 
       <CompactStats className="grid-cols-4"><CompactStat label="Certifications" value={certCount} /><CompactStat label="Topics" value={topics.length} /><CompactStat label="Completed" value={stats.topicsCompleted} /><CompactStat label="Mastered" value={stats.topicsMastered} /></CompactStats>
 
-      <div className="relative mt-5 space-y-5">
-        <span className="journey-spectrum absolute bottom-4 left-[0.8125rem] top-9 w-0.5 rounded-full" aria-hidden />
-        {levels.map((group, groupIndex) => {
-          const groupAccent = journeyAccent(groupIndex, levels.length);
-          return (
-          <Panel key={group.level} title={group.label} className="relative pl-8">
-            <span className={cn("absolute left-[0.4375rem] top-3 size-3.5 rounded-full ring-4 ring-background", accentFill[groupAccent])} aria-hidden />
-            <div className="divide-y divide-border/70">
-              {group.items.map((certification, certificationIndex) => {
-                const studyIndex = certificationStudyIndex(certification.id);
-                const stages = certificationStages(certification.id);
-                const preceding = levels.slice(0, groupIndex).reduce((sum, item) => sum + item.items.length, 0);
-                const certificationAccent = journeyAccent(preceding + certificationIndex, certCount);
-
-                return (
-                  <Link
-                    key={certification.id}
-                    to="/certifications/$certId"
-                    params={{ certId: certification.id }}
-                    className="block"
-                  >
-                    <ContentRow icon={Award} accent={certificationAccent} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={studyIndex.topics.length === 0 ? 0 : Math.round(studyIndex.topics.reduce((sum, topic) => sum + topicScopeProgress(user, topic.id).overall, 0) / studyIndex.topics.length)} />
-                  </Link>
-                );
-              })}
-            </div>
-          </Panel>
-        )})}
-      </div>
+      {(() => {
+        const flat = levels.flatMap((group) => group.items);
+        const progressOf = (certId: string) => {
+          const list = certificationStudyIndex(certId).topics;
+          return list.length === 0 ? 0 : Math.round(list.reduce((sum, topic) => sum + topicScopeProgress(user, topic.id).overall, 0) / list.length);
+        };
+        const progressById = new Map(flat.map((c) => [c.id, progressOf(c.id)]));
+        const currentId = flat.find((c) => (progressById.get(c.id) ?? 0) < 100)?.id;
+        const currentIndex = currentId ? flat.findIndex((c) => c.id === currentId) : flat.length;
+        let running = 0;
+        return (
+          <ol className="relative mt-5" aria-label="Certification journey">
+            <span className="journey-spectrum absolute bottom-6 left-[0.8125rem] top-6 w-0.5 rounded-full opacity-35" aria-hidden />
+            {currentIndex > 0 && (
+              <span
+                className="journey-spectrum absolute left-[0.8125rem] top-6 w-0.5 rounded-full"
+                style={{ height: `calc(${Math.min(100, (currentIndex / Math.max(1, flat.length - 1)) * 100)}% - 3rem)`, backgroundSize: "100% calc(100% * " + (flat.length - 1) / Math.max(1, currentIndex) + ")" }}
+                aria-hidden
+              />
+            )}
+            {levels.map((group) => (
+              <li key={group.level} className="relative">
+                <p className="pb-1 pl-9 pt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{group.label}</p>
+                <ul className="space-y-2">
+                  {group.items.map((certification) => {
+                    const index = running++;
+                    const accent = journeyAccent(index, certCount);
+                    const studyIndex = certificationStudyIndex(certification.id);
+                    const stages = certificationStages(certification.id);
+                    const progress = progressById.get(certification.id) ?? 0;
+                    const state = index < currentIndex ? "done" : index === currentIndex ? "current" : "future";
+                    return (
+                      <li key={certification.id} className="relative pl-9">
+                        <span
+                          className={cn(
+                            "absolute top-1/2 -translate-y-1/2 rounded-full ring-4 ring-background",
+                            accentFill[accent],
+                            state === "current" ? "left-[0.3125rem] size-[1.125rem] shadow-[0_0_0_2px_var(--background),0_0_0_4px_currentColor]" : "left-[0.4375rem] size-3.5",
+                            state === "future" && "opacity-40",
+                          )}
+                          style={state === "current" ? { color: `var(--feature-${accent})` } : undefined}
+                          aria-hidden
+                        />
+                        <span className={cn("absolute left-[1.375rem] top-1/2 h-px w-3.5", accentFill[accent], state === "future" ? "opacity-25" : "opacity-70")} aria-hidden />
+                        <Link
+                          to="/certifications/$certId"
+                          params={{ certId: certification.id }}
+                          aria-current={state === "current" ? "step" : undefined}
+                          className={cn("block rounded-lg border bg-card", state === "current" ? "border-border" : "border-border/60", state === "future" && "opacity-80")}
+                        >
+                          <ContentRow icon={Award} accent={accent} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={progress} />
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            ))}
+          </ol>
+        );
+      })()}
     </>
   );
 }
