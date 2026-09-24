@@ -211,7 +211,6 @@ function PracticePage() {
               <Badge variant="outline">{typeLabels[recommended.type]}</Badge>
               <Badge variant="outline"><Clock3 className="mr-1 size-3" />Practice task</Badge>
             </div>
-            <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">Recommended from your current practice queue. Complete it, then move directly to the next useful task.</p>
             <Button className="mt-4 w-full sm:w-auto" onClick={() => setSelectedId(recommended.id)}>Start Practice <ArrowRight /></Button>
           </div>
         </section>
