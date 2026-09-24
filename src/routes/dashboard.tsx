@@ -4,7 +4,6 @@ import { BarChart3, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Cl
 
 import { NextActionCard } from "@/components/next-action-card";
 import { LearnerPageSkeleton, Panel, StatCard } from "@/components/page-kit";
-import { ReadinessPanel } from "@/components/readiness-panel";
 import { StreakPanel } from "@/components/streak-panel";
 import { Button } from "@/components/ui/button";
 import { computeDashboard } from "@/lib/dashboard-engine";
@@ -13,7 +12,6 @@ import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
 import { nextActions, type NextAction } from "@/lib/next-action";
 import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
 import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
-import { buildReadinessReport } from "@/lib/readiness-engine";
 import { resumeTarget} from "@/lib/resume";
 import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics } from "@/lib/journey-order";
 import { certificationTopics } from "@/lib/cert-path";
@@ -146,7 +144,6 @@ function Dashboard() {
     clearReviewTopic(row);
     setDismissedVersion((v) => v + 1);
   }, []);
-  const readiness = useMemo(() => buildReadinessReport(user, path.certification), [user, path.certification]);
   const resume = useMemo(() => (d.hasAnyActivity ? resumeTarget(user) : null), [user, d.hasAnyActivity]);
   const quizCount = user.quizAttempts.filter((a) => a.status === "submitted").length;
   const missedAnchors = useMemo(() => {
@@ -592,19 +589,6 @@ function Dashboard() {
               ))}
             </ul>
           )}
-        </Panel>
-
-        <Panel title="Certifications" className="relative py-5">
-          <Link to="/certifications" className="absolute right-0 top-5 rounded-sm text-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">View all →</Link>
-          <ul className="divide-y divide-border/60">
-            {d.certificationReadiness.map((cert) => (
-              <li key={cert.id} className="group grid min-h-11 grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 active:scale-[0.995] motion-reduce:transition-none sm:grid-cols-[minmax(0,1fr)_7rem_auto]">
-                <p className="min-w-0 truncate text-sm">{cert.title}</p>
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><Meter value={cert.overall} /><span className="text-sm font-semibold tabular-nums">{cert.overall}%</span></div>
-                <ChevronRight className="size-4 text-muted-foreground motion-safe:transition-all motion-safe:duration-150 group-hover:translate-x-0.5 group-hover:text-primary motion-reduce:transition-none" aria-hidden />
-              </li>
-            ))}
-          </ul>
         </Panel>
 
         <Panel title="Career readiness" className="relative py-5">
