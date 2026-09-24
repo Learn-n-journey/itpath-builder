@@ -262,4 +262,5 @@ function TopicPage() {
         {topicLessons.map((lesson) => <Panel key={`${lesson.id}-next`} title="Next steps"><ol className="space-y-3 text-sm text-muted-foreground">{lesson.nextSteps.map((step, index) => <li key={step} className="flex gap-3"><span className="font-mono text-primary">{String(index + 1).padStart(2, "0")}</span><span>{step}</span></li>)}</ol></Panel>)}
       </div>
     </article>
-  );}
+  );
+}
