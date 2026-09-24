@@ -2,8 +2,7 @@
  * The mastery gate.
  *
  * A section opens the next one only when every graded Prove It activity is at
- * 80 or better: the 20-question quiz, every recall question, every practice
- * question, the teach back and the real-world scenario. Labs stay optional.
+ * 80 or better: the 20-question quiz, every recall question, the teach back and the real-world scenario. Labs stay optional.
  */
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { topicEvidence, type EvidenceItem, type ScopeDimensionKey } from "@/lib/scope-progress";
@@ -177,7 +176,7 @@ export function masteryGate(user: UserData, topicId: EntityId, _now: Date = new 
   const scenarioItems = scenario ? [pick(scenario.id, "application")] : [];
 
   const quiz = knowledgeCompetency(user, topicId);
-  const practice = { ...buildCompetency("application", practiceItems, true), label: "Practice questions", requirement: "Get every practice question right." };
+  const practice = { ...buildCompetency("application", practiceItems, false), label: "Practice questions", requirement: "Practice only. Never needed to move on." };
   const competencies: Competency[] = [
     quiz,
     buildCompetency("recall", recallItems, true),
@@ -204,6 +203,6 @@ export function masteryGate(user: UserData, topicId: EntityId, _now: Date = new 
     weakest,
     summary: met
       ? "Section proven. The next section is open."
-      : "Score 80 or better on the quiz, recall, practice, teach back and scenario to open the next section.",
+      : "Score 80 or better on the quiz, recall, teach back and scenario to open the next section.",
   };
 }

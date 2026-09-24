@@ -190,3 +190,4 @@ Done when: typecheck + build clean, features verified in browser.
 - [ ] Merge Try It into Prove It; quiz in Prove It; all activities need 80%+ for mastery
 - [ ] Try It: replace Show answer with written box marked on general idea (offline)
 - [ ] Confirm written answers mark without AI
+- [ ] Practice It stage above Prove It (practice + check yourself), not counted toward mastery
