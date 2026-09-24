@@ -71,7 +71,7 @@ export function DeepLessonReading({
   return (
     <LessonRoadmap
       lesson={lesson}
-      readingPosition={saved}
+      {...(saved ? { readingPosition: saved } : {})}
       onSelectSection={openSection}
     />
   );
