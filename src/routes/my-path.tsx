@@ -101,6 +101,11 @@ function MyPath() {
   // The starting point is the first topic still waiting on you. As soon as the
   // next one opens, the one before it drops out of here.
   const current = currentJourneyTopic(user);
+  const currentQueueIndex = current
+    ? queue.entries.findIndex((entry) => entry.topic.id === current.id)
+    : -1;
+  const visibleStartIndex = currentQueueIndex >= 0 ? currentQueueIndex : 0;
+  const displayedEntries = queue.entries.slice(visibleStartIndex, visibleStartIndex + 6);
   const startHere = current
     ? queue.entries.find((entry) => entry.topic.id === current.id)
     : undefined;
@@ -175,7 +180,7 @@ function MyPath() {
         </div>
 
         <div className="relative space-y-4">
-          {queue.entries.slice(0, 6).map((entry, idx, displayedEntries) => {
+          {displayedEntries.map((entry, idx) => {
             const isLast = idx === displayedEntries.length - 1;
             const isFeatured = entry.topic.id === (queue.next?.topic.id ?? displayedEntries[0]?.topic.id);
             const isCompleted = isMastered(user, entry.topic.id);
