@@ -671,12 +671,18 @@ export function VirusRun() {
       }
 
       // Antivirus sentinels: shield-like drones with scanning lenses.
+      // Reuse the distance field maintained by the update loop. Previously this
+      // renderer referenced update()'s local "field" variable, which throws
+      // after packets are drawn and prevents guards and the player from rendering.
+      const renderField =
+        distFieldRef.current ??
+        distanceField(run.grid, Math.round(run.player.x), Math.round(run.player.y));
       for (const g of run.guards) {
         const cx = offX + (g.x + 0.5) * cell;
         const cy = offY + (g.y + 0.5) * cell;
         ctx2.save();
         const aim = Math.atan2(run.player.y - g.y, run.player.x - g.x);
-        const distanceToRunner = field[Math.round(g.y)]?.[Math.round(g.x)] ?? -1;
+        const distanceToRunner = renderField[Math.round(g.y)]?.[Math.round(g.x)] ?? -1;
         const alerted = distanceToRunner >= 0 && distanceToRunner <= g.detection;
         ctx2.translate(cx, cy);
         ctx2.rotate(aim);
