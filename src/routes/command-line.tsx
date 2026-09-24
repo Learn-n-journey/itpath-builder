@@ -141,6 +141,7 @@ function CommandLinePage() {
   const shellScenarios = useMemo(() => scenariosForShell(shell), [shell]);
   const [scenarioId, setScenarioId] = useState(recommended.id);
   const [mode, setMode] = useState<TerminalMode>("guided");
+  const [workspaceView, setWorkspaceView] = useState<"free" | "scenario">("free");
   const [attemptId, setAttemptId] = useState("");
   const [command, setCommand] = useState("");
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -174,6 +175,25 @@ function CommandLinePage() {
     setRevealedSteps([]);
   }, [attempt?.id]);
 
+  const openedDefaultTerminal = useRef(false);
+  useEffect(() => {
+    if (openedDefaultTerminal.current) return;
+    openedDefaultTerminal.current = true;
+    const free = freePlayScenario(recommendedShell);
+    setGenerated(free);
+    setScenarioId(free.id);
+    const existing = user.terminalAttempts.find(
+      (item) => item.scenarioId === free.id && item.status === "in_progress",
+    );
+    if (existing) {
+      setAttemptId(existing.id);
+      return;
+    }
+    const next = createTerminalAttempt(free, "guided");
+    actions.addTerminalAttempt(next);
+    setAttemptId(next.id);
+  }, [actions, recommendedShell, user.terminalAttempts]);
+
   // Starting a scenario swaps the brief for the terminal further down the page,
   // which looks like nothing happened on small screens, so bring it into view.
   useEffect(() => {
@@ -204,6 +224,7 @@ function CommandLinePage() {
   }
 
   function changeScenario(id: string) {
+    setWorkspaceView("scenario");
     setGenerated(null);
     setScenarioId(id);
     setAttemptId("");
@@ -212,6 +233,7 @@ function CommandLinePage() {
   }
 
   function rollRandomScenario() {
+    setWorkspaceView("scenario");
     const next = randomTerminalScenario(
       shell,
       user.terminalAttempts.map((item) => ({ scenarioId: item.scenarioId, topicId: item.topicId })),
@@ -228,6 +250,7 @@ function CommandLinePage() {
 
   async function createAiScenario() {
     if (creating) return;
+    setWorkspaceView("scenario");
     setCreating(true);
     try {
       const reply = await generateTerminalScenario({
@@ -257,6 +280,7 @@ function CommandLinePage() {
   }
 
   function openFreeTerminal() {
+    setWorkspaceView("free");
     const free = freePlayScenario(shell);
     setGenerated(free);
     setScenarioId(free.id);
@@ -350,32 +374,52 @@ function CommandLinePage() {
     <>
       <PageHeader
         title="Command-line simulator"
-        description="Switch between safe virtual Mac/Linux, Windows, Android and iPhone devices. Your commands never affect your real device."
+        description="Use a real terminal, or switch to guided scenarios and challenges to build your skills."
         actions={<Badge variant="outline"><ShieldCheck className="mr-1 size-3" aria-hidden /> Isolated</Badge>}
       />
 
-      <section className="grid grid-cols-3 divide-x divide-border border-y border-border py-3" aria-label="Command-line practice summary">
-        <TerminalStat value={completedCount} label="Completed" />
-        <TerminalStat value={`${bestScore}%`} label="Best score" />
-        <TerminalStat value={shellLabels[recommendedShell]} label="Recommended" />
-      </section>
+      <div className="mt-1 flex flex-col gap-4 border-b border-border pb-5 xl:flex-row xl:items-end xl:justify-between">
+        <div className="grid w-full grid-cols-2 overflow-hidden rounded-full border border-border bg-card/70 xl:max-w-md">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={openFreeTerminal}
+            className={`rounded-none border-r border-border px-4 py-5 ${workspaceView === "free" ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" : ""}`}
+          >
+            <SquareTerminal aria-hidden /> Free terminal
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              setWorkspaceView("scenario");
+              const nextId = shellScenarios[0]?.id ?? recommended.id;
+              changeScenario(nextId);
+            }}
+            className={`rounded-none px-4 py-5 ${workspaceView === "scenario" ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" : ""}`}
+          >
+            <Play aria-hidden /> Guided / Challenge
+          </Button>
+        </div>
 
-      <section className="mt-5 border-y border-border py-4">
-        <div className={`grid min-w-0 gap-4 sm:grid-cols-2 ${environment === "windows" ? "xl:grid-cols-[220px_180px_minmax(0,1fr)_180px]" : "xl:grid-cols-[220px_minmax(0,1fr)_180px]"}`}>
-          <div className="min-w-0 space-y-2">
+        <div className="grid gap-3 sm:grid-cols-2 xl:flex xl:items-end">
+          <div className="min-w-0 space-y-1.5">
             <Label>Environment</Label>
-            <div className="grid min-w-0 grid-cols-2 gap-0.5 overflow-hidden rounded-md border border-input p-0.5" role="group" aria-label="Environment">
-              <Button type="button" size="sm" variant={environment === "unix" ? "secondary" : "ghost"} onClick={() => changeEnvironment("unix")} className="min-w-0 w-full px-1 text-xs">Mac/Linux</Button>
-              <Button type="button" size="sm" variant={environment === "windows" ? "secondary" : "ghost"} onClick={() => changeEnvironment("windows")} className="min-w-0 w-full px-1 text-xs">Windows</Button>
-              <Button type="button" size="sm" variant={environment === "android" ? "secondary" : "ghost"} onClick={() => changeEnvironment("android")} className="min-w-0 w-full px-1 text-xs">Android</Button>
-              <Button type="button" size="sm" variant={environment === "ios" ? "secondary" : "ghost"} onClick={() => changeEnvironment("ios")} className="min-w-0 w-full px-1 text-xs">iPhone</Button>
-            </div>
+            <Select value={environment} onValueChange={(value) => changeEnvironment(value as TerminalEnvironment)}>
+              <SelectTrigger className="w-full sm:w-44" aria-label="Environment"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="windows">Windows</SelectItem>
+                <SelectItem value="unix">Mac/Linux</SelectItem>
+                <SelectItem value="android">Android</SelectItem>
+                <SelectItem value="ios">iPhone</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           {environment === "windows" ? (
-            <div className="min-w-0 space-y-2">
-              <Label>Windows shell</Label>
+            <div className="min-w-0 space-y-1.5">
+              <Label>Shell</Label>
               <Select value={shell} onValueChange={(value) => changeWindowsShell(value as "cmd" | "powershell")}>
-                <SelectTrigger aria-label="Windows shell"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-full sm:w-44" aria-label="Windows shell"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="cmd">CMD</SelectItem>
                   <SelectItem value="powershell">PowerShell</SelectItem>
@@ -383,40 +427,45 @@ function CommandLinePage() {
               </Select>
             </div>
           ) : null}
-          <div className="min-w-0 space-y-2">
-            <Label>Scenario</Label>
-            <div className="flex min-w-0 gap-2">
-              <Select value={scenario.id} onValueChange={changeScenario}>
-                <SelectTrigger aria-label="Scenario" className="min-w-0 flex-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {scenario.source && scenario.source !== "curated"
-                    ? <SelectItem value={scenario.id}>{scenario.title}</SelectItem>
-                    : null}
-                  {shellScenarios.map((item) => <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <Button type="button" variant="outline" onClick={rollRandomScenario} title="Random scenario">
-                <Shuffle aria-hidden /> <span className="hidden sm:inline">Random</span>
-              </Button>
-              <Button type="button" variant="outline" onClick={createAiScenario} disabled={creating} title="Create a new scenario with AI">
-                <Sparkles aria-hidden /> <span className="hidden sm:inline">{creating ? "Creating…" : "AI"}</span>
-              </Button>
-              <Button type="button" variant="outline" onClick={openFreeTerminal} title="Open the terminal with no scenario">
-                <SquareTerminal aria-hidden /> <span className="hidden sm:inline">Just the terminal</span>
-              </Button>
-            </div>
-          </div>
+          <Button type="button" variant="outline" onClick={() => start(true)} disabled={!attempt || attempt.status === "submitted"}>
+            <RefreshCw aria-hidden /> Reset
+          </Button>
+        </div>
+      </div>
 
-          <div className="min-w-0 space-y-2">
-            <Label>Mode</Label>
-            <div className="grid grid-cols-2 rounded-md border border-input p-0.5">
-              {(["guided", "challenge"] as const).map((item) => (
-                <Button key={item} type="button" size="sm" variant={mode === item ? "secondary" : "ghost"} onClick={() => setMode(item)} className="px-2 capitalize">{item}</Button>
+      {workspaceView === "scenario" ? (
+        <section className="mt-4 rounded-xl border border-border bg-card/40 p-4">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+            <div className="min-w-0">
+              <Label>Scenario</Label>
+              <div className="mt-2 flex min-w-0 flex-wrap gap-2">
+                <Select value={scenario.id} onValueChange={changeScenario}>
+                  <SelectTrigger aria-label="Scenario" className="min-w-0 flex-1 sm:min-w-64"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {scenario.source && scenario.source !== "curated" ? <SelectItem value={scenario.id}>{scenario.title}</SelectItem> : null}
+                    {shellScenarios.map((item) => <SelectItem key={item.id} value={item.id}>{item.title}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                <Button type="button" variant="outline" onClick={rollRandomScenario}><Shuffle aria-hidden /> Random</Button>
+                <Button type="button" variant="outline" onClick={createAiScenario} disabled={creating}><Sparkles aria-hidden /> {creating ? "Creating…" : "AI"}</Button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 overflow-hidden rounded-full border border-border bg-background/60">
+              {(["guided", "challenge"] as const).map((item, index) => (
+                <Button
+                  key={item}
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setMode(item)}
+                  className={`rounded-none px-5 capitalize ${index === 0 ? "border-r border-border" : ""} ${mode === item ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground" : ""}`}
+                >
+                  {item}
+                </Button>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {!attempt ? (
         <Panel className="mt-5" title={scenario.title} description={shellLabels[scenario.shell]}>
@@ -517,13 +566,22 @@ function CommandLinePage() {
 
           <aside className="space-y-4 xl:border-l xl:border-border xl:pl-5">
             {isFree ? (
-              <Panel title="Free terminal" description="Nothing is being scored here. Try commands and see what comes back.">
-                <p className="text-sm text-muted-foreground">Type <span className="font-mono">help</span> to see what this machine supports.</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button variant="outline" onClick={() => changeScenario(shellScenarios[0]?.id ?? recommended.id)}>
-                    <Play aria-hidden /> Pick a scenario instead
+              <Panel title="Quick help" description="Type help to see what this machine supports.">
+                <div className="flex flex-wrap gap-2">
+                  {["help", "dir", "cd ..", "cd \\", "type filename"].map((item) => (
+                    <Badge key={item} variant="outline" className="font-mono">{item}</Badge>
+                  ))}
+                </div>
+                <div className="mt-5 border-t border-border pt-4">
+                  <p className="text-sm font-medium">Need a scenario?</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Switch to guided practice or a no-hint challenge.</p>
+                  <Button className="mt-3 w-full" variant="outline" onClick={() => {
+                    setWorkspaceView("scenario");
+                    changeScenario(shellScenarios[0]?.id ?? recommended.id);
+                  }}>
+                    <Play aria-hidden /> Guided / Challenge
                   </Button>
-                  <Button variant="outline" onClick={rollRandomScenario}><Shuffle aria-hidden /> Surprise me</Button>
+                  <Button className="mt-2 w-full" variant="ghost" onClick={rollRandomScenario}><Shuffle aria-hidden /> Surprise me</Button>
                 </div>
               </Panel>
             ) : (
@@ -605,15 +663,6 @@ function CommandLinePage() {
         </div>
       )}
     </>
-  );
-}
-
-function TerminalStat({ value, label }: { value: string | number; label: string }) {
-  return (
-    <div className="min-w-0 px-3 text-center">
-      <p className="truncate font-display text-lg font-semibold tabular-nums sm:text-xl">{value}</p>
-      <p className="mt-1 truncate text-[0.625rem] text-muted-foreground sm:text-xs">{label}</p>
-    </div>
   );
 }
 
