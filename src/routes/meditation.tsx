@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { CloudRain, ExternalLink, Headphones, Pause, Play, RotateCcw, Volume2, Wind } from "lucide-react";
+import { Bell, CloudRain, ExternalLink, Music2, Pause, Play, RotateCcw, Volume2, Wind } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -18,17 +18,16 @@ export const Route = createFileRoute("/meditation")({
 
 const BREATH_SECONDS = 16;
 const sounds = [
-  { id: "rain", label: "Rain", icon: CloudRain },
-  { id: "noise", label: "Soft noise", icon: Headphones },
+  { id: "rain", label: "Rain", icon: CloudRain, src: "/rain.mp3" },
+  { id: "music", label: "Meditation music", icon: Music2, src: "/meditation-music.mp3" },
 ] as const;
 
 function MeditationPage() {
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [sound, setSound] = useState<(typeof sounds)[number]["id"] | null>(null);
-  const audioRef = useRef<AudioContext | null>(null);
-  const noiseRef = useRef<AudioBufferSourceNode | null>(null);
-  const gainRef = useRef<GainNode | null>(null);
+  const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+  const lastBreathCueRef = useRef<"inhale" | "exhale" | null>(null);
 
   useEffect(() => {
     if (!running) return;
@@ -36,15 +35,36 @@ function MeditationPage() {
     return () => window.clearInterval(id);
   }, [running]);
 
-  useEffect(() => () => stopSound(), []);
+  useEffect(() => () => {
+    backgroundAudioRef.current?.pause();
+    backgroundAudioRef.current = null;
+  }, []);
+
+  function playBell(kind: "inhale" | "exhale") {
+    const bell = new Audio(kind === "inhale" ? "/inhale-bell.mp3" : "/exhale-bell.mp3");
+    bell.volume = 0.5;
+    void bell.play().catch(() => {});
+  }
+
+  useEffect(() => {
+    if (!running) {
+      lastBreathCueRef.current = null;
+      return;
+    }
+
+    const phase = elapsed % BREATH_SECONDS;
+    const cue = phase < 4 ? "inhale" : phase >= 8 && phase < 12 ? "exhale" : null;
+    if (cue && cue !== lastBreathCueRef.current) {
+      playBell(cue);
+      lastBreathCueRef.current = cue;
+    }
+    if (!cue) lastBreathCueRef.current = null;
+  }, [elapsed, running]);
 
   function stopSound() {
-    try { noiseRef.current?.stop(); } catch {}
-    noiseRef.current = null;
-    gainRef.current?.disconnect();
-    gainRef.current = null;
-    if (audioRef.current) void audioRef.current.close();
-    audioRef.current = null;
+    backgroundAudioRef.current?.pause();
+    if (backgroundAudioRef.current) backgroundAudioRef.current.currentTime = 0;
+    backgroundAudioRef.current = null;
   }
 
   function toggleSound(next: (typeof sounds)[number]["id"]) {
@@ -53,29 +73,21 @@ function MeditationPage() {
       setSound(null);
       return;
     }
+
     stopSound();
-    const AudioContextCtor = window.AudioContext;
-    const context = new AudioContextCtor();
-    const seconds = 2;
-    const buffer = context.createBuffer(1, context.sampleRate * seconds, context.sampleRate);
-    const data = buffer.getChannelData(0);
-    let last = 0;
-    for (let i = 0; i < data.length; i += 1) {
-      const white = Math.random() * 2 - 1;
-      last = next === "rain" ? (last * 0.88 + white * 0.12) : (last * 0.96 + white * 0.04);
-      data[i] = last * (next === "rain" ? 0.32 : 0.24);
-    }
-    const source = context.createBufferSource();
-    source.buffer = buffer;
-    source.loop = true;
-    const gain = context.createGain();
-    gain.gain.value = 0.14;
-    source.connect(gain).connect(context.destination);
-    source.start();
-    audioRef.current = context;
-    noiseRef.current = source;
-    gainRef.current = gain;
-    setSound(next);
+    const selected = sounds.find((item) => item.id === next);
+    if (!selected) return;
+
+    const audio = new Audio(selected.src);
+    audio.loop = true;
+    audio.volume = next === "music" ? 0.35 : 0.45;
+    backgroundAudioRef.current = audio;
+    void audio.play()
+      .then(() => setSound(next))
+      .catch(() => {
+        backgroundAudioRef.current = null;
+        setSound(null);
+      });
   }
 
   const phase = elapsed % BREATH_SECONDS;
@@ -101,11 +113,17 @@ function MeditationPage() {
           <h2 className="mt-2 font-display text-2xl font-semibold">{running ? instruction : "Ready when you are"}</h2>
           <p className="mt-1 font-mono text-sm tabular-nums text-muted-foreground">{minutes}:{seconds}</p>
           <div className="mt-5 flex gap-2">
-            <Button onClick={() => setRunning((value) => !value)} className="min-w-32 rounded-xl">
+            <Button onClick={() => {
+              if (!running) {
+                lastBreathCueRef.current = "inhale";
+                playBell("inhale");
+              }
+              setRunning((value) => !value);
+            }} className="min-w-32 rounded-xl">
               {running ? <Pause aria-hidden /> : <Play aria-hidden />}
               {running ? "Pause" : "Start breathing"}
             </Button>
-            <Button variant="outline" size="icon" aria-label="Reset breathing timer" onClick={() => { setRunning(false); setElapsed(0); }}>
+            <Button variant="outline" size="icon" aria-label="Reset breathing timer" onClick={() => { setRunning(false); setElapsed(0); lastBreathCueRef.current = null; }}>
               <RotateCcw aria-hidden />
             </Button>
           </div>
@@ -118,7 +136,7 @@ function MeditationPage() {
           <Volume2 className="size-4 text-feature-cyan" aria-hidden />
           <h2 className="font-display text-lg font-semibold">Focus sounds</h2>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">Simple generated background sound. Nothing streams or needs an account.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Choose a locally bundled background track. Breathing bells play automatically with the exercise.</p>
         <div className="mt-4 grid grid-cols-2 gap-3">
           {sounds.map((item) => {
             const Icon = item.icon;
@@ -130,6 +148,10 @@ function MeditationPage() {
               </button>
             );
           })}
+        </div>
+        <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+          <Bell className="size-4 text-feature-cyan" aria-hidden />
+          <span>Higher bell for inhale · lower bell for exhale</span>
         </div>
       </section>
 
