@@ -26,6 +26,7 @@ function MeditationPage() {
   const [running, setRunning] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [sound, setSound] = useState<(typeof sounds)[number]["id"] | null>(null);
+  const [bellsEnabled, setBellsEnabled] = useState(true);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
   const lastBreathCueRef = useRef<"inhale" | "exhale" | null>(null);
 
@@ -47,7 +48,7 @@ function MeditationPage() {
   }
 
   useEffect(() => {
-    if (!running) {
+    if (!running || !bellsEnabled) {
       lastBreathCueRef.current = null;
       return;
     }
@@ -59,7 +60,7 @@ function MeditationPage() {
       lastBreathCueRef.current = cue;
     }
     if (!cue) lastBreathCueRef.current = null;
-  }, [elapsed, running]);
+  }, [bellsEnabled, elapsed, running]);
 
   function stopSound() {
     backgroundAudioRef.current?.pause();
@@ -114,7 +115,7 @@ function MeditationPage() {
           <p className="mt-1 font-mono text-sm tabular-nums text-muted-foreground">{minutes}:{seconds}</p>
           <div className="mt-5 flex gap-2">
             <Button onClick={() => {
-              if (!running) {
+              if (!running && bellsEnabled) {
                 lastBreathCueRef.current = "inhale";
                 playBell("inhale");
               }
@@ -149,10 +150,22 @@ function MeditationPage() {
             );
           })}
         </div>
-        <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-          <Bell className="size-4 text-feature-cyan" aria-hidden />
-          <span>Higher bell for inhale · lower bell for exhale</span>
-        </div>
+        <button
+          type="button"
+          aria-pressed={bellsEnabled}
+          onClick={() => setBellsEnabled((value) => !value)}
+          className={cn(
+            "mt-3 flex min-h-14 w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+            bellsEnabled ? "border-primary/50 bg-primary/10" : "border-border/70 bg-secondary/30 hover:bg-secondary/60",
+          )}
+        >
+          <Bell className={cn("size-5", bellsEnabled ? "text-primary" : "text-muted-foreground")} aria-hidden />
+          <span className="flex-1">
+            <span className="block text-sm font-semibold">Breathing bells</span>
+            <span className="block text-xs text-muted-foreground">Higher bell for inhale · lower bell for exhale</span>
+          </span>
+          <span className="text-xs font-semibold text-muted-foreground">{bellsEnabled ? "On" : "Off"}</span>
+        </button>
       </section>
 
       <section className="mt-5 border-t border-border/60 pt-5">
