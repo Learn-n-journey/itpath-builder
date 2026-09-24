@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Copy, History, Loader2, Plus, Send, Sparkles, Trash2 } from "lucide-react";
+import { Bot, Brain, Copy, History, Lightbulb, Loader2, MessageSquare, Plus, Send, Sparkles, Target, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -248,14 +248,23 @@ function AiTutor() {
 
   return (
     <>
-      <PageHeader
-        title="AI Tutor"
-        description="A built-in tutor that answers here in the app. It starts every session from your real progress, mistakes and reviews, pick a mode and a topic, then ask."
-      />
+      <header className="relative mb-4 overflow-hidden rounded-2xl border border-border/70 bg-card/30 px-5 py-6 sm:px-6">
+        <div className="absolute inset-x-0 top-0 h-px bg-primary/70" />
+        <div className="relative flex items-start gap-4">
+          <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Bot className="size-6" aria-hidden /></div>
+          <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Learning workspace</p><h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">AI Tutor</h1><p className="mt-1 max-w-2xl text-sm text-muted-foreground">Ask questions, practice ideas, and work through problems with your progress and saved material in context.</p></div>
+        </div>
+      </header>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+      <div className="grid gap-4 xl:grid-cols-[16rem_minmax(0,1fr)]">
         <div className="grid content-start gap-4">
-        <Panel title="Set up the session">
+        <Panel title="Tutor controls" description="Choose how you want to work, then start the conversation.">
+          <div className="mb-4 grid grid-cols-2 gap-2">
+            <button type="button" onClick={() => setMode("ask_anything")} disabled={started} className="rounded-xl border border-border/70 bg-card/30 p-3 text-left hover:border-primary/30 disabled:opacity-60"><Lightbulb className="mb-2 size-4 text-primary" aria-hidden /><span className="block text-sm font-semibold">Explain</span><span className="text-[11px] text-muted-foreground">Clear explanations</span></button>
+            <button type="button" onClick={() => { setMode("ask_anything"); setQuestion("Give me practice on this topic and explain my mistakes."); }} disabled={started} className="rounded-xl border border-border/70 bg-card/30 p-3 text-left hover:border-primary/30 disabled:opacity-60"><Brain className="mb-2 size-4 text-primary" aria-hidden /><span className="block text-sm font-semibold">Practice</span><span className="text-[11px] text-muted-foreground">Work through it</span></button>
+            <button type="button" onClick={() => { setMode("ask_anything"); setQuestion("Show me how this appears in a real IT job or troubleshooting situation."); }} disabled={started} className="rounded-xl border border-border/70 bg-card/30 p-3 text-left hover:border-primary/30 disabled:opacity-60"><Target className="mb-2 size-4 text-primary" aria-hidden /><span className="block text-sm font-semibold">Apply</span><span className="text-[11px] text-muted-foreground">Real-world scenario</span></button>
+            <button type="button" onClick={() => { setMode("ask_anything"); setQuestion("Help me review this topic and find what I do not understand yet."); }} disabled={started} className="rounded-xl border border-border/70 bg-card/30 p-3 text-left hover:border-primary/30 disabled:opacity-60"><MessageSquare className="mb-2 size-4 text-primary" aria-hidden /><span className="block text-sm font-semibold">Review</span><span className="text-[11px] text-muted-foreground">Check understanding</span></button>
+          </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="tutor-mode">Mode</Label>
@@ -420,10 +429,10 @@ function AiTutor() {
         >
           {started ? (
             <div className="grid gap-4">
-              <div className="grid max-h-[32rem] gap-3 overflow-y-auto pr-1">
+              <div className="grid min-h-[28rem] max-h-[56vh] gap-3 overflow-y-auto pr-1">
                 {messages.slice(1).map((m, i) =>
                   m.role === "assistant" ? (
-                    <div key={i} className="rounded-lg border border-border bg-secondary/40 p-3">
+                    <div key={i} className="max-w-[92%] rounded-xl border border-border/70 bg-secondary/30 p-4">
                       <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         Tutor
                       </p>
@@ -436,7 +445,7 @@ function AiTutor() {
                       />
                     </div>
                   ) : (
-                    <div key={i} className="rounded-lg border border-primary/30 bg-primary/10 p-3">
+                    <div key={i} className="ml-auto max-w-[85%] rounded-xl border border-primary/30 bg-primary px-4 py-3 text-primary-foreground">
                       <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         You
                       </p>
