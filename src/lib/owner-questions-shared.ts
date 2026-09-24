@@ -22,9 +22,23 @@ export interface NumberedTopic {
   certificationId: string;
 }
 
-/** IT PATH topics, numbered 1..N in curriculum order. */
+/**
+ * Retired IT PATH workbook numbers stay reserved. This lets the owner omit a
+ * retired workbook without renaming every later lesson, quiz, Try It or lab.
+ */
+export const RETIRED_IT_WORKBOOK_NUMBERS = [7] as const;
+
+function stableItWorkbookNumber(index: number): number {
+  let number = index + 1;
+  for (const retired of RETIRED_IT_WORKBOOK_NUMBERS) {
+    if (number >= retired) number += 1;
+  }
+  return number;
+}
+
+/** IT PATH topics with stable workbook numbers, including intentional gaps. */
 export const itTopicNumbers: NumberedTopic[] = topics.map((topic, index) => ({
-  number: index + 1,
+  number: stableItWorkbookNumber(index),
   topicId: topic.id,
   title: topic.title,
   domain: "it-cybersecurity",
