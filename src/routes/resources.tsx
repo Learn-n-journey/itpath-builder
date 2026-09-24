@@ -10,9 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { bookmarkFor, notesFor } from "@/lib/annotations";
-import { certifications, resources, topics } from "@/data/static-content";
+import { resources, topics } from "@/data/static-content";
 import type { Resource } from "@/lib/app-data/types";
-import { selectedCertification } from "@/lib/adaptive-path";
 import { useAppState } from "@/state/app-state";
 import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 
@@ -33,29 +32,26 @@ export const Route = createFileRoute("/resources")({
 
 type Filters = {
   topic: string;
-  certification: string;
   kind: string;
   access: string;
 };
 
-const emptyFilters: Filters = { topic: "all", certification: "all", kind: "all", access: "all" };
+const emptyFilters: Filters = { topic: "all", kind: "all", access: "all" };
 const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
 
 function ResourcesPage() {
   const { user, hydrated } = useAppState();
   const [query, setQuery] = useUiPreference("resources.search", "", isStringPreference);
-  const [filters, setFilters] = useUiPreference<Filters>("resources.filters", { ...emptyFilters, certification: selectedCertification(user.settings).id }, (value): value is Filters => Boolean(value) && typeof value === "object" && ["topic", "certification", "kind", "access"].every((key) => typeof (value as Record<string, unknown>)[key] === "string"));
+  const [filters, setFilters] = useUiPreference<Filters>("resources.filters.v2", emptyFilters, (value): value is Filters => Boolean(value) && typeof value === "object" && ["topic", "kind", "access"].every((key) => typeof (value as Record<string, unknown>)[key] === "string"));
   const [openNoteId, setOpenNoteId] = useState<string | null>(null);
 
   const filteredResources = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return resources.filter((resource) => {
       const resourceTopics = resource.topicIds.map((id) => topics.find((topic) => topic.id === id)).filter((topic) => topic !== undefined);
-      const certification = certifications.find((item) => item.id === resource.certificationId);
-      const searchable = [resource.title, resource.provider, certification?.title ?? "", ...resourceTopics.map((topic) => topic.title)].join(" ").toLowerCase();
+      const searchable = [resource.title, resource.provider, ...resourceTopics.map((topic) => topic.title)].join(" ").toLowerCase();
       return (!needle || searchable.includes(needle))
         && (filters.topic === "all" || resource.topicIds.includes(filters.topic))
-        && (filters.certification === "all" || resource.certificationId === filters.certification)
         && (filters.kind === "all" || resource.kind === filters.kind)
         && (filters.access === "all" || resource.access === filters.access);
     });
@@ -150,7 +146,6 @@ function ResourceCard({ resource, noteOpen, onToggleNote, featured = false }: { 
   const target = { kind: "resource" as const, id: resource.id, label: resource.title, href: resource.url };
   const bookmark = bookmarkFor(user, target);
   const savedNotes = notesFor(user, target);
-  const certification = certifications.find((item) => item.id === resource.certificationId);
   const resourceTopics = resource.topicIds.map((id) => topics.find((topic) => topic.id === id)).filter((topic) => topic !== undefined);
 
 
@@ -170,7 +165,6 @@ function ResourceCard({ resource, noteOpen, onToggleNote, featured = false }: { 
       <div className="mt-2 flex flex-wrap gap-1.5">
         <Badge variant="outline" className="font-normal">{kindLabels[resource.kind]}</Badge>
         <Badge variant="outline" className="font-normal">{resource.access === "free" ? "Free" : "Paid"}</Badge>
-        {certification ? <Badge variant="outline" className="max-w-44 truncate font-normal">{certification.title}</Badge> : null}
       </div>
       <div className="mt-3 flex items-center gap-1 border-t border-border/50 pt-3">
         <Button asChild variant="ghost" size="sm" className="px-2 text-primary hover:text-primary"><a href={resource.url} target="_blank" rel="noreferrer"><ExternalLink className="size-4" />Open</a></Button>
