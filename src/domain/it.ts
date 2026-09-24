@@ -5,16 +5,16 @@ export const itDomain: DomainDefinition = {
   id: "it-cybersecurity",
   appName: "IT PATH",
   field: "IT and cybersecurity",
-  awardingBody: "CompTIA",
+  awardingBody: "IT PATH",
   summary:
-    "IT and cybersecurity study from first principles through to certification level, covering hardware, operating systems, networking, security, Linux, servers and cloud.",
+    "IT and cybersecurity learning from first principles through advanced applied skills, covering hardware, operating systems, networking, security, Linux, servers and cloud.",
   sourceNote:
-    "Built to the published CompTIA exam objectives, with primary documentation and standards as reading.",
-  defaultQualification: "CompTIA Tech+",
+    "Built around practical technical skills, with primary documentation and standards as reading.",
+  defaultQualification: "Technology Foundations",
   defaultGoal: "IT Support Specialist",
   vocabulary: {
-    qualification: "certification",
-    qualifications: "certifications",
+    qualification: "learning path",
+    qualifications: "learning paths",
     section: "section",
     sections: "sections",
     lab: "lab",
