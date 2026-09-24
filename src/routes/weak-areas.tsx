@@ -151,7 +151,7 @@ function WeakAreas() {
 
   return (
     <>
-      <SectionTabs tabs={REVIEW_TABS} />
+      <SectionTabs tabs={REVIEW_TABS} variant="segmented" />
       <PageHeader
         title="Weak Areas"
         description="Focus on the concepts that need another pass."
