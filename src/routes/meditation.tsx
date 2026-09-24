@@ -28,6 +28,7 @@ function MeditationPage() {
   const [sound, setSound] = useState<(typeof sounds)[number]["id"] | null>(null);
   const [bellsEnabled, setBellsEnabled] = useState(true);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+  const bellAudioRef = useRef<HTMLAudioElement | null>(null);
   const lastBreathCueRef = useRef<"inhale" | "exhale" | null>(null);
 
   useEffect(() => {
@@ -39,16 +40,28 @@ function MeditationPage() {
   useEffect(() => () => {
     backgroundAudioRef.current?.pause();
     backgroundAudioRef.current = null;
+    stopBell();
   }, []);
 
+  function stopBell() {
+    bellAudioRef.current?.pause();
+    if (bellAudioRef.current) bellAudioRef.current.currentTime = 0;
+    bellAudioRef.current = null;
+  }
+
   function playBell(kind: "inhale" | "exhale") {
+    stopBell();
     const bell = new Audio(kind === "inhale" ? "/audio/meditation/inhale-bell.mp3" : "/audio/meditation/exhale-bell.mp3");
     bell.volume = 0.5;
-    void bell.play().catch(() => {});
+    bellAudioRef.current = bell;
+    void bell.play().catch(() => {
+      if (bellAudioRef.current === bell) bellAudioRef.current = null;
+    });
   }
 
   useEffect(() => {
     if (!running || !bellsEnabled) {
+      stopBell();
       lastBreathCueRef.current = null;
       return;
     }
@@ -115,16 +128,21 @@ function MeditationPage() {
           <p className="mt-1 font-mono text-sm tabular-nums text-muted-foreground">{minutes}:{seconds}</p>
           <div className="mt-5 flex gap-2">
             <Button onClick={() => {
-              if (!running && bellsEnabled) {
+              if (running) {
+                stopBell();
+                setRunning(false);
+                return;
+              }
+              if (bellsEnabled) {
                 lastBreathCueRef.current = "inhale";
                 playBell("inhale");
               }
-              setRunning((value) => !value);
+              setRunning(true);
             }} className="min-w-32 rounded-xl">
               {running ? <Pause aria-hidden /> : <Play aria-hidden />}
               {running ? "Pause" : "Start breathing"}
             </Button>
-            <Button variant="outline" size="icon" aria-label="Reset breathing timer" onClick={() => { setRunning(false); setElapsed(0); lastBreathCueRef.current = null; }}>
+            <Button variant="outline" size="icon" aria-label="Reset breathing timer" onClick={() => { setRunning(false); setElapsed(0); stopBell(); lastBreathCueRef.current = null; }}>
               <RotateCcw aria-hidden />
             </Button>
           </div>
@@ -153,7 +171,10 @@ function MeditationPage() {
         <button
           type="button"
           aria-pressed={bellsEnabled}
-          onClick={() => setBellsEnabled((value) => !value)}
+          onClick={() => {
+            if (bellsEnabled) stopBell();
+            setBellsEnabled((value) => !value);
+          }}
           className={cn(
             "mt-3 flex min-h-14 w-full items-center gap-3 rounded-xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
             bellsEnabled ? "border-primary/50 bg-primary/10" : "border-border/70 bg-secondary/30 hover:bg-secondary/60",
