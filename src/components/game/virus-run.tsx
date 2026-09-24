@@ -585,6 +585,22 @@ export function VirusRun() {
       ctx2.textAlign = "center";
       ctx2.textBaseline = "middle";
       ctx2.fillText(">", offX + (run.port.x + 0.5) * cell, offY + (run.port.y + 0.55) * cell);
+      if (run.portOpen) {
+        const portalX = offX + (run.port.x + 0.5) * cell;
+        const portalY = offY + (run.port.y + 0.5) * cell;
+        ctx2.save();
+        ctx2.strokeStyle = "rgba(94,234,212,0.78)";
+        ctx2.lineWidth = Math.max(1, cell * 0.07);
+        for (let ring = 0; ring < 3; ring++) {
+          ctx2.beginPath();
+          ctx2.arc(portalX, portalY, cell * (0.48 + ring * 0.13), time / (380 + ring * 110), time / (380 + ring * 110) + Math.PI * 1.3);
+          ctx2.stroke();
+        }
+        ctx2.fillStyle = "#99f6e4";
+        ctx2.font = `bold ${Math.max(7, cell * 0.24)}px ui-monospace, monospace`;
+        ctx2.fillText("EXIT", portalX, portalY - cell * 0.75);
+        ctx2.restore();
+      }
 
       // Data packets: faceted luminous cores with orbital rings.
       for (const packet of run.packets) {
