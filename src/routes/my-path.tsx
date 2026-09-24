@@ -170,7 +170,7 @@ function MyPath() {
         <div className="mb-4">
           <h2 id="your-order-heading" className="font-display text-2xl font-bold tracking-tight text-foreground">Your order</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {queue.entries.slice(0, 6).length} topics · Work through these in order.
+            {queue.entries.length} topics · Work through these in order.
           </p>
         </div>
 
