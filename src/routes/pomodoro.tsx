@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Timer } from "lucide-react";
+import { CheckSquare, Coffee, Pause, Play, RotateCcw, SlidersHorizontal, Square, Target, Timer } from "lucide-react";
 import { toast } from "sonner";
 
-import { LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
+import { LearnerPageSkeleton } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useAppState } from "@/state/app-state";
-import { CompactStat, CompactStats } from "@/components/learner-ui";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/pomodoro")({
   staticData: { sitemap: false },
@@ -130,63 +130,125 @@ function PomodoroPage() {
   if (!hydrated) return <LearnerPageSkeleton rows={2} metrics={3} />;
 
   return (
-    <>
-      <PageHeader
-        title="Pomodoro"
-        description="Focus in timed blocks. Log your progress."
-      />
+    <div className="relative -mx-4 -mt-4 min-h-screen overflow-hidden pb-12 text-white sm:-mx-6 sm:-mt-6 lg:-mx-8">
+      <div className="absolute inset-0 bg-[url('/images/meditation-background.png')] bg-cover bg-center" aria-hidden />
+      <div className="absolute inset-0 bg-background/55" aria-hidden />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background/90" aria-hidden />
 
-      <Panel className="mb-4 border-t-0 pt-0">
-        <div className="flex flex-col items-center gap-4 py-2">
-          <span className="text-sm uppercase tracking-[0.2em] text-muted-foreground">
-            {phase === "focus" ? "Focus" : "Break"}
-          </span>
-          <span className="font-display text-6xl font-semibold tabular-nums sm:text-7xl">
-            {clock(remaining)}
-          </span>
-          <div className="h-1.5 w-full max-w-md overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-primary transition-[width] duration-200 motion-reduce:transition-none"
-              style={{ width: `${Math.min(100, Math.max(0, progress * 100))}%` }}
-            />
+      <div className="relative mx-auto max-w-4xl px-4 pt-8 sm:px-6 lg:px-8">
+        <header className="text-center drop-shadow-md">
+          <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">Pomodoro</h1>
+          <p className="mt-2 text-sm text-white/75 sm:text-base">Focus in timed blocks. Get more done.</p>
+        </header>
+
+        <section className="mt-8 flex flex-col items-center">
+          <div className="relative grid size-72 place-items-center rounded-full border border-white/25 bg-background/65 shadow-2xl backdrop-blur-xl sm:size-80">
+            <svg className="absolute inset-0 size-full -rotate-90" viewBox="0 0 100 100" aria-hidden>
+              <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/10" />
+              <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" pathLength="100" strokeDasharray="100" strokeDashoffset={100 - Math.min(100, Math.max(0, progress * 100))} className="text-primary transition-[stroke-dashoffset] duration-200 motion-reduce:transition-none" />
+            </svg>
+            <div className="text-center">
+              <Target className="mx-auto mb-3 size-5 text-primary" aria-hidden />
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-white/65">{phase === "focus" ? "Focus" : "Break"}</p>
+              <p className="mt-2 font-display text-6xl font-semibold tabular-nums sm:text-7xl">{clock(remaining)}</p>
+              <p className="mt-2 text-sm text-white/60">{running ? (phase === "focus" ? "Stay with it" : "Take a breather") : "Ready to focus"}</p>
+            </div>
           </div>
-          <div className="flex flex-wrap justify-center gap-3">
-            <Button onClick={() => setRunning((value) => !value)}>
-              {running ? "Pause" : "Start"}
-            </Button>
-            <Button variant="outline" onClick={stop}>
-              Stop and log
-            </Button>
+
+          <div className="mt-5 flex items-start justify-center gap-5">
+            <TimerControl label="Reset" onClick={() => {
+              setRunning(false);
+              setElapsedFocus(0);
+              setPhase("focus");
+              setRemaining(focusMinutes * 60);
+            }}>
+              <RotateCcw aria-hidden />
+            </TimerControl>
+            <TimerControl label={running ? "Pause" : "Start"} primary onClick={() => setRunning((value) => !value)}>
+              {running ? <Pause aria-hidden /> : <Play aria-hidden />}
+            </TimerControl>
+            <TimerControl label="Stop & Log" onClick={stop}>
+              <Square aria-hidden />
+            </TimerControl>
           </div>
-        </div>
-      </Panel>
+        </section>
 
-      <CompactStats className="mb-4"><CompactStat label="Today" value={`${todayMinutes}m`} icon={Timer} /><CompactStat label="Blocks" value={completedBlocks} /><CompactStat label="Logged" value={`${Math.floor(elapsedFocus / 60)}m`} /></CompactStats>
+        <section className="mt-7 grid grid-cols-3 divide-x divide-white/15 rounded-2xl border border-white/20 bg-background/45 py-4 shadow-xl backdrop-blur-xl">
+          <FocusStat icon={Timer} value={`${todayMinutes}m`} label="Today" />
+          <FocusStat icon={CheckSquare} value={completedBlocks} label="Blocks" />
+          <FocusStat icon={Target} value={`${Math.floor(elapsedFocus / 60)}m`} label="Logged" />
+        </section>
 
-      <Panel title="Block lengths">
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div>
-            <Label className="mb-3 block">Focus: {focusMinutes} min</Label>
-            <Slider
-              value={[focusMinutes]}
+        <section className="mt-5 rounded-3xl border border-white/20 bg-background/45 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
+          <div className="flex items-center gap-3 border-b border-white/10 pb-4">
+            <SlidersHorizontal className="size-5 text-primary" aria-hidden />
+            <div>
+              <h2 className="font-display text-lg font-semibold">Session Setup</h2>
+              <p className="text-xs text-white/55">Adjust your focus and break lengths.</p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <DurationControl
+              icon={Target}
+              label="Focus Length"
+              value={focusMinutes}
               min={5}
               max={90}
               step={5}
-              onValueChange={([value]) => setFocusMinutes(value ?? 25)}
+              onChange={setFocusMinutes}
             />
-          </div>
-          <div>
-            <Label className="mb-3 block">Break: {breakMinutes} min</Label>
-            <Slider
-              value={[breakMinutes]}
+            <DurationControl
+              icon={Coffee}
+              label="Break Length"
+              value={breakMinutes}
               min={1}
               max={30}
               step={1}
-              onValueChange={([value]) => setBreakMinutes(value ?? 5)}
+              onChange={setBreakMinutes}
             />
           </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+
+function TimerControl({ label, onClick, primary = false, children }: { label: string; onClick: () => void; primary?: boolean; children: React.ReactNode }) {
+  return (
+    <div className="text-center">
+      <Button type="button" variant={primary ? "default" : "outline"} size="icon" onClick={onClick} className={cn("size-14 rounded-full backdrop-blur", !primary && "border-white/30 bg-background/50 text-white hover:bg-background/70 hover:text-white")}>
+        {children}
+      </Button>
+      <p className="mt-1.5 max-w-20 text-xs text-white/70">{label}</p>
+    </div>
+  );
+}
+
+function FocusStat({ icon: Icon, value, label }: { icon: typeof Timer; value: string | number; label: string }) {
+  return (
+    <div className="flex min-w-0 items-center justify-center gap-2 px-2">
+      <Icon className="size-4 shrink-0 text-primary" aria-hidden />
+      <div>
+        <p className="font-display text-lg font-semibold tabular-nums">{value}</p>
+        <p className="text-xs text-white/55">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function DurationControl({ icon: Icon, label, value, min, max, step, onChange }: { icon: typeof Timer; label: string; value: number; min: number; max: number; step: number; onChange: (value: number) => void }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-background/30 p-4">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Icon className="size-4 text-primary" aria-hidden />
+          <Label>{label}</Label>
         </div>
-      </Panel>
-    </>
+        <span className="font-mono text-sm font-semibold">{value} min</span>
+      </div>
+      <Slider value={[value]} min={min} max={max} step={step} onValueChange={([next]) => onChange(next ?? value)} />
+    </div>
   );
 }
