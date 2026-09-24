@@ -355,7 +355,7 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
 
     <LearningStage id="read-it" number="01" title="Learn It" icon={<BookOpen />}>
       <div id="lesson-reading" className="scroll-mt-24 space-y-4">
-        {deepLesson ? <DeepLessonReading lesson={deepLesson} /> : null}
+        {deepLesson ? <DeepLessonReading lesson={deepLesson} difficulty={topic.difficulty} /> : null}
         {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "key-ideas"))} className="scroll-mt-24"><LessonKeyIdeas depth={deepLesson.depth} /></div> : null}
         <div id={lessonConceptAnchor(lessonSectionId(topic.id, "core"))} className="scroll-mt-24"><Panel title={deepLesson ? "Core lesson summary" : lesson.title}>
           <div className="space-y-7 text-sm leading-7 text-muted-foreground">
