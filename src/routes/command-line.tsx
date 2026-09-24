@@ -205,10 +205,21 @@ function CommandLinePage() {
   function changeShell(value: TerminalAttempt["shell"]) {
     const next = scenariosForShell(value);
     setShell(value);
+    setReasoning("");
+    setCommand("");
+
+    if (workspaceView === "free") {
+      const free = freePlayScenario(value);
+      setGenerated(free);
+      setScenarioId(free.id);
+      setAttemptId("");
+      start(false, free);
+      return;
+    }
+
     setGenerated(null);
     setScenarioId(next[0]?.id ?? recommended.id);
     setAttemptId("");
-    setReasoning("");
   }
 
   function changeEnvironment(value: TerminalEnvironment) {
