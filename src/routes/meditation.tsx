@@ -68,9 +68,18 @@ function MeditationPage() {
       return;
     }
     stopSound();
-    const AudioContextCtor = window.AudioContext;
+    const AudioContextCtor = window.AudioContext ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextCtor) return;
     const context = new AudioContextCtor();
-    if (context.state === "suspended") await context.resume();
+    if (context.state === "suspended") {
+      const unlock = context.createOscillator();
+      const unlockGain = context.createGain();
+      unlockGain.gain.value = 0.0001;
+      unlock.connect(unlockGain).connect(context.destination);
+      unlock.start();
+      unlock.stop(context.currentTime + 0.02);
+      await context.resume();
+    }
     const gain = context.createGain();
     gain.gain.value = next === "music" ? 0.22 : 0.14;
     gain.connect(context.destination);
@@ -120,8 +129,11 @@ function MeditationPage() {
   }
 
   function playBell(kind: "inhale" | "exhale") {
-    const context = bellContextRef.current ?? new window.AudioContext();
+    const AudioContextCtor = window.AudioContext ?? (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextCtor) return;
+    const context = bellContextRef.current ?? new AudioContextCtor();
     bellContextRef.current = context;
+    if (context.state === "suspended") void context.resume();
     const now = context.currentTime;
     const base = kind === "inhale" ? 659.25 : 523.25;
     const variation = 0.96 + Math.random() * 0.08;
@@ -162,7 +174,7 @@ function MeditationPage() {
           <h2 className="mt-2 font-display text-2xl font-semibold">{running ? instruction : "Ready when you are"}</h2>
           <p className="mt-1 font-mono text-sm tabular-nums text-muted-foreground">{minutes}:{seconds}</p>
           <div className="mt-5 flex gap-2">
-            <Button onClick={() => setRunning((value) => !value)} className="min-w-32 rounded-xl">
+            <Button onClick={() => { if (!running && bells) playBell("inhale"); lastBellPhaseRef.current = !running ? "inhale" : null; setRunning((value) => !value); }} className="min-w-32 rounded-xl">
               {running ? <Pause aria-hidden /> : <Play aria-hidden />}
               {running ? "Pause" : "Start breathing"}
             </Button>
