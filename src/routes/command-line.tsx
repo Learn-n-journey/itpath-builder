@@ -18,7 +18,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import { PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { PageHeader, Panel } from "@/components/page-kit";
 import { ProGate } from "@/components/pro-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -354,13 +354,13 @@ function CommandLinePage() {
         actions={<Badge variant="outline"><ShieldCheck className="mr-1 size-3" aria-hidden /> Isolated</Badge>}
       />
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="Completed" value={completedCount} hint="Submitted scenarios" />
-        <StatCard label="Best score" value={`${bestScore}%`} hint="From real attempts" />
-        <StatCard label="Recommended" value={shellLabels[recommendedShell]} hint="Practice here to keep your skills balanced across devices" />
-      </div>
+      <section className="grid grid-cols-3 divide-x divide-border border-y border-border py-3" aria-label="Command-line practice summary">
+        <TerminalStat value={completedCount} label="Completed" />
+        <TerminalStat value={`${bestScore}%`} label="Best score" />
+        <TerminalStat value={shellLabels[recommendedShell]} label="Recommended" />
+      </section>
 
-      <Panel className="mt-5">
+      <section className="mt-5 border-y border-border py-4">
         <div className={`grid min-w-0 gap-4 sm:grid-cols-2 ${environment === "windows" ? "xl:grid-cols-[220px_180px_minmax(0,1fr)_180px]" : "xl:grid-cols-[220px_minmax(0,1fr)_180px]"}`}>
           <div className="min-w-0 space-y-2">
             <Label>Environment</Label>
@@ -416,7 +416,7 @@ function CommandLinePage() {
             </div>
           </div>
         </div>
-      </Panel>
+      </section>
 
       {!attempt ? (
         <Panel className="mt-5" title={scenario.title} description={shellLabels[scenario.shell]}>
@@ -429,11 +429,16 @@ function CommandLinePage() {
           </div>
         </Panel>
       ) : (
-        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="min-w-0 space-y-5">
-            <Panel title={scenario.title} description={`${shellLabels[scenario.shell]} · ${attempt.mode === "challenge" ? "No-hint challenge" : "Guided practice"}`}>
-              <p className="text-sm leading-relaxed text-muted-foreground">{scenario.brief}</p>
-            </Panel>
+        <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0 space-y-4">
+            <section className="border-b border-border pb-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="font-display text-lg font-semibold">{scenario.title}</h2>
+                <Badge variant="outline">{shellLabels[scenario.shell]}</Badge>
+                <Badge variant="secondary">{attempt.mode === "challenge" ? "Challenge" : "Guided"}</Badge>
+              </div>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{scenario.brief}</p>
+            </section>
 
             <section ref={terminalPanel} aria-label="Virtual terminal" data-shell={attempt.shell} className="terminal-window scroll-mt-20">
               {(() => {
@@ -510,7 +515,7 @@ function CommandLinePage() {
             )}
           </div>
 
-          <aside className="space-y-5">
+          <aside className="space-y-4 xl:border-l xl:border-border xl:pl-5">
             {isFree ? (
               <Panel title="Free terminal" description="Nothing is being scored here. Try commands and see what comes back.">
                 <p className="text-sm text-muted-foreground">Type <span className="font-mono">help</span> to see what this machine supports.</p>
@@ -600,6 +605,15 @@ function CommandLinePage() {
         </div>
       )}
     </>
+  );
+}
+
+function TerminalStat({ value, label }: { value: string | number; label: string }) {
+  return (
+    <div className="min-w-0 px-3 text-center">
+      <p className="truncate font-display text-lg font-semibold tabular-nums sm:text-xl">{value}</p>
+      <p className="mt-1 truncate text-[0.625rem] text-muted-foreground sm:text-xs">{label}</p>
+    </div>
   );
 }
 
