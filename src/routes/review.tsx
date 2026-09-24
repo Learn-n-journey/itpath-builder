@@ -84,7 +84,7 @@ function Review() {
 
   return (
     <>
-      <SectionTabs tabs={REVIEW_TABS} />
+      <SectionTabs tabs={REVIEW_TABS} variant="segmented" />
       <PageHeader
         title="Review"
         description="Retry missed questions, revisit weak concepts, and practise topics that are due."
