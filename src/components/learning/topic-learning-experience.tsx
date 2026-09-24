@@ -161,11 +161,11 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
   useEffect(() => {
     const applyHash = () => {
       const hash = window.location.hash.replace("#", "");
-      if (["recall", "practice"].includes(hash)) setTryTab(hash);
+      if (hash === "recall") setProveTab("recall");
       else if (["teach-back", "scenario"].includes(hash)) setProveTab(hash);
       else return;
       window.requestAnimationFrame(() => {
-        document.getElementById(["recall", "practice"].includes(hash) ? "try-it" : "prove-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.getElementById(hash === "practice" ? "try-it" : "prove-it")?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     };
     applyHash();
@@ -283,7 +283,12 @@ export function TopicLearningExperience({ topic }: { topic: Topic }) {
       expectedPoints: ownerTeachBack?.expectedPoints.length
         ? ownerTeachBack.expectedPoints
         : topic.learningObjectives,
-    });
+    }, topic.id);
+    if (!graded) {
+      const expected = ownerTeachBack?.expectedPoints.length ? ownerTeachBack.expectedPoints : topic.learningObjectives;
+      const ok = passesOffline(body, expected, `${lesson?.definition ?? ""} ${lesson?.whyItMatters ?? ""}`.trim() || topic.summary);
+      actions.addLearnerSignal({ topicId: topic.id, kind: "ai_grading", correct: ok, score: ok ? 1 : 0.4 });
+    }
     // Understanding rises with the quality of the explanation, never just for saving it.
     const understanding = graded ? Math.max(25, Math.round(graded.score * 0.8)) : 25;
     raiseProgress({ understanding: Math.max(progress.understanding, understanding), retention: Math.max(progress.retention, graded?.correct ? 25 : 10) });

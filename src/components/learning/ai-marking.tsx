@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { GaylMark } from "@/components/gayl/gayl-note";
 import { Progress } from "@/components/ui/progress";
 import { gradeWrittenAnswer, type GradeInput, type WrittenGrade } from "@/lib/grading.functions";
+import { offlineGrade } from "@/lib/offline-grade";
 import { knowledgeDigest } from "@/lib/knowledge-context";
 import { useKnowledge } from "@/hooks/use-knowledge";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -31,6 +32,14 @@ export function useAiMarking() {
 
   const mark = useCallback(
     async (input: GradeInput, topicId?: string): Promise<WrittenGrade | null> => {
+      // Offline first: clear-cut answers are marked here with no AI call.
+      const offline = offlineGrade(input);
+      if (offline) {
+        const local: WrittenGrade = { ...offline, correct: offline.status === "correct", criteria: [], aiMarked: false };
+        setState({ busy: false, grade: local, error: null });
+        if (topicId) actions.addLearnerSignal({ topicId, kind: "ai_grading", correct: local.correct, score: local.score / 100 });
+        return local;
+      }
       if (!isPro) {
         setState({
           busy: false,
