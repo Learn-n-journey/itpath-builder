@@ -31,14 +31,18 @@ export const recordFlowEvent = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }): Promise<{ ok: boolean }> => {
     if (!(TRACKED_FLOWS as readonly string[]).includes(data.flow)) return { ok: false };
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.rpc("bump_flow_event", {
-      _flow: data.flow,
-      _outcome: data.outcome,
-      _duration_ms: data.durationMs,
-      _slow: data.durationMs >= SLOW_MS,
-    });
-    return { ok: !error };
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { error } = await supabaseAdmin.rpc("bump_flow_event", {
+        _flow: data.flow,
+        _outcome: data.outcome,
+        _duration_ms: data.durationMs,
+        _slow: data.durationMs >= SLOW_MS,
+      });
+      return { ok: !error };
+    } catch {
+      return { ok: false };
+    }
   });
 
 /**
