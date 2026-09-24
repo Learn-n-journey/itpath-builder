@@ -7,12 +7,12 @@ import {
   CalendarDays,
   ChevronDown,
   Clock3,
-  FileText,
+  Brain,
   HelpCircle,
   Pencil,
-  Settings,
+  Wrench,
   Sparkles,
-  TrendingUp,
+  RotateCcw,
   Trophy,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -84,9 +84,9 @@ const previewGroups: Array<{
   icon: typeof BookOpen;
 }> = [
   { title: "Learn", detail: "New or incomplete topics", kinds: ["new_material", "weak_topic"], icon: BookOpen },
-  { title: "Recall", detail: "Quick practice questions", kinds: ["practice"], icon: FileText },
-  { title: "Practice", detail: "Hands-on labs or scenarios", kinds: ["lab", "assignment"], icon: Settings },
-  { title: "Review", detail: "Reinforce and check mastery", kinds: ["review", "quiz"], icon: TrendingUp },
+  { title: "Recall", detail: "Quick practice questions", kinds: ["practice"], icon: Brain },
+  { title: "Practice", detail: "Hands-on labs or scenarios", kinds: ["lab", "assignment"], icon: Wrench },
+  { title: "Review", detail: "Reinforce and check mastery", kinds: ["review", "quiz"], icon: RotateCcw },
 ];
 
 function StudyPlanPage() {
@@ -193,20 +193,20 @@ function StudyPlanPage() {
                     <div key={group.title} className="flex shrink-0 items-center">
                       <div
                         className={cn(
-                          "relative flex min-h-32 w-32 flex-col items-center rounded-xl border px-3 pb-5 pt-4 text-center sm:w-36",
-                          included ? "border-primary/35 bg-primary/5" : "border-border/70 bg-background/30 opacity-55",
+                          "relative flex min-h-36 w-32 flex-col items-center rounded-2xl border px-3 pb-6 pt-5 text-center sm:w-36",
+                          included ? "border-border bg-card shadow-sm" : "border-border/70 bg-card/60 opacity-55",
                         )}
                       >
-                        <span className={cn("flex size-9 items-center justify-center rounded-lg border", included ? "border-primary/25 bg-primary/10 text-primary" : "border-border bg-secondary text-muted-foreground")}>
+                        <span className={cn("flex size-10 items-center justify-center rounded-xl bg-secondary/70", included ? "text-primary" : "text-muted-foreground")}>
                           <Icon className="size-5" aria-hidden />
                         </span>
-                        <p className="mt-2 font-semibold text-foreground">{group.title}</p>
+                        <p className="mt-3 text-sm font-semibold text-foreground">{group.title}</p>
                         <p className="mt-1 text-[11px] leading-4 text-muted-foreground">{group.detail}</p>
-                        <span className={cn("absolute -bottom-3 left-1/2 flex size-7 -translate-x-1/2 items-center justify-center rounded-full border-2 bg-card text-xs font-bold", included ? "border-primary text-primary" : "border-border text-muted-foreground")}>
+                        <span className={cn("absolute -bottom-3 left-1/2 flex size-7 -translate-x-1/2 items-center justify-center rounded-full border bg-background text-xs font-bold shadow-sm", included ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>
                           {index + 1}
                         </span>
                       </div>
-                      {index < previewGroups.length - 1 ? <ArrowRight className="mx-1 size-4 shrink-0 text-muted-foreground/60" aria-hidden /> : null}
+                      {index < previewGroups.length - 1 ? <ArrowRight className="mx-1.5 size-4 shrink-0 text-muted-foreground/40" aria-hidden /> : null}
                     </div>
                   );
                 })}
