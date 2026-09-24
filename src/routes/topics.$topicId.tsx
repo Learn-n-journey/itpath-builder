@@ -235,15 +235,17 @@ function TopicPage() {
           <h2 className="mb-3 font-display text-lg font-bold text-foreground">Learning objectives</h2>
           <ul className="space-y-3">{topic.learningObjectives.map((objective) => <li key={objective} className="flex gap-3 text-sm text-muted-foreground"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /><span>{objective}</span></li>)}</ul>
         </section>
+      ) : activeTab === "resources" ? (
+        <div className="mb-5">
+          <TopicLearningExperience topic={topic} view="resources" />
+        </div>
       ) : (
-        <div className="mb-5 rounded-xl border border-border/70 bg-card p-4 text-sm text-muted-foreground">
-          {activeTab === "resources"
-            ? "Resources, reading, videos, and sources remain available in the learning stages below."
-            : "Your lesson notes and bookmarks remain available in Keep Handy below."}
+        <div className="mb-5">
+          <TopicLearningExperience topic={topic} view="notes" />
         </div>
       )}
 
-      <TopicLearningExperience topic={topic} />
+      {activeTab === "overview" ? <TopicLearningExperience topic={topic} /> : null}
 
       {mastered ? (
         <Panel className="mt-5 border-success/40" title={`${topic.title} mastered`}>
