@@ -187,8 +187,8 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Compare mobile results directly with the supplied reference while preserving the dark base theme
 
 ## Combined practice + proof
-- [ ] Merge Try It into Prove It; quiz in Prove It; all activities need 80%+ for mastery
-- [ ] Try It: replace Show answer with written box marked on general idea (offline)
-- [ ] Confirm written answers mark without AI
-- [ ] Practice It stage above Prove It (practice + check yourself), not counted toward mastery
-- [ ] Replace self-explanatory lesson captions with tap/hover ? help
+- [x] Merge Try It into Prove It; quiz in Prove It; all activities need 80%+ for mastery
+- [x] Try It: replace Show answer with written box marked on general idea (offline)
+- [x] Confirm written answers mark without AI
+- [x] Practice It stage above Prove It (practice + check yourself), not counted toward mastery
+- [x] Replace self-explanatory lesson captions with tap/hover ? help
