@@ -191,20 +191,20 @@ function StudyPlanPage() {
                     <div key={group.title} className="flex shrink-0 items-center">
                       <div
                         className={cn(
-                          "relative flex min-h-32 w-32 flex-col items-center rounded-2xl border px-3 pb-6 pt-4 text-center sm:w-36",
+                          "relative flex min-h-24 w-28 flex-col items-center rounded-xl border px-2.5 pb-4 pt-3 text-center sm:w-32",
                           included ? "border-border bg-card shadow-sm" : "border-border/70 bg-card/60 opacity-55",
                         )}
                       >
-                        <span className={cn("flex size-8 items-center justify-center rounded-lg bg-secondary/60", included ? "text-primary" : "text-muted-foreground")}>
-                          <Icon className="size-4" strokeWidth={1.8} aria-hidden />
+                        <span className={cn("flex size-6 items-center justify-center rounded-md bg-secondary/50", included ? "text-primary" : "text-muted-foreground")}>
+                          <Icon className="size-3.5" strokeWidth={1.8} aria-hidden />
                         </span>
-                        <p className="mt-2.5 text-sm font-semibold text-foreground">{group.title}</p>
-                        <p className="mt-1 text-[11px] leading-4 text-muted-foreground">{group.detail}</p>
-                        <span className={cn("absolute -bottom-3 left-1/2 flex size-7 -translate-x-1/2 items-center justify-center rounded-full border bg-background text-xs font-bold shadow-sm", included ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>
+                        <p className="mt-1.5 text-xs font-semibold text-foreground">{group.title}</p>
+                        <p className="mt-0.5 text-[10px] leading-3.5 text-muted-foreground">{group.detail}</p>
+                        <span className={cn("absolute -bottom-2.5 left-1/2 flex size-5 -translate-x-1/2 items-center justify-center rounded-full border bg-background text-[10px] font-bold shadow-sm", included ? "border-primary/50 text-primary" : "border-border text-muted-foreground")}>
                           {index + 1}
                         </span>
                       </div>
-                      {index < previewGroups.length - 1 ? <ArrowRight className="mx-1.5 size-4 shrink-0 text-muted-foreground/40" aria-hidden /> : null}
+                      {index < previewGroups.length - 1 ? <ArrowRight className="mx-1 size-3.5 shrink-0 text-muted-foreground/40" aria-hidden /> : null}
                     </div>
                   );
                 })}
