@@ -502,26 +502,15 @@ body {
   background-attachment: fixed;
 }
 
-.bg-card,
-.bg-card\/20,
-.bg-card\/25,
-.bg-card\/30,
-.bg-card\/35,
-.bg-card\/40,
-.bg-background\/25,
-.bg-background\/30,
-.bg-secondary\/30,
-.bg-secondary\/40 {
-  backdrop-filter: blur(14px) saturate(122%);
-  -webkit-backdrop-filter: blur(14px) saturate(122%);
-}
-
+/* Frost only intentional UI surfaces. Never blur open page/background areas. */
 .bg-card,
 .bg-card\/20,
 .bg-card\/25,
 .bg-card\/30,
 .bg-card\/35,
 .bg-card\/40 {
+  backdrop-filter: blur(12px) saturate(118%);
+  -webkit-backdrop-filter: blur(12px) saturate(118%);
   box-shadow: inset 0 1px 0 color-mix(in oklab, var(--color-foreground) 6%, transparent);
 }
 
