@@ -4,6 +4,8 @@ import { useMemo, useRef, useState } from "react";
 import {
   Brain,
   ExternalLink,
+  FolderOpen,
+  Library,
   FileText,
   Link2,
   Loader2,
@@ -14,7 +16,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { EmptyState, PageHeader, Panel, StatCard } from "@/components/page-kit";
+import { EmptyState, Panel } from "@/components/page-kit";
 import { ProGate } from "@/components/pro-gate";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -101,15 +103,9 @@ async function fileToBase64(file: File): Promise<string> {
 
 function KnowledgePage() {
   return (
-    <>
-      <PageHeader
-        title="Second Brain"
-        description="Save what you study: notes, links, videos, screenshots, PDFs. IT PATH reads it and wires the concepts into your topics and profile."
-      />
-      <ProGate feature="Second Brain">
-        <KnowledgeWorkspace />
-      </ProGate>
-    </>
+    <ProGate feature="Second Brain">
+      <KnowledgeWorkspace />
+    </ProGate>
   );
 }
 
@@ -258,13 +254,24 @@ function KnowledgeWorkspace() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Saved items" value={String(items.length)} />
-        <StatCard label="Concepts extracted" value={String(stats.concepts)} />
-        <StatCard label="Topics connected" value={String(stats.covered)} />
-        <StatCard label="Gaps flagged" value={String(stats.gaps)} />
-      </div>
+    <div className="space-y-5">
+      <header className="relative overflow-hidden rounded-2xl border border-border/70 bg-card/30 px-5 py-6 sm:px-6">
+        <div className="absolute inset-x-0 top-0 h-px bg-primary/70" />
+        <div className="relative flex items-start gap-4">
+          <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Brain className="size-6" aria-hidden /></div>
+          <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Personal knowledge workspace</p><h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">Second Brain</h1><p className="mt-1 max-w-2xl text-sm text-muted-foreground">Build your own searchable IT library. Save what matters, connect it to what you're learning, and ask questions against your material.</p></div>
+        </div>
+      </header>
+
+      <section className="grid overflow-hidden rounded-xl border border-border/70 bg-card/20 sm:grid-cols-2 lg:grid-cols-4">
+        <KnowledgeStat icon={Library} label="Saved items" value={items.length} />
+        <KnowledgeStat icon={Brain} label="Concepts" value={stats.concepts} />
+        <KnowledgeStat icon={FolderOpen} label="Topics connected" value={stats.covered} />
+        <KnowledgeStat icon={Search} label="Gaps flagged" value={stats.gaps} last />
+      </section>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="space-y-4">
 
       <Panel
         title="Ask your own material"
@@ -288,7 +295,7 @@ function KnowledgeWorkspace() {
           </Button>
         </div>
         {answer ? (
-          <div className="mt-4 rounded-lg border border-border/60 bg-muted/30 p-4">
+          <div className="mt-4 rounded-xl border border-primary/25 bg-primary/[0.05] p-4">
             {asked ? <p className="text-sm font-medium">You asked: {asked}</p> : null}
             <p className="mt-2 text-xs font-medium uppercase tracking-wide text-primary">
               From your saved material
@@ -310,8 +317,10 @@ function KnowledgeWorkspace() {
         ) : null}
       </Panel>
 
+        </div>
+        <aside className="space-y-4">
       <Panel
-        title="Add to Knowledge"
+        title="Add to your brain"
         description="Anything counts: a link with a note, a pasted article, a screenshot of a lab, a PDF study guide."
       >
         <div className="grid gap-4 md:grid-cols-2">
@@ -390,6 +399,9 @@ function KnowledgeWorkspace() {
         </div>
       </Panel>
 
+        </aside>
+      </div>
+
       <Panel title="Your library" description="Everything you have saved, newest first.">
         {loading ? (
           <p className="text-sm text-muted-foreground">Loading your material…</p>
@@ -427,7 +439,7 @@ function KnowledgeCard({
 }) {
   const Icon = kindIcon(item.kind);
   return (
-    <li className="rounded-lg border border-border/60 p-4">
+    <li className="rounded-xl border border-border/70 bg-card/20 p-4 transition-colors hover:bg-card/35">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="flex items-center gap-2 font-medium">
@@ -522,4 +534,9 @@ function KnowledgeCard({
       ) : null}
     </li>
   );
+}
+
+
+function KnowledgeStat({ icon: Icon, label, value, last = false }: { icon: typeof Brain; label: string; value: number; last?: boolean }) {
+  return <div className={`flex items-center gap-3 p-4 ${last ? "" : "border-b border-border/70 sm:border-b-0 sm:border-r"}`}><span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-4" aria-hidden /></span><div><p className="text-xl font-semibold tabular-nums">{value}</p><p className="text-xs text-muted-foreground">{label}</p></div></div>;
 }
