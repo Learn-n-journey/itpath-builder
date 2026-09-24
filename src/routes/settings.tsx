@@ -347,27 +347,6 @@ function SettingsPage() {
               </Select>
             </div>
 
-            <div>
-              <Label>Certification target</Label>
-              <Select
-                value={s.certificationTarget}
-                onValueChange={(v) => updateSettings({ certificationTarget: v })}
-              >
-                <SelectTrigger className="mt-1.5 w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {certifications.map((certification) => (
-                    <SelectItem key={certification.id} value={certification.title}>
-                      {certification.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="mt-2 text-xs text-muted-foreground">
-                This becomes the main course shown across Learn, Practice, Labs, quizzes, and your study plan.
-              </p>
-            </div>
           </div>
         </Panel>
       </div>
