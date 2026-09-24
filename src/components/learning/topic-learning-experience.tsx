@@ -432,7 +432,7 @@ function LearningStage({ id, number, title, description, icon, tone, children }:
 
 const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
 
-function mediaFor(topic: Topic): Resource[] {
+export function mediaFor(topic: Topic): Resource[] {
   {
     const direct = resources.filter((resource) => resource.topicIds.includes(topic.id));
     const related = resources.filter(
