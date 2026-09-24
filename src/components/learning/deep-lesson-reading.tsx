@@ -181,12 +181,12 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
               className="scroll-mt-24"
             >
               <AccordionTrigger className="text-left">
-                <span className="flex min-w-0 items-baseline gap-3">
+                <span className="flex min-w-0 flex-1 items-baseline gap-3">
                   <span className="font-mono text-xs text-primary">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="font-medium">{section.heading}</span>
-                   {reviewed ? <Check aria-hidden className="ml-auto size-4 shrink-0 self-center text-success" /> : null}
+                  <span className="min-w-0 font-medium">{section.heading}</span>
+                  {reviewed ? <Check aria-hidden className="ml-auto size-4 shrink-0 self-center text-success" /> : null}
                 </span>
               </AccordionTrigger>
               <AccordionContent>
