@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarCheck, CheckCircle2, Flame, Share2, Target, Trophy } from "lucide-react";
+import { CalendarCheck, CheckCircle2, Clock3, Flame, Share2, Sparkles, Target, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -43,6 +43,15 @@ export const Route = createFileRoute("/daily-challenge")({
   }),
   component: DailyChallengePage,
 });
+
+function ChallengeStat({ value, label }: { value: string | number; label: string }) {
+  return (
+    <div className="min-w-0 px-2 text-center">
+      <p className="font-display text-lg font-semibold tabular-nums sm:text-xl">{value}</p>
+      <p className="mt-1 truncate text-[0.625rem] text-muted-foreground sm:text-xs">{label}</p>
+    </div>
+  );
+}
 
 function DailyChallengePage() {
   const { user, hydrated } = useAppState();
@@ -170,10 +179,26 @@ function DailyChallengePage() {
         description="A short, focused quiz to build recall."
       />
 
-      <Panel
-        title="Choose your tier"
-      >
-        <div className="grid grid-cols-3 gap-2">
+      {challenge ? (
+        <section className="relative mt-2 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
+          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+          <div className="relative">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+              <Sparkles className="size-4" aria-hidden />Today · {dailyKeyLabel(challenge.dateKey)}
+            </p>
+            <h2 className="mt-3 font-display text-2xl font-semibold">Today's Challenge</h2>
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span className="font-medium text-foreground">{tierInfo(tier).label}</span>
+              <span>{challenge.questions.length} questions</span>
+              <span className="inline-flex items-center gap-1"><Clock3 className="size-3.5" aria-hidden />~{tier === "beginner" ? 3 : tier === "intermediate" ? 5 : 8} min</span>
+            </div>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">A quick daily test drawn from material across your learning path.</p>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="mt-4" aria-label="Challenge difficulty">
+        <div className="grid grid-cols-3 rounded-xl border border-border bg-card p-1">
           {DAILY_TIERS.map((item) => {
             const best = [...history.byTier.entries()]
               .filter(([key]) => key.endsWith(`:${item.id}`))
@@ -186,41 +211,24 @@ function DailyChallengePage() {
                 onClick={() => setTier(item.id)}
                 aria-pressed={active}
                 className={cn(
-                  "rounded-md border p-3 text-left transition-all",
-                  active
-                    ? "border-primary/60 bg-primary/10 shadow-[inset_0_1px_0_rgb(255_255_255/0.06)]"
-                    : "border-border/70 bg-secondary/30 hover:border-primary/40",
+                  "rounded-lg px-2 py-2.5 text-center transition-colors",
+                  active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                 )}
               >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-display text-sm font-semibold">{item.label}</span>
-                  <span className="text-xs tabular-nums text-muted-foreground">
-                    {item.count} questions
-                  </span>
-                </div>
-                <p className="mt-1 line-clamp-2 text-[0.6875rem] leading-4 text-muted-foreground">{item.description}</p>
-                <p className="mt-2 text-xs font-medium text-primary">
-                  {best > 0 ? `Your best: ${best}%` : "No score yet"}
-                </p>
+                <span className="block text-xs font-semibold sm:text-sm">{item.label}</span>
+                <span className={cn("mt-0.5 block text-[0.625rem]", active ? "text-primary-foreground/75" : "text-muted-foreground")}>{item.count} questions{best > 0 ? ` · ${best}% best` : ""}</span>
               </button>
             );
           })}
         </div>
-      </Panel>
+      </section>
 
-      <div className="mt-3 grid grid-cols-4 divide-x divide-border border-y border-border py-3">
-        <StatCard label={`Today, ${tierInfo(tier).label.toLowerCase()}`} value={today ? `${today.best}%` : "Not started"} />
-        <StatCard label="Attempts today" value={today?.attempts ?? 0} />
-        <StatCard label="Challenge streak" value={challengeStreak} />
-        <StatCard
-          label={`Best, ${tierInfo(tier).label.toLowerCase()}`}
-          value={tierBest > 0 ? `${tierBest}%` : "-"}
-          {...(tierBest >= 100 && tier !== "expert"
-            ? { hint: "Full marks here. Try the next tier up." }
-            : {})}
-        />
-      </div>
-
+      <section className="mt-4 grid grid-cols-4 divide-x divide-border border-y border-border py-3" aria-label="Daily challenge stats">
+        <ChallengeStat value={today ? `${today.best}%` : "—"} label="Today" />
+        <ChallengeStat value={today?.attempts ?? 0} label="Attempts" />
+        <ChallengeStat value={challengeStreak} label="Streak" />
+        <ChallengeStat value={tierBest > 0 ? `${tierBest}%` : "—"} label="Best" />
+      </section>
       {today ? (
         <Panel
           className="mt-5 border-primary/50"
@@ -319,15 +327,11 @@ function DailyChallengePage() {
         </div>
       </Panel>
 
+      {monthStats.days > 0 ? (
       <Panel
         title="Your last thirty days"
         description="One bar per day, tallest is your best score that day. Over a month you can see whether the line is drifting upwards."
       >
-        {monthStats.days === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Nothing to plot yet. Submit a few daily sets and the month view fills in.
-          </p>
-        ) : (
           <>
             <div className="flex h-28 items-end gap-[3px]">
               {monthKeys.map((key) => {
@@ -387,8 +391,8 @@ function DailyChallengePage() {
                     : "Steady across the month so far."}
             </p>
           </>
-        )}
       </Panel>
+      ) : null}
 
       <details className="group mt-5 border-t border-border pt-4">
         <summary className="cursor-pointer list-none text-sm font-medium text-primary [&::-webkit-details-marker]:hidden">How this works</summary>
