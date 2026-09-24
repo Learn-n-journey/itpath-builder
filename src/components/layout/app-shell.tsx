@@ -136,6 +136,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <MaintenanceGate pathname={pathname}>
     <div className="relative min-h-screen bg-background">
+      <div
+        className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png')" }}
+        aria-hidden
+      />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-background/30" aria-hidden />
+      <div className="pointer-events-none fixed inset-0 z-0 bg-gradient-to-b from-background/10 via-background/20 to-background/55" aria-hidden />
       <StudyReminder />
       <WelcomeTour />
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
