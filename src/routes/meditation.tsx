@@ -61,7 +61,7 @@ function MeditationPage() {
     audioRef.current = null;
   }
 
-  function toggleSound(next: (typeof sounds)[number]["id"]) {
+  async function toggleSound(next: (typeof sounds)[number]["id"]) {
     if (sound === next) {
       stopSound();
       setSound(null);
@@ -70,14 +70,15 @@ function MeditationPage() {
     stopSound();
     const AudioContextCtor = window.AudioContext;
     const context = new AudioContextCtor();
+    if (context.state === "suspended") await context.resume();
     const gain = context.createGain();
-    gain.gain.value = next === "music" ? 0.045 : 0.14;
+    gain.gain.value = next === "music" ? 0.22 : 0.14;
     gain.connect(context.destination);
     audioRef.current = context;
     gainRef.current = gain;
 
     if (next === "music") {
-      const notes = [261.63, 329.63, 392, 493.88, 440, 349.23];
+      const notes = [261.63, 293.66, 329.63, 392, 349.23, 293.66];
       let noteIndex = 0;
       const playPad = () => {
         const now = context.currentTime;
@@ -87,17 +88,17 @@ function MeditationPage() {
           const oscillator = context.createOscillator();
           const envelope = context.createGain();
           oscillator.type = voice === 0 ? "sine" : "triangle";
-          oscillator.frequency.value = frequency / 2;
+          oscillator.frequency.value = frequency;
           envelope.gain.setValueAtTime(0, now);
-          envelope.gain.linearRampToValueAtTime(0.12, now + 1.4);
-          envelope.gain.exponentialRampToValueAtTime(0.001, now + 7.5);
+          envelope.gain.linearRampToValueAtTime(voice === 0 ? 0.18 : 0.1, now + 0.35);
+          envelope.gain.exponentialRampToValueAtTime(0.001, now + 6.5);
           oscillator.connect(envelope).connect(gain);
           oscillator.start(now);
-          oscillator.stop(now + 8);
+          oscillator.stop(now + 7);
         });
       };
       playPad();
-      musicTimerRef.current = window.setInterval(playPad, 6000);
+      musicTimerRef.current = window.setInterval(playPad, 5000);
     } else {
       const seconds = 2;
       const buffer = context.createBuffer(1, context.sampleRate * seconds, context.sampleRate);
