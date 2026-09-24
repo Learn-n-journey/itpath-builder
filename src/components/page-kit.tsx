@@ -50,7 +50,7 @@ export function Panel({
 }) {
   const helpContent = help && description && descriptionVisibility === "help" ? <><span>{description}</span><span className="mt-2 block">{help}</span></> : help ?? (descriptionVisibility === "help" ? description : undefined);
   return (
-    <section id={id} className={cn("scroll-mt-24 border-t border-border/60 pt-4", className)}>
+    <section id={id} className={cn("panel motion-surface scroll-mt-24 p-4 sm:p-5", className)}>
       {title ? <div className="flex items-center gap-1.5"><h2 className="font-display text-lg font-semibold">{title}</h2>{helpContent ? <HelpTip label={`About ${title}`}>{helpContent}</HelpTip> : null}</div> : null}
       {title && description && descriptionVisibility === "visible" ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       {!title && description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
@@ -71,7 +71,7 @@ export function StatCard({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="min-w-0 py-1.5" data-icon={Icon ? "1" : undefined}>
+    <div className="panel min-w-0 p-3.5" data-icon={Icon ? "1" : undefined}>
       <p className="font-display text-xl font-semibold tabular-nums">{value}</p>
       <div className="mt-0.5 flex items-center gap-0.5 text-xs text-foreground/80">
         <span>{label}</span>
@@ -93,7 +93,7 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center px-4 py-6 text-center">
+    <div className="panel flex flex-col items-center px-4 py-8 text-center">
       {Icon ? (
         <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-secondary text-emphasis">
           <Icon className="size-5" aria-hidden />
