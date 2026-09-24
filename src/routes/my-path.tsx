@@ -269,7 +269,7 @@ function MyPath() {
                       </div>
                     </div>
                   ) : entry.unlocked ? (
-                    <div className="group relative flex items-center justify-between gap-3 rounded-xl border border-border/60 bg-card/60 p-3 transition-colors hover:border-border hover:bg-card/90 sm:p-3.5">
+                    <div className="group relative flex items-center justify-between gap-3 glass-surface rounded-xl border border-border/60 p-3 transition-colors hover:border-border sm:p-3.5">
                       <Link
                         to="/topics/$topicId"
                         params={{ topicId: entry.topic.id }}
@@ -289,7 +289,7 @@ function MyPath() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between gap-3 rounded-xl border border-border/40 bg-card/30 p-3 opacity-75 sm:p-3.5">
+                    <div className="flex items-center justify-between gap-3 glass-surface rounded-xl border border-border/40 p-3 opacity-75 sm:p-3.5">
                       <div className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
                         <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/30 bg-secondary/30 text-muted-foreground/50">
                           <TopicIcon className="size-5" aria-hidden />
@@ -311,7 +311,7 @@ function MyPath() {
           })}
         </div>
 
-        <div className="mt-4 flex items-center gap-3.5 rounded-2xl border border-border/60 bg-card/50 p-4">
+        <div className="glass-surface mt-4 flex items-center gap-3.5 rounded-2xl border border-border/60 p-4">
           <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-feature-amber/25 bg-feature-amber/10 text-feature-amber">
             <Trophy className="size-5" aria-hidden />
           </div>
@@ -376,7 +376,7 @@ function MyPath() {
                           to="/certifications/$certId"
                           params={{ certId: certification.id }}
                           aria-current={state === "current" ? "step" : undefined}
-                          className={cn("block rounded-lg border bg-card", state === "current" ? "border-border" : "border-border/60", state === "future" && "opacity-80")}
+                          className={cn("glass-surface block rounded-lg border", state === "current" ? "border-border" : "border-border/60", state === "future" && "opacity-80")}
                         >
                           <ContentRow icon={Award} accent={accent} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={progress} />
                         </Link>
