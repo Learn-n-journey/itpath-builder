@@ -237,7 +237,11 @@ function Dashboard() {
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} />;
 
   return (
-    <div className="mx-auto max-w-4xl pb-8">
+    <div className="relative -mx-3 -my-4 min-h-screen overflow-hidden pb-12 sm:-mx-5 sm:-my-6 lg:-mx-8 lg:-my-8">
+      <div className="absolute inset-0 bg-[url('/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png')] bg-cover bg-center bg-no-repeat" aria-hidden />
+      <div className="absolute inset-0 bg-background/45" aria-hidden />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/15 via-background/30 to-background/85" aria-hidden />
+      <div className="relative mx-auto max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
       <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border/60 pb-5">
         <div className="min-w-0">
           <Link to="/settings" className="group inline-flex max-w-full items-center gap-1.5 font-display text-base font-semibold tracking-tight text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-lg">
@@ -607,7 +611,7 @@ function Dashboard() {
 
       <p className="mt-8 text-xs text-muted-foreground">
         <Link to="/guide" className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">How scores are calculated</Link>
-      </p>
+      </p>\n      </div>
     </div>
   );
 }
