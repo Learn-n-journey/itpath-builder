@@ -244,7 +244,7 @@ function Dashboard() {
       <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border/60 pb-5">
         <div className="min-w-0">
           <Link to="/settings" className="group inline-flex max-w-full items-center gap-1.5 font-display text-base font-semibold tracking-tight text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-lg">
-            <span className="truncate">{path.certification.title}</span>
+            <span className="truncate">Your learning path</span>
             <ChevronDown className="size-4 shrink-0 text-primary motion-safe:transition-transform motion-safe:duration-150 group-hover:translate-y-0.5 motion-reduce:transition-none" aria-hidden />
           </Link>
           <p className="mt-0.5 truncate text-xs text-muted-foreground sm:text-sm">
@@ -495,13 +495,11 @@ function Dashboard() {
           <span className="font-display text-sm font-bold tabular-nums text-foreground">{measures.learningProgress}%</span>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-border/50">
-          {d.certificationReadiness[0] ? (
-            <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:pr-3">
-              <SlidersHorizontal className="size-4 text-feature-violet" aria-hidden />
-              <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">{d.certificationReadiness[0].title} readiness</p>
-              <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.certificationReadiness[0].overall}%</p>
-            </div>
-          ) : null}
+          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:pr-3">
+            <SlidersHorizontal className="size-4 text-feature-violet" aria-hidden />
+            <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Topics mastered</p>
+            <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.masteredTopics}</p>
+          </div>
           <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-3">
             <BarChart3 className="size-4 text-feature-blue" aria-hidden />
             <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Quiz average</p>
@@ -533,7 +531,6 @@ function Dashboard() {
           </div>
           {d.hasAnyActivity ? (
             <div className="mt-4 grid gap-6 lg:grid-cols-2">
-              <ReadinessPanel report={readiness} />
               <StreakPanel />
             </div>
           ) : null}
