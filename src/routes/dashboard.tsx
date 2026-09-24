@@ -15,7 +15,7 @@ import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismiss
 import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
 import { buildReadinessReport } from "@/lib/readiness-engine";
 import { resumeTarget} from "@/lib/resume";
-import { currentJourneyTopic, isTopicOpen, journeyTopics } from "@/lib/journey-order";
+import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics } from "@/lib/journey-order";
 import { certificationTopics } from "@/lib/cert-path";
 import { certifications } from "@/data/static-content";
 import { overallMeasures } from "@/lib/mastery-summary";
