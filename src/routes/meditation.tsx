@@ -18,8 +18,8 @@ export const Route = createFileRoute("/meditation")({
 
 const BREATH_SECONDS = 16;
 const sounds = [
-  { id: "rain", label: "Rain", icon: CloudRain, src: "/rain.mp3" },
-  { id: "music", label: "Meditation music", icon: Music2, src: "/meditation-music.mp3" },
+  { id: "rain", label: "Rain", icon: CloudRain, src: "/audio/meditation/rain.mp3" },
+  { id: "music", label: "Meditation music", icon: Music2, src: "/audio/meditation/meditation-music.mp3" },
 ] as const;
 
 function MeditationPage() {
@@ -41,7 +41,7 @@ function MeditationPage() {
   }, []);
 
   function playBell(kind: "inhale" | "exhale") {
-    const bell = new Audio(kind === "inhale" ? "/inhale-bell.mp3" : "/exhale-bell.mp3");
+    const bell = new Audio(kind === "inhale" ? "/audio/meditation/inhale-bell.mp3" : "/audio/meditation/exhale-bell.mp3");
     bell.volume = 0.5;
     void bell.play().catch(() => {});
   }
