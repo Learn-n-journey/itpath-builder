@@ -28,16 +28,16 @@ const PHASE_DEFS: Array<{ from: number; to: number; title: string; stage: string
   {
     from: 1,
     to: 7,
-    title: "Foundations and CompTIA A+",
+    title: "Computer Systems Foundations",
     stage: "Stage 1",
-    blurb: "How computers actually work, and the A+ hardware, software and troubleshooting material.",
+    blurb: "How computers actually work, including hardware, software, operating systems and troubleshooting.",
   },
   {
     from: 8,
     to: 13,
     title: "Networking and Security",
     stage: "Stage 2",
-    blurb: "Networks end to end, then the Network+ and Security+ core: protocols, hardening and threats.",
+    blurb: "Networks end to end, including protocols, infrastructure, hardening, threats and defensive fundamentals.",
   },
   {
     from: 14,
@@ -61,7 +61,7 @@ function asJourneyTopic(topic: (typeof coreTopics)[number]): JourneyTopic {
 
 /**
  * The authored IT path keeps its four hand-written stages. Any other subject
- * names its own stages after the qualifications its own package declares, so
+ * names its own stages after the learning areas its own package declares, so
  * the journey never reads like someone else's course.
  */
 function authoredPhases(): JourneyPhase[] {
