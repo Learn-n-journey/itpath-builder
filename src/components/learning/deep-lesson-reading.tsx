@@ -33,13 +33,15 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
   const activeId = useRef(sectionIds[0] ?? "");
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const savePosition = useCallback((sectionId = activeId.current) => {
+  // Saving the reading position never marks a part as reviewed. Opening or
+  // scrolling past a part is not reading it.
+  const savePosition = useCallback((sectionId = activeId.current, markReviewed = false) => {
     const element = document.getElementById(lessonConceptAnchor(sectionId));
     if (!element || !sectionIds.includes(sectionId)) return;
     const rect = element.getBoundingClientRect();
     const offset = Math.max(0, Math.min(1, (96 - rect.top) / Math.max(rect.height, 1)));
-    const reviewed = new Set(savedRef.current?.reviewedSectionIds ?? []);
-    reviewed.add(sectionId);
+    const reviewed = new Set((savedRef.current?.reviewedSectionIds ?? []).filter((id) => sectionIds.includes(id)));
+    if (markReviewed) reviewed.add(sectionId);
     actions.setReadingPosition({ topicId: lesson.topicId, sectionId, offset, contentFingerprint: fingerprint, updatedAt: new Date().toISOString(), reviewedSectionIds: [...reviewed] });
   }, [actions, fingerprint, lesson.topicId, sectionIds]);
 
@@ -52,6 +54,36 @@ export function DeepLessonReading({ lesson }: { lesson: DeepLesson }) {
   useEffect(() => {
     savedRef.current = saved;
   }, [saved]);
+
+  // A part counts as reviewed only once it has been open for a while and the
+  // reader has scrolled to its end.
+  const openedAt = useRef<Record<string, number>>({});
+  useEffect(() => {
+    const now = Date.now();
+    for (const id of openParts) openedAt.current[id] ??= now;
+    for (const id of Object.keys(openedAt.current)) if (!openParts.includes(id)) delete openedAt.current[id];
+  }, [openParts]);
+  useEffect(() => {
+    const MIN_OPEN_MS = 12000;
+    let frame = 0;
+    const check = () => {
+      frame = 0;
+      const done = new Set(savedRef.current?.reviewedSectionIds ?? []);
+      for (const id of openParts) {
+        if (done.has(id)) continue;
+        const since = openedAt.current[id];
+        if (!since || Date.now() - since < MIN_OPEN_MS) continue;
+        const element = document.getElementById(lessonConceptAnchor(id));
+        if (!element) continue;
+        const rect = element.getBoundingClientRect();
+        if (rect.bottom <= window.innerHeight && rect.bottom > 0) { savePosition(id, true); break; }
+      }
+    };
+    const onScroll = () => { if (!frame) frame = window.requestAnimationFrame(check); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const interval = window.setInterval(check, 4000);
+    return () => { window.removeEventListener("scroll", onScroll); window.clearInterval(interval); if (frame) window.cancelAnimationFrame(frame); };
+  }, [openParts, savePosition]);
 
   useEffect(() => {
     let frame = 0;
