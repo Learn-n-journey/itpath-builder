@@ -503,14 +503,27 @@ body {
   background-attachment: fixed;
 }
 
+/* Keep backdrop-filter out of transitions so glass renders at its final state immediately. */
+.glass-surface,
+.panel,
+[class*="bg-card/"],
+[data-slot="card"],
+[data-slot="dialog-content"],
+[data-slot="sheet-content"],
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="select-content"] {
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform !important;
+}
+
 /* One glass recipe for every card-like surface over themed backgrounds. */
 .glass-surface,
 .panel,
 [class*="bg-card/"] {
   background-color: color-mix(in oklab, var(--color-card) 16%, transparent) !important;
   border-color: color-mix(in oklab, var(--color-foreground) 20%, transparent) !important;
-  backdrop-filter: blur(18px) saturate(125%) brightness(1.06) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(125%) brightness(1.06) !important;
+  backdrop-filter: blur(9px) saturate(132%) brightness(1.08) !important;
+  -webkit-backdrop-filter: blur(9px) saturate(132%) brightness(1.08) !important;
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, white 15%, transparent),
     0 12px 32px -26px color-mix(in oklab, var(--color-background) 60%, transparent) !important;
@@ -524,8 +537,8 @@ body {
 .bg-card\/35,
 .bg-card\/40 {
   background-color: color-mix(in oklab, var(--color-card) 12%, transparent) !important;
-  backdrop-filter: blur(18px) saturate(125%) brightness(1.06);
-  -webkit-backdrop-filter: blur(18px) saturate(125%) brightness(1.06);
+  backdrop-filter: blur(9px) saturate(132%) brightness(1.08);
+  -webkit-backdrop-filter: blur(9px) saturate(132%) brightness(1.08);
   border-color: color-mix(in oklab, var(--color-foreground) 18%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in oklab, white 14%, transparent);
 }
@@ -537,8 +550,8 @@ body {
 [data-slot="dropdown-menu-content"],
 [data-slot="select-content"] {
   background: color-mix(in oklab, var(--color-card) 30%, transparent);
-  backdrop-filter: blur(18px) saturate(128%);
-  -webkit-backdrop-filter: blur(18px) saturate(128%);
+  backdrop-filter: blur(10px) saturate(132%);
+  -webkit-backdrop-filter: blur(10px) saturate(132%);
   border-color: color-mix(in oklab, var(--color-foreground) 17%, var(--color-border));
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, var(--color-foreground) 8%, transparent),
@@ -549,8 +562,8 @@ input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 button[role="combobox"] {
   background-color: color-mix(in oklab, var(--color-background) 20%, transparent);
-  backdrop-filter: blur(12px) saturate(120%);
-  -webkit-backdrop-filter: blur(12px) saturate(120%);
+  backdrop-filter: blur(6px) saturate(125%);
+  -webkit-backdrop-filter: blur(6px) saturate(125%);
 }
 
 @supports not (backdrop-filter: blur(1px)) {
