@@ -158,17 +158,21 @@ function MeditationPage() {
   const seconds = String(elapsed % 60).padStart(2, "0");
 
   return (
-    <div className="mx-auto max-w-6xl pb-12">
-      <header className="mb-6 text-center">
+    <div className="relative -mx-4 -mt-4 min-h-screen overflow-hidden pb-12 text-white sm:-mx-6 sm:-mt-6 lg:-mx-8">
+      <div className="absolute inset-0 bg-[url('/images/meditation-background.png')] bg-cover bg-center" aria-hidden />
+      <div className="absolute inset-0 bg-background/45" aria-hidden />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/15 via-background/25 to-background/80" aria-hidden />
+      <div className="relative mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
+      <header className="mb-6 text-center drop-shadow-md">
         <div className="mx-auto flex items-center justify-center gap-2">
           <Wind className="size-6 text-primary" aria-hidden />
           <h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Meditation</h1>
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">Breathe · Be present · Reset your focus</p>
+        <p className="mt-2 text-sm text-white/80">Breathe · Be present · Feel better</p>
       </header>
 
-      <section className="relative overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-feature-blue/5" aria-hidden />
+      <section className="relative overflow-hidden rounded-3xl border border-white/20 bg-background/25 shadow-2xl backdrop-blur-md">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-background/20" aria-hidden />
         <div className="relative px-5 py-8 sm:px-8 sm:py-10">
           <div className="mx-auto max-w-2xl text-center">
             <p className="font-serif text-3xl leading-tight sm:text-5xl">A calmer mind is a brighter you</p>
@@ -178,7 +182,7 @@ function MeditationPage() {
           </div>
 
           <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-            <div className="rounded-2xl border border-border/60 bg-background/60 p-4 backdrop-blur">
+            <div className="rounded-2xl border border-white/20 bg-background/45 p-4 shadow-xl backdrop-blur-xl">
               <div className="mb-3 flex items-center gap-2">
                 <Wind className="size-4 text-feature-cyan" aria-hidden />
                 <h2 className="font-semibold">Breathing Exercise</h2>
@@ -211,7 +215,7 @@ function MeditationPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border/60 bg-background/60 p-4 backdrop-blur">
+            <div className="rounded-2xl border border-white/20 bg-background/45 p-4 shadow-xl backdrop-blur-xl">
               <div className="mb-3 flex items-center gap-2">
                 <Headphones className="size-4 text-feature-cyan" aria-hidden />
                 <h2 className="font-semibold">Session</h2>
@@ -236,7 +240,7 @@ function MeditationPage() {
         </div>
       </section>
 
-      <section className="mt-5 rounded-3xl border border-border/60 bg-card p-5 shadow-sm sm:p-6">
+      <section className="mt-5 rounded-3xl border border-white/20 bg-background/45 p-5 shadow-2xl backdrop-blur-xl sm:p-6">
         <div className="flex items-center gap-2">
           <Volume2 className="size-4 text-feature-cyan" aria-hidden />
           <h2 className="font-serif text-xl font-semibold">Ambient Sounds</h2>
@@ -283,7 +287,7 @@ function MeditationPage() {
         </label>
       </section>
 
-      <section className="mt-5 border-t border-border/60 pt-5">
+      <section className="mt-5 rounded-3xl border border-white/15 bg-background/40 p-5 backdrop-blur-xl">
         <h2 className="font-serif text-lg font-semibold">Meditation resources</h2>
         <p className="mt-1 text-sm text-muted-foreground">Optional outside resources for guided practice and mindfulness basics.</p>
         <div className="mt-3 divide-y divide-border/60">
@@ -291,6 +295,7 @@ function MeditationPage() {
           <Resource href="https://www.va.gov/WHOLEHEALTHLIBRARY/tools/mindful-awareness.asp" title="Mindful awareness" detail="U.S. Department of Veterans Affairs practice guide" />
         </div>
       </section>
+      </div>
     </div>
   );
 }
