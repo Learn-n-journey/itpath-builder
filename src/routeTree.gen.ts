@@ -37,6 +37,7 @@ import { Route as KnowledgeRouteImport } from './routes/knowledge'
 import { Route as LabsRouteImport } from './routes/labs'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as LearnerRouteImport } from './routes/learner'
+import { Route as MeditationRouteImport } from './routes/meditation'
 import { Route as MeetGaylRouteImport } from './routes/meet-gayl'
 import { Route as MyPathRouteImport } from './routes/my-path'
 import { Route as ObdScannerRouteImport } from './routes/obd-scanner'
@@ -219,6 +220,11 @@ const LearnRoute = LearnRouteImport.update({
 const LearnerRoute = LearnerRouteImport.update({
   id: '/learner',
   path: '/learner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeditationRoute = MeditationRouteImport.update({
+  id: '/meditation',
+  path: '/meditation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MeetGaylRoute = MeetGaylRouteImport.update({
@@ -467,6 +473,7 @@ export interface FileRoutesByFullPath {
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/learner': typeof LearnerRoute
+  '/meditation': typeof MeditationRoute
   '/meet-gayl': typeof MeetGaylRoute
   '/my-path': typeof MyPathRoute
   '/obd-scanner': typeof ObdScannerRoute
@@ -540,6 +547,7 @@ export interface FileRoutesByTo {
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/learner': typeof LearnerRoute
+  '/meditation': typeof MeditationRoute
   '/meet-gayl': typeof MeetGaylRoute
   '/my-path': typeof MyPathRoute
   '/obd-scanner': typeof ObdScannerRoute
@@ -614,6 +622,7 @@ export interface FileRoutesById {
   '/labs': typeof LabsRoute
   '/learn': typeof LearnRoute
   '/learner': typeof LearnerRoute
+  '/meditation': typeof MeditationRoute
   '/meet-gayl': typeof MeetGaylRoute
   '/my-path': typeof MyPathRoute
   '/obd-scanner': typeof ObdScannerRoute
@@ -689,6 +698,7 @@ export interface FileRouteTypes {
     | '/labs'
     | '/learn'
     | '/learner'
+    | '/meditation'
     | '/meet-gayl'
     | '/my-path'
     | '/obd-scanner'
@@ -762,6 +772,7 @@ export interface FileRouteTypes {
     | '/labs'
     | '/learn'
     | '/learner'
+    | '/meditation'
     | '/meet-gayl'
     | '/my-path'
     | '/obd-scanner'
@@ -835,6 +846,7 @@ export interface FileRouteTypes {
     | '/labs'
     | '/learn'
     | '/learner'
+    | '/meditation'
     | '/meet-gayl'
     | '/my-path'
     | '/obd-scanner'
@@ -909,6 +921,7 @@ export interface RootRouteChildren {
   LabsRoute: typeof LabsRoute
   LearnRoute: typeof LearnRoute
   LearnerRoute: typeof LearnerRoute
+  MeditationRoute: typeof MeditationRoute
   MeetGaylRoute: typeof MeetGaylRoute
   MyPathRoute: typeof MyPathRoute
   ObdScannerRoute: typeof ObdScannerRoute
@@ -1150,6 +1163,13 @@ declare module '@tanstack/react-router' {
       path: '/learner'
       fullPath: '/learner'
       preLoaderRoute: typeof LearnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meditation': {
+      id: '/meditation'
+      path: '/meditation'
+      fullPath: '/meditation'
+      preLoaderRoute: typeof MeditationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/meet-gayl': {
@@ -1485,6 +1505,7 @@ const rootRouteChildren: RootRouteChildren = {
   LabsRoute: LabsRoute,
   LearnRoute: LearnRoute,
   LearnerRoute: LearnerRoute,
+  MeditationRoute: MeditationRoute,
   MeetGaylRoute: MeetGaylRoute,
   MyPathRoute: MyPathRoute,
   ObdScannerRoute: ObdScannerRoute,
