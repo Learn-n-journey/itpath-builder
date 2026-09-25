@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Check, MessageCircle, Send, UserPlus, Users, X } from "lucide-react";
-import { useMemo,useState } from "react";
+import { useEffect,useMemo,useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,7 @@ function MessagesPage(){
  const targetFriendship=search.user?friendships.find(f=>f.status==="accepted"&&(f.requesterId===search.user||f.addresseeId===search.user)):undefined;
  const effectiveActive=active??targetFriendship?.id??null;
  const dm=useDirectMessages(effectiveActive);
+ useEffect(()=>{if(!effectiveActive)return;void dm.markRead().catch(()=>{});},[effectiveActive,dm.messages.length]);
  const names=useMemo(()=>{const m=new Map<string,string>();for(const p of community)m.set(p.userId,p.displayName);return m},[community]);
  const accepted=friendships.filter(f=>f.status==="accepted"), incoming=friendships.filter(f=>f.status==="pending"&&f.addresseeId===userId);
  const candidates=useMemo(()=>{const existing=new Set(friendships.flatMap(f=>[f.requesterId,f.addresseeId]));return [...new Map(community.filter(p=>p.userId!==userId&&!existing.has(p.userId)).map(p=>[p.userId,p.displayName])).entries()].slice(0,20)},[community,friendships,userId]);
