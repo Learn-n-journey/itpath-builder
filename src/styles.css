@@ -482,6 +482,14 @@ html.light[data-subject="auto-repair"] {
   background-repeat: no-repeat;
 }
 
+.app-wallpaper {
+  background-image: url("/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2010_19_08%20PM.png");
+}
+
+.dark .app-wallpaper {
+  background-image: url("/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png");
+}
+
 /* Global glass shell. Background artwork will be layered underneath this system later. */
 body {
   background-image:
