@@ -55,6 +55,7 @@ const STAGES: StageTheme[] = [
 interface Best {
   bestLevel: number;
   packets: number;
+  currentLevel: number;
 }
 
 function readBest(): Best {
@@ -62,12 +63,18 @@ function readBest(): Best {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<Best>;
-      return { bestLevel: parsed.bestLevel ?? 0, packets: parsed.packets ?? 0 };
+      const bestLevel = Math.max(0, Number(parsed.bestLevel) || 0);
+      const currentLevel = Math.max(1, Number(parsed.currentLevel) || bestLevel + 1 || 1);
+      return {
+        bestLevel,
+        packets: Math.max(0, Number(parsed.packets) || 0),
+        currentLevel,
+      };
     }
   } catch {
     /* ignore */
   }
-  return { bestLevel: 0, packets: 0 };
+  return { bestLevel: 0, packets: 0, currentLevel: 1 };
 }
 
 function writeBest(best: Best): void {
@@ -267,7 +274,7 @@ export function VirusRun() {
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
-  const bestRef = useRef<Best>({ bestLevel: 0, packets: 0 });
+  const bestRef = useRef<Best>({ bestLevel: 0, packets: 0, currentLevel: 1 });
 
   const [phase, setPhase] = useState<Phase>("menu");
   const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0 });
@@ -293,7 +300,7 @@ export function VirusRun() {
 
   const startRun = useCallback(() => {
     bestRef.current = readBest();
-    runRef.current = buildLevel(1);
+    runRef.current = buildLevel(bestRef.current.currentLevel);
     distFieldRef.current = null;
     fieldAgeRef.current = 999;
     keysRef.current = [];
@@ -475,6 +482,7 @@ export function VirusRun() {
             const next: Best = {
               bestLevel: Math.max(best.bestLevel, run.level - 1),
               packets: best.packets + run.collected,
+              currentLevel: Math.max(1, run.level),
             };
             writeBest(next);
             bestRef.current = next;
@@ -490,8 +498,13 @@ export function VirusRun() {
         // Level cleared: heal one point (capped) and bank packets.
         run.integrity = Math.min(MAX_INTEGRITY, run.integrity + 1);
         const best = readBest();
-        writeBest({ bestLevel: Math.max(best.bestLevel, run.level), packets: best.packets + run.collected });
-        bestRef.current = { bestLevel: Math.max(best.bestLevel, run.level), packets: best.packets + run.collected };
+        const next: Best = {
+          bestLevel: Math.max(best.bestLevel, run.level),
+          packets: best.packets + run.collected,
+          currentLevel: run.level + 1,
+        };
+        writeBest(next);
+        bestRef.current = next;
         syncHud(run);
         levelClearTimerRef.current = 1.4;
         setPhaseBoth("levelclear");
