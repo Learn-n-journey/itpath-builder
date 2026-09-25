@@ -336,20 +336,7 @@ function Dashboard() {
                   </Link>
                 </Button>
 
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="h-12 w-full rounded-xl border-border/60 bg-card/50 px-6 font-semibold text-foreground backdrop-blur-sm motion-safe:transition-all motion-safe:duration-150 hover:bg-secondary/70 active:scale-[0.985] motion-reduce:transition-none sm:w-auto"
-                >
-                  <Link
-                    to="/study-plan"
-                    className="inline-flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <BookOpen className="size-4 text-muted-foreground" aria-hidden="true" />
-                    <span>Study Plan</span>
-                  </Link>
-                </Button>
+
               </div>
             </div>
           </>
@@ -397,6 +384,14 @@ function Dashboard() {
           </div>
         ) : null}
       </section>
+
+      {d.hasAnyActivity ? (
+        <section className="mb-6 grid grid-cols-3 divide-x divide-border/50 rounded-xl border border-border/50 bg-card/40 py-3" aria-label="Learning status">
+          <div className="px-3 text-center"><p className="text-lg font-bold tabular-nums">{currentTopicPercent}%</p><p className="text-[10px] text-muted-foreground">Current topic</p></div>
+          <div className="px-3 text-center"><p className="text-lg font-bold tabular-nums">{reviewTopics.length}</p><p className="text-[10px] text-muted-foreground">Due review</p></div>
+          <div className="px-3 text-center"><p className="text-lg font-bold tabular-nums">{d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p><p className="text-[10px] text-muted-foreground">Streak</p></div>
+        </section>
+      ) : null}
 
       <section className="mb-8">
         <div className="mb-3 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Explore</p><h2 className="font-display text-xl font-semibold">Find your next thing</h2></div><Link to="/learn" className="text-xs font-semibold text-primary hover:underline">See all</Link></div>
