@@ -143,8 +143,8 @@ function CommunityPage() {
   }
 
   return (
-    <>
-      <SocialHero />
+    <div className="fixed inset-x-0 top-16 bottom-0 z-30 flex flex-col overflow-hidden bg-background sm:top-0">
+      <div className="shrink-0 bg-background px-3 pt-2 sm:px-5"><SocialHero />
 
       {needsName || editingName ? (
         <section className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
@@ -157,9 +157,9 @@ function CommunityPage() {
             {displayName ? <Button type="button" variant="ghost" onClick={() => setEditingName(false)}>Cancel</Button> : null}
           </form>
         </section>
-      ) : null}
+      ) : null}</div>
 
-      <div className="mx-auto max-w-2xl pb-28">
+      <div className="mx-auto flex min-h-0 w-full max-w-2xl flex-1 flex-col overflow-hidden">
         <aside className="hidden">
           <nav className="sticky top-4 space-y-1">
             <SocialNav icon={<Home className="size-5"/>} label="Home" active />
@@ -172,8 +172,8 @@ function CommunityPage() {
           </nav>
         </aside>
 
-        <section className="min-w-0">
-          <form onSubmit={handleSend} className="mb-2 border-b border-border/60 bg-background pb-3">
+        <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <form onSubmit={handleSend} className="shrink-0 border-b border-border/60 bg-background px-3 pb-3 sm:px-5">
             <div className="flex gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(displayName||"?").charAt(0).toUpperCase()}</div>
               <div className="min-w-0 flex-1">
@@ -188,8 +188,8 @@ function CommunityPage() {
               </div>
             </div>
           </form>
-          <div className="mb-2 flex items-center justify-between border-b border-border/60 py-2"><div className="flex gap-4"><button onClick={()=>setFeedMode("latest")} className={cn("text-sm font-semibold",feedMode==="latest"?"text-foreground":"text-muted-foreground")}>Latest</button><button onClick={()=>setFeedMode("popular")} className={cn("text-sm font-semibold",feedMode==="popular"?"text-foreground":"text-muted-foreground")}>Popular</button></div><select aria-label="Community" value={room} onChange={e=>void navigate({search:{room:e.target.value}})} className="max-w-40 bg-transparent text-right text-xs text-muted-foreground outline-none">{rooms.map(entry=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
-          <div ref={listRef} className="space-y-3">
+          <div className="shrink-0 flex items-center justify-between border-b border-border/60 px-3 py-2 sm:px-5"><div className="flex gap-4"><button onClick={()=>setFeedMode("latest")} className={cn("text-sm font-semibold",feedMode==="latest"?"text-foreground":"text-muted-foreground")}>Latest</button><button onClick={()=>setFeedMode("popular")} className={cn("text-sm font-semibold",feedMode==="popular"?"text-foreground":"text-muted-foreground")}>Popular</button></div><select aria-label="Community" value={room} onChange={e=>void navigate({search:{room:e.target.value}})} className="max-w-40 bg-transparent text-right text-xs text-muted-foreground outline-none">{rooms.map(entry=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
+          <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 sm:px-5">
             {loading ? (
               <p className="p-3 text-sm text-muted-foreground">Loading the room.</p>
             ) : messages.length === 0 ? (
@@ -246,7 +246,7 @@ function CommunityPage() {
           <div className="rounded-2xl border border-border/70 bg-card/60 p-4 text-xs leading-relaxed text-muted-foreground"><p className="font-semibold text-foreground">Community standards</p><p className="mt-2">Learn openly. Help when you can. Disagree respectfully. Report content that crosses the line.</p></div>
         </aside>
       </div>
-      <nav className="fixed bottom-0 left-0 right-0 z-[100] border-t border-border/70 bg-background/95 px-4 pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl" style={{paddingBottom:"max(.6rem, env(safe-area-inset-bottom))",position:"fixed"}}>
+      <nav className="z-[100] shrink-0 border-t border-border/70 bg-background/95 px-4 pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl" style={{paddingBottom:"max(.6rem, env(safe-area-inset-bottom))"}}>
         <div className="mx-auto flex max-w-md items-center justify-around">
           <DockButton icon={<Home className="size-5"/>} label="Home" active onClick={()=>{setFeedMode("latest");void navigate({search:{room:GENERAL_ROOM}})}}/>
           <DockButton icon={<TrendingUp className="size-5"/>} label="Popular" active={feedMode==="popular"} onClick={()=>setFeedMode("popular")}/>
@@ -255,7 +255,7 @@ function CommunityPage() {
           <DockButton icon={<MessagesSquare className="size-5"/>} label="Messages" onClick={()=>void navigate({to:"/messages"} as any)}/>
         </div>
       </nav>
-    </>
+    </div>
   );
 }
 
