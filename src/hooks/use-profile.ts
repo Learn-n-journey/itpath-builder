@@ -26,7 +26,7 @@ export function useProfile(profileId?: string) {
         // Legacy public profile-image URLs point at a private bucket.
         // Extract their object key so we can sign them instead.
         const match = raw.match(/\/storage\/v1\/object\/public\/profile-images\/(.+)$/);
-        const key = match ? match[1] : raw;
+        const key: string = match?.[1] ?? raw;
 
         if (/^https?:\/\//i.test(key)) {
           // Keep genuine external avatars (Google OAuth, Gravatar, etc.) as-is.
@@ -132,7 +132,7 @@ export function useProfiles(profileIds: string[]) {
         let avatarUrl: string | null = null;
         if (raw) {
           const match = raw.match(/\/storage\/v1\/object\/public\/profile-images\/(.+)$/);
-          const key = match ? match[1] : raw;
+          const key: string = match?.[1] ?? raw;
           if (/^https?:\/\//i.test(key)) avatarUrl = key;
           else {
             const { data: signed } = await supabase.storage.from("profile-images").createSignedUrl(key, 3600);

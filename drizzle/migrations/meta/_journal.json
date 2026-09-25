@@ -148,6 +148,13 @@
       "when": 1790320982716,
       "tag": "0020_profile_avatars",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1790342379588,
+      "tag": "0021_tighten_permissive_policies",
+      "breakpoints": true
     }
   ]
 }
