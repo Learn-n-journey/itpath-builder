@@ -270,8 +270,8 @@ function KnowledgeWorkspace() {
         <KnowledgeStat icon={Search} label="Gaps flagged" value={stats.gaps} last />
       </section>
 
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
-        <div>
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="space-y-4">
 
       <Panel
         title="Ask your own material"
@@ -315,29 +315,6 @@ function KnowledgeWorkspace() {
             </Button>
           </div>
         ) : null}
-      </Panel>
-
-      <Panel className="mt-4" title="Your library" description="Everything you have saved, newest first.">
-        {loading ? (
-          <p className="text-sm text-muted-foreground">Loading your material…</p>
-        ) : items.length === 0 ? (
-          <EmptyState
-            icon={Brain}
-            title="Nothing saved yet"
-            body="Add your first note, link or screenshot above. Once it is in, the tutor, lessons and study plan can use it."
-          />
-        ) : (
-          <ul className="space-y-3">
-            {items.map((item) => (
-              <KnowledgeCard
-                key={item.id}
-                item={item}
-                onDelete={() => void onDelete(item.id)}
-                onOpenFile={() => item.filePath && void openFile(item.filePath)}
-              />
-            ))}
-          </ul>
-        )}
       </Panel>
 
         </div>
@@ -403,3 +380,163 @@ function KnowledgeWorkspace() {
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="k-file">File (optional, image, PDF or text, under 8 MB)</Label>
             <Input
+              id="k-file"
+              ref={fileRef}
+              type="file"
+              accept="image/*,application/pdf,text/plain,text/markdown"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+          </div>
+        </div>
+        <div className="mt-4 flex items-center gap-3">
+          <Button onClick={() => void onSave()} disabled={saving}>
+            {saving ? <Loader2 className="animate-spin" aria-hidden /> : <Upload aria-hidden />}
+            {saving ? "Reading and connecting…" : "Add to Knowledge"}
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Saving reads the material once and links it to your topics and certifications.
+          </p>
+        </div>
+      </Panel>
+
+        </aside>
+      </div>
+
+      <Panel title="Your library" description="Everything you have saved, newest first.">
+        {loading ? (
+          <p className="text-sm text-muted-foreground">Loading your material…</p>
+        ) : items.length === 0 ? (
+          <EmptyState
+            icon={Brain}
+            title="Nothing saved yet"
+            body="Add your first note, link or screenshot above. Once it is in, the tutor, lessons and study plan can use it."
+          />
+        ) : (
+          <ul className="space-y-3">
+            {items.map((item) => (
+              <KnowledgeCard
+                key={item.id}
+                item={item}
+                onDelete={() => void onDelete(item.id)}
+                onOpenFile={() => item.filePath && void openFile(item.filePath)}
+              />
+            ))}
+          </ul>
+        )}
+      </Panel>
+    </div>
+  );
+}
+
+function KnowledgeCard({
+  item,
+  onDelete,
+  onOpenFile,
+}: {
+  item: KnowledgeItem;
+  onDelete: () => void;
+  onOpenFile: () => void;
+}) {
+  const Icon = kindIcon(item.kind);
+  return (
+    <li className="rounded-xl border border-border/70 bg-card/20 p-4 transition-colors hover:bg-card/35">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 font-medium">
+            <Icon className="size-4 shrink-0 text-primary" aria-hidden />
+            <span className="truncate">{item.title}</span>
+          </p>
+          <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+            {item.kind}
+            {item.status === "pending" ? " · not read yet" : ""}
+            {item.status === "failed" ? " · could not be read" : ""}
+          </p>
+        </div>
+        <div className="flex shrink-0 gap-1">
+          {item.sourceUrl ? (
+            <Button asChild variant="ghost" size="icon" aria-label="Open source link">
+              <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer">
+                <ExternalLink aria-hidden />
+              </a>
+            </Button>
+          ) : null}
+          {item.filePath ? (
+            <Button variant="ghost" size="icon" aria-label="Open file" onClick={onOpenFile}>
+              <FileText aria-hidden />
+            </Button>
+          ) : null}
+          <Button variant="ghost" size="icon" aria-label="Delete item" onClick={onDelete}>
+            <Trash2 aria-hidden />
+          </Button>
+        </div>
+      </div>
+
+      {item.summary ? <p className="mt-3 text-sm text-muted-foreground">{item.summary}</p> : null}
+
+      {item.concepts.length ? (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {item.concepts.map((c) => (
+            <Badge key={c} variant="secondary">
+              {c}
+            </Badge>
+          ))}
+        </div>
+      ) : null}
+
+      {item.topicIds.length ? (
+        <p className="mt-3 text-sm">
+          <span className="text-muted-foreground">Connects to: </span>
+          {item.topicIds.map((id, i) => (
+            <span key={id}>
+              {i > 0 ? ", " : ""}
+              <Link
+                to="/topics/$topicId"
+                params={{ topicId: id }}
+                className="text-primary underline-offset-4 hover:underline"
+              >
+                {topicTitle(id)}
+              </Link>
+            </span>
+          ))}
+        </p>
+      ) : null}
+
+      {item.certIds.length ? (
+        <p className="mt-1 text-sm text-muted-foreground">
+          Certifications: {item.certIds.map(certTitle).join(", ")}
+        </p>
+      ) : null}
+
+      {item.gaps.length ? (
+        <div className="mt-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Still missing after this
+          </p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-muted-foreground">
+            {item.gaps.map((g) => (
+              <li key={g}>{g}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {item.contradictions.length ? (
+        <div className="mt-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-destructive">
+            Check this, conflicts with standard practice
+          </p>
+          <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-muted-foreground">
+            {item.contradictions.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </li>
+  );
+}
+
+
+function KnowledgeStat({ icon: Icon, label, value, last = false }: { icon: typeof Brain; label: string; value: number; last?: boolean }) {
+  return <div className={`flex items-center gap-3 p-4 ${last ? "" : "border-b border-border/70 sm:border-b-0 sm:border-r"}`}><span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-4" aria-hidden /></span><div><p className="text-xl font-semibold tabular-nums">{value}</p><p className="text-xs text-muted-foreground">{label}</p></div></div>;
+}
