@@ -1374,3 +1374,6 @@ html.light .sidebar-glass {
 @keyframes byteTileIdleGlint{0%,78%,100%{opacity:.35;transform:translateX(-130%) skewX(-18deg)}88%{opacity:.7;transform:translateX(130%) skewX(-18deg)}}
 @media(max-width:600px){.byte-boot-machine{transform:scale(1.15)}.byte-boot-overlay.boot-stage-6 .byte-boot-machine{transform:scale(1.22)}.byte-post{left:1rem;bottom:5%;width:13rem}.byte-build-complete b{font-size:1.8rem}}
 @media(prefers-reduced-motion:reduce){.byte-boot-overlay,.byte-boot-machine,.byte-power-button,.byte-boot-wave,.byte-build-complete,.byte-boot-particles i,.byte-board-shell .byte-match-impact,.byte-board-shell .byte-match-impact-hot,.byte-tile-shine{animation:none!important}}
+
+/* Byte tiles: keep surfaces clean; no moving sheen. */
+.byte-tile-shine{display:none!important;animation:none!important}
