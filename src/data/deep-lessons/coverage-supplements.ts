@@ -55,6 +55,15 @@ const coverageSupplements: Record<string, DeepLessonSection[]> = {
   ],
   "topic-programming-and-development-concepts": [
     {
+      id: "programming-foundations-and-structure",
+      heading: "Programming Foundations and Structure",
+      paragraphs: [
+        "A program is a set of instructions that accepts input, performs operations, and produces a result. Variables give changing values useful names, while constants represent values that should remain fixed during an operation. Data types such as strings, integers, floating-point numbers, and Boolean values tell the program what kind of information it is handling and which operations make sense.",
+        "Functions group related instructions into reusable units. Parameters carry information into a function, and a return value carries a result back to the caller. Breaking a larger task into small functions makes the logic easier to test, reuse, and troubleshoot because each part has a clear responsibility.",
+        "Before changing code, trace the expected path from input to output. Check what values enter the program, which decisions or functions transform them, and what result should leave. This same habit helps a support technician distinguish bad input, incorrect logic, and a failure in an outside service instead of treating every application error as the same problem.",
+      ],
+    },
+    {
       id: "program-flow-errors-and-data-exchange",
       heading: "Program Flow, Errors, and Data Exchange",
       paragraphs: [
