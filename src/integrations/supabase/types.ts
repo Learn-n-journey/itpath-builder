@@ -240,24 +240,6 @@ export type Database = {
           },
         ]
       }
-      community_memberships: {
-        Row: {
-          created_at: string
-          room: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          room: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          room?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       community_messages: {
         Row: {
           body: string
@@ -266,7 +248,6 @@ export type Database = {
           hidden: boolean
           id: string
           image_url: string | null
-          post_type: string
           room: string
           user_id: string
         }
@@ -277,7 +258,6 @@ export type Database = {
           hidden?: boolean
           id?: string
           image_url?: string | null
-          post_type?: string
           room?: string
           user_id: string
         }
@@ -288,7 +268,6 @@ export type Database = {
           hidden?: boolean
           id?: string
           image_url?: string | null
-          post_type?: string
           room?: string
           user_id?: string
         }
