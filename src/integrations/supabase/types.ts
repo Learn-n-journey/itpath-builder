@@ -186,6 +186,7 @@ export type Database = {
           display_name: string
           hidden: boolean
           id: string
+          image_url: string | null
           room: string
           user_id: string
         }
@@ -195,6 +196,7 @@ export type Database = {
           display_name: string
           hidden?: boolean
           id?: string
+          image_url?: string | null
           room?: string
           user_id: string
         }
@@ -204,6 +206,7 @@ export type Database = {
           display_name?: string
           hidden?: boolean
           id?: string
+          image_url?: string | null
           room?: string
           user_id?: string
         }
@@ -391,6 +394,41 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          body: string
+          created_at: string
+          friendship_id: string
+          id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          friendship_id: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          friendship_id?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_friendship_id_fkey"
+            columns: ["friendship_id"]
+            isOneToOne: false
+            referencedRelation: "friendships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       flow_events: {
         Row: {
           count: number
@@ -417,6 +455,33 @@ export type Database = {
           outcome?: string
           slow_count?: number
           total_ms?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
           updated_at?: string
         }
         Relationships: []
