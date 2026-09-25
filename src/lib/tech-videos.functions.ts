@@ -260,11 +260,13 @@ export const searchLearningVideos = createServerFn({ method: "GET" })
   })
   .handler(async ({ data }): Promise<VideoSearchResult[]> => {
     if (data.query.length < 2) return [];
-    const key = data.query.toLowerCase();
+    const queryKey = data.query.toLowerCase();
+    const apiKey = process.env.YOUTUBE_API_KEY?.trim();
+    // Keep API-backed and fallback caches separate. If a key is added after a
+    // fallback search, the old empty/fallback result must not mask live YouTube.
+    const key = `${apiKey ? "youtube" : "fallback"}:${queryKey}`;
     const cached = searchCache.get(key);
     if (cached && Date.now() - cached.at < SEARCH_CACHE_MS) return cached.videos;
-
-    const apiKey = process.env.YOUTUBE_API_KEY?.trim();
     if (apiKey) {
       const params = new URLSearchParams({
         part: "snippet",
@@ -342,7 +344,9 @@ export const searchLearningVideos = createServerFn({ method: "GET" })
         publishedAt: video.publishedAt,
         source: "Trusted video feed",
       }));
-    searchCache.set(key, { at: Date.now(), videos: trusted });
+    // Do not cache an empty fallback result; feeds can recover and a newly
+    // configured API key should become useful immediately after deployment.
+    if (trusted.length > 0) searchCache.set(key, { at: Date.now(), videos: trusted });
     return trusted;
   });
 
