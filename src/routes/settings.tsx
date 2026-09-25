@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { BetaAccessPanel } from "@/components/beta-access-panel";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { ProfileNamePanel } from "@/components/profile-name-panel";
+import { useProfile } from "@/hooks/use-profile";
 import { WelcomeSetup } from "@/components/onboarding/welcome-setup";
 import { restartTour, setupPending } from "@/lib/onboarding";
 import { SiteEngagementPanel } from "@/components/site-engagement-panel";
@@ -123,6 +124,7 @@ function SettingsPage() {
   }, []);
   const { theme, resolvedTheme, setTheme } = useTheme();
   const { email } = useAuth();
+  const { profile, uploadAvatar, uploading } = useProfile();
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
   const s = user.settings;
 
@@ -177,8 +179,14 @@ function SettingsPage() {
 
       <WelcomeSetup />
 
-      <div className="mb-4">
+      <div className="mb-4 space-y-4">
         <ProfileNamePanel />
+        <Panel title="Profile picture" description="This picture appears on your dashboard, Community posts, and profile.">
+          <div className="flex items-center gap-4">
+            {profile.avatarUrl?<img src={profile.avatarUrl} alt="" className="size-20 rounded-full object-cover"/>:<div className="grid size-20 place-items-center rounded-full bg-secondary text-2xl font-bold">{(profile.displayName||profile.firstName||"?")[0]?.toUpperCase()}</div>}
+            <div><Label htmlFor="profile-picture">Picture</Label><Input id="profile-picture" className="mt-2 max-w-xs" type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={async e=>{const file=e.target.files?.[0];if(!file)return;try{await uploadAvatar(file);toast.success("Profile picture updated.")}catch(error){toast.error(error instanceof Error?error.message:"Picture did not save.")}}}/><p className="mt-1 text-xs text-muted-foreground">JPG, PNG or WebP · up to 5 MB</p></div>
+          </div>
+        </Panel>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
