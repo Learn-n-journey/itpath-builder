@@ -10,6 +10,7 @@ import {
   Play,
   RotateCcw,
   Square,
+  Settings2,
   Volume2,
   Wind,
 } from "lucide-react";
@@ -237,27 +238,26 @@ function MeditationPage() {
         </header>
 
         <section className="flex min-h-0 items-center justify-center text-center">
-          <div className={cn("grid size-64 place-items-center rounded-full border border-white/20 bg-white/[.04] shadow-2xl shadow-black/20 transition-all duration-1000 sm:size-72",running&&(instruction==="Inhale"||instruction==="Hold")?"scale-105 bg-white/[.07]":"scale-95")}>
+          <div className={cn("grid size-[min(64vw,16rem)] place-items-center rounded-full border border-white/20 bg-white/[.04] shadow-2xl shadow-black/20 transition-all duration-1000 sm:size-72",running&&(instruction==="Inhale"||instruction==="Hold")?"scale-105 bg-white/[.07]":"scale-95")}>
             <div><p className="text-xs font-semibold uppercase tracking-[.3em] text-white/55">{running?instruction:"Ready"}</p><p className="mt-3 font-serif text-7xl font-light tabular-nums">{running?phaseSeconds:exercise.inhale}</p><p className="mt-3 font-mono text-xs text-white/45">{minutes}:{seconds}</p></div>
           </div>
-          <div className="mt-8 flex items-center gap-5">
-            <button type="button" onClick={reset} aria-label="Reset" className="rounded-full p-3 text-white/55 hover:bg-white/10 hover:text-white"><RotateCcw className="size-5"/></button>
-            <Button type="button" size="icon" onClick={startPause} className="size-16 rounded-full shadow-xl">{running?<Pause className="size-6"/>:<Play className="ml-0.5 size-6 fill-current"/>}</Button>
-            <button type="button" onClick={stopSession} aria-label="Stop" className="rounded-full p-3 text-white/55 hover:bg-white/10 hover:text-white"><Square className="size-5"/></button>
+          <div className="mt-7 flex items-center justify-center gap-4">
+            <Button type="button" size="icon" onClick={startPause} aria-label={running ? "Pause" : "Play"} className="size-16 rounded-full shadow-xl">{running?<Pause className="size-6"/>:<Play className="ml-0.5 size-6 fill-current"/>}</Button>
+            <button type="button" onClick={stopSession} aria-label="Stop" className="grid size-14 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white/70"><Square className="size-5"/></button>
           </div>
         </section>
 
-        <section className="space-y-3 border-t border-white/10 pt-4">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {breathingExercises.map(item=><button key={item.id} type="button" onClick={()=>{setExerciseId(item.id);setElapsed(0);stopBell();lastBreathCueRef.current=null}} className={cn("shrink-0 rounded-full px-3 py-2 text-xs transition-colors",exerciseId===item.id?"bg-white text-black":"bg-white/10 text-white/65 hover:bg-white/15")}>{item.label}</button>)}
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex gap-1">{sessions.map(item=><button key={item} type="button" onClick={()=>setSessionMinutes(item)} className={cn("rounded-full px-3 py-1.5 text-xs",sessionMinutes===item?"bg-white/15 text-white":"text-white/50 hover:text-white")}>{item}m</button>)}<button type="button" onClick={()=>setSessionMinutes(null)} className={cn("rounded-full px-3 py-1.5 text-xs",sessionMinutes===null?"bg-white/15 text-white":"text-white/50 hover:text-white")}>∞</button></div>
-            <div className="flex items-center gap-1">
-              {sounds.map(item=>{const Icon=item.icon;return <button key={item.id} type="button" aria-label={item.label} onClick={()=>toggleSound(item.id)} className={cn("rounded-full p-2.5",sound===item.id?"bg-white/15 text-white":"text-white/45 hover:bg-white/10 hover:text-white")}><Icon className="size-4"/></button>})}
+        <section className="border-t border-white/10 pt-3 pb-[max(.75rem,env(safe-area-inset-bottom))]">
+          <details className="group">
+            <summary className="mx-auto flex min-h-11 w-fit cursor-pointer list-none items-center gap-2 rounded-full px-4 text-xs font-medium text-white/60 hover:bg-white/[.06] hover:text-white [&::-webkit-details-marker]:hidden"><Settings2 className="size-4"/>Session options<ChevronDown className="size-3.5 transition-transform group-open:rotate-180"/></summary>
+            <div className="mt-3 max-h-[30dvh] space-y-4 overflow-y-auto rounded-2xl border border-white/10 bg-black/20 p-3 backdrop-blur-xl">
+              <div className="flex gap-2 overflow-x-auto pb-1">{breathingExercises.map(item=><button key={item.id} type="button" onClick={()=>{setExerciseId(item.id);setElapsed(0);stopBell();lastBreathCueRef.current=null}} className={cn("shrink-0 rounded-full px-3 py-2 text-xs",exerciseId===item.id?"bg-white text-black":"bg-white/10 text-white/65")}>{item.label}</button>)}</div>
+              <div className="flex flex-wrap gap-1">{sessions.map(item=><button key={item} type="button" onClick={()=>setSessionMinutes(item)} className={cn("rounded-full px-3 py-2 text-xs",sessionMinutes===item?"bg-white/15 text-white":"text-white/50")}>{item}m</button>)}<button type="button" onClick={()=>setSessionMinutes(null)} className={cn("rounded-full px-3 py-2 text-xs",sessionMinutes===null?"bg-white/15 text-white":"text-white/50")}>No timer</button></div>
+              <div className="flex items-center justify-between"><span className="text-xs text-white/55">Sounds</span><div className="flex gap-1">{sounds.map(item=>{const Icon=item.icon;return <button key={item.id} type="button" aria-label={item.label} onClick={()=>toggleSound(item.id)} className={cn("rounded-full p-2.5",sound===item.id?"bg-white/15 text-white":"text-white/45")}><Icon className="size-4"/></button>})}<button type="button" onClick={()=>setBreathCuesEnabled(v=>!v)} aria-label="Breath cues" className={cn("rounded-full p-2.5",breathCuesEnabled?"bg-white/15 text-white":"text-white/45")}><Bell className="size-4"/></button></div></div>
+              <div className="flex items-center gap-3"><Volume2 className="size-4 text-white/40"/><input aria-label="Audio volume" type="range" min="0" max="100" value={volume} onChange={e=>setVolume(Number(e.target.value))} className="w-full accent-white"/><span className="w-8 text-right font-mono text-[10px] text-white/40">{volume}%</span></div>
+              <button type="button" onClick={reset} className="mx-auto flex items-center gap-2 rounded-full px-3 py-2 text-xs text-white/45"><RotateCcw className="size-3.5"/>Reset</button>
             </div>
-          </div>
-          <div className="flex items-center gap-3 pb-[max(1rem,env(safe-area-inset-bottom))]"><Volume2 className="size-4 text-white/40"/><input aria-label="Audio volume" type="range" min="0" max="100" value={volume} onChange={e=>setVolume(Number(e.target.value))} className="w-full accent-white"/><span className="w-8 text-right font-mono text-[10px] text-white/40">{volume}%</span></div>
+          </details>
         </section>
       </main>
     </div>
