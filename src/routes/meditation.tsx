@@ -95,7 +95,6 @@ function MeditationPage() {
     if (!AudioCtx) return;
     const ctx = breathAudioContextRef.current ?? new AudioCtx();
     breathAudioContextRef.current = ctx;
-    if (ctx.state === "suspended") void ctx.resume();
 
     const exercise = breathingExercises.find((item) => item.id === exerciseId) ?? breathingExercises[0];
     const duration = Math.max(1.5, kind === "inhale" ? exercise.inhale : exercise.exhale);
@@ -135,6 +134,26 @@ function MeditationPage() {
     breathNodesRef.current = { source, gain };
     source.onended = () => { if (breathNodesRef.current?.source === source) breathNodesRef.current = null; };
     source.start(now);
+  }
+
+  async function unlockBreathAudio() {
+    const AudioCtx = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return false;
+    const ctx = breathAudioContextRef.current ?? new AudioCtx();
+    breathAudioContextRef.current = ctx;
+    try {
+      if (ctx.state === "suspended") await ctx.resume();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      gain.gain.value = 0.0001;
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.01);
+      return ctx.state === "running";
+    } catch {
+      return false;
+    }
   }
 
   useEffect(() => {
@@ -180,15 +199,18 @@ function MeditationPage() {
     });
   }
 
-  function startPause() {
+  async function startPause() {
     if (running) {
       stopBell();
       setRunning(false);
       return;
     }
-    if (breathCuesEnabled) {
+    const audioReady = await unlockBreathAudio();
+    if (breathCuesEnabled && audioReady) {
       lastBreathCueRef.current = "inhale";
       playBell("inhale");
+    } else {
+      lastBreathCueRef.current = null;
     }
     setRunning(true);
   }
