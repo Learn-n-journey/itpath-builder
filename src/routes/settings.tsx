@@ -1,71 +1,31 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { BetaAccessPanel } from "@/components/beta-access-panel";
 import { PageHeader, Panel } from "@/components/page-kit";
 import { ProfileNamePanel } from "@/components/profile-name-panel";
-import { useProfile } from "@/hooks/use-profile";
 import { WelcomeSetup } from "@/components/onboarding/welcome-setup";
 import { restartTour, setupPending } from "@/lib/onboarding";
-import { SiteEngagementPanel } from "@/components/site-engagement-panel";
-
-
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { OWNER_EMAILS } from "@/lib/beta-access.functions";
-import {
-  clearSyncLock,
-  syncNow,
-  syncStatus,
-  type SyncRunStatus,
-} from "@/lib/sheet-sync.functions";
-import { setMaintenance } from "@/lib/maintenance.functions";
-import { loadMaintenanceState } from "@/lib/maintenance-state";
-import { loadOwnerQuestions } from "@/lib/owner-question-store";
-import { loadOwnerLessons } from "@/lib/owner-lesson-store";
-import { loadOwnerWork } from "@/lib/owner-work-store";
 import { formatStudyTime } from "@/lib/study-time";
-import { useAuth } from "@/state/auth-state";
+import { useProfile } from "@/hooks/use-profile";
 import { useAppState } from "@/state/app-state";
-import { activeDomainKey, domainOptions, setDomainOverride } from "@/lib/active-domain";
-import { ACTIVE_PACKAGE } from "@/domain/registry";
-import { certifications } from "@/data/static-content";
 import { useTheme } from "@/state/theme";
 import type { ExperienceLevel, WeekDay } from "@/lib/app-data/types";
+import { certifications } from "@/data/static-content";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/settings")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
       { title: "Settings | IT PATH" },
-      { name: "description", content: "Set your study schedule, target role and run system checks." },
-      { property: "og:title", content: "Settings | IT PATH" },
-      { property: "og:description", content: "Configure your study plan and verify the app health." },
+      { name: "description", content: "Manage your profile, learning preferences, reminders and appearance." },
     ],
   }),
   component: SettingsPage,
@@ -81,16 +41,12 @@ const DAYS: { id: WeekDay; label: string }[] = [
   { id: "sun", label: "Sun" },
 ];
 
-const ACTIVE_PACKAGE_KEY = ACTIVE_PACKAGE;
-
 const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
   { id: "none", label: "Complete beginner" },
   { id: "beginner", label: "Some basics" },
   { id: "some", label: "Home lab experience" },
   { id: "intermediate", label: "Working in IT already" },
 ];
-
-
 
 const LEARNING_FOCUS_NAMES: Record<string, string> = {
   "cert-comptia-tech-plus": "Technology Foundations",
@@ -115,194 +71,148 @@ function learningFocusName(id: string, fallback: string): string {
 }
 
 function SettingsPage() {
-  const { user, updateSettings, resetAll, lastSavedAt, storageAvailable } = useAppState();
-  const [subjectKey, setSubjectKey] = useState<string>(ACTIVE_PACKAGE_KEY);
-  const [subjectReady, setSubjectReady] = useState(false);
-  useEffect(() => {
-    setSubjectKey(activeDomainKey());
-    setSubjectReady(true);
-  }, []);
+  const { user, updateSettings } = useAppState();
   const { theme, resolvedTheme, setTheme } = useTheme();
-  const { email } = useAuth();
-  const { profile, uploadAvatar, uploading } = useProfile();
-  const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
+  const { profile, uploadAvatar, uploading, isOwn } = useProfile();
   const s = user.settings;
-
-  // While onboarding setup is pending, show only the quick setup screen.
   const [setupOnly, setSetupOnly] = useState(false);
-  useEffect(() => {
-    setSetupOnly(setupPending());
-  }, []);
 
-  // Weekly study time is always derived: selected days x daily study time.
-  function weeklyMinutes(dayCount: number, dailyMinutes: number): number {
-    return Math.max(0, Math.round(dayCount * dailyMinutes));
-  }
-  const weeklyMins = weeklyMinutes(s.studyDays.length, s.sessionLengthMinutes);
-  const weeklyHours = weeklyMins / 60;
+  useEffect(() => setSetupOnly(setupPending()), []);
+
+  const weeklyMins = Math.max(0, Math.round(s.studyDays.length * s.sessionLengthMinutes));
 
   function toggleDay(day: WeekDay) {
     const next = s.studyDays.includes(day)
-      ? s.studyDays.filter((d) => d !== day)
+      ? s.studyDays.filter((value) => value !== day)
       : [...s.studyDays, day];
     updateSettings({
       studyDays: next,
-      studyHoursPerWeek: weeklyMinutes(next.length, s.sessionLengthMinutes) / 60,
+      studyHoursPerWeek: (next.length * s.sessionLengthMinutes) / 60,
     });
   }
 
   function setDailyMinutes(minutes: number) {
     updateSettings({
       sessionLengthMinutes: minutes,
-      studyHoursPerWeek: weeklyMinutes(s.studyDays.length, minutes) / 60,
+      studyHoursPerWeek: (s.studyDays.length * minutes) / 60,
     });
   }
 
   if (setupOnly) {
     return (
       <>
-        <PageHeader
-          title="Quick setup"
-          description="A few preferences before you begin. Everything can be changed here later."
-        />
+        <PageHeader title="Quick setup" description="A few preferences before you begin." />
         <WelcomeSetup onFinished={() => setSetupOnly(false)} />
       </>
     );
   }
 
   return (
-    <>
-      <PageHeader
-        title="Settings"
-        description="Your study plan. Changes save to this device the moment you make them."
-      />
+    <div className="mx-auto max-w-3xl">
+      <PageHeader title="Settings" description="Manage your profile and learning preferences." />
 
-      <WelcomeSetup />
-
-      <div className="mb-4 space-y-4">
-        <ProfileNamePanel />
-        <Panel title="Profile picture" description="This picture appears on your dashboard, Community posts, and profile.">
-          <div className="flex items-center gap-4">
-            {profile.avatarUrl?<img src={profile.avatarUrl} alt="" className="size-20 rounded-full object-cover"/>:<div className="grid size-20 place-items-center rounded-full bg-secondary text-2xl font-bold">{(profile.displayName||profile.firstName||"?")[0]?.toUpperCase()}</div>}
-            <div><Label htmlFor="profile-picture">Picture</Label><Input id="profile-picture" className="mt-2 max-w-xs" type="file" accept="image/jpeg,image/png,image/webp" disabled={uploading} onChange={async e=>{const file=e.target.files?.[0];if(!file)return;try{await uploadAvatar(file);toast.success("Profile picture updated.")}catch(error){toast.error(error instanceof Error?error.message:"Picture did not save.")}}}/><p className="mt-1 text-xs text-muted-foreground">JPG, PNG or WebP · up to 5 MB</p></div>
+      <div className="space-y-4">
+        <Panel title="Profile">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+            <div className="shrink-0">
+              {profile.avatarUrl ? (
+                <img src={profile.avatarUrl} alt="" className="size-20 rounded-full object-cover" />
+              ) : (
+                <div className="grid size-20 place-items-center rounded-full bg-secondary text-2xl font-bold">
+                  {(profile.displayName || profile.firstName || "?")[0]?.toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <ProfileNamePanel />
+              {isOwn ? (
+                <div className="mt-3">
+                  <Label htmlFor="profile-picture" className="sr-only">Profile picture</Label>
+                  <Input
+                    id="profile-picture"
+                    className="max-w-sm"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    disabled={uploading}
+                    onChange={async (event) => {
+                      const file = event.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        await uploadAvatar(file);
+                        toast.success("Profile picture updated.");
+                      } catch (error) {
+                        toast.error(error instanceof Error ? error.message : "Picture did not save.");
+                      }
+                    }}
+                  />
+                  <p className="mt-1 text-xs text-muted-foreground">JPG, PNG or WebP · up to 5 MB</p>
+                </div>
+              ) : null}
+            </div>
           </div>
         </Panel>
-      </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-
-        {isOwner ? (
-        <Panel
-          title="Subject"
-          description="Choose what you are learning. The app reloads to switch courses. Your progress in each subject is kept separately."
-        >
-          <Label htmlFor="subject-select">Course</Label>
-          <Select value={subjectKey} onValueChange={setSubjectKey}>
-            <SelectTrigger id="subject-select" className="mt-1.5 w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {domainOptions().map((option) => (
-                <SelectItem key={option.key} value={option.key}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {subjectReady && subjectKey !== activeDomainKey() ? (
-            <Button
-              className="mt-3"
-              onClick={() => {
-                setDomainOverride(subjectKey);
-                toast.success("Subject switched.");
-                window.location.assign("/");
-              }}
-            >
-              Switch course
-            </Button>
-          ) : null}
-        </Panel>
-        ) : null}
-
-        <Panel
-          title="Learning focus"
-          description="Choose the part of the IT PATH curriculum you want the app to prioritize."
-        >
-          <Label htmlFor="learning-focus-select">Path</Label>
-          <Select
-            value={s.certificationTarget}
-            onValueChange={(value) => updateSettings({ certificationTarget: value })}
-          >
-            <SelectTrigger id="learning-focus-select" className="mt-1.5 w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {certifications.map((certification) => (
-                <SelectItem key={certification.id} value={certification.title}>
-                  {learningFocusName(certification.id, certification.title)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Panel>
-
-        <Panel
-          title="Appearance"
-          description="Choose how IT PATH looks. Your choice is remembered on this device."
-        >
-          <div className="space-y-3">
-            <Label htmlFor="theme-select">Theme</Label>
-            <Select
-              value={theme}
-              onValueChange={(v) => setTheme(v as "dark" | "light" | "system")}
-            >
-              <SelectTrigger id="theme-select" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="light">Light</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {`Currently using ${resolvedTheme === "light" ? "light" : "dark"} mode. IT PATH opens in dark mode everywhere unless you pick light here.`}
-          </p>
-        </Panel>
-
-
-        <Panel title="Study schedule">
+        <Panel title="Learning">
           <div className="space-y-6">
             <div>
-              <Label>Study days each week</Label>
+              <Label htmlFor="learning-focus-select">Learning focus</Label>
+              <Select
+                value={s.certificationTarget}
+                onValueChange={(value) => updateSettings({ certificationTarget: value })}
+              >
+                <SelectTrigger id="learning-focus-select" className="mt-2 w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {certifications.map((certification) => (
+                    <SelectItem key={certification.id} value={certification.title}>
+                      {learningFocusName(certification.id, certification.title)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Experience level</Label>
+              <Select
+                value={s.experienceLevel}
+                onValueChange={(value) => updateSettings({ experienceLevel: value as ExperienceLevel })}
+              >
+                <SelectTrigger className="mt-2 w-full"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {EXPERIENCE.map((level) => (
+                    <SelectItem key={level.id} value={level.id}>{level.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Study days</Label>
               <div className="mt-2 flex flex-wrap gap-2">
-                {DAYS.map((d) => {
-                  const active = s.studyDays.includes(d.id);
+                {DAYS.map((day) => {
+                  const active = s.studyDays.includes(day.id);
                   return (
                     <Button
-                      key={d.id}
+                      key={day.id}
                       type="button"
                       size="sm"
                       variant={active ? "default" : "secondary"}
                       aria-pressed={active}
-                      onClick={() => toggleDay(d.id)}
+                      onClick={() => toggleDay(day.id)}
                     >
-                      {d.label}
+                      {day.label}
                     </Button>
                   );
                 })}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {s.studyDays.length} {s.studyDays.length === 1 ? "day" : "days"} a week selected.
-              </p>
             </div>
 
             <div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <Label>Daily study time</Label>
-                <span className="text-sm tabular-nums text-primary">
-                  {formatStudyTime(s.sessionLengthMinutes)}
-                </span>
+                <span className="text-sm tabular-nums text-primary">{formatStudyTime(s.sessionLengthMinutes)}</span>
               </div>
               <Slider
                 className="mt-3"
@@ -310,59 +220,41 @@ function SettingsPage() {
                 max={480}
                 step={15}
                 value={[Math.min(480, Math.max(15, s.sessionLengthMinutes || 15))]}
-                onValueChange={([v]) => setDailyMinutes(v ?? s.sessionLengthMinutes)}
+                onValueChange={([value]) => setDailyMinutes(value ?? s.sessionLengthMinutes)}
               />
               <p className="mt-2 text-xs text-muted-foreground">
-                From 15 minutes to 8 hours. This is the time your daily tasks aim for.
-              </p>
-            </div>
-
-            <div className="rounded-md border border-border bg-muted/30 p-3">
-              <div className="flex items-center justify-between">
-                <Label>Your weekly study time</Label>
-                <span className="text-sm tabular-nums text-primary">
-                  {formatStudyTime(weeklyMins)}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Calculated from {s.studyDays.length}{" "}
-                {s.studyDays.length === 1 ? "day" : "days"} ×{" "}
-                {formatStudyTime(s.sessionLengthMinutes)} a day.
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Learn at your own pace. There is no schedule to keep up with, this only shapes how your daily plan is built.
+                About {formatStudyTime(weeklyMins)} per week with your current schedule.
               </p>
             </div>
           </div>
         </Panel>
 
-        <Panel
-          title="Daily reminder"
-          description="One nudge a day, only if you have not met your daily study time yet."
-        >
-          <div className="space-y-5">
-            <div className="flex items-center justify-between gap-3">
-              <Label htmlFor="reminder-toggle">Remind me to study</Label>
-              <Switch
-                id="reminder-toggle"
-                checked={s.reminderEnabled === true}
-                onCheckedChange={(checked) => {
-                  updateSettings({ reminderEnabled: checked });
-                  if (checked) {
-                    try {
-                      if (typeof Notification !== "undefined" && Notification.permission === "default") {
-                        void Notification.requestPermission();
-                      }
-                    } catch {
-                      /* notifications unavailable in this browser */
-                    }
-                    toast.success("Reminder on.");
-                  }
-                }}
-              />
-            </div>
+        <Panel title="Reminders">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <Label htmlFor="reminder-time">Reminder time</Label>
+              <Label htmlFor="reminder-toggle">Study reminder</Label>
+              <p className="mt-1 text-xs text-muted-foreground">A daily nudge when you have not reached your study goal.</p>
+            </div>
+            <Switch
+              id="reminder-toggle"
+              checked={s.reminderEnabled === true}
+              onCheckedChange={(checked) => {
+                updateSettings({ reminderEnabled: checked });
+                if (checked) {
+                  try {
+                    if (typeof Notification !== "undefined" && Notification.permission === "default") {
+                      void Notification.requestPermission();
+                    }
+                  } catch {
+                    // Notifications are not available in every browser.
+                  }
+                }
+              }}
+            />
+          </div>
+          {s.reminderEnabled ? (
+            <div className="mt-4 border-t border-border/60 pt-4">
+              <Label htmlFor="reminder-time">Time</Label>
               <Input
                 id="reminder-time"
                 type="time"
@@ -370,106 +262,49 @@ function SettingsPage() {
                 value={s.reminderTime ?? "18:00"}
                 onChange={(event) => updateSettings({ reminderTime: event.target.value })}
               />
-              <p className="mt-2 text-xs text-muted-foreground">
-                Shown inside the app, and as a desktop notification if you allow them. It appears
-                once a day at most.
+            </div>
+          ) : null}
+        </Panel>
+
+        <Panel title="Appearance">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <Label htmlFor="theme-select">Theme</Label>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Currently using {resolvedTheme === "light" ? "light" : "dark"} mode.
               </p>
             </div>
+            <Select value={theme} onValueChange={(value) => setTheme(value as "dark" | "light" | "system")}>
+              <SelectTrigger id="theme-select" className="w-36"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="system">System</SelectItem>
+                <SelectItem value="dark">Dark</SelectItem>
+                <SelectItem value="light">Light</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </Panel>
 
-        <Panel title="Goals">
-          <div className="space-y-5">
-            <div>
-              <Label>Experience level</Label>
-              <Select
-                value={s.experienceLevel}
-                onValueChange={(v) => updateSettings({ experienceLevel: v as ExperienceLevel })}
-              >
-                <SelectTrigger className="mt-1.5 w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {EXPERIENCE.map((e) => (
-                    <SelectItem key={e.id} value={e.id}>
-                      {e.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
+        <Panel title="Help">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                restartTour();
+                toast.success("Tour restarted.");
+                window.location.assign("/");
+              }}
+            >
+              Replay guided tour
+            </Button>
+            {isOwn && profile.userId ? (
+              <Button variant="outline" asChild>
+                <Link to="/profile/$userId" params={{ userId: profile.userId }}>View my profile</Link>
+              </Button>
+            ) : null}
           </div>
         </Panel>
       </div>
-
-      {isOwner ? (
-        <Panel
-          className="mt-4"
-          title="Control room"
-          description="Imports, content checks, sources, releases and the activity log all live in one place now."
-        >
-          <Button asChild>
-            <Link to="/admin">Open the control room</Link>
-          </Button>
-        </Panel>
-      ) : null}
-
-      <Panel className="mt-4" title="Your data">
-        <p className="text-sm text-muted-foreground">
-          Storage: {storageAvailable ? "available" : "unavailable in this browser"}
-          {lastSavedAt ? ` · last saved ${new Date(lastSavedAt).toLocaleTimeString()}` : ""}
-        </p>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button className="mt-3" variant="destructive">
-              Reset all local data
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Reset everything?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This would reset everything: your progress, quiz results, recall answers,
-                notes, Second Brain entries, streaks and all saved activity in this
-                browser. It cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Keep my data</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => {
-                  resetAll();
-                  toast.success("All local data reset.");
-                }}
-              >
-                Yes, reset everything
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </Panel>
-
-      <Panel
-        className="mt-4"
-        title="Guided tour"
-        description="Replay the short walkthrough of the main features."
-      >
-        <Button
-          variant="secondary"
-          onClick={() => {
-            restartTour();
-            toast.success("Tour restarted.");
-            window.location.assign("/");
-          }}
-        >
-          Replay the tour
-        </Button>
-      </Panel>
-
-      <SiteEngagementPanel />
-
-      <BetaAccessPanel />
-    </>
+    </div>
   );
 }
