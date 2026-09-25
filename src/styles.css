@@ -482,18 +482,19 @@ html.light[data-subject="auto-repair"] {
   background-repeat: no-repeat;
 }
 
-.app-wallpaper {
-  background-image: url("/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png");
+.app-wallpaper-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
-html.light .app-wallpaper,
-.light .app-wallpaper {
-  background-image: url("/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2010_19_08%20PM.png") !important;
+html.light .app-background .app-wallpaper-image {
+  content: url("/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2010_19_08%20PM.png");
 }
 
-html.dark .app-wallpaper,
-.dark .app-wallpaper {
-  background-image: url("/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png") !important;
+html.dark .app-background .app-wallpaper-image {
+  content: url("/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png");
 }
 
 /* Global glass shell. Background artwork will be layered underneath this system later. */
