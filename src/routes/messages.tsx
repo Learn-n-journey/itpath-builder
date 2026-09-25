@@ -12,7 +12,7 @@ import { useProfiles } from "@/hooks/use-profile";
 
 export const Route=createFileRoute("/messages")({
  staticData:{sitemap:false},
- validateSearch:(search:Record<string,unknown>):{user?:string}=>({user:(typeof search["user"]==="string"?search["user"]:undefined) as string|undefined}),
+ validateSearch:(search:Record<string,unknown>):{user?:string|undefined}=>({user:(typeof search["user"]==="string"?search["user"]:undefined) as string|undefined}),
  component:MessagesPage
 });
 
