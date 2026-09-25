@@ -153,14 +153,20 @@ function JourneyPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-3xl pb-16">
+    <div className="relative -mx-3 -my-4 min-h-screen overflow-hidden pb-16 sm:-mx-5 sm:-my-6 lg:-mx-8 lg:-my-8">
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/ChatGPT Image Sep 24, 2026, 04_42_52 PM.png')" }}
+        aria-hidden
+      />
+      <div className="relative mx-auto w-full max-w-3xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
       <header className="mb-4">
         <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">My Path</h1>
       </header>
 
       <nav
         aria-label="Path view"
-        className="mb-3 flex h-[3.25rem] w-full max-w-md items-center rounded-full border border-border/80 bg-card/60 p-1 shadow-sm backdrop-blur-sm"
+        className="glass-surface mb-3 flex h-[3.25rem] w-full max-w-md items-center rounded-full border border-border/80 p-1 shadow-sm"
       >
         <Link
           to="/my-path"
@@ -445,6 +451,7 @@ function JourneyPage() {
             Follow this path from top to bottom. As you make progress, new sections unlock along your selected certification journey.
           </p>
         </div>
+      </div>
       </div>
     </div>
   );
