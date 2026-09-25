@@ -891,25 +891,43 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
+          currently_learning: string | null
           display_name: string | null
           first_name: string | null
+          learning_goal: string | null
+          show_achievements: boolean
+          show_learning_goal: boolean
+          show_learning_progress: boolean
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          currently_learning?: string | null
           display_name?: string | null
           first_name?: string | null
+          learning_goal?: string | null
+          show_achievements?: boolean
+          show_learning_goal?: boolean
+          show_learning_progress?: boolean
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
+          currently_learning?: string | null
           display_name?: string | null
           first_name?: string | null
+          learning_goal?: string | null
+          show_achievements?: boolean
+          show_learning_goal?: boolean
+          show_learning_progress?: boolean
           updated_at?: string
           user_id?: string
         }
