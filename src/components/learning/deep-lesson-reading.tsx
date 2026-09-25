@@ -27,7 +27,9 @@ export function DeepLessonReading({
     [lesson],
   );
   const savedIndex = saved ? sectionIds.indexOf(saved.sectionId) : -1;
-  const [activeLessonPartIndex, setActiveLessonPartIndex] = useState<number | null>(null);
+  const [activeLessonPartIndex, setActiveLessonPartIndex] = useState<number | null>(() =>
+    savedIndex >= 0 && savedIndex < lesson.sections.length ? savedIndex : null,
+  );
 
   function saveSection(sectionIndex: number, markReviewed: boolean) {
     const sectionId = sectionIds[sectionIndex];
