@@ -255,6 +255,74 @@ export interface LearningVideoSearchResponse {
 const searchCache = new Map<string, { at: number; result: LearningVideoSearchResponse }>();
 const SEARCH_CACHE_MS = 60 * 60 * 1000;
 
+interface YouTubeSearchPage {
+  videos: VideoSearchResult[];
+  nextPageToken: string | null;
+  status: "youtube" | "missing-key" | "youtube-error";
+  message?: string;
+}
+
+export const searchYouTubeVideoPage = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => {
+    const input = data as { query?: unknown; pageToken?: unknown } | undefined;
+    return {
+      query: String(input?.query ?? "").trim().slice(0, 100),
+      pageToken: String(input?.pageToken ?? "").trim().slice(0, 200),
+    };
+  })
+  .handler(async ({ data }): Promise<YouTubeSearchPage> => {
+    if (data.query.length < 2) return { videos: [], nextPageToken: null, status: "youtube-error", message: "Enter at least two characters." };
+    const apiKey = process.env.YOUTUBE_API_KEY?.trim();
+    if (!apiKey) return { videos: [], nextPageToken: null, status: "missing-key", message: "YOUTUBE_API_KEY is not available to the server runtime." };
+    const params = new URLSearchParams({
+      part: "snippet",
+      type: "video",
+      q: `${data.query} tutorial explained`,
+      maxResults: "24",
+      relevanceLanguage: "en",
+      safeSearch: "strict",
+      videoEmbeddable: "true",
+      order: "relevance",
+      key: apiKey,
+    });
+    if (data.pageToken) params.set("pageToken", data.pageToken);
+    try {
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params.toString()}`, {
+        headers: { accept: "application/json" },
+        signal: AbortSignal.timeout(9000),
+      });
+      if (!response.ok) {
+        const errorBody = (await response.text()).slice(0, 500);
+        return { videos: [], nextPageToken: null, status: "youtube-error", message: `YouTube API returned HTTP ${response.status}: ${errorBody}` };
+      }
+      const body = (await response.json()) as {
+        nextPageToken?: string;
+        items?: Array<{ id?: { videoId?: string }; snippet?: { title?: string; description?: string; channelId?: string; channelTitle?: string; publishedAt?: string; thumbnails?: { high?: { url?: string }; medium?: { url?: string }; default?: { url?: string } } } }>;
+      };
+      const videos = (body.items ?? []).flatMap((item): VideoSearchResult[] => {
+        const videoId = item.id?.videoId;
+        const snippet = item.snippet;
+        if (!videoId || !snippet?.title) return [];
+        return [{
+          id: `youtube-search:${videoId}`,
+          videoId,
+          title: entities(snippet.title),
+          summary: entities(snippet.description ?? "").slice(0, 220),
+          channel: entities(snippet.channelTitle ?? "YouTube"),
+          channelUrl: snippet.channelId ? `https://www.youtube.com/channel/${snippet.channelId}` : "https://www.youtube.com/",
+          thumbnail: snippet.thumbnails?.high?.url ?? snippet.thumbnails?.medium?.url ?? snippet.thumbnails?.default?.url ?? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+          url: `https://www.youtube.com/watch?v=${videoId}`,
+          embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&playsinline=1`,
+          publishedAt: snippet.publishedAt ?? "",
+          source: "YouTube search",
+        }];
+      });
+      return { videos, nextPageToken: body.nextPageToken ?? null, status: "youtube" };
+    } catch (error) {
+      return { videos: [], nextPageToken: null, status: "youtube-error", message: error instanceof Error ? error.message : "YouTube request failed" };
+    }
+  });
+
 function searchText(video: TechVideo): string {
   return `${video.title} ${video.summary} ${video.channel} ${video.category}`.toLowerCase();
 }
