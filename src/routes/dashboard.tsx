@@ -238,11 +238,6 @@ function Dashboard() {
 
   return (
     <div className="relative -mx-3 -my-4 min-h-screen overflow-hidden pb-12 sm:-mx-5 sm:-my-6 lg:-mx-8 lg:-my-8">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/ChatGPT Image Sep 24, 2026, 04_42_52 PM.png')" }}
-        aria-hidden
-      />
       <div className="relative mx-auto max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
       <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border/60 pb-5">
         <div className="min-w-0">
