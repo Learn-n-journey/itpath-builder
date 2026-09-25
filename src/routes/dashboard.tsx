@@ -498,24 +498,24 @@ function Dashboard() {
           <span className="font-display text-sm font-bold tabular-nums text-foreground">{measures.learningProgress}%</span>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-0 sm:divide-x sm:divide-border/50">
-          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-3 sm:pb-0 sm:pt-2 sm:pb-0 sm:pt-2">
+          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-xl sm:border sm:border-border/40 sm:bg-card/50 sm:px-3 sm:pb-0 sm:pt-2 sm:pb-0 sm:pt-2">
             <SlidersHorizontal className="size-4 text-feature-violet" aria-hidden />
             <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Topics mastered</p>
             <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.masteredTopics}</p>
           </div>
-          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-3 sm:pb-0 sm:pt-2">
+          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-xl sm:border sm:border-border/40 sm:bg-card/50 sm:px-3 sm:pb-0 sm:pt-2">
             <BarChart3 className="size-4 text-feature-blue" aria-hidden />
             <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Quiz average</p>
             <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{quizCount > 0 ? `${d.quizAverage}%` : "—"}</p>
             <p className="text-[0.625rem] text-muted-foreground">{quizCount > 0 ? `${quizCount} completed` : "No quizzes yet"}</p>
           </div>
-          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-3 sm:pb-0 sm:pt-2">
+          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-xl sm:border sm:border-border/40 sm:bg-card/50 sm:px-3 sm:pb-0 sm:pt-2">
             <Clock className="size-4 text-feature-cyan" aria-hidden />
             <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Study time</p>
             <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.studyMinutesTotal < 60 ? `${d.studyMinutesTotal} min` : `${d.studyHoursTotal}h`}</p>
             <p className="text-[0.625rem] text-muted-foreground">Recorded in app</p>
           </div>
-          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:px-3 sm:pb-0 sm:pt-2">
+          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-3 sm:rounded-xl sm:border sm:border-border/40 sm:bg-card/50 sm:px-3 sm:pb-0 sm:pt-2">
             <Flame className="size-4 text-feature-orange" aria-hidden />
             <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Streak</p>
             <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p>
