@@ -1,15 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, Compass, Library, Newspaper, Search, Sparkles, Video, X } from "lucide-react";
+import { BookOpen, Compass, ExternalLink, Library, Newspaper, Search, Video, X } from "lucide-react";
 import { useMemo } from "react";
 
-import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
+import { EmptyState, LearnerPageSkeleton, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ContentRow, SectionHeading } from "@/components/learner-ui";
 import { resources, topics } from "@/data/static-content";
-import { adaptivePath } from "@/lib/adaptive-path";
-import { useAppState } from "@/state/app-state";
 import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
+import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/learn")({
   staticData: { sitemap: false },
@@ -18,9 +16,9 @@ export const Route = createFileRoute("/learn")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { title: "Learn | IT PATH" },
-      { name: "description", content: "Explore topics, verified resources, videos and technology news without changing your curriculum progress." },
+      { name: "description", content: "Explore technology topics, verified sources, videos and news without changing your curriculum progress." },
       { property: "og:title", content: "Learn | IT PATH" },
-      { property: "og:description", content: "A free-exploration space for learning beyond your structured path." },
+      { property: "og:description", content: "A free-exploration space for curious learners." },
     ],
   }),
   component: Learn,
@@ -29,26 +27,38 @@ export const Route = createFileRoute("/learn")({
 function Learn() {
   const { user, hydrated } = useAppState();
   const [query, setQuery] = useUiPreference("learn.search", "", isStringPreference);
-  const path = useMemo(() => adaptivePath(user), [user]);
   const needle = query.trim().toLowerCase();
 
+  const currentTopicId = useMemo(() => {
+    const progress = Object.values(user.topicProgress).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+    const reading = Object.values(user.readingPositions).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
+    return reading && (!progress || reading.updatedAt > progress.updatedAt) ? reading.topicId : progress?.topicId;
+  }, [user.readingPositions, user.topicProgress]);
+
+  const currentTopic = topics.find((topic) => topic.id === currentTopicId);
+
   const matchingTopics = useMemo(() => {
-    if (!needle) return topics;
-    return topics.filter((topic) =>
-      [topic.title, topic.summary, ...topic.learningObjectives].join(" ").toLowerCase().includes(needle),
-    );
-  }, [needle]);
+    const pool = needle
+      ? topics.filter((topic) => [topic.title, topic.summary, ...topic.learningObjectives].join(" ").toLowerCase().includes(needle))
+      : topics;
+    if (!currentTopicId) return pool.slice(0, 8);
+    return [...pool].sort((a, b) => Number(b.id === currentTopicId) - Number(a.id === currentTopicId)).slice(0, 8);
+  }, [currentTopicId, needle]);
 
-  const currentTopic = path.recommendedTopic;
-  const relatedResources = useMemo(() => {
-    if (!currentTopic) return [];
-    return resources.filter((resource) => resource.topicIds.includes(currentTopic.id)).slice(0, 3);
-  }, [currentTopic]);
-
-  const suggestedTopics = useMemo(() => {
-    const pool = matchingTopics.filter((topic) => topic.id !== currentTopic?.id);
-    return (currentTopic ? [currentTopic, ...pool] : pool).slice(0, needle ? 12 : 6);
-  }, [currentTopic, matchingTopics, needle]);
+  const matchingResources = useMemo(() => {
+    const pool = resources.filter((resource) => {
+      if (resource.status !== "verified") return false;
+      if (!needle) return true;
+      const topicNames = resource.topicIds
+        .map((id) => topics.find((topic) => topic.id === id)?.title ?? "")
+        .join(" ");
+      return [resource.title, resource.provider, topicNames].join(" ").toLowerCase().includes(needle);
+    });
+    if (!currentTopicId || needle) return pool.slice(0, 6);
+    return [...pool]
+      .sort((a, b) => Number(b.topicIds.includes(currentTopicId)) - Number(a.topicIds.includes(currentTopicId)))
+      .slice(0, 6);
+  }, [currentTopicId, needle]);
 
   if (!hydrated) return <LearnerPageSkeleton rows={7} metrics={3} />;
 
@@ -56,75 +66,117 @@ function Learn() {
     <>
       <PageHeader
         title="Learn something new"
-        description="Explore anything that interests you. Your structured progress stays in My Path."
+        description="Explore freely. What you read here can support your studies, but it never skips prerequisites or changes mastery in My Path."
       />
 
-      <section className="rounded-2xl border border-primary/25 bg-card/90 p-4 shadow-sm sm:p-5">
-        <div className="flex items-start gap-3">
-          <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-primary/25 bg-primary/10 text-primary"><Compass className="size-5" aria-hidden /></span>
-          <div>
-            <h2 className="font-display text-lg font-semibold">What do you want to learn about?</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">Browse freely. Exploring here does not skip prerequisites or award mastery.</p>
-          </div>
+      <section className="rounded-2xl border border-primary/25 bg-card p-4 sm:p-5">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-primary" aria-hidden />
+          <Input
+            aria-label="What do you want to learn about?"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="What do you want to learn about?"
+            className="h-12 bg-background/70 pl-10 pr-10 text-base"
+          />
+          {query ? (
+            <Button aria-label="Clear search" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setQuery("")}>
+              <X className="size-4" />
+            </Button>
+          ) : null}
         </div>
-        <div className="relative mt-4">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
-          <Input aria-label="Search what you want to learn" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search networking, hardware, security, cloud…" className="h-11 pl-9 pr-10" />
-          {query ? <Button aria-label="Clear search" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2" onClick={() => setQuery("")}><X className="size-4" /></Button> : null}
-        </div>
+        {!needle && currentTopic ? (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Since you have been working on <span className="font-semibold text-foreground">{currentTopic.title}</span>, related material is shown first.
+          </p>
+        ) : null}
       </section>
 
-      {!needle ? (
-        <section className="mt-5">
-          <SectionHeading title="Discover" meta="More ways to explore" className="mb-2" />
-          <div className="grid gap-2 sm:grid-cols-3">
-            <DiscoveryCard to="/resources" icon={Library} title="Verified resources" description="Official documentation, courses and references." />
-            <DiscoveryCard to="/tech-videos" icon={Video} title="Tech videos" description="Watch technology explainers and demonstrations." />
-            <DiscoveryCard to="/tech-news" icon={Newspaper} title="Tech news" description="See what is happening across technology now." />
-          </div>
-        </section>
-      ) : null}
+      <section className="mt-5 grid gap-2 sm:grid-cols-3">
+        <Link to="/resources" className="rounded-xl border border-border/70 bg-card p-4 transition-colors hover:bg-muted/20">
+          <Library className="size-5 text-primary" aria-hidden />
+          <h2 className="mt-2 font-display font-semibold">Sources & resources</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Browse the verified references behind the learning material.</p>
+        </Link>
+        <Link to="/tech-videos" className="rounded-xl border border-border/70 bg-card p-4 transition-colors hover:bg-muted/20">
+          <Video className="size-5 text-primary" aria-hidden />
+          <h2 className="mt-2 font-display font-semibold">Videos</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Discover technical videos when you want to see a concept explained another way.</p>
+        </Link>
+        <Link to="/tech-news" className="rounded-xl border border-border/70 bg-card p-4 transition-colors hover:bg-muted/20">
+          <Newspaper className="size-5 text-primary" aria-hidden />
+          <h2 className="mt-2 font-display font-semibold">News</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">See what is changing in technology without mixing headlines into your Path.</p>
+        </Link>
+      </section>
 
-      {currentTopic && !needle ? (
-        <Panel className="mt-5 border-primary/25 bg-primary/5" title="Related to your path">
-          <div className="flex items-start gap-3">
-            <Sparkles className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
-            <div className="min-w-0 flex-1">
-              <p className="font-semibold">{currentTopic.title}</p>
-              <p className="mt-1 text-sm text-muted-foreground">Explore this subject without changing your official lesson progress.</p>
-              <Button asChild variant="outline" size="sm" className="mt-3"><Link to="/topics/$topicId" params={{ topicId: currentTopic.id }}>Explore topic <ArrowRight /></Link></Button>
-            </div>
+      <section className="mt-7">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">{needle ? "Search results" : "Explore topics"}</p>
+            <h2 className="font-display text-xl font-bold">{needle ? `Topics about “${query.trim()}”` : "Follow your curiosity"}</h2>
           </div>
-          {relatedResources.length > 0 ? <div className="mt-4 border-t border-border/60 pt-3"><p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Official material</p><div className="space-y-2">{relatedResources.map((resource) => <a key={resource.id} href={resource.url} target="_blank" rel="noreferrer" className="block rounded-lg border border-border/60 bg-card/70 px-3 py-2 text-sm font-medium hover:bg-muted/30">{resource.title}<span className="block text-xs font-normal text-muted-foreground">{resource.provider}</span></a>)}</div></div> : null}
-        </Panel>
-      ) : null}
+          <Compass className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+        </div>
 
-      <section className="mt-5">
-        <SectionHeading title={needle ? `Results for “${query.trim()}”` : "Explore topics"} meta={`${matchingTopics.length} available`} className="mb-1" />
-        {suggestedTopics.length === 0 ? (
-          <EmptyState icon={Search} title="Nothing found" body="Try another subject or a broader search."><Button variant="outline" onClick={() => setQuery("")}>Clear search</Button></EmptyState>
+        {matchingTopics.length === 0 ? (
+          <EmptyState icon={Search} title="No topics found" body="Try a broader word or browse the verified resources below." />
         ) : (
-          <div className="divide-y divide-border/70">
-            {suggestedTopics.map((topic) => (
-              <Link key={topic.id} to="/topics/$topicId" params={{ topicId: topic.id }} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                <ContentRow icon={BookOpen} eyebrow={topic.id === currentTopic?.id ? "Related to your path" : "Explore"} title={topic.title} description={topic.summary} metadata={topic.difficulty === "gentle" ? "Foundation" : topic.difficulty === "standard" ? "Core" : "Advanced"} />
-              </Link>
-            ))}
+          <div className="grid gap-2 md:grid-cols-2">
+            {matchingTopics.map((topic) => {
+              const topicResources = resources.filter((resource) => resource.status === "verified" && resource.topicIds.includes(topic.id)).slice(0, 2);
+              return (
+                <article key={topic.id} className="rounded-xl border border-border/70 bg-card p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><BookOpen className="size-4.5" aria-hidden /></span>
+                    <div className="min-w-0">
+                      <h3 className="font-display font-semibold text-foreground">{topic.title}</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{topic.summary}</p>
+                    </div>
+                  </div>
+                  {topicResources.length > 0 ? (
+                    <div className="mt-3 border-t border-border/50 pt-2">
+                      {topicResources.map((resource) => (
+                        <a key={resource.id} href={resource.url} target="_blank" rel="noreferrer" className="flex min-h-10 items-center justify-between gap-2 rounded-lg px-2 text-xs font-medium text-foreground hover:bg-muted/30">
+                          <span className="min-w-0 truncate">{resource.title} <span className="font-normal text-muted-foreground">· {resource.provider}</span></span>
+                          <ExternalLink className="size-3.5 shrink-0 text-muted-foreground" aria-hidden />
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-3 border-t border-border/50 pt-3 text-xs text-muted-foreground">More supplemental material can be added here without unlocking the curriculum lesson.</p>
+                  )}
+                </article>
+              );
+            })}
           </div>
         )}
-        {!needle && matchingTopics.length > suggestedTopics.length ? <p className="mt-3 text-center text-xs text-muted-foreground">Search above to explore all {matchingTopics.length} topics.</p> : null}
+      </section>
+
+      <section className="mt-7">
+        <div className="mb-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary">{needle ? "Verified material" : "Recommended reading"}</p>
+          <h2 className="font-display text-xl font-bold">{needle ? "Sources that match" : "Go a little deeper"}</h2>
+        </div>
+        {matchingResources.length > 0 ? (
+          <div className="divide-y divide-border/60 rounded-xl border border-border/70 bg-card px-3">
+            {matchingResources.map((resource) => (
+              <a key={resource.id} href={resource.url} target="_blank" rel="noreferrer" className="flex min-h-16 items-center justify-between gap-3 px-1 py-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-primary">{resource.provider}</p>
+                  <p className="mt-0.5 truncate text-sm font-semibold text-foreground">{resource.title}</p>
+                </div>
+                <ExternalLink className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-xl border border-border/70 bg-card p-5 text-sm text-muted-foreground">No verified source matches that search yet.</p>
+        )}
+        <Button asChild variant="outline" className="mt-3">
+          <Link to="/resources">Browse all resources</Link>
+        </Button>
       </section>
     </>
-  );
-}
-
-function DiscoveryCard({ to, icon: Icon, title, description }: { to: string; icon: typeof Library; title: string; description: string }) {
-  return (
-    <Link to={to as never} className="group rounded-xl border border-border/70 bg-card p-4 transition-colors hover:border-primary/35 hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-      <Icon className="size-5 text-primary" aria-hidden />
-      <p className="mt-3 font-display text-sm font-semibold">{title}</p>
-      <p className="mt-1 text-xs leading-5 text-muted-foreground">{description}</p>
-      <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary">Open <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" /></span>
-    </Link>
   );
 }
