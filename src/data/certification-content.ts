@@ -66,7 +66,7 @@ const seeds: CertSeed[] = [
     code: "FC0-U71",
     provider: "CompTIA",
     level: "core",
-    description: "Foundational IT concepts: hardware, software, networking, data and the shape of an IT career.",
+    description: "Build a strong foundation in how computers, software, networks and data work together, while exploring the kinds of problems IT professionals solve.",
     objectives: [
       ["1.1", "IT Concepts", "Explain computing basics, notational systems and units", [T.hardware, T.binary]],
       ["1.2", "IT Concepts", "Apply a structured troubleshooting method", [T.method]],
@@ -90,7 +90,7 @@ const seeds: CertSeed[] = [
     code: "220-1201/1202",
     provider: "CompTIA",
     level: "core",
-    description: "Entry-level hardware, operating systems, networking, security and support procedures.",
+    description: "Learn how computers and devices work, how operating systems are managed, and how to troubleshoot the everyday hardware, software and support problems you will encounter in IT.",
     objectives: [
       ["1.1", "Mobile Devices", "Install and configure laptop hardware and components", [T.laptops, T.mobileHw]],
       ["1.2", "Mobile Devices", "Configure mobile device connectivity, apps and synchronisation", [T.mobileNet, T.mobileApps]],
@@ -123,7 +123,7 @@ const seeds: CertSeed[] = [
     code: "N10-009",
     provider: "CompTIA",
     level: "infrastructure",
-    description: "Network media, addressing, services and troubleshooting.",
+    description: "Understand how devices communicate across networks, from cabling and addressing to switching, routing and core services, then learn how to track down connectivity problems.",
     objectives: [
       ["1.1", "Networking Concepts", "Explain the OSI and TCP/IP models", [T.netBasic, T.net]],
       ["1.2", "Networking Concepts", "Describe switching, routing and broadcast domains", [T.net]],
@@ -141,7 +141,7 @@ const seeds: CertSeed[] = [
     code: "SY0-701",
     provider: "CompTIA",
     level: "security",
-    description: "Core security concepts, controls, operations and incident response.",
+    description: "Learn how systems and data are protected, how common threats work, and how security controls, monitoring and response fit together in real environments.",
     objectives: [
       ["1.1", "General Security Concepts", "Compare security control types", ["topic-security-control-types-and-categories"]],
       ["1.2", "General Security Concepts", "Explain the CIA triad and least privilege", [T.os]],
@@ -159,7 +159,7 @@ const seeds: CertSeed[] = [
     code: "XK0-006",
     provider: "CompTIA",
     level: "infrastructure",
-    description: "Linux system administration, scripting and troubleshooting.",
+    description: "Get comfortable working in Linux from the command line, managing users, files, services and software, and diagnosing common system problems.",
     objectives: [
       ["1.1", "System Management", "Navigate the filesystem from the shell", [T.cli]],
       ["1.2", "System Management", "Manage packages, services and processes", [T.cli, T.os]],
@@ -174,7 +174,7 @@ const seeds: CertSeed[] = [
     code: "SK0-005",
     provider: "CompTIA",
     level: "infrastructure",
-    description: "Server hardware, administration, storage and disaster recovery.",
+    description: "Learn how servers are built, configured and maintained, including storage, virtualization, backups and the practical work involved in keeping services available.",
     objectives: [
       ["1.1", "Server Hardware", "Install server components and form factors", [T.hardware]],
       ["1.2", "Server Hardware", "Explain RAID levels and storage choices", [T.hardware]],
@@ -190,7 +190,7 @@ const seeds: CertSeed[] = [
     code: "CV0-004",
     provider: "CompTIA",
     level: "infrastructure",
-    description: "Cloud architecture, deployment, operations and security.",
+    description: "Understand how cloud systems are designed and operated, then practice working with compute, storage, networking, identity, monitoring and security in cloud environments.",
     objectives: [
       ["1.1", "Cloud Architecture", "Compare deployment and service models", [T.virt]],
       ["1.2", "Cloud Architecture", "Size compute, storage and network resources", [T.virt]],
@@ -206,7 +206,7 @@ const seeds: CertSeed[] = [
     code: "CS0-004",
     provider: "CompTIA",
     level: "advanced",
-    description: "Security operations, vulnerability management and incident response.",
+    description: "Develop the skills used to investigate suspicious activity, analyze logs and alerts, understand vulnerabilities, prioritize risk and respond to security incidents.",
     objectives: [
       ["1.1", "Security Operations", "Analyse network and endpoint telemetry", [T.net]],
       ["1.2", "Security Operations", "Use log analysis to confirm suspicious activity", [T.cli]],
@@ -221,7 +221,7 @@ const seeds: CertSeed[] = [
     code: "PT0-003",
     provider: "CompTIA",
     level: "advanced",
-    description: "Penetration testing planning, testing techniques and reporting.",
+    description: "Learn how authorized security testing works from start to finish: defining scope, gathering information, examining weaknesses, using testing techniques responsibly and communicating findings.",
     objectives: [
       ["1.1", "Engagement", "Define scope, rules of engagement and legal limits", [T.career]],
       ["2.1", "Reconnaissance", "Enumerate hosts, services and DNS records", [T.dns, T.net]],
@@ -236,7 +236,7 @@ const seeds: CertSeed[] = [
     code: "CAS-005",
     provider: "CompTIA",
     level: "advanced",
-    description: "Advanced enterprise security architecture, governance and operations.",
+    description: "Bring security concepts together at an advanced level by learning how organizations design secure systems, manage risk, investigate complex incidents and make sound security decisions.",
     objectives: [
       ["1.1", "Governance", "Apply risk management and compliance frameworks", [T.career]],
       ["2.1", "Architecture", "Design secure enterprise network architecture", [T.net]],
