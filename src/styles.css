@@ -965,3 +965,38 @@ button[role="combobox"] {
   90% { transform: translateY(-3%) scaleX(.99) scaleY(1.02); }
   100% { transform: translateY(0) scale(1); opacity: 1; }
 }
+
+
+/* BYTE//BREAK match burst: icon-only animation. Tile/board geometry never moves. */
+.byte-icon-explode {
+  z-index: 20;
+  animation: byteIconExplode 220ms cubic-bezier(.15,.75,.2,1) forwards;
+}
+.byte-spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  pointer-events: none;
+  animation: byteSpark 240ms ease-out forwards;
+}
+.byte-spark-1 { --spark-x: 26px; --spark-y: 0px; }
+.byte-spark-2 { --spark-x: 13px; --spark-y: 23px; }
+.byte-spark-3 { --spark-x: -13px; --spark-y: 23px; }
+.byte-spark-4 { --spark-x: -26px; --spark-y: 0px; }
+.byte-spark-5 { --spark-x: -13px; --spark-y: -23px; }
+.byte-spark-6 { --spark-x: 13px; --spark-y: -23px; }
+
+@keyframes byteIconExplode {
+  0% { transform: scale(1); opacity: 1; filter: brightness(1); }
+  35% { transform: scale(1.28); opacity: 1; filter: brightness(1.8) drop-shadow(0 0 8px currentColor); }
+  100% { transform: scale(.15) rotate(12deg); opacity: 0; filter: brightness(2); }
+}
+@keyframes byteSpark {
+  0% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--spark-x)),calc(-50% + var(--spark-y))) scale(0); opacity: 0; }
+}
