@@ -169,6 +169,7 @@ export interface MistakeInput {
   assignmentId?: string;
   assignmentAttemptId?: string;
   quizAttemptId?: string;
+  labId?: string;
   createdAt?: string;
 }
 
@@ -194,6 +195,7 @@ export function buildMistake(user: UserData, input: MistakeInput): Mistake {
     ...(input.assignmentId ? { assignmentId: input.assignmentId } : {}),
     ...(input.assignmentAttemptId ? { assignmentAttemptId: input.assignmentAttemptId } : {}),
     ...(input.quizAttemptId ? { quizAttemptId: input.quizAttemptId } : {}),
+    ...(input.labId ? { labId: input.labId } : {}),
     category,
     severity: input.severity ?? "medium",
     recommendedTopicIds: recommendation.topicIds,
