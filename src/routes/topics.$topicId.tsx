@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowRight, BookOpen, CheckCircle2, Clock, Layers, Lock, MessageSquare, Monitor, Network, RefreshCw, Settings, Shield, Terminal, Boxes, Briefcase, HardDrive, Laptop, Wrench } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { blockingTopic, isMastered, nextJourneyTopic } from "@/lib/journey-order";
 
@@ -23,6 +23,7 @@ import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { trackFlow } from "@/lib/flow-events.functions";
 import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
+import { learnerContinuity } from "@/lib/learner-continuity";
 
 export const Route = createFileRoute("/topics/$topicId")({
   staticData: { sitemap: false },
@@ -134,6 +135,7 @@ function TopicPage() {
   const progress = user.topicProgress[topic.id];
   const mastered = isMastered(user, topic.id);
   const next = mastered ? nextJourneyTopic(topic.id, user) : undefined;
+  const continuity = useMemo(() => learnerContinuity(user), [user]);
   const prerequisites = topic.prerequisiteTopicIds
     .map((id) => topics.find((candidate) => candidate.id === id))
     .filter((candidate) => candidate !== undefined);
@@ -248,10 +250,21 @@ function TopicPage() {
       {activeTab === "overview" ? <TopicLearningExperience topic={topic} /> : null}
 
       {mastered ? (
-        <Panel className="mt-5 border-success/40" title={`${topic.title} mastered`}>
-          <div className="flex flex-wrap gap-2">
-            {next ? <Button asChild><Link to="/topics/$topicId" params={{ topicId: next.id }}>Next topic <ArrowRight /></Link></Button> : <Button asChild><Link to="/my-path">Continue path <ArrowRight /></Link></Button>}
-            <Button asChild variant="secondary"><Link to="/review">Review mistakes</Link></Button>
+        <Panel className="mt-5 border-success/40" title="Mastery earned">
+          <p className="text-sm text-muted-foreground">
+            You have enough evidence across this topic to move forward. Future review will keep checking that the knowledge holds over time.
+          </p>
+          <div className="mt-4">
+            <Button asChild>
+              <Link
+                to={continuity.to as never}
+                {...(continuity.params ? { params: continuity.params as never } : {})}
+                {...(continuity.search ? { search: continuity.search as never } : {})}
+              >
+                {continuity.label}
+                <ArrowRight />
+              </Link>
+            </Button>
           </div>
         </Panel>
       ) : null}
