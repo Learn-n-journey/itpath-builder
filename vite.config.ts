@@ -65,12 +65,21 @@ function flattenCssLayers(): Plugin {
   };
 }
 
+/**
+ * Our normal build targets the edge runtime, which cannot be started with plain
+ * node. The speed/accessibility check in CI needs a build it can run locally, so
+ * `PREVIEW_BUILD=1` swaps in a plain node server build. Hosting never sets this
+ * flag, so the deployed build is unchanged.
+ */
+const previewBuild = process.env["PREVIEW_BUILD"] === "1";
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  ...(previewBuild ? { nitro: { preset: "node-server" } } : {}),
   vite: {
     plugins: [flattenCssLayers()],
   },
