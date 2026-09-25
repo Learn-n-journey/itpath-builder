@@ -1,19 +1,20 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "bun run preview --port 4173",
-      "startServerReadyPattern": "Local",
-      "startServerReadyTimeout": 120000,
+      "startServerCommand": "node node_modules/wrangler/bin/wrangler.js dev dist/server/index.mjs --assets dist/client --compatibility-date 2026-09-24 --compatibility-flags nodejs_compat --ip 127.0.0.1 --port 4173",
+      "startServerReadyPattern": "Ready on",
+      "startServerReadyTimeout": 180000,
       "numberOfRuns": 2,
       "url": [
-        "http://localhost:4173/",
-        "http://localhost:4173/guides",
-        "http://localhost:4173/guides/computer-hardware-basics",
-        "http://localhost:4173/pricing",
-        "http://localhost:4173/auth"
+        "http://127.0.0.1:4173/",
+        "http://127.0.0.1:4173/guides",
+        "http://127.0.0.1:4173/guides/computer-hardware-basics",
+        "http://127.0.0.1:4173/pricing",
+        "http://127.0.0.1:4173/auth"
       ],
       "settings": {
-        "preset": "desktop"
+        "preset": "desktop",
+        "chromeFlags": "--no-sandbox --disable-dev-shm-usage"
       }
     },
     "assert": {

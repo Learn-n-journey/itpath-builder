@@ -9,6 +9,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "preview:ci": "node node_modules/wrangler/bin/wrangler.js dev dist/server/index.mjs --assets dist/client --compatibility-date 2026-09-24 --compatibility-flags nodejs_compat --ip 127.0.0.1 --port 4173",
     "lint": "eslint .",
     "format": "prettier --write .",
     "cap:sync": "cap sync",
@@ -18,7 +19,7 @@
     "lint:content": "bun run scripts/content-lint.ts",
     "audit": "bun run scripts/content-audit.ts",
     "gate": "bun run scripts/quality-gate.ts",
-    "lighthouse": "bunx --bun @lhci/cli@0.15.x autorun",
+    "lighthouse": "bunx @lhci/cli@0.15.x autorun",
     "domain": "bun run scripts/domain-pipeline.ts",
     "domain:activate": "bun run scripts/domain-activate.ts",
     "domain:rollback": "bun run scripts/domain-activate.ts --rollback",
@@ -119,6 +120,7 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "8.1.5",
-    "vitest": "5"
+    "vitest": "5",
+    "wrangler": "^4.135.0"
   }
 }

@@ -11,7 +11,7 @@ jobs:
     name: Content linter and tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run lint:content
@@ -23,7 +23,7 @@ jobs:
 
       - name: Adversarial stress test
         run: bun run stress
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: quality-ledger
@@ -33,13 +33,16 @@ jobs:
     name: Accessibility and performance
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run build
       - name: Lighthouse CI
-        run: bunx --bun @lhci/cli@0.15.x autorun
-      - uses: actions/upload-artifact@v4
+        run: bunx @lhci/cli@0.15.x autorun
+        env:
+          WRANGLER_SEND_METRICS: "false"
+          CLOUDFLARE_INCLUDE_PROCESS_ENV: "false"
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: lighthouse-reports
