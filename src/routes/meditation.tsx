@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Bell,
   CloudRain,
-  ExternalLink,
-  Headphones,
+  ChevronDown,
   Music2,
   Pause,
   Play,
@@ -12,7 +11,6 @@ import {
   Square,
   Settings2,
   Volume2,
-  Wind,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -237,7 +235,7 @@ function MeditationPage() {
           <button type="button" onClick={()=>setBreathCuesEnabled(v=>!v)} aria-label="Toggle breath cues" className={cn("rounded-full p-2.5 transition-colors",breathCuesEnabled?"bg-white/10 text-white":"text-white/45 hover:bg-white/10")}><Bell className="size-4"/></button>
         </header>
 
-        <section className="flex min-h-0 items-center justify-center text-center">
+        <section className="flex min-h-0 flex-col items-center justify-center text-center">
           <div className={cn("grid size-[min(64vw,16rem)] place-items-center rounded-full border border-white/20 bg-white/[.04] shadow-2xl shadow-black/20 transition-all duration-1000 sm:size-72",running&&(instruction==="Inhale"||instruction==="Hold")?"scale-105 bg-white/[.07]":"scale-95")}>
             <div><p className="text-xs font-semibold uppercase tracking-[.3em] text-white/55">{running?instruction:"Ready"}</p><p className="mt-3 font-serif text-7xl font-light tabular-nums">{running?phaseSeconds:exercise.inhale}</p><p className="mt-3 font-mono text-xs text-white/45">{minutes}:{seconds}</p></div>
           </div>
@@ -264,22 +262,3 @@ function MeditationPage() {
   );
 }
 
-function CircleControl({ label, onClick, primary = false, children }: { label: string; onClick: () => void; primary?: boolean; children: React.ReactNode }) {
-  return (
-    <div className="text-center">
-      <Button type="button" variant={primary ? "default" : "outline"} size="icon" onClick={onClick} className="size-14 rounded-full">
-        {children}
-      </Button>
-      <p className="mt-1.5 text-xs text-muted-foreground">{label}</p>
-    </div>
-  );
-}
-
-function Resource({ href, title, detail }: { href: string; title: string; detail: string }) {
-  return (
-    <a href={href} target="_blank" rel="noreferrer" className="group flex min-h-14 items-center justify-between gap-3 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-      <span><span className="block text-sm font-semibold group-hover:text-primary">{title}</span><span className="block text-xs text-muted-foreground">{detail}</span></span>
-      <ExternalLink className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-    </a>
-  );
-}
