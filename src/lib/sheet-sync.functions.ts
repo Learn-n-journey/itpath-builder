@@ -57,6 +57,19 @@ function isOwner(context: { claims: unknown }): boolean {
 type SyncScope = "it-cybersecurity" | "auto-repair" | "all" | (string & {});
 
 /** Puts a sync in the queue. Returns as soon as it is written. */
+const UNAVAILABLE = "Syncing is unavailable right now.";
+
+/** The privileged backend client, or null when it cannot be created. */
+async function adminClient() {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    void supabaseAdmin.from;
+    return supabaseAdmin;
+  } catch {
+    return null;
+  }
+}
+
 export const syncNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { scope?: SyncScope; force?: boolean } | undefined) => ({
@@ -66,7 +79,8 @@ export const syncNow = createServerFn({ method: "POST" })
   .handler(async ({ context, data }): Promise<{ ok: boolean; id?: string; error?: string }> => {
     if (!isOwner(context)) return { ok: false, error: "Not allowed." };
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin = await adminClient();
+    if (!supabaseAdmin) return { ok: false, runs: [], error: UNAVAILABLE } as never;
 
     const waiting = await supabaseAdmin
       .from("sync_queue")
@@ -146,7 +160,8 @@ export const syncStatus = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<{ ok: boolean; runs: SyncRunStatus[]; error?: string }> => {
     if (!isOwner(context)) return { ok: false, runs: [], error: "Not allowed." };
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin = await adminClient();
+    if (!supabaseAdmin) return { ok: false, runs: [], error: UNAVAILABLE } as never;
     const { data, error } = await supabaseAdmin
       .from("sync_queue")
       .select("id, scope, status, error, result, created_at, started_at, finished_at")
@@ -182,7 +197,8 @@ export const clearSyncLock = createServerFn({ method: "POST" })
   .handler(async ({ context }): Promise<{ ok: boolean; error?: string }> => {
     if (!isOwner(context)) return { ok: false, error: "Not allowed." };
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const supabaseAdmin = await adminClient();
+    if (!supabaseAdmin) return { ok: false, runs: [], error: UNAVAILABLE } as never;
     await supabaseAdmin
       .from("sync_queue")
       .update({

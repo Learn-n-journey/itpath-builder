@@ -386,7 +386,7 @@ export const terminalScenarios: TerminalScenario[] = [
     reasoningKeywords: ["cache", "dns", "reset", "network", "verify"],
     misconceptionRules: [{ pattern: "mdm wipe|profiles remove", label: "Erased data for a cached-lookup problem" }],
     machineSpec: { shell: "ios", dnsCache: { "intranet.corp.local": "10.0.0.99" } },
-  },,
+  },
   {
     id: "terminal-cmd-backup-ticket-log",
     topicId: "topic-command-line-fundamentals",
