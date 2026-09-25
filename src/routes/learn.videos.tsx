@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { searchYouTubeVideoPage, type VideoSearchResult } from "@/lib/tech-videos.functions";
 
 export const Route = createFileRoute("/learn/videos")({
-  validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q.slice(0, 100) : "" }),
+  validateSearch: (search: Record<string, unknown>) => ({ q: typeof search["q"] === "string" ? search["q"].slice(0, 100) : "" }),
   staticData: { sitemap: false },
   head: () => ({ meta: [{ title: "Video Search | IT PATH" }, { name: "description", content: "Explore YouTube videos related to a technology concept." }] }),
   component: LearningVideoSearchPage,
