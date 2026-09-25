@@ -37,6 +37,7 @@ import {
   Video,
   Gauge,
   Cog,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 import { domain } from "@/domain/active";
@@ -51,6 +52,8 @@ export interface NavItem {
   description: string;
   /** True if this route is gated behind Pro. A small crown is shown in the sidebar. */
   pro?: boolean;
+  /** Owner-only destinations are filtered again by the app shell before rendering. */
+  ownerOnly?: boolean;
   /**
    * An outside feed this subject may not have. The item only appears when the
    * active subject switches that feed on.
@@ -365,6 +368,15 @@ const allNavItems: NavItem[] = [
     group: "You",
     description: "Your goal, experience level, study days and session length.",
   },
+  {
+    label: "Admin",
+    to: "/admin",
+    icon: ShieldCheck,
+    group: "You",
+    description: "Owner-only control room for health checks, content sync, releases and maintenance.",
+    ownerOnly: true,
+  },
+
 ];
 
 export const navGroups = ["Study", "Practice", "Career", "Connect", "You"] as const;
