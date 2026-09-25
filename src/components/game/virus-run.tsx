@@ -85,6 +85,21 @@ function writeBest(best: Best): void {
   }
 }
 
+
+function virusSound(kind:"packet"|"power"|"alert"|"hit"|"exit"|"boss"){
+  if(typeof window==="undefined")return;
+  const Ctx=window.AudioContext||(window as typeof window & {webkitAudioContext?:typeof AudioContext}).webkitAudioContext;if(!Ctx)return;
+  const ctx=(virusSound as unknown as {ctx?:AudioContext}).ctx??new Ctx();(virusSound as unknown as {ctx?:AudioContext}).ctx=ctx;if(ctx.state==="suspended")void ctx.resume();
+  const now=ctx.currentTime,master=ctx.createGain();master.gain.setValueAtTime(.0001,now);master.gain.exponentialRampToValueAtTime(kind==="hit"?0.13:0.075,now+.008);master.gain.exponentialRampToValueAtTime(.0001,now+.35);master.connect(ctx.destination);
+  const tone=(f:number,d=.14,type:OscillatorType="sine",delay=0,slide=1)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,now+delay);o.frequency.exponentialRampToValueAtTime(Math.max(35,f*slide),now+delay+d);g.gain.setValueAtTime(.0001,now+delay);g.gain.exponentialRampToValueAtTime(.6,now+delay+.006);g.gain.exponentialRampToValueAtTime(.0001,now+delay+d);o.connect(g);g.connect(master);o.start(now+delay);o.stop(now+delay+d+.02);};
+  if(kind==="packet"){tone(620,.09,"triangle",0,1.25);tone(880,.12,"sine",.06,1.08);}
+  if(kind==="power"){tone(180,.22,"sawtooth",0,2.4);tone(720,.24,"sine",.08,.9);}
+  if(kind==="alert"){tone(220,.08,"square");tone(220,.08,"square",.12);}
+  if(kind==="hit"){tone(120,.28,"sawtooth",0,.55);tone(70,.3,"square",.04,.72);}
+  if(kind==="exit"){tone(330,.18,"triangle");tone(495,.18,"triangle",.12);tone(740,.28,"sine",.24,1.12);}
+  if(kind==="boss"){tone(82,.45,"sawtooth",0,1.4);tone(164,.4,"triangle",.18,.82);}
+}
+
 // --- Maze generation -------------------------------------------------------
 
 type Grid = number[][]; // 0 = open, 1 = wall
@@ -298,6 +313,7 @@ export function VirusRun() {
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
+  const lastAlertSoundRef = useRef(0);
   const bestRef = useRef<Best>({ bestLevel: 0, packets: 0, currentLevel: 1 });
 
   const [phase, setPhase] = useState<Phase>("menu");
@@ -450,7 +466,9 @@ export function VirusRun() {
         let playerSpeed=PLAYER_SPEED;
         if(run.activePower?.kind==="overclock")playerSpeed*=1.55;
         if(run.theme.system==="CPU Cache")playerSpeed*=1.08;
-        if(run.theme.system==="Network Stack" && (Math.round(p.y)%4===0))playerSpeed*=1.18;
+        if(run.theme.system==="Network Stack" && (Math.round(p.y)%4===0))playerSpeed*=1.22;
+        if(run.theme.system==="GPU Memory" && (Math.round(p.x)%5===0))playerSpeed*=1.12;
+        if(run.theme.system==="Storage Drive")playerSpeed*=0.94;
         const r = stepEntity(p.x, p.y, p.tx, p.ty, playerSpeed, dt);
         p.x = r.x;
         p.y = r.y;
@@ -465,7 +483,7 @@ export function VirusRun() {
           packet.taken = true;
           run.collected += 1;
           run.streak = Math.min(5, run.streak + 1); run.streakTimer = 4.5;
-          fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet" });
+          fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet" });virusSound("packet");
           if (run.collected >= run.required) run.portOpen = true;
           syncHud(run);
         }
@@ -475,8 +493,12 @@ export function VirusRun() {
       for(const power of run.powerUps){
         if(!power.taken && power.x===px && power.y===py){
           power.taken=true;run.activePower={kind:power.kind,left:power.kind==="emp"?5:8};run.streakTimer=5;
-          fxRef.current.push({x:power.x,y:power.y,born:performance.now(),kind:"power"});
+          fxRef.current.push({x:power.x,y:power.y,born:performance.now(),kind:"power"});virusSound("power");
           if(power.kind==="emp")for(const g of run.guards)g.stunned=5;
+          if(run.theme.system==="System RAM"){
+            const jumps: {x:number;y:number}[]=[];for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(run.grid[y]?.[x]===0&&Math.abs(x-px)+Math.abs(y-py)>12)jumps.push({x,y});
+            const jump=jumps[Math.floor(Math.random()*jumps.length)];if(jump){p.x=jump.x;p.y=jump.y;p.tx=jump.x;p.ty=jump.y;p.moving=false;p.invuln=Math.max(p.invuln,.6);}
+          }
           syncHud(run);
         }
       }
@@ -488,6 +510,7 @@ export function VirusRun() {
         if(g.stunned>0)continue;
         const toPlayer = field[gy]?.[gx] ?? -1;
         const hidden = run.activePower?.kind==="cloak";
+        const systemDetection = run.theme.system==="Kernel Space"?2:run.theme.system==="Firewall"?1:0;
         if (g.x === g.tx && g.y === g.ty) {
           const options: [number, number][] = [];
           for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as [number, number][]) {
@@ -499,7 +522,7 @@ export function VirusRun() {
           }
           if (options.length === 0) options.push([g.fromX, g.fromY]);
           let chosen: [number, number];
-          if (!hidden && toPlayer >= 0 && toPlayer <= g.detection) {
+          if (!hidden && toPlayer >= 0 && toPlayer <= g.detection + systemDetection) {
             if(g.kind==="interceptor" && p.moving){
               options.sort((a,b)=>Math.abs(a[0]-p.tx)+Math.abs(a[1]-p.ty)-Math.abs(b[0]-p.tx)-Math.abs(b[1]-p.ty));
             } else options.sort((a, b) => (field[a[1]]![a[0]] ?? 999) - (field[b[1]]![b[0]] ?? 999));
@@ -518,6 +541,7 @@ export function VirusRun() {
 
         // Near misses reward risky escapes and trigger a warning burst.
         const nearDist=Math.hypot(g.x-p.x,g.y-p.y);
+        if(!hidden && toPlayer>=0 && toPlayer<=2 && performance.now()-lastAlertSoundRef.current>900){virusSound("alert");lastAlertSoundRef.current=performance.now();}
         if(p.invuln<=0 && nearDist<1.05 && nearDist>=0.55 && Math.random()<dt*1.4){
           run.streak=Math.min(5,run.streak+1);run.streakTimer=3.5;
           fxRef.current.push({x:p.x,y:p.y,born:performance.now(),kind:"near"});
@@ -525,7 +549,7 @@ export function VirusRun() {
         // Contact.
         if (p.invuln <= 0 && Math.abs(g.x - p.x) < 0.55 && Math.abs(g.y - p.y) < 0.55) {
           run.integrity -= 1;
-          fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });
+          fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });virusSound("hit");
           p.x = 1;
           p.y = 1;
           p.tx = 1;
@@ -553,7 +577,7 @@ export function VirusRun() {
 
       // Port.
       if (run.portOpen && px === run.port.x && py === run.port.y) {
-        fxRef.current.push({ x: run.port.x, y: run.port.y, born: performance.now(), kind: "exit" });
+        fxRef.current.push({ x: run.port.x, y: run.port.y, born: performance.now(), kind: "exit" });virusSound(run.boss?"boss":"exit");
         // Level cleared: heal one point (capped) and bank packets.
         run.integrity = Math.min(MAX_INTEGRITY, run.integrity + 1);
         const best = readBest();
@@ -956,6 +980,10 @@ export function VirusRun() {
       ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
       ctx2.restore();
 
+      // Dynamic danger vignette intensifies when antivirus closes in.
+      let nearest=99;for(const g of run.guards)if(g.stunned<=0)nearest=Math.min(nearest,Math.hypot(g.x-run.player.x,g.y-run.player.y));
+      if(nearest<3.2){const danger=Math.max(0,1-nearest/3.2);ctx2.save();const dg=ctx2.createRadialGradient(rect.width/2,rect.height/2,rect.width*.22,rect.width/2,rect.height/2,rect.width*.72);dg.addColorStop(0,"rgba(127,29,29,0)");dg.addColorStop(1,`rgba(239,68,68,${danger*.2*(.75+.25*Math.sin(time/90))})`);ctx2.fillStyle=dg;ctx2.fillRect(0,0,rect.width,rect.height);ctx2.restore();}
+
       // Restrained edge vignette keeps the field focused without retro scanlines.
       ctx2.strokeStyle = "rgba(255,255,255,0.08)";
       ctx2.lineWidth = 1;
@@ -975,6 +1003,7 @@ export function VirusRun() {
         levelClearTimerRef.current -= dt;
         if (levelClearTimerRef.current <= 0) {
           runRef.current = buildLevel(run.level + 1);
+          if(runRef.current.boss)virusSound("boss");
           distFieldRef.current = null;
           fieldAgeRef.current = 999;
           keysRef.current = [];
