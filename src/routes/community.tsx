@@ -34,6 +34,7 @@ import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { useCommunityChat } from "@/hooks/use-community-chat";
 import { useDisplayName } from "@/hooks/use-display-name";
+import { useProfile } from "@/hooks/use-profile";
 import { checkDisplayName, checkMessage } from "@/lib/community/word-filter";
 import { GENERAL_ROOM, isValidRoom, roomTitle, topicForRoom } from "@/lib/community/rooms";
 import { currentJourneyTopic, journeyTopics } from "@/lib/journey-order";
@@ -77,6 +78,7 @@ function CommunityPage() {
   const search = Route.useSearch();
   const room = search.room && isValidRoom(search.room) ? search.room : GENERAL_ROOM;
   const { displayName, loading: nameLoading, saveDisplayName, saving } = useDisplayName();
+  const { profile: ownProfile } = useProfile();
   const { messages, loading, send, sending, remove, report, toggleLike, toggleSave, getComments, addComment } = useCommunityChat(room);
   const [openComments,setOpenComments]=useState<string|null>(null);
   const [comments,setComments]=useState<any[]>([]);
@@ -209,7 +211,7 @@ function CommunityPage() {
                   const initial = shownName.trim().charAt(0).toUpperCase() || "?";
                   return (
                     <article key={message.id} className="group flex gap-3 border-b border-border/60 bg-background px-1 py-4">
-                      <Link to="/profile/$userId" params={{userId:message.userId}} aria-label={`View ${shownName}'s profile`} className={cn("flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold",mine?"bg-primary text-primary-foreground":"bg-secondary text-foreground")}>{initial}</Link>
+                      <Link to="/profile/$userId" params={{userId:message.userId}} aria-label={`View ${shownName}'s profile`} className={cn("flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold",mine?"bg-primary text-primary-foreground":"bg-secondary text-foreground")}>{mine&&ownProfile.avatarUrl?<img src={ownProfile.avatarUrl} alt="" className="h-full w-full rounded-full object-cover"/>:initial}</Link>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           {mine?<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">You</Link>:<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">{message.displayName}</Link>}
