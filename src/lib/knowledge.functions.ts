@@ -272,7 +272,7 @@ export const saveKnowledge = createServerFn({ method: "POST" })
         "image/jpeg": ["jpg", "jpeg"],
         "image/webp": ["webp"],
       };
-      const mime = data.file.mime.toLowerCase().split(";")[0].trim();
+      const mime = (data.file.mime.toLowerCase().split(";")[0] ?? "").trim();
       const ext = (data.file.name.split(".").pop() ?? "").toLowerCase();
       if (!ALLOWED[mime] || !ALLOWED[mime].includes(ext)) {
         return { ok: false, error: "That file type is not supported. Use PDF, text, Markdown, CSV, Word, PNG, JPEG or WEBP." };
