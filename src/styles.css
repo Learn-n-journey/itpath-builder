@@ -1187,3 +1187,26 @@ html.light .sidebar-glass {
 @keyframes byteHalfPulse{50%{box-shadow:0 0 0 9px transparent,0 0 28px color-mix(in oklab,var(--color-primary) 35%,transparent)}}
 @media(max-width:520px){.byte-half-path{padding-inline:2rem}.byte-half-dock{align-items:stretch;flex-direction:column}.byte-half-dock button{width:100%}}
 @media(prefers-reduced-motion:reduce){.byte-half-node.is-current .byte-half-orb{animation:none!important}}
+
+
+/* BYTE//BREAK premium match impact — presentation only; no board physics changes. */
+.byte-match-impact{isolation:isolate}
+.byte-match-impact:before{content:"";position:absolute;inset:-10%;z-index:24;pointer-events:none;border-radius:35%;background:radial-gradient(circle,color-mix(in oklab,currentColor 24%,transparent) 0%,color-mix(in oklab,var(--color-primary) 10%,transparent) 34%,transparent 68%);mix-blend-mode:screen;animation:byteMatchCellPulse 420ms cubic-bezier(.12,.78,.18,1) both}
+.byte-match-impact-hot:before{background:radial-gradient(circle,color-mix(in oklab,white 46%,transparent) 0%,color-mix(in oklab,var(--color-primary) 24%,transparent) 32%,transparent 72%);filter:brightness(1.25)}
+.byte-match-energy{position:absolute;inset:-18%;z-index:28;pointer-events:none;border-radius:50%;border:1px solid color-mix(in oklab,currentColor 72%,white);box-shadow:0 0 14px currentColor,inset 0 0 12px color-mix(in oklab,currentColor 55%,transparent);animation:byteEnergyHalo 430ms cubic-bezier(.1,.8,.18,1) both}
+.byte-match-energy i{position:absolute;left:50%;top:50%;width:2px;height:42%;border-radius:999px;background:linear-gradient(transparent,currentColor,white);transform-origin:50% 100%;filter:drop-shadow(0 0 4px currentColor);animation:byteEnergyArc 360ms ease-out both}
+.byte-match-energy i:nth-child(1){transform:translate(-50%,-100%) rotate(18deg)}
+.byte-match-energy i:nth-child(2){transform:translate(-50%,-100%) rotate(138deg);animation-delay:22ms}
+.byte-match-energy i:nth-child(3){transform:translate(-50%,-100%) rotate(258deg);animation-delay:42ms}
+.byte-match-flash{position:absolute;z-index:18;pointer-events:none;inset:1.5%;border-radius:2rem;background:radial-gradient(circle at 50% 50%,color-mix(in oklab,white 28%,transparent),color-mix(in oklab,var(--color-primary) 9%,transparent) 32%,transparent 68%);mix-blend-mode:screen;animation:byteBoardFlash 480ms ease-out both}
+.byte-match-flash.is-special{background:radial-gradient(circle at 50% 50%,color-mix(in oklab,white 42%,transparent),color-mix(in oklab,var(--color-primary) 18%,transparent) 38%,transparent 72%)}
+.byte-match-ring{position:absolute;z-index:19;pointer-events:none;left:50%;top:50%;width:18%;aspect-ratio:1;border:1px solid color-mix(in oklab,var(--color-primary) 72%,white);border-radius:50%;box-shadow:0 0 18px color-mix(in oklab,var(--color-primary) 55%,transparent);animation:byteBoardRing 500ms cubic-bezier(.08,.72,.16,1) both}
+.byte-board-impact:after{content:"";position:absolute;z-index:17;pointer-events:none;inset:0;border-radius:inherit;box-shadow:inset 0 0 32px color-mix(in oklab,var(--color-primary) 20%,transparent);animation:byteBoardImpact 420ms ease-out both}
+.byte-board-impact-strong:after{box-shadow:inset 0 0 48px color-mix(in oklab,var(--color-primary) 34%,transparent),0 0 24px color-mix(in oklab,var(--color-primary) 16%,transparent)}
+@keyframes byteMatchCellPulse{0%{opacity:0;transform:scale(.62)}22%{opacity:1;transform:scale(1.16)}58%{opacity:.8;transform:scale(.94)}100%{opacity:0;transform:scale(1.38)}}
+@keyframes byteEnergyHalo{0%{opacity:0;transform:scale(.28) rotate(-18deg)}30%{opacity:1;transform:scale(.86) rotate(4deg)}100%{opacity:0;transform:scale(1.55) rotate(24deg)}}
+@keyframes byteEnergyArc{0%{opacity:0;scale:.2 0}28%{opacity:1;scale:1 1.15}100%{opacity:0;scale:.25 .35}}
+@keyframes byteBoardFlash{0%{opacity:0}18%{opacity:.9}100%{opacity:0}}
+@keyframes byteBoardRing{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}24%{opacity:.9}100%{opacity:0;transform:translate(-50%,-50%) scale(5.2)}}
+@keyframes byteBoardImpact{0%{opacity:0}24%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.byte-match-impact:before,.byte-match-energy,.byte-match-energy i,.byte-match-flash,.byte-match-ring,.byte-board-impact:after{animation:none!important}}
