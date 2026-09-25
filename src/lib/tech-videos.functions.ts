@@ -246,7 +246,13 @@ export interface VideoSearchResult {
   source: "YouTube search" | "Trusted video feed";
 }
 
-const searchCache = new Map<string, { at: number; videos: VideoSearchResult[] }>();
+export interface LearningVideoSearchResponse {
+  videos: VideoSearchResult[];
+  status: "youtube" | "fallback" | "missing-key" | "youtube-error";
+  message?: string;
+}
+
+const searchCache = new Map<string, { at: number; result: LearningVideoSearchResponse }>();
 const SEARCH_CACHE_MS = 60 * 60 * 1000;
 
 function searchText(video: TechVideo): string {
@@ -258,15 +264,16 @@ export const searchLearningVideos = createServerFn({ method: "GET" })
     const query = String((data as { query?: unknown } | undefined)?.query ?? "").trim().slice(0, 100);
     return { query };
   })
-  .handler(async ({ data }): Promise<VideoSearchResult[]> => {
-    if (data.query.length < 2) return [];
+  .handler(async ({ data }): Promise<LearningVideoSearchResponse> => {
+    if (data.query.length < 2) return { videos: [], status: "fallback" };
     const queryKey = data.query.toLowerCase();
     const apiKey = process.env.YOUTUBE_API_KEY?.trim();
     // Keep API-backed and fallback caches separate. If a key is added after a
     // fallback search, the old empty/fallback result must not mask live YouTube.
     const key = `${apiKey ? "youtube" : "fallback"}:${queryKey}`;
     const cached = searchCache.get(key);
-    if (cached && Date.now() - cached.at < SEARCH_CACHE_MS) return cached.videos;
+    if (cached && Date.now() - cached.at < SEARCH_CACHE_MS) return cached.result;
+    let youtubeMessage: string | undefined;
     if (apiKey) {
       const params = new URLSearchParams({
         part: "snippet",
@@ -317,12 +324,18 @@ export const searchLearningVideos = createServerFn({ method: "GET" })
             }];
           });
           if (videos.length > 0) {
-            searchCache.set(key, { at: Date.now(), videos });
-            return videos;
+            const result: LearningVideoSearchResponse = { videos, status: "youtube" };
+            searchCache.set(key, { at: Date.now(), result });
+            return result;
           }
+        } else {
+          const errorBody = (await response.text()).slice(0, 500);
+          youtubeMessage = `YouTube API returned HTTP ${response.status}: ${errorBody}`;
+          console.error("[learn-video-search]", youtubeMessage);
         }
-      } catch {
-        // Fall through to the trusted channel feed when YouTube search is unavailable.
+      } catch (error) {
+        youtubeMessage = error instanceof Error ? error.message : "YouTube request failed";
+        console.error("[learn-video-search]", youtubeMessage);
       }
     }
 
@@ -346,8 +359,13 @@ export const searchLearningVideos = createServerFn({ method: "GET" })
       }));
     // Do not cache an empty fallback result; feeds can recover and a newly
     // configured API key should become useful immediately after deployment.
-    if (trusted.length > 0) searchCache.set(key, { at: Date.now(), videos: trusted });
-    return trusted;
+    const result: LearningVideoSearchResponse = {
+      videos: trusted,
+      status: apiKey ? "youtube-error" : "missing-key",
+      message: youtubeMessage ?? (apiKey ? "YouTube returned no matching videos." : "YOUTUBE_API_KEY is not available to the server runtime."),
+    };
+    if (trusted.length > 0) searchCache.set(key, { at: Date.now(), result });
+    return result;
   });
 
 /**
