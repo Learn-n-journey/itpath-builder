@@ -118,6 +118,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   const current = navItems.find((i) => i.to === pathname)?.label ?? domain.appName;
+  const immersiveBackground = pathname === "/pomodoro" || pathname === "/meditation";
 
   // The course chooser is the neutral front door, before either subject loads.
   if (pathname === "/") return <>{children}</>;
@@ -136,12 +137,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <MaintenanceGate pathname={pathname}>
     <div className="relative min-h-screen">
-      <div
-        className="app-background"
-        style={{ backgroundImage: "url('/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png')" }}
-        aria-hidden
-      />
-      <div className="app-background-shade" aria-hidden />
+      {!immersiveBackground ? (
+        <>
+          <div
+            className="app-background"
+            style={{ backgroundImage: "url('/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png')" }}
+            aria-hidden
+          />
+          <div className="app-background-shade" aria-hidden />
+        </>
+      ) : null}
       <StudyReminder />
       <WelcomeTour />
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
