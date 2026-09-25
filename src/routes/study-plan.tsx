@@ -148,29 +148,32 @@ function StudyPlanPage() {
         <PageHeader title="Study Plan" description="Build a focused study session from your own data." />
       </div>
 
-      <div className="grid grid-cols-4 overflow-hidden rounded-xl border border-border/70 bg-card/60 py-4">
+      <div className="glass-surface grid grid-cols-4 divide-x divide-border/40 overflow-hidden rounded-2xl border border-border/70 py-4">
         <StudyStat icon={Clock3} value={`${target}m`} label="Today" />
         <StudyStat icon={CalendarDays} value={formatHours(weekMinutes)} label="This week" />
         <StudyStat icon={BarChart2} value={user.studySessions.length} label="Sessions" />
         <StudyStat icon={Trophy} value={completedPlans.length} label="Finished" />
       </div>
 
-      <section className="mt-5 rounded-2xl border border-border/70 bg-card p-4 shadow-sm sm:p-6">
+      <section className="glass-surface mt-6 rounded-3xl border border-border/70 p-4 shadow-sm sm:p-6">
         {!activePlan ? (
           <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 text-primary">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Build your session</p>
+                <div className="mt-1 flex items-center gap-1.5">
+                  <h2 className="font-display text-xl font-semibold text-foreground">How much time do you have?</h2>
+                  <HelpTip label="About session length">Scroll to choose how much time you have. The study plan will fill this time with the best mix of lessons, practice, and review based on your progress.</HelpTip>
+                </div>
+              </div>
+              <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary">
                 <Clock3 className="size-5" aria-hidden />
               </span>
-              <div className="flex items-center gap-1.5">
-                <h2 className="font-display text-xl font-semibold text-foreground">Session length</h2>
-                <HelpTip label="About session length">Scroll to choose how much time you have. The study plan will fill this time with the best mix of lessons, practice, and review based on your progress.</HelpTip>
-              </div>
             </div>
 
-            <StudyDurationPicker value={target} onChange={setTarget} className="mx-auto max-w-xl" />
+            <StudyDurationPicker value={target} onChange={setTarget} className="mx-auto max-w-xl" />\n            <p className="-mt-1 text-center text-xs text-muted-foreground">Swipe to adjust in 5-minute steps</p>
 
-            <Button className="h-12 w-full rounded-xl text-sm font-semibold shadow-sm sm:text-base" onClick={generate}>
+            <Button className="h-14 w-full rounded-2xl text-sm font-semibold shadow-lg shadow-primary/10 sm:text-base" onClick={generate}>
               <Sparkles className="size-4" aria-hidden />
               <span>Generate {target}-minute session</span>
               <ArrowRight className="size-4" aria-hidden />
@@ -178,7 +181,7 @@ function StudyPlanPage() {
 
             <div>
               <div className="mb-3 flex items-center gap-2">
-                <h2 className="font-display text-base font-semibold">What your session will include</h2>
+                <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Session mix</p><h2 className="font-display text-base font-semibold">What you’ll work on</h2></div>
                 <HelpTip label="About session contents">This preview comes from the activities currently selected for your generated session.</HelpTip>
               </div>
               <div className="-mx-1 flex items-stretch gap-2 overflow-x-auto px-1 pb-4 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -189,7 +192,7 @@ function StudyPlanPage() {
                     <div key={group.title} className="flex shrink-0 items-center">
                       <div
                         className={cn(
-                          "relative flex min-h-24 w-28 flex-col items-center rounded-xl border px-2.5 pb-4 pt-3 text-center sm:w-32",
+                          "relative flex min-h-24 w-28 flex-col items-center rounded-2xl border px-2.5 pb-4 pt-3 text-center sm:w-32",
                           included ? cn(group.tone, "shadow-sm") : "border-border/70 bg-card/60 opacity-55",
                         )}
                       >
@@ -217,7 +220,7 @@ function StudyPlanPage() {
         )}
       </section>
 
-      <section className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+      <section className="glass-surface mt-5 overflow-hidden rounded-2xl border border-border/70 shadow-sm">
         <button
           type="button"
           className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
@@ -240,7 +243,7 @@ function StudyPlanPage() {
         ) : null}
       </section>
 
-      <section className="mt-4 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+      <section className="glass-surface mt-4 overflow-hidden rounded-2xl border border-border/70 shadow-sm">
         <button
           type="button"
           className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
