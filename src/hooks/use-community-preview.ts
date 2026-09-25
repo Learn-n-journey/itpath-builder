@@ -35,7 +35,7 @@ export function useCommunityPreview(limit=4){
       const lc=new Map<string,number>(),cc=new Map<string,number>();
       for(const x of likes??[])lc.set(x.message_id,(lc.get(x.message_id)??0)+1);
       for(const x of comments??[])cc.set(x.message_id,(cc.get(x.message_id)??0)+1);
-      return (data??[]).map(row=>({id:row.id,userId:row.user_id,displayName:row.display_name,body:row.body,createdAt:row.created_at,room:row.room,imageUrl:row.image_url??null,likeCount:lc.get(row.id)??0,commentCount:cc.get(row.id)??0}));
+      return rows.map(row=>({id:row.id,userId:row.user_id,displayName:row.display_name,body:row.body,createdAt:row.created_at,room:row.room,imageUrl:row.image_url??null,likeCount:lc.get(row.id)??0,commentCount:cc.get(row.id)??0}));
     }
   });
   useEffect(()=>{if(!userId)return;const channel=supabase.channel("dashboard-community").on("postgres_changes",{event:"*",schema:"public",table:"community_messages"},()=>void queryClient.invalidateQueries({queryKey:["dashboard-community-preview"]})).subscribe();return()=>{void supabase.removeChannel(channel)}},[userId,queryClient]);
