@@ -570,12 +570,6 @@ html.light [class*="bg-card/"] {
   border-color: color-mix(in oklab, var(--color-foreground) 12%, transparent) !important;
 }
 
-.sidebar-glass {
-  background-image:
-    radial-gradient(circle at 20% 0%, color-mix(in oklab, var(--color-primary) 9%, transparent), transparent 46%),
-    linear-gradient(180deg, color-mix(in oklab, white 4%, transparent), transparent 32%) !important;
-}
-
 /* Frost only intentional UI surfaces. Never blur open page/background areas. */
 .bg-card,
 .bg-card\/20,
@@ -626,10 +620,22 @@ button[role="combobox"] {
 }
 
 .sidebar-glass {
-  background-color: color-mix(in oklab, var(--color-sidebar) 90%, transparent);
-  backdrop-filter: blur(18px) saturate(108%);
-  -webkit-backdrop-filter: blur(18px) saturate(108%);
-  box-shadow: inset -1px 0 0 color-mix(in oklab, var(--color-foreground) 4%, transparent);
+  background-color: color-mix(in oklab, var(--color-sidebar) 82%, transparent);
+  background-image:
+    radial-gradient(circle at 18% 4%, color-mix(in oklab, var(--color-primary) 10%, transparent), transparent 40%),
+    linear-gradient(180deg, color-mix(in oklab, white 6%, transparent), transparent 34%, color-mix(in oklab, black 8%, transparent)) !important;
+  backdrop-filter: blur(30px) saturate(125%) brightness(.9);
+  -webkit-backdrop-filter: blur(30px) saturate(125%) brightness(.9);
+  border-color: color-mix(in oklab, white 10%, transparent) !important;
+  box-shadow:
+    inset -1px 0 0 color-mix(in oklab, white 9%, transparent),
+    inset 0 1px 0 color-mix(in oklab, white 7%, transparent),
+    10px 0 36px -30px color-mix(in oklab, black 75%, transparent);
+}
+
+html.light .sidebar-glass {
+  color: oklch(0.94 0.008 250);
+  background-color: color-mix(in oklab, oklch(0.16 0.018 250) 80%, transparent);
 }
 
 @supports not (backdrop-filter: blur(1px)) {
