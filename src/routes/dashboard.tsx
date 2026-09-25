@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BarChart3, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Flame, Play, SlidersHorizontal, Sparkles, Wrench } from "lucide-react";
+import { BarChart3, Bell, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Compass, Flame, Heart, MessageCircle, Play, Search, SlidersHorizontal, Sparkles, Users, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
 import { LearnerPageSkeleton, Panel, StatCard } from "@/components/page-kit";
@@ -22,6 +22,7 @@ import { useAppState } from "@/state/app-state";
 import itPathArtwork from "@/assets/path-it.jpg";
 import autoPathArtwork from "@/assets/path-auto.jpg";
 import { activeDomainKey } from "@/domain/active";
+import { useCommunityPreview } from "@/hooks/use-community-preview";
 
 
 export const Route = createFileRoute("/dashboard")({
@@ -113,6 +114,7 @@ function MeterRow({ label, value, suffix = "%" }: { label: string; value: number
 
 function Dashboard() {
   const { user, hydrated } = useAppState();
+  const { posts: communityPosts } = useCommunityPreview(4);
 
   // The subject choice lives in browser storage, so the matching course art
   // is selected as soon as the dashboard hydrates.
@@ -239,87 +241,11 @@ function Dashboard() {
   return (
     <div className="relative -mx-3 -my-4 min-h-screen overflow-hidden pb-12 sm:-mx-5 sm:-my-6 lg:-mx-8 lg:-my-8">
       <div className="relative mx-auto max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
-      <header className="mb-5 grid grid-cols-[minmax(0,1fr)_3.75rem] items-center gap-4 border-b border-border/60 pb-5">
-        <div className="min-w-0">
-          <Link to="/settings" className="group inline-flex max-w-full items-center gap-1.5 font-display text-base font-semibold tracking-tight text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:text-lg">
-            <span className="truncate">Your learning path</span>
-            <ChevronDown className="size-4 shrink-0 text-primary motion-safe:transition-transform motion-safe:duration-150 group-hover:translate-y-0.5 motion-reduce:transition-none" aria-hidden />
-          </Link>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground sm:text-sm">
-            {currentStage} · {d.masteredTopics} of {d.topicsTotal} topics
-          </p>
-        </div>
-        <div className="relative grid size-[3.75rem] shrink-0 place-items-center rounded-full bg-secondary/30 ring-1 ring-inset ring-border/50" aria-label={`${d.overallProgress}% overall progress`}>
-          <span className="font-display text-base font-bold tabular-nums text-foreground">{d.overallProgress}%</span>
-        </div>
+      <header className="mb-5 flex items-center justify-between gap-3 border-b border-border/60 pb-4">
+        <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">Your learning home</p><h1 className="truncate font-display text-2xl font-semibold tracking-tight">Learn something. Meet someone.</h1></div>
+        <div className="flex items-center gap-1"><Link to="/learn" aria-label="Explore learning" className="rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Search className="size-5"/></Link><Link to="/community" aria-label="Community activity" className="relative rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Bell className="size-5"/>{communityPosts.length>0?<span className="absolute right-2 top-2 size-2 rounded-full bg-primary"/>:null}</Link></div>
       </header>
 
-      <nav aria-label="Learning Journey" className="mb-6 rounded-xl border border-border/50 bg-card/40 p-3.5 shadow-sm sm:p-5">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Your Learning Journey</span>
-          <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
-            Step {Math.min(courseTopicIndex + 1, journeyCourse.length)} of {journeyCourse.length}
-          </span>
-        </div>
-        <div className="relative">
-          <div className="absolute left-6 right-6 top-4 h-[2px] bg-border/60" aria-hidden />
-          <div
-            className="absolute left-6 top-4 h-[2px] bg-gradient-to-r from-primary/80 to-primary shadow-sm motion-safe:transition-[width] motion-safe:duration-300 motion-reduce:transition-none"
-            style={{ width: `calc((100% - 3rem) * ${journeyFillPercent / 100})` }}
-            aria-hidden
-          />
-          <div className="relative z-10 flex items-start justify-between gap-1 overflow-x-auto pb-1 sm:gap-2">
-            {journeyWindow.map((step) => {
-              const node = (
-                <>
-                  <span
-                    className={
-                      step.isCurrent
-                        ? "grid size-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground ring-4 ring-primary/25 shadow-md shadow-primary/20 motion-safe:transition-transform motion-safe:duration-150 group-active:scale-95 motion-reduce:transition-none sm:size-9"
-                        : step.isCompleted
-                          ? "grid size-7 place-items-center rounded-full border border-primary/40 bg-primary/15 text-xs font-semibold text-primary motion-safe:transition-all motion-safe:duration-150 group-hover:scale-105 group-hover:border-primary/80 motion-reduce:transition-none sm:size-8"
-                          : "grid size-7 place-items-center rounded-full border border-border/80 bg-secondary/60 text-xs font-medium text-muted-foreground/60 sm:size-8"
-                    }
-                    aria-hidden
-                  >
-                    {step.isCompleted ? <Check className="size-3.5 stroke-[2.5]" /> : <span className="font-display font-bold">{step.index}</span>}
-                  </span>
-                  {step.isCurrent ? (
-                    <span className="mt-1 inline-flex items-center rounded-full bg-primary/15 px-1.5 py-0.5 text-[0.5625rem] font-bold uppercase tracking-widest text-primary">Here</span>
-                  ) : (
-                    <span className="mt-1 h-3.5" aria-hidden />
-                  )}
-                  <span className={`mt-0.5 block max-w-[4.5rem] truncate text-center ${step.isCurrent ? "font-display text-xs font-semibold text-foreground" : "text-[0.6875rem] font-medium text-muted-foreground/70 group-hover:text-foreground"} sm:max-w-[6.5rem]`}>
-                    {step.topic.title}
-                  </span>
-                </>
-              );
-
-              return step.isOpen ? (
-                <Link
-                  key={step.topic.id}
-                  to="/topics/$topicId"
-                  params={{ topicId: step.topic.id }}
-                  aria-current={step.isCurrent ? "step" : undefined}
-                  aria-label={step.isCompleted ? `Completed: ${step.topic.title}` : step.isCurrent ? `Current: ${step.topic.title}` : step.topic.title}
-                  className="group flex min-h-12 min-w-[4.25rem] flex-1 flex-col items-center rounded-lg py-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:min-w-[6.5rem]"
-                >
-                  {node}
-                </Link>
-              ) : (
-                <div
-                  key={step.topic.id}
-                  aria-current={step.isCurrent ? "step" : undefined}
-                  aria-label={step.isCompleted ? `Completed: ${step.topic.title}` : step.isCurrent ? `Current: ${step.topic.title}` : `Locked: ${step.topic.title}`}
-                  className="group flex min-h-12 min-w-[4.25rem] flex-1 flex-col items-center rounded-lg py-1 text-center sm:min-w-[6.5rem]"
-                >
-                  {node}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </nav>
 
       <section
         aria-labelledby="continue-heading"
@@ -465,6 +391,23 @@ function Dashboard() {
         ) : null}
       </section>
 
+      <section className="mb-8">
+        <div className="mb-3 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Explore</p><h2 className="font-display text-xl font-semibold">Find your next thing</h2></div><Link to="/learn" className="text-xs font-semibold text-primary hover:underline">See all</Link></div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Link to="/learn" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Compass className="size-5 text-feature-blue"/><p className="mt-3 text-sm font-semibold">Explore topics</p><p className="mt-1 text-xs text-muted-foreground">Find something new to learn.</p></Link>
+          <Link to="/labs" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Wrench className="size-5 text-feature-orange"/><p className="mt-3 text-sm font-semibold">Try a lab</p><p className="mt-1 text-xs text-muted-foreground">Learn by doing.</p></Link>
+          <Link to="/community" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Users className="size-5 text-feature-violet"/><p className="mt-3 text-sm font-semibold">Meet learners</p><p className="mt-1 text-xs text-muted-foreground">Ask, share and connect.</p></Link>
+          <Link to="/review" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Sparkles className="size-5 text-feature-cyan"/><p className="mt-3 text-sm font-semibold">Review</p><p className="mt-1 text-xs text-muted-foreground">{reviewTopics.length ? reviewTopics.length+" ready for you" : "Keep knowledge fresh."}</p></Link>
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <div className="mb-2 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Community</p><h2 className="font-display text-xl font-semibold">Learning together</h2></div><Link to="/community" className="text-xs font-semibold text-primary hover:underline">Open community</Link></div>
+        <div className="divide-y divide-border/60 border-y border-border/60">
+          {communityPosts.length===0?<Link to="/community" className="flex items-center gap-3 py-5 text-sm text-muted-foreground"><Users className="size-5"/>Be the first to start a conversation.</Link>:communityPosts.slice(0,3).map(post=><Link key={post.id} to="/community" search={{room:post.room}} className="block py-4 hover:bg-secondary/20"><div className="flex gap-3"><div className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-bold">{post.displayName.charAt(0).toUpperCase()}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="truncate text-sm font-semibold">{post.displayName}</span><span className="truncate text-[11px] text-muted-foreground">{post.room==="general"?"General":post.room}</span></div>{post.body.trim()?<p className="mt-1 line-clamp-2 text-sm leading-relaxed text-foreground/90">{post.body}</p>:null}{post.imageUrl?<img src={post.imageUrl} alt="" className="mt-2 max-h-48 w-full rounded-xl object-cover"/>:null}<div className="mt-2 flex gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1"><Heart className="size-3.5"/>{post.likeCount}</span><span className="inline-flex items-center gap-1"><MessageCircle className="size-3.5"/>{post.commentCount}</span></div></div></div></Link>)}
+        </div>
+      </section>
+
       <Link
         to="/meditation"
         className="group mb-8 flex min-h-20 items-center justify-between gap-4 rounded-xl border border-border/50 bg-card/40 p-4 shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
@@ -483,7 +426,7 @@ function Dashboard() {
 
       <section className="border-b border-border/60 py-6">
         <div>
-          <h2 className="font-display text-lg font-semibold tracking-tight sm:text-xl">Your progress</h2>
+          <h2 className="font-display text-lg font-semibold tracking-tight sm:text-xl">Your week</h2>
         </div>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
           <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-2.5 sm:rounded-xl sm:border sm:border-border/40 sm:bg-card/50 sm:px-3 sm:py-2.5">
