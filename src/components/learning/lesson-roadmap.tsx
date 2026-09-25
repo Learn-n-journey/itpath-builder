@@ -1,4 +1,4 @@
-import { BookOpen, Check, ChevronRight, HelpCircle } from "lucide-react";
+import { BookOpen, Check, ChevronRight } from "lucide-react";
 
 import type { DeepLesson } from "@/data/deep-lessons";
 import type { TopicReadingPosition } from "@/lib/app-data/types";
@@ -50,9 +50,6 @@ export function LessonRoadmap({
         </div>
       </div>
 
-      <h2 className="mb-3 flex items-center gap-1.5 font-display text-lg font-bold text-foreground">
-        The lesson, part by part <HelpCircle className="size-4 text-muted-foreground" aria-hidden />
-      </h2>
       <div className="relative space-y-2">
         <div aria-hidden className="absolute bottom-4 left-4 top-4 w-0.5 bg-border/60" />
         {lesson.sections.map((section, index) => {
@@ -65,7 +62,7 @@ export function LessonRoadmap({
                 <span className={cn(
                   "flex size-8 items-center justify-center rounded-full border-2 bg-card font-mono text-[11px] font-bold",
                   isCompleted && "border-success bg-success/10 text-success",
-                  isCurrent && !isCompleted && "border-primary bg-primary/15 text-primary ring-4 ring-primary/10",
+                  isCurrent && !isCompleted && "border-primary bg-card text-primary ring-4 ring-primary/20",
                   !isCompleted && !isCurrent && "border-border/80 text-muted-foreground",
                 )}>
                   {String(index + 1).padStart(2, "0")}
