@@ -1315,3 +1315,37 @@ html.light .sidebar-glass {
 @keyframes byteFeedRing{0%{opacity:1;transform:scale(.25)}100%{opacity:0;transform:scale(12)}}
 @keyframes byteFeedFlare{0%{opacity:0;transform:scaleY(.05)}22%{opacity:.9;transform:scaleY(1)}100%{opacity:0;transform:scaleY(.35)}}
 @media(prefers-reduced-motion:reduce){.byte-energy-transfer,.byte-feed-impact,.byte-feed-impact-ring,.byte-feed-flare,.byte-match-impact:after,.byte-match-impact-hot:before{display:none}.byte-rig-hero.is-fed .byte-rig-live,.byte-rig-hero.is-fed .byte-cutaway-rig{animation:none!important}}
+
+
+/* BYTE//BREAK staged hardware installation */
+.byte-install-overlay{overflow:hidden;perspective:900px}
+.byte-install-target{position:absolute;left:50%;top:50%;width:14rem;height:9rem;transform:translate(-50%,-34%) scale(.78);opacity:.28;filter:blur(1px);transition:opacity .3s,filter .3s,transform .5s}
+.byte-install-target .byte-cutaway-rig{width:14rem;height:9rem;animation:none}
+.byte-install-socket{position:absolute;left:50%;top:50%;width:2rem;height:2rem;border:1px solid #7fffea;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 12px #5eead4,inset 0 0 10px #5eead4;animation:byteSocketTarget .75s ease-in-out infinite}
+.byte-install-overlay .byte-install-part{z-index:8;transition:filter .25s}
+.byte-install-overlay.stage-reveal .byte-install-part{animation:byteInstallReveal .65s cubic-bezier(.16,.85,.2,1) both}
+.byte-install-overlay.stage-align .byte-install-part{animation:byteInstallAlign .7s cubic-bezier(.2,.72,.18,1) both}
+.byte-install-overlay.stage-lock .byte-install-part{animation:byteInstallLock .65s cubic-bezier(.15,.82,.2,1) both}
+.byte-install-overlay.stage-online .byte-install-part{animation:byteInstallOnline .9s ease-out both}
+.byte-install-overlay.stage-align .byte-install-target{opacity:.55;filter:none;transform:translate(-50%,-34%) scale(.86)}
+.byte-install-overlay.stage-lock .byte-install-target,.byte-install-overlay.stage-online .byte-install-target{opacity:.9;filter:none;transform:translate(-50%,-34%) scale(.94)}
+.byte-install-overlay.stage-online .byte-install-target{filter:brightness(1.25) drop-shadow(0 0 18px #5eead4)}
+.byte-install-energy{position:absolute;z-index:3;inset:0;pointer-events:none}.byte-install-energy i{--ang:calc(var(--install-i) * 20deg);position:absolute;left:50%;top:50%;width:4px;height:28%;transform-origin:50% 0;rotate:var(--ang);background:linear-gradient(transparent,#5eead4,white,transparent);opacity:0}
+.stage-lock .byte-install-energy i,.stage-online .byte-install-energy i{animation:byteInstallEnergy .7s ease-out both;animation-delay:calc(var(--install-i) * 12ms)}
+.byte-install-status{position:relative;z-index:12;margin-top:.8rem;display:flex;align-items:center;justify-content:center;gap:.35rem;font:700 .5rem monospace;letter-spacing:.18em;color:#9fffee}.byte-install-status i{width:.35rem;height:.35rem;border-radius:50%;background:#42515d;box-shadow:0 0 0 transparent}.stage-align .byte-install-status i:first-child,.stage-lock .byte-install-status i:nth-child(-n+2),.stage-online .byte-install-status i{background:#5eead4;box-shadow:0 0 8px #5eead4}
+.stage-online .byte-install-status span{text-shadow:0 0 9px #5eead4}
+.byte-install-overlay.part-4.stage-align .byte-install-part{animation-name:byteInstallRamAlign}.byte-install-overlay.part-6.stage-align .byte-install-part{animation-name:byteInstallGpuAlign}.byte-install-overlay.part-3.stage-align .byte-install-part{animation-name:byteInstallCpuAlign}.byte-install-overlay.part-1.stage-align .byte-install-part{animation-name:byteInstallPsuAlign}.byte-install-overlay.part-7.stage-align .byte-install-part{animation-name:byteInstallCoolerAlign}
+.stage-online:after{content:"";position:absolute;z-index:2;inset:-20%;background:radial-gradient(circle at center,rgba(255,255,255,.32),rgba(45,212,191,.18) 18%,transparent 52%);opacity:0;animation:byteOnlineFlash .9s ease-out}
+@keyframes byteInstallReveal{0%{opacity:0;transform:translateY(55px) rotateX(65deg) scale(.35);filter:blur(12px)}65%{opacity:1;filter:none}100%{transform:translateY(0) rotateX(0) scale(1)}}
+@keyframes byteInstallAlign{0%{transform:translateY(0) rotateY(0) scale(1)}100%{transform:translateY(48px) rotateY(180deg) scale(.72)}}
+@keyframes byteInstallLock{0%{transform:translateY(48px) scale(.72);opacity:1}65%{transform:translateY(82px) scale(.48);opacity:.95;filter:brightness(1.7) drop-shadow(0 0 20px #5eead4)}100%{transform:translateY(90px) scale(.3);opacity:0}}
+@keyframes byteInstallOnline{0%{opacity:0;transform:translateY(90px) scale(.3)}35%{opacity:.9;filter:brightness(2)}100%{opacity:0;transform:translateY(90px) scale(.5)}}
+@keyframes byteInstallRamAlign{to{transform:translateY(55px) rotateZ(90deg) scale(.65)}}
+@keyframes byteInstallGpuAlign{to{transform:translate(38px,48px) rotateY(72deg) scale(.72)}}
+@keyframes byteInstallCpuAlign{to{transform:translateY(48px) rotateZ(45deg) scale(.62)}}
+@keyframes byteInstallPsuAlign{to{transform:translate(34px,48px) rotateY(-45deg) scale(.72)}}
+@keyframes byteInstallCoolerAlign{to{transform:translateY(48px) rotateZ(180deg) scale(.7)}}
+@keyframes byteInstallEnergy{0%{opacity:0;transform:scaleY(.15) translateY(-25%)}35%{opacity:.9}100%{opacity:0;transform:scaleY(1.3) translateY(12%)}}
+@keyframes byteSocketTarget{50%{transform:translate(-50%,-50%) scale(1.35);opacity:.45}}
+@keyframes byteOnlineFlash{20%{opacity:1}100%{opacity:0;transform:scale(1.15)}}
+@media(prefers-reduced-motion:reduce){.byte-install-overlay .byte-install-part,.byte-install-energy i,.byte-install-socket,.stage-online:after{animation:none!important}}
