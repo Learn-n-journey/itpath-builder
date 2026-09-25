@@ -1093,3 +1093,27 @@ html.light .sidebar-glass {
 @keyframes byteFan{to{transform:rotate(360deg)}}
 @media(max-width:520px){.byte-rig-card{grid-template-columns:minmax(0,1fr) 5.8rem}.byte-mini-rig{width:5.6rem;height:4rem}.byte-garage-stage{height:14rem}.byte-garage-stage .byte-mini-rig{transform:scale(.78) perspective(500px) rotateY(-8deg)}.byte-part-slot{min-height:4.2rem}.byte-part-slot span{font-size:.56rem}}
 @media(prefers-reduced-motion:reduce){.byte-rig-fan{animation:none}}
+
+
+/* BYTE//BREAK cinematic polish */
+.byte-game-header{position:relative}.byte-game-header:after{content:"";position:absolute;left:0;bottom:-.65rem;width:4rem;height:1px;background:linear-gradient(90deg,var(--color-primary),transparent);box-shadow:0 0 9px var(--color-primary);animation:byteHeaderPulse 2.8s ease-in-out infinite}
+.byte-board-shell{position:relative;overflow:hidden;isolation:isolate;box-shadow:inset 0 0 38px color-mix(in oklab,var(--color-primary) 5%,transparent),0 16px 45px color-mix(in oklab,black 22%,transparent)}
+.byte-board-shell:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 50% 115%,color-mix(in oklab,var(--color-primary) 13%,transparent),transparent 52%)}
+.byte-board-scan{position:absolute;z-index:30;pointer-events:none;left:2%;right:2%;height:1px;top:0;opacity:.32;background:linear-gradient(90deg,transparent,var(--color-primary),transparent);box-shadow:0 0 8px var(--color-primary);animation:byteBoardScan 5.5s linear infinite}
+.byte-tile-shine{position:absolute;pointer-events:none;inset:0;background:linear-gradient(125deg,transparent 15%,color-mix(in oklab,white 13%,transparent) 42%,transparent 62%);transform:translateX(-130%);transition:transform .55s ease}.group:hover .byte-tile-shine{transform:translateX(130%)}
+.byte-special-orbit{position:absolute;inset:8%;border-radius:28%;border:1px dashed color-mix(in oklab,var(--color-primary) 65%,transparent);animation:byteSpecialOrbit 4s linear infinite;filter:drop-shadow(0 0 4px var(--color-primary))}
+.byte-level-celebration{position:fixed;inset:0;z-index:75;pointer-events:none;overflow:hidden}.byte-level-celebration i{--a:calc((var(--i) - 9)*10deg);position:absolute;left:50%;top:48%;width:.32rem;height:.8rem;border-radius:999px;background:var(--color-primary);box-shadow:0 0 9px var(--color-primary);animation:byteConfetti 1.05s cubic-bezier(.12,.7,.2,1) both;animation-delay:calc(var(--i)*12ms);transform:rotate(var(--a))}
+.byte-garage-hud{position:absolute;z-index:3;top:.8rem;left:1rem;right:1rem;display:flex;justify-content:space-between;font-family:monospace;font-size:.52rem;letter-spacing:.18em;color:color-mix(in oklab,var(--color-primary) 70%,transparent)}
+.byte-platform{position:absolute;bottom:1.15rem;width:15rem;height:2rem;border-radius:50%;border:1px solid color-mix(in oklab,var(--color-primary) 35%,transparent);background:radial-gradient(ellipse,color-mix(in oklab,var(--color-primary) 15%,transparent),transparent 68%);box-shadow:0 0 25px color-mix(in oklab,var(--color-primary) 16%,transparent);transform:perspective(300px) rotateX(68deg);animation:bytePlatform 2.5s ease-in-out infinite}
+.byte-garage-stage .byte-mini-rig{z-index:2;animation:byteRigFloat 4s ease-in-out infinite}.byte-garage-stage .byte-rig-glow{animation:byteRigGlow 2.2s ease-in-out infinite}.byte-garage-stage .byte-rig-cpu{animation:byteCpuPulse 1.7s ease-in-out infinite}.byte-part-slot.is-installed svg{filter:drop-shadow(0 0 5px currentColor);animation:byteInstalled 2.6s ease-in-out infinite}.byte-part-slot.is-next{animation:byteNextSlot 1.8s ease-in-out infinite}
+@keyframes byteHeaderPulse{50%{width:7rem;opacity:.55}}
+@keyframes byteBoardScan{0%{top:1%;opacity:0}8%{opacity:.32}92%{opacity:.32}100%{top:99%;opacity:0}}
+@keyframes byteSpecialOrbit{to{transform:rotate(360deg)}}
+@keyframes byteConfetti{0%{opacity:0;translate:0 0;scale:.3}15%{opacity:1}100%{opacity:0;translate:calc((var(--i) - 9)*1.8rem) calc(-5rem - (var(--i)%4)*1.3rem);rotate:540deg;scale:1}}
+@keyframes bytePlatform{50%{opacity:.55;scale:1.06}}
+@keyframes byteRigFloat{50%{translate:0 -.35rem}}
+@keyframes byteRigGlow{50%{opacity:.55;scale:1.14}}
+@keyframes byteCpuPulse{50%{box-shadow:0 0 16px var(--color-primary);background:color-mix(in oklab,var(--color-primary) 18%,transparent)}}
+@keyframes byteInstalled{50%{filter:drop-shadow(0 0 10px currentColor)}}
+@keyframes byteNextSlot{50%{box-shadow:0 0 24px color-mix(in oklab,var(--color-primary) 22%,transparent);border-color:color-mix(in oklab,var(--color-primary) 75%,white)}}
+@media(prefers-reduced-motion:reduce){.byte-game-header:after,.byte-board-scan,.byte-special-orbit,.byte-level-celebration i,.byte-platform,.byte-garage-stage .byte-mini-rig,.byte-garage-stage .byte-rig-glow,.byte-garage-stage .byte-rig-cpu,.byte-part-slot.is-installed svg,.byte-part-slot.is-next{animation:none!important}}
