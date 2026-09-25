@@ -949,3 +949,19 @@ button[role="combobox"] {
 .milestone-pop {
   animation: milestone-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+
+/* BYTE//BREAK piece physics — movement stays isolated to tiles, never the board. */
+@keyframes byteSwap {
+  0% { transform: translate(0, 0) scale(1); }
+  62% { transform: translate(var(--swap-x), var(--swap-y)) scale(1.055); }
+  82% { transform: translate(var(--swap-x), var(--swap-y)) scale(.985); }
+  100% { transform: translate(var(--swap-x), var(--swap-y)) scale(1); }
+}
+@keyframes byteDrop {
+  0% { transform: translateY(calc(var(--drop-rows) * -100%)) scaleY(1.035); opacity: .35; }
+  66% { transform: translateY(7%) scaleY(.97); opacity: 1; }
+  80% { transform: translateY(0) scaleX(1.05) scaleY(.95); }
+  90% { transform: translateY(-3%) scaleX(.99) scaleY(1.02); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
