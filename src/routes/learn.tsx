@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BookOpen, Compass, ExternalLink, Library, Newspaper, Search, Video, X } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 
 import { EmptyState, LearnerPageSkeleton, PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { resources, topics } from "@/data/static-content";
 import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 import { useAppState } from "@/state/app-state";
+import { searchLearningVideos, type VideoSearchResult } from "@/lib/tech-videos.functions";
 
 export const Route = createFileRoute("/learn")({
   staticData: { sitemap: false },
@@ -28,6 +30,21 @@ function Learn() {
   const { user, hydrated } = useAppState();
   const [query, setQuery] = useUiPreference("learn.search", "", isStringPreference);
   const needle = query.trim().toLowerCase();
+  const searchVideos = useServerFn(searchLearningVideos);
+  const [videoResults, setVideoResults] = useState<VideoSearchResult[]>([]);
+  const [videosLoading, setVideosLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (needle.length < 2) { setVideoResults([]); setVideosLoading(false); return; }
+    const timer = window.setTimeout(async () => {
+      setVideosLoading(true);
+      try { const results = await searchVideos({ data: { query: query.trim() } }); if (!cancelled) setVideoResults(results); }
+      catch { if (!cancelled) setVideoResults([]); }
+      finally { if (!cancelled) setVideosLoading(false); }
+    }, 350);
+    return () => { cancelled = true; window.clearTimeout(timer); };
+  }, [needle, query, searchVideos]);
 
   const currentTopicId = useMemo(() => {
     const progress = Object.values(user.topicProgress).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
@@ -152,6 +169,24 @@ function Learn() {
           </div>
         )}
       </section>
+
+      {needle ? (
+        <section className="mt-7" aria-label="Video search results">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <div><p className="text-xs font-semibold uppercase tracking-wider text-primary">Watch</p><h2 className="font-display text-xl font-bold">Videos about “{query.trim()}”</h2><p className="mt-1 text-xs text-muted-foreground">Supplemental video results. Verified reading remains the factual foundation.</p></div>
+            <Video className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+          </div>
+          {videosLoading ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{[0,1,2].map((item)=><div key={item} className="aspect-video animate-pulse rounded-xl bg-muted" />)}</div> : videoResults.length > 0 ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{videoResults.slice(0,6).map((video)=>(
+              <a key={video.id} href={video.url} target="_blank" rel="noreferrer noopener" className="overflow-hidden rounded-xl border border-border/70 bg-card transition hover:border-primary/40">
+                <div className="aspect-video bg-muted">{video.thumbnail ? <img src={video.thumbnail} alt="" loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-cover" /> : null}</div>
+                <div className="p-3"><p className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">{video.title}</p><p className="mt-1 truncate text-xs text-muted-foreground">{video.channel} · YouTube</p></div>
+              </a>
+            ))}</div>
+          ) : <p className="rounded-xl border border-border/70 bg-card p-4 text-sm text-muted-foreground">No matching videos are available right now.</p>}
+          <Button asChild variant="ghost" size="sm" className="mt-2"><Link to="/tech-videos">Browse all videos</Link></Button>
+        </section>
+      ) : null}
 
       <section className="mt-7">
         <div className="mb-3">
