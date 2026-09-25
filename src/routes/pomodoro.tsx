@@ -132,8 +132,8 @@ function PomodoroPage() {
   return (
     <div className="relative -mx-4 -my-4 min-h-[calc(100dvh-4rem)] overflow-hidden pb-12 text-white sm:-mx-6 sm:-my-6 lg:-mx-8 lg:-my-8">
       <div className="fixed inset-0 z-0 bg-[url('/images/meditation-background.png')] bg-cover bg-center bg-no-repeat" aria-hidden />
-      <div className="absolute inset-0 bg-background/55" aria-hidden />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background/90" aria-hidden />
+      <div className="fixed inset-0 z-0 bg-background/55" aria-hidden />
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-background/20 via-background/40 to-background/90" aria-hidden />
 
       <div className="relative mx-auto max-w-4xl px-4 pt-8 sm:px-6 lg:px-8">
         <header className="text-center drop-shadow-md">
