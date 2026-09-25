@@ -127,6 +127,13 @@
       "when": 1790315132045,
       "tag": "0017_community_images_and_messaging",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790315167926,
+      "tag": "0018_community_images_storage_policies",
+      "breakpoints": true
     }
   ]
 }
