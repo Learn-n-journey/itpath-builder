@@ -1,0 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { ByteBreak } from "@/components/game/byte-break";
+export const Route=createFileRoute("/byte-break")({staticData:{sitemap:false},head:()=>({meta:[{title:"BYTE//BREAK | IT PATH"},{name:"description",content:"A high-energy tech-themed block matching game inside IT PATH."}]}),component:Page});
+function Page(){return <div className="min-h-screen"><div className="mx-auto max-w-4xl px-1 py-5 sm:px-4 sm:py-8"><header className="mb-5"><p className="font-mono text-xs uppercase tracking-[.22em] text-primary">Arcade // Core systems</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">BYTE//BREAK</h1><p className="mt-1 max-w-xl text-sm text-muted-foreground">Swap adjacent modules, trigger chain reactions and push the system into overclock.</p></header><ByteBreak/></div></div>}
