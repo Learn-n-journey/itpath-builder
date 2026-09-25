@@ -113,3 +113,39 @@ export function useProfile(profileId?: string) {
     isOwn: !!userId && id === userId,
   };
 }
+
+
+export function useProfiles(profileIds: string[]) {
+  const ids = [...new Set(profileIds.filter(Boolean))].sort();
+  const q = useQuery({
+    queryKey: ["profiles", ids.join(",")],
+    enabled: ids.length > 0,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("user_id,first_name,display_name,avatar_url")
+        .in("user_id", ids);
+      if (error) throw error;
+      const result: Record<string, { displayName: string; avatarUrl: string | null }> = {};
+      await Promise.all((data ?? []).map(async (row) => {
+        const raw = row.avatar_url ?? null;
+        let avatarUrl: string | null = null;
+        if (raw) {
+          const match = raw.match(/\/storage\/v1\/object\/public\/profile-images\/(.+)$/);
+          const key = match ? match[1] : raw;
+          if (/^https?:\/\//i.test(key)) avatarUrl = key;
+          else {
+            const { data: signed } = await supabase.storage.from("profile-images").createSignedUrl(key, 3600);
+            avatarUrl = signed?.signedUrl ?? null;
+          }
+        }
+        result[row.user_id] = {
+          displayName: row.display_name?.trim() || row.first_name?.trim() || "Learner",
+          avatarUrl,
+        };
+      }));
+      return result;
+    },
+  });
+  return { profiles: q.data ?? {}, loading: q.isLoading };
+}
