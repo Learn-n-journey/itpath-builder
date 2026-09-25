@@ -1041,3 +1041,30 @@ html.light .sidebar-glass {
   58% { opacity:.9; }
   100% { transform:translate(calc(-50% + var(--px)),calc(-50% + var(--py))) rotate(var(--rot)) scale(.15); opacity:0; }
 }
+
+
+/* BYTE//BREAK premium power-up and PC-install effects */
+.byte-power-activate { isolation:isolate; }
+.byte-power-activate::after {
+  content:""; position:absolute; inset:5%; border-radius:28%; pointer-events:none;
+  border:1px solid color-mix(in oklab,var(--color-primary) 80%,white);
+  box-shadow:0 0 12px color-mix(in oklab,var(--color-primary) 75%,transparent), inset 0 0 14px color-mix(in oklab,var(--color-primary) 35%,transparent);
+  animation:bytePowerCharge 340ms cubic-bezier(.15,.8,.2,1) both;
+}
+.byte-line-wave { box-shadow:inset 0 0 20px var(--color-primary); animation:byteLineWave 330ms ease-out both; }
+.byte-core-wave { background:radial-gradient(circle,color-mix(in oklab,var(--color-primary) 65%,white) 0%,color-mix(in oklab,var(--color-primary) 25%,transparent) 35%,transparent 72%); animation:byteCoreWave 420ms cubic-bezier(.12,.8,.2,1) both; }
+.byte-install-overlay {
+  position:fixed; inset:0; z-index:80; display:grid; place-content:center; justify-items:center;
+  background:color-mix(in oklab,var(--color-background) 82%,transparent);
+  backdrop-filter:blur(10px); animation:byteInstallIn 260ms ease-out both;
+}
+.byte-install-part { position:relative; display:grid; place-items:center; width:8rem; height:8rem; color:var(--color-primary); filter:drop-shadow(0 0 22px color-mix(in oklab,var(--color-primary) 65%,transparent)); animation:bytePartLock 780ms cubic-bezier(.16,1,.3,1) both; }
+.byte-install-ring { position:absolute; inset:0; border:1px solid color-mix(in oklab,var(--color-primary) 70%,transparent); border-radius:50%; animation:byteInstallRing 1s ease-out infinite; }
+.byte-install-ring-2 { inset:14%; animation-delay:180ms; }
+@keyframes bytePowerCharge { 0%{opacity:0;transform:scale(.65)} 45%{opacity:1;transform:scale(1.12)} 100%{opacity:0;transform:scale(1.28)} }
+@keyframes byteLineWave { 0%{opacity:0;transform:scaleX(.25)} 45%{opacity:1} 100%{opacity:0;transform:scaleX(1.35)} }
+@keyframes byteCoreWave { 0%{opacity:0;transform:scale(.2) rotate(-25deg)} 55%{opacity:1} 100%{opacity:0;transform:scale(1.55) rotate(18deg)} }
+@keyframes byteInstallIn { from{opacity:0} to{opacity:1} }
+@keyframes bytePartLock { 0%{opacity:0;transform:translateY(-70px) scale(.55) rotate(-12deg)} 58%{opacity:1;transform:translateY(8px) scale(1.12) rotate(2deg)} 78%{transform:translateY(-3px) scale(.98)} 100%{transform:none} }
+@keyframes byteInstallRing { 0%{opacity:0;transform:scale(.45)} 35%{opacity:.9} 100%{opacity:0;transform:scale(1.45)} }
+@media (prefers-reduced-motion:reduce){.byte-power-activate::after,.byte-line-wave,.byte-core-wave,.byte-install-overlay,.byte-install-part,.byte-install-ring{animation:none!important}}
