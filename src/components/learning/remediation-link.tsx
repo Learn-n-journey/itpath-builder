@@ -3,6 +3,7 @@ import { BookOpen, CornerUpLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { LearningActivityKind } from "@/lib/app-data/types";
 import { activityReturnLabel, remediationHref } from "@/lib/lesson-concepts";
+import { learnerContinuity } from "@/lib/learner-continuity";
 import { useAppState } from "@/state/app-state";
 
 export function ReviewConceptLink({ topicId, conceptId, sectionId, anchor, sourceKind, sourceItemId }: {
@@ -27,11 +28,15 @@ export function ReviewConceptLink({ topicId, conceptId, sectionId, anchor, sourc
 export function ReturnToActivity({ topicId }: { topicId: string }) {
   const { user, actions } = useAppState();
   const context = user.activityReturn;
-  if (!context || context.topicId !== topicId) return null;
+  const continuity = learnerContinuity(user);
+  if (!context || context.topicId !== topicId || continuity.kind !== "return") return null;
   return <div className="sticky top-16 z-20 mb-4 rounded-lg border border-primary/40 bg-card p-3 shadow-sm">
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <p className="text-sm text-muted-foreground">Reviewing the concept you needed. Your activity is still saved.</p>
-      <Button asChild size="sm" onClick={() => actions.setActivityReturn()}><a href={context.href}><CornerUpLeft aria-hidden />{context.label}</a></Button>
+      <div>
+        <p className="text-sm font-medium text-foreground">Reviewing the concept you needed</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{continuity.reason}</p>
+      </div>
+      <Button asChild size="sm" onClick={() => actions.setActivityReturn()}><a href={continuity.to}><CornerUpLeft aria-hidden />{continuity.label}</a></Button>
     </div>
   </div>;
 }
