@@ -144,11 +144,6 @@ function StudyPlanPage() {
 
   return (
     <div className="relative -mx-3 -my-4 min-h-screen overflow-hidden pb-16 sm:-mx-5 sm:-my-6 lg:-mx-8 lg:-my-8">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/ChatGPT Image Sep 24, 2026, 04_42_52 PM.png')" }}
-        aria-hidden
-      />
       <div className="relative mx-auto w-full max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
       <div className="mb-5 border-b border-border pb-5">
         <PageHeader title="Study Plan" description="Build a focused study session from your own data." />
