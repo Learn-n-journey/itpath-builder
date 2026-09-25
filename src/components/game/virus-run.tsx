@@ -589,6 +589,87 @@ export function VirusRun() {
         ctx2.restore();
       }
 
+      // Stage-specific system activity gives every part of the computer its own visual language.
+      ctx2.save();
+      const sys = run.theme.system;
+      if (sys === "Boot Sector") {
+        for (let i = 0; i < 7; i++) {
+          const bx = offX + cell * (2 + i * 4.35);
+          const blink = 0.16 + 0.12 * Math.sin(time / 280 + i);
+          ctx2.fillStyle = `rgba(250,204,21,${blink})`;
+          ctx2.fillRect(bx, offY + cell * 1.15, cell * 1.7, cell * 0.16);
+          ctx2.fillStyle = `rgba(125,211,252,${blink * 0.75})`;
+          ctx2.fillRect(bx, offY + cell * (ROWS - 1.35), cell * 1.05, cell * 0.1);
+        }
+      } else if (sys === "CPU Cache") {
+        for (let lane = 0; lane < 5; lane++) {
+          const y = offY + cell * (2.2 + lane * 4);
+          const x = offX + ((time / (8 + lane)) % (cell * COLS));
+          ctx2.shadowColor = "#c084fc"; ctx2.shadowBlur = cell * 0.65;
+          ctx2.fillStyle = "rgba(216,180,254,0.7)";
+          ctx2.fillRect(x, y, cell * 1.25, Math.max(1, cell * 0.1));
+        }
+      } else if (sys === "System RAM") {
+        for (let bank = 0; bank < 6; bank++) {
+          const bx = offX + cell * (1.5 + bank * 5);
+          const pulse = 0.08 + 0.08 * (1 + Math.sin(time / 330 + bank)) / 2;
+          ctx2.fillStyle = `rgba(34,211,238,${pulse})`;
+          ctx2.fillRect(bx, offY + cell * 0.9, cell * 3.2, cell * (ROWS - 1.8));
+          for (let chip = 0; chip < 5; chip++) {
+            ctx2.fillStyle = `rgba(103,232,249,${pulse * 1.8})`;
+            ctx2.fillRect(bx + cell * 0.3, offY + cell * (2.3 + chip * 3.4), cell * 0.45, cell * 0.22);
+          }
+        }
+      } else if (sys === "GPU Memory") {
+        for (let lane = 0; lane < 9; lane++) {
+          const y = offY + cell * (1.6 + lane * 2.15);
+          const phase = ((time / 14 + lane * cell * 3.2) % (cell * (COLS + 4))) - cell * 2;
+          ctx2.strokeStyle = "rgba(192,132,252,0.1)";
+          ctx2.beginPath(); ctx2.moveTo(offX, y); ctx2.lineTo(offX + cell * COLS, y); ctx2.stroke();
+          ctx2.fillStyle = "rgba(232,121,249,0.62)";
+          ctx2.fillRect(offX + phase, y - cell * 0.04, cell * 0.75, cell * 0.08);
+        }
+      } else if (sys === "Storage Drive") {
+        for (let track = 0; track < 5; track++) {
+          const cx = offX + cell * (4 + track * 5.7), cy = offY + cell * (ROWS / 2);
+          ctx2.strokeStyle = "rgba(74,222,128,0.13)";
+          ctx2.lineWidth = Math.max(1, cell * 0.055);
+          ctx2.beginPath(); ctx2.arc(cx, cy, cell * (1.2 + 0.16 * Math.sin(time / 400 + track)), 0, Math.PI * 2); ctx2.stroke();
+          const a = time / 700 + track;
+          ctx2.fillStyle = "rgba(134,239,172,0.55)";
+          ctx2.fillRect(cx + Math.cos(a) * cell, cy + Math.sin(a) * cell, cell * 0.16, cell * 0.16);
+        }
+      } else if (sys === "Network Stack") {
+        for (let i = 0; i < 13; i++) {
+          const y = offY + cell * (1.2 + (i * 1.47) % (ROWS - 2));
+          const x = offX + ((time / (11 + (i % 4) * 2) + i * cell * 2.3) % (cell * COLS));
+          ctx2.fillStyle = i % 3 === 0 ? "rgba(94,234,212,0.72)" : "rgba(96,165,250,0.58)";
+          ctx2.shadowColor = ctx2.fillStyle; ctx2.shadowBlur = cell * 0.45;
+          roundRect(ctx2, x, y, cell * 0.48, cell * 0.24, cell * 0.07); ctx2.fill();
+        }
+      } else if (sys === "Kernel Space") {
+        const cx = offX + cell * COLS / 2, cy = offY + cell * ROWS / 2;
+        for (let ring = 0; ring < 4; ring++) {
+          ctx2.strokeStyle = `rgba(248,113,113,${0.12 - ring * 0.018})`;
+          ctx2.lineWidth = Math.max(1, cell * 0.07);
+          ctx2.beginPath();
+          ctx2.arc(cx, cy, cell * (2.2 + ring * 2.1 + 0.18 * Math.sin(time / 360 + ring)), 0, Math.PI * 2);
+          ctx2.stroke();
+        }
+      } else if (sys === "Firewall") {
+        for (let beam = 0; beam < 5; beam++) {
+          const y = offY + cell * (2.4 + beam * 4);
+          const pulse = 0.13 + 0.11 * (1 + Math.sin(time / 180 + beam * 1.3)) / 2;
+          ctx2.strokeStyle = `rgba(251,146,60,${pulse})`;
+          ctx2.lineWidth = Math.max(1, cell * 0.09);
+          ctx2.setLineDash([cell * 0.7, cell * 0.45]);
+          ctx2.lineDashOffset = -time / 35 - beam * cell;
+          ctx2.beginPath(); ctx2.moveTo(offX, y); ctx2.lineTo(offX + cell * COLS, y); ctx2.stroke();
+        }
+        ctx2.setLineDash([]);
+      }
+      ctx2.restore();
+
       // Walls as dimensional security architecture with illuminated traces.
       const pad = cell * 0.08;
       for (let y = 0; y < ROWS; y++) {
