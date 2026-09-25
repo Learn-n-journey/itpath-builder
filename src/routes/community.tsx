@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  ArrowRight,
   Bell,
   Bookmark,
   BookOpen,
@@ -30,6 +31,7 @@ import {
   Send,
   ShieldCheck,
   Trash2,
+  Terminal,
   UserRound,
   Users,
 } from "lucide-react";
