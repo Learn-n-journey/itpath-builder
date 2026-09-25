@@ -1126,6 +1126,21 @@ export type Database = {
         Returns: undefined
       }
       ensure_sync_worker: { Args: never; Returns: undefined }
+      get_public_profiles: {
+        Args: { _ids: string[] }
+        Returns: {
+          avatar_url: string
+          bio: string
+          currently_learning: string
+          display_name: string
+          first_name: string
+          learning_goal: string
+          show_achievements: boolean
+          show_learning_goal: boolean
+          show_learning_progress: boolean
+          user_id: string
+        }[]
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
