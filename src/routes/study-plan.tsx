@@ -37,6 +37,7 @@ import { streakSummary } from "@/lib/streak-engine";
 import type { StudyPlan, StudyTaskKind } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { cn } from "@/lib/utils";
+import { learnerContinuity } from "@/lib/learner-continuity";
 
 export const Route = createFileRoute("/study-plan")({
   staticData: { sitemap: false },
@@ -104,6 +105,7 @@ function StudyPlanPage() {
   const weekMinutes = streakSummary(user).minutesLast7;
   const previewPlan = useMemo(() => activePlan ?? generateStudyPlan(user, target), [activePlan, target, user]);
   const previewKinds = useMemo(() => new Set(previewPlan.tasks.map((task) => task.kind)), [previewPlan]);
+  const continuity = useMemo(() => learnerContinuity(user), [user]);
 
   function logSession() {
     const value = Number(minutes);
@@ -155,6 +157,30 @@ function StudyPlanPage() {
         <StudyStat icon={BarChart2} value={user.studySessions.length} label="Sessions" />
         <StudyStat icon={Trophy} value={completedPlans.length} label="Finished" />
       </div>
+
+      <section className="glass-surface mt-4 rounded-2xl border border-primary/25 p-4" aria-labelledby="study-next-action">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+              {continuity.kind === "study_plan" ? "Current session task" : continuity.kind === "resume" ? "Continue learning" : "Recommended next"}
+            </p>
+            <h2 id="study-next-action" className="mt-1 line-clamp-2 font-display text-base font-semibold text-foreground">{continuity.label}</h2>
+            <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+              {continuity.reason}{continuity.minutes ? ` · About ${continuity.minutes} min` : ""}
+            </p>
+          </div>
+          <Button asChild size="sm" className="h-10 shrink-0 rounded-xl">
+            <Link
+              to={continuity.to as never}
+              {...(continuity.params ? { params: continuity.params as never } : {})}
+              {...(continuity.search ? { search: continuity.search as never } : {})}
+            >
+              {continuity.kind === "study_plan" ? "Open task" : "Continue"}
+              <ArrowRight className="ml-1 size-4" aria-hidden />
+            </Link>
+          </Button>
+        </div>
+      </section>
 
       <section className="glass-surface mt-6 rounded-3xl border border-border/70 p-4 shadow-sm sm:p-6">
         {!activePlan ? (
