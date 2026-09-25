@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  Bell,
   CloudRain,
   ExternalLink,
   Headphones,
@@ -50,10 +49,11 @@ function MeditationPage() {
   const [sessionMinutes, setSessionMinutes] = useState<number | null>(10);
   const [exerciseId, setExerciseId] = useState<BreathingExercise["id"]>("box");
   const [sound, setSound] = useState<(typeof sounds)[number]["id"] | null>(null);
-  const [bellsEnabled, setBellsEnabled] = useState(true);
+  const [breathCuesEnabled, setBreathCuesEnabled] = useState(true);
   const [volume, setVolume] = useState(45);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
-  const bellAudioRef = useRef<HTMLAudioElement | null>(null);
+  const breathAudioContextRef = useRef<AudioContext | null>(null);
+  const breathNodesRef = useRef<{ source: AudioBufferSourceNode; gain: GainNode } | null>(null);
   const lastBreathCueRef = useRef<"inhale" | "exhale" | null>(null);
 
   useEffect(() => {
@@ -77,26 +77,68 @@ function MeditationPage() {
     backgroundAudioRef.current?.pause();
     backgroundAudioRef.current = null;
     stopBell();
+    void breathAudioContextRef.current?.close();
+    breathAudioContextRef.current = null;
   }, []);
 
   function stopBell() {
-    bellAudioRef.current?.pause();
-    if (bellAudioRef.current) bellAudioRef.current.currentTime = 0;
-    bellAudioRef.current = null;
+    const active = breathNodesRef.current;
+    if (active) {
+      try { active.gain.gain.cancelScheduledValues(0); active.gain.gain.setValueAtTime(0.0001, active.gain.context.currentTime); active.source.stop(); } catch {}
+    }
+    breathNodesRef.current = null;
   }
 
   function playBell(kind: "inhale" | "exhale") {
     stopBell();
-    const bell = new Audio(kind === "inhale" ? "/audio/meditation/inhale-bell.mp3" : "/audio/meditation/exhale-bell.mp3");
-    bell.volume = Math.min(0.65, volume / 100);
-    bellAudioRef.current = bell;
-    void bell.play().catch(() => {
-      if (bellAudioRef.current === bell) bellAudioRef.current = null;
-    });
+    const AudioCtx = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = breathAudioContextRef.current ?? new AudioCtx();
+    breathAudioContextRef.current = ctx;
+    if (ctx.state === "suspended") void ctx.resume();
+
+    const exercise = breathingExercises.find((item) => item.id === exerciseId) ?? breathingExercises[0];
+    const duration = Math.max(1.5, kind === "inhale" ? exercise.inhale : exercise.exhale);
+    const sampleCount = Math.ceil(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, sampleCount, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let smooth = 0;
+    for (let i = 0; i < sampleCount; i++) {
+      const white = Math.random() * 2 - 1;
+      smooth = smooth * 0.86 + white * 0.14;
+      data[i] = smooth * 0.72 + white * 0.12;
+    }
+
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.Q.value = 0.55;
+    const gain = ctx.createGain();
+    const now = ctx.currentTime;
+    const level = Math.min(0.22, (volume / 100) * 0.24);
+    gain.gain.setValueAtTime(0.0001, now);
+    if (kind === "inhale") {
+      filter.frequency.setValueAtTime(520, now);
+      filter.frequency.exponentialRampToValueAtTime(1050, now + duration);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.001, level), now + duration * 0.62);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    } else {
+      filter.frequency.setValueAtTime(980, now);
+      filter.frequency.exponentialRampToValueAtTime(430, now + duration);
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.001, level * 0.9), now + duration * 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    }
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+    breathNodesRef.current = { source, gain };
+    source.onended = () => { if (breathNodesRef.current?.source === source) breathNodesRef.current = null; };
+    source.start(now);
   }
 
   useEffect(() => {
-    if (!running || !bellsEnabled) {
+    if (!running || !breathCuesEnabled) {
       stopBell();
       lastBreathCueRef.current = null;
       return;
@@ -111,7 +153,7 @@ function MeditationPage() {
       lastBreathCueRef.current = cue;
     }
     if (!cue) lastBreathCueRef.current = null;
-  }, [bellsEnabled, elapsed, exerciseId, running]);
+  }, [breathCuesEnabled, elapsed, exerciseId, running]);
 
   function stopSound() {
     backgroundAudioRef.current?.pause();
@@ -144,7 +186,7 @@ function MeditationPage() {
       setRunning(false);
       return;
     }
-    if (bellsEnabled) {
+    if (breathCuesEnabled) {
       lastBreathCueRef.current = "inhale";
       playBell("inhale");
     }
@@ -318,18 +360,18 @@ function MeditationPage() {
               </button>
             );
           })}
-          <button type="button" aria-pressed={bellsEnabled} onClick={() => {
-            if (bellsEnabled) stopBell();
-            setBellsEnabled((value) => !value);
+          <button type="button" aria-pressed={breathCuesEnabled} onClick={() => {
+            if (breathCuesEnabled) stopBell();
+            setBreathCuesEnabled((value) => !value);
           }} className={cn(
             "min-h-32 rounded-2xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-            bellsEnabled ? "border-feature-amber/60 bg-feature-amber/10" : "border-border/60 bg-secondary/20 hover:bg-secondary/50",
+            breathCuesEnabled ? "border-feature-amber/60 bg-feature-amber/10" : "border-border/60 bg-secondary/20 hover:bg-secondary/50",
           )}>
             <div className="flex items-center justify-between">
-              <Bell className={cn("size-6", bellsEnabled ? "text-feature-amber" : "text-muted-foreground")} aria-hidden />
-              <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", bellsEnabled ? "bg-feature-amber/20 text-feature-amber" : "bg-secondary text-muted-foreground")}>{bellsEnabled ? "On" : "Off"}</span>
+              <Bell className={cn("size-6", breathCuesEnabled ? "text-feature-amber" : "text-muted-foreground")} aria-hidden />
+              <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", breathCuesEnabled ? "bg-feature-amber/20 text-feature-amber" : "bg-secondary text-muted-foreground")}>{breathCuesEnabled ? "On" : "Off"}</span>
             </div>
-            <p className="mt-5 font-semibold">Breathing Bells</p>
+            <p className="mt-5 font-semibold">Breathing Breath cues</p>
             <p className="mt-1 text-xs text-muted-foreground">Higher inhale · lower exhale</p>
           </button>
         </div>
