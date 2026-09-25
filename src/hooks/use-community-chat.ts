@@ -30,13 +30,25 @@ export function useCommunityChat(room = "general") {
     queryKey: ["community-messages", room],
     enabled: ready && Boolean(userId),
     queryFn: async (): Promise<CommunityMessage[]> => {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from("community_messages")
         .select("id, user_id, display_name, body, created_at, image_url")
         .eq("hidden", false)
         .eq("room", room)
         .order("created_at", { ascending: false })
         .limit(LIMIT);
+      // Keep Community usable while a new migration is still rolling out.
+      if (error && /image_url|column/i.test(error.message)) {
+        const fallback = await supabase
+          .from("community_messages")
+          .select("id, user_id, display_name, body, created_at")
+          .eq("hidden", false)
+          .eq("room", room)
+          .order("created_at", { ascending: false })
+          .limit(LIMIT);
+        data = fallback.data?.map(row => ({ ...row, image_url: null })) ?? null;
+        error = fallback.error;
+      }
       if (error) throw error;
       const ids=(data??[]).map(row=>row.id);
       const [{data:likes},{data:comments},{data:saves}]=ids.length ? await Promise.all([
@@ -96,13 +108,14 @@ export function useCommunityChat(room = "general") {
         if(uploadError)throw new Error("That image did not upload. Try again.");
         imageUrl=supabase.storage.from("community-images").getPublicUrl(key).data.publicUrl;
       }
-      const { error } = await supabase.from("community_messages").insert({
-        user_id: userId,
-        display_name: input.displayName,
-        body: input.body.trim(),
-        room,
-        image_url:imageUrl,
-      });
+      const post = { user_id: userId, display_name: input.displayName, body: input.body.trim(), room };
+      let { error } = imageUrl
+        ? await supabase.from("community_messages").insert({ ...post, image_url: imageUrl })
+        : await supabase.from("community_messages").insert(post);
+      // Text posts must continue to work even before the image column migration lands.
+      if (error && !imageUrl && /image_url|column/i.test(error.message)) {
+        ({ error } = await supabase.from("community_messages").insert(post));
+      }
       if (error) throw new Error(friendly(error.message));
     },
     onSuccess: () => {
