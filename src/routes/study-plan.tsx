@@ -143,7 +143,13 @@ function StudyPlanPage() {
   if (!hydrated) return <LearnerPageSkeleton rows={4} metrics={4} />;
 
   return (
-    <>
+    <div className="relative -mx-3 -my-4 min-h-screen overflow-hidden pb-16 sm:-mx-5 sm:-my-6 lg:-mx-8 lg:-my-8">
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/ChatGPT Image Sep 24, 2026, 04_42_52 PM.png')" }}
+        aria-hidden
+      />
+      <div className="relative mx-auto w-full max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
       <div className="mb-5 border-b border-border pb-5">
         <PageHeader title="Study Plan" description="Build a focused study session from your own data." />
       </div>
@@ -184,15 +190,15 @@ function StudyPlanPage() {
                 <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Session mix</p><h2 className="font-display text-base font-semibold">What you’ll work on</h2></div>
                 <HelpTip label="About session contents">This preview comes from the activities currently selected for your generated session.</HelpTip>
               </div>
-              <div className="-mx-1 flex items-stretch gap-2 overflow-x-auto px-1 pb-4 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="mx-auto grid w-full max-w-md grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1 pb-4 pt-1 sm:gap-2">
                 {previewGroups.map((group, index) => {
                   const Icon = group.icon;
                   const included = group.kinds.some((kind) => previewKinds.has(kind));
                   return (
-                    <div key={group.title} className="flex shrink-0 items-center">
+                    <div key={group.title} className="contents">
                       <div
                         className={cn(
-                          "relative flex min-h-24 w-28 flex-col items-center rounded-2xl border px-2.5 pb-4 pt-3 text-center sm:w-32",
+                          "relative flex min-h-20 w-full min-w-0 flex-col items-center justify-center rounded-2xl border px-1.5 pb-3 pt-2.5 text-center sm:min-h-24 sm:px-2.5 sm:pb-4 sm:pt-3",
                           included ? cn(group.tone, "shadow-sm") : "border-border/70 bg-card/60 opacity-55",
                         )}
                       >
@@ -205,7 +211,7 @@ function StudyPlanPage() {
                           {index + 1}
                         </span>
                       </div>
-                      {index < previewGroups.length - 1 ? <ArrowRight className="mx-1 size-3.5 shrink-0 text-muted-foreground/40" aria-hidden /> : null}
+                      {index < previewGroups.length - 1 ? <ArrowRight className="mx-0 size-3 shrink-0 text-muted-foreground/40 sm:mx-1 sm:size-3.5" aria-hidden /> : null}
                     </div>
                   );
                 })}
@@ -278,8 +284,8 @@ function StudyPlanPage() {
           </div>
         ) : null}
       </section>
-    </>
-  );
+      </div>
+    </div>  );
 }
 
 function StudyStat({ icon: Icon, value, label }: { icon: typeof Clock3; value: string | number; label: string }) {
