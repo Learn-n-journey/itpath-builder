@@ -42,7 +42,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/community")({
   staticData: { sitemap: false },
-  validateSearch: (search: Record<string, unknown>): { room?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { room?: string | undefined } => ({
     room: typeof search["room"] === "string" ? search["room"] : undefined,
   }),
   head: () => ({
