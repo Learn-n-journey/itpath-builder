@@ -73,6 +73,7 @@ import { Route as FlashcardsTopicIdRouteImport } from './routes/flashcards.$topi
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as PracticeTestsCertIdRouteImport } from './routes/practice-tests.$certId'
+import { Route as ProfileUserIdRouteImport } from './routes/profile.$userId'
 import { Route as SectionQuizTopicIdRouteImport } from './routes/section-quiz.$topicId'
 import { Route as StageExamStageIdRouteImport } from './routes/stage-exam.$stageId'
 import { Route as TopicsIndexRouteImport } from './routes/topics.index'
@@ -404,6 +405,11 @@ const PracticeTestsCertIdRoute = PracticeTestsCertIdRouteImport.update({
   path: '/practice-tests/$certId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileUserIdRoute = ProfileUserIdRouteImport.update({
+  id: '/profile/$userId',
+  path: '/profile/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SectionQuizTopicIdRoute = SectionQuizTopicIdRouteImport.update({
   id: '/section-quiz/$topicId',
   path: '/section-quiz/$topicId',
@@ -518,6 +524,7 @@ export interface FileRoutesByFullPath {
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
+  '/profile/$userId': typeof ProfileUserIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
@@ -594,6 +601,7 @@ export interface FileRoutesByTo {
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
+  '/profile/$userId': typeof ProfileUserIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
@@ -671,6 +679,7 @@ export interface FileRoutesById {
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
+  '/profile/$userId': typeof ProfileUserIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
   '/stage-exam/$stageId': typeof StageExamStageIdRoute
   '/topics/$topicId': typeof TopicsTopicIdRoute
@@ -749,6 +758,7 @@ export interface FileRouteTypes {
     | '/flashcards/$topicId'
     | '/guides/$slug'
     | '/practice-tests/$certId'
+    | '/profile/$userId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
     | '/topics/$topicId'
@@ -825,6 +835,7 @@ export interface FileRouteTypes {
     | '/flashcards/$topicId'
     | '/guides/$slug'
     | '/practice-tests/$certId'
+    | '/profile/$userId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
     | '/topics/$topicId'
@@ -901,6 +912,7 @@ export interface FileRouteTypes {
     | '/flashcards/$topicId'
     | '/guides/$slug'
     | '/practice-tests/$certId'
+    | '/profile/$userId'
     | '/section-quiz/$topicId'
     | '/stage-exam/$stageId'
     | '/topics/$topicId'
@@ -978,6 +990,7 @@ export interface RootRouteChildren {
   FlashcardsTopicIdRoute: typeof FlashcardsTopicIdRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   PracticeTestsCertIdRoute: typeof PracticeTestsCertIdRoute
+  ProfileUserIdRoute: typeof ProfileUserIdRoute
   SectionQuizTopicIdRoute: typeof SectionQuizTopicIdRoute
   StageExamStageIdRoute: typeof StageExamStageIdRoute
   TopicsTopicIdRoute: typeof TopicsTopicIdRoute
@@ -1443,6 +1456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PracticeTestsCertIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile/$userId': {
+      id: '/profile/$userId'
+      path: '/profile/$userId'
+      fullPath: '/profile/$userId'
+      preLoaderRoute: typeof ProfileUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/section-quiz/$topicId': {
       id: '/section-quiz/$topicId'
       path: '/section-quiz/$topicId'
@@ -1578,6 +1598,7 @@ const rootRouteChildren: RootRouteChildren = {
   FlashcardsTopicIdRoute: FlashcardsTopicIdRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   PracticeTestsCertIdRoute: PracticeTestsCertIdRoute,
+  ProfileUserIdRoute: ProfileUserIdRoute,
   SectionQuizTopicIdRoute: SectionQuizTopicIdRoute,
   StageExamStageIdRoute: StageExamStageIdRoute,
   TopicsTopicIdRoute: TopicsTopicIdRoute,
