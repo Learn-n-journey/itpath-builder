@@ -139,7 +139,17 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="relative min-h-screen">
       {!immersiveBackground ? (
         <>
-          <div className="app-background app-wallpaper" aria-hidden />
+          <picture className="app-background" aria-hidden>
+            <source
+              media="(prefers-color-scheme: light)"
+              srcSet="/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2010_19_08%20PM.png"
+            />
+            <img
+              className="app-wallpaper-image"
+              src="/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png"
+              alt=""
+            />
+          </picture>
         </>
       ) : null}
       <StudyReminder />
