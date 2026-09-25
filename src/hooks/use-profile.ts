@@ -11,11 +11,14 @@ export function useProfile(profileId?: string) {
     queryKey: ["profile", id],
     enabled: ready && !!id,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("user_id,first_name,display_name,avatar_url,bio,currently_learning,learning_goal,show_learning_progress,show_learning_goal,show_achievements")
-        .eq("user_id", id!)
-        .maybeSingle();
+      // Own row reads directly; other learners go through a reader that hides switched-off fields.
+      const { data, error } = id === userId
+        ? await supabase
+            .from("profiles")
+            .select("user_id,first_name,display_name,avatar_url,bio,currently_learning,learning_goal,show_learning_progress,show_learning_goal,show_achievements")
+            .eq("user_id", id!)
+            .maybeSingle()
+        : await supabase.rpc("get_public_profiles", { _ids: [id!] }).then((r) => ({ data: r.data?.[0] ?? null, error: r.error }));
 
       if (error) throw error;
 
@@ -139,10 +142,7 @@ export function useProfiles(profileIds: string[]) {
     queryKey: ["profiles", ids.join(",")],
     enabled: ids.length > 0,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("user_id,first_name,display_name,avatar_url")
-        .in("user_id", ids);
+      const { data, error } = await supabase.rpc("get_public_profiles", { _ids: ids });
       if (error) throw error;
       const result: Record<string, { displayName: string; avatarUrl: string | null }> = {};
       await Promise.all((data ?? []).map(async (row) => {
