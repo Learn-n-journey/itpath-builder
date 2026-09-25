@@ -485,7 +485,7 @@ export function VirusRun() {
             const next: Best = {
               bestLevel: Math.max(best.bestLevel, run.level - 1),
               packets: best.packets + run.collected,
-              currentLevel: Math.max(1, run.level),
+              currentLevel: 1,
             };
             writeBest(next);
             bestRef.current = next;
