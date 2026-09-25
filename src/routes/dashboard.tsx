@@ -242,7 +242,7 @@ function Dashboard() {
     <div className="relative -mx-3 -my-4 min-h-screen overflow-hidden pb-12 sm:-mx-5 sm:-my-6 lg:-mx-8 lg:-my-8">
       <div className="relative mx-auto max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
       <header className="mb-5 flex items-center justify-between gap-3 border-b border-border/60 pb-4">
-        <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">Your learning home</p><h1 className="truncate font-display text-2xl font-semibold tracking-tight">Learn something. Meet someone.</h1></div>
+        <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">Your learning home</p><h1 className="font-display text-xl font-semibold leading-tight tracking-tight sm:text-2xl">Learn something. Meet someone.</h1></div>
         <div className="flex items-center gap-1"><Link to="/learn" aria-label="Explore learning" className="rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Search className="size-5"/></Link><Link to="/community" aria-label="Community activity" className="relative rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Bell className="size-5"/>{communityPosts.length>0?<span className="absolute right-2 top-2 size-2 rounded-full bg-primary"/>:null}</Link></div>
       </header>
 
@@ -270,7 +270,7 @@ function Dashboard() {
 
         {primary ? (
           <>
-            <div className="relative z-10 max-w-xl">
+            <div className="relative z-10 min-w-0 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-primary">
                   {d.hasAnyActivity ? "Continue Learning" : "Start Learning"}
@@ -279,12 +279,12 @@ function Dashboard() {
 
               <h1
                 id="continue-heading"
-                className="mt-2.5 max-w-xl font-serif text-3xl font-semibold leading-[1.05] tracking-[-0.025em] text-foreground sm:text-4xl lg:text-5xl"
+                className="mt-2.5 max-w-xl break-words font-serif text-[clamp(2rem,9vw,3rem)] font-semibold leading-[1.06] tracking-[-0.025em] text-foreground sm:text-4xl lg:text-5xl"
               >
                 {primary.title}
               </h1>
 
-              <p className="mt-2 max-w-lg line-clamp-2 text-xs leading-relaxed text-muted-foreground/90 sm:line-clamp-none sm:text-sm">
+              <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted-foreground/90">
                 {currentTopicSummary}
               </p>
 
