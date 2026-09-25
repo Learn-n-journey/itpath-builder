@@ -48,8 +48,7 @@ import { useCommunityChat } from "@/hooks/use-community-chat";
 import { useDisplayName } from "@/hooks/use-display-name";
 import { useProfile, useProfiles } from "@/hooks/use-profile";
 import { checkDisplayName, checkMessage } from "@/lib/community/word-filter";
-import { GENERAL_ROOM, isValidRoom, roomTitle, topicForRoom } from "@/lib/community/rooms";
-import { currentJourneyTopic, journeyTopics } from "@/lib/journey-order";
+import { COMMUNITY_ROOMS, GENERAL_ROOM, isValidRoom, roomTitle } from "@/lib/community/rooms";
 import { cn } from "@/lib/utils";
 
 // Community workspace: responsive room navigation, conversation feed, and study context.
@@ -108,19 +107,13 @@ function CommunityPage() {
   const [editDraft,setEditDraft]=useState("");
   const listRef = useRef<HTMLDivElement>(null);
 
-  const rooms = useMemo(() => {
-    const sections = journeyTopics(user);
-    const current = currentJourneyTopic(user);
-    const ordered = current ? [current, ...sections.filter((topic) => topic.id !== current.id)] : sections;
-    return [{ id: GENERAL_ROOM, label: "General" }, ...ordered.map((topic) => ({ id: topic.id, label: topic.title }))];
-  }, [user]);
+  const rooms = COMMUNITY_ROOMS;
 
   useEffect(() => setNameDraft(displayName), [displayName]);
 
 
 
   const needsName = ready && Boolean(userId) && !nameLoading && !displayName;
-  const sectionId = topicForRoom(room);
   const title = roomTitle(room);
   const feedMessages=useMemo(()=>feedMode==="popular" ? [...messages].sort((a,b)=>(b.likeCount+b.commentCount*2)-(a.likeCount+a.commentCount*2)) : [...messages].reverse(),[messages,feedMode]);
 
@@ -165,14 +158,14 @@ function CommunityPage() {
     ? feedMessages.filter((message) => message.body.toLowerCase().includes(communityQuery.trim().toLowerCase()) || message.displayName.toLowerCase().includes(communityQuery.trim().toLowerCase()))
     : feedMessages;
   const popularTopics = [
-    { label: "General IT", icon: MessageCircle, count: messages.length },
-    { label: "A+ Prep", icon: GraduationCap, count: user.quizAttempts?.length ?? 0 },
-    { label: "Networking", icon: Network, count: rooms.filter((entry) => /network|dns|dhcp|ip|ethernet/i.test(entry.label)).length },
-    { label: "Security", icon: Shield, count: rooms.filter((entry) => /security|cyber/i.test(entry.label)).length },
-    { label: "Linux", icon: Terminal, count: rooms.filter((entry) => /linux/i.test(entry.label)).length },
-    { label: "Cloud", icon: Cloud, count: rooms.filter((entry) => /cloud|aws|azure/i.test(entry.label)).length },
-    { label: "Career Help", icon: BriefcaseBusiness, count: communityProfiles ? Object.keys(communityProfiles).length : 0 },
-    { label: "Labs & Projects", icon: Wrench, count: rooms.filter((entry) => /lab|hardware|project/i.test(entry.label)).length },
+    { label: "New to IT", room: "new-to-it", icon: CircleHelp },
+    { label: "Career Changers", room: "career-changers", icon: BriefcaseBusiness },
+    { label: "Home Lab Builders", room: "home-lab-builders", icon: Wrench },
+    { label: "Certification Study", room: "certification-study", icon: GraduationCap },
+    { label: "Networking Crew", room: "networking-crew", icon: Network },
+    { label: "Cybersecurity", room: "cybersecurity", icon: Shield },
+    { label: "Build & Show", room: "build-show", icon: Rocket },
+    { label: "Troubleshooting Help", room: "troubleshooting-help", icon: Terminal },
   ];
 
   return (
@@ -203,7 +196,7 @@ function CommunityPage() {
 
       <section>
         <div className="mb-3 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Popular Topics</h2><button type="button" className="text-xs font-semibold text-primary" onClick={()=>document.querySelector<HTMLSelectElement>('select[aria-label="Community"]')?.focus()}>View all →</button></div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">{popularTopics.map((item)=>{const Icon=item.icon;return <button key={item.label} type="button" className="rounded-xl border border-border/70 bg-card/80 p-3 text-center transition hover:border-primary/50 hover:bg-card"><span className="mx-auto grid size-10 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-5"/></span><p className="mt-2 text-xs font-bold">{item.label}</p><p className="mt-1 text-[10px] text-muted-foreground">{item.count} active</p></button>})}</div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">{popularTopics.map((item)=>{const Icon=item.icon;return <button key={item.label} type="button" onClick={()=>void navigate({search:{room:item.room}})} className="rounded-xl border border-border/70 bg-card/80 p-3 text-center transition hover:border-primary/50 hover:bg-card"><span className="mx-auto grid size-10 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-5"/></span><p className="mt-2 text-xs font-bold">{item.label}</p><p className="mt-1 text-[10px] text-muted-foreground">Community</p></button>})}</div>
       </section>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_260px]">
