@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Check, Moon, Sun } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +16,7 @@ import {
 import { certifications } from "@/data/static-content";
 import { useProfile } from "@/hooks/use-profile";
 import { markSetupDone, setupPending } from "@/lib/onboarding";
+import { learnerContinuity } from "@/lib/learner-continuity";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 import { useAuth } from "@/state/auth-state";
@@ -36,6 +37,8 @@ const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
 export function WelcomeSetup({ onFinished }: { onFinished?: () => void }) {
   const [show, setShow] = useState(false);
   const { user, updateSettings } = useAppState();
+  const navigate = useNavigate();
+  const continuity = useMemo(() => learnerContinuity(user), [user]);
   const { theme, setTheme } = useTheme();
   const { userId, ready } = useAuth();
   const { firstName, saveFirstName, saving } = useProfile();
@@ -67,7 +70,12 @@ export function WelcomeSetup({ onFinished }: { onFinished?: () => void }) {
     markSetupDone();
     setShow(false);
     onFinished?.();
-    toast.success("You're all set. Everything is saved.");
+    toast.success("You're all set. Let's start learning.");
+    await navigate({
+      to: continuity.to as never,
+      ...(continuity.params ? { params: continuity.params as never } : {}),
+      ...(continuity.search ? { search: continuity.search as never } : {}),
+    });
   }
 
   return (
@@ -193,7 +201,7 @@ export function WelcomeSetup({ onFinished }: { onFinished?: () => void }) {
             Do this later
           </Button>
           <Button size="sm" disabled={saving} onClick={() => void finish()}>
-            {saving ? "Saving…" : "Done"}
+            {saving ? "Saving…" : "Save & start learning"}
           </Button>
         </div>
       </div>
