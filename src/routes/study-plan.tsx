@@ -97,6 +97,7 @@ function StudyPlanPage() {
   const [target, setTarget] = useState<number>(user.settings.sessionLengthMinutes);
   const [logOpen, setLogOpen] = useState(false);
   const [finishedOpen, setFinishedOpen] = useState(true);
+  const [justFinished, setJustFinished] = useState<{ minutes: number; completed: number; skipped: number } | null>(null);
 
   const activePlan: StudyPlan | undefined = user.studyPlans.find((plan) => plan.status !== "completed");
   useTicker(activePlan?.status === "active");
@@ -134,6 +135,11 @@ function StudyPlanPage() {
   function finish(plan: StudyPlan) {
     const { plan: done, session } = finishPlan(plan);
     actions.updateStudyPlan(done);
+    setJustFinished({
+      minutes: session?.minutes ?? 0,
+      completed: done.tasks.filter((task) => task.status === "completed").length,
+      skipped: done.tasks.filter((task) => task.status === "skipped").length,
+    });
     if (session) {
       actions.addStudySession(session);
       toast.success(`Session finished. ${session.minutes} minute(s) logged.`);
@@ -181,6 +187,26 @@ function StudyPlanPage() {
           </Button>
         </div>
       </section>
+
+      {justFinished && !activePlan ? (
+        <section className="glass-surface mt-4 rounded-2xl border border-success/40 p-4" aria-live="polite">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-success">Session complete</p>
+          <h2 className="mt-1 font-display text-lg font-semibold text-foreground">Good work. Your progress is saved.</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {justFinished.completed} task{justFinished.completed === 1 ? "" : "s"} completed{justFinished.skipped ? ` · ${justFinished.skipped} skipped` : ""}{justFinished.minutes ? ` · ${justFinished.minutes} minutes logged` : ""}.
+          </p>
+          <Button asChild size="sm" className="mt-4">
+            <Link
+              to={continuity.to as never}
+              {...(continuity.params ? { params: continuity.params as never } : {})}
+              {...(continuity.search ? { search: continuity.search as never } : {})}
+            >
+              {continuity.label}
+              <ArrowRight className="ml-1 size-4" aria-hidden />
+            </Link>
+          </Button>
+        </section>
+      ) : null}
 
       <section className="glass-surface mt-6 rounded-3xl border border-border/70 p-4 shadow-sm sm:p-6">
         {!activePlan ? (
