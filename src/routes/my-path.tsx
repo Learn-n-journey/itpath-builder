@@ -14,7 +14,6 @@ import {
   Network,
   Settings,
   Shield,
-  Target,
   Terminal,
   Trophy,
   Wrench,
@@ -34,7 +33,6 @@ import { useAppState, useStats } from "@/state/app-state";
 import { adaptivePath } from "@/lib/adaptive-path";
 import { adaptiveQueue } from "@/lib/adaptive-engine";
 import { currentJourneyTopic, hasTopicActivity, isMastered } from "@/lib/journey-order";
-import { useDismissable } from "@/hooks/use-dismissable";
 import { CompactStat, CompactStats, ContentRow } from "@/components/learner-ui";
 import { topicScopeProgress } from "@/lib/scope-progress";
 import { accentFill, journeyAccent } from "@/lib/visual-accents";
@@ -109,12 +107,6 @@ function MyPath() {
   const startHere = current
     ? queue.entries.find((entry) => entry.topic.id === current.id)
     : undefined;
-  // Cleared starting points come back on their own once the next section opens.
-  const {
-    hidden: startHereCleared,
-    dismiss: clearStartHere,
-    restore: restoreStartHere,
-  } = useDismissable("itpath.path.starting-point.cleared", startHere?.topic.id ?? null);
   const levels = certificationsByLevel();
   const certCount = levels.reduce((sum, group) => sum + group.items.length, 0);
 
@@ -144,27 +136,6 @@ function MyPath() {
           <span>Journey Map</span>
         </Link>
       </nav>
-
-      <div className="mb-4 flex justify-end">
-        {startHere && startHereCleared ? (
-          <button
-            type="button"
-            onClick={restoreStartHere}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <Target className="size-3.5 shrink-0" aria-hidden />
-            <span>Show my starting point</span>
-          </button>
-        ) : startHere ? (
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <span className="inline-flex min-h-11 items-center gap-1.5 text-xs font-medium text-primary/80">
-              <Target className="size-3.5 shrink-0 text-primary" aria-hidden />
-              <span>Starting point: {startHere.topic.title}</span>
-            </span>
-            <Button variant="ghost" size="sm" onClick={clearStartHere}>Hide</Button>
-          </div>
-        ) : null}
-      </div>
 
       <GaylPathNote className="mb-4" {...(current ? { topicId: current.id } : {})} />
 
