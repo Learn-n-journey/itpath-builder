@@ -69,7 +69,7 @@ export const itPack: CoursePack = {
 
   subject: {
     field: "IT and cybersecurity",
-    qualificationWord: "certification",
+    qualificationWord: "learning path",
     sectionWord: "section",
     sourceNote: "Built to the published CompTIA exam objectives, with primary documentation and standards as reading.",
   },
