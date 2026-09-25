@@ -50,7 +50,15 @@ export function useCommunityChat(room = "general") {
         error = fallback.error;
       }
       if (error) throw error;
-      const ids=(data??[]).map(row=>row.id);
+      // Private bucket: swap stored paths for short-lived signed viewing links.
+      const paths=(data??[]).map(row=>row.image_url).filter((u):u is string=>Boolean(u)&&!u!.startsWith("http"));
+      const signed=new Map<string,string>();
+      if(paths.length){
+        const {data:signedRows}=await supabase.storage.from("community-images").createSignedUrls(paths,3600);
+        for(const s of signedRows??[])if(s.signedUrl&&s.path)signed.set(s.path,s.signedUrl);
+      }
+      const rows=(data??[]).map(row=>({...row,image_url:row.image_url?(signed.get(row.image_url)??row.image_url):null}));
+      const ids=rows.map(row=>row.id);
       const [{data:likes},{data:comments},{data:saves}]=ids.length ? await Promise.all([
         supabase.from("community_likes").select("message_id,user_id").in("message_id",ids),
         supabase.from("community_comments").select("message_id").in("message_id",ids),
