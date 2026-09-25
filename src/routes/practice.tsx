@@ -182,13 +182,10 @@ function PracticePage() {
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} detail />;
 
   return (
-    <div className="relative -mx-3 -my-4 min-h-screen overflow-hidden pb-16 sm:-mx-5 sm:-my-6 lg:-mx-8 lg:-my-8">
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/ChatGPT Image Sep 24, 2026, 04_42_52 PM.png')" }}
-        aria-hidden
-      />
-      <div className="relative mx-auto w-full max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
+    <div
+      className="-mx-3 -my-4 min-h-screen bg-cover bg-center bg-no-repeat px-3 py-4 sm:-mx-5 sm:-my-6 sm:px-5 sm:py-6 lg:-mx-8 lg:-my-8 lg:px-8 lg:py-8"
+      style={{ backgroundImage: "url('/ChatGPT Image Sep 24, 2026, 04_42_52 PM.png')" }}
+    >
       <PageHeader
         title="Practice"
         description="Build skill through applied work."
@@ -696,7 +693,6 @@ function AssignmentWorkspace({
           </div>
         </Panel>
       ) : null}
-      </div>
     </div>
   );
 }
