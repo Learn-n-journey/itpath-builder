@@ -144,7 +144,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             style={{ backgroundImage: "url('/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png')" }}
             aria-hidden
           />
-          <div className="app-background-shade" aria-hidden />
         </>
       ) : null}
       <StudyReminder />
