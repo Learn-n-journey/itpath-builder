@@ -252,7 +252,7 @@ function CommunityPage() {
           <DockButton icon={<TrendingUp className="size-5"/>} label="Popular" active={feedMode==="popular"} onClick={()=>setFeedMode("popular")}/>
           <DockButton icon={<ImagePlus className="size-5"/>} label="Post" onClick={()=>document.getElementById("communityMessage")?.focus()}/>
           <DockButton icon={<Hash className="size-5"/>} label="Rooms" onClick={()=>{const el=document.querySelector<HTMLSelectElement>('select[aria-label="Community"]');el?.focus();el?.click();}}/>
-          <DockButton icon={<Bookmark className="size-5"/>} label="Saved"/>
+          <DockButton icon={<MessagesSquare className="size-5"/>} label="Messages" onClick={()=>void navigate({to:"/messages"} as any)}/>
         </div>
       </nav>
     </>
