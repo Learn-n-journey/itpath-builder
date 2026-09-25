@@ -1282,3 +1282,36 @@ html.light .sidebar-glass {
 @keyframes byteRigOverdrive{from{box-shadow:inset 0 0 28px color-mix(in oklab,var(--color-primary) 12%,transparent)}to{box-shadow:inset 0 0 48px color-mix(in oklab,var(--color-primary) 27%,transparent),0 0 20px color-mix(in oklab,var(--color-primary) 14%,transparent)}}
 @media(max-width:560px){.byte-rig-hero{grid-template-columns:1fr;grid-template-rows:auto auto auto}.byte-rig-hero .byte-rig-copy{grid-column:1;grid-row:1}.byte-rig-live{grid-column:1;grid-row:2;width:100%;min-height:9rem}.byte-rig-hero .byte-rig-meter{grid-row:3}.byte-cutaway-rig{transform:scale(.9) perspective(500px) rotateY(-5deg)}}
 @media(prefers-reduced-motion:reduce){.byte-cutaway-rig,.byte-rig-data,.byte-rig-sweep,.byte-rig-surge,.byte-rig-hero.is-overdrive .byte-rig-live,.byte-cutaway-rig .byte-rig-gpu i{animation:none!important}}
+
+
+/* BYTE//BREAK match spectacle + board-to-PC energy transfer */
+.byte-board-impact{animation:byteBoardHit .42s cubic-bezier(.18,.85,.25,1)}
+.byte-board-impact-strong{animation:byteBoardHitStrong .52s cubic-bezier(.18,.85,.25,1)}
+.byte-match-impact:after{content:"";position:absolute;z-index:24;inset:-28%;border:1px solid color-mix(in oklab,var(--color-primary) 75%,white);border-radius:50%;opacity:0;animation:byteTileShock .62s ease-out}
+.byte-match-impact-hot:before{content:"";position:absolute;z-index:23;inset:-45%;background:conic-gradient(from 0deg,transparent 0 9%,color-mix(in oklab,var(--color-primary) 85%,white) 10% 12%,transparent 13% 24%,white 25% 26%,transparent 27% 100%);border-radius:50%;filter:blur(.3px);opacity:0;animation:byteMatchStarburst .7s ease-out}
+.byte-match-energy i{width:3px;height:3px;box-shadow:0 0 7px currentColor,0 0 13px currentColor}.byte-match-energy i:nth-child(1){animation:byteMicroSparkA .58s ease-out}.byte-match-energy i:nth-child(2){animation:byteMicroSparkB .65s ease-out}.byte-match-energy i:nth-child(3){animation:byteMicroSparkC .7s ease-out}
+.byte-energy-transfer{pointer-events:none;position:relative;z-index:45;height:0;width:100%;overflow:visible}
+.byte-energy-transfer i{--spread:calc((var(--feed-i) - (var(--feed-count) / 2)) * 7px);position:absolute;left:50%;top:-.4rem;width:5px;height:5px;border-radius:50%;background:#d9fffb;box-shadow:0 0 6px #fff,0 0 12px #5eead4,0 0 22px color-mix(in oklab,var(--color-primary) 80%,transparent);opacity:0;animation:byteFeedParticle .9s cubic-bezier(.2,.72,.18,1) both;animation-delay:calc(var(--feed-i) * 22ms)}
+.byte-energy-transfer i:nth-child(3n){width:3px;height:11px;border-radius:80%;background:#5eead4}.byte-energy-transfer i:nth-child(4n){width:8px;height:2px}.byte-energy-transfer.strength-4 i,.byte-energy-transfer.strength-5 i{filter:brightness(1.45);box-shadow:0 0 8px white,0 0 18px #5eead4,0 0 32px var(--color-primary)}
+.byte-rig-hero.is-fed .byte-rig-live{animation:bytePcReceive .85s cubic-bezier(.2,.9,.25,1)}
+.byte-rig-hero.is-fed .byte-cutaway-rig{animation:bytePcCharge .9s cubic-bezier(.2,.8,.2,1)}
+.byte-rig-hero.is-fed .byte-rig-energy{opacity:1;animation-duration:.45s}
+.byte-rig-hero.is-fed .byte-rig-fan{animation-duration:.25s}
+.byte-rig-hero.is-fed .byte-rig-gpu i{animation-duration:.38s}
+.byte-feed-impact{position:absolute;z-index:10;left:50%;top:4%;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:white;box-shadow:0 0 10px white,0 0 24px #5eead4,0 0 45px var(--color-primary);animation:byteFeedImpact .7s ease-out both}
+.byte-feed-impact-ring{position:absolute;z-index:9;left:50%;top:4%;width:12px;height:12px;margin:-6px;border:2px solid #bafff7;border-radius:50%;box-shadow:0 0 12px #5eead4;animation:byteFeedRing .72s ease-out both}
+.byte-feed-flare{position:absolute;z-index:8;left:50%;top:4%;width:2px;height:85%;background:linear-gradient(180deg,white,#5eead4 8%,transparent 70%);box-shadow:0 0 10px #5eead4;transform-origin:top;animation:byteFeedFlare .6s ease-out both}
+@keyframes byteBoardHit{0%{transform:scale(1)}30%{transform:scale(1.012);filter:brightness(1.12)}100%{transform:scale(1);filter:none}}
+@keyframes byteBoardHitStrong{0%{transform:scale(1)}18%{transform:scale(1.025) rotate(.15deg);filter:brightness(1.28)}38%{transform:scale(.993) rotate(-.12deg)}100%{transform:scale(1);filter:none}}
+@keyframes byteTileShock{0%{opacity:.95;transform:scale(.2)}100%{opacity:0;transform:scale(1.35)}}
+@keyframes byteMatchStarburst{0%{opacity:0;transform:scale(.25) rotate(0)}18%{opacity:.9}100%{opacity:0;transform:scale(1.45) rotate(38deg)}}
+@keyframes byteMicroSparkA{0%{opacity:1;transform:translate(0,0) scale(1.8)}100%{opacity:0;transform:translate(-22px,-26px) scale(.2)}}
+@keyframes byteMicroSparkB{0%{opacity:1;transform:translate(0,0) scale(1.8)}100%{opacity:0;transform:translate(26px,-13px) scale(.2)}}
+@keyframes byteMicroSparkC{0%{opacity:1;transform:translate(0,0) scale(1.8)}100%{opacity:0;transform:translate(9px,30px) scale(.2)}}
+@keyframes byteFeedParticle{0%{opacity:0;transform:translate(var(--spread),-20px) scale(.3)}12%{opacity:1}48%{opacity:1;transform:translate(calc(var(--spread) * .55),12px) scale(1.25)}100%{opacity:0;transform:translate(0,82px) scale(.2)}}
+@keyframes bytePcReceive{0%{box-shadow:inset 0 0 30px color-mix(in oklab,var(--color-primary) 7%,transparent)}28%{box-shadow:inset 0 0 62px color-mix(in oklab,var(--color-primary) 36%,transparent),0 0 28px color-mix(in oklab,var(--color-primary) 30%,transparent);filter:brightness(1.25)}100%{filter:none}}
+@keyframes bytePcCharge{0%{transform:perspective(500px) rotateY(-5deg) scale(1)}25%{transform:perspective(500px) rotateY(-2deg) scale(1.045);filter:brightness(1.35) drop-shadow(0 0 20px #5eead4)}55%{transform:perspective(500px) rotateY(-6deg) scale(.995)}100%{transform:perspective(500px) rotateY(-5deg) scale(1)}}
+@keyframes byteFeedImpact{0%{opacity:0;transform:scale(.2)}20%{opacity:1;transform:scale(2.2)}100%{opacity:0;transform:scale(5)}}
+@keyframes byteFeedRing{0%{opacity:1;transform:scale(.25)}100%{opacity:0;transform:scale(12)}}
+@keyframes byteFeedFlare{0%{opacity:0;transform:scaleY(.05)}22%{opacity:.9;transform:scaleY(1)}100%{opacity:0;transform:scaleY(.35)}}
+@media(prefers-reduced-motion:reduce){.byte-energy-transfer,.byte-feed-impact,.byte-feed-impact-ring,.byte-feed-flare,.byte-match-impact:after,.byte-match-impact-hot:before{display:none}.byte-rig-hero.is-fed .byte-rig-live,.byte-rig-hero.is-fed .byte-cutaway-rig{animation:none!important}}
