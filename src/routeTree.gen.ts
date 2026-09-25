@@ -72,6 +72,7 @@ import { Route as FlashcardsIndexRouteImport } from './routes/flashcards.index'
 import { Route as FlashcardsTopicIdRouteImport } from './routes/flashcards.$topicId'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
+import { Route as LearnVideosRouteImport } from './routes/learn.videos'
 import { Route as PracticeTestsCertIdRouteImport } from './routes/practice-tests.$certId'
 import { Route as ProfileUserIdRouteImport } from './routes/profile.$userId'
 import { Route as SectionQuizTopicIdRouteImport } from './routes/section-quiz.$topicId'
@@ -400,6 +401,11 @@ const GuidesSlugRoute = GuidesSlugRouteImport.update({
   path: '/guides/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnVideosRoute = LearnVideosRouteImport.update({
+  id: '/videos',
+  path: '/videos',
+  getParentRoute: () => LearnRoute,
+} as any)
 const PracticeTestsCertIdRoute = PracticeTestsCertIdRouteImport.update({
   id: '/practice-tests/$certId',
   path: '/practice-tests/$certId',
@@ -490,7 +496,7 @@ export interface FileRoutesByFullPath {
   '/journey': typeof JourneyRoute
   '/knowledge': typeof KnowledgeRoute
   '/labs': typeof LabsRoute
-  '/learn': typeof LearnRoute
+  '/learn': typeof LearnRouteWithChildren
   '/learner': typeof LearnerRoute
   '/meditation': typeof MeditationRoute
   '/meet-gayl': typeof MeetGaylRoute
@@ -523,6 +529,7 @@ export interface FileRoutesByFullPath {
   '/checkout/success': typeof CheckoutSuccessRoute
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
+  '/learn/videos': typeof LearnVideosRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/profile/$userId': typeof ProfileUserIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
@@ -567,7 +574,7 @@ export interface FileRoutesByTo {
   '/journey': typeof JourneyRoute
   '/knowledge': typeof KnowledgeRoute
   '/labs': typeof LabsRoute
-  '/learn': typeof LearnRoute
+  '/learn': typeof LearnRouteWithChildren
   '/learner': typeof LearnerRoute
   '/meditation': typeof MeditationRoute
   '/meet-gayl': typeof MeetGaylRoute
@@ -600,6 +607,7 @@ export interface FileRoutesByTo {
   '/checkout/success': typeof CheckoutSuccessRoute
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
+  '/learn/videos': typeof LearnVideosRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/profile/$userId': typeof ProfileUserIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
@@ -645,7 +653,7 @@ export interface FileRoutesById {
   '/journey': typeof JourneyRoute
   '/knowledge': typeof KnowledgeRoute
   '/labs': typeof LabsRoute
-  '/learn': typeof LearnRoute
+  '/learn': typeof LearnRouteWithChildren
   '/learner': typeof LearnerRoute
   '/meditation': typeof MeditationRoute
   '/meet-gayl': typeof MeetGaylRoute
@@ -678,6 +686,7 @@ export interface FileRoutesById {
   '/checkout/success': typeof CheckoutSuccessRoute
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
+  '/learn/videos': typeof LearnVideosRoute
   '/practice-tests/$certId': typeof PracticeTestsCertIdRoute
   '/profile/$userId': typeof ProfileUserIdRoute
   '/section-quiz/$topicId': typeof SectionQuizTopicIdRoute
@@ -757,6 +766,7 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/flashcards/$topicId'
     | '/guides/$slug'
+    | '/learn/videos'
     | '/practice-tests/$certId'
     | '/profile/$userId'
     | '/section-quiz/$topicId'
@@ -834,6 +844,7 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/flashcards/$topicId'
     | '/guides/$slug'
+    | '/learn/videos'
     | '/practice-tests/$certId'
     | '/profile/$userId'
     | '/section-quiz/$topicId'
@@ -911,6 +922,7 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/flashcards/$topicId'
     | '/guides/$slug'
+    | '/learn/videos'
     | '/practice-tests/$certId'
     | '/profile/$userId'
     | '/section-quiz/$topicId'
@@ -956,7 +968,7 @@ export interface RootRouteChildren {
   JourneyRoute: typeof JourneyRoute
   KnowledgeRoute: typeof KnowledgeRoute
   LabsRoute: typeof LabsRoute
-  LearnRoute: typeof LearnRoute
+  LearnRoute: typeof LearnRouteWithChildren
   LearnerRoute: typeof LearnerRoute
   MeditationRoute: typeof MeditationRoute
   MeetGaylRoute: typeof MeetGaylRoute
@@ -1449,6 +1461,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/videos': {
+      id: '/learn/videos'
+      path: '/videos'
+      fullPath: '/learn/videos'
+      preLoaderRoute: typeof LearnVideosRouteImport
+      parentRoute: typeof LearnRoute
+    }
     '/practice-tests/$certId': {
       id: '/practice-tests/$certId'
       path: '/practice-tests/$certId'
@@ -1536,6 +1555,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface LearnRouteChildren {
+  LearnVideosRoute: typeof LearnVideosRoute
+}
+
+const LearnRouteChildren: LearnRouteChildren = {
+  LearnVideosRoute: LearnVideosRoute,
+}
+
+const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -1564,7 +1593,7 @@ const rootRouteChildren: RootRouteChildren = {
   JourneyRoute: JourneyRoute,
   KnowledgeRoute: KnowledgeRoute,
   LabsRoute: LabsRoute,
-  LearnRoute: LearnRoute,
+  LearnRoute: LearnRouteWithChildren,
   LearnerRoute: LearnerRoute,
   MeditationRoute: MeditationRoute,
   MeetGaylRoute: MeetGaylRoute,
