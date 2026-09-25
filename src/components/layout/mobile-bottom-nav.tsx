@@ -1,14 +1,14 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { CalendarCheck2, ClipboardList, LayoutDashboard, Menu, Route as RouteIcon } from "lucide-react";
+import { BookOpen, ClipboardList, Home, Menu, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { accentText, featureAccent } from "@/lib/visual-accents";
 
 const items = [
-  { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-  { label: "My Path", to: "/my-path", icon: RouteIcon },
-  { label: "Study Plan", to: "/study-plan", icon: CalendarCheck2 },
+  { label: "Home", to: "/dashboard", icon: Home },
+  { label: "Learn", to: "/learn", icon: BookOpen },
   { label: "Practice", to: "/practice", icon: ClipboardList },
+  { label: "Community", to: "/community", icon: Users },
 ] as const;
 
 export function MobileBottomNav({ onMore }: { onMore: () => void }) {
