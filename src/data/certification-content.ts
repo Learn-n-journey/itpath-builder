@@ -62,7 +62,7 @@ const T = {
 const seeds: CertSeed[] = [
   {
     id: "cert-comptia-tech-plus",
-    title: "CompTIA Tech+",
+    title: "Technology Foundations",
     code: "FC0-U71",
     provider: "CompTIA",
     level: "core",
@@ -86,7 +86,7 @@ const seeds: CertSeed[] = [
   },
   {
     id: "cert-comptia-a-plus",
-    title: "CompTIA A+",
+    title: "Computer Systems & Support",
     code: "220-1201/1202",
     provider: "CompTIA",
     level: "core",
@@ -119,7 +119,7 @@ const seeds: CertSeed[] = [
   },
   {
     id: "cert-comptia-network-plus",
-    title: "CompTIA Network+",
+    title: "Networking & Infrastructure",
     code: "N10-009",
     provider: "CompTIA",
     level: "infrastructure",
@@ -137,7 +137,7 @@ const seeds: CertSeed[] = [
   },
   {
     id: "cert-comptia-security-plus",
-    title: "CompTIA Security+",
+    title: "Cybersecurity Foundations",
     code: "SY0-701",
     provider: "CompTIA",
     level: "security",
@@ -155,7 +155,7 @@ const seeds: CertSeed[] = [
   },
   {
     id: "cert-comptia-linux-plus",
-    title: "CompTIA Linux+",
+    title: "Linux Systems Administration",
     code: "XK0-006",
     provider: "CompTIA",
     level: "infrastructure",
@@ -170,7 +170,7 @@ const seeds: CertSeed[] = [
   },
   {
     id: "cert-comptia-server-plus",
-    title: "CompTIA Server+",
+    title: "Server Administration",
     code: "SK0-005",
     provider: "CompTIA",
     level: "infrastructure",
@@ -186,7 +186,7 @@ const seeds: CertSeed[] = [
   },
   {
     id: "cert-comptia-cloud-plus",
-    title: "CompTIA Cloud+",
+    title: "Cloud Infrastructure",
     code: "CV0-004",
     provider: "CompTIA",
     level: "infrastructure",
@@ -202,7 +202,7 @@ const seeds: CertSeed[] = [
   },
   {
     id: "cert-comptia-cysa-plus",
-    title: "CompTIA CySA+",
+    title: "Security Analysis & Defense",
     code: "CS0-004",
     provider: "CompTIA",
     level: "advanced",
@@ -217,7 +217,7 @@ const seeds: CertSeed[] = [
   },
   {
     id: "cert-comptia-pentest-plus",
-    title: "CompTIA PenTest+",
+    title: "Offensive Security",
     code: "PT0-003",
     provider: "CompTIA",
     level: "advanced",
@@ -232,7 +232,7 @@ const seeds: CertSeed[] = [
   },
   {
     id: "cert-comptia-securityx",
-    title: "CompTIA SecurityX",
+    title: "Advanced Security Engineering",
     code: "CAS-005",
     provider: "CompTIA",
     level: "advanced",
