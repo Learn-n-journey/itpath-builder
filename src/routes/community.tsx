@@ -4,6 +4,16 @@ import {
   Bell,
   Bookmark,
   BookOpen,
+  BriefcaseBusiness,
+  CircleHelp,
+  Cloud,
+  Code2,
+  GraduationCap,
+  Linux,
+  Network,
+  Rocket,
+  Shield,
+  Wrench,
   Heart,
   Home,
   ImagePlus,
@@ -86,6 +96,7 @@ function CommunityPage() {
   const [commentDraft,setCommentDraft]=useState("");
   const [feedMode,setFeedMode]=useState<"latest"|"popular">("latest");
   const [draft, setDraft] = useState("");
+  const [communityQuery, setCommunityQuery] = useState("");
   const [postImage,setPostImage]=useState<File|null>(null);
   const [postImagePreview,setPostImagePreview]=useState<string|null>(null);
   const imageInputRef=useRef<HTMLInputElement>(null);
@@ -148,124 +159,73 @@ function CommunityPage() {
     }
   }
 
+  const filteredFeed = communityQuery.trim()
+    ? feedMessages.filter((message) => message.body.toLowerCase().includes(communityQuery.trim().toLowerCase()) || message.displayName.toLowerCase().includes(communityQuery.trim().toLowerCase()))
+    : feedMessages;
+  const popularTopics = [
+    { label: "General IT", icon: MessageCircle, count: messages.length },
+    { label: "A+ Prep", icon: GraduationCap, count: user.quizAttempts?.length ?? 0 },
+    { label: "Networking", icon: Network, count: rooms.filter((entry) => /network|dns|dhcp|ip|ethernet/i.test(entry.label)).length },
+    { label: "Security", icon: Shield, count: rooms.filter((entry) => /security|cyber/i.test(entry.label)).length },
+    { label: "Linux", icon: Terminal, count: rooms.filter((entry) => /linux/i.test(entry.label)).length },
+    { label: "Cloud", icon: Cloud, count: rooms.filter((entry) => /cloud|aws|azure/i.test(entry.label)).length },
+    { label: "Career Help", icon: BriefcaseBusiness, count: communityProfiles ? Object.keys(communityProfiles).length : 0 },
+    { label: "Labs & Projects", icon: Wrench, count: rooms.filter((entry) => /lab|hardware|project/i.test(entry.label)).length },
+  ];
+
   return (
-    <div className="relative -mx-4 -my-4 flex h-[calc(100dvh-4rem)] min-h-0 flex-col overflow-hidden bg-background sm:-mx-6 sm:-my-6 lg:-mx-8 lg:-my-8">
-      <div className="shrink-0 bg-background px-4 pt-3 sm:px-6"><SocialHero />
+    <div className="space-y-6 pb-24">
+      <section className="relative overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-r from-slate-950 via-blue-950/80 to-slate-950 p-5 shadow-xl sm:p-7">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(59,130,246,.22),transparent_34%),radial-gradient(circle_at_20%_100%,rgba(14,165,233,.12),transparent_38%)]" aria-hidden />
+        <div className="relative flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+          <div><h1 className="font-display text-3xl font-bold tracking-tight text-white">Community</h1><p className="mt-1 text-sm text-slate-300">Learn together. Ask questions. Share progress. Help others.</p></div>
+          <div className="flex w-full gap-2 xl:max-w-xl">
+            <div className="relative flex-1"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"/><Input value={communityQuery} onChange={(event)=>setCommunityQuery(event.target.value)} placeholder="Search the community…" className="h-11 border-slate-600/70 bg-slate-950/70 pl-9 text-white placeholder:text-slate-400"/></div>
+            <Button onClick={()=>document.getElementById("communityMessage")?.focus()} className="h-11"><Pencil className="size-4"/>New Post</Button>
+          </div>
+        </div>
+      </section>
 
       {needsName || editingName ? (
-        <section className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <form onSubmit={handleName} className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <div className="min-w-0 flex-1 space-y-1.5">
-              <Label htmlFor="communityName">{displayName ? "Change display name" : "Choose your display name"}</Label>
-              <Input id="communityName" value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} placeholder="For example, Dave B" maxLength={24} />
-            </div>
-            <Button type="submit" disabled={saving}>{saving ? "Saving" : "Save name"}</Button>
-            {displayName ? <Button type="button" variant="ghost" onClick={() => setEditingName(false)}>Cancel</Button> : null}
-          </form>
-        </section>
-      ) : null}</div>
+        <section className="rounded-xl border border-primary/30 bg-primary/5 p-4"><form onSubmit={handleName} className="flex flex-col gap-3 sm:flex-row sm:items-end"><div className="min-w-0 flex-1 space-y-1.5"><Label htmlFor="communityName">{displayName ? "Change display name" : "Choose your display name"}</Label><Input id="communityName" value={nameDraft} onChange={(event)=>setNameDraft(event.target.value)} placeholder="For example, Dave B" maxLength={24}/></div><Button type="submit" disabled={saving}>{saving?"Saving":"Save name"}</Button>{displayName?<Button type="button" variant="ghost" onClick={()=>setEditingName(false)}>Cancel</Button>:null}</form></section>
+      ) : null}
 
-      <div className="mx-auto flex min-h-0 w-full max-w-2xl flex-1 flex-col overflow-hidden">
-        <aside className="hidden">
-          <nav className="sticky top-4 space-y-1">
-            <SocialNav icon={<Home className="size-5"/>} label="Home" active />
-            <SocialNav icon={<TrendingUp className="size-5"/>} label="Popular" onClick={()=>setFeedMode("popular")} />
-            <SocialNav icon={<MessageCircle className="size-5"/>} label="Study rooms" />
-            <SocialNav icon={<Bookmark className="size-5"/>} label="Saved" />
-            <div className="my-4 border-t border-border/60" />
-            <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-[.16em] text-muted-foreground">Your communities</p>
-            {rooms.slice(0,7).map(entry=><button key={entry.id} onClick={()=>void navigate({search:{room:entry.id}})} className={cn("flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-secondary/70",room===entry.id&&"bg-primary/10 font-semibold text-primary")}><Hash className="size-4"/><span className="truncate">{entry.label}</span></button>)}
-          </nav>
-        </aside>
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          {title:"Ask a Question",subtitle:"Get help from the community",icon:CircleHelp,classes:"from-blue-600 to-blue-700"},
+          {title:"Share Progress",subtitle:"Celebrate your wins",icon:TrendingUp,classes:"from-emerald-600 to-emerald-700"},
+          {title:"Discuss Topics",subtitle:"Talk about IT, certs, and more",icon:Users,classes:"from-violet-600 to-purple-700"},
+          {title:"Showcase Projects",subtitle:"Share what you've built",icon:Rocket,classes:"from-orange-600 to-amber-700"},
+        ].map((item)=><button key={item.title} type="button" onClick={()=>document.getElementById("communityMessage")?.focus()} className={cn("group rounded-xl bg-gradient-to-br p-4 text-left text-white shadow-lg",item.classes)}><div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-full bg-white/15"><item.icon className="size-6"/></span><div><p className="font-display font-bold">{item.title}</p><p className="mt-1 text-xs text-white/75">{item.subtitle}</p></div><ArrowRight className="ml-auto size-4 transition-transform group-hover:translate-x-1"/></div></button>)}
+      </section>
 
-        <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <form onSubmit={handleSend} className="shrink-0 border-b border-border/60 bg-background px-4 pb-3 sm:px-6">
-            <div className="flex gap-3">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(displayName||"?").charAt(0).toUpperCase()}</div>
-              <div className="min-w-0 flex-1">
-                <Label htmlFor="communityMessage" className="sr-only">Share something</Label>
-                <Textarea id="communityMessage" value={draft} onChange={e=>setDraft(e.target.value)} disabled={!displayName} maxLength={1000} rows={2} placeholder={displayName?"Share something…":"Choose a display name to post"} className="min-h-16 resize-none border-0 bg-transparent px-0 text-base shadow-none focus-visible:ring-0"/>
-                {postImagePreview&&<div className="relative mt-2 overflow-hidden rounded-xl bg-secondary"><img src={postImagePreview} alt="Post preview" className="max-h-80 w-full object-contain"/><button type="button" onClick={()=>{setPostImage(null);URL.revokeObjectURL(postImagePreview);setPostImagePreview(null)}} className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-1 text-xs font-semibold shadow">Remove</button></div>}
-                <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2">
-                  <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={e=>{const file=e.target.files?.[0]??null;if(!file)return;if(file.size>8*1024*1024){toast.error("Keep images under 8 MB.");return;}if(postImagePreview)URL.revokeObjectURL(postImagePreview);setPostImage(file);setPostImagePreview(URL.createObjectURL(file));}}/>
-                  <button type="button" onClick={()=>imageInputRef.current?.click()} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"><ImagePlus className="size-4"/>Photo</button>
-                  <Button type="submit" size="sm" disabled={!displayName||sending||(!draft.trim()&&!postImage)}>{sending?"Posting":"Post"}</Button>
-                </div>
-              </div>
-            </div>
-          </form>
-          <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-2 sm:px-6"><div className="flex gap-4"><button onClick={()=>setFeedMode("latest")} className={cn("text-sm font-semibold",feedMode==="latest"?"text-foreground":"text-muted-foreground")}>Latest</button><button onClick={()=>setFeedMode("popular")} className={cn("text-sm font-semibold",feedMode==="popular"?"text-foreground":"text-muted-foreground")}>Popular</button></div><select aria-label="Community" value={room} onChange={e=>void navigate({search:{room:e.target.value}})} className="max-w-40 bg-transparent text-right text-xs text-muted-foreground outline-none">{rooms.map(entry=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
-          <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6">
-            {loading ? (
-              <p className="p-3 text-sm text-muted-foreground">Loading the room.</p>
-            ) : messages.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
-                <div className="flex size-12 items-center justify-center rounded-full bg-secondary"><MessagesSquare className="size-5 text-muted-foreground" aria-hidden /></div>
-                <div>
-                  <p className="font-semibold">{sectionId ? `Start the ${title} conversation` : "Welcome to General"}</p>
-                  <p className="mt-1 max-w-md text-sm text-muted-foreground">{sectionId ? "Ask a question, share what clicked, or help someone studying the same topic." : "Say hello, ask for help, share a win, or help another learner."}</p>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {feedMessages.map((message) => {
-                  const mine = message.userId === userId;
-                  const identity = communityProfiles[message.userId];
-                  const shownName = mine ? displayName || "You" : identity?.displayName || message.displayName;
-                  const avatarUrl = mine ? ownProfile.avatarUrl : identity?.avatarUrl;
-                  const initial = shownName.trim().charAt(0).toUpperCase() || "?";
-                  return (
-                    <article key={message.id} className="group flex gap-3 border-b border-border/60 bg-background px-1 py-4">
-                      <Link to="/profile/$userId" params={{userId:message.userId}} aria-label={`View ${shownName}'s profile`} className={cn("flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold",mine?"bg-primary text-primary-foreground":"bg-secondary text-foreground")}>{avatarUrl?<img src={avatarUrl} alt="" className="h-full w-full rounded-full object-cover"/>:initial}</Link>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          {mine?<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">You</Link>:<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">{shownName}</Link>}
-                          {mine ? <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">You</span> : null}
-                          <span className="text-xs text-muted-foreground">{timeLabel(message.createdAt)}</span>{!mine&&<Link to="/profile/$userId" params={{userId:message.userId}} className="ml-auto flex items-center gap-1 rounded-full border border-border/70 px-2.5 py-1 text-[11px] font-semibold text-foreground hover:bg-secondary"><UserRound className="size-3.5"/>Profile</Link>}
-                          <span className="ml-auto opacity-100 transition-opacity">
-                            {mine ? (
-                              <span className="flex items-center gap-1">
-                                <button type="button" aria-label="Edit your post" className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={()=>{setEditingPost(message.id);setEditDraft(message.body)}}><Pencil className="size-3.5" aria-hidden /></button>
-                                <button type="button" aria-label="Delete your post" className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive" onClick={async () => { if(!window.confirm("Delete this post? This cannot be undone."))return; try { await remove(message.id); toast.success("Post deleted."); } catch { toast.error("That did not delete. Try again."); } }}><Trash2 className="size-3.5" aria-hidden /></button>
-                              </span>
-                            ) : (
-                              <button type="button" aria-label="Report this message" className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={async () => { try { await report({ messageId: message.id }); toast.success("Reported. Thank you for flagging it."); } catch { toast.error("That did not send. Try again."); } }}><Flag className="size-3.5" aria-hidden /></button>
-                            )}
-                          </span>
-                        </div>
-                        {editingPost===message.id?<form className="mt-2 space-y-2" onSubmit={async e=>{e.preventDefault();const problem=checkMessage(editDraft);if(problem)return void toast.error(problem);try{await edit({id:message.id,body:editDraft});setEditingPost(null);toast.success("Post updated.");}catch(error){toast.error(error instanceof Error?error.message:"That did not save.")}}}><Textarea value={editDraft} onChange={e=>setEditDraft(e.target.value)} maxLength={1000} rows={3} autoFocus/><div className="flex justify-end gap-2"><Button type="button" size="sm" variant="ghost" onClick={()=>setEditingPost(null)}>Cancel</Button><Button type="submit" size="sm" disabled={editing||!editDraft.trim()}>{editing?"Saving":"Save"}</Button></div></form>:(message.body.trim()&&<p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-6">{message.body}</p>)}{message.imageUrl&&<img src={message.imageUrl} alt="" loading="lazy" className="mt-3 max-h-[32rem] w-full rounded-xl object-cover"/>}
-                        <div className="mt-3 flex items-center justify-between text-muted-foreground">
-                          <button onClick={()=>void toggleLike(message)} className={cn("flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold transition-colors hover:bg-secondary",message.liked&&"text-rose-500")}><Heart className={cn("size-4",message.liked&&"fill-current")}/>{message.likeCount||""}<span className="hidden sm:inline">Like</span></button>
-                          <button onClick={async()=>{if(openComments===message.id){setOpenComments(null);return;}setOpenComments(message.id);setComments(await getComments(message.id));}} className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"><MessageCircle className="size-4"/>{message.commentCount||""}<span className="hidden sm:inline">Comment</span></button>
-                          <button onClick={()=>void toggleSave(message)} className={cn("flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold hover:bg-secondary",message.saved?"text-primary":"text-muted-foreground")}><Bookmark className={cn("size-4",message.saved&&"fill-current")}/><span className="hidden sm:inline">Save</span></button>
-                          {!mine&&<Link to="/profile/$userId" params={{userId:message.userId}} className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"><MessagesSquare className="size-4"/><span className="hidden sm:inline">Profile / Message</span></Link>}<button onClick={()=>{void navigator.clipboard?.writeText(location.href);toast.success("Community link copied.");}} className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"><Share2 className="size-4"/><span className="hidden sm:inline">Share</span></button>
-                        </div>
-                        {openComments===message.id&&<div className="mt-2 space-y-2 border-t border-border/50 pt-3">{comments.map(comment=><div key={comment.id} className="flex gap-2"><div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold">{comment.displayName.charAt(0).toUpperCase()}</div><div className="rounded-2xl bg-secondary/60 px-3 py-2"><p className="text-xs font-bold">{comment.userId===userId?"You":comment.displayName}</p><p className="text-sm">{comment.body}</p></div></div>)}<form onSubmit={async e=>{e.preventDefault();if(!commentDraft.trim())return;await addComment(message.id,commentDraft,displayName);setCommentDraft("");setComments(await getComments(message.id));}} className="flex gap-2"><Input value={commentDraft} onChange={e=>setCommentDraft(e.target.value)} placeholder="Write a comment…" maxLength={1000}/><Button size="icon" type="submit"><Send className="size-4"/></Button></form></div>}
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            )}
+      <section>
+        <div className="mb-3 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Popular Topics</h2><button type="button" className="text-xs font-semibold text-primary" onClick={()=>document.querySelector<HTMLSelectElement>('select[aria-label="Community"]')?.focus()}>View all →</button></div>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">{popularTopics.map((item)=>{const Icon=item.icon;return <button key={item.label} type="button" className="rounded-xl border border-border/70 bg-card/80 p-3 text-center transition hover:border-primary/50 hover:bg-card"><span className="mx-auto grid size-10 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-5"/></span><p className="mt-2 text-xs font-bold">{item.label}</p><p className="mt-1 text-[10px] text-muted-foreground">{item.count} active</p></button>})}</div>
+      </section>
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_260px]">
+        <section className="overflow-hidden rounded-2xl border border-border/70 bg-card/55">
+          <div className="border-b border-border/60 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-display text-lg font-bold">Latest Discussions</h2><p className="text-xs text-muted-foreground">{roomTitle(room)}</p></div><select aria-label="Community" value={room} onChange={(event)=>void navigate({search:{room:event.target.value}})} className="rounded-lg border border-border bg-background px-3 py-2 text-xs">{rooms.map((entry)=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
+            <div className="mt-3 flex gap-2"><Button size="sm" variant={feedMode==="latest"?"default":"outline"} onClick={()=>setFeedMode("latest")}>All Posts</Button><Button size="sm" variant={feedMode==="popular"?"default":"outline"} onClick={()=>setFeedMode("popular")}>Popular</Button></div>
           </div>
 
+          <form onSubmit={handleSend} className="border-b border-border/60 p-4">
+            <div className="flex gap-3"><div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary font-bold text-primary-foreground">{(displayName||"?").charAt(0).toUpperCase()}</div><div className="min-w-0 flex-1"><Textarea id="communityMessage" value={draft} onChange={(event)=>setDraft(event.target.value)} disabled={!displayName} maxLength={1000} rows={2} placeholder={displayName?"Start a discussion, ask a question, or share progress…":"Choose a display name to post"} className="min-h-16 resize-none"/>{postImagePreview?<div className="relative mt-2 overflow-hidden rounded-xl bg-secondary"><img src={postImagePreview} alt="Post preview" className="max-h-80 w-full object-contain"/><button type="button" onClick={()=>{setPostImage(null);URL.revokeObjectURL(postImagePreview);setPostImagePreview(null)}} className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-1 text-xs font-semibold">Remove</button></div>:null}<div className="mt-2 flex items-center justify-between"><input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={(event)=>{const file=event.target.files?.[0]??null;if(!file)return;if(file.size>8*1024*1024){toast.error("Keep images under 8 MB.");return;}if(postImagePreview)URL.revokeObjectURL(postImagePreview);setPostImage(file);setPostImagePreview(URL.createObjectURL(file));}}/><button type="button" onClick={()=>imageInputRef.current?.click()} className="flex items-center gap-2 text-xs font-semibold text-muted-foreground"><ImagePlus className="size-4"/>Photo</button><Button type="submit" size="sm" disabled={!displayName||sending||(!draft.trim()&&!postImage)}>{sending?"Posting":"Post"}</Button></div></div></div>
+          </form>
+
+          <div>
+            {loading?<p className="p-5 text-sm text-muted-foreground">Loading discussions…</p>:filteredFeed.length===0?<div className="p-8 text-center"><MessagesSquare className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 font-semibold">{communityQuery?"No discussions match that search.":"Start the conversation"}</p></div>:filteredFeed.map((message)=>{const mine=message.userId===userId;const identity=communityProfiles[message.userId];const shownName=mine?displayName||"You":identity?.displayName||message.displayName;const avatarUrl=mine?ownProfile.avatarUrl:identity?.avatarUrl;const initial=shownName.trim().charAt(0).toUpperCase()||"?";return <article key={message.id} className="flex gap-3 border-b border-border/60 p-4 last:border-0"><Link to="/profile/$userId" params={{userId:message.userId}} className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-primary/15 font-bold text-primary">{avatarUrl?<img src={avatarUrl} alt="" className="h-full w-full object-cover"/>:initial}</Link><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-bold hover:underline">{mine?"You":shownName}</Link><span className="text-xs text-muted-foreground">· {timeLabel(message.createdAt)}</span><span className="ml-auto">{mine?<button type="button" onClick={()=>{setEditingPost(message.id);setEditDraft(message.body)}} className="p-1 text-muted-foreground"><Pencil className="size-4"/></button>:<button type="button" onClick={()=>void report({messageId:message.id})} className="p-1 text-muted-foreground"><Flag className="size-4"/></button>}</span></div>{editingPost===message.id?<form className="mt-2 space-y-2" onSubmit={async(event)=>{event.preventDefault();const problem=checkMessage(editDraft);if(problem)return void toast.error(problem);await edit({id:message.id,body:editDraft});setEditingPost(null)}}><Textarea value={editDraft} onChange={(event)=>setEditDraft(event.target.value)}/><div className="flex justify-end gap-2"><Button type="button" size="sm" variant="ghost" onClick={()=>setEditingPost(null)}>Cancel</Button><Button size="sm" type="submit">Save</Button></div></form>:<p className="mt-1 whitespace-pre-wrap text-sm leading-6">{message.body}</p>}{message.imageUrl?<img src={message.imageUrl} alt="" className="mt-3 max-h-96 w-full rounded-xl object-cover"/>:null}<div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><button onClick={()=>void toggleLike(message)} className={cn("rounded-lg border border-border/60 px-2 py-1.5",message.liked&&"text-primary")}><Heart className={cn("mr-1 inline size-3.5",message.liked&&"fill-current")}/>{message.likeCount||0}</button><button onClick={async()=>{if(openComments===message.id){setOpenComments(null);return;}setOpenComments(message.id);setComments(await getComments(message.id));}} className="rounded-lg border border-border/60 px-2 py-1.5"><MessageCircle className="mr-1 inline size-3.5"/>{message.commentCount||0}</button><button onClick={()=>void toggleSave(message)} className="rounded-lg border border-border/60 px-2 py-1.5"><Bookmark className="mr-1 inline size-3.5"/>Save</button><button onClick={()=>{void navigator.clipboard?.writeText(location.href);toast.success("Community link copied.");}} className="rounded-lg border border-border/60 px-2 py-1.5"><Share2 className="mr-1 inline size-3.5"/>Share</button></div>{openComments===message.id?<div className="mt-3 space-y-2 border-t border-border/50 pt-3">{comments.map((comment)=><div key={comment.id} className="rounded-xl bg-secondary/50 p-3"><p className="text-xs font-bold">{comment.userId===userId?"You":comment.displayName}</p><p className="mt-1 text-sm">{comment.body}</p></div>)}<form onSubmit={async(event)=>{event.preventDefault();if(!commentDraft.trim())return;await addComment(message.id,commentDraft,displayName);setCommentDraft("");setComments(await getComments(message.id));}} className="flex gap-2"><Input value={commentDraft} onChange={(event)=>setCommentDraft(event.target.value)} placeholder="Write a reply…"/><Button size="icon"><Send className="size-4"/></Button></form></div>:null}</div></article>})}
+          </div>
         </section>
 
-        <aside className="hidden">
-          <div className="rounded-2xl border border-border/70 bg-card/60 p-4 shadow-sm"><div className="flex items-center gap-2"><Sparkles className="size-4 text-primary"/><h3 className="font-semibold">Welcome to IT PATH</h3></div><p className="mt-2 text-sm leading-relaxed text-muted-foreground">A community built around learning, troubleshooting, certifications and helping each other move forward.</p></div>
-          <div className="rounded-2xl border border-border/70 bg-card/60 p-4 shadow-sm"><h3 className="font-semibold">Popular communities</h3><div className="mt-3 space-y-2">{rooms.slice(1,6).map((entry,i)=><button key={entry.id} onClick={()=>void navigate({search:{room:entry.id}})} className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-secondary/60"><div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 font-mono text-xs font-bold text-primary">#{i+1}</div><div className="min-w-0"><p className="truncate text-sm font-semibold">{entry.label}</p><p className="text-xs text-muted-foreground">Study community</p></div></button>)}</div></div>
-          <div className="rounded-2xl border border-border/70 bg-card/60 p-4 text-xs leading-relaxed text-muted-foreground"><p className="font-semibold text-foreground">Community standards</p><p className="mt-2">Learn openly. Help when you can. Disagree respectfully. Report content that crosses the line.</p></div>
+        <aside className="space-y-4">
+          <div className="rounded-2xl border border-border/70 bg-card/70 p-4"><h3 className="font-display font-bold">Community Stats</h3><div className="mt-4 grid grid-cols-3 gap-2 text-center"><div><Users className="mx-auto size-4 text-primary"/><p className="mt-1 font-bold">{Object.keys(communityProfiles).length}</p><p className="text-[10px] text-muted-foreground">Members</p></div><div><MessageCircle className="mx-auto size-4 text-primary"/><p className="mt-1 font-bold">{messages.length}</p><p className="text-[10px] text-muted-foreground">Posts</p></div><div><Sparkles className="mx-auto size-4 text-primary"/><p className="mt-1 font-bold">{messages.reduce((sum,item)=>sum+item.commentCount,0)}</p><p className="text-[10px] text-muted-foreground">Replies</p></div></div></div>
+          <div className="rounded-2xl border border-border/70 bg-card/70 p-4"><h3 className="font-display font-bold">Popular Communities</h3><div className="mt-3 space-y-2">{rooms.slice(1,6).map((entry,index)=><button key={entry.id} onClick={()=>void navigate({search:{room:entry.id}})} className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-secondary"><span className="grid size-8 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">{index+1}</span><span className="truncate text-sm font-semibold">{entry.label}</span></button>)}</div></div>
+          <div className="rounded-2xl border border-border/70 bg-card/70 p-4 text-xs leading-5 text-muted-foreground"><p className="font-bold text-foreground">Community standards</p><p className="mt-2">Learn openly. Help when you can. Disagree respectfully. Report content that crosses the line.</p></div>
         </aside>
       </div>
-      <nav className="z-[100] shrink-0 border-t border-border/70 bg-background/95 px-4 pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl" style={{paddingBottom:"max(.6rem, env(safe-area-inset-bottom))"}}>
-        <div className="mx-auto flex max-w-md items-center justify-around">
-          <DockButton icon={<Home className="size-5"/>} label="Home" active onClick={()=>{setFeedMode("latest");void navigate({search:{room:GENERAL_ROOM}})}}/>
-          <DockButton icon={<TrendingUp className="size-5"/>} label="Popular" active={feedMode==="popular"} onClick={()=>setFeedMode("popular")}/>
-          <DockButton icon={<ImagePlus className="size-5"/>} label="Post" onClick={()=>document.getElementById("communityMessage")?.focus()}/>
-          <DockButton icon={<Hash className="size-5"/>} label="Rooms" onClick={()=>{const el=document.querySelector<HTMLSelectElement>('select[aria-label="Community"]');el?.focus();el?.click();}}/>
-          <DockButton icon={<MessagesSquare className="size-5"/>} label="Messages" onClick={()=>void navigate({to:"/messages"} as any)}/>
-        </div>
-      </nav>
     </div>
   );
 }
