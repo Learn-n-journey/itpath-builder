@@ -19,7 +19,7 @@ import {
 } from "@/lib/tech-videos.functions";
 
 export const Route = createFileRoute("/tech-videos")({
-  validateSearch: (search: Record<string, unknown>) => ({ q: typeof search["q"] === "string" ? search["q"].slice(0, 100) : "" }),
+  validateSearch: (search: Record<string, unknown>): { q?: string } => ({ q: typeof search["q"] === "string" ? search["q"].slice(0, 100) : "" }),
   staticData: { sitemap: true },
   head: () => ({
     meta: [
@@ -166,7 +166,7 @@ function ChannelCard({ channel }: { channel: ChannelInfo }) {
 }
 
 function TechVideosPage() {
-  const { q } = Route.useSearch();
+  const { q = "" } = Route.useSearch();
   const fetchVideos = useServerFn(getTechVideos);
   const fetchPage = useServerFn(getVideoPage);
   const searchVideos = useServerFn(searchYouTubeVideoPage);
