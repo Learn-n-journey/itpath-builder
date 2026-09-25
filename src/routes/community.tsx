@@ -34,7 +34,7 @@ import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { useCommunityChat } from "@/hooks/use-community-chat";
 import { useDisplayName } from "@/hooks/use-display-name";
-import { useProfile } from "@/hooks/use-profile";
+import { useProfile, useProfiles } from "@/hooks/use-profile";
 import { checkDisplayName, checkMessage } from "@/lib/community/word-filter";
 import { GENERAL_ROOM, isValidRoom, roomTitle, topicForRoom } from "@/lib/community/rooms";
 import { currentJourneyTopic, journeyTopics } from "@/lib/journey-order";
@@ -80,6 +80,7 @@ function CommunityPage() {
   const { displayName, loading: nameLoading, saveDisplayName, saving } = useDisplayName();
   const { profile: ownProfile } = useProfile();
   const { messages, loading, send, sending, remove, report, toggleLike, toggleSave, getComments, addComment } = useCommunityChat(room);
+  const { profiles: communityProfiles } = useProfiles(messages.map(message => message.userId));
   const [openComments,setOpenComments]=useState<string|null>(null);
   const [comments,setComments]=useState<any[]>([]);
   const [commentDraft,setCommentDraft]=useState("");
@@ -207,14 +208,16 @@ function CommunityPage() {
               <div className="space-y-2">
                 {feedMessages.map((message) => {
                   const mine = message.userId === userId;
-                  const shownName = mine ? displayName || "You" : message.displayName;
+                  const identity = communityProfiles[message.userId];
+                  const shownName = mine ? displayName || "You" : identity?.displayName || message.displayName;
+                  const avatarUrl = mine ? ownProfile.avatarUrl : identity?.avatarUrl;
                   const initial = shownName.trim().charAt(0).toUpperCase() || "?";
                   return (
                     <article key={message.id} className="group flex gap-3 border-b border-border/60 bg-background px-1 py-4">
-                      <Link to="/profile/$userId" params={{userId:message.userId}} aria-label={`View ${shownName}'s profile`} className={cn("flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold",mine?"bg-primary text-primary-foreground":"bg-secondary text-foreground")}>{mine&&ownProfile.avatarUrl?<img src={ownProfile.avatarUrl} alt="" className="h-full w-full rounded-full object-cover"/>:initial}</Link>
+                      <Link to="/profile/$userId" params={{userId:message.userId}} aria-label={`View ${shownName}'s profile`} className={cn("flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold",mine?"bg-primary text-primary-foreground":"bg-secondary text-foreground")}>{avatarUrl?<img src={avatarUrl} alt="" className="h-full w-full rounded-full object-cover"/>:initial}</Link>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          {mine?<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">You</Link>:<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">{message.displayName}</Link>}
+                          {mine?<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">You</Link>:<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">{shownName}</Link>}
                           {mine ? <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">You</span> : null}
                           <span className="text-xs text-muted-foreground">{timeLabel(message.createdAt)}</span>{!mine&&<Link to="/profile/$userId" params={{userId:message.userId}} className="ml-auto flex items-center gap-1 rounded-full border border-border/70 px-2.5 py-1 text-[11px] font-semibold text-foreground hover:bg-secondary"><UserRound className="size-3.5"/>Profile</Link>}
                           <span className="ml-auto opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
