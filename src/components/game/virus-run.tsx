@@ -164,7 +164,13 @@ interface Packet {
   taken: boolean;
 }
 
+type GuardKind = "scanner" | "hunter" | "interceptor" | "warden";
+type PowerKind = "cloak" | "overclock" | "emp" | "magnet";
+interface PowerUp { x:number; y:number; kind:PowerKind; taken:boolean; }
+
 interface Guard {
+  kind: GuardKind;
+  stunned: number;
   x: number;
   y: number;
   tx: number;
@@ -189,6 +195,11 @@ interface RunState {
   theme: StageTheme;
   grid: Grid;
   packets: Packet[];
+  powerUps: PowerUp[];
+  activePower: { kind: PowerKind; left: number } | null;
+  streak: number;
+  streakTimer: number;
+  boss: boolean;
   required: number;
   collected: number;
   port: { x: number; y: number };
@@ -232,7 +243,8 @@ function buildLevel(level: number): RunState {
     packets.push({ x: candidates[i]!.x, y: candidates[i]!.y, taken: false });
   }
 
-  const guardCount = Math.min(2 + Math.floor(level * 0.7), 12);
+  const boss = level % 8 === 0;
+  const guardCount = Math.min((boss ? 5 : 2) + Math.floor(level * 0.7), 14);
   const guardSpeed = Math.min(BASE_GUARD_SPEED + (level - 1) * 0.16, MAX_GUARD_SPEED);
   const detection = 6 + Math.min(level, 9);
   const guards: Guard[] = [];
@@ -241,14 +253,26 @@ function buildLevel(level: number): RunState {
   );
   for (let i = 0; i < guardCount && openCells.length > 0; i++) {
     const cell = openCells.splice(Math.floor(Math.random() * openCells.length), 1)[0]!;
-    guards.push({ x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed, detection, fromX: cell.x, fromY: cell.y });
+    const kinds: GuardKind[] = boss ? ["hunter","interceptor","warden","scanner"] : ["scanner","hunter","interceptor"];
+    const kind = kinds[i % kinds.length]!;
+    guards.push({ kind, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden"?.9:1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y });
   }
+
+  const powerUps: PowerUp[] = [];
+  const powerKinds: PowerKind[] = ["cloak","overclock","emp","magnet"];
+  const powerCells = candidates.filter(c => Math.abs(c.x-spawn.x)+Math.abs(c.y-spawn.y)>7);
+  for(let i=0;i<Math.min(boss?3:2,powerCells.length);i++){const cell=powerCells[(i*17+level*7)%powerCells.length]!;powerUps.push({x:cell.x,y:cell.y,kind:powerKinds[(level+i)%powerKinds.length]!,taken:false});}
 
   return {
     level,
     theme,
     grid,
     packets,
+    powerUps,
+    activePower: null,
+    streak: 0,
+    streakTimer: 0,
+    boss,
     required,
     collected: 0,
     port,
@@ -277,8 +301,8 @@ export function VirusRun() {
   const bestRef = useRef<Best>({ bestLevel: 0, packets: 0, currentLevel: 1 });
 
   const [phase, setPhase] = useState<Phase>("menu");
-  const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" }[]>([]);
-  const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0 });
+  const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" | "power" | "near" }[]>([]);
+  const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false });
 
   const setPhaseBoth = useCallback((p: Phase) => {
     phaseRef.current = p;
@@ -296,6 +320,9 @@ export function VirusRun() {
       hint: run.theme.hint,
       bestLevel: bestRef.current.bestLevel,
       bestPackets: bestRef.current.packets,
+      streak: run.streak,
+      power: run.activePower ? `${run.activePower.kind.toUpperCase()} ${Math.ceil(run.activePower.left)}s` : "",
+      boss: run.boss,
     }));
   }, []);
 
@@ -391,8 +418,11 @@ export function VirusRun() {
     const update = (run: RunState, dt: number) => {
       const p = run.player;
 
-      // Decay invulnerability.
+      // Timers, combo decay and temporary abilities.
       if (p.invuln > 0) p.invuln = Math.max(0, p.invuln - dt);
+      if(run.streakTimer>0){run.streakTimer-=dt;if(run.streakTimer<=0)run.streak=0;}
+      if(run.activePower){run.activePower.left-=dt;if(run.activePower.left<=0)run.activePower=null;}
+      for(const g of run.guards)if(g.stunned>0)g.stunned=Math.max(0,g.stunned-dt);
 
       // Refresh the distance field from the player every 0.25s.
       fieldAgeRef.current += dt;
@@ -417,7 +447,11 @@ export function VirusRun() {
         }
       }
       if (p.moving) {
-        const r = stepEntity(p.x, p.y, p.tx, p.ty, PLAYER_SPEED, dt);
+        let playerSpeed=PLAYER_SPEED;
+        if(run.activePower?.kind==="overclock")playerSpeed*=1.55;
+        if(run.theme.system==="CPU Cache")playerSpeed*=1.08;
+        if(run.theme.system==="Network Stack" && (Math.round(p.y)%4===0))playerSpeed*=1.18;
+        const r = stepEntity(p.x, p.y, p.tx, p.ty, playerSpeed, dt);
         p.x = r.x;
         p.y = r.y;
         if (r.arrived) p.moving = false;
@@ -430,8 +464,19 @@ export function VirusRun() {
         if (!packet.taken && packet.x === px && packet.y === py) {
           packet.taken = true;
           run.collected += 1;
+          run.streak = Math.min(5, run.streak + 1); run.streakTimer = 4.5;
           fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet" });
           if (run.collected >= run.required) run.portOpen = true;
+          syncHud(run);
+        }
+      }
+
+      // Power-ups.
+      for(const power of run.powerUps){
+        if(!power.taken && power.x===px && power.y===py){
+          power.taken=true;run.activePower={kind:power.kind,left:power.kind==="emp"?5:8};run.streakTimer=5;
+          fxRef.current.push({x:power.x,y:power.y,born:performance.now(),kind:"power"});
+          if(power.kind==="emp")for(const g of run.guards)g.stunned=5;
           syncHud(run);
         }
       }
@@ -440,7 +485,9 @@ export function VirusRun() {
       for (const g of run.guards) {
         const gx = Math.round(g.x);
         const gy = Math.round(g.y);
+        if(g.stunned>0)continue;
         const toPlayer = field[gy]?.[gx] ?? -1;
+        const hidden = run.activePower?.kind==="cloak";
         if (g.x === g.tx && g.y === g.ty) {
           const options: [number, number][] = [];
           for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as [number, number][]) {
@@ -452,8 +499,10 @@ export function VirusRun() {
           }
           if (options.length === 0) options.push([g.fromX, g.fromY]);
           let chosen: [number, number];
-          if (toPlayer >= 0 && toPlayer <= g.detection) {
-            options.sort((a, b) => (field[a[1]]![a[0]] ?? 999) - (field[b[1]]![b[0]] ?? 999));
+          if (!hidden && toPlayer >= 0 && toPlayer <= g.detection) {
+            if(g.kind==="interceptor" && p.moving){
+              options.sort((a,b)=>Math.abs(a[0]-p.tx)+Math.abs(a[1]-p.ty)-Math.abs(b[0]-p.tx)-Math.abs(b[1]-p.ty));
+            } else options.sort((a, b) => (field[a[1]]![a[0]] ?? 999) - (field[b[1]]![b[0]] ?? 999));
             chosen = options[0]!;
           } else {
             chosen = options[Math.floor(Math.random() * options.length)]!;
@@ -463,10 +512,16 @@ export function VirusRun() {
           g.tx = chosen[0];
           g.ty = chosen[1];
         }
-        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed, dt);
+        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * (g.kind==="hunter"&&toPlayer>=0&&toPlayer<=g.detection?1.12:1), dt);
         g.x = r.x;
         g.y = r.y;
 
+        // Near misses reward risky escapes and trigger a warning burst.
+        const nearDist=Math.hypot(g.x-p.x,g.y-p.y);
+        if(p.invuln<=0 && nearDist<1.05 && nearDist>=0.55 && Math.random()<dt*1.4){
+          run.streak=Math.min(5,run.streak+1);run.streakTimer=3.5;
+          fxRef.current.push({x:p.x,y:p.y,born:performance.now(),kind:"near"});
+        }
         // Contact.
         if (p.invuln <= 0 && Math.abs(g.x - p.x) < 0.55 && Math.abs(g.y - p.y) < 0.55) {
           run.integrity -= 1;
@@ -768,6 +823,12 @@ export function VirusRun() {
         ctx2.restore();
       }
 
+      // Power-ups.
+      for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);ctx2.rotate(time/700);ctx2.shadowColor="#facc15";ctx2.shadowBlur=cell*.9;ctx2.strokeStyle="#fde68a";ctx2.lineWidth=Math.max(1,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*.32,0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="#facc15";ctx2.font=`bold ${cell*.34}px ui-monospace`;ctx2.textAlign="center";ctx2.textBaseline="middle";ctx2.rotate(-time/700);ctx2.fillText(power.kind==="cloak"?"C":power.kind==="overclock"?"O":power.kind==="emp"?"E":"M",0,0);ctx2.restore();}
+
+      // Boss security core every eighth level.
+      if(run.boss){const bx=offX+cell*COLS/2,by=offY+cell*ROWS/2;ctx2.save();ctx2.globalAlpha=.22+.08*Math.sin(time/160);ctx2.strokeStyle="#fb7185";ctx2.shadowColor="#ef4444";ctx2.shadowBlur=cell*1.4;ctx2.lineWidth=Math.max(2,cell*.12);for(let i=0;i<3;i++){ctx2.beginPath();ctx2.arc(bx,by,cell*(1.3+i*.5),time/(350+i*90),time/(350+i*90)+Math.PI*1.4);ctx2.stroke();}ctx2.restore();}
+
       // Antivirus sentinels: shield-like drones with scanning lenses.
       // Reuse the distance field maintained by the update loop. Previously this
       // renderer referenced update()'s local "field" variable, which throws
@@ -781,8 +842,9 @@ export function VirusRun() {
         ctx2.save();
         const aim = Math.atan2(run.player.y - g.y, run.player.x - g.x);
         const distanceToRunner = renderField[Math.round(g.y)]?.[Math.round(g.x)] ?? -1;
-        const alerted = distanceToRunner >= 0 && distanceToRunner <= g.detection;
+        const alerted = g.stunned<=0 && distanceToRunner >= 0 && distanceToRunner <= g.detection;
         ctx2.translate(cx, cy);
+        if(g.stunned>0)ctx2.globalAlpha=.35+.2*Math.sin(time/80);
         ctx2.rotate(aim);
         const coneLength = cell * (alerted ? 3.4 : 2.25);
         const coneWidth = cell * (alerted ? 1.35 : 0.9);
@@ -862,7 +924,7 @@ export function VirusRun() {
         const q = Math.min(1, age / life);
         const fxX = offX + (fx.x + 0.5) * cell;
         const fxY = offY + (fx.y + 0.5) * cell;
-        const rgb = fx.kind === "hit" ? "248,113,113" : fx.kind === "exit" ? "94,234,212" : "125,211,252";
+        const rgb = fx.kind === "hit" ? "248,113,113" : fx.kind === "exit" ? "94,234,212" : fx.kind === "power" ? "250,204,21" : fx.kind === "near" ? "251,146,60" : "125,211,252";
         ctx2.save();
         ctx2.globalAlpha = 1 - q;
         ctx2.strokeStyle = `rgba(${rgb},${0.9 * (1 - q)})`;
@@ -1010,7 +1072,7 @@ export function VirusRun() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Access granted</p>
         <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">System breached</h3>
         <div className="h-px w-40 bg-gradient-to-r from-transparent via-primary to-transparent" aria-hidden />
-        <p className="text-sm text-muted-foreground">Entering the next system…</p>
+        <p className="text-sm text-muted-foreground">{hud.boss ? "Antivirus core defeated · routing deeper…" : "Entering the next system…"}</p>
       </Overlay>
     ) : phase === "gameover" ? (
       <Overlay>
@@ -1045,10 +1107,11 @@ export function VirusRun() {
             </Button>
           )}
         </div>
-        <div className="grid grid-cols-4 divide-x divide-primary/15">
+        <div className="grid grid-cols-5 divide-x divide-primary/15">
           <GameStat label="Level" value={hud.level} />
-          <GameStat label="System" value={hud.system || "—"} accent />
+          <GameStat label="System" value={hud.boss ? "ANTIVIRUS CORE" : hud.system || "—"} accent />
           <GameStat label="Packets" value={`${hud.collected}/${hud.required}`} />
+          <GameStat label={hud.power ? "Power" : "Streak"} value={hud.power || (hud.streak>1 ? `x${hud.streak}` : "—")} accent={Boolean(hud.power || hud.streak>1)} />
           <div className="px-2 py-2.5 sm:px-4">
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">Integrity</p>
             <div className="mt-1 flex gap-1">
