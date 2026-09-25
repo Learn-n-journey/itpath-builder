@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, Compass, ExternalLink, Library, Newspaper, Search, Video, X } from "lucide-react";
+import { BookOpen, Compass, ExternalLink, Globe2, Library, Newspaper, Search, Video, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -193,6 +193,30 @@ function Learn() {
           ) : <p className="rounded-xl border border-border/70 bg-card p-4 text-sm text-muted-foreground">No matching videos are available right now.{videoStatus ? <span className="mt-2 block text-xs">Diagnostic: {videoStatus}</span> : null}</p>}
           <Button asChild variant="ghost" size="sm" className="mt-2">
             <a href={`/learn/videos?q=${encodeURIComponent(query.trim())}`}>More videos about “{query.trim()}”</a>
+          </Button>
+        </section>
+      ) : null}
+
+      {needle ? (
+        <section className="mt-7" aria-label="Official web search">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Official web</p>
+              <h2 className="font-display text-xl font-bold">Search official sources for “{query.trim()}”</h2>
+              <p className="mt-1 text-xs text-muted-foreground">Searches Google with IT PATH's official-source domain filter applied.</p>
+            </div>
+            <Globe2 className="size-5 shrink-0 text-muted-foreground" aria-hidden />
+          </div>
+          <Button asChild variant="outline">
+            <a
+              href={`https://www.google.com/search?q=${encodeURIComponent(`${query.trim()} (site:learn.microsoft.com OR site:docs.microsoft.com OR site:cisco.com OR site:nist.gov OR site:cisa.gov OR site:comptia.org OR site:redhat.com OR site:docs.aws.amazon.com OR site:cloud.google.com OR site:support.apple.com OR site:intel.com OR site:amd.com OR site:developer.mozilla.org)`)}`}
+              target="_blank"
+              rel="noreferrer noopener"
+            >
+              <Globe2 className="size-4" />
+              More official results about “{query.trim()}”
+              <ExternalLink className="size-3.5" />
+            </a>
           </Button>
         </section>
       ) : null}
