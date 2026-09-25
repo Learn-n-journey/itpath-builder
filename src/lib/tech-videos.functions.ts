@@ -232,6 +232,120 @@ export const getTechVideos = createServerFn({ method: "GET" }).handler(async () 
   return videos;
 });
 
+export interface VideoSearchResult {
+  id: string;
+  videoId: string;
+  title: string;
+  summary: string;
+  channel: string;
+  channelUrl: string;
+  thumbnail: string;
+  url: string;
+  embedUrl: string;
+  publishedAt: string;
+  source: "YouTube search" | "Trusted video feed";
+}
+
+const searchCache = new Map<string, { at: number; videos: VideoSearchResult[] }>();
+const SEARCH_CACHE_MS = 60 * 60 * 1000;
+
+function searchText(video: TechVideo): string {
+  return `${video.title} ${video.summary} ${video.channel} ${video.category}`.toLowerCase();
+}
+
+export const searchLearningVideos = createServerFn({ method: "GET" })
+  .inputValidator((data: unknown) => {
+    const query = String((data as { query?: unknown } | undefined)?.query ?? "").trim().slice(0, 100);
+    return { query };
+  })
+  .handler(async ({ data }): Promise<VideoSearchResult[]> => {
+    if (data.query.length < 2) return [];
+    const key = data.query.toLowerCase();
+    const cached = searchCache.get(key);
+    if (cached && Date.now() - cached.at < SEARCH_CACHE_MS) return cached.videos;
+
+    const apiKey = process.env.YOUTUBE_API_KEY?.trim();
+    if (apiKey) {
+      const params = new URLSearchParams({
+        part: "snippet",
+        type: "video",
+        q: `${data.query} tutorial explained`,
+        maxResults: "8",
+        relevanceLanguage: "en",
+        safeSearch: "strict",
+        videoEmbeddable: "true",
+        order: "relevance",
+        key: apiKey,
+      });
+      try {
+        const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params.toString()}`, {
+          headers: { accept: "application/json" },
+          signal: AbortSignal.timeout(9000),
+        });
+        if (response.ok) {
+          const body = (await response.json()) as {
+            items?: Array<{
+              id?: { videoId?: string };
+              snippet?: {
+                title?: string;
+                description?: string;
+                channelId?: string;
+                channelTitle?: string;
+                publishedAt?: string;
+                thumbnails?: { high?: { url?: string }; medium?: { url?: string }; default?: { url?: string } };
+              };
+            }>;
+          };
+          const videos = (body.items ?? []).flatMap((item): VideoSearchResult[] => {
+            const videoId = item.id?.videoId;
+            const snippet = item.snippet;
+            if (!videoId || !snippet?.title) return [];
+            return [{
+              id: `youtube-search:${videoId}`,
+              videoId,
+              title: entities(snippet.title),
+              summary: entities(snippet.description ?? "").slice(0, 220),
+              channel: entities(snippet.channelTitle ?? "YouTube"),
+              channelUrl: snippet.channelId ? `https://www.youtube.com/channel/${snippet.channelId}` : "https://www.youtube.com/",
+              thumbnail: snippet.thumbnails?.high?.url ?? snippet.thumbnails?.medium?.url ?? snippet.thumbnails?.default?.url ?? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+              url: `https://www.youtube.com/watch?v=${videoId}`,
+              embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&playsinline=1`,
+              publishedAt: snippet.publishedAt ?? "",
+              source: "YouTube search",
+            }];
+          });
+          if (videos.length > 0) {
+            searchCache.set(key, { at: Date.now(), videos });
+            return videos;
+          }
+        }
+      } catch {
+        // Fall through to the trusted channel feed when YouTube search is unavailable.
+      }
+    }
+
+    const trusted = (await getTechVideos())
+      .map((video) => ({ video, score: key.split(/\s+/).filter((word) => word.length > 1 && searchText(video).includes(word)).length }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score || Date.parse(b.video.publishedAt) - Date.parse(a.video.publishedAt))
+      .slice(0, 8)
+      .map(({ video }): VideoSearchResult => ({
+        id: video.id,
+        videoId: video.videoId,
+        title: video.title,
+        summary: video.summary,
+        channel: video.channel,
+        channelUrl: video.channelUrl,
+        thumbnail: video.thumbnail,
+        url: video.url,
+        embedUrl: video.embedUrl.replace("autoplay=1", "autoplay=0"),
+        publishedAt: video.publishedAt,
+        source: "Trusted video feed",
+      }));
+    searchCache.set(key, { at: Date.now(), videos: trusted });
+    return trusted;
+  });
+
 /**
  * Additional public video services. These are PeerTube instances, which publish
  * an open listing API and their own embed player, so every video keeps its
