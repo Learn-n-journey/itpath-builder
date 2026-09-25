@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ExternalLink, Play, RefreshCw } from "lucide-react";
+import { ArrowLeft, ExternalLink, Play, RefreshCw, Search } from "lucide-react";
 
 import { PageHeader } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -14,9 +14,12 @@ import {
   type ChannelInfo,
   type TechVideo,
   type VideoCategory,
+  searchYouTubeVideoPage,
+  type VideoSearchResult,
 } from "@/lib/tech-videos.functions";
 
 export const Route = createFileRoute("/tech-videos")({
+  validateSearch: (search: Record<string, unknown>) => ({ q: typeof search.q === "string" ? search.q.slice(0, 100) : "" }),
   staticData: { sitemap: true },
   head: () => ({
     meta: [
@@ -163,8 +166,29 @@ function ChannelCard({ channel }: { channel: ChannelInfo }) {
 }
 
 function TechVideosPage() {
+  const { q } = Route.useSearch();
   const fetchVideos = useServerFn(getTechVideos);
   const fetchPage = useServerFn(getVideoPage);
+  const searchVideos = useServerFn(searchYouTubeVideoPage);
+  const [searchResults, setSearchResults] = useState<VideoSearchResult[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchMessage, setSearchMessage] = useState<string | null>(null);
+  const [searchPlaying, setSearchPlaying] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!q.trim()) { setSearchResults([]); setSearchMessage(null); return; }
+    setSearchLoading(true);
+    void searchVideos({ data: { query: q.trim(), pageToken: "" } })
+      .then((result) => {
+        if (cancelled) return;
+        setSearchResults(result.videos);
+        setSearchMessage(result.status === "youtube" ? null : result.message ?? result.status);
+      })
+      .catch(() => { if (!cancelled) { setSearchResults([]); setSearchMessage("Video search request failed."); } })
+      .finally(() => { if (!cancelled) setSearchLoading(false); });
+    return () => { cancelled = true; };
+  }, [q, searchVideos]);
   const [active, setActive] = useState<VideoCategory | "All">("All");
   const [playing, setPlaying] = useState<string | null>(null);
   const sentinel = useRef<HTMLDivElement | null>(null);
@@ -244,6 +268,36 @@ function TechVideosPage() {
       {label}
     </button>
   );
+
+  if (q.trim()) {
+    return (
+      <div className="space-y-6">
+        <Button asChild variant="ghost" size="sm" className="-ml-2"><a href="/learn"><ArrowLeft className="size-4" />Back to Learn</a></Button>
+        <PageHeader title={`Videos about “${q.trim()}”`} description="YouTube results for your Learn search. These videos are supplemental and do not change mastery or progress." />
+        {searchLoading ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{Array.from({ length: 6 }).map((_, index) => <div key={index} className="aspect-video animate-pulse rounded-2xl bg-muted" />)}</div>
+        ) : searchResults.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {searchResults.map((video) => (
+              <article key={video.id} className="overflow-hidden rounded-2xl border border-border bg-card/70">
+                <div className="relative aspect-video bg-muted">
+                  {searchPlaying === video.id ? <iframe src={video.embedUrl} title={video.title} className="h-full w-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /> : (
+                    <button type="button" onClick={() => setSearchPlaying(video.id)} className="group relative h-full w-full" aria-label={`Play ${video.title}`}>
+                      {video.thumbnail ? <img src={video.thumbnail} alt="" className="h-full w-full object-cover" /> : null}
+                      <span className="absolute inset-0 grid place-items-center bg-background/20"><span className="grid size-14 place-items-center rounded-full bg-primary text-primary-foreground"><Play className="size-6" fill="currentColor" /></span></span>
+                    </button>
+                  )}
+                </div>
+                <div className="p-4"><h2 className="line-clamp-2 font-display font-semibold">{video.title}</h2><p className="mt-1 text-xs text-muted-foreground">{video.channel} · YouTube</p><a href={video.url} target="_blank" rel="noreferrer noopener" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">Watch on YouTube <ExternalLink className="size-3" /></a></div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-border bg-card p-5 text-sm text-muted-foreground"><Search className="mb-2 size-5" />No video results are available for “{q.trim()}”.{searchMessage ? <span className="mt-2 block text-xs">Diagnostic: {searchMessage}</span> : null}</div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
