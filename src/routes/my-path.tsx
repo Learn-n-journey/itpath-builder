@@ -37,6 +37,7 @@ import { CompactStat, CompactStats, ContentRow } from "@/components/learner-ui";
 import { topicScopeProgress } from "@/lib/scope-progress";
 import { accentFill, journeyAccent } from "@/lib/visual-accents";
 import { cn } from "@/lib/utils";
+import { learnerContinuity } from "@/lib/learner-continuity";
 
 export const Route = createFileRoute("/my-path")({
   staticData: { sitemap: false },
@@ -96,6 +97,7 @@ function MyPath() {
   const { user, hydrated } = useAppState();
   const path = adaptivePath(user);
   const queue = adaptiveQueue(user);
+  const continuity = learnerContinuity(user);
   // The starting point is the first topic still waiting on you. As soon as the
   // next one opens, the one before it drops out of here.
   const current = currentJourneyTopic(user);
@@ -138,6 +140,32 @@ function MyPath() {
       </nav>
 
       <GaylPathNote className="mb-4" {...(current ? { topicId: current.id } : {})} />
+
+      <section className="glass-surface mb-5 rounded-2xl border border-primary/25 p-4 sm:p-5" aria-labelledby="path-next-action">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+              {continuity.kind === "study_plan" ? "Continue your session" : continuity.kind === "resume" ? "Pick up where you left off" : "Recommended next"}
+            </p>
+            <h2 id="path-next-action" className="mt-1 line-clamp-2 font-display text-lg font-semibold text-foreground">
+              {continuity.label}
+            </h2>
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+              {continuity.reason}{continuity.minutes ? ` · About ${continuity.minutes} min` : ""}
+            </p>
+          </div>
+          <Button asChild className="h-11 shrink-0 rounded-xl">
+            <Link
+              to={continuity.to as never}
+              {...(continuity.params ? { params: continuity.params as never } : {})}
+              {...(continuity.search ? { search: continuity.search as never } : {})}
+            >
+              Continue
+              <ChevronRight className="ml-1 size-4" aria-hidden />
+            </Link>
+          </Button>
+        </div>
+      </section>
 
       <section className="mb-6" aria-labelledby="your-order-heading">
         <div className="mb-4">
