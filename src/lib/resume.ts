@@ -91,7 +91,6 @@ export function resumeTarget(user: UserData): ResumeTarget | undefined {
         detail: latestTopic.sectionId ? "Continue from the lesson section where you stopped." : "Continue this section.",
         to: "/topics/$topicId",
         params: { topicId: topic.id },
-        ...(latestTopic.sectionId ? { search: { section: latestTopic.sectionId } } : {}),
       };
     }
   }
