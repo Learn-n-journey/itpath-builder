@@ -120,6 +120,27 @@
       "when": 1790110704200,
       "tag": "0016_admin_health_and_content_release",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790315132045,
+      "tag": "0017_community_images_and_messaging",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790315167926,
+      "tag": "0018_community_images_storage_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790315224604,
+      "tag": "0019_community_likes_comments_saves",
+      "breakpoints": true
     }
   ]
 }

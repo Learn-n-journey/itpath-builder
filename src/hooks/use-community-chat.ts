@@ -50,7 +50,15 @@ export function useCommunityChat(room = "general") {
         error = fallback.error;
       }
       if (error) throw error;
-      const ids=(data??[]).map(row=>row.id);
+      // Private bucket: swap stored paths for short-lived signed viewing links.
+      const paths=(data??[]).map(row=>row.image_url).filter((u):u is string=>Boolean(u)&&!u!.startsWith("http"));
+      const signed=new Map<string,string>();
+      if(paths.length){
+        const {data:signedRows}=await supabase.storage.from("community-images").createSignedUrls(paths,3600);
+        for(const s of signedRows??[])if(s.signedUrl&&s.path)signed.set(s.path,s.signedUrl);
+      }
+      const rows=(data??[]).map(row=>({...row,image_url:row.image_url?(signed.get(row.image_url)??row.image_url):null}));
+      const ids=rows.map(row=>row.id);
       const [{data:likes},{data:comments},{data:saves}]=ids.length ? await Promise.all([
         supabase.from("community_likes").select("message_id,user_id").in("message_id",ids),
         supabase.from("community_comments").select("message_id").in("message_id",ids),
@@ -61,7 +69,7 @@ export function useCommunityChat(room = "general") {
       for(const item of comments??[])commentCounts.set(item.message_id,(commentCounts.get(item.message_id)??0)+1);
       const liked=new Set((likes??[]).filter(item=>item.user_id===userId).map(item=>item.message_id));
       const saved=new Set((saves??[]).map(item=>item.message_id));
-      return (data ?? [])
+      return rows
         .map((row) => ({
           id: row.id,
           userId: row.user_id,
@@ -106,7 +114,7 @@ export function useCommunityChat(room = "general") {
         const key=`${userId}/${crypto.randomUUID()}.${ext}`;
         const {error:uploadError}=await supabase.storage.from("community-images").upload(key,input.image,{contentType:input.image.type,upsert:false});
         if(uploadError)throw new Error("That image did not upload. Try again.");
-        imageUrl=supabase.storage.from("community-images").getPublicUrl(key).data.publicUrl;
+        imageUrl=key; // private bucket: store the path, sign it when reading
       }
       const post = { user_id: userId, display_name: input.displayName, body: input.body.trim(), room };
       let { error } = imageUrl

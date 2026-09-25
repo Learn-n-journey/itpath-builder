@@ -179,6 +179,67 @@ export type Database = {
         }
         Relationships: []
       }
+      community_comments: {
+        Row: {
+          body: string
+          created_at: string
+          display_name: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          display_name: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_likes: {
+        Row: {
+          created_at: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_likes_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_messages: {
         Row: {
           body: string
@@ -186,6 +247,7 @@ export type Database = {
           display_name: string
           hidden: boolean
           id: string
+          image_url: string | null
           room: string
           user_id: string
         }
@@ -195,6 +257,7 @@ export type Database = {
           display_name: string
           hidden?: boolean
           id?: string
+          image_url?: string | null
           room?: string
           user_id: string
         }
@@ -204,6 +267,7 @@ export type Database = {
           display_name?: string
           hidden?: boolean
           id?: string
+          image_url?: string | null
           room?: string
           user_id?: string
         }
@@ -234,6 +298,32 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "community_reports_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_saves: {
+        Row: {
+          created_at: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_saves_message_id_fkey"
             columns: ["message_id"]
             isOneToOne: false
             referencedRelation: "community_messages"
@@ -391,6 +481,41 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          body: string
+          created_at: string
+          friendship_id: string
+          id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          friendship_id: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          friendship_id?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_friendship_id_fkey"
+            columns: ["friendship_id"]
+            isOneToOne: false
+            referencedRelation: "friendships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       flow_events: {
         Row: {
           count: number
@@ -417,6 +542,33 @@ export type Database = {
           outcome?: string
           slow_count?: number
           total_ms?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
           updated_at?: string
         }
         Relationships: []
