@@ -12,7 +12,7 @@ import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
 import { nextActions, type NextAction } from "@/lib/next-action";
 import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
 import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
-import { resumeTarget} from "@/lib/resume";
+import { learnerContinuity } from "@/lib/learner-continuity";
 import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics } from "@/lib/journey-order";
 import { certificationTopics } from "@/lib/cert-path";
 import { certifications } from "@/data/static-content";
@@ -153,7 +153,7 @@ function Dashboard() {
     clearReviewTopic(row);
     setDismissedVersion((v) => v + 1);
   }, []);
-  const resume = useMemo(() => (d.hasAnyActivity ? resumeTarget(user) : null), [user, d.hasAnyActivity]);
+  const continuity = useMemo(() => learnerContinuity(user), [user]);
   const quizCount = user.quizAttempts.filter((a) => a.status === "submitted").length;
   const missedAnchors = useMemo(() => {
     const map: Record<string, string> = {};
@@ -200,20 +200,20 @@ function Dashboard() {
   const journeyCertification = (activeTopic && certifications.find((c) => c.id === activeTopic.certificationId)) || path.certification;
   const courseTopicIndex = activeTopic ? Math.max(0, journeyCourse.findIndex((topic) => topic.id === activeTopic.id)) : 0;
   const currentStage = journeyTopic?.difficulty === "challenging" ? "Advanced" : journeyTopic?.difficulty === "standard" ? "Core" : "Foundation";
-  const primary: { to: string; params?: Record<string, string>; search?: unknown; title: string; detail: string } | null =
-    resume
-      ? { to: resume.to, ...(resume.params ? { params: resume.params as Record<string, string> } : {}), ...(resume.search ? { search: resume.search } : {}), title: resume.label, detail: resume.detail }
-      : journeyTopic
-        ? { to: "/topics/$topicId", params: { topicId: journeyTopic.id }, title: journeyTopic.title, detail: "Next on your path" }
-        : path.recommendedTopic
-          ? { to: "/topics/$topicId", params: { topicId: path.recommendedTopic.id }, title: path.recommendedTopic.title, detail: "Recommended next" }
-          : null;
+  const primary = {
+    to: continuity.to,
+    ...(continuity.params ? { params: continuity.params } : {}),
+    ...(continuity.search ? { search: continuity.search } : {}),
+    title: continuity.label,
+    detail: continuity.reason,
+    minutes: continuity.minutes,
+    kind: continuity.kind,
+  };
 
   const currentTopicPercent = activeTopic
     ? Math.min(100, Math.round(topicScopeProgress(user, activeTopic.id).overall))
     : 0;
-  const currentTopicSummary =
-    activeTopic?.summary || primary?.detail || "Continue where you left off";
+  const currentTopicSummary = primary.detail || activeTopic?.summary || "Continue where you left off";
 
   const journeyWindow = useMemo(() => {
     if (journeyCourse.length === 0) return [];
@@ -280,7 +280,7 @@ function Dashboard() {
             <div className="relative z-10 min-w-0 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-primary">
-                  {d.hasAnyActivity ? "Continue Learning" : "Start Learning"}
+                  {primary.kind === "study_plan" ? "Continue Your Session" : d.hasAnyActivity ? "Continue Learning" : "Start Learning"}
                 </span>
               </div>
 
@@ -332,7 +332,7 @@ function Dashboard() {
                     {...(primary.search ? { search: primary.search as never } : {})}
                   >
                     <Play className="size-4 fill-current stroke-none" aria-hidden="true" />
-                    <span>Continue Learning</span>
+                    <span>{d.hasAnyActivity ? "Continue Learning" : "Start Learning"}</span>
                   </Link>
                 </Button>
 
