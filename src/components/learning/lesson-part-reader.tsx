@@ -38,7 +38,7 @@ export function LessonPartReader({
   };
 
   return (
-    <section className="mx-auto max-w-3xl">
+    <section className="mx-auto max-w-3xl rounded-2xl border border-border/70 bg-card/90 p-4 shadow-sm backdrop-blur-sm sm:p-6">
       <div className="mb-4 flex items-center justify-between gap-2 border-b border-border/50 pb-3">
         <Button variant="ghost" size="sm" onClick={onBackToRoadmap} className="-ml-2">
           <ChevronLeft className="size-4" aria-hidden />Back to lesson
