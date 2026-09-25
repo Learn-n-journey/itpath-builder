@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { topics } from "@/data/static-content";
 import { adaptivePath, focusedTopicsFirst } from "@/lib/adaptive-path";
+import { learnerContinuity } from "@/lib/learner-continuity";
 import { useAppState } from "@/state/app-state";
 import { ContentRow, SectionHeading } from "@/components/learner-ui";
 import { topicScopeProgress } from "@/lib/scope-progress";
@@ -32,6 +33,7 @@ function Learn() {
   const { user, hydrated } = useAppState();
   const [query, setQuery] = useUiPreference("learn.search", "", isStringPreference);
   const path = useMemo(() => adaptivePath(user), [user]);
+  const continuity = useMemo(() => learnerContinuity(user), [user]);
   const filteredTopics = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const ordered = focusedTopicsFirst(user);
@@ -52,14 +54,23 @@ function Learn() {
         title="Learn"
         description="Choose a topic, build understanding, and apply the knowledge."
       />
-      {path.recommendedTopic ? (
-        <Panel className="mb-4 border border-primary/45 bg-card px-3 pb-3 pt-3" title="Recommended next">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-            <div className="min-w-0"><p className="truncate text-sm font-semibold">{path.recommendedTopic.title}</p><p className="truncate text-xs text-muted-foreground">Recommended next topic</p></div>
-            <Button asChild size="sm"><Link to="/topics/$topicId" params={{ topicId: path.recommendedTopic.id }}>Start <ArrowRight /></Link></Button>
+      <Panel className="mb-4 border border-primary/45 bg-card px-3 pb-3 pt-3" title={continuity.kind === "return" ? "Return to your activity" : continuity.kind === "resume" ? "Continue learning" : continuity.kind === "study_plan" ? "Continue your session" : "Recommended next"}>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">{continuity.label}</p>
+            <p className="truncate text-xs text-muted-foreground">{continuity.reason}{continuity.minutes ? ` · About ${continuity.minutes} min` : ""}</p>
           </div>
-        </Panel>
-      ) : null}
+          <Button asChild size="sm">
+            <Link
+              to={continuity.to as never}
+              {...(continuity.params ? { params: continuity.params as never } : {})}
+              {...(continuity.search ? { search: continuity.search as never } : {})}
+            >
+              {continuity.kind === "recommendation" ? "Start" : "Continue"} <ArrowRight />
+            </Link>
+          </Button>
+        </div>
+      </Panel>
       <section>
         <div className="relative mb-3">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
