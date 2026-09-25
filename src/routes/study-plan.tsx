@@ -177,7 +177,8 @@ function StudyPlanPage() {
               </span>
             </div>
 
-            <StudyDurationPicker value={target} onChange={setTarget} className="mx-auto max-w-xl" />\n            <p className="-mt-1 text-center text-xs text-muted-foreground">Swipe to adjust in 5-minute steps</p>
+            <StudyDurationPicker value={target} onChange={setTarget} className="mx-auto max-w-xl" />
+            <p className="-mt-1 text-center text-xs text-muted-foreground">Drag or swipe to adjust in 5-minute steps</p>
 
             <Button className="h-14 w-full rounded-2xl text-sm font-semibold shadow-lg shadow-primary/10 sm:text-base" onClick={generate}>
               <Sparkles className="size-4" aria-hidden />
