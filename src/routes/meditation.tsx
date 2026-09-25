@@ -53,7 +53,7 @@ function MeditationPage() {
   const [volume, setVolume] = useState(45);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
   const breathAudioContextRef = useRef<AudioContext | null>(null);
-  const breathNodesRef = useRef<{ source: AudioBufferSourceNode; gain: GainNode } | null>(null);
+  const breathNodesRef = useRef<{ oscillator: OscillatorNode; gain: GainNode } | null>(null);
   const lastBreathCueRef = useRef<"inhale" | "exhale" | null>(null);
 
   useEffect(() => {
@@ -84,56 +84,39 @@ function MeditationPage() {
   function stopBell() {
     const active = breathNodesRef.current;
     if (active) {
-      try { active.gain.gain.cancelScheduledValues(0); active.gain.gain.setValueAtTime(0.0001, active.gain.context.currentTime); active.source.stop(); } catch {}
+      try { active.gain.gain.cancelScheduledValues(0); active.gain.gain.setValueAtTime(0.0001, active.gain.context.currentTime); active.oscillator.stop(); } catch {}
     }
     breathNodesRef.current = null;
   }
 
   function playBell(kind: "inhale" | "exhale") {
     stopBell();
-    const AudioCtx = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = breathAudioContextRef.current ?? new AudioCtx();
-    breathAudioContextRef.current = ctx;
-
+    const ctx = breathAudioContextRef.current;
+    if (!ctx || ctx.state !== "running") return;
     const exercise = breathingExercises.find((item) => item.id === exerciseId) ?? breathingExercises[0];
     const duration = Math.max(1.5, kind === "inhale" ? exercise.inhale : exercise.exhale);
-    const sampleCount = Math.ceil(ctx.sampleRate * duration);
-    const buffer = ctx.createBuffer(1, sampleCount, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    let smooth = 0;
-    for (let i = 0; i < sampleCount; i++) {
-      const white = Math.random() * 2 - 1;
-      smooth = smooth * 0.86 + white * 0.14;
-      data[i] = smooth * 0.72 + white * 0.12;
-    }
-
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    const filter = ctx.createBiquadFilter();
-    filter.type = "bandpass";
-    filter.Q.value = 0.55;
+    const oscillator = ctx.createOscillator();
     const gain = ctx.createGain();
     const now = ctx.currentTime;
-    const level = Math.min(0.22, (volume / 100) * 0.24);
+    const level = Math.max(0.025, Math.min(0.16, (volume / 100) * 0.24));
+    oscillator.type = "sine";
     gain.gain.setValueAtTime(0.0001, now);
     if (kind === "inhale") {
-      filter.frequency.setValueAtTime(520, now);
-      filter.frequency.exponentialRampToValueAtTime(1050, now + duration);
-      gain.gain.exponentialRampToValueAtTime(Math.max(0.001, level), now + duration * 0.62);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      oscillator.frequency.setValueAtTime(220, now);
+      oscillator.frequency.exponentialRampToValueAtTime(440, now + duration);
+      gain.gain.exponentialRampToValueAtTime(level, now + Math.min(0.35, duration * 0.2));
     } else {
-      filter.frequency.setValueAtTime(980, now);
-      filter.frequency.exponentialRampToValueAtTime(430, now + duration);
-      gain.gain.exponentialRampToValueAtTime(Math.max(0.001, level * 0.9), now + duration * 0.18);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      oscillator.frequency.setValueAtTime(440, now);
+      oscillator.frequency.exponentialRampToValueAtTime(220, now + duration);
+      gain.gain.exponentialRampToValueAtTime(level * 0.9, now + 0.08);
     }
-    source.connect(filter);
-    filter.connect(gain);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    oscillator.connect(gain);
     gain.connect(ctx.destination);
-    breathNodesRef.current = { source, gain };
-    source.onended = () => { if (breathNodesRef.current?.source === source) breathNodesRef.current = null; };
-    source.start(now);
+    breathNodesRef.current = { oscillator, gain };
+    oscillator.onended = () => { if (breathNodesRef.current?.oscillator === oscillator) breathNodesRef.current = null; };
+    oscillator.start(now);
+    oscillator.stop(now + duration + 0.03);
   }
 
   async function unlockBreathAudio() {
@@ -145,7 +128,8 @@ function MeditationPage() {
       if (ctx.state === "suspended") await ctx.resume();
       const oscillator = ctx.createOscillator();
       const gain = ctx.createGain();
-      gain.gain.value = 0.0001;
+      gain.gain.value = 0.01;
+      oscillator.frequency.value = 220;
       oscillator.connect(gain);
       gain.connect(ctx.destination);
       oscillator.start();
