@@ -25,8 +25,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const COLS = 25;
-const ROWS = 17;
+const COLS = 31;
+const ROWS = 21;
 const PLAYER_SPEED = 5.2; // cells per second
 const BASE_GUARD_SPEED = 2.4;
 const MAX_GUARD_SPEED = 5.4;
@@ -122,7 +122,7 @@ function generateMaze(): Grid {
     if (!carved) stack.pop();
   }
   // Punch a few loops so guards can never wall the player in.
-  const extra = Math.floor(COLS * ROWS * 0.035);
+  const extra = Math.floor(COLS * ROWS * 0.045);
   for (let i = 0; i < extra; i++) {
     const x = 1 + Math.floor(Math.random() * (COLS - 2));
     const y = 1 + Math.floor(Math.random() * (ROWS - 2));
@@ -232,7 +232,7 @@ function buildLevel(level: number): RunState {
     packets.push({ x: candidates[i]!.x, y: candidates[i]!.y, taken: false });
   }
 
-  const guardCount = Math.min(2 + Math.floor(level * 0.8), 11);
+  const guardCount = Math.min(2 + Math.floor(level * 0.7), 12);
   const guardSpeed = Math.min(BASE_GUARD_SPEED + (level - 1) * 0.16, MAX_GUARD_SPEED);
   const detection = 6 + Math.min(level, 9);
   const guards: Guard[] = [];
@@ -277,6 +277,7 @@ export function VirusRun() {
   const bestRef = useRef<Best>({ bestLevel: 0, packets: 0, currentLevel: 1 });
 
   const [phase, setPhase] = useState<Phase>("menu");
+  const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" }[]>([]);
   const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0 });
 
   const setPhaseBoth = useCallback((p: Phase) => {
@@ -429,6 +430,7 @@ export function VirusRun() {
         if (!packet.taken && packet.x === px && packet.y === py) {
           packet.taken = true;
           run.collected += 1;
+          fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet" });
           if (run.collected >= run.required) run.portOpen = true;
           syncHud(run);
         }
@@ -468,6 +470,7 @@ export function VirusRun() {
         // Contact.
         if (p.invuln <= 0 && Math.abs(g.x - p.x) < 0.55 && Math.abs(g.y - p.y) < 0.55) {
           run.integrity -= 1;
+          fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });
           p.x = 1;
           p.y = 1;
           p.tx = 1;
@@ -495,6 +498,7 @@ export function VirusRun() {
 
       // Port.
       if (run.portOpen && px === run.port.x && py === run.port.y) {
+        fxRef.current.push({ x: run.port.x, y: run.port.y, born: performance.now(), kind: "exit" });
         // Level cleared: heal one point (capped) and bank packets.
         run.integrity = Math.min(MAX_INTEGRITY, run.integrity + 1);
         const best = readBest();
@@ -767,6 +771,46 @@ export function VirusRun() {
       ctx2.strokeStyle = "rgba(94,234,212,0.62)"; ctx2.lineWidth = Math.max(0.8, cell * 0.045); ctx2.beginPath(); ctx2.ellipse(pcx, pcy, r * 1.48, r * 0.72, time / 650, 0, Math.PI * 2); ctx2.stroke();
       ctx2.fillStyle = "rgba(4,47,46,0.88)"; ctx2.beginPath(); ctx2.arc(pcx, pcy, r * 0.34, 0, Math.PI * 2); ctx2.fill();
       ctx2.fillStyle = "#ccfbf1"; ctx2.beginPath(); ctx2.arc(pcx - r * 0.11, pcy - r * 0.12, r * 0.1, 0, Math.PI * 2); ctx2.fill();
+      ctx2.restore();
+
+      // Event effects: packet bursts, antivirus damage shockwaves and exit surges.
+      fxRef.current = fxRef.current.filter((fx) => time - fx.born < (fx.kind === "exit" ? 1200 : 850));
+      for (const fx of fxRef.current) {
+        const age = Math.max(0, time - fx.born);
+        const life = fx.kind === "exit" ? 1200 : 850;
+        const q = Math.min(1, age / life);
+        const fxX = offX + (fx.x + 0.5) * cell;
+        const fxY = offY + (fx.y + 0.5) * cell;
+        const rgb = fx.kind === "hit" ? "248,113,113" : fx.kind === "exit" ? "94,234,212" : "125,211,252";
+        ctx2.save();
+        ctx2.globalAlpha = 1 - q;
+        ctx2.strokeStyle = `rgba(${rgb},${0.9 * (1 - q)})`;
+        ctx2.lineWidth = Math.max(1, cell * (0.12 - q * 0.07));
+        for (let ring = 0; ring < (fx.kind === "exit" ? 4 : 2); ring++) {
+          ctx2.beginPath();
+          ctx2.arc(fxX, fxY, cell * (0.25 + q * (1.4 + ring * 0.42)), 0, Math.PI * 2);
+          ctx2.stroke();
+        }
+        const particles = fx.kind === "exit" ? 22 : fx.kind === "hit" ? 16 : 12;
+        for (let i = 0; i < particles; i++) {
+          const a = (i / particles) * Math.PI * 2 + (fx.born % 97) * 0.03;
+          const d = cell * q * (0.7 + (i % 5) * 0.22);
+          const s = Math.max(1, cell * (0.11 - q * 0.055));
+          ctx2.fillStyle = `rgba(${rgb},${0.95 * (1 - q)})`;
+          ctx2.fillRect(fxX + Math.cos(a) * d - s / 2, fxY + Math.sin(a) * d - s / 2, s, s);
+        }
+        ctx2.restore();
+      }
+
+      // A soft moving light sweep makes the larger maze feel alive without obscuring paths.
+      ctx2.save();
+      const sweepX = offX + ((time / 32) % (cell * (COLS + 8))) - cell * 4;
+      const sweep = ctx2.createLinearGradient(sweepX - cell * 2, 0, sweepX + cell * 2, 0);
+      sweep.addColorStop(0, "rgba(56,189,248,0)");
+      sweep.addColorStop(0.5, "rgba(56,189,248,0.045)");
+      sweep.addColorStop(1, "rgba(56,189,248,0)");
+      ctx2.fillStyle = sweep;
+      ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
       ctx2.restore();
 
       // Restrained edge vignette keeps the field focused without retro scanlines.
