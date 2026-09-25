@@ -42,7 +42,7 @@ function ProfilePage(){
       <div><Label>Currently learning</Label><Input className="mt-2" maxLength={120} placeholder="Example: Networking & Infrastructure" value={draft.currentlyLearning} onChange={e=>setDraft({...draft,currentlyLearning:e.target.value})}/></div>
       <div><Label>Learning goal</Label><Input className="mt-2" maxLength={160} placeholder="Example: Build the skills for my first IT support role" value={draft.learningGoal} onChange={e=>setDraft({...draft,learningGoal:e.target.value})}/></div>
       <div className="border-t pt-4"><p className="mb-3 text-sm font-semibold">What other learners can see</p>
-       {[["showLearningProgress","Learning progress"],["showLearningGoal","Learning goal"],["showAchievements","Achievements"]].map(([key,label])=><div key={key} className="flex min-h-11 items-center justify-between gap-3"><Label>{label}</Label><Switch checked={draft[key as keyof typeof draft] as boolean} onCheckedChange={v=>setDraft({...draft,[key]:v})}/></div>)}
+       {[["showLearningProgress","Learning progress"],["showLearningGoal","Learning goal"],["showAchievements","Achievements"]].map(([key,label])=><div key={key} className="flex min-h-11 items-center justify-between gap-3"><Label>{label}</Label><Switch checked={draft[key as keyof typeof draft] as boolean} onCheckedChange={v=>setDraft({...draft,[key as string]:v})}/></div>)}
       </div>
       <Button className="w-full" disabled={savingProfile} onClick={save}>{savingProfile?"Saving…":"Save profile"}</Button>
     </div>:null}
