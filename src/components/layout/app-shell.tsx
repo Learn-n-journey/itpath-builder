@@ -159,7 +159,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <header className="sticky top-0 z-20 grid h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-background/92 px-2 backdrop-blur-xl lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-40 grid h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-background/92 px-2 backdrop-blur-xl lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Open navigation">
@@ -190,7 +190,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Button>
       </header>
 
-      <main className={cn("relative z-10 pb-16 lg:pl-68 lg:pb-0")}>
+      <main className={cn("relative z-10 pb-16 pt-12 lg:pl-68 lg:pb-0 lg:pt-0")}>
         <div className={cn(
           immersiveBackground
             ? "w-full p-0"
