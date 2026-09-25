@@ -10,6 +10,7 @@ export interface CommunityMessage {
   displayName: string;
   body: string;
   createdAt: string;
+  imageUrl: string | null;
   likeCount: number;
   liked: boolean;
   saved: boolean;
@@ -31,7 +32,7 @@ export function useCommunityChat(room = "general") {
     queryFn: async (): Promise<CommunityMessage[]> => {
       const { data, error } = await supabase
         .from("community_messages")
-        .select("id, user_id, display_name, body, created_at")
+        .select("id, user_id, display_name, body, created_at, image_url")
         .eq("hidden", false)
         .eq("room", room)
         .order("created_at", { ascending: false })
@@ -55,6 +56,7 @@ export function useCommunityChat(room = "general") {
           displayName: row.display_name,
           body: row.body,
           createdAt: row.created_at,
+          imageUrl: row.image_url ?? null,
           likeCount: likeCounts.get(row.id)??0,
           liked: liked.has(row.id),
           saved: saved.has(row.id),
@@ -82,13 +84,24 @@ export function useCommunityChat(room = "general") {
   }, [userId, queryClient, room]);
 
   const send = useMutation({
-    mutationFn: async (input: { body: string; displayName: string }) => {
+    mutationFn: async (input: { body: string; displayName: string; image?: File | null }) => {
       if (!userId) throw new Error("Sign in to join the chat.");
+      let imageUrl: string | null = null;
+      if(input.image){
+        if(input.image.size>8*1024*1024)throw new Error("Keep images under 8 MB.");
+        if(!["image/jpeg","image/png","image/webp","image/gif"].includes(input.image.type))throw new Error("Use a JPG, PNG, WebP, or GIF image.");
+        const ext=(input.image.name.split(".").pop()||"jpg").toLowerCase();
+        const key=`${userId}/${crypto.randomUUID()}.${ext}`;
+        const {error:uploadError}=await supabase.storage.from("community-images").upload(key,input.image,{contentType:input.image.type,upsert:false});
+        if(uploadError)throw new Error("That image did not upload. Try again.");
+        imageUrl=supabase.storage.from("community-images").getPublicUrl(key).data.publicUrl;
+      }
       const { error } = await supabase.from("community_messages").insert({
         user_id: userId,
         display_name: input.displayName,
         body: input.body.trim(),
         room,
+        image_url:imageUrl,
       });
       if (error) throw new Error(friendly(error.message));
     },
