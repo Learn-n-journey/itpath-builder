@@ -22,25 +22,25 @@ export interface GaylInsight {
 function becauseClause(concept: ConceptIntel): string {
   switch (concept.diagnosis) {
     case "never_learned":
-      return "you have not answered anything on it yet, so I have nothing to go on";
+      return "I do not have enough completed work here yet to judge it";
     case "prerequisite_gap":
       return concept.prerequisiteGaps[0]
-        ? `it builds on ${concept.prerequisiteGaps[0].title}, and that one is not solid yet`
-        : "something it builds on is not solid yet";
+        ? `${concept.prerequisiteGaps[0].title} needs more work first`
+        : "one of the skills it depends on needs more work first";
     case "retrieval_failure":
-      return "you got it right before and missed it recently, so it needs bringing back";
+      return "you answered this correctly before, but a recent answer was missed";
     case "misconception":
-      return "the same kind of mistake keeps coming back on it";
+      return "the same misunderstanding has appeared more than once";
     case "confident_but_wrong":
-      return "a few quick answers on it did not quite land";
+      return "some answers were given confidently but were incorrect";
     case "application_failure":
-      return "you can explain it, but using it in a task is where it slips";
+      return "your explanation is stronger than your hands-on application";
     case "troubleshooting_failure":
-      return "you know the facts, but working through a fault is where it slips";
+      return "your knowledge checks are stronger than your troubleshooting work";
     case "fading":
-      return "it has been a while since you worked on it and your answers have slipped";
+      return "recent recall is weaker than your earlier results";
     case "solid":
-      return "it is holding up well and a harder check would tell me more";
+      return "your recent work is holding up well, so a harder check would be useful";
   }
 }
 
@@ -275,11 +275,22 @@ export function pathInsight(intel: Intelligence, preferredTopicId?: string): Gay
     ? "I have not seen enough of your work there yet to know how it is landing, and a short check shows us where to go next"
     : becauseClause(top);
 
+  const action =
+    top.diagnosis === "application_failure"
+      ? `Practice ${top.title} with a hands-on task next.`
+      : top.diagnosis === "troubleshooting_failure"
+        ? `Try a troubleshooting scenario for ${top.title} next.`
+        : top.diagnosis === "retrieval_failure" || top.diagnosis === "fading"
+          ? `Do a short review of ${top.title} next.`
+          : top.diagnosis === "prerequisite_gap" && top.prerequisiteGaps[0]
+            ? `Review ${top.prerequisiteGaps[0].title} before continuing with ${top.title}.`
+            : top.instruction;
+
   return {
-    message: `This order comes from your own work, not a fixed course plan. ${top.title} is first because ${reason}. ${top.instruction}`,
+    message: `I recommend ${top.title} next because ${reason}. ${action}`,
     why: [top, ...intel.queue.filter((concept) => concept.topicId !== top.topicId)]
       .slice(0, 4)
-      .map((concept) => `${concept.title}: ${concept.instruction}`),
+      .map((concept) => `${concept.title}: ${concept.evidence}`),
   };
 }
 
