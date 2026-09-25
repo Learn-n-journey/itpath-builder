@@ -454,6 +454,7 @@ export interface Mistake {
   topicId: EntityId;
   skillId?: EntityId;
   quizAttemptId?: EntityId;
+  labId?: EntityId;
   /** Where the mistake happened. */
   activity: MistakeActivity;
   /** Identifier of the attempt the mistake belongs to, when the activity has attempts. */

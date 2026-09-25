@@ -8,11 +8,11 @@ export interface LearnerContinuity {
   kind: ContinuityKind;
   label: string;
   reason: string;
-  minutes?: number;
+  minutes?: number | undefined;
   to: string;
-  params?: Record<string, string>;
-  search?: Record<string, string>;
-  topicId?: string;
+  params?: Record<string, string> | undefined;
+  search?: Record<string, string> | undefined;
+  topicId?: string | undefined;
 }
 
 /**
