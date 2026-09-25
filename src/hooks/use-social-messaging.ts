@@ -30,7 +30,7 @@ export function useCommunityNotifications(limit=5){
   if(messageError)throw messageError;if(requestError)throw requestError;
   const ids=[...new Set([...(messages??[]).map(x=>x.sender_id),...(requests??[]).map(x=>x.requester_id)])];
   const names=new Map<string,string>();
-  if(ids.length){const {data:profiles}=await supabase.from("profiles").select("user_id,display_name,first_name").in("user_id",ids);for(const p of profiles??[])names.set(p.user_id,p.display_name?.trim()||p.first_name?.trim()||"Learner");}
+  if(ids.length){const {data:profiles}=await supabase.rpc("get_public_profiles",{_ids:ids});for(const p of profiles??[])names.set(p.user_id,p.display_name?.trim()||p.first_name?.trim()||"Learner");}
   const rows:CommunityNotification[]=[
    ...(messages??[]).map(x=>({id:x.id,kind:"message" as const,userId:x.sender_id,displayName:names.get(x.sender_id)??"Learner",preview:x.body,createdAt:x.created_at})),
    ...(requests??[]).map(x=>({id:x.id,kind:"friend-request" as const,userId:x.requester_id,displayName:names.get(x.requester_id)??"Learner",preview:"Sent you a friend request",createdAt:x.created_at})),
