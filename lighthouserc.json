@@ -1,9 +1,9 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "bun run preview --port 4173",
-      "startServerReadyPattern": "Local",
-      "startServerReadyTimeout": 120000,
+      "startServerCommand": "bun run preview:ci",
+      "startServerReadyPattern": "Ready on",
+      "startServerReadyTimeout": 180000,
       "numberOfRuns": 2,
       "url": [
         "http://localhost:4173/",
