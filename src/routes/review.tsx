@@ -16,6 +16,7 @@ import {
 } from "@/lib/review-engine";
 import { useAppState } from "@/state/app-state";
 import { SectionTabs, REVIEW_TABS } from "@/components/layout/section-tabs";
+import { learnerContinuity } from "@/lib/learner-continuity";
 
 export const Route = createFileRoute("/review")({
   staticData: { sitemap: false },
@@ -42,6 +43,7 @@ function Review() {
   const failed = useMemo(() => recentlyFailed(user), [user]);
   const nextReview = buckets.overdue[0] ?? buckets.dueToday[0];
   const dueNow = buckets.overdue.length + buckets.dueToday.length;
+  const continuity = useMemo(() => learnerContinuity(user), [user]);
 
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={2} />;
 
@@ -92,12 +94,25 @@ function Review() {
         />
       ) : (
         <section className="mt-5 rounded-xl border border-border/70 bg-card/70 p-4">
-          <div className="flex items-center gap-3">
-            <span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary"><CheckCircle2 className="size-4" aria-hidden /></span>
-            <div>
-              <h2 className="font-display text-base font-semibold">You're caught up</h2>
-              <p className="mt-1 text-xs text-muted-foreground">No reviews are due right now. Upcoming work is already scheduled.</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><CheckCircle2 className="size-4" aria-hidden /></span>
+              <div>
+                <h2 className="font-display text-base font-semibold">You're caught up</h2>
+                <p className="mt-1 text-xs text-muted-foreground">No reviews are due right now. {continuity.reason}</p>
+              </div>
             </div>
+            {continuity.to !== "/review" ? (
+              <Button asChild size="sm" className="shrink-0">
+                <Link
+                  to={continuity.to as never}
+                  {...(continuity.params ? { params: continuity.params as never } : {})}
+                  {...(continuity.search ? { search: continuity.search as never } : {})}
+                >
+                  {continuity.kind === "return" ? continuity.label : "Continue learning"} <ArrowRight />
+                </Link>
+              </Button>
+            ) : null}
           </div>
         </section>
       )}
