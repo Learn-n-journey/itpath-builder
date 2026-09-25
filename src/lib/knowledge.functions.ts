@@ -261,6 +261,23 @@ export const saveKnowledge = createServerFn({ method: "POST" })
     let fileType: string | null = null;
 
     if (data.file) {
+      const ALLOWED: Record<string, string[]> = {
+        "application/pdf": ["pdf"],
+        "text/plain": ["txt", "log"],
+        "text/markdown": ["md", "markdown"],
+        "text/csv": ["csv"],
+        "application/msword": ["doc"],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ["docx"],
+        "image/png": ["png"],
+        "image/jpeg": ["jpg", "jpeg"],
+        "image/webp": ["webp"],
+      };
+      const mime = data.file.mime.toLowerCase().split(";")[0].trim();
+      const ext = (data.file.name.split(".").pop() ?? "").toLowerCase();
+      if (!ALLOWED[mime] || !ALLOWED[mime].includes(ext)) {
+        return { ok: false, error: "That file type is not supported. Use PDF, text, Markdown, CSV, Word, PNG, JPEG or WEBP." };
+      }
+      data.file.mime = mime;
       const bytes = Uint8Array.from(atob(data.file.base64), (c) => c.charCodeAt(0));
       const safeName = data.file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-80);
       const path = `${context.userId}/${crypto.randomUUID()}-${safeName}`;
