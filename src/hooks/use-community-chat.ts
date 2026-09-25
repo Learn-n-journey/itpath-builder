@@ -10,7 +10,13 @@ export interface CommunityMessage {
   displayName: string;
   body: string;
   createdAt: string;
+  likeCount: number;
+  liked: boolean;
+  saved: boolean;
+  commentCount: number;
 }
+
+export interface CommunityComment { id:string; messageId:string; userId:string; displayName:string; body:string; createdAt:string; }
 
 const LIMIT = 200;
 
@@ -31,6 +37,17 @@ export function useCommunityChat(room = "general") {
         .order("created_at", { ascending: false })
         .limit(LIMIT);
       if (error) throw error;
+      const ids=(data??[]).map(row=>row.id);
+      const [{data:likes},{data:comments},{data:saves}]=ids.length ? await Promise.all([
+        supabase.from("community_likes").select("message_id,user_id").in("message_id",ids),
+        supabase.from("community_comments").select("message_id").in("message_id",ids),
+        supabase.from("community_saves").select("message_id,user_id").eq("user_id",userId!).in("message_id",ids),
+      ]) : [{data:[]},{data:[]},{data:[]}];
+      const likeCounts=new Map<string,number>(),commentCounts=new Map<string,number>();
+      for(const item of likes??[])likeCounts.set(item.message_id,(likeCounts.get(item.message_id)??0)+1);
+      for(const item of comments??[])commentCounts.set(item.message_id,(commentCounts.get(item.message_id)??0)+1);
+      const liked=new Set((likes??[]).filter(item=>item.user_id===userId).map(item=>item.message_id));
+      const saved=new Set((saves??[]).map(item=>item.message_id));
       return (data ?? [])
         .map((row) => ({
           id: row.id,
@@ -38,6 +55,10 @@ export function useCommunityChat(room = "general") {
           displayName: row.display_name,
           body: row.body,
           createdAt: row.created_at,
+          likeCount: likeCounts.get(row.id)??0,
+          liked: liked.has(row.id),
+          saved: saved.has(row.id),
+          commentCount: commentCounts.get(row.id)??0,
         }))
         .reverse();
     },
@@ -98,6 +119,36 @@ export function useCommunityChat(room = "general") {
     },
   });
 
+
+  const toggleLike = async (message: CommunityMessage) => {
+    if(!userId)throw new Error("Sign in first.");
+    const query=supabase.from("community_likes");
+    const {error}=message.liked ? await query.delete().eq("message_id",message.id).eq("user_id",userId) : await query.insert({message_id:message.id,user_id:userId});
+    if(error)throw new Error(friendly(error.message));
+    await queryClient.invalidateQueries({queryKey:["community-messages",room]});
+  };
+
+  const toggleSave = async (message: CommunityMessage) => {
+    if(!userId)throw new Error("Sign in first.");
+    const query=supabase.from("community_saves");
+    const {error}=message.saved ? await query.delete().eq("message_id",message.id).eq("user_id",userId) : await query.insert({message_id:message.id,user_id:userId});
+    if(error)throw new Error(friendly(error.message));
+    await queryClient.invalidateQueries({queryKey:["community-messages",room]});
+  };
+
+  const getComments = async (messageId:string):Promise<CommunityComment[]> => {
+    const {data,error}=await supabase.from("community_comments").select("id,message_id,user_id,display_name,body,created_at").eq("message_id",messageId).order("created_at",{ascending:true});
+    if(error)throw new Error(friendly(error.message));
+    return (data??[]).map(row=>({id:row.id,messageId:row.message_id,userId:row.user_id,displayName:row.display_name,body:row.body,createdAt:row.created_at}));
+  };
+
+  const addComment = async (messageId:string, body:string, displayName:string) => {
+    if(!userId)throw new Error("Sign in first.");
+    const {error}=await supabase.from("community_comments").insert({message_id:messageId,user_id:userId,display_name:displayName,body:body.trim()});
+    if(error)throw new Error(friendly(error.message));
+    await queryClient.invalidateQueries({queryKey:["community-messages",room]});
+  };
+
   return {
     messages: messages.data ?? [],
     loading: messages.isLoading,
@@ -106,6 +157,7 @@ export function useCommunityChat(room = "general") {
     sending: send.isPending,
     remove: remove.mutateAsync,
     report: report.mutateAsync,
+    toggleLike, toggleSave, getComments, addComment,
   };
 }
 
