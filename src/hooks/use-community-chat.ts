@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/state/auth-state";
 
+export type CommunityPostType = "question" | "troubleshooting" | "discussion" | "progress" | "project" | "study-help";
+
 export interface CommunityMessage {
   id: string;
   userId: string;
@@ -15,6 +17,7 @@ export interface CommunityMessage {
   liked: boolean;
   saved: boolean;
   commentCount: number;
+  postType: CommunityPostType;
 }
 
 export interface CommunityComment { id:string; messageId:string; userId:string; displayName:string; body:string; createdAt:string; }
@@ -32,7 +35,7 @@ export function useCommunityChat(room = "general") {
     queryFn: async (): Promise<CommunityMessage[]> => {
       let { data, error } = await supabase
         .from("community_messages")
-        .select("id, user_id, display_name, body, created_at, image_url")
+        .select("id, user_id, display_name, body, created_at, image_url, post_type")
         .eq("hidden", false)
         .eq("room", room)
         .order("created_at", { ascending: false })
@@ -46,7 +49,7 @@ export function useCommunityChat(room = "general") {
           .eq("room", room)
           .order("created_at", { ascending: false })
           .limit(LIMIT);
-        data = fallback.data?.map(row => ({ ...row, image_url: null })) ?? null;
+        data = fallback.data?.map(row => ({ ...row, image_url: null, post_type: "discussion" })) ?? null;
         error = fallback.error;
       }
       if (error) throw error;
@@ -81,6 +84,7 @@ export function useCommunityChat(room = "general") {
           liked: liked.has(row.id),
           saved: saved.has(row.id),
           commentCount: commentCounts.get(row.id)??0,
+          postType: ((row as typeof row & { post_type?: CommunityPostType }).post_type ?? "discussion") as CommunityPostType,
         }))
         .reverse();
     },
@@ -104,7 +108,7 @@ export function useCommunityChat(room = "general") {
   }, [userId, queryClient, room]);
 
   const send = useMutation({
-    mutationFn: async (input: { body: string; displayName: string; image?: File | null }) => {
+    mutationFn: async (input: { body: string; displayName: string; image?: File | null; postType?: CommunityPostType }) => {
       if (!userId) throw new Error("Sign in to join the chat.");
       let imageUrl: string | null = null;
       if(input.image){
@@ -116,7 +120,7 @@ export function useCommunityChat(room = "general") {
         if(uploadError)throw new Error("That image did not upload. Try again.");
         imageUrl=key; // private bucket: store the path, sign it when reading
       }
-      const post = { user_id: userId, display_name: input.displayName, body: input.body.trim(), room };
+      const post = { user_id: userId, display_name: input.displayName, body: input.body.trim(), room, post_type: input.postType ?? "discussion" };
       let { error } = imageUrl
         ? await supabase.from("community_messages").insert({ ...post, image_url: imageUrl })
         : await supabase.from("community_messages").insert(post);
