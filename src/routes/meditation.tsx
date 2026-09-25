@@ -227,16 +227,16 @@ function MeditationPage() {
   const seconds = String(elapsed % 60).padStart(2, "0");
 
   return (
-    <div className="relative -mx-4 -my-4 min-h-[calc(100dvh-4rem)] overflow-hidden text-white sm:-mx-6 sm:-my-6 lg:-mx-8 lg:-my-8">
+    <div className="relative -mx-4 -my-4 h-[calc(100dvh-4rem)] overflow-hidden text-white sm:-mx-6 sm:-my-6 lg:-mx-8 lg:-my-8">
       <div className="fixed inset-0 z-0 bg-[url('/images/meditation-background.png')] bg-cover bg-center" aria-hidden />
       <div className="fixed inset-0 z-0 bg-background/60 backdrop-blur-[1px]" aria-hidden />
-      <main className="relative z-10 mx-auto flex min-h-[calc(100dvh-4rem)] max-w-2xl flex-col px-5 py-8 sm:px-8">
+      <main className="relative z-10 mx-auto grid h-full max-w-2xl grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden px-5 py-6 sm:px-8">
         <header className="flex items-center justify-between">
           <div><h1 className="font-serif text-2xl font-semibold">Breathe</h1><p className="mt-0.5 text-xs text-white/60">{exercise.label}</p></div>
           <button type="button" onClick={()=>setBreathCuesEnabled(v=>!v)} aria-label="Toggle breath cues" className={cn("rounded-full p-2.5 transition-colors",breathCuesEnabled?"bg-white/10 text-white":"text-white/45 hover:bg-white/10")}><Bell className="size-4"/></button>
         </header>
 
-        <section className="flex flex-1 flex-col items-center justify-center py-10 text-center">
+        <section className="flex min-h-0 items-center justify-center text-center">
           <div className={cn("grid size-64 place-items-center rounded-full border border-white/20 bg-white/[.04] shadow-2xl shadow-black/20 transition-all duration-1000 sm:size-72",running&&(instruction==="Inhale"||instruction==="Hold")?"scale-105 bg-white/[.07]":"scale-95")}>
             <div><p className="text-xs font-semibold uppercase tracking-[.3em] text-white/55">{running?instruction:"Ready"}</p><p className="mt-3 font-serif text-7xl font-light tabular-nums">{running?phaseSeconds:exercise.inhale}</p><p className="mt-3 font-mono text-xs text-white/45">{minutes}:{seconds}</p></div>
           </div>
@@ -247,7 +247,7 @@ function MeditationPage() {
           </div>
         </section>
 
-        <section className="space-y-5 border-t border-white/10 pt-5">
+        <section className="space-y-3 border-t border-white/10 pt-4">
           <div className="flex gap-2 overflow-x-auto pb-1">
             {breathingExercises.map(item=><button key={item.id} type="button" onClick={()=>{setExerciseId(item.id);setElapsed(0);stopBell();lastBreathCueRef.current=null}} className={cn("shrink-0 rounded-full px-3 py-2 text-xs transition-colors",exerciseId===item.id?"bg-white text-black":"bg-white/10 text-white/65 hover:bg-white/15")}>{item.label}</button>)}
           </div>
