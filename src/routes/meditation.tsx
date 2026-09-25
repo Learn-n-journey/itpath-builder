@@ -186,8 +186,8 @@ function MeditationPage() {
   return (
     <div className="relative -mx-4 -my-4 min-h-[calc(100dvh-4rem)] overflow-hidden pb-12 text-white sm:-mx-6 sm:-my-6 lg:-mx-8 lg:-my-8">
       <div className="fixed inset-0 z-0 bg-[url('/images/meditation-background.png')] bg-cover bg-center bg-no-repeat" aria-hidden />
-      <div className="absolute inset-0 bg-background/45" aria-hidden />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/15 via-background/25 to-background/80" aria-hidden />
+      <div className="fixed inset-0 z-0 bg-background/45" aria-hidden />
+      <div className="fixed inset-0 z-0 bg-gradient-to-b from-background/15 via-background/25 to-background/80" aria-hidden />
       <div className="relative mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
       <header className="mb-6 text-center drop-shadow-md">
         <div className="mx-auto flex items-center justify-center gap-2">
