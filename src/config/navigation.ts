@@ -28,7 +28,7 @@ import {
   Settings as SettingsIcon,
   SquareTerminal,
   CircuitBoard,
-  Bug,
+  Bug,\n  Blocks,
   MessagesSquare,
   Layers,
   Medal,
@@ -173,6 +173,14 @@ const allNavItems: NavItem[] = [
     icon: Bug,
     group: "Practice",
     description: "A quick arcade game: play as the virus and breach endlessly harder systems.",
+    subjects: ["it-cybersecurity"],
+  },
+  {
+    label: "BYTE//BREAK",
+    to: "/byte-break",
+    icon: Blocks,
+    group: "Practice",
+    description: "A polished tech block-matching game with cascades, combos and animated core effects.",
     subjects: ["it-cybersecurity"],
   },
   {
