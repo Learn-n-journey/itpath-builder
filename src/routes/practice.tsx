@@ -183,8 +183,7 @@ function PracticePage() {
 
   return (
     <div
-      className="-mx-3 -my-4 min-h-screen bg-cover bg-center bg-no-repeat px-3 py-4 sm:-mx-5 sm:-my-6 sm:px-5 sm:py-6 lg:-mx-8 lg:-my-8 lg:px-8 lg:py-8"
-      style={{ backgroundImage: "url('/ChatGPT Image Sep 24, 2026, 04_42_52 PM.png')" }}
+      className="-mx-3 -my-4 min-h-screen px-3 py-4 sm:-mx-5 sm:-my-6 sm:px-5 sm:py-6 lg:-mx-8 lg:-my-8 lg:px-8 lg:py-8"
     >
       <PageHeader
         title="Practice"
