@@ -33,14 +33,21 @@ function Learn() {
   const searchVideos = useServerFn(searchLearningVideos);
   const [videoResults, setVideoResults] = useState<VideoSearchResult[]>([]);
   const [videosLoading, setVideosLoading] = useState(false);
+  const [videoStatus, setVideoStatus] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    if (needle.length < 2) { setVideoResults([]); setVideosLoading(false); return; }
+    if (needle.length < 2) { setVideoResults([]); setVideoStatus(null); setVideosLoading(false); return; }
     const timer = window.setTimeout(async () => {
       setVideosLoading(true);
-      try { const results = await searchVideos({ data: { query: query.trim() } }); if (!cancelled) setVideoResults(results); }
-      catch { if (!cancelled) setVideoResults([]); }
+      try {
+        const result = await searchVideos({ data: { query: query.trim() } });
+        if (!cancelled) {
+          setVideoResults(result.videos);
+          setVideoStatus(result.status === "youtube" ? null : result.message ?? result.status);
+        }
+      }
+      catch { if (!cancelled) { setVideoResults([]); setVideoStatus("Video search request failed."); } }
       finally { if (!cancelled) setVideosLoading(false); }
     }, 350);
     return () => { cancelled = true; window.clearTimeout(timer); };
@@ -183,7 +190,7 @@ function Learn() {
                 <div className="p-3"><p className="line-clamp-2 text-sm font-semibold leading-snug text-foreground">{video.title}</p><p className="mt-1 truncate text-xs text-muted-foreground">{video.channel} · YouTube</p></div>
               </a>
             ))}</div>
-          ) : <p className="rounded-xl border border-border/70 bg-card p-4 text-sm text-muted-foreground">No matching videos are available right now.</p>}
+          ) : <p className="rounded-xl border border-border/70 bg-card p-4 text-sm text-muted-foreground">No matching videos are available right now.{videoStatus ? <span className="mt-2 block text-xs">Diagnostic: {videoStatus}</span> : null}</p>}
           <Button asChild variant="ghost" size="sm" className="mt-2"><Link to="/tech-videos">Browse all videos</Link></Button>
         </section>
       ) : null}
