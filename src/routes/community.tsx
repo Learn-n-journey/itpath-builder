@@ -144,8 +144,8 @@ function CommunityPage() {
   }
 
   return (
-    <div className="fixed inset-x-0 top-16 bottom-0 z-30 flex flex-col overflow-hidden bg-background sm:top-0">
-      <div className="shrink-0 bg-background px-3 pt-2 sm:px-5"><SocialHero />
+    <div className="relative -mx-4 -my-4 flex h-[calc(100dvh-4rem)] min-h-0 flex-col overflow-hidden bg-background sm:-mx-6 sm:-my-6 lg:-mx-8 lg:-my-8">
+      <div className="shrink-0 bg-background px-4 pt-3 sm:px-6"><SocialHero />
 
       {needsName || editingName ? (
         <section className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
@@ -174,7 +174,7 @@ function CommunityPage() {
         </aside>
 
         <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <form onSubmit={handleSend} className="shrink-0 border-b border-border/60 bg-background px-3 pb-3 sm:px-5">
+          <form onSubmit={handleSend} className="shrink-0 border-b border-border/60 bg-background px-4 pb-3 sm:px-6">
             <div className="flex gap-3">
               <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(displayName||"?").charAt(0).toUpperCase()}</div>
               <div className="min-w-0 flex-1">
@@ -189,8 +189,8 @@ function CommunityPage() {
               </div>
             </div>
           </form>
-          <div className="shrink-0 flex items-center justify-between border-b border-border/60 px-3 py-2 sm:px-5"><div className="flex gap-4"><button onClick={()=>setFeedMode("latest")} className={cn("text-sm font-semibold",feedMode==="latest"?"text-foreground":"text-muted-foreground")}>Latest</button><button onClick={()=>setFeedMode("popular")} className={cn("text-sm font-semibold",feedMode==="popular"?"text-foreground":"text-muted-foreground")}>Popular</button></div><select aria-label="Community" value={room} onChange={e=>void navigate({search:{room:e.target.value}})} className="max-w-40 bg-transparent text-right text-xs text-muted-foreground outline-none">{rooms.map(entry=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
-          <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 sm:px-5">
+          <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-2 sm:px-6"><div className="flex gap-4"><button onClick={()=>setFeedMode("latest")} className={cn("text-sm font-semibold",feedMode==="latest"?"text-foreground":"text-muted-foreground")}>Latest</button><button onClick={()=>setFeedMode("popular")} className={cn("text-sm font-semibold",feedMode==="popular"?"text-foreground":"text-muted-foreground")}>Popular</button></div><select aria-label="Community" value={room} onChange={e=>void navigate({search:{room:e.target.value}})} className="max-w-40 bg-transparent text-right text-xs text-muted-foreground outline-none">{rooms.map(entry=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
+          <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6">
             {loading ? (
               <p className="p-3 text-sm text-muted-foreground">Loading the room.</p>
             ) : messages.length === 0 ? (
