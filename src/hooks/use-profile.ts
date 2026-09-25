@@ -13,7 +13,7 @@ export function useProfile(profileId?: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("user_id,first_name,display_name,avatar_url")
+        .select("user_id,first_name,display_name,avatar_url,bio,currently_learning,learning_goal,show_learning_progress,show_learning_goal,show_achievements")
         .eq("user_id", id!)
         .maybeSingle();
 
@@ -46,6 +46,12 @@ export function useProfile(profileId?: string) {
         firstName: data?.first_name?.trim() ?? "",
         displayName: data?.display_name?.trim() ?? "",
         avatarUrl,
+        bio: data?.bio?.trim() ?? "",
+        currentlyLearning: data?.currently_learning?.trim() ?? "",
+        learningGoal: data?.learning_goal?.trim() ?? "",
+        showLearningProgress: data?.show_learning_progress ?? true,
+        showLearningGoal: data?.show_learning_goal ?? true,
+        showAchievements: data?.show_achievements ?? true,
       };
     },
   });
@@ -63,6 +69,15 @@ export function useProfile(profileId?: string) {
       return firstName.trim();
     },
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["profile", id] }),
+  });
+
+  const saveDetails = useMutation({
+    mutationFn: async (input: { displayName: string; bio: string; currentlyLearning: string; learningGoal: string; showLearningProgress: boolean; showLearningGoal: boolean; showAchievements: boolean }) => {
+      if (!userId || id !== userId) throw new Error("You can only edit your own profile.");
+      const { error } = await supabase.from("profiles").upsert({ user_id: userId, display_name: input.displayName.trim() || null, bio: input.bio.trim() || null, currently_learning: input.currentlyLearning.trim() || null, learning_goal: input.learningGoal.trim() || null, show_learning_progress: input.showLearningProgress, show_learning_goal: input.showLearningGoal, show_achievements: input.showAchievements }, { onConflict: "user_id" });
+      if (error) throw error;
+    },
+    onSuccess: async () => { await qc.invalidateQueries({ queryKey: ["profile", id] }); await qc.invalidateQueries({ queryKey: ["profiles"] }); },
   });
 
   const upload = useMutation({
@@ -100,6 +115,7 @@ export function useProfile(profileId?: string) {
     firstName: "",
     displayName: "",
     avatarUrl: null,
+    bio: "", currentlyLearning: "", learningGoal: "", showLearningProgress: true, showLearningGoal: true, showAchievements: true,
   };
 
   return {
@@ -108,6 +124,8 @@ export function useProfile(profileId?: string) {
     loading: !ready || (!!id && q.isLoading),
     saveFirstName: save.mutateAsync,
     saving: save.isPending,
+    saveProfile: saveDetails.mutateAsync,
+    savingProfile: saveDetails.isPending,
     uploadAvatar: upload.mutateAsync,
     uploading: upload.isPending,
     isOwn: !!userId && id === userId,
