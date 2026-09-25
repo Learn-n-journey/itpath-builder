@@ -16,12 +16,16 @@ import { loadOwnerLessons } from "@/lib/owner-lesson-store";
 import { loadOwnerWork } from "@/lib/owner-work-store";
 import { loadLearningPaths } from "@/lib/learning-path-store";
 import { firstPracticeTestCertId } from "@/lib/tracks";
+import { OWNER_EMAILS } from "@/lib/beta-access.functions";
+import { useAuth } from "@/state/auth-state";
 import { MaintenanceGate } from "@/components/maintenance-screen";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { accentSurface, featureAccent } from "@/lib/visual-accents";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useSidebarAttention();
+  const auth = useAuth();
+  const owner = OWNER_EMAILS.includes((auth.email ?? "").trim().toLowerCase());
 
   return (
     <nav className="flex flex-col gap-7 px-3 py-5">
@@ -32,7 +36,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
           </p>
           <ul className="space-y-0.5">
             {navItems
-              .filter((item) => item.group === group && item.to !== "/learn")
+              .filter((item) => item.group === group && item.to !== "/learn" && (!item.ownerOnly || owner))
               .map((item) => {
                 const needsAttention = attention.get(item.to);
                 return (
