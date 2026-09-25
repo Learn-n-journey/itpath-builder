@@ -26,6 +26,7 @@ export function StudyDurationPicker({
 }: StudyDurationPickerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollTimerRef = useRef<number | undefined>(undefined);
+  const dragRef = useRef<{ startY: number; startScrollTop: number; pointerId: number } | null>(null);
   const values = useMemo(() => {
     const result: number[] = [];
     for (let minutes = min; minutes <= max; minutes += step) result.push(minutes);
@@ -62,6 +63,32 @@ export function StudyDurationPicker({
     }, 90);
   }
 
+  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    const container = containerRef.current;
+    if (!container) return;
+    dragRef.current = { startY: event.clientY, startScrollTop: container.scrollTop, pointerId: event.pointerId };
+    container.setPointerCapture(event.pointerId);
+    container.style.cursor = "grabbing";
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    const container = containerRef.current;
+    if (!drag || !container || drag.pointerId !== event.pointerId) return;
+    container.scrollTop = drag.startScrollTop - (event.clientY - drag.startY);
+  }
+
+  function finishPointerDrag(event: React.PointerEvent<HTMLDivElement>) {
+    const drag = dragRef.current;
+    const container = containerRef.current;
+    if (!drag || !container || drag.pointerId !== event.pointerId) return;
+    dragRef.current = null;
+    container.style.cursor = "";
+    const index = Math.round(container.scrollTop / ITEM_HEIGHT);
+    selectIndex(index);
+  }
+
   function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
     let index = selectedIndex;
     if (event.key === "ArrowUp" || event.key === "ArrowLeft") index -= 1;
@@ -91,8 +118,12 @@ export function StudyDurationPicker({
         aria-valuenow={value}
         aria-valuetext={`${value} minutes`}
         onScroll={handleScroll}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishPointerDrag}
+        onPointerCancel={finishPointerDrag}
         onKeyDown={handleKeyDown}
-        className="relative z-20 snap-y snap-mandatory overflow-y-auto scroll-smooth overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="relative z-20 cursor-grab snap-y snap-mandatory overflow-y-auto scroll-smooth overscroll-contain select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         style={{ height: PICKER_HEIGHT, touchAction: "pan-y" }}
       >
         <div aria-hidden style={{ height: SPACER_HEIGHT }} />
