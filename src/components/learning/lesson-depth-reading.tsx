@@ -10,6 +10,7 @@ import type { LessonReferenceRow } from "@/data/deep-lessons/types";
 import { ReviewConceptLink } from "@/components/learning/remediation-link";
 import { lessonSectionId, resolveLessonSection } from "@/lib/lesson-concepts";
 import { getDeepLesson } from "@/data/deep-lessons";
+import { useAppState } from "@/state/app-state";
 
 /**
  * Splits the reference rows into sub-sections by their heading, keeping the
@@ -74,14 +75,24 @@ export function LessonCheckYourself({ depth, topicId }: { depth: LessonDepth; to
 }
 
 function CheckRow({ check, index, topicId }: { check: LessonDepth["checkYourself"][number]; index: number; topicId?: string }) {
+  const { user, actions } = useAppState();
   const [answer, setAnswer] = useState("");
   const [result, setResult] = useState<boolean | null>(null);
   const sectionId = topicId ? check.lessonSectionId ?? lessonSectionId(topicId, "core") : undefined;
   const mapped = topicId && sectionId ? resolveLessonSection(topicId, sectionId, getDeepLesson(topicId)) : undefined;
   const submit = () => {
     const text = answer.trim();
-    if (text.split(/\s+/).length < 2) { setResult(false); return; }
-    setResult(answerMatches(text, check.answer) || conceptCoverage(check.answer, text) >= 0.4);
+    const correct = text.split(/\s+/).length >= 2 && (answerMatches(text, check.answer) || conceptCoverage(check.answer, text) >= 0.4);
+    setResult(correct);
+    if (!topicId) return;
+    const questionId = `check-${index + 1}`;
+    if (correct) {
+      actions.settleTopicReview(topicId, "pass");
+      user.mistakes.filter((mistake) => !mistake.resolved && mistake.questionId === questionId).forEach((mistake) => actions.setMistakeResolved(mistake.id, true));
+    } else {
+      actions.recordMistake({ topicId, activity: "recall", category: "misunderstood_concept", severity: "medium", questionId, createdAt: new Date().toISOString() });
+      actions.ensureReview({ topicId });
+    }
   };
   return (
     <li className="rounded-lg border border-border p-3">
