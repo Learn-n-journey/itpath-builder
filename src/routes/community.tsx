@@ -222,7 +222,7 @@ function CommunityPage() {
                           {mine?<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">You</Link>:<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">{shownName}</Link>}
                           {mine ? <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">You</span> : null}
                           <span className="text-xs text-muted-foreground">{timeLabel(message.createdAt)}</span>{!mine&&<Link to="/profile/$userId" params={{userId:message.userId}} className="ml-auto flex items-center gap-1 rounded-full border border-border/70 px-2.5 py-1 text-[11px] font-semibold text-foreground hover:bg-secondary"><UserRound className="size-3.5"/>Profile</Link>}
-                          <span className="ml-auto opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                          <span className="ml-auto opacity-100 transition-opacity">
                             {mine ? (
                               <span className="flex items-center gap-1">
                                 <button type="button" aria-label="Edit your post" className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={()=>{setEditingPost(message.id);setEditDraft(message.body)}}><Pencil className="size-3.5" aria-hidden /></button>
