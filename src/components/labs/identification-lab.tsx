@@ -103,6 +103,26 @@ export function IdentificationLab({ lab }: { lab: Lab }) {
       ...(score >= lab.masteryScore ? { completedAt: now } : {}),
     };
     actions.addLabAttempt(attempt);
+    if (score >= lab.masteryScore) {
+      actions.settleTopicReview(lab.topicId, "pass");
+      const correctItemIds = new Set(set.items.filter((item) => nameRight(item) && jobRight(item)).map((item) => item.id));
+      user.mistakes
+        .filter((mistake) => !mistake.resolved && mistake.labId === lab.id && (!mistake.questionId || correctItemIds.has(mistake.questionId)))
+        .forEach((mistake) => actions.setMistakeResolved(mistake.id, true));
+    } else {
+      set.items.filter((item) => !nameRight(item) || !jobRight(item)).forEach((item) => {
+        actions.recordMistake({
+          topicId: lab.topicId,
+          activity: "lab",
+          category: !nameRight(item) ? "didnt_know_fact" : "misunderstood_concept",
+          severity: "medium",
+          labId: lab.id,
+          questionId: item.id,
+          createdAt: now,
+        });
+      });
+      actions.ensureReview({ topicId: lab.topicId });
+    }
     setMarked({ score, earned, total });
     toast(score >= lab.masteryScore ? `Identification passed at ${score}%.` : `${score}%. A new set is one tap away.`);
   }
