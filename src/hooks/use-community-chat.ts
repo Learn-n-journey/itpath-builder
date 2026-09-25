@@ -131,9 +131,21 @@ export function useCommunityChat(room = "general") {
     },
   });
 
+  const edit = useMutation({
+    mutationFn: async (input: { id: string; body: string }) => {
+      if (!userId) throw new Error("Sign in first.");
+      const body = input.body.trim();
+      if (!body) throw new Error("A post cannot be empty.");
+      const { error } = await supabase.from("community_messages").update({ body }).eq("id", input.id).eq("user_id", userId);
+      if (error) throw new Error(friendly(error.message));
+    },
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["community-messages", room] }),
+  });
+
   const remove = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("community_messages").delete().eq("id", id);
+      if (!userId) throw new Error("Sign in first.");
+      const { error } = await supabase.from("community_messages").delete().eq("id", id).eq("user_id", userId);
       if (error) throw new Error(friendly(error.message));
     },
     onSuccess: () => {
@@ -189,6 +201,8 @@ export function useCommunityChat(room = "general") {
     error: messages.error instanceof Error ? messages.error.message : null,
     send: send.mutateAsync,
     sending: send.isPending,
+    edit: edit.mutateAsync,
+    editing: edit.isPending,
     remove: remove.mutateAsync,
     report: report.mutateAsync,
     toggleLike, toggleSave, getComments, addComment,
