@@ -20,6 +20,8 @@ describe("course pack", () => {
     // The pack and the wording have to be talking about the same subject.
     expect(pack.domain.field).toBe(pack.subject.field);
     expect(pack.domain.vocabulary.qualification).toBe(pack.subject.qualificationWord);
+    // Learner-facing IT terminology is intentionally "learning path", not "certification".
+    expect(pack.subject.qualificationWord).toBe("learning path");
     // A new learner has to start on a qualification this pack actually holds.
     expect(pack.qualifications.map((item) => item.title)).toContain(pack.domain.defaultQualification);
     expect(pack.subject.qualificationWord.length).toBeGreaterThan(2);
