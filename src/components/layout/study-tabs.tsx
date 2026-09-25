@@ -27,7 +27,7 @@ const STUDY_PAGES: { path: string; label: string }[] = [
   { path: "/labs", label: "Labs" },
   { path: "/command-line", label: "Command Line" },
   { path: "/explore-hardware", label: "Hardware Explorer" },
-  { path: "/virus", label: "Virus Run" },
+  { path: "/virus", label: "Virus Run" },\n  { path: "/byte-break", label: "BYTE//BREAK" },
   { path: "/weak-areas", label: "Weak Areas" },
   { path: "/daily-challenge", label: "Daily Challenge" },
   { path: "/study-plan", label: "Study Plan" },
