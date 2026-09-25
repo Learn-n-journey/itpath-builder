@@ -68,18 +68,30 @@ export function resumeTarget(user: UserData): ResumeTarget | undefined {
       to: "/practice",
     };
   }
-  // 4. The topic touched most recently.
-  const touched = Object.values(user.topicProgress).sort((a, b) =>
+  // 4. Resume the most recently touched lesson. Reading position is navigation
+  // state only, but it is more precise than topic progress for re-entry because
+  // it records the exact lesson section the learner last had open.
+  const latestProgress = Object.values(user.topicProgress).sort((a, b) =>
     b.updatedAt.localeCompare(a.updatedAt),
   )[0];
-  if (touched) {
-    const topic = topics.find((item) => item.id === touched.topicId);
+  const latestReading = Object.values(user.readingPositions ?? {}).sort((a, b) =>
+    b.updatedAt.localeCompare(a.updatedAt),
+  )[0];
+  const latestTopic =
+    latestReading && (!latestProgress || latestReading.updatedAt >= latestProgress.updatedAt)
+      ? { topicId: latestReading.topicId, updatedAt: latestReading.updatedAt, sectionId: latestReading.sectionId }
+      : latestProgress
+        ? { topicId: latestProgress.topicId, updatedAt: latestProgress.updatedAt, sectionId: undefined }
+        : undefined;
+  if (latestTopic) {
+    const topic = topics.find((item) => item.id === latestTopic.topicId);
     if (topic) {
       return {
         label: topic.title,
-        detail: "Continue this section.",
+        detail: latestTopic.sectionId ? "Continue from the lesson section where you stopped." : "Continue this section.",
         to: "/topics/$topicId",
         params: { topicId: topic.id },
+        ...(latestTopic.sectionId ? { search: { section: latestTopic.sectionId } } : {}),
       };
     }
   }
