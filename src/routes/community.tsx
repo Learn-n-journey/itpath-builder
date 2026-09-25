@@ -6,6 +6,7 @@ import {
   BookOpen,
   Heart,
   Home,
+  ImagePlus,
   MessageCircle,
   MoreHorizontal,
   Search,
@@ -81,6 +82,9 @@ function CommunityPage() {
   const [commentDraft,setCommentDraft]=useState("");
   const [feedMode,setFeedMode]=useState<"latest"|"popular">("latest");
   const [draft, setDraft] = useState("");
+  const [postImage,setPostImage]=useState<File|null>(null);
+  const [postImagePreview,setPostImagePreview]=useState<string|null>(null);
+  const imageInputRef=useRef<HTMLInputElement>(null);
   const [nameDraft, setNameDraft] = useState("");
   const [editingName, setEditingName] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -127,11 +131,12 @@ function CommunityPage() {
 
   async function handleSend(event: React.FormEvent) {
     event.preventDefault();
-    const problem = checkMessage(draft);
+    const problem = draft.trim() ? checkMessage(draft) : postImage ? null : "Write something or add an image.";
     if (problem) return void toast.error(problem);
     try {
-      await send({ body: draft, displayName });
+      await send({ body: draft || " ", displayName, image: postImage });
       setDraft("");
+      setPostImage(null); if(postImagePreview)URL.revokeObjectURL(postImagePreview); setPostImagePreview(null);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "That did not send.");
     }
@@ -154,26 +159,8 @@ function CommunityPage() {
         </section>
       ) : null}
 
-      <div className="mb-4 rounded-xl border border-border/70 bg-card/30 p-3">
-        <Label htmlFor="communityRoom" className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Study room
-        </Label>
-        <select
-          id="communityRoom"
-          value={room}
-          onChange={(event) => void navigate({ search: { room: event.target.value } })}
-          className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
-        >
-          {rooms.map((entry) => (
-            <option key={entry.id} value={entry.id}>
-              {entry.id === GENERAL_ROOM ? "General — Public room" : entry.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="grid gap-5 xl:grid-cols-[14rem_minmax(0,1fr)_18rem]">
-        <aside className="hidden xl:block">
+      <div className="mx-auto max-w-2xl pb-20">
+        <aside className="hidden">
           <nav className="sticky top-4 space-y-1">
             <SocialNav icon={<Home className="size-5"/>} label="Home" active />
             <SocialNav icon={<TrendingUp className="size-5"/>} label="Popular" onClick={()=>setFeedMode("popular")} />
@@ -186,23 +173,22 @@ function CommunityPage() {
         </aside>
 
         <section className="min-w-0">
-          <header className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/55 px-4 py-3 shadow-sm sm:px-5">
-            <div className="flex min-w-0 items-center gap-3">
-              <Hash className="size-5 shrink-0 text-primary" aria-hidden />
-              <div className="min-w-0">
-                <h2 className="truncate font-display text-lg font-semibold">{title}</h2>
-                <p className="text-xs text-muted-foreground">{sectionId ? "Topic study room" : "Public community room"}</p>
+          <form onSubmit={handleSend} className="mb-2 border-b border-border/60 bg-background pb-3">
+            <div className="flex gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{(displayName||"?").charAt(0).toUpperCase()}</div>
+              <div className="min-w-0 flex-1">
+                <Label htmlFor="communityMessage" className="sr-only">Share something</Label>
+                <Textarea id="communityMessage" value={draft} onChange={e=>setDraft(e.target.value)} disabled={!displayName} maxLength={1000} rows={2} placeholder={displayName?"Share something…":"Choose a display name to post"} className="min-h-16 resize-none border-0 bg-transparent px-0 text-base shadow-none focus-visible:ring-0"/>
+                {postImagePreview&&<div className="relative mt-2 overflow-hidden rounded-xl bg-secondary"><img src={postImagePreview} alt="Post preview" className="max-h-80 w-full object-contain"/><button type="button" onClick={()=>{setPostImage(null);URL.revokeObjectURL(postImagePreview);setPostImagePreview(null)}} className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-1 text-xs font-semibold shadow">Remove</button></div>}
+                <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2">
+                  <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={e=>{const file=e.target.files?.[0]??null;if(!file)return;if(file.size>8*1024*1024){toast.error("Keep images under 8 MB.");return;}if(postImagePreview)URL.revokeObjectURL(postImagePreview);setPostImage(file);setPostImagePreview(URL.createObjectURL(file));}}/>
+                  <button type="button" onClick={()=>imageInputRef.current?.click()} className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"><ImagePlus className="size-4"/>Photo</button>
+                  <Button type="submit" size="sm" disabled={!displayName||sending||(!draft.trim()&&!postImage)}>{sending?"Posting":"Post"}</Button>
+                </div>
               </div>
             </div>
-            {displayName && !editingName ? (
-              <Button type="button" variant="secondary" size="sm" onClick={() => setEditingName(true)}>
-                <Pencil className="size-4" aria-hidden />Change name
-              </Button>
-            ) : null}
-          </header>
-
-          <div className="mb-3 rounded-2xl border border-border/70 bg-card/65 p-4 shadow-sm"><button type="button" onClick={()=>document.getElementById("communityMessage")?.focus()} className="flex w-full items-center gap-3 text-left"><div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">{(displayName||"?").charAt(0).toUpperCase()}</div><span className="flex-1 rounded-full bg-secondary/70 px-4 py-3 text-sm text-muted-foreground">Share something with the community…</span></button><div className="mt-3 flex gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground"><span className="rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary">Post</span><span className="rounded-full bg-secondary px-3 py-1.5">Question</span><span className="rounded-full bg-secondary px-3 py-1.5">Study help</span><span className="rounded-full bg-secondary px-3 py-1.5">Progress</span></div></div>
-          <div className="mb-3 flex items-center gap-1 rounded-xl border border-border/60 bg-card/40 p-1"><button onClick={()=>setFeedMode("latest")} className={cn("flex-1 rounded-lg px-3 py-2 text-sm font-semibold",feedMode==="latest"&&"bg-background shadow-sm")}>Latest</button><button onClick={()=>setFeedMode("popular")} className={cn("flex-1 rounded-lg px-3 py-2 text-sm font-semibold",feedMode==="popular"&&"bg-background shadow-sm")}>Popular</button></div>
+          </form>
+          <div className="mb-2 flex items-center justify-between border-b border-border/60 py-2"><div className="flex gap-4"><button onClick={()=>setFeedMode("latest")} className={cn("text-sm font-semibold",feedMode==="latest"?"text-foreground":"text-muted-foreground")}>Latest</button><button onClick={()=>setFeedMode("popular")} className={cn("text-sm font-semibold",feedMode==="popular"?"text-foreground":"text-muted-foreground")}>Popular</button></div><select aria-label="Community" value={room} onChange={e=>void navigate({search:{room:e.target.value}})} className="max-w-40 bg-transparent text-right text-xs text-muted-foreground outline-none">{rooms.map(entry=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
           <div ref={listRef} className="space-y-3">
             {loading ? (
               <p className="p-3 text-sm text-muted-foreground">Loading the room.</p>
@@ -221,7 +207,7 @@ function CommunityPage() {
                   const shownName = mine ? displayName || "You" : message.displayName;
                   const initial = shownName.trim().charAt(0).toUpperCase() || "?";
                   return (
-                    <article key={message.id} className="group flex gap-3 rounded-2xl border border-border/70 bg-card/65 p-4 shadow-sm transition-all hover:border-primary/25 hover:shadow-md">
+                    <article key={message.id} className="group flex gap-3 border-b border-border/60 bg-background px-1 py-4">
                       <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold", mine ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground")}>{initial}</div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
@@ -236,8 +222,8 @@ function CommunityPage() {
                             )}
                           </span>
                         </div>
-                        <p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-6">{message.body}</p>
-                        <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-2">
+                        {message.body.trim()&&<p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-6">{message.body}</p>}{message.imageUrl&&<img src={message.imageUrl} alt="" loading="lazy" className="mt-3 max-h-[32rem] w-full rounded-xl object-cover"/>}
+                        <div className="mt-3 flex items-center justify-between text-muted-foreground">
                           <button onClick={()=>void toggleLike(message)} className={cn("flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold transition-colors hover:bg-secondary",message.liked&&"text-rose-500")}><Heart className={cn("size-4",message.liked&&"fill-current")}/>{message.likeCount||""}<span className="hidden sm:inline">Like</span></button>
                           <button onClick={async()=>{if(openComments===message.id){setOpenComments(null);return;}setOpenComments(message.id);setComments(await getComments(message.id));}} className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"><MessageCircle className="size-4"/>{message.commentCount||""}<span className="hidden sm:inline">Comment</span></button>
                           <button onClick={()=>void toggleSave(message)} className={cn("flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold hover:bg-secondary",message.saved?"text-primary":"text-muted-foreground")}><Bookmark className={cn("size-4",message.saved&&"fill-current")}/><span className="hidden sm:inline">Save</span></button>
@@ -252,47 +238,33 @@ function CommunityPage() {
             )}
           </div>
 
-          <form onSubmit={handleSend} className="mt-3 rounded-2xl border border-border/70 bg-card/65 p-3 shadow-sm">
-            <Label htmlFor="communityMessage" className="sr-only">Your message</Label>
-            <div className="rounded-xl border border-border bg-card/40 p-2 focus-within:border-primary/60">
-              <Textarea
-                id="communityMessage"
-                value={draft}
-                onChange={(event) => setDraft(event.target.value)}
-                placeholder={displayName ? `Post to ${title}…` : "Choose your display name to join"}
-                disabled={!displayName}
-                maxLength={1000}
-                rows={2}
-                className="min-h-12 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
-                    event.preventDefault();
-                    void handleSend(event as unknown as React.FormEvent);
-                  }
-                }}
-              />
-              <div className="flex items-center justify-between gap-3 border-t border-border/50 px-1 pt-2">
-                <span className="text-[11px] tabular-nums text-muted-foreground">{draft.length}/1000</span>
-                <Button type="submit" size="sm" disabled={!displayName || sending || draft.trim().length === 0}><Send className="size-4" aria-hidden />{sending ? "Posting" : "Post"}</Button>
-              </div>
-            </div>
-          </form>
         </section>
 
-        <aside className="hidden space-y-4 xl:block">
+        <aside className="hidden">
           <div className="rounded-2xl border border-border/70 bg-card/60 p-4 shadow-sm"><div className="flex items-center gap-2"><Sparkles className="size-4 text-primary"/><h3 className="font-semibold">Welcome to IT PATH</h3></div><p className="mt-2 text-sm leading-relaxed text-muted-foreground">A community built around learning, troubleshooting, certifications and helping each other move forward.</p></div>
           <div className="rounded-2xl border border-border/70 bg-card/60 p-4 shadow-sm"><h3 className="font-semibold">Popular communities</h3><div className="mt-3 space-y-2">{rooms.slice(1,6).map((entry,i)=><button key={entry.id} onClick={()=>void navigate({search:{room:entry.id}})} className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-secondary/60"><div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 font-mono text-xs font-bold text-primary">#{i+1}</div><div className="min-w-0"><p className="truncate text-sm font-semibold">{entry.label}</p><p className="text-xs text-muted-foreground">Study community</p></div></button>)}</div></div>
           <div className="rounded-2xl border border-border/70 bg-card/60 p-4 text-xs leading-relaxed text-muted-foreground"><p className="font-semibold text-foreground">Community standards</p><p className="mt-2">Learn openly. Help when you can. Disagree respectfully. Report content that crosses the line.</p></div>
         </aside>
       </div>
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/95 px-4 pb-[max(.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-md items-center justify-around">
+          <DockButton icon={<Home className="size-5"/>} label="Home" active onClick={()=>{setFeedMode("latest");void navigate({search:{room:GENERAL_ROOM}})}}/>
+          <DockButton icon={<TrendingUp className="size-5"/>} label="Popular" active={feedMode==="popular"} onClick={()=>setFeedMode("popular")}/>
+          <DockButton icon={<ImagePlus className="size-5"/>} label="Post" onClick={()=>document.getElementById("communityMessage")?.focus()}/>
+          <DockButton icon={<Hash className="size-5"/>} label="Rooms" onClick={()=>{const el=document.querySelector<HTMLSelectElement>('select[aria-label="Community"]');el?.focus();el?.click();}}/>
+          <DockButton icon={<Bookmark className="size-5"/>} label="Saved"/>
+        </div>
+      </nav>
     </>
   );
 }
 
+function DockButton({icon,label,active,onClick}:{icon:React.ReactNode;label:string;active?:boolean;onClick?:()=>void}){return <button type="button" onClick={onClick} className={cn("flex min-w-14 flex-col items-center gap-1 rounded-lg px-2 py-1 text-[10px] font-medium text-muted-foreground",active&&"text-primary")}>{icon}<span>{label}</span></button>}
+
 function SocialNav({icon,label,active,onClick}:{icon:React.ReactNode;label:string;active?:boolean;onClick?:()=>void}){return <button onClick={onClick} className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-secondary/70",active&&"bg-primary/10 text-primary")}>{icon}{label}</button>}
 
 function SocialHero() {
-  return <header className="mb-5 flex flex-col gap-4 border-b border-border/70 pb-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-primary">IT PATH Network</p><h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Community</h1><p className="mt-1 text-sm text-muted-foreground">Learn together. Ask questions. Share progress. Build your network.</p></div><div className="relative w-full sm:w-72"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"/><Input className="rounded-full pl-9" placeholder="Search community"/></div></header>
+  return <header className="mx-auto mb-3 flex max-w-2xl items-center justify-between border-b border-border/60 pb-3"><div><h1 className="font-display text-2xl font-semibold tracking-tight">Community</h1><p className="text-xs text-muted-foreground">IT PATH Network</p></div><button aria-label="Search community" className="rounded-full p-2 text-muted-foreground hover:bg-secondary"><Search className="size-5"/></button></header>
 }
 
 function CommunityHero() {
