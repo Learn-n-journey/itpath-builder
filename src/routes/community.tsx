@@ -10,7 +10,6 @@ import {
   Cloud,
   Code2,
   GraduationCap,
-  Linux,
   Network,
   Rocket,
   Shield,

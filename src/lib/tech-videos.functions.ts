@@ -272,7 +272,7 @@ export const searchYouTubeVideoPage = createServerFn({ method: "GET" })
   })
   .handler(async ({ data }): Promise<YouTubeSearchPage> => {
     if (data.query.length < 2) return { videos: [], nextPageToken: null, status: "youtube-error", message: "Enter at least two characters." };
-    const apiKey = process.env.YOUTUBE_API_KEY?.trim();
+    const apiKey = process.env["YOUTUBE_API_KEY"]?.trim();
     if (!apiKey) return { videos: [], nextPageToken: null, status: "missing-key", message: "YOUTUBE_API_KEY is not available to the server runtime." };
     const params = new URLSearchParams({
       part: "snippet",
@@ -335,7 +335,7 @@ export const searchLearningVideos = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<LearningVideoSearchResponse> => {
     if (data.query.length < 2) return { videos: [], status: "fallback" };
     const queryKey = data.query.toLowerCase();
-    const apiKey = process.env.YOUTUBE_API_KEY?.trim();
+    const apiKey = process.env["YOUTUBE_API_KEY"]?.trim();
     // Keep API-backed and fallback caches separate. If a key is added after a
     // fallback search, the old empty/fallback result must not mask live YouTube.
     const key = `${apiKey ? "youtube" : "fallback"}:${queryKey}`;
