@@ -69,7 +69,7 @@ export function useCommunityChat(room = "general") {
       for(const item of comments??[])commentCounts.set(item.message_id,(commentCounts.get(item.message_id)??0)+1);
       const liked=new Set((likes??[]).filter(item=>item.user_id===userId).map(item=>item.message_id));
       const saved=new Set((saves??[]).map(item=>item.message_id));
-      return (data ?? [])
+      return rows
         .map((row) => ({
           id: row.id,
           userId: row.user_id,
@@ -114,7 +114,7 @@ export function useCommunityChat(room = "general") {
         const key=`${userId}/${crypto.randomUUID()}.${ext}`;
         const {error:uploadError}=await supabase.storage.from("community-images").upload(key,input.image,{contentType:input.image.type,upsert:false});
         if(uploadError)throw new Error("That image did not upload. Try again.");
-        imageUrl=supabase.storage.from("community-images").getPublicUrl(key).data.publicUrl;
+        imageUrl=key; // private bucket: store the path, sign it when reading
       }
       const post = { user_id: userId, display_name: input.displayName, body: input.body.trim(), room };
       let { error } = imageUrl
