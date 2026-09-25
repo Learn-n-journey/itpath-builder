@@ -2,7 +2,7 @@ import type { UserData } from "@/lib/app-data/types";
 import { nextAction } from "@/lib/next-action";
 import { resumeTarget } from "@/lib/resume";
 
-export type ContinuityKind = "study_plan" | "resume" | "recommendation";
+export type ContinuityKind = "study_plan" | "return" | "resume" | "recommendation";
 
 export interface LearnerContinuity {
   kind: ContinuityKind;
@@ -20,8 +20,9 @@ export interface LearnerContinuity {
  *
  * Priority is intentionally simple:
  * 1. Continue the active task in a study session the learner deliberately started.
- * 2. Resume unfinished work or the most recently touched topic.
- * 3. Fall back to the evidence-based next-action engine.
+ * 2. Return from targeted remediation to the activity that exposed the gap.
+ * 3. Resume unfinished work or the most recently touched topic.
+ * 4. Fall back to the evidence-based next-action engine.
  *
  * This function does not create mastery evidence or mutate learner state. It only
  * translates existing state into a single destination that every learner-facing
@@ -56,6 +57,16 @@ export function learnerContinuity(
         topicId: task.topicId,
       };
     }
+  }
+
+  if (user.activityReturn) {
+    return {
+      kind: "return",
+      label: user.activityReturn.label,
+      reason: "You reviewed the weak concept. Return to the activity you were doing and try again.",
+      to: user.activityReturn.href,
+      topicId: user.activityReturn.topicId,
+    };
   }
 
   const resume = resumeTarget(user);
