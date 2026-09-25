@@ -516,14 +516,26 @@ body {
   transition-property: color, background-color, border-color, box-shadow, opacity, transform !important;
 }
 
+/* Large surfaces use instant simulated frost instead of expensive live backdrop blur. */
+.glass-surface,
+.panel,
+[class*="bg-card/"] {
+  background-image: linear-gradient(
+    145deg,
+    color-mix(in oklab, white 5%, transparent),
+    transparent 38%,
+    color-mix(in oklab, var(--color-background) 12%, transparent)
+  ) !important;
+}
+
 /* One glass recipe for every card-like surface over themed backgrounds. */
 .glass-surface,
 .panel,
 [class*="bg-card/"] {
   background-color: color-mix(in oklab, var(--color-card) 58%, transparent) !important;
   border-color: color-mix(in oklab, var(--color-foreground) 20%, transparent) !important;
-  backdrop-filter: blur(9px) saturate(132%) brightness(1.08) !important;
-  -webkit-backdrop-filter: blur(9px) saturate(132%) brightness(1.08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   box-shadow:
     inset 0 1px 0 color-mix(in oklab, white 15%, transparent),
     0 12px 32px -26px color-mix(in oklab, var(--color-background) 60%, transparent) !important;
@@ -537,8 +549,8 @@ body {
 .bg-card\/35,
 .bg-card\/40 {
   background-color: color-mix(in oklab, var(--color-card) 54%, transparent) !important;
-  backdrop-filter: blur(9px) saturate(132%) brightness(1.08);
-  -webkit-backdrop-filter: blur(9px) saturate(132%) brightness(1.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border-color: color-mix(in oklab, var(--color-foreground) 18%, transparent);
   box-shadow: inset 0 1px 0 color-mix(in oklab, white 14%, transparent);
 }
