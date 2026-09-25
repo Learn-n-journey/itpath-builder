@@ -23,6 +23,8 @@ import itPathArtwork from "@/assets/path-it.jpg";
 import autoPathArtwork from "@/assets/path-auto.jpg";
 import { activeDomainKey } from "@/domain/active";
 import { useCommunityPreview } from "@/hooks/use-community-preview";
+import { useProfile } from "@/hooks/use-profile";
+import { useAuth } from "@/state/auth-state";
 
 
 export const Route = createFileRoute("/dashboard")({
@@ -115,6 +117,8 @@ function MeterRow({ label, value, suffix = "%" }: { label: string; value: number
 function Dashboard() {
   const { user, hydrated } = useAppState();
   const { posts: communityPosts } = useCommunityPreview(4);
+  const { userId } = useAuth();
+  const { profile } = useProfile();
 
   // The subject choice lives in browser storage, so the matching course art
   // is selected as soon as the dashboard hydrates.
@@ -243,7 +247,7 @@ function Dashboard() {
       <div className="relative mx-auto max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
       <header className="mb-5 flex items-center justify-between gap-3 border-b border-border/60 pb-4">
         <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">Your learning home</p><h1 className="font-display text-xl font-semibold leading-tight tracking-tight sm:text-2xl">Learn something. Meet someone.</h1></div>
-        <div className="flex items-center gap-1"><Link to="/learn" aria-label="Explore learning" className="rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Search className="size-5"/></Link><Link to="/community" aria-label="Community activity" className="relative rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Bell className="size-5"/>{communityPosts.length>0?<span className="absolute right-2 top-2 size-2 rounded-full bg-primary"/>:null}</Link></div>
+        <div className="flex items-center gap-1">{userId?<Link to="/profile/$userId" params={{userId}} aria-label="Your profile" className="mr-1 flex size-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary">{profile.avatarUrl?<img src={profile.avatarUrl} alt="" className="h-full w-full object-cover"/>:(profile.displayName||profile.firstName||"?")[0]?.toUpperCase()}</Link>:null}<Link to="/learn" aria-label="Explore learning" className="rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Search className="size-5"/></Link><Link to="/community" aria-label="Community activity" className="relative rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Bell className="size-5"/>{communityPosts.length>0?<span className="absolute right-2 top-2 size-2 rounded-full bg-primary"/>:null}</Link></div>
       </header>
 
 
