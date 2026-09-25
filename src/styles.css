@@ -1117,3 +1117,16 @@ html.light .sidebar-glass {
 @keyframes byteInstalled{50%{filter:drop-shadow(0 0 10px currentColor)}}
 @keyframes byteNextSlot{50%{box-shadow:0 0 24px color-mix(in oklab,var(--color-primary) 22%,transparent);border-color:color-mix(in oklab,var(--color-primary) 75%,white)}}
 @media(prefers-reduced-motion:reduce){.byte-game-header:after,.byte-board-scan,.byte-special-orbit,.byte-level-celebration i,.byte-platform,.byte-garage-stage .byte-mini-rig,.byte-garage-stage .byte-rig-glow,.byte-garage-stage .byte-rig-cpu,.byte-part-slot.is-installed svg,.byte-part-slot.is-next{animation:none!important}}
+
+
+/* BYTE//BREAK mission, EMP and obstacle visuals */
+.byte-objective{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:.7rem;border:1px solid color-mix(in oklab,var(--color-primary) 24%,var(--color-border));border-radius:1rem;padding:.65rem .8rem;background:linear-gradient(90deg,color-mix(in oklab,var(--color-primary) 9%,transparent),color-mix(in oklab,var(--color-background) 48%,transparent))}
+.byte-objective span{font-family:monospace;font-size:.55rem;letter-spacing:.18em;color:var(--color-primary)}.byte-objective strong{font-size:.75rem;font-weight:600}.byte-objective small{font-family:monospace;font-size:.65rem;color:var(--color-muted-foreground)}
+.byte-corrupted{border-color:color-mix(in oklab,var(--color-destructive) 65%,var(--color-border))!important;box-shadow:inset 0 0 18px color-mix(in oklab,var(--color-destructive) 25%,transparent),0 0 12px color-mix(in oklab,var(--color-destructive) 16%,transparent)!important}
+.byte-corruption-lock{position:absolute;z-index:8;inset:3px;pointer-events:none;border:1px solid color-mix(in oklab,var(--color-destructive) 70%,transparent);border-radius:.65rem;background:repeating-linear-gradient(135deg,transparent 0 7px,color-mix(in oklab,var(--color-destructive) 10%,transparent) 7px 9px);animation:byteCorruptPulse 2s ease-in-out infinite}
+.byte-corruption-lock i{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--color-destructive);box-shadow:0 0 6px var(--color-destructive)}.byte-corruption-lock i:nth-child(1){left:18%;top:22%}.byte-corruption-lock i:nth-child(2){right:18%;top:48%}.byte-corruption-lock i:nth-child(3){left:42%;bottom:16%}
+.byte-emp-mark{position:absolute;z-index:7;right:5%;top:5%;border:1px solid color-mix(in oklab,var(--color-warning) 55%,transparent);border-radius:.3rem;padding:.08rem .18rem;background:color-mix(in oklab,var(--color-background) 78%,transparent);font-family:monospace;font-size:.38rem;font-weight:800;letter-spacing:.08em;color:var(--color-warning);box-shadow:0 0 8px color-mix(in oklab,var(--color-warning) 25%,transparent);animation:byteEmpBlink 1.6s ease-in-out infinite}
+.byte-emp-mark~span .byte-special-orbit{border-color:color-mix(in oklab,var(--color-warning) 75%,transparent)}
+@keyframes byteCorruptPulse{50%{opacity:.68;box-shadow:inset 0 0 12px color-mix(in oklab,var(--color-destructive) 28%,transparent)}}
+@keyframes byteEmpBlink{50%{filter:brightness(1.55);transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){.byte-corruption-lock,.byte-emp-mark{animation:none!important}}
