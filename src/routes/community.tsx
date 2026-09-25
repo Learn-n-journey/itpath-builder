@@ -79,7 +79,7 @@ function CommunityPage() {
   const room = search.room && isValidRoom(search.room) ? search.room : GENERAL_ROOM;
   const { displayName, loading: nameLoading, saveDisplayName, saving } = useDisplayName();
   const { profile: ownProfile } = useProfile();
-  const { messages, loading, send, sending, remove, report, toggleLike, toggleSave, getComments, addComment } = useCommunityChat(room);
+  const { messages, loading, send, sending, edit, editing, remove, report, toggleLike, toggleSave, getComments, addComment } = useCommunityChat(room);
   const { profiles: communityProfiles } = useProfiles(messages.map(message => message.userId));
   const [openComments,setOpenComments]=useState<string|null>(null);
   const [comments,setComments]=useState<any[]>([]);
@@ -91,6 +91,8 @@ function CommunityPage() {
   const imageInputRef=useRef<HTMLInputElement>(null);
   const [nameDraft, setNameDraft] = useState("");
   const [editingName, setEditingName] = useState(false);
+  const [editingPost,setEditingPost]=useState<string|null>(null);
+  const [editDraft,setEditDraft]=useState("");
   const listRef = useRef<HTMLDivElement>(null);
 
   const rooms = useMemo(() => {
@@ -222,13 +224,16 @@ function CommunityPage() {
                           <span className="text-xs text-muted-foreground">{timeLabel(message.createdAt)}</span>{!mine&&<Link to="/profile/$userId" params={{userId:message.userId}} className="ml-auto flex items-center gap-1 rounded-full border border-border/70 px-2.5 py-1 text-[11px] font-semibold text-foreground hover:bg-secondary"><UserRound className="size-3.5"/>Profile</Link>}
                           <span className="ml-auto opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                             {mine ? (
-                              <button type="button" aria-label="Delete your message" className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={async () => { try { await remove(message.id); } catch { toast.error("That did not delete. Try again."); } }}><Trash2 className="size-3.5" aria-hidden /></button>
+                              <span className="flex items-center gap-1">
+                                <button type="button" aria-label="Edit your post" className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={()=>{setEditingPost(message.id);setEditDraft(message.body)}}><Pencil className="size-3.5" aria-hidden /></button>
+                                <button type="button" aria-label="Delete your post" className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive" onClick={async () => { if(!window.confirm("Delete this post? This cannot be undone."))return; try { await remove(message.id); toast.success("Post deleted."); } catch { toast.error("That did not delete. Try again."); } }}><Trash2 className="size-3.5" aria-hidden /></button>
+                              </span>
                             ) : (
                               <button type="button" aria-label="Report this message" className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={async () => { try { await report({ messageId: message.id }); toast.success("Reported. Thank you for flagging it."); } catch { toast.error("That did not send. Try again."); } }}><Flag className="size-3.5" aria-hidden /></button>
                             )}
                           </span>
                         </div>
-                        {message.body.trim()&&<p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-6">{message.body}</p>}{message.imageUrl&&<img src={message.imageUrl} alt="" loading="lazy" className="mt-3 max-h-[32rem] w-full rounded-xl object-cover"/>}
+                        {editingPost===message.id?<form className="mt-2 space-y-2" onSubmit={async e=>{e.preventDefault();const problem=checkMessage(editDraft);if(problem)return void toast.error(problem);try{await edit({id:message.id,body:editDraft});setEditingPost(null);toast.success("Post updated.");}catch(error){toast.error(error instanceof Error?error.message:"That did not save.")}}}><Textarea value={editDraft} onChange={e=>setEditDraft(e.target.value)} maxLength={1000} rows={3} autoFocus/><div className="flex justify-end gap-2"><Button type="button" size="sm" variant="ghost" onClick={()=>setEditingPost(null)}>Cancel</Button><Button type="submit" size="sm" disabled={editing||!editDraft.trim()}>{editing?"Saving":"Save"}</Button></div></form>:{message.body.trim()&&<p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-6">{message.body}</p>}}{message.imageUrl&&<img src={message.imageUrl} alt="" loading="lazy" className="mt-3 max-h-[32rem] w-full rounded-xl object-cover"/>}
                         <div className="mt-3 flex items-center justify-between text-muted-foreground">
                           <button onClick={()=>void toggleLike(message)} className={cn("flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold transition-colors hover:bg-secondary",message.liked&&"text-rose-500")}><Heart className={cn("size-4",message.liked&&"fill-current")}/>{message.likeCount||""}<span className="hidden sm:inline">Like</span></button>
                           <button onClick={async()=>{if(openComments===message.id){setOpenComments(null);return;}setOpenComments(message.id);setComments(await getComments(message.id));}} className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"><MessageCircle className="size-4"/>{message.commentCount||""}<span className="hidden sm:inline">Comment</span></button>
