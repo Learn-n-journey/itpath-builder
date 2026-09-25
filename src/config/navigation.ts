@@ -101,7 +101,7 @@ const allNavItems: NavItem[] = [
     to: "/learn",
     icon: BookOpen,
     group: "Study",
-    description: "Every topic lesson, searchable, with recall and teach-back.",
+    description: "Explore topics, verified material, videos and news without changing your structured path.",
   },
   {
     label: "Resources",
