@@ -74,7 +74,7 @@ function CommunityPage() {
   const { user } = useAppState();
   const navigate = useNavigate({ from: "/community" });
   const search = Route.useSearch();
-  const room = isValidRoom(search.room) ? search.room : GENERAL_ROOM;
+  const room = search.room && isValidRoom(search.room) ? search.room : GENERAL_ROOM;
   const { displayName, loading: nameLoading, saveDisplayName, saving } = useDisplayName();
   const { messages, loading, send, sending, remove, report, toggleLike, toggleSave, getComments, addComment } = useCommunityChat(room);
   const [openComments,setOpenComments]=useState<string|null>(null);
