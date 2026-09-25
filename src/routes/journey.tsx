@@ -160,11 +160,7 @@ function JourneyPage() {
         aria-hidden
       />
       <div className="relative mx-auto w-full max-w-3xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
-      <header className="mb-4">
-        <h1 className="font-display text-3xl font-bold tracking-tight text-foreground">My Path</h1>
-      </header>
-
-      <nav
+<nav
         aria-label="Path view"
         className="glass-surface mb-3 flex h-[3.25rem] w-full max-w-md items-center rounded-full border border-border/80 p-1 shadow-sm"
       >
