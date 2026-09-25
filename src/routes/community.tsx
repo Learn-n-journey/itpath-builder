@@ -159,7 +159,7 @@ function CommunityPage() {
         </section>
       ) : null}
 
-      <div className="mx-auto max-w-2xl pb-20">
+      <div className="mx-auto max-w-2xl pb-28">
         <aside className="hidden">
           <nav className="sticky top-4 space-y-1">
             <SocialNav icon={<Home className="size-5"/>} label="Home" active />
@@ -246,7 +246,7 @@ function CommunityPage() {
           <div className="rounded-2xl border border-border/70 bg-card/60 p-4 text-xs leading-relaxed text-muted-foreground"><p className="font-semibold text-foreground">Community standards</p><p className="mt-2">Learn openly. Help when you can. Disagree respectfully. Report content that crosses the line.</p></div>
         </aside>
       </div>
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/95 px-4 pb-[max(.6rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl">
+      <nav className="fixed bottom-0 left-0 right-0 z-[100] border-t border-border/70 bg-background/95 px-4 pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl" style={{paddingBottom:"max(.6rem, env(safe-area-inset-bottom))",position:"fixed"}}>
         <div className="mx-auto flex max-w-md items-center justify-around">
           <DockButton icon={<Home className="size-5"/>} label="Home" active onClick={()=>{setFeedMode("latest");void navigate({search:{room:GENERAL_ROOM}})}}/>
           <DockButton icon={<TrendingUp className="size-5"/>} label="Popular" active={feedMode==="popular"} onClick={()=>setFeedMode("popular")}/>
