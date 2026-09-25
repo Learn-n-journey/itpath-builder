@@ -16,7 +16,8 @@ import {
 } from "@/data/topic-quizzes";
 import { conceptStats } from "@/lib/concept-mastery";
 import type { Quiz } from "@/lib/app-data/types";
-import { nextJourneyTopic, sectionQuizBest, sectionQuizPassedAt } from "@/lib/journey-order";
+import { sectionQuizBest, sectionQuizPassedAt } from "@/lib/journey-order";
+import { learnerContinuity } from "@/lib/learner-continuity";
 import { useAppState } from "@/state/app-state";
 import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 import { certifications } from "@/data/static-content";
@@ -81,7 +82,7 @@ function SectionQuizPage() {
   const passedOn = passedAt
     ? new Date(passedAt).toLocaleDateString(undefined, { day: "numeric", month: "long", year: "numeric" })
     : undefined;
-  const next = passed ? nextJourneyTopic(topicId) : undefined;
+  const continuity = useMemo(() => learnerContinuity(user), [user]);
 
   const quiz: Quiz = {
     id: quizId,
@@ -107,18 +108,22 @@ function SectionQuizPage() {
             {passedOn ? `You passed this on ${passedOn}. ` : ""}Your best score here is {best}%. That pass stays
             recorded, so taking it again can only help.
           </p>
-          {next ? (
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <p className="text-sm text-muted-foreground">
-                That is the knowledge check done. The rest of this section still has to stand up before {next.title} opens.
-              </p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <p className="text-sm text-muted-foreground">
+              The knowledge check is complete. {continuity.reason}
+            </p>
+            {continuity.to !== `/section-quiz/${topicId}` ? (
               <Button asChild size="sm">
-                <Link to="/topics/$topicId" params={{ topicId: next.id }}>
-                  Start {next.title}
+                <Link
+                  to={continuity.to as never}
+                  {...(continuity.params ? { params: continuity.params as never } : {})}
+                  {...(continuity.search ? { search: continuity.search as never } : {})}
+                >
+                  {continuity.kind === "return" ? continuity.label : continuity.kind === "recommendation" ? "Continue to next step" : "Continue learning"}
                 </Link>
               </Button>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
         </Panel>
       ) : null}
 
@@ -137,12 +142,16 @@ function SectionQuizPage() {
 
       <div className="mt-5 flex flex-wrap gap-2">
         <Button asChild variant="secondary">
-          <Link to="/topics/$topicId" params={{ topicId }}>
-            Back to the lesson
+          <Link
+            to={continuity.to as never}
+            {...(continuity.params ? { params: continuity.params as never } : {})}
+            {...(continuity.search ? { search: continuity.search as never } : {})}
+          >
+            {continuity.kind === "return" ? continuity.label : passed ? "Continue learning" : "Review and keep going"}
           </Link>
         </Button>
         <Button asChild variant="ghost">
-          <Link to="/journey">Journey map</Link>
+          <Link to="/topics/$topicId" params={{ topicId }}>Back to the lesson</Link>
         </Button>
       </div>
     </>
