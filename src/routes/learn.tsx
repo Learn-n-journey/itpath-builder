@@ -192,7 +192,7 @@ function Learn() {
             ))}</div>
           ) : <p className="rounded-xl border border-border/70 bg-card p-4 text-sm text-muted-foreground">No matching videos are available right now.{videoStatus ? <span className="mt-2 block text-xs">Diagnostic: {videoStatus}</span> : null}</p>}
           <Button asChild variant="ghost" size="sm" className="mt-2">
-            <a href={`/learn/videos?q=${encodeURIComponent(query.trim())}`}>More videos about “{query.trim()}”</a>
+            <a href={`/tech-videos?q=${encodeURIComponent(query.trim())}`}>More videos about “{query.trim()}”</a>
           </Button>
         </section>
       ) : null}
