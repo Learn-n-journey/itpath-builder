@@ -20,6 +20,7 @@ import {
   Send,
   ShieldCheck,
   Trash2,
+  UserRound,
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -208,12 +209,12 @@ function CommunityPage() {
                   const initial = shownName.trim().charAt(0).toUpperCase() || "?";
                   return (
                     <article key={message.id} className="group flex gap-3 border-b border-border/60 bg-background px-1 py-4">
-                      {mine?<div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{initial}</div>:<Link to="/profile/$userId" params={{userId:message.userId}} aria-label={`View ${message.displayName}'s profile`} className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-bold text-foreground">{initial}</Link>}
+                      <Link to="/profile/$userId" params={{userId:message.userId}} aria-label={`View ${shownName}'s profile`} className={cn("flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold",mine?"bg-primary text-primary-foreground":"bg-secondary text-foreground")}>{initial}</Link>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          {mine?<span className="truncate text-sm font-semibold">You</span>:<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">{message.displayName}</Link>}
+                          {mine?<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">You</Link>:<Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-semibold hover:underline">{message.displayName}</Link>}
                           {mine ? <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">You</span> : null}
-                          <span className="text-xs text-muted-foreground">{timeLabel(message.createdAt)}</span>
+                          <span className="text-xs text-muted-foreground">{timeLabel(message.createdAt)}</span>{!mine&&<Link to="/profile/$userId" params={{userId:message.userId}} className="ml-auto flex items-center gap-1 rounded-full border border-border/70 px-2.5 py-1 text-[11px] font-semibold text-foreground hover:bg-secondary"><UserRound className="size-3.5"/>Profile</Link>}
                           <span className="ml-auto opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                             {mine ? (
                               <button type="button" aria-label="Delete your message" className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={async () => { try { await remove(message.id); } catch { toast.error("That did not delete. Try again."); } }}><Trash2 className="size-3.5" aria-hidden /></button>
