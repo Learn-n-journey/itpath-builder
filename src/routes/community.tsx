@@ -119,7 +119,6 @@ function CommunityPage() {
 
 
   const needsName = ready && Boolean(userId) && !nameLoading && !displayName;
-  const title = roomTitle(room);
   const activeCommunity = communityForRoom(room);
   const feedMessages=useMemo(()=>feedMode==="popular" ? [...messages].sort((a,b)=>(b.likeCount+b.commentCount*2)-(a.likeCount+a.commentCount*2)) : [...messages].reverse(),[messages,feedMode]);
 
@@ -253,7 +252,7 @@ function CommunityPage() {
         </section>
 
         <aside className="space-y-4">
-          <div className="rounded-2xl border border-border/70 bg-card/70 p-4"><h3 className="font-display font-bold">Community Stats</h3><div className="mt-4 grid grid-cols-3 gap-2 text-center"><div><Users className="mx-auto size-4 text-primary"/><p className="mt-1 font-bold">{Object.keys(communityProfiles).length}</p><p className="text-[10px] text-muted-foreground">Members</p></div><div><MessageCircle className="mx-auto size-4 text-primary"/><p className="mt-1 font-bold">{messages.length}</p><p className="text-[10px] text-muted-foreground">Posts</p></div><div><Sparkles className="mx-auto size-4 text-primary"/><p className="mt-1 font-bold">{messages.reduce((sum,item)=>sum+item.commentCount,0)}</p><p className="text-[10px] text-muted-foreground">Replies</p></div></div></div>
+          <div className="rounded-2xl border border-border/70 bg-card/70 p-4"><h3 className="font-display font-bold">Community Stats</h3><div className="mt-4 grid grid-cols-3 gap-2 text-center"><div><Users className="mx-auto size-4 text-primary"/><p className="mt-1 font-bold">{memberCount.loading?"…":memberCount.count}</p><p className="text-[10px] text-muted-foreground">Members</p></div><div><MessageCircle className="mx-auto size-4 text-primary"/><p className="mt-1 font-bold">{messages.length}</p><p className="text-[10px] text-muted-foreground">Posts</p></div><div><Sparkles className="mx-auto size-4 text-primary"/><p className="mt-1 font-bold">{messages.reduce((sum,item)=>sum+item.commentCount,0)}</p><p className="text-[10px] text-muted-foreground">Replies</p></div></div></div>
           <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card/80 to-card/70 p-4"><div className="flex items-center gap-2"><CircleHelp className="size-4 text-primary"/><h3 className="font-display font-bold">Need help?</h3></div><p className="mt-2 text-xs leading-5 text-muted-foreground">Stuck on something? Bring the problem to Troubleshooting Help and work through it with other learners.</p><Button size="sm" variant="outline" className="mt-3 w-full" onClick={()=>void navigate({search:{room:"troubleshooting-help"}})}>Ask the community <ArrowRight className="size-3.5"/></Button></div>
           <div className="rounded-2xl border border-border/70 bg-card/70 p-4 text-xs leading-5 text-muted-foreground"><p className="font-bold text-foreground">Community standards</p><p className="mt-2">Learn openly. Help when you can. Disagree respectfully. Report content that crosses the line.</p></div>
         </aside>
