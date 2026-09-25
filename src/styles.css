@@ -972,31 +972,17 @@ button[role="combobox"] {
   z-index: 20;
   animation: byteIconExplode 220ms cubic-bezier(.15,.75,.2,1) forwards;
 }
-.byte-spark {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: currentColor;
-  box-shadow: 0 0 8px currentColor;
-  pointer-events: none;
-  animation: byteSpark 240ms ease-out forwards;
-}
-.byte-spark-1 { --spark-x: 26px; --spark-y: 0px; }
-.byte-spark-2 { --spark-x: 13px; --spark-y: 23px; }
-.byte-spark-3 { --spark-x: -13px; --spark-y: 23px; }
-.byte-spark-4 { --spark-x: -26px; --spark-y: 0px; }
-.byte-spark-5 { --spark-x: -13px; --spark-y: -23px; }
-.byte-spark-6 { --spark-x: 13px; --spark-y: -23px; }
-
+.byte-particle-field { position:absolute; inset:0; pointer-events:none; }
+.byte-particle { --px:0px; --py:0px; --rot:0deg; --delay:0ms; position:absolute; left:50%; top:50%; width:4px; height:7px; border-radius:999px; background:currentColor; box-shadow:0 0 8px currentColor; opacity:0; will-change:transform,opacity; animation:byteParticleBurst 360ms cubic-bezier(.14,.72,.22,1) var(--delay) forwards; }
+.byte-particle-1{--px:31px;--py:-4px;--rot:82deg}.byte-particle-2{--px:27px;--py:17px;--rot:118deg;--delay:8ms}.byte-particle-3{--px:14px;--py:30px;--rot:151deg;--delay:15ms}.byte-particle-4{--px:-6px;--py:33px;--rot:190deg;--delay:4ms}.byte-particle-5{--px:-25px;--py:23px;--rot:228deg;--delay:12ms}.byte-particle-6{--px:-33px;--py:5px;--rot:265deg;--delay:2ms}.byte-particle-7{--px:-27px;--py:-18px;--rot:300deg;--delay:18ms}.byte-particle-8{--px:-11px;--py:-31px;--rot:340deg;--delay:7ms}.byte-particle-9{--px:9px;--py:-32px;--rot:18deg;--delay:13ms}.byte-particle-10{--px:25px;--py:-21px;--rot:48deg;--delay:3ms}.byte-particle-11{--px:18px;--py:8px;--rot:125deg;--delay:22ms;width:3px;height:3px}.byte-particle-12{--px:-17px;--py:-9px;--rot:305deg;--delay:20ms;width:3px;height:3px}
 @keyframes byteIconExplode {
   0% { transform: scale(1); opacity: 1; filter: brightness(1); }
   35% { transform: scale(1.28); opacity: 1; filter: brightness(1.8) drop-shadow(0 0 8px currentColor); }
   100% { transform: scale(.15) rotate(12deg); opacity: 0; filter: brightness(2); }
 }
-@keyframes byteSpark {
-  0% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
-  100% { transform: translate(calc(-50% + var(--spark-x)),calc(-50% + var(--spark-y))) scale(0); opacity: 0; }
+@keyframes byteParticleBurst {
+  0% { transform:translate(-50%,-50%) rotate(0deg) scale(.25); opacity:0; }
+  12% { opacity:1; }
+  58% { opacity:.9; }
+  100% { transform:translate(calc(-50% + var(--px)),calc(-50% + var(--py))) rotate(var(--rot)) scale(.15); opacity:0; }
 }
