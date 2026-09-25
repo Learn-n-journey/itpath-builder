@@ -19,6 +19,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AutoNewsRouteImport } from './routes/auto-news'
 import { Route as AutoVideosRouteImport } from './routes/auto-videos'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
+import { Route as ByteBreakRouteImport } from './routes/byte-break'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
 import { Route as CareerSkillsRouteImport } from './routes/career-skills'
 import { Route as CommandLineRouteImport } from './routes/command-line'
@@ -130,6 +131,11 @@ const AutoVideosRoute = AutoVideosRouteImport.update({
 const BookmarksRoute = BookmarksRouteImport.update({
   id: '/bookmarks',
   path: '/bookmarks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ByteBreakRoute = ByteBreakRouteImport.update({
+  id: '/byte-break',
+  path: '/byte-break',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CareerModeRoute = CareerModeRouteImport.update({
@@ -455,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/auto-news': typeof AutoNewsRoute
   '/auto-videos': typeof AutoVideosRoute
   '/bookmarks': typeof BookmarksRoute
+  '/byte-break': typeof ByteBreakRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
   '/command-line': typeof CommandLineRoute
@@ -529,6 +536,7 @@ export interface FileRoutesByTo {
   '/auto-news': typeof AutoNewsRoute
   '/auto-videos': typeof AutoVideosRoute
   '/bookmarks': typeof BookmarksRoute
+  '/byte-break': typeof ByteBreakRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
   '/command-line': typeof CommandLineRoute
@@ -604,6 +612,7 @@ export interface FileRoutesById {
   '/auto-news': typeof AutoNewsRoute
   '/auto-videos': typeof AutoVideosRoute
   '/bookmarks': typeof BookmarksRoute
+  '/byte-break': typeof ByteBreakRoute
   '/career-mode': typeof CareerModeRoute
   '/career-skills': typeof CareerSkillsRoute
   '/command-line': typeof CommandLineRoute
@@ -680,6 +689,7 @@ export interface FileRouteTypes {
     | '/auto-news'
     | '/auto-videos'
     | '/bookmarks'
+    | '/byte-break'
     | '/career-mode'
     | '/career-skills'
     | '/command-line'
@@ -754,6 +764,7 @@ export interface FileRouteTypes {
     | '/auto-news'
     | '/auto-videos'
     | '/bookmarks'
+    | '/byte-break'
     | '/career-mode'
     | '/career-skills'
     | '/command-line'
@@ -828,6 +839,7 @@ export interface FileRouteTypes {
     | '/auto-news'
     | '/auto-videos'
     | '/bookmarks'
+    | '/byte-break'
     | '/career-mode'
     | '/career-skills'
     | '/command-line'
@@ -903,6 +915,7 @@ export interface RootRouteChildren {
   AutoNewsRoute: typeof AutoNewsRoute
   AutoVideosRoute: typeof AutoVideosRoute
   BookmarksRoute: typeof BookmarksRoute
+  ByteBreakRoute: typeof ByteBreakRoute
   CareerModeRoute: typeof CareerModeRoute
   CareerSkillsRoute: typeof CareerSkillsRoute
   CommandLineRoute: typeof CommandLineRoute
@@ -1037,6 +1050,13 @@ declare module '@tanstack/react-router' {
       path: '/bookmarks'
       fullPath: '/bookmarks'
       preLoaderRoute: typeof BookmarksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/byte-break': {
+      id: '/byte-break'
+      path: '/byte-break'
+      fullPath: '/byte-break'
+      preLoaderRoute: typeof ByteBreakRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/career-mode': {
@@ -1487,6 +1507,7 @@ const rootRouteChildren: RootRouteChildren = {
   AutoNewsRoute: AutoNewsRoute,
   AutoVideosRoute: AutoVideosRoute,
   BookmarksRoute: BookmarksRoute,
+  ByteBreakRoute: ByteBreakRoute,
   CareerModeRoute: CareerModeRoute,
   CareerSkillsRoute: CareerSkillsRoute,
   CommandLineRoute: CommandLineRoute,
