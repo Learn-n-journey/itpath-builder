@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, ClipboardList, Home, Menu, Users } from "lucide-react";
+import { BookOpen, ClipboardList, Home, Route as RouteIcon, Users } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { accentText, featureAccent } from "@/lib/visual-accents";
@@ -9,9 +9,10 @@ const items = [
   { label: "Learn", to: "/learn", icon: BookOpen },
   { label: "Practice", to: "/practice", icon: ClipboardList },
   { label: "Community", to: "/community", icon: Users },
+  { label: "My Path", to: "/my-path", icon: RouteIcon },
 ] as const;
 
-export function MobileBottomNav({ onMore }: { onMore: () => void }) {
+export function MobileBottomNav({ onMore: _onMore }: { onMore: () => void }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   return (
     <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
@@ -25,10 +26,6 @@ export function MobileBottomNav({ onMore }: { onMore: () => void }) {
             </Link>
           );
         })}
-        <button type="button" onClick={onMore} className="flex min-w-0 flex-col items-center justify-center gap-1 text-[0.625rem] text-muted-foreground" aria-label="Open more navigation">
-          <Menu className="size-4.5 shrink-0" aria-hidden />
-          <span>More</span>
-        </button>
       </div>
     </nav>
   );
