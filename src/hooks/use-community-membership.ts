@@ -37,6 +37,7 @@ export function useCommunityMembership(room: string) {
     onSuccess: (joined) => {
       queryClient.setQueryData(["community-membership", userId, room], joined);
       void queryClient.invalidateQueries({ queryKey: ["community-memberships", userId] });
+      void queryClient.invalidateQueries({ queryKey: ["community-member-count", room] });
     },
   });
 
@@ -55,4 +56,20 @@ export function useMyCommunityMemberships() {
     },
   });
   return { rooms: query.data ?? [], loading: query.isLoading };
+}
+
+
+export function useCommunityMemberCount(room: string) {
+  const query = useQuery({
+    queryKey: ["community-member-count", room],
+    queryFn: async (): Promise<number> => {
+      const { count, error } = await supabase
+        .from("community_memberships")
+        .select("*", { count: "exact", head: true })
+        .eq("room", room);
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+  return { count: query.data ?? 0, loading: query.isLoading };
 }
