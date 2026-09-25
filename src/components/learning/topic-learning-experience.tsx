@@ -275,7 +275,13 @@ export function TopicLearningExperience({ topic, view = "learning" }: { topic: T
     const correct = choice === activity.answerIndex;
     actions.addPracticeResponse({ id: crypto.randomUUID(), activityId: activity.id, topicId: topic.id, selectedIndex: choice, correct, createdAt: new Date().toISOString() });
     setPracticeFeedback((current) => ({ ...current, [activity.id]: `${correct ? "Correct. " : "Not yet. "}${activity.explanation}` }));
-    if (correct) actions.settleTopicReview(topic.id, "pass");
+    if (correct) {
+      actions.settleTopicReview(topic.id, "pass");
+      user.mistakes.filter((mistake) => !mistake.resolved && mistake.questionId === activity.id).forEach((mistake) => actions.setMistakeResolved(mistake.id, true));
+    } else {
+      actions.recordMistake({ topicId: topic.id, activity: "practice", category: "misunderstood_concept", severity: "medium", questionId: activity.id, createdAt: new Date().toISOString() });
+      actions.ensureReview({ topicId: topic.id });
+    }
     raiseProgress({ application: Math.max(progress.application, correct ? 35 : 10), practicalAbility: Math.max(progress.practicalAbility, correct ? 25 : 10) });
   }
 
@@ -321,6 +327,13 @@ export function TopicLearningExperience({ topic, view = "learning" }: { topic: T
     const now = new Date().toISOString();
     actions.setScenarioResponse({ id: savedScenario?.id ?? crypto.randomUUID(), scenarioId: scenario.id, topicId: topic.id, response: scenarioAnswer.trim(), matchedConcepts: matched, meetsCriteria, createdAt: savedScenario?.createdAt ?? now, updatedAt: now });
     setScenarioFeedback(`${meetsCriteria ? "Your reasoning includes key evidence. " : "Strengthen your reasoning. "}${scenario.guidance}`);
+    if (meetsCriteria) {
+      actions.settleTopicReview(topic.id, "pass");
+      user.mistakes.filter((mistake) => !mistake.resolved && mistake.questionId === scenario.id).forEach((mistake) => actions.setMistakeResolved(mistake.id, true));
+    } else {
+      actions.recordMistake({ topicId: topic.id, activity: "practice", category: matched.length === 0 ? "didnt_know_fact" : "misunderstood_concept", severity: "medium", questionId: scenario.id, createdAt: now });
+      actions.ensureReview({ topicId: topic.id });
+    }
     raiseProgress({ application: Math.max(progress.application, meetsCriteria ? 50 : 20), troubleshooting: Math.max(progress.troubleshooting, meetsCriteria ? 40 : 15), practicalAbility: Math.max(progress.practicalAbility, meetsCriteria ? 35 : 15) });
   }
 
