@@ -47,12 +47,12 @@ export const Route = createFileRoute("/my-path")({
       { title: "My Path | IT PATH" },
       {
         name: "description",
-        content: "Your roadmap organised by certification: entry-level first, then infrastructure, security and advanced work.",
+        content: "Your learning roadmap from technology foundations through advanced IT and security skills.",
       },
       { property: "og:title", content: "My Path | IT PATH" },
       {
         property: "og:description",
-        content: "Every certification broken into start-here, core-skills and advanced stages.",
+        content: "A structured learning path from foundational concepts to advanced skills.",
       },
     ],
   }),
@@ -294,7 +294,7 @@ function MyPath() {
         </div>
       </section>
 
-      <CompactStats className="grid-cols-4"><CompactStat label="Certifications" value={certCount} /><CompactStat label="Topics" value={topics.length} /><CompactStat label="Completed" value={stats.topicsCompleted} /><CompactStat label="Mastered" value={stats.topicsMastered} /></CompactStats>
+      <CompactStats className="grid-cols-4"><CompactStat label="Learning paths" value={certCount} /><CompactStat label="Topics" value={topics.length} /><CompactStat label="Completed" value={stats.topicsCompleted} /><CompactStat label="Mastered" value={stats.topicsMastered} /></CompactStats>
 
       {(() => {
         const flat = levels.flatMap((group) => group.items);
@@ -307,7 +307,7 @@ function MyPath() {
         const currentIndex = currentId ? flat.findIndex((c) => c.id === currentId) : flat.length;
         let running = 0;
         return (
-          <ol className="relative mt-5" aria-label="Certification journey">
+          <ol className="relative mt-5" aria-label="Learning journey">
             <span className="journey-spectrum absolute bottom-6 left-[0.8125rem] top-6 w-0.5 rounded-full opacity-35" aria-hidden />
             {currentIndex > 0 && (
               <span
@@ -346,7 +346,7 @@ function MyPath() {
                           aria-current={state === "current" ? "step" : undefined}
                           className={cn("glass-surface block rounded-lg border", state === "current" ? "border-border" : "border-border/60", state === "future" && "opacity-80")}
                         >
-                          <ContentRow icon={Award} accent={accent} title={certification.title} eyebrow={certification.code} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={progress} />
+                          <ContentRow icon={Award} accent={accent} title={certification.title} description={certification.description} metadata={`${studyIndex.topics.length} topics · ${stages.map((stage) => stage.label).join(" · ")}`} progress={progress} />
                         </Link>
                       </li>
                     );
