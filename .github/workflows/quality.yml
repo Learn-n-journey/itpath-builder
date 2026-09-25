@@ -38,7 +38,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run build
       - name: Lighthouse CI
-        run: bunx --bun @lhci/cli@0.15.x autorun
+        run: bunx @lhci/cli@0.15.x autorun
         env:
           WRANGLER_SEND_METRICS: "false"
           CLOUDFLARE_INCLUDE_PROCESS_ENV: "false"
