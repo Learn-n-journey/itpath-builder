@@ -2,7 +2,16 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Bell,
+  Bookmark,
   BookOpen,
+  Heart,
+  Home,
+  MessageCircle,
+  MoreHorizontal,
+  Search,
+  Share2,
+  Sparkles,
+  TrendingUp,
   Flag,
   Hash,
   MessagesSquare,
@@ -66,7 +75,11 @@ function CommunityPage() {
   const search = Route.useSearch();
   const room = isValidRoom(search.room) ? search.room : GENERAL_ROOM;
   const { displayName, loading: nameLoading, saveDisplayName, saving } = useDisplayName();
-  const { messages, loading, send, sending, remove, report } = useCommunityChat(room);
+  const { messages, loading, send, sending, remove, report, toggleLike, toggleSave, getComments, addComment } = useCommunityChat(room);
+  const [openComments,setOpenComments]=useState<string|null>(null);
+  const [comments,setComments]=useState<any[]>([]);
+  const [commentDraft,setCommentDraft]=useState("");
+  const [feedMode,setFeedMode]=useState<"latest"|"popular">("latest");
   const [draft, setDraft] = useState("");
   const [nameDraft, setNameDraft] = useState("");
   const [editingName, setEditingName] = useState(false);
@@ -81,14 +94,12 @@ function CommunityPage() {
 
   useEffect(() => setNameDraft(displayName), [displayName]);
 
-  useEffect(() => {
-    const el = listRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messages.length, room]);
+
 
   const needsName = ready && Boolean(userId) && !nameLoading && !displayName;
   const sectionId = topicForRoom(room);
   const title = roomTitle(room);
+  const feedMessages=useMemo(()=>feedMode==="popular" ? [...messages].sort((a,b)=>(b.likeCount+b.commentCount*2)-(a.likeCount+a.commentCount*2)) : [...messages].reverse(),[messages,feedMode]);
 
   if (ready && !userId) {
     return (
@@ -128,7 +139,7 @@ function CommunityPage() {
 
   return (
     <>
-      <CommunityHero />
+      <SocialHero />
 
       {needsName || editingName ? (
         <section className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-4">
@@ -161,33 +172,21 @@ function CommunityPage() {
         </select>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[15rem_minmax(0,1fr)_16rem]">
+      <div className="grid gap-5 xl:grid-cols-[14rem_minmax(0,1fr)_18rem]">
         <aside className="hidden xl:block">
-          <div className="sticky top-4 space-y-4 rounded-xl border border-border/70 bg-card/25 p-4">
-            <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-              {sectionId ? <Hash className="size-6" aria-hidden /> : <Users className="size-6" aria-hidden />}
-            </div>
-            <div>
-              <h2 className="font-display text-xl font-semibold">{title}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">{sectionId ? "Topic study room" : "Public room"}</p>
-            </div>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {sectionId ? "Discuss this topic, compare notes, ask questions, and help other learners work through it." : "Talk about your IT PATH journey, ask questions, share wins, and help other learners."}
-            </p>
-            {sectionId ? <Button asChild variant="secondary" className="w-full"><Link to="/topics/$topicId" params={{ topicId: sectionId }}><BookOpen className="size-4" aria-hidden />Open topic</Link></Button> : null}
-            <div className="border-t border-border/70 pt-4">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Room rules</p>
-              <div className="space-y-2 text-xs text-muted-foreground">
-                <p className="flex gap-2"><ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden />Be respectful and supportive.</p>
-                <p className="flex gap-2"><ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden />Keep it about studying and IT.</p>
-                <p className="flex gap-2"><ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden />Help others when you can.</p>
-              </div>
-            </div>
-          </div>
+          <nav className="sticky top-4 space-y-1">
+            <SocialNav icon={<Home className="size-5"/>} label="Home" active />
+            <SocialNav icon={<TrendingUp className="size-5"/>} label="Popular" onClick={()=>setFeedMode("popular")} />
+            <SocialNav icon={<MessageCircle className="size-5"/>} label="Study rooms" />
+            <SocialNav icon={<Bookmark className="size-5"/>} label="Saved" />
+            <div className="my-4 border-t border-border/60" />
+            <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-[.16em] text-muted-foreground">Your communities</p>
+            {rooms.slice(0,7).map(entry=><button key={entry.id} onClick={()=>void navigate({search:{room:entry.id}})} className={cn("flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-secondary/70",room===entry.id&&"bg-primary/10 font-semibold text-primary")}><Hash className="size-4"/><span className="truncate">{entry.label}</span></button>)}
+          </nav>
         </aside>
 
-        <section className="min-w-0 overflow-hidden rounded-xl border border-border/70 bg-card/20">
-          <header className="flex items-center justify-between gap-3 border-b border-border/70 px-4 py-3 sm:px-5">
+        <section className="min-w-0">
+          <header className="mb-3 flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card/55 px-4 py-3 shadow-sm sm:px-5">
             <div className="flex min-w-0 items-center gap-3">
               <Hash className="size-5 shrink-0 text-primary" aria-hidden />
               <div className="min-w-0">
@@ -202,7 +201,9 @@ function CommunityPage() {
             ) : null}
           </header>
 
-          <div ref={listRef} className="h-[55vh] min-h-[28rem] overflow-y-auto p-3 sm:p-4">
+          <div className="mb-3 rounded-2xl border border-border/70 bg-card/65 p-4 shadow-sm"><button type="button" onClick={()=>document.getElementById("communityMessage")?.focus()} className="flex w-full items-center gap-3 text-left"><div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary font-bold text-primary-foreground">{(displayName||"?").charAt(0).toUpperCase()}</div><span className="flex-1 rounded-full bg-secondary/70 px-4 py-3 text-sm text-muted-foreground">Share something with the community…</span></button><div className="mt-3 flex gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground"><span className="rounded-full bg-primary/10 px-3 py-1.5 font-medium text-primary">Post</span><span className="rounded-full bg-secondary px-3 py-1.5">Question</span><span className="rounded-full bg-secondary px-3 py-1.5">Study help</span><span className="rounded-full bg-secondary px-3 py-1.5">Progress</span></div></div>
+          <div className="mb-3 flex items-center gap-1 rounded-xl border border-border/60 bg-card/40 p-1"><button onClick={()=>setFeedMode("latest")} className={cn("flex-1 rounded-lg px-3 py-2 text-sm font-semibold",feedMode==="latest"&&"bg-background shadow-sm")}>Latest</button><button onClick={()=>setFeedMode("popular")} className={cn("flex-1 rounded-lg px-3 py-2 text-sm font-semibold",feedMode==="popular"&&"bg-background shadow-sm")}>Popular</button></div>
+          <div ref={listRef} className="space-y-3">
             {loading ? (
               <p className="p-3 text-sm text-muted-foreground">Loading the room.</p>
             ) : messages.length === 0 ? (
@@ -215,12 +216,12 @@ function CommunityPage() {
               </div>
             ) : (
               <div className="space-y-2">
-                {messages.map((message) => {
+                {feedMessages.map((message) => {
                   const mine = message.userId === userId;
                   const shownName = mine ? displayName || "You" : message.displayName;
                   const initial = shownName.trim().charAt(0).toUpperCase() || "?";
                   return (
-                    <article key={message.id} className={cn("group flex gap-3 rounded-xl border p-3 transition-colors", mine ? "border-primary/30 bg-primary/5" : "border-border/60 bg-background/25 hover:bg-secondary/25")}>
+                    <article key={message.id} className="group flex gap-3 rounded-2xl border border-border/70 bg-card/65 p-4 shadow-sm transition-all hover:border-primary/25 hover:shadow-md">
                       <div className={cn("flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-bold", mine ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground")}>{initial}</div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
@@ -235,7 +236,14 @@ function CommunityPage() {
                             )}
                           </span>
                         </div>
-                        <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed">{message.body}</p>
+                        <p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-6">{message.body}</p>
+                        <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-2">
+                          <button onClick={()=>void toggleLike(message)} className={cn("flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold transition-colors hover:bg-secondary",message.liked&&"text-rose-500")}><Heart className={cn("size-4",message.liked&&"fill-current")}/>{message.likeCount||""}<span className="hidden sm:inline">Like</span></button>
+                          <button onClick={async()=>{if(openComments===message.id){setOpenComments(null);return;}setOpenComments(message.id);setComments(await getComments(message.id));}} className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"><MessageCircle className="size-4"/>{message.commentCount||""}<span className="hidden sm:inline">Comment</span></button>
+                          <button onClick={()=>void toggleSave(message)} className={cn("flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold hover:bg-secondary",message.saved?"text-primary":"text-muted-foreground")}><Bookmark className={cn("size-4",message.saved&&"fill-current")}/><span className="hidden sm:inline">Save</span></button>
+                          <button onClick={()=>{void navigator.clipboard?.writeText(location.href);toast.success("Community link copied.");}} className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground"><Share2 className="size-4"/><span className="hidden sm:inline">Share</span></button>
+                        </div>
+                        {openComments===message.id&&<div className="mt-2 space-y-2 border-t border-border/50 pt-3">{comments.map(comment=><div key={comment.id} className="flex gap-2"><div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-bold">{comment.displayName.charAt(0).toUpperCase()}</div><div className="rounded-2xl bg-secondary/60 px-3 py-2"><p className="text-xs font-bold">{comment.userId===userId?"You":comment.displayName}</p><p className="text-sm">{comment.body}</p></div></div>)}<form onSubmit={async e=>{e.preventDefault();if(!commentDraft.trim())return;await addComment(message.id,commentDraft,displayName);setCommentDraft("");setComments(await getComments(message.id));}} className="flex gap-2"><Input value={commentDraft} onChange={e=>setCommentDraft(e.target.value)} placeholder="Write a comment…" maxLength={1000}/><Button size="icon" type="submit"><Send className="size-4"/></Button></form></div>}
                       </div>
                     </article>
                   );
@@ -244,14 +252,14 @@ function CommunityPage() {
             )}
           </div>
 
-          <form onSubmit={handleSend} className="border-t border-border/70 bg-background/30 p-3">
+          <form onSubmit={handleSend} className="mt-3 rounded-2xl border border-border/70 bg-card/65 p-3 shadow-sm">
             <Label htmlFor="communityMessage" className="sr-only">Your message</Label>
             <div className="rounded-xl border border-border bg-card/40 p-2 focus-within:border-primary/60">
               <Textarea
                 id="communityMessage"
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
-                placeholder={displayName ? "Type a message..." : "Choose your display name to join"}
+                placeholder={displayName ? `Post to ${title}…` : "Choose your display name to join"}
                 disabled={!displayName}
                 maxLength={1000}
                 rows={2}
@@ -265,28 +273,26 @@ function CommunityPage() {
               />
               <div className="flex items-center justify-between gap-3 border-t border-border/50 px-1 pt-2">
                 <span className="text-[11px] tabular-nums text-muted-foreground">{draft.length}/1000</span>
-                <Button type="submit" size="sm" disabled={!displayName || sending || draft.trim().length === 0}><Send className="size-4" aria-hidden />{sending ? "Sending" : "Send"}</Button>
+                <Button type="submit" size="sm" disabled={!displayName || sending || draft.trim().length === 0}><Send className="size-4" aria-hidden />{sending ? "Posting" : "Post"}</Button>
               </div>
             </div>
           </form>
         </section>
 
         <aside className="hidden space-y-4 xl:block">
-          <div className="rounded-xl border border-border/70 bg-card/25 p-4">
-            <div className="flex items-center gap-2"><Users className="size-4 text-primary" aria-hidden /><h3 className="text-sm font-semibold">Community</h3></div>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Study rooms stay focused on the material so useful conversations are easier to find.</p>
-          </div>
-          <div className="rounded-xl border border-border/70 bg-card/25 p-4">
-            <div className="flex items-center gap-2"><Bell className="size-4 text-primary" aria-hidden /><h3 className="text-sm font-semibold">Quick actions</h3></div>
-            <div className="mt-3 space-y-1">
-              {sectionId ? <Button asChild variant="ghost" className="w-full justify-start"><Link to="/topics/$topicId" params={{ topicId: sectionId }}><BookOpen className="size-4" aria-hidden />Open this topic</Link></Button> : null}
-              {displayName && !editingName ? <Button type="button" variant="ghost" className="w-full justify-start" onClick={() => setEditingName(true)}><Pencil className="size-4" aria-hidden />Change display name</Button> : null}
-            </div>
-          </div>
+          <div className="rounded-2xl border border-border/70 bg-card/60 p-4 shadow-sm"><div className="flex items-center gap-2"><Sparkles className="size-4 text-primary"/><h3 className="font-semibold">Welcome to IT PATH</h3></div><p className="mt-2 text-sm leading-relaxed text-muted-foreground">A community built around learning, troubleshooting, certifications and helping each other move forward.</p></div>
+          <div className="rounded-2xl border border-border/70 bg-card/60 p-4 shadow-sm"><h3 className="font-semibold">Popular communities</h3><div className="mt-3 space-y-2">{rooms.slice(1,6).map((entry,i)=><button key={entry.id} onClick={()=>void navigate({search:{room:entry.id}})} className="flex w-full items-center gap-3 rounded-xl p-2 text-left hover:bg-secondary/60"><div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 font-mono text-xs font-bold text-primary">#{i+1}</div><div className="min-w-0"><p className="truncate text-sm font-semibold">{entry.label}</p><p className="text-xs text-muted-foreground">Study community</p></div></button>)}</div></div>
+          <div className="rounded-2xl border border-border/70 bg-card/60 p-4 text-xs leading-relaxed text-muted-foreground"><p className="font-semibold text-foreground">Community standards</p><p className="mt-2">Learn openly. Help when you can. Disagree respectfully. Report content that crosses the line.</p></div>
         </aside>
       </div>
     </>
   );
+}
+
+function SocialNav({icon,label,active,onClick}:{icon:React.ReactNode;label:string;active?:boolean;onClick?:()=>void}){return <button onClick={onClick} className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-secondary/70",active&&"bg-primary/10 text-primary")}>{icon}{label}</button>}
+
+function SocialHero() {
+  return <header className="mb-5 flex flex-col gap-4 border-b border-border/70 pb-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-primary">IT PATH Network</p><h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Community</h1><p className="mt-1 text-sm text-muted-foreground">Learn together. Ask questions. Share progress. Build your network.</p></div><div className="relative w-full sm:w-72"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"/><Input className="rounded-full pl-9" placeholder="Search community"/></div></header>
 }
 
 function CommunityHero() {
