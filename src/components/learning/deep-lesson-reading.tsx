@@ -54,7 +54,6 @@ export function DeepLessonReading({
     if (sectionIndex < 0 || sectionIndex >= lesson.sections.length) return;
     saveSection(sectionIndex, false);
     setActiveLessonPartIndex(sectionIndex);
-    window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
   }
 
   if (activeLessonPartIndex !== null) {
