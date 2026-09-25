@@ -196,3 +196,4 @@ Done when: typecheck + build clean, features verified in browser.
 28. [ ] Move nonessential learner-page captions behind accessible question-mark help controls; preserve essential instructions, status, feedback, and learning content.
 
 29. Apply the same accessible question-mark treatment to nonessential captions across every app page, while keeping instructions, status, feedback, content, and safety warnings visible.
+- [x] Apply profile learning-identity migration (in-app save test pending)

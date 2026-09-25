@@ -162,6 +162,20 @@
       "when": 1790343505513,
       "tag": "0022_dm_require_accepted_friendship",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1790344225868,
+      "tag": "0023_profile_public_details",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1790344278722,
+      "tag": "0024_profile_learning_identity_limits",
+      "breakpoints": true
     }
   ]
 }
