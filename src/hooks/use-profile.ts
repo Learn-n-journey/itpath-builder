@@ -1,45 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/state/auth-state";
-
-/** Reads and updates the signed-in learner's first name. */
-export function useProfile() {
-  const { userId, ready } = useAuth();
-  const queryClient = useQueryClient();
-
-  const query = useQuery({
-    queryKey: ["profile", userId],
-    enabled: ready && Boolean(userId),
-    queryFn: async (): Promise<{ firstName: string }> => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("first_name")
-        .eq("user_id", userId!)
-        .maybeSingle();
-      if (error) throw error;
-      return { firstName: data?.first_name?.trim() ?? "" };
-    },
-  });
-
-  const save = useMutation({
-    mutationFn: async (firstName: string) => {
-      if (!userId) throw new Error("You need to be signed in.");
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({ user_id: userId, first_name: firstName.trim() || null }, { onConflict: "user_id" });
-      if (error) throw error;
-      return firstName.trim();
-    },
-    onSuccess: (firstName) => {
-      queryClient.setQueryData(["profile", userId], { firstName });
-    },
-  });
-
-  return {
-    firstName: query.data?.firstName ?? "",
-    loading: !ready || (Boolean(userId) && query.isLoading),
-    saveFirstName: save.mutateAsync,
-    saving: save.isPending,
-  };
+export function useProfile(profileId?:string){
+ const {userId,ready}=useAuth(); const id=profileId??userId; const qc=useQueryClient();
+ const q=useQuery({queryKey:["profile",id],enabled:ready&&!!id,queryFn:async()=>{const {data,error}=await supabase.from("profiles").select("user_id,first_name,display_name,avatar_url").eq("user_id",id!).maybeSingle();if(error)throw error;return {userId:id!,firstName:data?.first_name?.trim()??"",displayName:data?.display_name?.trim()??"",avatarUrl:data?.avatar_url??null}}});
+ const save=useMutation({mutationFn:async(firstName:string)=>{if(!userId||id!==userId)throw new Error("You can only edit your own profile.");const {error}=await supabase.from("profiles").upsert({user_id:userId,first_name:firstName.trim()||null},{onConflict:"user_id"});if(error)throw error;return firstName.trim()},onSuccess:()=>void qc.invalidateQueries({queryKey:["profile",id]})});
+ const upload=useMutation({mutationFn:async(file:File)=>{if(!userId||id!==userId)throw new Error("You can only edit your own profile.");if(file.size>5*1024*1024)throw new Error("Keep profile pictures under 5 MB.");if(!["image/jpeg","image/png","image/webp"].includes(file.type))throw new Error("Use a JPG, PNG, or WebP image.");const ext=file.type==="image/png"?"png":file.type==="image/webp"?"webp":"jpg";const key=`${userId}/avatar-${Date.now()}.${ext}`;const {error}=await supabase.storage.from("profile-images").upload(key,file,{contentType:file.type});if(error)throw error;const {data}=supabase.storage.from("profile-images").getPublicUrl(key);const {error:e}=await supabase.from("profiles").upsert({user_id:userId,avatar_url:data.publicUrl},{onConflict:"user_id"});if(e)throw e;return data.publicUrl},onSuccess:()=>void qc.invalidateQueries({queryKey:["profile",id]})});
+ const p=q.data??{userId:id??"",firstName:"",displayName:"",avatarUrl:null};
+ return {profile:p,firstName:p.firstName,loading:!ready||(!!id&&q.isLoading),saveFirstName:save.mutateAsync,saving:save.isPending,uploadAvatar:upload.mutateAsync,uploading:upload.isPending,isOwn:!!userId&&id===userId};
 }
