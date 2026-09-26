@@ -1246,10 +1246,11 @@ export function VirusRun() {
         <h3 className="font-display text-3xl font-bold uppercase">Virus Run</h3>
         <p className="max-w-sm text-sm text-muted-foreground">
           You are the virus. Collect every data packet on the system, stay away from the antivirus daemons,
-          then reach the open port to slip deeper. There is no last level: each system is harder than the one
-          before it.
+          then reach the open port to slip deeper. Breach 20 systems to clear the campaign, then keep
+          pushing through remixed systems in Endless Mode.
         </p>
         <div className="flex flex-col items-center gap-1 font-mono text-xs text-muted-foreground">
+          <span>20-system campaign · major encounters at 5, 10, 15 and 20 · Endless Mode after level 20</span>
           <span>Arrow keys or WASD to move, Esc to pause.</span>
           <span>On touch screens, drag on the play area, use the arrow pad, or tilt the stick in its middle.</span>
         </div>
