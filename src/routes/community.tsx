@@ -320,6 +320,34 @@ function CommunityHero() {
 }
 
 
+
+function CommunityPostCard({
+  message, userId, displayName, ownProfile, identity, postTypes, editingPost, setEditingPost,
+  editDraft, setEditDraft, edit, report, toggleLike, toggleSave, openComments, setOpenComments,
+  comments, setComments, getComments, commentDraft, setCommentDraft, addComment,
+}: any) {
+  const mine = message.userId === userId;
+  const shownName = mine ? displayName || "You" : identity?.displayName || message.displayName;
+  const avatarUrl = mine ? ownProfile.avatarUrl : identity?.avatarUrl;
+  const initial = shownName.trim().charAt(0).toUpperCase() || "?";
+  return <article className="flex gap-3 border-b border-border/60 p-4 last:border-0">
+    <Link to="/profile/$userId" params={{userId:message.userId}} className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-primary/15 font-bold text-primary">{avatarUrl?<img src={avatarUrl} alt="" className="h-full w-full object-cover"/>:initial}</Link>
+    <div className="min-w-0 flex-1">
+      <div className="flex items-center gap-2"><Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-bold hover:underline">{mine?"You":shownName}</Link><span className="text-xs text-muted-foreground">· {timeLabel(message.createdAt)}</span><span className="ml-auto">{mine?<button type="button" onClick={()=>{setEditingPost(message.id);setEditDraft(message.body)}} className="p-1 text-muted-foreground"><Pencil className="size-4"/></button>:<button type="button" onClick={()=>void report({messageId:message.id})} className="p-1 text-muted-foreground"><Flag className="size-4"/></button>}</span></div>
+      <div className="mt-1"><span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">{postTypes.find((type:any)=>type.value===message.postType)?.label ?? "Discussion"}</span></div>
+      {editingPost===message.id?<form className="mt-2 space-y-2" onSubmit={async(event)=>{event.preventDefault();const problem=checkMessage(editDraft);if(problem)return void toast.error(problem);await edit({id:message.id,body:editDraft});setEditingPost(null)}}><Textarea value={editDraft} onChange={(event)=>setEditDraft(event.target.value)}/><div className="flex justify-end gap-2"><Button type="button" size="sm" variant="ghost" onClick={()=>setEditingPost(null)}>Cancel</Button><Button size="sm" type="submit">Save</Button></div></form>:<p className="mt-1 whitespace-pre-wrap text-sm leading-6">{message.body}</p>}
+      {message.imageUrl?<img src={message.imageUrl} alt="" className="mt-3 max-h-96 w-full rounded-xl object-cover"/>:null}
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <button onClick={()=>void toggleLike(message)} className={cn("rounded-lg border border-border/60 px-2 py-1.5",message.liked&&"text-primary")}><Heart className={cn("mr-1 inline size-3.5",message.liked&&"fill-current")}/>{message.likeCount||0}</button>
+        <button onClick={async()=>{if(openComments===message.id){setOpenComments(null);return;}setOpenComments(message.id);setComments(await getComments(message.id));}} className="rounded-lg border border-border/60 px-2 py-1.5"><MessageCircle className="mr-1 inline size-3.5"/>{message.commentCount||0}</button>
+        <button onClick={()=>void toggleSave(message)} className="rounded-lg border border-border/60 px-2 py-1.5"><Bookmark className="mr-1 inline size-3.5"/>Save</button>
+        <button onClick={()=>{void navigator.clipboard?.writeText(location.href);toast.success("Community link copied.");}} className="rounded-lg border border-border/60 px-2 py-1.5"><Share2 className="mr-1 inline size-3.5"/>Share</button>
+      </div>
+      {openComments===message.id?<div className="mt-3 space-y-2 border-t border-border/50 pt-3">{comments.map((comment:any)=><div key={comment.id} className="rounded-xl bg-secondary/50 p-3"><p className="text-xs font-bold">{comment.userId===userId?"You":comment.displayName}</p><p className="mt-1 text-sm">{comment.body}</p></div>)}<form onSubmit={async(event)=>{event.preventDefault();if(!commentDraft.trim())return;await addComment(message.id,commentDraft,displayName);setCommentDraft("");setComments(await getComments(message.id));}} className="flex gap-2"><Input value={commentDraft} onChange={(event)=>setCommentDraft(event.target.value)} placeholder="Write a reply…"/><Button size="icon"><Send className="size-4"/></Button></form></div>:null}
+    </div>
+  </article>;
+}
+
 function CommunityActivityCard({
   activity,
   viewerId,
