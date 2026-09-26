@@ -288,7 +288,9 @@ function buildLevel(level: number): RunState {
     packets.push({ x: candidates[i]!.x, y: candidates[i]!.y, taken: false });
   }
 
-  const boss = level % 8 === 0;
+  // Major encounters close each five-level campaign chapter and keep
+  // the same cadence once Endless Mode begins.
+  const boss = level % 5 === 0;
   const guardCount = Math.min((boss ? 5 : 2) + Math.floor(level * 0.7), 14);
   const guardSpeed = Math.min(BASE_GUARD_SPEED + (level - 1) * 0.16, MAX_GUARD_SPEED);
   const detection = 6 + Math.min(level, 9);
