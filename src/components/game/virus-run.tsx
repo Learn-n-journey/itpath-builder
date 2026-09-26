@@ -2082,7 +2082,29 @@ export function VirusRun() {
         </div>
       </div>
 
-      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", gameLandscape && "absolute bottom-0 right-0 top-0 m-0 h-[100dvh] w-[calc(100dvw-clamp(196px,17vw,256px))] rounded-none border-0 bg-black p-0 shadow-none")}>
+      {gameLandscape && (
+        <aside className="pointer-events-auto absolute bottom-[max(8px,env(safe-area-inset-bottom))] right-[max(8px,env(safe-area-inset-right))] top-[max(8px,env(safe-area-inset-top))] z-30 flex w-[clamp(180px,16vw,240px)] flex-col overflow-hidden rounded-xl border border-red-400/20 bg-slate-950/88 shadow-2xl backdrop-blur-xl">
+          <div className="border-b border-red-400/15 px-4 py-3">
+            <p className="text-[9px] font-semibold uppercase tracking-[.24em] text-red-300/70">Security Network</p>
+            <p className="mt-1 font-display text-lg font-bold uppercase tracking-[.12em] text-red-200">Threat Monitor</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">{runRef.current?.guards.length ?? 0} active signatures</p>
+          </div>
+          <div className="flex-1 space-y-2 overflow-y-auto p-3">
+            {(["scanner","hunter","interceptor","warden"] as GuardKind[]).map((kind)=>{
+              const guards=runRef.current?.guards.filter(g=>g.kind===kind) ?? [];
+              if(!guards.length)return null;
+              const chasing=guards.filter(g=>g.state==="chase").length;
+              return <ThreatCard key={kind} kind={kind} count={guards.length} chasing={chasing}/>;
+            })}
+          </div>
+          <div className="border-t border-white/10 p-3 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
+            {phase==="paused" ? "SYSTEM PAUSED" : "SPACE · PAUSE"}<br/>
+            <span className="text-red-300/70">Red = active pursuit</span>
+          </div>
+        </aside>
+      )}
+
+      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", gameLandscape && "absolute bottom-0 right-0 top-0 m-0 h-[100dvh] left-[clamp(196px,17vw,256px)] w-[calc(100dvw-clamp(392px,34vw,512px))] rounded-none border-0 bg-black p-0 shadow-none")}>
         <canvas
           ref={canvasRef}
            className={cn("block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]", gameLandscape && "h-[100dvh] w-[100dvw] max-w-none rounded-none aspect-auto")}
@@ -2101,6 +2123,31 @@ export function VirusRun() {
       </div>
     </div>
   );
+}
+
+const THREAT_INFO: Record<GuardKind,{name:string;role:string;glyph:string}> = {
+  scanner:{name:"Scanner",role:"Wide detection",glyph:"◉"},
+  hunter:{name:"Hunter",role:"Relentless pursuit",glyph:"◆"},
+  interceptor:{name:"Interceptor",role:"Predictive ambush",glyph:"➤"},
+  warden:{name:"Warden",role:"Area control",glyph:"⬢"},
+};
+
+function ThreatCard({kind,count,chasing}:{kind:GuardKind;count:number;chasing:number}){
+  const info=THREAT_INFO[kind];
+  return <div className={cn("group relative overflow-hidden rounded-lg border px-2.5 py-2.5 transition-colors",chasing?"border-red-400/45 bg-red-950/35":"border-white/10 bg-white/[.035]")}>
+    <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-red-300/60 to-transparent"/>
+    <div className="flex items-center gap-2.5">
+      <div className={cn("relative flex size-10 shrink-0 items-center justify-center rounded-lg border font-mono text-xl shadow-[inset_0_0_16px_rgba(239,68,68,.08)]",chasing?"border-red-300/50 bg-red-500/15 text-red-100":"border-red-400/20 bg-slate-900 text-red-300")}>
+        <span className={cn(kind==="interceptor"&&"-rotate-12",kind==="hunter"&&"scale-y-75")}>{info.glyph}</span>
+        <span className="absolute right-1 top-1 size-1 rounded-full bg-red-300 shadow-[0_0_6px_rgba(252,165,165,.9)]"/>
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2"><p className="truncate text-xs font-bold uppercase tracking-wider text-slate-100">{info.name}</p><span className="font-mono text-[10px] text-red-200">×{count}</span></div>
+        <p className="mt-0.5 truncate text-[9px] text-muted-foreground">{info.role}</p>
+        <p className={cn("mt-1 font-mono text-[8px] uppercase tracking-wider",chasing?"text-red-300":"text-slate-500")}>{chasing?chasing+" pursuing":"patrolling"}</p>
+      </div>
+    </div>
+  </div>;
 }
 
 function GameStat({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
