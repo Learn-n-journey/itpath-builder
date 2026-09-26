@@ -194,7 +194,10 @@ function TopicPage() {
   const topicLab = labs.find((item) => item.topicId === topic.id);
   const topicIncident = incidents.find((item) => item.topicId === topic.id);
   const explorerFocus = autoAssemblies.some((item) => item.id === automotiveFocusFor(topic.title)) ? automotiveFocusFor(topic.title) : "engine-bay";
-  const obdScenario = [...obdScenarios].sort((a, b) => wordOverlapScore(topic.title, `${b.complaint} ${b.codes.join(" ")}`) - wordOverlapScore(topic.title, `${a.complaint} ${a.codes.join(" ")}`))[0];
+  const obdScenario = [...obdScenarios].sort((a, b) => {
+    const textOf = (item: (typeof obdScenarios)[number]) => `${item.complaint} ${item.rootCause} ${item.teaching} ${item.codes.map((code) => `${code.code} ${code.title} ${code.meaning}`).join(" ")}`;
+    return wordOverlapScore(topic.title, textOf(b)) - wordOverlapScore(topic.title, textOf(a));
+  })[0];
   const availableTargets = new Set(
     TOPIC_SHORTCUTS.filter((shortcut) => shortcut.when(topic)).map((shortcut) => shortcut.target),
   );
