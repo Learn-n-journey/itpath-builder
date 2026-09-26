@@ -6,6 +6,7 @@ export interface A1DiagnosticTest {
   result: string;
   interpretation: string;
   rulesOut: string;
+  alternatives: Array<{ label: string; feedback: string }>;
 }
 
 export interface A1DiagnosticSimulation {
@@ -136,6 +137,16 @@ export function a1DiagnosticSimulationFor(topicId: string): A1DiagnosticSimulati
     rulesOut: index === 0
       ? "This prevents jumping directly to parts replacement before the complaint and baseline condition are verified."
       : "This result reduces the likelihood of alternatives that do not match the accumulated evidence.",
+    alternatives: [
+      {
+        label: index === 0 ? "Replace the most likely part now" : "Stop testing and replace the suspected component",
+        feedback: "That skips evidence. A plausible symptom is not enough to prove the failed component, so this choice adds diagnostic waste without narrowing the cause.",
+      },
+      {
+        label: index === 0 ? "Run an unrelated scan or electrical check first" : "Switch to an unrelated system test",
+        feedback: "That test may produce data, but the current evidence does not make it the most informative next step. Stay with the fault path until a result redirects you.",
+      },
+    ],
   }));
   return {
     topicId,
