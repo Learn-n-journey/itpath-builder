@@ -373,7 +373,7 @@ export function VirusRun() {
   const [upgradeCount, setUpgradeCount] = useState(0);
   const [mobileLandscape, setMobileLandscape] = useState(false);
   const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" | "power" | "near" }[]>([]);
-  const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false });
+  const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false, bossTitle: "", bossPhase: 0, bossNodes: 0, bossNodesRequired: 0 });
 
   useEffect(() => {
     const syncOrientation = () => {
@@ -428,6 +428,10 @@ export function VirusRun() {
       streak: run.streak,
       power: run.activePower ? `${run.activePower.kind.toUpperCase()} ${Math.ceil(run.activePower.left)}s` : "",
       boss: run.boss,
+      bossTitle: run.bossTitle,
+      bossPhase: run.bossPhase,
+      bossNodes: run.bossNodes,
+      bossNodesRequired: run.bossNodesRequired,
     }));
   }, []);
 
@@ -1191,8 +1195,19 @@ export function VirusRun() {
       // Power-ups.
       for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);ctx2.rotate(time/700);ctx2.shadowColor="#facc15";ctx2.shadowBlur=cell*.9;ctx2.strokeStyle="#fde68a";ctx2.lineWidth=Math.max(1,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*.32,0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="#facc15";ctx2.font=`bold ${cell*.34}px ui-monospace`;ctx2.textAlign="center";ctx2.textBaseline="middle";ctx2.rotate(-time/700);ctx2.fillText(power.kind==="cloak"?"C":power.kind==="overclock"?"O":power.kind==="emp"?"E":"M",0,0);ctx2.restore();}
 
-      // Boss security core at campaign milestones and every fifth Endless Mode level.
-      if(run.boss){const bx=offX+cell*COLS/2,by=offY+cell*ROWS/2;ctx2.save();ctx2.globalAlpha=.22+.08*Math.sin(time/160);ctx2.strokeStyle="#fb7185";ctx2.shadowColor="#ef4444";ctx2.shadowBlur=cell*1.4;ctx2.lineWidth=Math.max(2,cell*.12);for(let i=0;i<3;i++){ctx2.beginPath();ctx2.arc(bx,by,cell*(1.3+i*.5),time/(350+i*90),time/(350+i*90)+Math.PI*1.4);ctx2.stroke();}ctx2.restore();}
+      // Boss security core: sealed during packet collection, then visibly
+      // vulnerable during the breach phase.
+      if(run.boss){
+        const coreCell=(()=>{const cx=Math.floor(COLS/2),cy=Math.floor(ROWS/2);if(run.grid[cy]?.[cx]===0)return{x:cx,y:cy};let best:{x:number;y:number;d:number}|null=null;for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(run.grid[y]?.[x]===0){const d=Math.abs(x-cx)+Math.abs(y-cy);if(!best||d<best.d)best={x,y,d};}return best??{x:cx,y:cy};})();
+        const bx=offX+(coreCell.x+.5)*cell,by=offY+(coreCell.y+.5)*cell;ctx2.save();
+        const vulnerable=run.bossPhase>=2&&!run.portOpen;
+        ctx2.globalAlpha=vulnerable?.72+.2*Math.sin(time/105):.24+.08*Math.sin(time/160);
+        ctx2.strokeStyle=vulnerable?"#fef08a":"#fb7185";ctx2.shadowColor=vulnerable?"#facc15":"#ef4444";ctx2.shadowBlur=cell*(vulnerable?2:1.4);ctx2.lineWidth=Math.max(2,cell*.12);
+        for(let i=0;i<3;i++){ctx2.beginPath();ctx2.arc(bx,by,cell*(.65+i*.28),time/(260+i*70),time/(260+i*70)+Math.PI*1.45);ctx2.stroke();}
+        ctx2.fillStyle=vulnerable?"rgba(254,240,138,.75)":"rgba(251,113,133,.3)";ctx2.beginPath();ctx2.arc(bx,by,cell*.25,0,Math.PI*2);ctx2.fill();
+        ctx2.fillStyle=vulnerable?"#fef9c3":"#fecdd3";ctx2.font=`bold ${Math.max(8,cell*.24)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText(vulnerable?`BREACH ${run.bossNodes+1}/${run.bossNodesRequired}`:"CORE SEALED",bx,by-cell*1.25);
+        ctx2.restore();
+      }
 
       // Antivirus sentinels: shield-like drones with scanning lenses.
       // Reuse the distance field maintained by the update loop. Previously this
