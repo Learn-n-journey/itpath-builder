@@ -1207,17 +1207,63 @@ export function VirusRun() {
         ctx2.fill();
         ctx2.rotate(Math.PI / 2);
         const s = cell * 0.82;
-        ctx2.shadowColor = "rgba(248,113,113,0.75)";
-        ctx2.shadowBlur = cell * 0.72;
+        ctx2.shadowColor = alerted ? "rgba(248,113,113,0.95)" : "rgba(248,113,113,0.68)";
+        ctx2.shadowBlur = cell * (alerted ? 0.9 : 0.62);
         const guardGradient = ctx2.createLinearGradient(0, -s / 2, 0, s / 2);
-        guardGradient.addColorStop(0, "#fecaca"); guardGradient.addColorStop(0.22, "#ef4444"); guardGradient.addColorStop(1, "#7f1d1d");
+        guardGradient.addColorStop(0, "#fee2e2");
+        guardGradient.addColorStop(0.24, "#ef4444");
+        guardGradient.addColorStop(1, "#7f1d1d");
         ctx2.fillStyle = guardGradient;
-        ctx2.beginPath();
-        ctx2.moveTo(0, -s * 0.52); ctx2.lineTo(s * 0.42, -s * 0.22); ctx2.lineTo(s * 0.34, s * 0.3); ctx2.lineTo(0, s * 0.54); ctx2.lineTo(-s * 0.34, s * 0.3); ctx2.lineTo(-s * 0.42, -s * 0.22); ctx2.closePath(); ctx2.fill();
+        ctx2.strokeStyle = "rgba(254,202,202,0.82)";
+        ctx2.lineWidth = Math.max(0.8, cell * 0.045);
+
+        if (g.kind === "scanner") {
+          // Wide sensor drone: broad body, twin antennae and a sweeping lens.
+          ctx2.beginPath();
+          ctx2.ellipse(0, 0, s * 0.48, s * 0.31, 0, 0, Math.PI * 2);
+          ctx2.fill(); ctx2.stroke();
+          ctx2.beginPath();
+          ctx2.moveTo(-s*.28,-s*.24); ctx2.lineTo(-s*.46,-s*.48);
+          ctx2.moveTo(s*.28,-s*.24); ctx2.lineTo(s*.46,-s*.48);
+          ctx2.stroke();
+          ctx2.strokeStyle = "rgba(254,202,202,0.7)";
+          ctx2.beginPath(); ctx2.arc(0,0,s*.62,time/360,time/360+Math.PI*1.35); ctx2.stroke();
+        } else if (g.kind === "hunter") {
+          // Forward-pointing predator silhouette.
+          ctx2.beginPath();
+          ctx2.moveTo(0,-s*.58); ctx2.lineTo(s*.42,s*.34); ctx2.lineTo(s*.13,s*.22);
+          ctx2.lineTo(0,s*.48); ctx2.lineTo(-s*.13,s*.22); ctx2.lineTo(-s*.42,s*.34);
+          ctx2.closePath(); ctx2.fill(); ctx2.stroke();
+          if (alerted) {
+            ctx2.fillStyle="rgba(254,202,202,0.8)";
+            ctx2.beginPath();ctx2.moveTo(-s*.18,s*.38);ctx2.lineTo(0,s*(.62+.08*Math.sin(time/70)));ctx2.lineTo(s*.18,s*.38);ctx2.closePath();ctx2.fill();
+          }
+        } else if (g.kind === "interceptor") {
+          // Narrow high-speed dart with lateral stabilizers.
+          ctx2.beginPath();
+          ctx2.moveTo(0,-s*.64); ctx2.lineTo(s*.17,-s*.05); ctx2.lineTo(s*.48,s*.16);
+          ctx2.lineTo(s*.14,s*.22); ctx2.lineTo(0,s*.52); ctx2.lineTo(-s*.14,s*.22);
+          ctx2.lineTo(-s*.48,s*.16); ctx2.lineTo(-s*.17,-s*.05);
+          ctx2.closePath(); ctx2.fill(); ctx2.stroke();
+        } else {
+          // Warden: heavy armored hexagon with an outer containment ring.
+          ctx2.beginPath();
+          for(let i=0;i<6;i++){const a=-Math.PI/2+i*Math.PI/3;const x=Math.cos(a)*s*.48,y=Math.sin(a)*s*.48;i?ctx2.lineTo(x,y):ctx2.moveTo(x,y);}
+          ctx2.closePath();ctx2.fill();ctx2.stroke();
+          ctx2.strokeStyle="rgba(254,202,202,0.62)";
+          ctx2.lineWidth=Math.max(1,cell*.065);
+          ctx2.beginPath();ctx2.arc(0,0,s*.64,time/-650,time/-650+Math.PI*1.55);ctx2.stroke();
+        }
+
         ctx2.shadowBlur = 0;
-        ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.06, s * 0.16, 0, Math.PI * 2); ctx2.fill();
-        ctx2.fillStyle = "#fee2e2"; ctx2.beginPath(); ctx2.arc(0, -s * 0.08, s * 0.065, 0, Math.PI * 2); ctx2.fill();
-        ctx2.strokeStyle = "rgba(254,202,202,0.65)"; ctx2.lineWidth = Math.max(0.8, cell * 0.045); ctx2.beginPath(); ctx2.arc(0, 0, s * 0.68, time / 500, time / 500 + Math.PI * 1.15); ctx2.stroke();
+        // Shared optical core keeps the enemy faction visually unified.
+        ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.04, s * 0.15, 0, Math.PI * 2); ctx2.fill();
+        ctx2.fillStyle = alerted ? "#fff1f2" : "#fee2e2"; ctx2.beginPath(); ctx2.arc(0, -s * 0.055, s * 0.06, 0, Math.PI * 2); ctx2.fill();
+        if (g.state === "search") {
+          ctx2.strokeStyle="rgba(253,186,116,0.72)";
+          ctx2.lineWidth=Math.max(.8,cell*.04);
+          ctx2.beginPath();ctx2.arc(0,0,s*.73,time/420,time/420+Math.PI*.85);ctx2.stroke();
+        }
         ctx2.restore();
       }
 
