@@ -115,10 +115,13 @@ function MeditationPage() {
     const level = Math.max(0.02, Math.min(0.12, (volume / 100) * 0.18));
 
     if (kind === "inhale") {
-      filter.frequency.setValueAtTime(650, now);
-      filter.frequency.linearRampToValueAtTime(1250, now + duration);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(level, now + duration * 0.72);
+      // The inhale cue begins audibly at the exact start of the countdown
+      // and breathes slowly across the entire inhale phase.
+      filter.frequency.setValueAtTime(520, now);
+      filter.frequency.linearRampToValueAtTime(900, now + duration);
+      gain.gain.setValueAtTime(level * 0.18, now);
+      gain.gain.linearRampToValueAtTime(level * 0.72, now + duration * 0.5);
+      gain.gain.linearRampToValueAtTime(level, now + duration * 0.82);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     } else {
       filter.frequency.setValueAtTime(1050, now);
