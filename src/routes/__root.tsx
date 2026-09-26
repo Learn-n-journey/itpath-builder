@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppStateProvider } from "@/state/app-state";
 import { AuthProvider } from "@/state/auth-state";
 import { AppShell } from "@/components/layout/app-shell";
+import { LearningDisclaimerGate } from "@/components/learning-disclaimer-gate";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
@@ -177,12 +178,14 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AppStateProvider>
+          <LearningDisclaimerGate>
           <PaymentTestModeBanner />
           <AppShell>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
           </AppShell>
           <Toaster />
+          </LearningDisclaimerGate>
         </AppStateProvider>
       </AuthProvider>
     </QueryClientProvider>
