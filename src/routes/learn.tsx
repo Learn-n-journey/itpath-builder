@@ -10,6 +10,7 @@ import { resources, topics } from "@/data/static-content";
 import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
 import { useAppState } from "@/state/app-state";
 import { searchLearningVideos, type VideoSearchResult } from "@/lib/tech-videos.functions";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/learn")({
   staticData: { sitemap: false },
@@ -17,9 +18,9 @@ export const Route = createFileRoute("/learn")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Learn | IT PATH" },
-      { name: "description", content: "Explore technology topics, verified sources, videos and news without changing your curriculum progress." },
-      { property: "og:title", content: "Learn | IT PATH" },
+      { title: `Learn | ${domain.appName}` },
+      { name: "description", content: `Explore ${domain.field} topics, verified sources and videos without changing your curriculum progress.` },
+      { property: "og:title", content: `Learn | ${domain.appName}` },
       { property: "og:description", content: "A free-exploration space for curious learners." },
     ],
   }),
@@ -203,13 +204,13 @@ function Learn() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-primary">Official web</p>
               <h2 className="font-display text-xl font-bold">Search official sources for “{query.trim()}”</h2>
-              <p className="mt-1 text-xs text-muted-foreground">Searches Google with IT PATH's official-source domain filter applied.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Searches Google with the active path’s official-source domain filter applied.</p>
             </div>
             <Globe2 className="size-5 shrink-0 text-muted-foreground" aria-hidden />
           </div>
           <Button asChild variant="outline">
             <a
-              href={`https://www.google.com/search?q=${encodeURIComponent(`${query.trim()} (site:learn.microsoft.com OR site:docs.microsoft.com OR site:cisco.com OR site:nist.gov OR site:cisa.gov OR site:comptia.org OR site:redhat.com OR site:docs.aws.amazon.com OR site:cloud.google.com OR site:support.apple.com OR site:intel.com OR site:amd.com OR site:developer.mozilla.org)`)}`}
+              href={`https://www.google.com/search?q=${encodeURIComponent(`${query.trim()} ${domain.id === "auto-repair" ? "(site:nhtsa.gov OR site:epa.gov OR site:ase.com OR site:sae.org OR site:ford.com OR site:gm.com OR site:techinfo.honda.com OR site:techinfo.toyota.com OR site:stellantisiop.com)" : "(site:learn.microsoft.com OR site:docs.microsoft.com OR site:cisco.com OR site:nist.gov OR site:cisa.gov OR site:comptia.org OR site:redhat.com OR site:docs.aws.amazon.com OR site:cloud.google.com OR site:support.apple.com OR site:intel.com OR site:amd.com OR site:developer.mozilla.org)"}`)}`}
               target="_blank"
               rel="noreferrer noopener"
             >
