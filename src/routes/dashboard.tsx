@@ -475,42 +475,6 @@ function Dashboard() {
       </section>
 
       <div className="grid gap-6 sm:gap-7">
-        <Panel title="Due for review" className="border-t-0 py-5">
-          {reviewTopics.length === 0 ? (
-             <div className="flex items-start gap-4 text-muted-foreground"><CalendarDays className="mt-0.5 size-6 shrink-0 text-feature-amber/80" aria-hidden /><div><p className="text-sm text-foreground/85">Nothing due right now.</p><p className="mt-0.5 text-sm">We’ll show topics here as they become due.</p></div></div>
-          ) : (
-            <ul className="divide-y divide-border/60 text-sm">
-              {reviewTopics.map((item) => (
-                <li key={item.topicId} className="grid min-h-11 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 motion-reduce:transition-none">
-                  <Link
-                    to="/review"
-                    {...(missedAnchors[item.topicId] ? { hash: missedAnchors[item.topicId] as string } : {})}
-                    className="min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    <span className="block truncate hover:underline">{item.title}</span>
-                    <span className="block truncate text-xs text-muted-foreground">{item.reason}</span>
-                  </Link>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="min-h-9 min-w-16 shrink-0 px-2 text-xs motion-safe:transition-transform motion-safe:duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
-                    onClick={() => markReviewDone(item)}
-                    aria-label={`Mark ${item.title} as done`}
-                  >
-                    <Check className="size-3.5" aria-hidden /> Done
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-          {reviewTopics.length > 0 ? (
-            <div className="mt-3 text-sm">
-              <Link to="/review" className="rounded-sm text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">Open Review</Link>
-            </div>
-          ) : null}
-        </Panel>
-
         <Panel title="Today" className="py-5">
           {d.todaysTasks.length === 0 ? (
             <p className="text-sm text-muted-foreground">Nothing outstanding.</p>
