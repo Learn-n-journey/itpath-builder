@@ -396,7 +396,7 @@ export function VirusRun() {
   const [phase, setPhase] = useState<Phase>("menu");
   const [upgradeChoices, setUpgradeChoices] = useState<RunUpgrade[]>([]);
   const [upgradeCount, setUpgradeCount] = useState(0);
-  const [mobileLandscape, setMobileLandscape] = useState(false);
+  const [gameLandscape, setMobileLandscape] = useState(false);
   const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" | "power" | "near"; targetX?: number; targetY?: number }[]>([]);
   const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false, bossTitle: "", bossBreaches: 0, bossBreachesRequired: 0 });
 
@@ -417,7 +417,7 @@ export function VirusRun() {
   }, []);
 
   useEffect(() => {
-    if (!mobileLandscape) return;
+    if (!gameLandscape) return;
     const html = document.documentElement;
     const body = document.body;
     const previousHtmlOverflow = html.style.overflow;
@@ -432,7 +432,7 @@ export function VirusRun() {
       body.style.overflow = previousBodyOverflow;
       body.style.overscrollBehavior = previousBodyOverscroll;
     };
-  }, [mobileLandscape]);
+  }, [gameLandscape]);
 
   const setPhaseBoth = useCallback((p: Phase) => {
     phaseRef.current = p;
@@ -2048,12 +2048,12 @@ export function VirusRun() {
     ) : null;
 
   return (
-    <div className={cn("virus-game mx-auto w-full max-w-5xl select-none [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "fixed inset-0 z-[100] m-0 h-[100dvh] w-[100dvw] max-w-none overflow-hidden overscroll-none bg-black p-0 touch-none")}>
-      <div className={cn("mb-3 overflow-hidden rounded-xl border border-primary/25 bg-background/80 shadow-2xl backdrop-blur-xl", mobileLandscape && "pointer-events-none absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] bottom-[max(8px,env(safe-area-inset-bottom))] z-30 m-0 flex w-[clamp(150px,14vw,210px)] flex-col overflow-hidden rounded-xl border border-primary/20 bg-slate-950/88 shadow-2xl backdrop-blur-xl")}>
-        <div className={cn("flex items-center justify-between gap-3 border-b border-primary/15 px-3 py-2.5 sm:px-4", mobileLandscape && "pointer-events-auto static w-full border-0 border-b border-white/10 bg-transparent px-3 py-3 shadow-none backdrop-blur-none")}>
+    <div className={cn("virus-game mx-auto w-full max-w-5xl select-none [-webkit-user-select:none] [-webkit-touch-callout:none]", gameLandscape && "fixed inset-0 z-[100] m-0 h-[100dvh] w-[100dvw] max-w-none overflow-hidden overscroll-none bg-black p-0 touch-none")}>
+      <div className={cn("mb-3 overflow-hidden rounded-xl border border-primary/25 bg-background/80 shadow-2xl backdrop-blur-xl", gameLandscape && "pointer-events-none absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] bottom-[max(8px,env(safe-area-inset-bottom))] z-30 m-0 flex w-[clamp(180px,16vw,240px)] flex-col overflow-hidden rounded-xl border border-primary/20 bg-slate-950/88 shadow-2xl backdrop-blur-xl")}>
+        <div className={cn("flex items-center justify-between gap-3 border-b border-primary/15 px-3 py-2.5 sm:px-4", gameLandscape && "pointer-events-auto static w-full border-0 border-b border-white/10 bg-transparent px-3 py-3 shadow-none backdrop-blur-none")}>
           <div className="min-w-0">
             <p className="font-display text-lg font-bold uppercase tracking-[0.12em] text-primary">Virus Run</p>
-            <p className="hidden truncate text-xs text-muted-foreground sm:block">Collect data · Avoid detection · Space pauses</p>
+            <p className="truncate text-xs text-muted-foreground">Collect data · Avoid detection · Space pauses</p>
           </div>
           {(phase === "playing" || phase === "paused") && (
             <Button onClick={phase === "playing" ? pause : resume} aria-label={phase === "playing" ? "Pause" : "Resume"} variant="outline" size="icon" className="shrink-0">
@@ -2061,7 +2061,7 @@ export function VirusRun() {
             </Button>
           )}
         </div>
-        <div className={cn("grid grid-cols-5 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-slate-950/80 shadow-[0_12px_40px_rgba(0,0,0,.35)] backdrop-blur-xl", mobileLandscape && "pointer-events-auto static flex flex-1 flex-col divide-x-0 divide-y divide-white/10 overflow-hidden rounded-none border-0 bg-transparent shadow-none backdrop-blur-none")}>
+        <div className={cn("grid grid-cols-5 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-slate-950/80 shadow-[0_12px_40px_rgba(0,0,0,.35)] backdrop-blur-xl", gameLandscape && "pointer-events-auto static flex flex-1 flex-col divide-x-0 divide-y divide-white/10 overflow-hidden rounded-none border-0 bg-transparent shadow-none backdrop-blur-none")}>
           <GameStat label="Level" value={hud.level} />
           <div><GameStat label="System" value={hud.boss ? hud.bossTitle : hud.system || "—"} accent /></div>
           <GameStat
@@ -2082,10 +2082,10 @@ export function VirusRun() {
         </div>
       </div>
 
-      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", mobileLandscape && "absolute bottom-0 right-0 top-0 m-0 h-[100dvh] w-[calc(100dvw-clamp(166px,15vw,226px))] rounded-none border-0 bg-black p-0 shadow-none")}>
+      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", gameLandscape && "absolute bottom-0 right-0 top-0 m-0 h-[100dvh] w-[calc(100dvw-clamp(196px,17vw,256px))] rounded-none border-0 bg-black p-0 shadow-none")}>
         <canvas
           ref={canvasRef}
-           className={cn("block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "h-[100dvh] w-[100dvw] max-w-none rounded-none aspect-auto")}
+           className={cn("block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]", gameLandscape && "h-[100dvh] w-[100dvw] max-w-none rounded-none aspect-auto")}
           onPointerDown={onCanvasPointerDown}
           onPointerMove={onCanvasPointerMove}
           onPointerUp={onCanvasPointerEnd}
@@ -2095,8 +2095,8 @@ export function VirusRun() {
       </div>
 
       {/* Phone controls: one large thumb stick. The playfield itself also supports drag-to-steer. */}
-      <div className={cn("mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden", mobileLandscape && "absolute bottom-[max(12px,env(safe-area-inset-bottom))] right-[max(12px,env(safe-area-inset-right))] z-40 m-0 w-auto bg-transparent p-0")} aria-label="Mobile game controls">
-        <p className={cn("max-w-[12rem] text-xs leading-relaxed text-muted-foreground", mobileLandscape && "hidden")}>Swipe the maze to steer, or flick the thumb stick. Your last direction stays active until you steer again.</p>
+      <div className={cn("mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden", gameLandscape && "absolute bottom-[max(12px,env(safe-area-inset-bottom))] right-[max(12px,env(safe-area-inset-right))] z-40 m-0 w-auto bg-transparent p-0")} aria-label="Mobile game controls">
+        <p className={cn("max-w-[12rem] text-xs leading-relaxed text-muted-foreground", gameLandscape && "hidden")}>Swipe the maze to steer, or flick the thumb stick. Your last direction stays active until you steer again.</p>
         <Joystick onDir={(dir) => pressDir(dir)} onRelease={releaseAllDirs} mobile />
       </div>
     </div>
@@ -2107,7 +2107,7 @@ function GameStat({ label, value, accent = false }: { label: string; value: stri
   return (
     <div className="min-w-0 px-2 py-2.5 sm:px-4">
       <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">{label}</p>
-      <p className={cn("mt-1 truncate font-mono text-xs font-bold sm:text-sm", accent && "text-primary")}>{value}</p>
+      <p className={cn("mt-1 break-words font-mono text-xs font-bold sm:text-sm", accent && "text-primary")}>{value}</p>
     </div>
   );
 }
