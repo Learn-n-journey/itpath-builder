@@ -53,7 +53,8 @@ function MeditationPage() {
   const [volume, setVolume] = useState(45);
   const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
   const breathAudioContextRef = useRef<AudioContext | null>(null);
-  const breathNodesRef = useRef<{ oscillator: OscillatorNode; gain: GainNode } | null>(null);
+  const breathNodesRef = useRef<{ source: AudioBufferSourceNode; gain: GainNode } | null>(null);
+  const [breathAudioReady, setBreathAudioReady] = useState(true);
   const lastBreathCueRef = useRef<"inhale" | "exhale" | null>(null);
 
   useEffect(() => {
@@ -84,7 +85,11 @@ function MeditationPage() {
   function stopBell() {
     const active = breathNodesRef.current;
     if (active) {
-      try { active.gain.gain.cancelScheduledValues(0); active.gain.gain.setValueAtTime(0.0001, active.gain.context.currentTime); active.oscillator.stop(); } catch {}
+      try {
+        active.gain.gain.cancelScheduledValues(active.gain.context.currentTime);
+        active.gain.gain.setValueAtTime(0.0001, active.gain.context.currentTime);
+        active.source.stop();
+      } catch {}
     }
     breathNodesRef.current = null;
   }
@@ -95,47 +100,68 @@ function MeditationPage() {
     if (!ctx || ctx.state !== "running") return;
     const exercise = breathingExercises.find((item) => item.id === exerciseId) ?? breathingExercises[0];
     const duration = Math.max(1.5, kind === "inhale" ? exercise.inhale : exercise.exhale);
-    const oscillator = ctx.createOscillator();
+    const frameCount = Math.ceil(ctx.sampleRate * duration);
+    const buffer = ctx.createBuffer(1, frameCount, ctx.sampleRate);
+    const samples = buffer.getChannelData(0);
+    for (let i = 0; i < frameCount; i += 1) samples[i] = Math.random() * 2 - 1;
+
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.Q.value = 0.55;
     const gain = ctx.createGain();
     const now = ctx.currentTime;
-    const level = Math.max(0.025, Math.min(0.16, (volume / 100) * 0.24));
-    oscillator.type = "sine";
-    gain.gain.setValueAtTime(0.0001, now);
+    const level = Math.max(0.02, Math.min(0.12, (volume / 100) * 0.18));
+
     if (kind === "inhale") {
-      oscillator.frequency.setValueAtTime(220, now);
-      oscillator.frequency.exponentialRampToValueAtTime(440, now + duration);
-      gain.gain.exponentialRampToValueAtTime(level, now + Math.min(0.35, duration * 0.2));
+      filter.frequency.setValueAtTime(650, now);
+      filter.frequency.linearRampToValueAtTime(1250, now + duration);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(level, now + duration * 0.72);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     } else {
-      oscillator.frequency.setValueAtTime(440, now);
-      oscillator.frequency.exponentialRampToValueAtTime(220, now + duration);
-      gain.gain.exponentialRampToValueAtTime(level * 0.9, now + 0.08);
+      filter.frequency.setValueAtTime(1050, now);
+      filter.frequency.linearRampToValueAtTime(480, now + duration);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(level * 0.9, now + Math.min(0.3, duration * 0.12));
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     }
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    oscillator.connect(gain);
+
+    source.connect(filter);
+    filter.connect(gain);
     gain.connect(ctx.destination);
-    breathNodesRef.current = { oscillator, gain };
-    oscillator.onended = () => { if (breathNodesRef.current?.oscillator === oscillator) breathNodesRef.current = null; };
-    oscillator.start(now);
-    oscillator.stop(now + duration + 0.03);
+    breathNodesRef.current = { source, gain };
+    source.onended = () => { if (breathNodesRef.current?.source === source) breathNodesRef.current = null; };
+    source.start(now);
+    source.stop(now + duration);
   }
 
   async function unlockBreathAudio() {
     const AudioCtx = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) return false;
-    const ctx = breathAudioContextRef.current ?? new AudioCtx();
-    breathAudioContextRef.current = ctx;
+    if (!AudioCtx) {
+      setBreathAudioReady(false);
+      return false;
+    }
     try {
+      // iOS Safari only allows Web Audio to be created/resumed from a direct
+      // user gesture. This function is called by the Play button itself.
+      const ctx = breathAudioContextRef.current ?? new AudioCtx();
+      breathAudioContextRef.current = ctx;
       if (ctx.state === "suspended") await ctx.resume();
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-      gain.gain.value = 0.01;
-      oscillator.frequency.value = 220;
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-      oscillator.start();
-      oscillator.stop(ctx.currentTime + 0.01);
-      return ctx.state === "running";
+
+      // Push a silent buffer through the graph while still inside the gesture.
+      // This reliably unlocks the destination on iPhone/iPad Safari.
+      const silent = ctx.createBuffer(1, 1, ctx.sampleRate);
+      const source = ctx.createBufferSource();
+      source.buffer = silent;
+      source.connect(ctx.destination);
+      source.start(0);
+      const ready = ctx.state === "running";
+      setBreathAudioReady(ready);
+      return ready;
     } catch {
+      setBreathAudioReady(false);
       return false;
     }
   }
@@ -245,6 +271,7 @@ function MeditationPage() {
           <div className={cn("grid size-[min(64vw,16rem)] place-items-center rounded-full border border-white/20 bg-white/[.04] shadow-2xl shadow-black/20 transition-all duration-1000 sm:size-72",running&&(instruction==="Inhale"||instruction==="Hold")?"scale-105 bg-white/[.07]":"scale-95")}>
             <div><p className="text-xs font-semibold uppercase tracking-[.3em] text-white/55">{running?instruction:"Ready"}</p><p className="mt-3 font-serif text-7xl font-light tabular-nums">{running?phaseSeconds:exercise.inhale}</p><p className="mt-3 font-mono text-xs text-white/45">{minutes}:{seconds}</p></div>
           </div>
+          {!breathAudioReady && breathCuesEnabled ? <p className="mt-5 max-w-sm text-xs text-white/60">Breath sound is blocked by the browser. Tap Play again with your iPhone or iPad volume on and Silent Mode off.</p> : null}
           <div className="mt-7 flex items-center justify-center gap-4">
             <Button type="button" size="icon" onClick={startPause} aria-label={running ? "Pause" : "Play"} className="size-16 rounded-full shadow-xl">{running?<Pause className="size-6"/>:<Play className="ml-0.5 size-6 fill-current"/>}</Button>
             <button type="button" onClick={stopSession} aria-label="Stop" className="grid size-14 place-items-center rounded-full border border-white/15 bg-white/[.06] text-white/70"><Square className="size-5"/></button>
