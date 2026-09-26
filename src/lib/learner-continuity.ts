@@ -70,7 +70,13 @@ export function learnerContinuity(
   }
 
   const resume = resumeTarget(user);
-  if (resume) {
+  const recommended = nextAction(user, now);
+  const overdueReview = recommended.to === "/review" && user.reviews.some(
+    (review) =>
+      review.status === "scheduled" &&
+      new Date(review.dueAt).getTime() < now.getTime() - 24 * 60 * 60 * 1000,
+  );
+  if (resume && !overdueReview) {
     return {
       kind: "resume",
       label: resume.label,
@@ -81,7 +87,7 @@ export function learnerContinuity(
     };
   }
 
-  const recommended = nextAction(user, now);
+
   return {
     kind: "recommendation",
     label: recommended.label,

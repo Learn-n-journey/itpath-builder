@@ -43,7 +43,9 @@ export function resumeTarget(user: UserData): ResumeTarget | undefined {
     if (route) return route;
   }
   // 2. A lab started but not finished.
-  const openLab = user.labAttempts.find((attempt) => attempt.status === "in_progress");
+  const openLab = user.labAttempts
+    .filter((attempt) => attempt.status === "in_progress")
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
   if (openLab) {
     const lab = labs.find((item) => item.id === openLab.labId);
     if (lab) {
@@ -56,9 +58,9 @@ export function resumeTarget(user: UserData): ResumeTarget | undefined {
     }
   }
   // 3. A practice task written but not yet evaluated.
-  const openTask = user.assignmentAttempts.find(
-    (attempt) => attempt.status === "started" || attempt.status === "submitted",
-  );
+  const openTask = user.assignmentAttempts
+    .filter((attempt) => attempt.status === "started" || attempt.status === "submitted")
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
   if (openTask) {
     const task = assignments.find((item) => item.id === openTask.assignmentId);
     const topic = task ? topics.find((item) => item.id === task.topicId) : undefined;
