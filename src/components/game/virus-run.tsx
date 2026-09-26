@@ -362,6 +362,7 @@ export function VirusRun() {
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
   const lastAlertSoundRef = useRef(0);
+  const shakeRef = useRef({ strength: 0, until: 0 });
   const bestRef = useRef<Best>({ bestLevel: 0, packets: 0, currentLevel: 1 });
   const upgradesRef = useRef<Record<UpgradeKind, number>>({
     "packet-sniffer": 0, "cache-boost": 0, "ghost-protocol": 0,
@@ -633,6 +634,7 @@ export function VirusRun() {
           p.invuln = Math.max(p.invuln, 1.1);
           for (const g of run.guards) g.stunned = Math.max(g.stunned, 1.4);
           fxRef.current.push({x:target.x,y:target.y,born:performance.now(),kind:"power"});
+          shakeRef.current={strength:run.bossNodes>=run.bossNodesRequired?(run.level===20?14:10):6,until:performance.now()+(run.bossNodes>=run.bossNodesRequired?520:240)};
           virusSound("boss");
           if (run.bossNodes >= run.bossNodesRequired) {
             run.portOpen = true;
@@ -812,7 +814,7 @@ export function VirusRun() {
         // Contact.
         if (p.invuln <= 0 && Math.abs(g.x - p.x) < 0.55 && Math.abs(g.y - p.y) < 0.55) {
           run.integrity -= 1;
-          fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });virusSound("hit");
+          fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });shakeRef.current={strength:7,until:performance.now()+260};virusSound("hit");
           p.x = 1;
           p.y = 1;
           p.tx = 1;
@@ -877,6 +879,8 @@ export function VirusRun() {
       const ctx2 = canvasEl.getContext("2d");
       if (!ctx2) return;
       ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const shakeLeft=Math.max(0,shakeRef.current.until-time);
+      if(shakeLeft>0){const power=shakeRef.current.strength*(shakeLeft/Math.max(1,shakeRef.current.until-(time-16)));ctx2.translate(Math.sin(time*.19)*power,Math.cos(time*.23)*power*.7);}
 
       const cell = Math.min(rect.width / COLS, rect.height / ROWS);
       const offX = (rect.width - cell * COLS) / 2;
