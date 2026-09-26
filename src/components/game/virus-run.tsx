@@ -626,6 +626,10 @@ export function VirusRun() {
         if (px === target.x && py === target.y) {
           run.bossNodes += 1;
           run.bossPhase = 3;
+          // A breach destabilizes the whole security layer.
+          for (let burst = 0; burst < 7 + run.bossNodes * 3; burst++) {
+            fxRef.current.push({x:target.x + (Math.random()-.5)*2.4,y:target.y + (Math.random()-.5)*2.4,born:performance.now()-burst*18,kind:run.bossNodes>=run.bossNodesRequired?"exit":"power"});
+          }
           p.invuln = Math.max(p.invuln, 1.1);
           for (const g of run.guards) g.stunned = Math.max(g.stunned, 1.4);
           fxRef.current.push({x:target.x,y:target.y,born:performance.now(),kind:"power"});
