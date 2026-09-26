@@ -1006,6 +1006,29 @@ export function VirusRun() {
       }
       ctx2.restore();
 
+      // High-quality ambient pass: depth vignette, scanlines, drifting motes and
+      // system-colored energy. Kept behind gameplay entities so readability wins.
+      ctx2.save();
+      const ambientTime = time / 1000;
+      for (let i = 0; i < 26; i++) {
+        const seed = i * 19.37;
+        const mx = offX + (((seed * 13 + ambientTime * (8 + i % 5)) % COLS) * cell);
+        const my = offY + (((seed * 7 + Math.sin(ambientTime * .7 + i) * 2 + ROWS) % ROWS) * cell);
+        const ma = .025 + .035 * (1 + Math.sin(ambientTime * 1.4 + i)) / 2;
+        ctx2.fillStyle = `rgba(148,223,255,${ma})`;
+        ctx2.beginPath(); ctx2.arc(mx, my, Math.max(.6, cell * .045), 0, Math.PI * 2); ctx2.fill();
+      }
+      const sweepY = offY + ((time / 38) % (cell * ROWS));
+      const scanGradient = ctx2.createLinearGradient(0, sweepY - cell * 1.4, 0, sweepY + cell * 1.4);
+      scanGradient.addColorStop(0, "rgba(255,255,255,0)");
+      scanGradient.addColorStop(.5, "rgba(186,230,253,.035)");
+      scanGradient.addColorStop(1, "rgba(255,255,255,0)");
+      ctx2.fillStyle = scanGradient; ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
+      const vignette = ctx2.createRadialGradient(rect.width/2, rect.height/2, Math.min(rect.width,rect.height)*.18, rect.width/2, rect.height/2, Math.max(rect.width,rect.height)*.68);
+      vignette.addColorStop(0,"rgba(0,0,0,0)");vignette.addColorStop(.72,"rgba(0,0,0,.06)");vignette.addColorStop(1,"rgba(0,0,0,.34)");
+      ctx2.fillStyle=vignette;ctx2.fillRect(0,0,rect.width,rect.height);
+      ctx2.restore();
+
       // Walls as dimensional security architecture with illuminated traces.
       const pad = cell * 0.08;
       for (let y = 0; y < ROWS; y++) {
@@ -1022,7 +1045,10 @@ export function VirusRun() {
             ctx2.fill();
             ctx2.strokeStyle = t.wallEdge;
             ctx2.lineWidth = 1;
+            ctx2.shadowColor = t.wallEdge;
+            ctx2.shadowBlur = cell * 0.18;
             ctx2.stroke();
+            ctx2.shadowBlur = 0;
             ctx2.fillStyle = "rgba(255,255,255,0.025)";
             roundRect(ctx2, offX + x * cell + pad * 1.7, offY + y * cell + pad * 1.7, cell - pad * 3.4, Math.max(1, cell * 0.08), cell * 0.04);
             ctx2.fill();
