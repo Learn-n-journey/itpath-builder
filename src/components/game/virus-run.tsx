@@ -1087,7 +1087,7 @@ export function VirusRun() {
 
       // Gameplay telegraphs: the visuals below correspond to the active system mechanic.
       ctx2.save();
-      const run.hazardPulse = run.hazardPulse;
+      const hazardPulse = run.hazardPulse;
       if (sys === "Boot Sector" && run.hazardPulse < 1.5) {
         ctx2.fillStyle = "rgba(250,204,21,0.055)";
         ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
@@ -1110,7 +1110,7 @@ export function VirusRun() {
       } else if (sys === "Firewall" && run.hazardPulse > 5.2 && run.hazardPulse < 6.6) {
         const sweep=(run.hazardPulse-5.2)/1.4;const x=offX+sweep*cell*COLS;
         const fg=ctx2.createLinearGradient(x-cell*2,0,x+cell*2,0);fg.addColorStop(0,"rgba(251,146,60,0)");fg.addColorStop(.5,"rgba(251,146,60,.2)");fg.addColorStop(1,"rgba(251,146,60,0)");ctx2.fillStyle=fg;ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
- else if (sys === "File System" && run.hazardPulse > 2.8 && run.hazardPulse < 3.8) {
+      } else if (sys === "File System" && run.hazardPulse > 2.8 && run.hazardPulse < 3.8) {
         ctx2.fillStyle="rgba(94,234,212,.055)";for(let x=2;x<COLS-2;x+=5)ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);
       } else if (sys === "Process Table" && run.hazardPulse > 5.8) {
         ctx2.fillStyle="rgba(192,132,252,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
