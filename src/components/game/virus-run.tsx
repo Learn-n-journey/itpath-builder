@@ -848,6 +848,30 @@ export function VirusRun() {
       ctx2.fillStyle = t.bg;
       ctx2.fillRect(0, 0, rect.width, rect.height);
 
+      // Premium depth pass: a subtle player-centered pool of light separates
+      // navigable space from the darker security architecture.
+      const playerLightX = offX + (run.player.x + 0.5) * cell;
+      const playerLightY = offY + (run.player.y + 0.5) * cell;
+      const playerLight = ctx2.createRadialGradient(playerLightX, playerLightY, cell * 0.2, playerLightX, playerLightY, cell * 7.5);
+      playerLight.addColorStop(0, "rgba(94,234,212,0.105)");
+      playerLight.addColorStop(0.38, "rgba(45,212,191,0.045)");
+      playerLight.addColorStop(1, "rgba(0,0,0,0)");
+      ctx2.fillStyle = playerLight;
+      ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
+
+      // Slow ambient motes make the system feel alive without obscuring routes.
+      ctx2.save();
+      for (let mote = 0; mote < 18; mote++) {
+        const mx = offX + (((mote * 7.31 + time / (5200 + mote * 90)) % COLS) * cell);
+        const my = offY + (((mote * 4.77 + time / (7600 + mote * 120)) % ROWS) * cell);
+        const alpha = 0.08 + 0.07 * Math.sin(time / 900 + mote);
+        ctx2.fillStyle = `rgba(125,211,252,${Math.max(0.02, alpha)})`;
+        ctx2.beginPath();
+        ctx2.arc(mx, my, Math.max(0.7, cell * 0.045), 0, Math.PI * 2);
+        ctx2.fill();
+      }
+      ctx2.restore();
+
       // Layered system substrate: faint traces and moving data current.
       const fieldGradient = ctx2.createRadialGradient(rect.width * 0.5, rect.height * 0.45, 0, rect.width * 0.5, rect.height * 0.45, rect.width * 0.7);
       fieldGradient.addColorStop(0, "rgba(45,212,191,0.08)");
@@ -1213,6 +1237,19 @@ export function VirusRun() {
 
       // Player: layered bio-digital organism with nucleus, membrane and orbit.
       const pcx = offX + (run.player.x + 0.5) * cell;
+      // Ground halo keeps the player readable over every system palette and
+      // expands with momentum so speed has a visual identity.
+      ctx2.save();
+      const momentumGlow = run.streak > 1 ? 1 + run.streak * 0.09 : 1;
+      const halo = ctx2.createRadialGradient(pcx, offY + (run.player.y + 0.5) * cell, 0, pcx, offY + (run.player.y + 0.5) * cell, cell * 1.15 * momentumGlow);
+      halo.addColorStop(0, "rgba(94,234,212,0.24)");
+      halo.addColorStop(0.42, "rgba(45,212,191,0.09)");
+      halo.addColorStop(1, "rgba(45,212,191,0)");
+      ctx2.fillStyle = halo;
+      ctx2.beginPath();
+      ctx2.arc(pcx, offY + (run.player.y + 0.5) * cell, cell * 1.15 * momentumGlow, 0, Math.PI * 2);
+      ctx2.fill();
+      ctx2.restore();
       const pcy = offY + (run.player.y + 0.5) * cell;
       const wobble = 1 + 0.08 * Math.sin(time / 120);
       ctx2.save();
