@@ -296,9 +296,10 @@ function buildLevel(level: number): RunState {
   const guardSpeed = Math.min(BASE_GUARD_SPEED + (level - 1) * 0.16, MAX_GUARD_SPEED);
   const detection = 6 + Math.min(level, 9);
   const guards: Guard[] = [];
-  const openCells = candidates.filter(
-    (c) => dist[c.y]![c.x]! > 8 && Math.abs(c.x - spawn.x) + Math.abs(c.y - spawn.y) > 10,
-  );
+  // Spawn enemies by real maze-path distance. Coordinate distance can put a
+  // guard physically close behind a wall or inside the player's first corridor.
+  const minSpawnPath = boss ? 18 : 15;
+  const openCells = candidates.filter((c) => (dist[c.y]?.[c.x] ?? -1) >= minSpawnPath);
   for (let i = 0; i < guardCount && openCells.length > 0; i++) {
     const cell = openCells.splice(Math.floor(Math.random() * openCells.length), 1)[0]!;
     const kinds: GuardKind[] = boss ? ["hunter","interceptor","warden","scanner"] : ["scanner","hunter","interceptor"];
@@ -325,7 +326,7 @@ function buildLevel(level: number): RunState {
     collected: 0,
     port,
     portOpen: false,
-    player: { x: spawn.x, y: spawn.y, tx: spawn.x, ty: spawn.y, moving: false, invuln: 1.5 },
+    player: { x: spawn.x, y: spawn.y, tx: spawn.x, ty: spawn.y, moving: false, invuln: 3.25 },
     guards,
     integrity: MAX_INTEGRITY,
     packetsTotal: packets.length,
@@ -674,7 +675,8 @@ export function VirusRun() {
         const gy = Math.round(g.y);
         if(g.stunned>0)continue;
         const toPlayer = field[gy]?.[gx] ?? -1;
-        const hidden = run.activePower?.kind==="cloak";
+        const openingGrace = run.systemClock < 3.25;
+        const hidden = run.activePower?.kind==="cloak" || openingGrace;
         const systemDetection = run.theme.system==="Kernel Space"?2:run.theme.system==="Firewall"?1:0;
         if (g.x === g.tx && g.y === g.ty) {
           const options: [number, number][] = [];
@@ -708,7 +710,10 @@ export function VirusRun() {
         if (run.theme.system === "Web Server" && pulse > 1.5 && pulse < 2.5) systemGuardSpeed = 1.08;
         if (run.theme.system === "Security Operations Center") systemGuardSpeed = 1.06;
         if (run.theme.system === "Core Infrastructure" && pulse > 2.8 && pulse < 3.5) systemGuardSpeed = 1.1;
-        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * (g.kind==="hunter"&&toPlayer>=0&&toPlayer<=g.detection?1.12:1), dt);
+        // During the opening grace period guards patrol, but do not accelerate
+        // into the spawn pocket. This prevents repeated unavoidable spawn deaths.
+        if (openingGrace && toPlayer >= 0 && toPlayer < 10) systemGuardSpeed *= 0.55;
+        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * (g.kind==="hunter"&&!openingGrace&&toPlayer>=0&&toPlayer<=g.detection?1.12:1), dt);
         g.x = r.x;
         g.y = r.y;
 
