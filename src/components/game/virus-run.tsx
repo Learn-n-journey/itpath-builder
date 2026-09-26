@@ -1167,24 +1167,49 @@ export function VirusRun() {
         ctx2.save();ctx2.fillStyle="rgba(153,246,228,0.88)";ctx2.font=`bold ${Math.max(7,cell*.22)}px ui-monospace, monospace`;ctx2.textAlign="center";ctx2.fillText("EXIT",portalX,portalY-cell*.68);ctx2.restore();
       }
 
-      // Data packets: compact encrypted data shards. Their restrained scale keeps
-      // the player and threats dominant while remaining readable at phone size.
+      // Data packets: unmistakable luminous data capsules. They pulse like active
+      // information in transit, with a bright core and restrained digital beacon.
       for (const packet of run.packets) {
         if (packet.taken) continue;
         ctx2.save();
-        ctx2.translate(offX + (packet.x + 0.5) * cell, offY + (packet.y + 0.5) * cell);
-        const bob=Math.sin(time/260+packet.x*.7+packet.y*.35)*cell*.035;
-        ctx2.translate(0,bob);
-        ctx2.rotate(Math.PI/4 + Math.sin(time/700+packet.x)*.12);
+        const packetX=offX+(packet.x+.5)*cell;
+        const packetY=offY+(packet.y+.5)*cell;
+        const phase=time/240+packet.x*.73+packet.y*.41;
+        const pulse=.5+.5*Math.sin(phase);
+        const bob=Math.sin(time/310+packet.x*.7+packet.y*.35)*cell*.055;
+        ctx2.translate(packetX,packetY+bob);
+
+        // Soft beacon makes collectibles visible at a glance without obscuring walls.
+        const beaconR=cell*(.58+pulse*.12);
+        const beacon=ctx2.createRadialGradient(0,0,0,0,0,beaconR);
+        beacon.addColorStop(0,`rgba(125,211,252,${.3+pulse*.12})`);
+        beacon.addColorStop(.34,`rgba(56,189,248,${.12+pulse*.06})`);
+        beacon.addColorStop(1,"rgba(14,165,233,0)");
+        ctx2.fillStyle=beacon;ctx2.beginPath();ctx2.arc(0,0,beaconR,0,Math.PI*2);ctx2.fill();
+
+        // Thin vertical data shimmer suggests a live packet being transmitted.
+        ctx2.strokeStyle=`rgba(186,230,253,${.16+pulse*.13})`;
+        ctx2.lineWidth=Math.max(.7,cell*.028);
+        ctx2.beginPath();ctx2.moveTo(0,-cell*.62);ctx2.lineTo(0,-cell*.31);ctx2.moveTo(0,cell*.31);ctx2.lineTo(0,cell*.62);ctx2.stroke();
+
         const sniffStacks=upgradesRef.current["packet-sniffer"];
-        if(sniffStacks>0){ctx2.strokeStyle=`rgba(125,211,252,${.18+.1*Math.sin(time/180+packet.x)})`;ctx2.lineWidth=Math.max(.8,cell*.035);ctx2.beginPath();ctx2.arc(0,0,cell*(.48+sniffStacks*.12),0,Math.PI*2);ctx2.stroke();}
-        const shard=cell*.205;
-        ctx2.shadowColor="rgba(56,189,248,0.65)";ctx2.shadowBlur=cell*.42;
+        if(sniffStacks>0){ctx2.strokeStyle=`rgba(125,211,252,${.25+.13*pulse})`;ctx2.lineWidth=Math.max(.8,cell*.035);ctx2.beginPath();ctx2.arc(0,0,cell*(.5+sniffStacks*.12),0,Math.PI*2);ctx2.stroke();}
+
+        ctx2.rotate(Math.PI/4 + Math.sin(time/850+packet.x)*.075);
+        const shard=cell*.23;
+        ctx2.shadowColor="#38bdf8";ctx2.shadowBlur=cell*(.62+pulse*.22);
         const dataFill=ctx2.createLinearGradient(-shard,-shard,shard,shard);
-        dataFill.addColorStop(0,"#e0f2fe");dataFill.addColorStop(.38,"#38bdf8");dataFill.addColorStop(1,"#0369a1");
+        dataFill.addColorStop(0,"#f0f9ff");dataFill.addColorStop(.28,"#7dd3fc");dataFill.addColorStop(.62,"#0ea5e9");dataFill.addColorStop(1,"#075985");
         ctx2.fillStyle=dataFill;ctx2.fillRect(-shard,-shard,shard*2,shard*2);
-        ctx2.shadowBlur=0;ctx2.strokeStyle="rgba(186,230,253,0.82)";ctx2.lineWidth=Math.max(.7,cell*.035);ctx2.strokeRect(-shard,-shard,shard*2,shard*2);
-        ctx2.fillStyle="rgba(240,249,255,0.8)";ctx2.fillRect(-shard*.5,-shard*.12,shard,shard*.24);
+        ctx2.shadowBlur=0;
+        ctx2.strokeStyle="rgba(224,242,254,0.95)";ctx2.lineWidth=Math.max(.8,cell*.04);ctx2.strokeRect(-shard,-shard,shard*2,shard*2);
+
+        // Digital bit marks remain upright inside the rotating capsule.
+        ctx2.rotate(-(Math.PI/4 + Math.sin(time/850+packet.x)*.075));
+        ctx2.fillStyle="rgba(240,249,255,0.96)";
+        ctx2.font=`bold ${Math.max(6,cell*.17)}px ui-monospace, monospace`;
+        ctx2.textAlign="center";ctx2.textBaseline="middle";
+        ctx2.fillText((packet.x+packet.y)%2===0?"01":"10",0,0);
         ctx2.restore();
       }
 
