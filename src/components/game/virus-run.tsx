@@ -243,7 +243,8 @@ interface RunState {
   streakTimer: number;
   boss: boolean;
   bossTitle: string;
-  bossCoreBreached: boolean;
+  bossBreaches: number;
+  bossBreachesRequired: number;
   required: number;
   collected: number;
   port: { x: number; y: number };
@@ -304,6 +305,7 @@ function buildLevel(level: number): RunState {
           : level === 20
             ? "CORE DEFENDER"
             : "ENDLESS DEFENDER";
+  const bossBreachesRequired = boss ? (level >= 20 ? 4 : level >= 15 ? 3 : 2) : 0;
   const guardCount = Math.min((boss ? 5 : 2) + Math.floor(level * 0.7), 14);
   const guardSpeed = Math.min(BASE_GUARD_SPEED + (level - 1) * 0.16, MAX_GUARD_SPEED);
   const detection = 6 + Math.min(level, 9);
@@ -338,7 +340,8 @@ function buildLevel(level: number): RunState {
     streakTimer: 0,
     boss,
     bossTitle,
-    bossCoreBreached: false,
+    bossBreaches: 0,
+    bossBreachesRequired,
     required,
     collected: 0,
     port,
@@ -711,12 +714,19 @@ export function VirusRun() {
 
       // Boss core. Once all packets are collected on a boss level, the
       // player must breach the central security core before the exit opens.
-      if (run.boss && !run.bossCoreBreached && run.collected >= run.required) {
+      if (run.boss && run.bossBreaches < run.bossBreachesRequired && run.collected >= run.required) {
         const coreX = Math.floor(COLS / 2);
         const coreY = Math.floor(ROWS / 2);
         if (Math.abs(p.x - coreX) < 0.8 && Math.abs(p.y - coreY) < 0.8) {
-          run.bossCoreBreached = true;
-          run.portOpen = true;
+          run.bossBreaches += 1;
+          if (run.bossBreaches >= run.bossBreachesRequired) {
+            run.portOpen = true;
+          } else {
+            // Begin the next breach layer using the same packet positions.
+            // Resetting them keeps this step isolated from maze generation.
+            for (const packet of run.packets) packet.taken = false;
+            run.collected = 0;
+          }
           fxRef.current.push({ x: coreX, y: coreY, born: performance.now(), kind: "exit" });
           virusSound("boss");
           syncHud(run);
@@ -1045,7 +1055,7 @@ export function VirusRun() {
       if (run.boss) {
         const bx = offX + cell * COLS / 2;
         const by = offY + cell * ROWS / 2;
-        const coreReady = run.collected >= run.required && !run.bossCoreBreached;
+        const coreReady = run.collected >= run.required && run.bossBreaches < run.bossBreachesRequired;
         ctx2.save();
         ctx2.globalAlpha = coreReady ? 0.72 + 0.2 * Math.sin(time / 140) : 0.18;
         ctx2.strokeStyle = coreReady ? "#fda4af" : "#fb7185";
