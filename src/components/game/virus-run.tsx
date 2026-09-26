@@ -191,7 +191,7 @@ interface Packet {
   taken: boolean;
 }
 
-type GuardKind = "scanner" | "hunter" | "interceptor" | "warden";
+type GuardKind = "scanner" | "hunter" | "interceptor" | "warden" | "sentry" | "sweeper" | "stalker" | "bulwark";
 type GuardState = "patrol" | "chase" | "search";
 type PowerKind = "cloak" | "overclock" | "emp" | "magnet";
 interface PowerUp { x:number; y:number; kind:PowerKind; taken:boolean; }
@@ -327,9 +327,17 @@ function buildLevel(level: number): RunState {
   );
   for (let i = 0; i < guardCount && openCells.length > 0; i++) {
     const cell = openCells.splice(Math.floor(Math.random() * openCells.length), 1)[0]!;
-    const kinds: GuardKind[] = boss ? ["hunter","interceptor","warden","scanner"] : ["scanner","hunter","interceptor"];
-    const kind = kinds[i % kinds.length]!;
-    guards.push({ kind, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden"?.9:1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y, state: "patrol", stateTimer: 0, lastKnownX: cell.x, lastKnownY: cell.y });
+    const unlocked: GuardKind[] = ["scanner","hunter"];
+    if(level>=3) unlocked.push("interceptor");
+    if(level>=5) unlocked.push("warden");
+    if(level>=7) unlocked.push("sentry");
+    if(level>=10) unlocked.push("sweeper");
+    if(level>=13) unlocked.push("stalker");
+    if(level>=16) unlocked.push("bulwark");
+    const kind = unlocked[(i + level) % unlocked.length]!;
+    const speedMod=kind==="interceptor"?1.08:kind==="warden"?.9:kind==="sentry"?.72:kind==="sweeper"?.94:kind==="stalker"?1.04:kind==="bulwark"?.78:1;
+    const detectMod=kind==="hunter"?5:kind==="warden"?2:kind==="sentry"?7:kind==="stalker"?4:kind==="bulwark"?3:0;
+    guards.push({ kind, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * speedMod, detection: detection + detectMod, fromX: cell.x, fromY: cell.y, state: "patrol", stateTimer: 0, lastKnownX: cell.x, lastKnownY: cell.y });
   }
 
   const powerUps: PowerUp[] = [];
@@ -822,11 +830,12 @@ export function VirusRun() {
           if (options.length === 0) options.push([g.fromX, g.fromY]);
           let chosen: [number, number];
           if (g.state === "chase") {
-            if(g.kind==="interceptor" && p.moving){
-              const leadX = p.tx + (p.tx - Math.round(p.x)) * 2;
-              const leadY = p.ty + (p.ty - Math.round(p.y)) * 2;
+            if((g.kind==="interceptor" || g.kind==="stalker") && p.moving){
+              const leadScale=g.kind==="stalker"?3:2;
+              const leadX = p.tx + (p.tx - Math.round(p.x)) * leadScale;
+              const leadY = p.ty + (p.ty - Math.round(p.y)) * leadScale;
               options.sort((a,b)=>Math.abs(a[0]-leadX)+Math.abs(a[1]-leadY)-Math.abs(b[0]-leadX)-Math.abs(b[1]-leadY));
-            } else if (g.kind === "warden") {
+            } else if (g.kind === "warden" || g.kind === "bulwark") {
               // Wardens pressure nearby junctions instead of perfectly tailing the player.
               options.sort((a,b)=>{
                 const da=Math.abs(a[0]-p.x)+Math.abs(a[1]-p.y);
@@ -837,6 +846,19 @@ export function VirusRun() {
               });
             } else options.sort((a, b) => (field[a[1]]![a[0]] ?? 999) - (field[b[1]]![b[0]] ?? 999));
             chosen = options[0]!;
+          } else if(g.kind==="sentry"){
+            // Sentries favor high-visibility junctions and linger around them.
+            options.sort((a,b)=>{
+              const exits=(q:[number,number])=>[[1,0],[-1,0],[0,1],[0,-1]].filter(([dx,dy])=>run.grid[q[1]+dy]?.[q[0]+dx]===0).length;
+              return exits(b)-exits(a);
+            });
+          } else if(g.kind==="sweeper"){
+            // Sweepers strongly prefer continuing forward, creating predictable corridor patrols.
+            options.sort((a,b)=>{
+              const ax=a[0]-gx,ay=a[1]-gy,bx=b[0]-gx,by=b[1]-gy;
+              const fx=gx-g.fromX,fy=gy-g.fromY;
+              return (bx*fx+by*fy)-(ax*fx+ay*fy);
+            });
           } else if (g.state === "search") {
             options.sort((a,b)=>Math.abs(a[0]-g.lastKnownX)+Math.abs(a[1]-g.lastKnownY)-Math.abs(b[0]-g.lastKnownX)-Math.abs(b[1]-g.lastKnownY));
             chosen = options[0]!;
@@ -2090,7 +2112,7 @@ export function VirusRun() {
             <p className="mt-1 text-[10px] text-muted-foreground">{runRef.current?.guards.length ?? 0} active signatures</p>
           </div>
           <div className="flex-1 space-y-2 overflow-y-auto p-3">
-            {(["scanner","hunter","interceptor","warden"] as GuardKind[]).map((kind)=>{
+            {(["scanner","hunter","interceptor","warden","sentry","sweeper","stalker","bulwark"] as GuardKind[]).map((kind)=>{
               const guards=runRef.current?.guards.filter(g=>g.kind===kind) ?? [];
               if(!guards.length)return null;
               const chasing=guards.filter(g=>g.state==="chase").length;
@@ -2130,6 +2152,10 @@ const THREAT_INFO: Record<GuardKind,{name:string;role:string;glyph:string}> = {
   hunter:{name:"Hunter",role:"Relentless pursuit",glyph:"◆"},
   interceptor:{name:"Interceptor",role:"Predictive ambush",glyph:"➤"},
   warden:{name:"Warden",role:"Area control",glyph:"⬢"},
+  sentry:{name:"Sentry",role:"Junction watcher",glyph:"⌾"},
+  sweeper:{name:"Sweeper",role:"Corridor patrol",glyph:"▰"},
+  stalker:{name:"Stalker",role:"Long-lead predictor",glyph:"◇"},
+  bulwark:{name:"Bulwark",role:"Heavy route denial",glyph:"⬣"},
 };
 
 function ThreatCard({kind,count,chasing}:{kind:GuardKind;count:number;chasing:number}){
