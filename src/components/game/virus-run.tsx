@@ -1002,6 +1002,34 @@ export function VirusRun() {
           ctx2.beginPath(); ctx2.moveTo(offX, y); ctx2.lineTo(offX + cell * COLS, y); ctx2.stroke();
         }
         ctx2.setLineDash([]);
+      } else if (["File System","Process Table","System Configuration"].includes(sys)) {
+        // OS internals: nested panels and process lanes.
+        for(let i=0;i<7;i++){
+          const x=offX+cell*(1.4+(i%4)*7.4), y=offY+cell*(1.2+Math.floor(i/4)*9.2);
+          ctx2.strokeStyle="rgba(96,165,250,0.12)";ctx2.lineWidth=Math.max(1,cell*.045);
+          roundRect(ctx2,x,y,cell*4.6,cell*2.1,cell*.22);ctx2.stroke();
+          for(let row=0;row<3;row++){ctx2.fillStyle=`rgba(125,211,252,${.09+row*.025})`;ctx2.fillRect(x+cell*.45,y+cell*(.45+row*.48),cell*(2.2+(i+row)%2),cell*.1);}
+        }
+      } else if (["DNS Resolver","Router Gateway","Switch Fabric"].includes(sys)) {
+        // Network infrastructure: topology nodes joined by animated links.
+        const nodes=[[3,4],[9,2.5],[15,6],[22,3],[27,8],[7,15],[17,16],[25,14]];
+        ctx2.strokeStyle="rgba(56,189,248,0.14)";ctx2.lineWidth=Math.max(1,cell*.05);
+        for(let i=1;i<nodes.length;i++){const a=nodes[i-1]!,b=nodes[i]!;ctx2.beginPath();ctx2.moveTo(offX+a[0]*cell,offY+a[1]*cell);ctx2.lineTo(offX+b[0]*cell,offY+b[1]*cell);ctx2.stroke();}
+        for(let i=0;i<nodes.length;i++){const n=nodes[i]!,pulse=.14+.1*(1+Math.sin(time/300+i))/2;ctx2.fillStyle=`rgba(94,234,212,${pulse})`;ctx2.beginPath();ctx2.arc(offX+n[0]*cell,offY+n[1]*cell,cell*.28,0,Math.PI*2);ctx2.fill();}
+      } else if (["Authentication Server","Security Operations Center"].includes(sys)) {
+        // Security systems: radar arcs and monitored sectors.
+        const cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;
+        ctx2.strokeStyle="rgba(248,113,113,0.13)";ctx2.lineWidth=Math.max(1,cell*.055);
+        for(let r=3;r<15;r+=3){ctx2.beginPath();ctx2.arc(cx,cy,cell*r,0,Math.PI*2);ctx2.stroke();}
+        const a=time/950;ctx2.strokeStyle="rgba(251,113,133,0.24)";ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(cx+Math.cos(a)*cell*15,cy+Math.sin(a)*cell*15);ctx2.stroke();
+      } else if (["Database","Web Server","Cloud Network"].includes(sys)) {
+        // Service/data systems: stacked data racks with flowing request lights.
+        for(let rack=0;rack<6;rack++){const x=offX+cell*(2+rack*5.1);ctx2.fillStyle="rgba(99,102,241,0.07)";ctx2.fillRect(x,offY+cell*1.2,cell*2.6,cell*(ROWS-2.4));for(let row=0;row<8;row++){const blink=.12+.12*(1+Math.sin(time/240+rack+row))/2;ctx2.fillStyle=`rgba(129,140,248,${blink})`;ctx2.fillRect(x+cell*.35,offY+cell*(2+row*2.05),cell*1.9,cell*.12);}}
+      } else if (sys === "Core Infrastructure") {
+        // Final system: converging rings and spokes make the space feel central.
+        const cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;
+        for(let ring=1;ring<=5;ring++){ctx2.strokeStyle=`rgba(250,204,21,${.16-ring*.018})`;ctx2.lineWidth=Math.max(1,cell*.06);ctx2.beginPath();ctx2.arc(cx,cy,cell*(1.5+ring*2.15),time/(900+ring*100),time/(900+ring*100)+Math.PI*1.55);ctx2.stroke();}
+        for(let spoke=0;spoke<8;spoke++){const a=spoke*Math.PI/4+time/8000;ctx2.strokeStyle="rgba(251,191,36,0.09)";ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(cx+Math.cos(a)*cell*16,cy+Math.sin(a)*cell*16);ctx2.stroke();}
       }
       ctx2.restore();
 
