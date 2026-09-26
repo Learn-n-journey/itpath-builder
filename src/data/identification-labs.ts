@@ -9,6 +9,7 @@
  * A fresh set is chosen on every attempt, so no run repeats the last one.
  */
 import { hardwareComponents } from "@/data/hardware-explorer";
+import { a1PracticalProfileFor } from "@/data/auto/a1-practical";
 import { categoryFor } from "@/data/lab-generator";
 import { ownerLabsFor } from "@/lib/owner-lesson-store";
 import { ownerWorkLabsFor } from "@/lib/owner-work-store";
@@ -84,6 +85,23 @@ export function identificationSet(
     };
   }
 
+  const a1 = a1PracticalProfileFor(topicId);
+  if (a1) {
+    const chosen = pick(a1.identify, round, Math.min(5, a1.identify.length));
+    return {
+      heading: "Identify the engine part, then explain its job in the system",
+      items: chosen.map((part, index) => ({
+        id: `${topicId}-a1-${part.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+        number: index + 1,
+        clue: part.clue,
+        name: part.name,
+        functionConcepts: [part.function],
+        answerFunction: part.function,
+        practiceIn: "Engine Explorer",
+      })),
+    };
+  }
+
   if (topicId === HARDWARE_TOPIC_ID) {
     const component = hardwareComponents[round % hardwareComponents.length];
     if (!component) return undefined;
@@ -128,20 +146,25 @@ export function buildIdentificationLabs(topicList: Topic[], lessonList: Lesson[]
     if (!set && ownerLabsFor(topic.id).length === 0 && ownerWorkLabsFor(topic.id).length === 0) continue;
     if (!set) continue;
     const hardware = topic.id === HARDWARE_TOPIC_ID;
+    const a1 = Boolean(a1PracticalProfileFor(topic.id));
     out.push({
       id: identificationLabId(topic.id),
       topicId: topic.id,
-      title: hardware ? "Identify the hardware, no labels" : `${topic.title}: identify and explain`,
+      title: hardware ? "Identify the hardware, no labels" : a1 ? `${topic.title}: component identification` : `${topic.title}: identify and explain`,
       category: hardware ? "hardware" : categoryFor(topic),
       objective: hardware
         ? "Name every numbered part on a blank diagram and say what each one does."
-        : `Name each key part of ${topic.title} from its description and explain what it does.`,
+        : a1
+          ? `Identify the engine components used in ${topic.title} and explain each component's role in diagnosis or service.`
+          : `Name each key part of ${topic.title} from its description and explain what it does.`,
       prerequisites: [topic.title],
       difficulty: topic.difficulty,
       estimatedMinutes: 20,
       environment: hardware
         ? "A blank version of the hardware explorer. The parts are numbered, the labels are gone, and you type what each one is."
-        : "A written identification round built from this section's own material.",
+        : a1
+          ? "An A1 shop-identification round built from the components used in this engine-repair module."
+          : "A written identification round built from this section's own material.",
       instructions: [
         "Work from memory. Close the lesson before you start.",
         "For each number, type the name of the part.",
