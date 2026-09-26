@@ -322,11 +322,19 @@ export function VirusRun() {
   const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false });
 
   useEffect(() => {
-    const query = window.matchMedia("(orientation: landscape) and (max-height: 600px) and (pointer: coarse)");
-    const syncOrientation = () => setMobileLandscape(query.matches);
+    const syncOrientation = () => {
+      const landscape = window.innerWidth > window.innerHeight;
+      setMobileLandscape(landscape);
+      document.documentElement.classList.toggle("virus-run-landscape", landscape);
+    };
     syncOrientation();
-    query.addEventListener("change", syncOrientation);
-    return () => query.removeEventListener("change", syncOrientation);
+    window.addEventListener("resize", syncOrientation);
+    window.addEventListener("orientationchange", syncOrientation);
+    return () => {
+      window.removeEventListener("resize", syncOrientation);
+      window.removeEventListener("orientationchange", syncOrientation);
+      document.documentElement.classList.remove("virus-run-landscape");
+    };
   }, []);
 
   useEffect(() => {
