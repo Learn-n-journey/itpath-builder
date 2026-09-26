@@ -769,6 +769,22 @@ export function VirusRun() {
         const openingGrace = run.systemClock < 3.25;
         const hidden = run.activePower?.kind==="cloak" || openingGrace;
         const systemDetection = run.theme.system==="Kernel Space"?2:run.theme.system==="Firewall"?1:0;
+        const visible=!hidden&&toPlayer>=0;
+        const suspiciousRange=(g.detection+systemDetection)*(g.kind==="scanner"?1.2:g.kind==="warden"?1.05:.88);
+        const chaseRange=(g.detection+systemDetection)*(g.kind==="hunter"?1:g.kind==="interceptor"?.9:.78);
+        g.stateTimer=Math.max(0,g.stateTimer-dt);
+        if(visible&&toPlayer<=suspiciousRange){
+          const gain=dt*(g.kind==="scanner"?1.7:g.kind==="hunter"?1.45:g.kind==="interceptor"?1.3:1.15);
+          g.awareness=Math.min(1,g.awareness+gain);
+          g.lastKnownX=Math.round(p.x);g.lastKnownY=Math.round(p.y);
+          if(g.awareness>=1||toPlayer<=chaseRange){g.state="chase";g.stateTimer=g.kind==="hunter"?4.8:3.5;}
+          else if(g.state!=="chase")g.state="suspicious";
+        }else{
+          g.awareness=Math.max(0,g.awareness-dt*(g.kind==="warden"?.22:.34));
+          if(g.state==="chase"&&g.stateTimer<=0){g.state="search";g.stateTimer=g.kind==="hunter"?4.5:3.2;}
+          else if(g.state==="suspicious"&&g.awareness<=.05){g.state="patrol";}
+          else if(g.state==="search"&&g.stateTimer<=0){g.state="patrol";g.awareness=0;}
+        }
         if (g.x === g.tx && g.y === g.ty) {
           const options: [number, number][] = [];
           for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as [number, number][]) {
@@ -780,13 +796,18 @@ export function VirusRun() {
           }
           if (options.length === 0) options.push([g.fromX, g.fromY]);
           let chosen: [number, number];
-          if (!hidden && toPlayer >= 0 && toPlayer <= g.detection + systemDetection) {
+          if (g.state==="chase" && !hidden) {
             if(g.kind==="interceptor" && p.moving){
               options.sort((a,b)=>Math.abs(a[0]-p.tx)+Math.abs(a[1]-p.ty)-Math.abs(b[0]-p.tx)-Math.abs(b[1]-p.ty));
-            } else options.sort((a, b) => (field[a[1]]![a[0]] ?? 999) - (field[b[1]]![b[0]] ?? 999));
-            chosen = options[0]!;
+            } else options.sort((a,b)=>(field[a[1]]?.[a[0]]??999)-(field[b[1]]?.[b[0]]??999));
+            chosen=options[0]!;
+          } else if(g.state==="search"||g.state==="suspicious"){
+            options.sort((a,b)=>Math.abs(a[0]-g.lastKnownX)+Math.abs(a[1]-g.lastKnownY)-Math.abs(b[0]-g.lastKnownX)-Math.abs(b[1]-g.lastKnownY));
+            chosen=(Math.random()<(g.state==="search"?.78:.9)?options[0]:options[Math.floor(Math.random()*options.length)])!;
           } else {
-            chosen = options[Math.floor(Math.random() * options.length)]!;
+            // Wardens favor territory near packets/exit; other types roam.
+            if(g.kind==="warden"){options.sort((a,b)=>Math.min(...run.packets.filter(q=>!q.taken).map(q=>Math.abs(a[0]-q.x)+Math.abs(a[1]-q.y)),Math.abs(a[0]-run.port.x)+Math.abs(a[1]-run.port.y))-Math.min(...run.packets.filter(q=>!q.taken).map(q=>Math.abs(b[0]-q.x)+Math.abs(b[1]-q.y)),Math.abs(b[0]-run.port.x)+Math.abs(b[1]-run.port.y)));chosen=options[0]!;}
+            else chosen=options[Math.floor(Math.random()*options.length)]!;
           }
           g.fromX = gx;
           g.fromY = gy;
