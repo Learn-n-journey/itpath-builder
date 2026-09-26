@@ -153,6 +153,7 @@ const allNavItems: NavItem[] = [
     icon: Briefcase,
     group: "Practice",
     description: "A simulated support queue across five job roles.",
+    subjects: ["it-cybersecurity"],
   },
   {
     label: "Exam Simulator",
@@ -277,7 +278,7 @@ const allNavItems: NavItem[] = [
     to: "/knowledge",
     icon: Brain,
     group: "You",
-    description: "Save notes, links, videos and files; IT PATH reads them and connects them to your topics.",
+    description: `Save notes, links, videos and files; ${domain.appName} reads them and connects them to your topics.`,
     pro: true,
   },
   {
@@ -317,7 +318,7 @@ const allNavItems: NavItem[] = [
     to: "/community",
     icon: MessagesSquare,
     group: "Connect",
-    description: "One shared chat room with other IT PATH learners.",
+    description: `Connect with other ${domain.appName} learners.`,
   },
   {
     label: "Bookmarks",
@@ -352,7 +353,7 @@ const allNavItems: NavItem[] = [
     to: "/about",
     icon: Info,
     group: "You",
-    description: "Who built IT PATH, version number and contact details.",
+    description: `Who built ${domain.appName}, version number and contact details.`,
   },
   {
     label: "Go Pro",
