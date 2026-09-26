@@ -20,6 +20,7 @@ import {
   BookMarked,
   TrendingUp,
   Timer,
+  Sparkles,
   AlarmClock,
   Compass,
   Info,
@@ -95,6 +96,13 @@ const allNavItems: NavItem[] = [
     icon: Timer,
     group: "Tools",
     description: "Focus timer that logs the minutes you actually study.",
+  },
+  {
+    label: "Meditation & Focus",
+    to: "/meditation",
+    icon: Sparkles,
+    group: "Tools",
+    description: "Breathing, calming sounds and a quick mental reset before or between study sessions.",
   },
   {
     label: "Learn",
