@@ -42,9 +42,21 @@ export function useCommunityNotifications(limit=20){
  }});
  useEffect(()=>{if(!userId)return;const ch=supabase.channel("community-notifications-"+userId).on("postgres_changes",{event:"*",schema:"public",table:"direct_messages"},()=>void qc.invalidateQueries({queryKey:["community-notifications"]})).on("postgres_changes",{event:"*",schema:"public",table:"friendships"},()=>void qc.invalidateQueries({queryKey:["community-notifications"]})).on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"user_id=eq."+userId},()=>void qc.invalidateQueries({queryKey:["community-notifications"]})).subscribe();return()=>{void supabase.removeChannel(ch)}},[userId,qc]);
  async function markNotificationRead(id:string){if(!userId)return;const {error}=await supabase.from("notifications").update({read_at:new Date().toISOString()}).eq("id",id).eq("user_id",userId);if(error)throw error;await qc.invalidateQueries({queryKey:["community-notifications"]});}
- async function markAllEventNotificationsRead(){if(!userId)return;const {error}=await supabase.from("notifications").update({read_at:new Date().toISOString()}).eq("user_id",userId).is("read_at",null);if(error)throw error;await qc.invalidateQueries({queryKey:["community-notifications"]});}
+ async function markAllEventNotificationsRead(){
+  if(!userId)return;
+  const now=new Date().toISOString();
+  const [{error:eventError},{error:messageError}]=await Promise.all([
+   supabase.from("notifications").update({read_at:now}).eq("user_id",userId).is("read_at",null),
+   supabase.from("direct_messages").update({read_at:now}).neq("sender_id",userId).is("read_at",null),
+  ]);
+  if(eventError)throw eventError;if(messageError)throw messageError;
+  // Pending friend requests are actionable rather than readable. Keep them in the
+  // list, but don't let them make a successful "Mark read" action look broken.
+  await qc.invalidateQueries({queryKey:["community-notifications"]});
+ }
  const rows=query.data??[];
- return {notifications:rows,unreadCount:rows.filter(x=>!x.readAt).length,loading:query.isLoading,markNotificationRead,markAllEventNotificationsRead};
+ const unreadCount=rows.filter(x=>!x.readAt&&x.kind!=="friend-request").length;
+ return {notifications:rows,unreadCount,loading:query.isLoading,markNotificationRead,markAllEventNotificationsRead};
 }
 
 export function useDirectMessages(friendshipId:string|null){
