@@ -1420,6 +1420,10 @@ export function VirusRun() {
       ctx2.fillStyle = "rgba(4,47,46,0.88)"; ctx2.beginPath(); ctx2.arc(pcx, pcy, r * 0.34, 0, Math.PI * 2); ctx2.fill();
       ctx2.fillStyle = "#ccfbf1"; ctx2.beginPath(); ctx2.arc(pcx - r * 0.11, pcy - r * 0.12, r * 0.1, 0, Math.PI * 2); ctx2.fill();
       ctx2.restore();
+      if(run.player.invuln>0){
+        ctx2.save();const shieldPulse=.72+.18*Math.sin(time/85);ctx2.strokeStyle=`rgba(103,232,249,${shieldPulse})`;ctx2.lineWidth=Math.max(1.5,cell*.09);ctx2.shadowColor="#22d3ee";ctx2.shadowBlur=cell*.7;ctx2.beginPath();ctx2.arc(pcx,pcy,cell*(.68+.05*Math.sin(time/100)),0,Math.PI*2);ctx2.stroke();ctx2.shadowBlur=0;
+        ctx2.fillStyle="rgba(207,250,254,.95)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText(`SAFE ${Math.max(1,Math.ceil(run.player.invuln))}`,pcx,pcy-cell*.9);ctx2.restore();
+      }
 
       // Event effects: packet bursts, antivirus damage shockwaves and exit surges.
       fxRef.current = fxRef.current.filter((fx) => time - fx.born < (fx.kind === "exit" ? 1200 : 850));
