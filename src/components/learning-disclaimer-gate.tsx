@@ -13,7 +13,7 @@ export function LearningDisclaimerGate({ children }: { children: ReactNode }) {
 
   if (!ready || !user) return <>{children}</>;
 
-  const acceptedVersion = user.user_metadata?.learning_disclaimer_version;
+  const acceptedVersion = user.user_metadata?.["learning_disclaimer_version"];
   if (acceptedVersion === LEARNING_DISCLAIMER_VERSION) return <>{children}</>;
 
   async function accept() {
