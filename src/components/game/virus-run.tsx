@@ -5,7 +5,8 @@
  * is one system (boot sector, CPU cache, RAM, and so on) rendered as a
  * block-based maze. Collect the data packets, avoid the antivirus daemons,
  * and reach the open port to slip deeper into the machine. Levels are
- * generated endlessly and each one is harder than the last.
+ * build through a 20-level campaign, then continue in Endless Mode with
+ * remixed systems that keep getting harder.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -50,6 +51,18 @@ const STAGES: StageTheme[] = [
   { system: "Network Stack", hint: "Packets route around you.", bg: "#0a1020", wall: "#1b325c", wallEdge: "#294a85" },
   { system: "Kernel Space", hint: "Root guards patrol every ring.", bg: "#160d0d", wall: "#4d2020", wallEdge: "#702f2f" },
   { system: "Firewall", hint: "The perimeter fights back.", bg: "#1a1005", wall: "#5c3a10", wallEdge: "#835416" },
+  { system: "File System", hint: "Directories branch into locked paths.", bg: "#0c1518", wall: "#1d3a40", wallEdge: "#2d5961" },
+  { system: "Process Table", hint: "Running processes compete for space.", bg: "#121019", wall: "#332b45", wallEdge: "#4d4166" },
+  { system: "System Configuration", hint: "One wrong setting can change the whole machine.", bg: "#15110d", wall: "#49351f", wallEdge: "#684c2d" },
+  { system: "DNS Resolver", hint: "Names race toward the right destination.", bg: "#08151b", wall: "#174354", wallEdge: "#216078" },
+  { system: "Router Gateway", hint: "Every route leads somewhere else.", bg: "#0b1119", wall: "#26364c", wallEdge: "#374e6d" },
+  { system: "Switch Fabric", hint: "Connections change at wire speed.", bg: "#0b1512", wall: "#24443a", wallEdge: "#356455" },
+  { system: "Authentication Server", hint: "Identity checks guard every door.", bg: "#160e18", wall: "#4c244f", wallEdge: "#6d3471" },
+  { system: "Database", hint: "Structured records hide the path forward.", bg: "#10140d", wall: "#344725", wallEdge: "#4c6636" },
+  { system: "Web Server", hint: "Requests pile up from every direction.", bg: "#0c121a", wall: "#253c59", wallEdge: "#36577f" },
+  { system: "Cloud Network", hint: "The machine is no longer in one place.", bg: "#0a1418", wall: "#1f4650", wallEdge: "#2d6572" },
+  { system: "Security Operations Center", hint: "Every sensor is looking for you.", bg: "#170d10", wall: "#50242d", wallEdge: "#733440" },
+  { system: "Core Infrastructure", hint: "Everything you survived converges here.", bg: "#171205", wall: "#574716", wallEdge: "#7d6620" },
 ];
 
 interface Best {
@@ -198,8 +211,15 @@ function pickUpgradeChoices(): RunUpgrade[] {
   return [...RUN_UPGRADES].sort(() => Math.random() - 0.5).slice(0, 3);
 }
 
+type GuardState = "patrol" | "suspicious" | "chase" | "search";
+
 interface Guard {
   kind: GuardKind;
+  state: GuardState;
+  stateTimer: number;
+  awareness: number;
+  lastKnownX: number;
+  lastKnownY: number;
   stunned: number;
   x: number;
   y: number;
@@ -230,6 +250,10 @@ interface RunState {
   streak: number;
   streakTimer: number;
   boss: boolean;
+  bossPhase: number;
+  bossNodes: number;
+  bossNodesRequired: number;
+  bossTitle: string;
   required: number;
   collected: number;
   port: { x: number; y: number };
@@ -243,6 +267,7 @@ interface RunState {
 }
 
 function buildLevel(level: number): RunState {
+  // Levels 1-20 form the campaign. Beyond 20, Endless Mode remixes all systems.
   const theme = STAGES[(level - 1) % STAGES.length]!;
   const grid = generateMaze();
   const spawn = { x: 1, y: 1 };
@@ -275,19 +300,24 @@ function buildLevel(level: number): RunState {
     packets.push({ x: candidates[i]!.x, y: candidates[i]!.y, taken: false });
   }
 
-  const boss = level % 8 === 0;
+  // Campaign bosses punctuate each five-level chapter. Endless Mode keeps
+  // that five-level boss cadence after the campaign is complete.
+  const boss = level % 5 === 0;
+  const bossNodesRequired = boss ? (level >= 20 ? 4 : level >= 15 ? 3 : 2) : 0;
+  const bossTitle = !boss ? "" : level === 5 ? "STORAGE SENTINEL" : level === 10 ? "PROCESS WARDEN" : level === 15 ? "AUTHENTICATION GUARDIAN" : level === 20 ? "CORE DEFENDER" : "ENDLESS DEFENDER";
   const guardCount = Math.min((boss ? 5 : 2) + Math.floor(level * 0.7), 14);
   const guardSpeed = Math.min(BASE_GUARD_SPEED + (level - 1) * 0.16, MAX_GUARD_SPEED);
   const detection = 6 + Math.min(level, 9);
   const guards: Guard[] = [];
-  const openCells = candidates.filter(
-    (c) => dist[c.y]![c.x]! > 8 && Math.abs(c.x - spawn.x) + Math.abs(c.y - spawn.y) > 10,
-  );
+  // Spawn enemies by real maze-path distance. Coordinate distance can put a
+  // guard physically close behind a wall or inside the player's first corridor.
+  const minSpawnPath = boss ? 18 : 15;
+  const openCells = candidates.filter((c) => (dist[c.y]?.[c.x] ?? -1) >= minSpawnPath);
   for (let i = 0; i < guardCount && openCells.length > 0; i++) {
     const cell = openCells.splice(Math.floor(Math.random() * openCells.length), 1)[0]!;
     const kinds: GuardKind[] = boss ? ["hunter","interceptor","warden","scanner"] : ["scanner","hunter","interceptor"];
     const kind = kinds[i % kinds.length]!;
-    guards.push({ kind, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden"?.9:1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y });
+    guards.push({ kind, state:"patrol", stateTimer:0, awareness:0, lastKnownX:cell.x, lastKnownY:cell.y, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden" ? .9 : 1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y });
   }
 
   const powerUps: PowerUp[] = [];
@@ -305,11 +335,15 @@ function buildLevel(level: number): RunState {
     streak: 0,
     streakTimer: 0,
     boss,
+    bossPhase: boss ? 1 : 0,
+    bossNodes: 0,
+    bossNodesRequired,
+    bossTitle,
     required,
     collected: 0,
     port,
     portOpen: false,
-    player: { x: spawn.x, y: spawn.y, tx: spawn.x, ty: spawn.y, moving: false, invuln: 1.5 },
+    player: { x: spawn.x, y: spawn.y, tx: spawn.x, ty: spawn.y, moving: false, invuln: 3 },
     guards,
     integrity: MAX_INTEGRITY,
     packetsTotal: packets.length,
@@ -320,7 +354,7 @@ function buildLevel(level: number): RunState {
 
 // --- Component -------------------------------------------------------------
 
-type Phase = "menu" | "playing" | "paused" | "gameover" | "levelclear" | "upgrade";
+type Phase = "menu" | "intro" | "playing" | "paused" | "gameover" | "levelclear" | "upgrade";
 
 export function VirusRun() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -329,10 +363,14 @@ export function VirusRun() {
   const distFieldRef = useRef<number[][] | null>(null);
   const fieldAgeRef = useRef(0);
   const keysRef = useRef<string[]>([]);
+  const queuedDirRef = useRef<string | null>(null);
+  const travelDirRef = useRef<string | null>(null);
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
+  const introTimerRef = useRef(0);
   const lastAlertSoundRef = useRef(0);
+  const shakeRef = useRef({ strength: 0, until: 0 });
   const bestRef = useRef<Best>({ bestLevel: 0, packets: 0, currentLevel: 1 });
   const upgradesRef = useRef<Record<UpgradeKind, number>>({
     "packet-sniffer": 0, "cache-boost": 0, "ghost-protocol": 0,
@@ -344,7 +382,7 @@ export function VirusRun() {
   const [upgradeCount, setUpgradeCount] = useState(0);
   const [mobileLandscape, setMobileLandscape] = useState(false);
   const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" | "power" | "near" }[]>([]);
-  const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false });
+  const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false, bossTitle: "", bossPhase: 0, bossNodes: 0, bossNodesRequired: 0 });
 
   useEffect(() => {
     const syncOrientation = () => {
@@ -399,6 +437,10 @@ export function VirusRun() {
       streak: run.streak,
       power: run.activePower ? `${run.activePower.kind.toUpperCase()} ${Math.ceil(run.activePower.left)}s` : "",
       boss: run.boss,
+      bossTitle: run.bossTitle,
+      bossPhase: run.bossPhase,
+      bossNodes: run.bossNodes,
+      bossNodesRequired: run.bossNodesRequired,
     }));
   }, []);
 
@@ -410,12 +452,17 @@ export function VirusRun() {
     };
     setUpgradeCount(0);
     setUpgradeChoices([]);
-    runRef.current = buildLevel(bestRef.current.currentLevel);
+    // A new run always starts at system 1. Persisted best/deepest progress is a record,
+    // not a checkpoint, because run mutations intentionally reset on restart.
+    runRef.current = buildLevel(1);
     distFieldRef.current = null;
     fieldAgeRef.current = 999;
     keysRef.current = [];
+    queuedDirRef.current = null;
+    travelDirRef.current = null;
     syncHud(runRef.current);
-    setPhaseBoth("playing");
+    introTimerRef.current = runRef.current.boss ? 1.8 : 1.15;
+    setPhaseBoth("intro");
     lastRef.current = 0;
   }, [setPhaseBoth, syncHud]);
 
@@ -516,18 +563,28 @@ export function VirusRun() {
       }
       const field = distFieldRef.current!;
 
-      // Player movement, cell to cell.
+      // Player movement, cell to cell. Turns are buffered and the current
+      // travel direction continues through corridors, Pac-Man style.
       if (!p.moving) {
-        const held = keysRef.current[keysRef.current.length - 1];
-        if (held) {
-          const [dx, dy] = DIR_VECS[held]!;
-          const nx = Math.round(p.x) + dx;
-          const ny = Math.round(p.y) + dy;
-          if (run.grid[ny]?.[nx] === 0) {
-            p.tx = nx;
-            p.ty = ny;
-            p.moving = true;
-          }
+        const cx = Math.round(p.x), cy = Math.round(p.y);
+        const requested = queuedDirRef.current ?? keysRef.current[keysRef.current.length - 1] ?? null;
+        const canMove = (dir: string | null) => {
+          if (!dir) return false;
+          const [dx, dy] = DIR_VECS[dir]!;
+          return run.grid[cy + dy]?.[cx + dx] === 0;
+        };
+        let nextDir: string | null = null;
+        if (canMove(requested)) nextDir = requested;
+        else if (canMove(travelDirRef.current)) nextDir = travelDirRef.current;
+        if (nextDir) {
+          const [dx, dy] = DIR_VECS[nextDir]!;
+          p.x = cx; p.y = cy;
+          p.tx = cx + dx; p.ty = cy + dy;
+          p.moving = true;
+          travelDirRef.current = nextDir;
+          if (requested === nextDir) queuedDirRef.current = null;
+        } else {
+          travelDirRef.current = null;
         }
       }
       if (p.moving) {
@@ -544,7 +601,9 @@ export function VirusRun() {
         const r = stepEntity(p.x, p.y, p.tx, p.ty, playerSpeed, dt);
         p.x = r.x;
         p.y = r.y;
-        if (r.arrived) p.moving = false;
+        if (r.arrived) {
+          p.x = p.tx; p.y = p.ty; p.moving = false;
+        }
       }
 
       // Packets.
@@ -557,7 +616,48 @@ export function VirusRun() {
           run.collected += 1;
           run.streak = Math.min(5, run.streak + 1); run.streakTimer = 4.5;
           fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet" });virusSound("packet");
-          if (run.collected >= run.required) run.portOpen = true;
+          if (run.collected >= run.required) {
+            if (!run.boss) run.portOpen = true;
+            else run.bossPhase = Math.max(run.bossPhase, 2);
+          }
+          syncHud(run);
+        }
+      }
+
+      // Boss breach phase: after collecting the normal packets, the security
+      // core exposes breach nodes one at a time. Touch the pulsing core to break
+      // each layer; the final breach opens the exit.
+      if (run.boss && run.bossPhase >= 2 && !run.portOpen) {
+        const coreX = Math.floor(COLS / 2), coreY = Math.floor(ROWS / 2);
+        let target = { x: coreX, y: coreY };
+        if (run.grid[target.y]?.[target.x] !== 0) {
+          let best: {x:number;y:number;d:number}|null=null;
+          for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(run.grid[y]?.[x]===0){const d=Math.abs(x-coreX)+Math.abs(y-coreY);if(!best||d<best.d)best={x,y,d};}
+          if(best)target={x:best.x,y:best.y};
+        }
+        if (px === target.x && py === target.y) {
+          run.bossNodes += 1;
+          run.bossPhase = 3;
+          // A breach destabilizes the whole security layer.
+          for (let burst = 0; burst < 7 + run.bossNodes * 3; burst++) {
+            fxRef.current.push({x:target.x + (Math.random()-.5)*2.4,y:target.y + (Math.random()-.5)*2.4,born:performance.now()-burst*18,kind:run.bossNodes>=run.bossNodesRequired?"exit":"power"});
+          }
+          p.invuln = Math.max(p.invuln, 1.1);
+          for (const g of run.guards) g.stunned = Math.max(g.stunned, 1.4);
+          fxRef.current.push({x:target.x,y:target.y,born:performance.now(),kind:"power"});
+          shakeRef.current={strength:run.bossNodes>=run.bossNodesRequired?(run.level===20?14:10):6,until:performance.now()+(run.bossNodes>=run.bossNodesRequired?520:240)};
+          virusSound("boss");
+          if (run.bossNodes >= run.bossNodesRequired) {
+            run.portOpen = true;
+            run.bossPhase = 4;
+          } else {
+            // Require a short repositioning window before the next core layer.
+            run.bossPhase = 2;
+            p.x = 1; p.y = 1; p.tx = 1; p.ty = 1; p.moving = false; p.invuln = 3;
+            // Every forced boss reposition gets the same anti-camp protection as a normal respawn.
+            for(const other of run.guards)if(Math.hypot(other.x-1,other.y-1)<9){other.stunned=Math.max(other.stunned,1.25);other.state="search";other.stateTimer=2;other.awareness=0;}
+            queuedDirRef.current = null; travelDirRef.current = null;
+          }
           syncHud(run);
         }
       }
@@ -597,6 +697,74 @@ export function VirusRun() {
         p.x -= (p.x - p.tx) * Math.min(0.018, dt * 0.4);
         p.y -= (p.y - p.ty) * Math.min(0.018, dt * 0.4);
       }
+      // Campaign systems 9-20 add readable pressure without blocking routes.
+      if (run.theme.system === "File System" && pulse > 2.8 && pulse < 3.8 && p.moving) {
+        p.x -= (p.x - p.tx) * Math.min(0.012, dt * 0.28); p.y -= (p.y - p.ty) * Math.min(0.012, dt * 0.28);
+      }
+      if (run.theme.system === "Process Table" && pulse > 5.8) {
+        for (const g of run.guards) g.stunned = Math.max(0, g.stunned - dt * 0.35);
+      }
+      if (run.theme.system === "System Configuration" && pulse < 1.1 && p.moving) {
+        p.invuln = Math.max(p.invuln, 0.08);
+      }
+      if (run.theme.system === "DNS Resolver" && Math.round(p.y) % 4 === 0) {
+        p.invuln = Math.max(p.invuln, 0.05);
+      }
+      if (run.theme.system === "Router Gateway" && Math.round(p.x) % 6 === 0 && p.moving) {
+        p.x += (p.tx - p.x) * Math.min(0.025, dt * 0.55); p.y += (p.ty - p.y) * Math.min(0.025, dt * 0.55);
+      }
+      if (run.theme.system === "Switch Fabric" && Math.round(p.y) % 3 === 0 && p.moving) {
+        p.x += (p.tx - p.x) * Math.min(0.03, dt * 0.65); p.y += (p.ty - p.y) * Math.min(0.03, dt * 0.65);
+      }
+      if (run.theme.system === "Authentication Server" && pulse > 3.4 && pulse < 4.3 && run.activePower?.kind !== "cloak") {
+        for (const g of run.guards) g.detection += 0.015;
+      }
+      if (run.theme.system === "Database" && Math.round(p.x) % 5 === 0 && p.moving) {
+        p.x -= (p.x - p.tx) * Math.min(0.01, dt * 0.22);
+      }
+      if (run.theme.system === "Web Server" && pulse > 1.5 && pulse < 2.5) {
+        for (const g of run.guards) g.detection += 0.01;
+      }
+      if (run.theme.system === "Cloud Network" && Math.round(p.y) % 5 === 0 && p.moving) {
+        p.x += (p.tx - p.x) * Math.min(0.02, dt * 0.45); p.y += (p.ty - p.y) * Math.min(0.02, dt * 0.45);
+      }
+      if (run.theme.system === "Security Operations Center" && pulse > 4.5 && pulse < 5.4 && run.activePower?.kind !== "cloak") {
+        for (const g of run.guards) g.detection += 0.025;
+      }
+      if (run.theme.system === "Core Infrastructure") {
+        if (pulse > 5.2 && pulse < 6.2 && p.moving) { p.x -= (p.x - p.tx) * Math.min(0.012, dt * 0.3); p.y -= (p.y - p.ty) * Math.min(0.012, dt * 0.3); }
+        if (pulse > 2.8 && pulse < 3.5) for (const g of run.guards) g.detection += 0.012;
+      }
+
+      // Boss-specific encounter rhythms. These remain non-lethal by themselves:
+      // they alter movement/detection while the breach objective stays readable.
+      if (run.boss) {
+        // Every successful core breach escalates the encounter. The multiplier
+        // stays bounded so late phases feel urgent without becoming unavoidable.
+        const breachEscalation = 1 + Math.min(run.bossNodes, run.bossNodesRequired) * 0.12;
+        if (run.level === 5) {
+          // Storage Sentinel: a rotating seek cycle alternates slow and fast traversal.
+          if (pulse > 1.8 && pulse < 3.0 && p.moving) {
+            p.x -= (p.x - p.tx) * Math.min(0.016, dt * 0.36);
+            p.y -= (p.y - p.ty) * Math.min(0.016, dt * 0.36);
+          }
+        } else if (run.level === 10) {
+          // Process Warden: scheduler bursts temporarily accelerate active daemons.
+          if (pulse > 4.8 - run.bossNodes * .12 && pulse < 6.0) for (const g of run.guards) g.detection += 0.018 * breachEscalation;
+        } else if (run.level === 15) {
+          // Authentication Guardian: credential scan exposes uncloaked movement.
+          if (pulse > 2.6 && pulse < 3.7 && run.activePower?.kind !== "cloak") {
+            for (const g of run.guards) g.detection += (p.moving ? 0.03 : 0.012) * breachEscalation;
+          }
+        } else if (run.level === 20) {
+          // Core Defender: cycles seek pressure, detection and a firewall-style drag.
+          if (pulse > 1.1 - run.bossNodes * .08 && pulse < 2.0) for (const g of run.guards) g.detection += 0.022 * breachEscalation;
+          if (pulse > 4.0 && pulse < 5.0 && p.moving) {
+            p.x -= (p.x - p.tx) * Math.min(0.014, dt * 0.32);
+            p.y -= (p.y - p.ty) * Math.min(0.014, dt * 0.32);
+          }
+        }
+      }
 
       // Guards.
       for (const g of run.guards) {
@@ -604,8 +772,26 @@ export function VirusRun() {
         const gy = Math.round(g.y);
         if(g.stunned>0)continue;
         const toPlayer = field[gy]?.[gx] ?? -1;
-        const hidden = run.activePower?.kind==="cloak";
+        const spawnProtected = p.invuln > 0 && Math.abs(p.x-1)<1.5 && Math.abs(p.y-1)<1.5;
+        const openingGrace = run.systemClock < 3 || spawnProtected;
+        const hidden = run.activePower?.kind==="cloak" || openingGrace;
         const systemDetection = run.theme.system==="Kernel Space"?2:run.theme.system==="Firewall"?1:0;
+        const visible=!hidden&&toPlayer>=0;
+        const suspiciousRange=(g.detection+systemDetection)*(g.kind==="scanner"?1.2:g.kind==="warden"?1.05:.88);
+        const chaseRange=(g.detection+systemDetection)*(g.kind==="hunter"?1:g.kind==="interceptor" ? .9 : .78);
+        g.stateTimer=Math.max(0,g.stateTimer-dt);
+        if(visible&&toPlayer<=suspiciousRange){
+          const gain=dt*(g.kind==="scanner"?1.7:g.kind==="hunter"?1.45:g.kind==="interceptor"?1.3:1.15);
+          g.awareness=Math.min(1,g.awareness+gain);
+          g.lastKnownX=Math.round(p.x);g.lastKnownY=Math.round(p.y);
+          if(g.awareness>=1||toPlayer<=chaseRange){g.state="chase";g.stateTimer=g.kind==="hunter"?4.8:3.5;}
+          else if(g.state!=="chase")g.state="suspicious";
+        }else{
+          g.awareness=Math.max(0,g.awareness-dt*(g.kind==="warden" ? .22 : .34));
+          if(g.state==="chase"&&g.stateTimer<=0){g.state="search";g.stateTimer=g.kind==="hunter"?4.5:3.2;}
+          else if(g.state==="suspicious"&&g.awareness<=.05){g.state="patrol";}
+          else if(g.state==="search"&&g.stateTimer<=0){g.state="patrol";g.awareness=0;}
+        }
         if (g.x === g.tx && g.y === g.ty) {
           const options: [number, number][] = [];
           for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as [number, number][]) {
@@ -617,13 +803,18 @@ export function VirusRun() {
           }
           if (options.length === 0) options.push([g.fromX, g.fromY]);
           let chosen: [number, number];
-          if (!hidden && toPlayer >= 0 && toPlayer <= g.detection + systemDetection) {
+          if (g.state==="chase" && !hidden) {
             if(g.kind==="interceptor" && p.moving){
               options.sort((a,b)=>Math.abs(a[0]-p.tx)+Math.abs(a[1]-p.ty)-Math.abs(b[0]-p.tx)-Math.abs(b[1]-p.ty));
-            } else options.sort((a, b) => (field[a[1]]![a[0]] ?? 999) - (field[b[1]]![b[0]] ?? 999));
-            chosen = options[0]!;
+            } else options.sort((a,b)=>(field[a[1]]?.[a[0]]??999)-(field[b[1]]?.[b[0]]??999));
+            chosen=options[0]!;
+          } else if(g.state==="search"||g.state==="suspicious"){
+            options.sort((a,b)=>Math.abs(a[0]-g.lastKnownX)+Math.abs(a[1]-g.lastKnownY)-Math.abs(b[0]-g.lastKnownX)-Math.abs(b[1]-g.lastKnownY));
+            chosen=(Math.random()<(g.state==="search" ? .78 : .9)?options[0]:options[Math.floor(Math.random()*options.length)])!;
           } else {
-            chosen = options[Math.floor(Math.random() * options.length)]!;
+            // Wardens favor territory near packets/exit; other types roam.
+            if(g.kind==="warden"){options.sort((a,b)=>Math.min(...run.packets.filter(q=>!q.taken).map(q=>Math.abs(a[0]-q.x)+Math.abs(a[1]-q.y)),Math.abs(a[0]-run.port.x)+Math.abs(a[1]-run.port.y))-Math.min(...run.packets.filter(q=>!q.taken).map(q=>Math.abs(b[0]-q.x)+Math.abs(b[1]-q.y)),Math.abs(b[0]-run.port.x)+Math.abs(b[1]-run.port.y)));chosen=options[0]!;}
+            else chosen=options[Math.floor(Math.random()*options.length)]!;
           }
           g.fromX = gx;
           g.fromY = gy;
@@ -634,7 +825,17 @@ export function VirusRun() {
         if (run.theme.system === "CPU Cache") systemGuardSpeed = 1.08;
         if (run.theme.system === "Storage Drive") systemGuardSpeed = 0.9;
         if (run.theme.system === "Firewall" && pulse > 5.2 && pulse < 6.6) systemGuardSpeed = 1.12;
-        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * (g.kind==="hunter"&&toPlayer>=0&&toPlayer<=g.detection?1.12:1), dt);
+        if (run.theme.system === "Process Table" && pulse > 5.8) systemGuardSpeed = 1.1;
+        if (run.theme.system === "Web Server" && pulse > 1.5 && pulse < 2.5) systemGuardSpeed = 1.08;
+        if (run.theme.system === "Security Operations Center") systemGuardSpeed = 1.06;
+        if (run.theme.system === "Core Infrastructure" && pulse > 2.8 && pulse < 3.5) systemGuardSpeed = 1.1;
+        if (run.boss && run.level === 10 && pulse > 4.8 - run.bossNodes * .12 && pulse < 6.0) systemGuardSpeed *= 1.18 + run.bossNodes * .04;
+        if (run.boss && run.level === 15 && pulse > 2.6 && pulse < 3.7) systemGuardSpeed *= 1.08 + run.bossNodes * .035;
+        if (run.boss && run.level === 20 && pulse > 1.1 - run.bossNodes * .08 && pulse < 2.0) systemGuardSpeed *= 1.15 + run.bossNodes * .04;
+        // During the opening grace period guards patrol, but do not accelerate
+        // into the spawn pocket. This prevents repeated unavoidable spawn deaths.
+        if (openingGrace && toPlayer >= 0 && toPlayer < 10) systemGuardSpeed *= 0.55;
+        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * (g.kind==="hunter"&&!openingGrace&&toPlayer>=0&&toPlayer<=g.detection?1.12:1), dt);
         g.x = r.x;
         g.y = r.y;
 
@@ -648,14 +849,19 @@ export function VirusRun() {
         // Contact.
         if (p.invuln <= 0 && Math.abs(g.x - p.x) < 0.55 && Math.abs(g.y - p.y) < 0.55) {
           run.integrity -= 1;
-          fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });virusSound("hit");
+          fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });shakeRef.current={strength:7,until:performance.now()+260};virusSound("hit");
           p.x = 1;
           p.y = 1;
           p.tx = 1;
           p.ty = 1;
           p.moving = false;
-          p.invuln = 2;
+          p.invuln = 3;
+          // Respawn protection mirrors the opening grace period so a guard
+          // cannot camp the spawn and chain multiple lives.
+          for(const other of run.guards)if(Math.hypot(other.x-1,other.y-1)<9){other.stunned=Math.max(other.stunned,1.25);other.state="search";other.stateTimer=2;other.awareness=0;}
           keysRef.current = [];
+          queuedDirRef.current = null;
+          travelDirRef.current = null;
           syncHud(run);
           if (run.integrity <= 0) {
             // Game over: record bests honestly from this run.
@@ -711,6 +917,8 @@ export function VirusRun() {
       const ctx2 = canvasEl.getContext("2d");
       if (!ctx2) return;
       ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const shakeLeft=Math.max(0,shakeRef.current.until-time);
+      if(shakeLeft>0){const power=shakeRef.current.strength*(shakeLeft/Math.max(1,shakeRef.current.until-(time-16)));ctx2.translate(Math.sin(time*.19)*power,Math.cos(time*.23)*power*.7);}
 
       const cell = Math.min(rect.width / COLS, rect.height / ROWS);
       const offX = (rect.width - cell * COLS) / 2;
@@ -850,19 +1058,43 @@ export function VirusRun() {
           ctx2.beginPath(); ctx2.moveTo(offX, y); ctx2.lineTo(offX + cell * COLS, y); ctx2.stroke();
         }
         ctx2.setLineDash([]);
+ else if (sys === "File System") {
+        for(let i=0;i<7;i++){const x=offX+cell*(2+i*4.3),y=offY+cell*(2+(i%3)*6);ctx2.strokeStyle="rgba(94,234,212,.2)";ctx2.strokeRect(x,y,cell*2.2,cell*1.15);ctx2.fillStyle="rgba(94,234,212,.35)";ctx2.fillRect(x+cell*.25,y+cell*.3,cell*(.6+.35*Math.sin(time/330+i)),cell*.12);}
+      } else if (sys === "Process Table") {
+        for(let i=0;i<10;i++){const y=offY+cell*(1.5+i*1.85),w=cell*(2.5+2*(1+Math.sin(time/260+i))/2);ctx2.fillStyle=`rgba(192,132,252,${.08+(i%3)*.035})`;ctx2.fillRect(offX+cell*(2+(i%4)*6.5),y,w,cell*.35);}
+      } else if (sys === "System Configuration") {
+        for(let i=0;i<6;i++){const y=offY+cell*(2+i*3.1),x=offX+cell*(4+(i%2)*13);ctx2.strokeStyle="rgba(251,191,36,.2)";ctx2.beginPath();ctx2.moveTo(x,y);ctx2.lineTo(x+cell*8,y);ctx2.stroke();const knob=x+cell*(1+6*(1+Math.sin(time/500+i))/2);ctx2.fillStyle="rgba(253,230,138,.65)";ctx2.beginPath();ctx2.arc(knob,y,cell*.2,0,Math.PI*2);ctx2.fill();}
+      } else if (sys === "DNS Resolver") {
+        for(let i=0;i<12;i++){const a=time/700+i*.9,r=cell*(2+(i%4)*1.6),cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;ctx2.fillStyle="rgba(34,211,238,.45)";ctx2.beginPath();ctx2.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,cell*.12,0,Math.PI*2);ctx2.fill();}
+      } else if (sys === "Router Gateway") {
+        for(let i=0;i<6;i++){const x=offX+cell*(3+i*5),y=offY+cell*(3+(i%3)*6);ctx2.strokeStyle="rgba(96,165,250,.24)";ctx2.beginPath();ctx2.arc(x,y,cell*.45,0,Math.PI*2);ctx2.stroke();ctx2.beginPath();ctx2.moveTo(x,y);ctx2.lineTo(offX+cell*COLS/2,offY+cell*ROWS/2);ctx2.stroke();}
+      } else if (sys === "Switch Fabric") {
+        for(let i=0;i<8;i++){const y=offY+cell*(2+i*2.3),travel=((time/(10+i%3*2)+i*cell*3)%(cell*COLS));ctx2.fillStyle="rgba(74,222,128,.5)";ctx2.fillRect(offX+travel,y,cell*.55,cell*.1);}
+      } else if (sys === "Authentication Server") {
+        const scan=(time/18)%(cell*COLS);ctx2.fillStyle="rgba(232,121,249,.12)";ctx2.fillRect(offX+scan-cell*.4,offY,cell*.8,cell*ROWS);for(let i=0;i<5;i++){ctx2.strokeStyle="rgba(244,114,182,.2)";ctx2.strokeRect(offX+cell*(3+i*6),offY+cell*(4+(i%2)*9),cell*1.6,cell*1.2);}
+      } else if (sys === "Database") {
+        for(let r=0;r<7;r++){const y=offY+cell*(2+r*2.6);ctx2.fillStyle=`rgba(163,230,53,${.05+(r%2)*.035})`;ctx2.fillRect(offX+cell*2,y,cell*(COLS-4),cell*.7);for(let k=0;k<5;k++){ctx2.fillStyle="rgba(190,242,100,.22)";ctx2.fillRect(offX+cell*(3+k*5.2),y+cell*.18,cell*2.5,cell*.12);}}
+      } else if (sys === "Web Server") {
+        for(let i=0;i<14;i++){const y=offY+cell*(1+(i*1.37)%(ROWS-2)),x=offX+((time/(9+i%4*2)+i*cell*2)%(cell*COLS));ctx2.fillStyle=i%2?"rgba(96,165,250,.5)":"rgba(125,211,252,.42)";ctx2.fillRect(x,y,cell*.5,cell*.16);}
+      } else if (sys === "Cloud Network") {
+        for(let i=0;i<7;i++){const x=offX+cell*(3+(i%4)*8),y=offY+cell*(3+Math.floor(i/4)*11);ctx2.strokeStyle="rgba(103,232,249,.2)";ctx2.beginPath();ctx2.arc(x,y,cell*(.7+.08*Math.sin(time/350+i)),0,Math.PI*2);ctx2.stroke();ctx2.beginPath();ctx2.moveTo(x,y);ctx2.lineTo(offX+cell*COLS/2,offY+cell*ROWS/2);ctx2.stroke();}
+      } else if (sys === "Security Operations Center") {
+        const cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;for(let i=0;i<4;i++){const a=time/(420+i*80)+i;ctx2.strokeStyle=`rgba(251,113,133,${.12+i*.025})`;ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(cx+Math.cos(a)*cell*15,cy+Math.sin(a)*cell*15);ctx2.stroke();}
+      } else if (sys === "Core Infrastructure") {
+        const cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;for(let i=0;i<5;i++){ctx2.strokeStyle=`rgba(250,204,21,${.08+i*.025})`;ctx2.beginPath();ctx2.arc(cx,cy,cell*(2+i*1.6+.12*Math.sin(time/250+i)),0,Math.PI*2);ctx2.stroke();}for(let i=0;i<8;i++){const a=time/500+i*Math.PI/4;ctx2.fillStyle="rgba(125,211,252,.45)";ctx2.fillRect(cx+Math.cos(a)*cell*(3+i*.5),cy+Math.sin(a)*cell*(3+i*.5),cell*.16,cell*.16);}
       }
       ctx2.restore();
 
       // Gameplay telegraphs: the visuals below correspond to the active system mechanic.
       ctx2.save();
-      const hazardPhase = run.hazardPulse;
-      if (sys === "Boot Sector" && hazardPhase < 1.5) {
+      const run.hazardPulse = run.hazardPulse;
+      if (sys === "Boot Sector" && run.hazardPulse < 1.5) {
         ctx2.fillStyle = "rgba(250,204,21,0.055)";
         ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
         ctx2.fillStyle = "rgba(253,224,71,0.8)";
         ctx2.font = `bold ${Math.max(8,cell*.28)}px ui-monospace`;
         ctx2.textAlign = "left"; ctx2.fillText("BOOT SYNC", offX + cell, offY + cell * 1.1);
-      } else if (sys === "System RAM" && hazardPhase < 0.7) {
+      } else if (sys === "System RAM" && run.hazardPulse < 0.7) {
         ctx2.fillStyle = "rgba(34,211,238,0.07)";
         for(let x=1;x<COLS-1;x+=4)ctx2.fillRect(offX+x*cell,offY,cell*.8,cell*ROWS);
       } else if (sys === "GPU Memory") {
@@ -873,12 +1105,70 @@ export function VirusRun() {
       } else if (sys === "Network Stack") {
         for(let y=4;y<ROWS-1;y+=4){ctx2.fillStyle="rgba(94,234,212,0.06)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
       } else if (sys === "Kernel Space") {
-        const scan = Math.max(0,1-Math.abs(hazardPhase-3.95)/.45);
+        const scan = Math.max(0,1-Math.abs(run.hazardPulse-3.95)/.45);
         if(scan>0){ctx2.strokeStyle=`rgba(248,113,113,${.18+scan*.4})`;ctx2.lineWidth=Math.max(2,cell*.1);const rr=cell*(2+scan*11);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,rr,0,Math.PI*2);ctx2.stroke();}
-      } else if (sys === "Firewall" && hazardPhase > 5.2 && hazardPhase < 6.6) {
-        const sweep=(hazardPhase-5.2)/1.4;const x=offX+sweep*cell*COLS;
+      } else if (sys === "Firewall" && run.hazardPulse > 5.2 && run.hazardPulse < 6.6) {
+        const sweep=(run.hazardPulse-5.2)/1.4;const x=offX+sweep*cell*COLS;
         const fg=ctx2.createLinearGradient(x-cell*2,0,x+cell*2,0);fg.addColorStop(0,"rgba(251,146,60,0)");fg.addColorStop(.5,"rgba(251,146,60,.2)");fg.addColorStop(1,"rgba(251,146,60,0)");ctx2.fillStyle=fg;ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+ else if (sys === "File System" && run.hazardPulse > 2.8 && run.hazardPulse < 3.8) {
+        ctx2.fillStyle="rgba(94,234,212,.055)";for(let x=2;x<COLS-2;x+=5)ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);
+      } else if (sys === "Process Table" && run.hazardPulse > 5.8) {
+        ctx2.fillStyle="rgba(192,132,252,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+      } else if (sys === "System Configuration" && run.hazardPulse < 1.1) {
+        ctx2.fillStyle="rgba(251,191,36,.06)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+      } else if (sys === "DNS Resolver") {
+        for(let y=4;y<ROWS-1;y+=4){ctx2.fillStyle="rgba(34,211,238,.045)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
+      } else if (sys === "Router Gateway") {
+        for(let x=6;x<COLS-1;x+=6){ctx2.fillStyle="rgba(96,165,250,.045)";ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);}
+      } else if (sys === "Switch Fabric") {
+        for(let y=3;y<ROWS-1;y+=3){ctx2.fillStyle="rgba(74,222,128,.045)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
+      } else if (sys === "Authentication Server" && run.hazardPulse > 3.4 && run.hazardPulse < 4.3) {
+        const x=offX+((run.hazardPulse-3.4)/.9)*cell*COLS;ctx2.fillStyle="rgba(232,121,249,.13)";ctx2.fillRect(x-cell*.6,offY,cell*1.2,cell*ROWS);
+      } else if (sys === "Database") {
+        for(let x=5;x<COLS-1;x+=5){ctx2.fillStyle="rgba(163,230,53,.035)";ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);}
+      } else if (sys === "Web Server" && run.hazardPulse > 1.5 && run.hazardPulse < 2.5) {
+        ctx2.fillStyle="rgba(96,165,250,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+      } else if (sys === "Cloud Network") {
+        for(let y=5;y<ROWS-1;y+=5){ctx2.fillStyle="rgba(103,232,249,.04)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
+      } else if (sys === "Security Operations Center" && run.hazardPulse > 4.5 && run.hazardPulse < 5.4) {
+        const scan=Math.max(0,1-Math.abs(run.hazardPulse-4.95)/.45);ctx2.strokeStyle=`rgba(251,113,133,${.2+scan*.35})`;ctx2.lineWidth=Math.max(2,cell*.1);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,cell*(2+scan*12),0,Math.PI*2);ctx2.stroke();
+      } else if (sys === "Core Infrastructure") {
+        if(run.hazardPulse>2.8&&run.hazardPulse<3.5){ctx2.fillStyle="rgba(250,204,21,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);}
+        if(run.hazardPulse>5.2&&run.hazardPulse<6.2){const x=offX+((run.hazardPulse-5.2))*cell*COLS;ctx2.fillStyle="rgba(251,146,60,.11)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);}
       }
+      ctx2.restore();
+
+      // High-quality ambient pass: depth vignette, scanlines, drifting motes and
+      // system-colored energy. Kept behind gameplay entities so readability wins.
+      ctx2.save();
+      const ambientTime = time / 1000;
+      for (let i = 0; i < 26; i++) {
+        const seed = i * 19.37;
+        const mx = offX + (((seed * 13 + ambientTime * (8 + i % 5)) % COLS) * cell);
+        const my = offY + (((seed * 7 + Math.sin(ambientTime * .7 + i) * 2 + ROWS) % ROWS) * cell);
+        const ma = .025 + .035 * (1 + Math.sin(ambientTime * 1.4 + i)) / 2;
+        ctx2.fillStyle = `rgba(148,223,255,${ma})`;
+        ctx2.beginPath(); ctx2.arc(mx, my, Math.max(.6, cell * .045), 0, Math.PI * 2); ctx2.fill();
+      }
+      const sweepY = offY + ((time / 38) % (cell * ROWS));
+      const scanGradient = ctx2.createLinearGradient(0, sweepY - cell * 1.4, 0, sweepY + cell * 1.4);
+      scanGradient.addColorStop(0, "rgba(255,255,255,0)");
+      scanGradient.addColorStop(.5, "rgba(186,230,253,.035)");
+      scanGradient.addColorStop(1, "rgba(255,255,255,0)");
+      ctx2.fillStyle = scanGradient; ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
+      const vignette = ctx2.createRadialGradient(rect.width/2, rect.height/2, Math.min(rect.width,rect.height)*.18, rect.width/2, rect.height/2, Math.max(rect.width,rect.height)*.68);
+      vignette.addColorStop(0,"rgba(0,0,0,0)");vignette.addColorStop(.72,"rgba(0,0,0,.06)");vignette.addColorStop(1,"rgba(0,0,0,.34)");
+      ctx2.fillStyle=vignette;ctx2.fillRect(0,0,rect.width,rect.height);
+      ctx2.restore();
+
+      // Localized light pools make important gameplay objects illuminate the board.
+      ctx2.save();
+      ctx2.globalCompositeOperation="screen";
+      const lightPool=(x:number,y:number,r:number,inner:string)=>{const g=ctx2.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,inner);g.addColorStop(.35,inner.replace(/,[^)]+\)/,",0.10)"));g.addColorStop(1,"rgba(0,0,0,0)");ctx2.fillStyle=g;ctx2.fillRect(x-r,y-r,r*2,r*2);};
+      lightPool(offX+(run.player.x+.5)*cell,offY+(run.player.y+.5)*cell,cell*3.2,"rgba(45,212,191,0.22)");
+      for(const packet of run.packets)if(!packet.taken)lightPool(offX+(packet.x+.5)*cell,offY+(packet.y+.5)*cell,cell*1.5,"rgba(56,189,248,0.16)");
+      for(const power of run.powerUps)if(!power.taken)lightPool(offX+(power.x+.5)*cell,offY+(power.y+.5)*cell,cell*1.7,"rgba(250,204,21,0.15)");
+      for(const g of run.guards)if(g.state==="chase"&&g.stunned<=0)lightPool(offX+(g.x+.5)*cell,offY+(g.y+.5)*cell,cell*2.4,"rgba(239,68,68,0.14)");
       ctx2.restore();
 
       // Walls as dimensional security architecture with illuminated traces.
@@ -897,10 +1187,15 @@ export function VirusRun() {
             ctx2.fill();
             ctx2.strokeStyle = t.wallEdge;
             ctx2.lineWidth = 1;
+            ctx2.shadowColor = t.wallEdge;
+            ctx2.shadowBlur = cell * 0.18;
             ctx2.stroke();
-            ctx2.fillStyle = "rgba(255,255,255,0.025)";
-            roundRect(ctx2, offX + x * cell + pad * 1.7, offY + y * cell + pad * 1.7, cell - pad * 3.4, Math.max(1, cell * 0.08), cell * 0.04);
+            ctx2.shadowBlur = 0;
+            ctx2.fillStyle = "rgba(255,255,255,0.055)";
+            roundRect(ctx2, offX + x * cell + pad * 1.7, offY + y * cell + pad * 1.7, cell - pad * 3.4, Math.max(1, cell * 0.09), cell * 0.04);
             ctx2.fill();
+            ctx2.fillStyle="rgba(0,0,0,.18)";roundRect(ctx2,bx+cell*.08,by+cell*.72,cell-pad*2-cell*.16,cell*.1,cell*.03);ctx2.fill();
+            if((x*7+y*11)%5===0){ctx2.fillStyle=`rgba(125,211,252,${.08+.06*Math.sin(time/300+x+y)})`;ctx2.fillRect(bx+cell*.18,by+cell*.2,cell*.08,cell*.08);}
             if ((x + y) % 3 === 0) {
               ctx2.strokeStyle = "rgba(45,212,191,0.16)";
               ctx2.lineWidth = Math.max(0.6, cell * 0.035);
@@ -944,6 +1239,10 @@ export function VirusRun() {
           ctx2.arc(portalX, portalY, cell * (0.48 + ring * 0.13), time / (380 + ring * 110), time / (380 + ring * 110) + Math.PI * 1.3);
           ctx2.stroke();
         }
+        ctx2.save();
+        ctx2.globalCompositeOperation="screen";
+        for(let beam=0;beam<5;beam++){const a=time/(260+beam*55)+beam*1.25;ctx2.strokeStyle=`rgba(94,234,212,${.12+beam*.025})`;ctx2.lineWidth=Math.max(1,cell*.04);ctx2.beginPath();ctx2.moveTo(portalX+Math.cos(a)*cell*.4,portalY+Math.sin(a)*cell*.4);ctx2.lineTo(portalX+Math.cos(a)*cell*(1.1+beam*.25),portalY+Math.sin(a)*cell*(1.1+beam*.25));ctx2.stroke();}
+        ctx2.restore();
         ctx2.fillStyle = "#99f6e4";
         ctx2.font = `bold ${Math.max(7, cell * 0.24)}px ui-monospace, monospace`;
         ctx2.fillText("EXIT", portalX, portalY - cell * 0.75);
@@ -954,7 +1253,17 @@ export function VirusRun() {
       for (const packet of run.packets) {
         if (packet.taken) continue;
         ctx2.save();
-        ctx2.translate(offX + (packet.x + 0.5) * cell, offY + (packet.y + 0.5) * cell);
+        const packetX=offX+(packet.x+.5)*cell,packetY=offY+(packet.y+.5)*cell;
+        const playerX=offX+(run.player.x+.5)*cell,playerY=offY+(run.player.y+.5)*cell;
+        const packetDist=Math.hypot(packet.x-run.player.x,packet.y-run.player.y);
+        if(packetDist<3.2){
+          const pull=Math.max(0,1-packetDist/3.2);
+          ctx2.strokeStyle=`rgba(125,211,252,${.08+pull*.28})`;ctx2.lineWidth=Math.max(1,cell*.035);
+          ctx2.setLineDash([cell*.12,cell*.18]);ctx2.lineDashOffset=-time/55;
+          ctx2.beginPath();ctx2.moveTo(packetX,packetY);ctx2.quadraticCurveTo((packetX+playerX)/2+Math.sin(time/140+packet.x)*cell*.35,(packetY+playerY)/2+Math.cos(time/150+packet.y)*cell*.35,playerX,playerY);ctx2.stroke();ctx2.setLineDash([]);
+        }
+        ctx2.translate(packetX,packetY);
+        const attractPulse=packetDist<2.2?1+.1*Math.sin(time/75):1;ctx2.scale(attractPulse,attractPulse);
         ctx2.rotate(time / 850 + packet.x);
         const sniffStacks = upgradesRef.current["packet-sniffer"];
         if (sniffStacks > 0) {
@@ -988,11 +1297,60 @@ export function VirusRun() {
         ctx2.restore();
       }
 
-      // Power-ups.
-      for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);ctx2.rotate(time/700);ctx2.shadowColor="#facc15";ctx2.shadowBlur=cell*.9;ctx2.strokeStyle="#fde68a";ctx2.lineWidth=Math.max(1,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*.32,0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="#facc15";ctx2.font=`bold ${cell*.34}px ui-monospace`;ctx2.textAlign="center";ctx2.textBaseline="middle";ctx2.rotate(-time/700);ctx2.fillText(power.kind==="cloak"?"C":power.kind==="overclock"?"O":power.kind==="emp"?"E":"M",0,0);ctx2.restore();}
+      // Power-ups use recognizable shapes rather than letter badges.
+      for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);const spin=time/700;ctx2.rotate(spin);ctx2.shadowColor=power.kind==="cloak"?"#a78bfa":power.kind==="overclock"?"#fb923c":power.kind==="emp"?"#60a5fa":"#facc15";ctx2.shadowBlur=cell*1.05;ctx2.strokeStyle=ctx2.shadowColor;ctx2.fillStyle=ctx2.shadowColor;ctx2.lineWidth=Math.max(1,cell*.075);
+        if(power.kind==="cloak"){ctx2.beginPath();ctx2.arc(0,0,cell*.31,.18,Math.PI*1.82);ctx2.stroke();ctx2.beginPath();ctx2.arc(0,0,cell*.13,0,Math.PI*2);ctx2.fill();}
+        else if(power.kind==="overclock"){ctx2.beginPath();ctx2.moveTo(-cell*.08,-cell*.34);ctx2.lineTo(cell*.13,-cell*.06);ctx2.lineTo(0,-cell*.06);ctx2.lineTo(cell*.08,cell*.34);ctx2.lineTo(-cell*.15,cell*.05);ctx2.lineTo(-cell*.02,cell*.05);ctx2.closePath();ctx2.fill();}
+        else if(power.kind==="emp"){for(let i=0;i<3;i++){ctx2.beginPath();ctx2.arc(0,0,cell*(.12+i*.11),0,Math.PI*2);ctx2.stroke();}}
+        else{ctx2.beginPath();ctx2.arc(0,0,cell*.3,0,Math.PI*2);ctx2.stroke();ctx2.beginPath();ctx2.moveTo(-cell*.28,0);ctx2.lineTo(cell*.28,0);ctx2.moveTo(0,-cell*.28);ctx2.lineTo(0,cell*.28);ctx2.stroke();}
+        ctx2.restore();}
 
-      // Boss security core every eighth level.
-      if(run.boss){const bx=offX+cell*COLS/2,by=offY+cell*ROWS/2;ctx2.save();ctx2.globalAlpha=.22+.08*Math.sin(time/160);ctx2.strokeStyle="#fb7185";ctx2.shadowColor="#ef4444";ctx2.shadowBlur=cell*1.4;ctx2.lineWidth=Math.max(2,cell*.12);for(let i=0;i<3;i++){ctx2.beginPath();ctx2.arc(bx,by,cell*(1.3+i*.5),time/(350+i*90),time/(350+i*90)+Math.PI*1.4);ctx2.stroke();}ctx2.restore();}
+      // Boss encounter telegraphs. Every pressure window is announced visually
+      // before or while its matching mechanic is active.
+      if(run.boss){
+        ctx2.save();
+        if(run.level===5){
+          const angle=time/620;const cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;
+          ctx2.strokeStyle="rgba(134,239,172,.34)";ctx2.lineWidth=Math.max(2,cell*.09);ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(cx+Math.cos(angle)*cell*18,cy+Math.sin(angle)*cell*18);ctx2.stroke();
+          ctx2.fillStyle="rgba(134,239,172,.75)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText("SEEK SWEEP",offX+cell,offY+cell*1.2);
+        }else if(run.level===10){
+          const active=run.hazardPulse>4.8&&run.hazardPulse<6;ctx2.fillStyle=active?"rgba(192,132,252,.10)":"rgba(192,132,252,.035)";for(let y=2;y<ROWS-1;y+=3)ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell*.55);
+          if(active){ctx2.fillStyle="rgba(216,180,254,.85)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText("SCHEDULER BURST",offX+cell,offY+cell*1.2);}
+        }else if(run.level===15){
+          const active=run.hazardPulse>2.6&&run.hazardPulse<3.7;const x=offX+(((time/22)%(cell*COLS)));ctx2.fillStyle=active?"rgba(244,114,182,.16)":"rgba(244,114,182,.05)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);
+          if(active){ctx2.fillStyle="rgba(251,207,232,.9)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText("IDENTITY SCAN",offX+cell,offY+cell*1.2);}
+        }else if(run.level===20){
+          const activeA=run.hazardPulse>1.1&&run.hazardPulse<2,activeB=run.hazardPulse>4&&run.hazardPulse<5;
+          if(activeA){const rr=cell*(3+(run.hazardPulse-1.1)*10);ctx2.strokeStyle="rgba(251,113,133,.5)";ctx2.lineWidth=Math.max(2,cell*.11);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,rr,0,Math.PI*2);ctx2.stroke();}
+          if(activeB){const x=offX+((run.hazardPulse-4))*cell*COLS;ctx2.fillStyle="rgba(251,146,60,.15)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);}
+          ctx2.fillStyle="rgba(254,240,138,.88)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText(activeA?"CORE SCAN":activeB?"LOCKDOWN SWEEP":"CORE DEFENDER",offX+cell,offY+cell*1.2);
+        }
+        ctx2.restore();
+      }
+
+      // Boss security core: sealed during packet collection, then visibly
+      // vulnerable during the breach phase.
+      if(run.boss){
+        const coreCell=(()=>{const cx=Math.floor(COLS/2),cy=Math.floor(ROWS/2);if(run.grid[cy]?.[cx]===0)return{x:cx,y:cy};let best:{x:number;y:number;d:number}|null=null;for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(run.grid[y]?.[x]===0){const d=Math.abs(x-cx)+Math.abs(y-cy);if(!best||d<best.d)best={x,y,d};}return best??{x:cx,y:cy};})();
+        const bx=offX+(coreCell.x+.5)*cell,by=offY+(coreCell.y+.5)*cell;ctx2.save();
+        const vulnerable=run.bossPhase>=2&&!run.portOpen;
+        ctx2.globalAlpha=vulnerable ? .72+.2*Math.sin(time/105) : .24+.08*Math.sin(time/160);
+        ctx2.strokeStyle=vulnerable?"#fef08a":"#fb7185";ctx2.shadowColor=vulnerable?"#facc15":"#ef4444";ctx2.shadowBlur=cell*(vulnerable?2:1.4);ctx2.lineWidth=Math.max(2,cell*.12);
+        const damageRatio=run.bossNodes/Math.max(1,run.bossNodesRequired);
+        for(let i=0;i<3;i++){
+          const broken=i<Math.floor(damageRatio*3);
+          ctx2.setLineDash(broken?[cell*.18,cell*.22]:[]);
+          ctx2.lineDashOffset=-time/(55+i*15);
+          ctx2.beginPath();ctx2.arc(bx,by,cell*(.65+i*.28),time/(260+i*70),time/(260+i*70)+Math.PI*(broken ? .72 : 1.45));ctx2.stroke();
+        }
+        ctx2.setLineDash([]);
+        if(run.bossNodes>0){
+          for(let spark=0;spark<4+run.bossNodes*2;spark++){const a=time/(90+spark*9)+spark*2.1,r=cell*(.45+(spark%3)*.28);ctx2.strokeStyle=`rgba(254,240,138,${.25+.12*Math.sin(time/80+spark)})`;ctx2.beginPath();ctx2.moveTo(bx+Math.cos(a)*r*.35,by+Math.sin(a)*r*.35);ctx2.lineTo(bx+Math.cos(a)*r,by+Math.sin(a)*r);ctx2.stroke();}
+        }
+        ctx2.fillStyle=vulnerable?"rgba(254,240,138,.75)":"rgba(251,113,133,.3)";ctx2.beginPath();ctx2.arc(bx,by,cell*(.25+.05*Math.sin(time/(120-Math.min(60,run.bossNodes*12)))),0,Math.PI*2);ctx2.fill();
+        ctx2.fillStyle=vulnerable?"#fef9c3":"#fecdd3";ctx2.font=`bold ${Math.max(8,cell*.24)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText(vulnerable?`BREACH ${run.bossNodes+1}/${run.bossNodesRequired}`:"CORE SEALED",bx,by-cell*1.25);
+        ctx2.restore();
+      }
 
       // Antivirus sentinels: shield-like drones with scanning lenses.
       // Reuse the distance field maintained by the update loop. Previously this
@@ -1007,12 +1365,17 @@ export function VirusRun() {
         ctx2.save();
         const aim = Math.atan2(run.player.y - g.y, run.player.x - g.x);
         const distanceToRunner = renderField[Math.round(g.y)]?.[Math.round(g.x)] ?? -1;
-        const alerted = g.stunned<=0 && distanceToRunner >= 0 && distanceToRunner <= g.detection;
+        const alerted = g.stunned<=0 && g.state==="chase";
+        const suspicious = g.stunned<=0 && g.state==="suspicious";
+        const searching = g.stunned<=0 && g.state==="search";
         ctx2.translate(cx, cy);
         if(g.stunned>0)ctx2.globalAlpha=.35+.2*Math.sin(time/80);
+        if(alerted && g.stunned<=0){const alarm=.72+.28*Math.sin(time/55);ctx2.strokeStyle=`rgba(254,202,202,${alarm})`;ctx2.lineWidth=Math.max(1.5,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*(.58+.12*Math.sin(time/70)),0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="rgba(254,226,226,.95)";ctx2.font=`bold ${Math.max(8,cell*.3)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText("!",0,-cell*.72);}
+        else if(suspicious){ctx2.strokeStyle="rgba(253,224,71,.72)";ctx2.lineWidth=Math.max(1,cell*.065);ctx2.beginPath();ctx2.arc(0,0,cell*(.52+.08*g.awareness),0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="rgba(254,249,195,.95)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText("?",0,-cell*.68);}
+        else if(searching){ctx2.strokeStyle="rgba(251,146,60,.52)";ctx2.setLineDash([cell*.1,cell*.1]);ctx2.lineDashOffset=-time/90;ctx2.beginPath();ctx2.arc(0,0,cell*.58,0,Math.PI*2);ctx2.stroke();ctx2.setLineDash([]);}
         ctx2.rotate(aim);
-        const coneLength = cell * (alerted ? 3.4 : 2.25);
-        const coneWidth = cell * (alerted ? 1.35 : 0.9);
+        const coneLength = cell * (alerted ? 3.4 : suspicious ? 2.8 : searching ? 2.55 : 2.25);
+        const coneWidth = cell * (alerted ? 1.35 : suspicious ? 1.05 : 0.9);
         const cone = ctx2.createLinearGradient(0, 0, coneLength, 0);
         cone.addColorStop(0, alerted ? "rgba(248,113,113,0.32)" : "rgba(248,113,113,0.16)");
         cone.addColorStop(1, "rgba(248,113,113,0)");
@@ -1024,17 +1387,28 @@ export function VirusRun() {
         ctx2.closePath();
         ctx2.fill();
         ctx2.rotate(Math.PI / 2);
-        const s = cell * 0.82;
-        ctx2.shadowColor = "rgba(248,113,113,0.75)";
+        const s = cell * (g.kind==="warden" ? .94 : g.kind==="interceptor" ? .76 : .82);
+        const guardAccent=g.kind==="scanner"?"#fb7185":g.kind==="hunter"?"#ef4444":g.kind==="interceptor"?"#f97316":"#a855f7";
+        ctx2.shadowColor = guardAccent;
         ctx2.shadowBlur = cell * 0.72;
         const guardGradient = ctx2.createLinearGradient(0, -s / 2, 0, s / 2);
-        guardGradient.addColorStop(0, "#fecaca"); guardGradient.addColorStop(0.22, "#ef4444"); guardGradient.addColorStop(1, "#7f1d1d");
+        guardGradient.addColorStop(0, g.kind==="warden"?"#e9d5ff":"#fecaca"); guardGradient.addColorStop(0.22, guardAccent); guardGradient.addColorStop(1, g.kind==="warden"?"#581c87":"#7f1d1d");
         ctx2.fillStyle = guardGradient;
         ctx2.beginPath();
-        ctx2.moveTo(0, -s * 0.52); ctx2.lineTo(s * 0.42, -s * 0.22); ctx2.lineTo(s * 0.34, s * 0.3); ctx2.lineTo(0, s * 0.54); ctx2.lineTo(-s * 0.34, s * 0.3); ctx2.lineTo(-s * 0.42, -s * 0.22); ctx2.closePath(); ctx2.fill();
+        if(g.kind==="scanner"){ctx2.moveTo(0,-s*.54);ctx2.lineTo(s*.48,-s*.12);ctx2.lineTo(s*.3,s*.42);ctx2.lineTo(-s*.3,s*.42);ctx2.lineTo(-s*.48,-s*.12);}
+        else if(g.kind==="hunter"){ctx2.moveTo(0,-s*.68);ctx2.lineTo(s*.38,-s*.08);ctx2.lineTo(s*.22,s*.5);ctx2.lineTo(0,s*.3);ctx2.lineTo(-s*.22,s*.5);ctx2.lineTo(-s*.38,-s*.08);}
+        else if(g.kind==="interceptor"){ctx2.moveTo(0,-s*.7);ctx2.lineTo(s*.5,s*.25);ctx2.lineTo(s*.14,s*.12);ctx2.lineTo(0,s*.56);ctx2.lineTo(-s*.14,s*.12);ctx2.lineTo(-s*.5,s*.25);}
+        else{for(let i=0;i<6;i++){const a=-Math.PI/2+i*Math.PI/3,rr=i%2===0?s*.56:s*.5;const xx=Math.cos(a)*rr,yy=Math.sin(a)*rr;i?ctx2.lineTo(xx,yy):ctx2.moveTo(xx,yy);}}
+        ctx2.closePath(); ctx2.fill();
         ctx2.shadowBlur = 0;
         ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.06, s * 0.16, 0, Math.PI * 2); ctx2.fill();
         ctx2.fillStyle = "#fee2e2"; ctx2.beginPath(); ctx2.arc(0, -s * 0.08, s * 0.065, 0, Math.PI * 2); ctx2.fill();
+        // Distinct geometry now carries class identity; tiny accents reinforce it without requiring labels.
+        ctx2.strokeStyle=guardAccent;ctx2.lineWidth=Math.max(1,cell*.05);
+        if(g.kind==="scanner"){ctx2.beginPath();ctx2.arc(0,0,s*.31,time/350,time/350+Math.PI*1.3);ctx2.stroke();}
+        else if(g.kind==="hunter"){ctx2.beginPath();ctx2.moveTo(-s*.2,s*.18);ctx2.lineTo(0,s*.38);ctx2.lineTo(s*.2,s*.18);ctx2.stroke();}
+        else if(g.kind==="interceptor"){ctx2.beginPath();ctx2.moveTo(-s*.34,0);ctx2.lineTo(-s*.52,s*.22);ctx2.moveTo(s*.34,0);ctx2.lineTo(s*.52,s*.22);ctx2.stroke();}
+        else{ctx2.beginPath();ctx2.arc(0,0,s*.37,0,Math.PI*2);ctx2.stroke();}
         ctx2.strokeStyle = "rgba(254,202,202,0.65)"; ctx2.lineWidth = Math.max(0.8, cell * 0.045); ctx2.beginPath(); ctx2.arc(0, 0, s * 0.68, time / 500, time / 500 + Math.PI * 1.15); ctx2.stroke();
         ctx2.restore();
       }
@@ -1056,9 +1430,13 @@ export function VirusRun() {
       // Player: layered bio-digital organism with nucleus, membrane and orbit.
       const pcx = offX + (run.player.x + 0.5) * cell;
       const pcy = offY + (run.player.y + 0.5) * cell;
-      const wobble = 1 + 0.08 * Math.sin(time / 120);
+      const moving=run.player.moving;
+      const dx=run.player.tx-run.player.x,dy=run.player.ty-run.player.y;
+      const travelAngle=moving?Math.atan2(dy,dx):0;
+      const wobble = 1 + 0.055 * Math.sin(time / 105);
       ctx2.save();
       if (run.player.invuln > 0) ctx2.globalAlpha = 0.45 + 0.4 * Math.sin(time / 60);
+      ctx2.translate(pcx,pcy);ctx2.rotate(travelAngle);ctx2.scale(moving?1.12:1,moving ? .9 : 1);ctx2.translate(-pcx,-pcy);
       const r = cell * 0.42 * wobble;
       ctx2.shadowColor = "rgba(45,212,191,0.95)";
       ctx2.shadowBlur = cell * 1.15;
@@ -1080,6 +1458,19 @@ export function VirusRun() {
       ctx2.fillStyle = "rgba(4,47,46,0.88)"; ctx2.beginPath(); ctx2.arc(pcx, pcy, r * 0.34, 0, Math.PI * 2); ctx2.fill();
       ctx2.fillStyle = "#ccfbf1"; ctx2.beginPath(); ctx2.arc(pcx - r * 0.11, pcy - r * 0.12, r * 0.1, 0, Math.PI * 2); ctx2.fill();
       ctx2.restore();
+      if(run.activePower){
+        ctx2.save();ctx2.globalCompositeOperation="screen";
+        const ar=cell*(.72+.06*Math.sin(time/80));ctx2.lineWidth=Math.max(1.5,cell*.07);
+        if(run.activePower.kind==="cloak"){ctx2.strokeStyle="rgba(167,139,250,.75)";ctx2.setLineDash([cell*.16,cell*.12]);ctx2.lineDashOffset=-time/45;}
+        else if(run.activePower.kind==="overclock"){ctx2.strokeStyle="rgba(251,146,60,.8)";for(let i=0;i<3;i++){ctx2.beginPath();ctx2.moveTo(pcx-cell*(.8+i*.3),pcy+(i-1)*cell*.16);ctx2.lineTo(pcx-cell*(.25+i*.18),pcy+(i-1)*cell*.16);ctx2.stroke();}}
+        else if(run.activePower.kind==="magnet"){ctx2.strokeStyle="rgba(250,204,21,.7)";}
+        else ctx2.strokeStyle="rgba(96,165,250,.8)";
+        ctx2.beginPath();ctx2.arc(pcx,pcy,ar,0,Math.PI*2);ctx2.stroke();ctx2.setLineDash([]);ctx2.restore();
+      }
+      if(run.player.invuln>0){
+        ctx2.save();const shieldPulse=.72+.18*Math.sin(time/85);ctx2.strokeStyle=`rgba(103,232,249,${shieldPulse})`;ctx2.lineWidth=Math.max(1.5,cell*.09);ctx2.shadowColor="#22d3ee";ctx2.shadowBlur=cell*.7;ctx2.beginPath();ctx2.arc(pcx,pcy,cell*(.68+.05*Math.sin(time/100)),0,Math.PI*2);ctx2.stroke();ctx2.shadowBlur=0;
+        ctx2.fillStyle="rgba(207,250,254,.95)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText(`SAFE ${Math.max(1,Math.ceil(run.player.invuln))}`,pcx,pcy-cell*.9);ctx2.restore();
+      }
 
       // Event effects: packet bursts, antivirus damage shockwaves and exit surges.
       fxRef.current = fxRef.current.filter((fx) => time - fx.born < (fx.kind === "exit" ? 1200 : 850));
@@ -1110,6 +1501,11 @@ export function VirusRun() {
         ctx2.restore();
       }
 
+      // Foreground atmosphere adds depth while staying sparse enough for maze readability.
+      ctx2.save();ctx2.globalCompositeOperation="screen";
+      for(let i=0;i<18;i++){const seed=i*97.31;const x=offX+((seed*13+time*(.006+(i%4)*.002))%(cell*COLS));const y=offY+((seed*7+Math.sin(time/(700+i*19)+i)*cell*2+i*cell*1.13)%(cell*ROWS));const rr=Math.max(.8,cell*(.025+(i%3)*.012));ctx2.fillStyle=i%3===0?"rgba(125,211,252,.18)":"rgba(94,234,212,.11)";ctx2.beginPath();ctx2.arc(x,y,rr,0,Math.PI*2);ctx2.fill();}
+      ctx2.restore();
+
       // A soft moving light sweep makes the larger maze feel alive without obscuring paths.
       ctx2.save();
       const sweepX = offX + ((time / 32) % (cell * (COLS + 8))) - cell * 4;
@@ -1139,6 +1535,10 @@ export function VirusRun() {
       const dt = Math.min((time - last) / 1000, 0.05);
       lastRef.current = time;
 
+      if (phaseRef.current === "intro") {
+        introTimerRef.current -= dt;
+        if (introTimerRef.current <= 0) setPhaseBoth("playing");
+      }
       if (phaseRef.current === "playing") update(run, dt);
       if (phaseRef.current === "levelclear") {
         levelClearTimerRef.current -= dt;
@@ -1149,7 +1549,8 @@ export function VirusRun() {
           fieldAgeRef.current = 999;
           keysRef.current = [];
           syncHud(runRef.current);
-          setPhaseBoth("playing");
+          introTimerRef.current = runRef.current.boss ? 1.8 : 1.05;
+          setPhaseBoth("intro");
         }
       }
       draw(run, time);
@@ -1170,13 +1571,16 @@ export function VirusRun() {
     fieldAgeRef.current = 999;
     keysRef.current = [];
     syncHud(runRef.current);
-    setPhaseBoth("playing");
+    introTimerRef.current = runRef.current.boss ? 1.8 : 1.05;
+    setPhaseBoth("intro");
     lastRef.current = 0;
   }, [setPhaseBoth, syncHud]);
 
   // Mobile steering uses a single buffered direction. Keeping the last direction
   // active lets players make clean maze turns without continuously holding a tiny target.
   const pressDir = (dir: string) => {
+    // Keep a requested turn queued until the next legal intersection.
+    queuedDirRef.current = dir;
     keysRef.current = [dir];
   };
   const releaseDir = (dir: string) => {
@@ -1194,11 +1598,12 @@ export function VirusRun() {
     // A generous swipe threshold prevents accidental turns while still allowing
     // short flicks. Once selected, the direction remains buffered until changed.
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-    const axisBias = 1.18;
+    const axisBias = 1.06;
     const horizontal = Math.abs(dx) > Math.abs(dy) * axisBias;
     const vertical = Math.abs(dy) > Math.abs(dx) * axisBias;
-    if (!horizontal && !vertical) return;
-    keysRef.current = [horizontal ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up")];
+    const dir = horizontal ? (dx > 0 ? "right" : "left") : vertical ? (dy > 0 ? "down" : "up") : Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up");
+    queuedDirRef.current = dir;
+    keysRef.current = [dir];
   };
 
   const onCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -1223,17 +1628,27 @@ export function VirusRun() {
 
   const run = runRef.current;
   const overlay =
-    phase === "menu" ? (
+    phase === "intro" ? (
+      <Overlay>
+        <div className="h-px w-48 bg-gradient-to-r from-transparent via-primary to-transparent" aria-hidden />
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">{hud.level > 20 ? "Endless Mode" : `System ${String(hud.level).padStart(2,"0")}`}</p>
+        <h3 className="font-display text-3xl font-black uppercase tracking-[0.08em] sm:text-4xl">{hud.boss ? hud.bossTitle : hud.system}</h3>
+        <p className="max-w-md text-center text-sm text-muted-foreground">{hud.boss ? (hud.level===5?"Seek patterns are destabilizing the drive.":hud.level===10?"Scheduler pressure is accelerating hostile processes.":hud.level===15?"Identity scans are locking onto movement.":hud.level===20?"All security layers are converging on the core.":"An evolved defender is blocking the breach.") : hud.hint}</p>
+        {hud.boss && <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-destructive">Major security encounter</p>}
+        <div className="h-px w-48 bg-gradient-to-r from-transparent via-primary to-transparent" aria-hidden />
+      </Overlay>
+    ) : phase === "menu" ? (
       <Overlay>
         <VirusCoreGraphic />
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Containment protocol</p>
         <h3 className="font-display text-3xl font-bold uppercase">Virus Run</h3>
         <p className="max-w-sm text-sm text-muted-foreground">
           You are the virus. Collect every data packet on the system, stay away from the antivirus daemons,
-          then reach the open port to slip deeper. There is no last level: each system is harder than the one
-          before it.
+          then reach the open port to slip deeper. Breach 20 systems to clear the campaign, then keep
+          pushing through remixed systems in Endless Mode.
         </p>
         <div className="flex flex-col items-center gap-1 font-mono text-xs text-muted-foreground">
+          <span>20-system campaign · major encounters at 5, 10, 15 and 20 · Endless Mode after level 20</span>
           <span>Arrow keys or WASD to move, Esc to pause.</span>
           <span>On touch screens, drag on the play area, use the arrow pad, or tilt the stick in its middle.</span>
         </div>
@@ -1265,7 +1680,7 @@ export function VirusRun() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Access granted</p>
         <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">System breached</h3>
         <div className="h-px w-40 bg-gradient-to-r from-transparent via-primary to-transparent" aria-hidden />
-        <p className="text-sm text-muted-foreground">{hud.boss ? "Antivirus core defeated · routing deeper…" : "Entering the next system…"}</p>
+        <p className="text-sm text-muted-foreground">{hud.boss ? (hud.level === 20 ? "CORE DEFENDER destroyed · campaign breached · Endless Mode unlocked." : hud.bossTitle + " defeated · routing deeper…") : "Entering the next system…"}</p>
       </Overlay>
     ) : phase === "upgrade" ? (
       <Overlay>
@@ -1319,10 +1734,10 @@ export function VirusRun() {
             </Button>
           )}
         </div>
-        <div className={cn("grid grid-cols-5 divide-x divide-primary/15", mobileLandscape && "pointer-events-auto absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
+        <div className={cn("grid grid-cols-5 divide-x divide-primary/10 bg-gradient-to-r from-background/95 via-background/80 to-primary/[.04]", mobileLandscape && "pointer-events-auto absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
           <GameStat label="Level" value={hud.level} />
-          <div className={cn(mobileLandscape && "hidden")}><GameStat label="System" value={hud.boss ? "ANTIVIRUS CORE" : hud.system || "—"} accent /></div>
-          <GameStat label="Packets" value={`${hud.collected}/${hud.required}`} />
+          <div className={cn(mobileLandscape && "hidden")}><GameStat label="System" value={hud.boss ? hud.bossTitle : hud.system || "—"} accent /></div>
+          <GameStat label={hud.boss && hud.bossPhase >= 2 ? "Breach" : "Packets"} value={hud.boss && hud.bossPhase >= 2 ? `${hud.bossNodes}/${hud.bossNodesRequired}` : `${hud.collected}/${hud.required}`} />
           <GameStat label={hud.power ? "Power" : "Streak"} value={hud.power || (hud.streak>1 ? `x${hud.streak}` : "—")} accent={Boolean(hud.power || hud.streak>1)} />
           <div className="px-2 py-2.5 sm:px-4">
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">Integrity</p>
@@ -1335,20 +1750,26 @@ export function VirusRun() {
         </div>
       </div>
 
-      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", mobileLandscape && "absolute inset-0 m-0 h-[100dvh] w-[100dvw] rounded-none border-0 bg-black p-0 shadow-none")}>
+      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", mobileLandscape && "absolute bottom-0 left-0 top-0 m-0 h-[100dvh] w-[calc(100dvw-176px-env(safe-area-inset-right))] rounded-none border-0 bg-black p-0 shadow-none")}>
         <canvas
           ref={canvasRef}
-           className={cn("block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "h-[100dvh] w-[100dvw] max-w-none rounded-none aspect-auto")}
+           className={cn("block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "h-[100dvh] w-full max-w-none rounded-none aspect-auto")}
           onPointerDown={onCanvasPointerDown}
           onPointerMove={onCanvasPointerMove}
           onPointerUp={onCanvasPointerEnd}
           onPointerCancel={onCanvasPointerEnd}
         />
+        {hud.boss && (phase==="playing"||phase==="paused") && (
+          <div className="pointer-events-none absolute inset-x-0 top-2 z-[5] mx-auto flex w-[min(78%,34rem)] flex-col items-center gap-1 rounded-full border border-destructive/20 bg-black/45 px-4 py-1.5 shadow-xl backdrop-blur-md">
+            <div className="flex w-full items-center justify-between font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-red-200"><span>{hud.bossTitle}</span><span>Security {hud.bossNodes}/{hud.bossNodesRequired}</span></div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-red-950/70"><div className="h-full rounded-full bg-gradient-to-r from-red-500 via-orange-400 to-yellow-300 transition-[width] duration-300" style={{width:`${Math.max(0,100-(hud.bossNodes/Math.max(1,hud.bossNodesRequired))*100)}%`}} /></div>
+          </div>
+        )}
         {overlay}
       </div>
 
       {/* Phone controls: one large thumb stick. The playfield itself also supports drag-to-steer. */}
-      <div className={cn("mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden", mobileLandscape && "absolute bottom-[max(12px,env(safe-area-inset-bottom))] right-[max(12px,env(safe-area-inset-right))] z-40 m-0 w-auto bg-transparent p-0")} aria-label="Mobile game controls">
+      <div className={cn("mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden", mobileLandscape && "absolute bottom-0 right-0 top-0 z-40 m-0 flex w-[calc(176px+env(safe-area-inset-right))] items-center justify-center border-l border-primary/15 bg-background/80 pb-0 pl-2 pr-[max(10px,env(safe-area-inset-right))] pt-0 shadow-2xl backdrop-blur-xl")} aria-label="Mobile game controls">
         <p className={cn("max-w-[12rem] text-xs leading-relaxed text-muted-foreground", mobileLandscape && "hidden")}>Swipe the maze to steer, or flick the thumb stick. Your last direction stays active until you steer again.</p>
         <Joystick onDir={(dir) => pressDir(dir)} onRelease={releaseAllDirs} mobile />
       </div>
@@ -1359,8 +1780,8 @@ export function VirusRun() {
 function GameStat({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
   return (
     <div className="min-w-0 px-2 py-2.5 sm:px-4">
-      <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">{label}</p>
-      <p className={cn("mt-1 truncate font-mono text-xs font-bold sm:text-sm", accent && "text-primary")}>{value}</p>
+      <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:text-[9px]">{label}</p>
+      <p className={cn("mt-0.5 truncate font-mono text-sm font-black tracking-tight sm:text-base", accent && "text-primary drop-shadow-[0_0_8px_rgba(45,212,191,.35)]")}>{value}</p>
     </div>
   );
 }
@@ -1422,12 +1843,11 @@ function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) =
       dy = (dy / mag) * max;
     }
     setKnob({ x: dx, y: dy });
-    if (mag < 8) return;
-    // Require a little axis commitment so diagonal thumb drift does not
-    // constantly flip between horizontal and vertical movement.
-    const axisBias = 1.16;
-    if (Math.abs(dx) > Math.abs(dy) * axisBias) onDir(dx > 0 ? "right" : "left");
-    else if (Math.abs(dy) > Math.abs(dx) * axisBias) onDir(dy > 0 ? "down" : "up");
+    if (mag < 6) return;
+    // Snap every deliberate gesture to one of four directions. This is a maze,
+    // not an analog movement game, so diagonal input should never be ambiguous.
+    if (Math.abs(dx) >= Math.abs(dy)) onDir(dx > 0 ? "right" : "left");
+    else onDir(dy > 0 ? "down" : "up");
   };
 
   return (
@@ -1435,7 +1855,7 @@ function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) =
       ref={baseRef}
       role="application"
       aria-label="Movement stick"
-      className={cn("relative flex touch-none select-none items-center justify-center rounded-full border border-border bg-card/90 shadow-lg backdrop-blur-xl [-webkit-user-select:none] [-webkit-touch-callout:none]", mobile ? "size-32" : "size-16")}
+      className={cn("relative flex touch-none select-none items-center justify-center rounded-full border border-border bg-card/90 shadow-lg backdrop-blur-xl [-webkit-user-select:none] [-webkit-touch-callout:none]", mobile ? "size-36" : "size-16")}
       onPointerDown={(e) => {
         e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -1457,8 +1877,12 @@ function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) =
       onContextMenu={(e) => e.preventDefault()}
     >
       <span className="absolute inset-2 rounded-full border border-dashed border-border/60" aria-hidden />
+      <ChevronUp className="pointer-events-none absolute top-2 size-5 text-primary/70" aria-hidden />
+      <ChevronDown className="pointer-events-none absolute bottom-2 size-5 text-primary/70" aria-hidden />
+      <ChevronLeft className="pointer-events-none absolute left-2 size-5 text-primary/70" aria-hidden />
+      <ChevronRight className="pointer-events-none absolute right-2 size-5 text-primary/70" aria-hidden />
       <span
-        className={cn("pointer-events-none absolute rounded-full border border-primary/40 bg-primary/20 shadow-md transition-transform duration-75", mobile ? "size-12" : "size-7")}
+        className={cn("pointer-events-none absolute rounded-full border border-primary/40 bg-primary/20 shadow-md transition-transform duration-75", mobile ? "size-14" : "size-7")}
         style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
         aria-hidden
       />
