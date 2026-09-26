@@ -33,6 +33,11 @@ import {
   Terminal,
   UserRound,
   Users,
+  Award,
+  FlaskConical,
+  Trophy,
+  FolderKanban,
+  Flame,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -47,6 +52,7 @@ import { useCommunityChat, type CommunityPostType } from "@/hooks/use-community-
 import { useCommunityMembership, useCommunityMemberCount } from "@/hooks/use-community-membership";
 import { useDisplayName } from "@/hooks/use-display-name";
 import { useProfile, useProfiles } from "@/hooks/use-profile";
+import { useCommunityLearningActivity, type LearningActivity } from "@/hooks/use-learning-activity";
 import { checkDisplayName, checkMessage } from "@/lib/community/word-filter";
 import { COMMUNITY_ROOMS, GENERAL_ROOM, communityForRoom, isValidRoom, roomTitle } from "@/lib/community/rooms";
 import { cn } from "@/lib/utils";
@@ -93,11 +99,13 @@ function CommunityPage() {
   const { messages, loading, send, sending, edit, editing, remove, report, toggleLike, toggleSave, getComments, addComment } = useCommunityChat(room);
   const membership = useCommunityMembership(room);
   const memberCount = useCommunityMemberCount(room);
-  const { profiles: communityProfiles } = useProfiles(messages.map(message => message.userId));
+  const { activities: sharedActivity, loading: activityLoading } = useCommunityLearningActivity();
+  const profileIds = useMemo(() => [...new Set([...messages.map((message) => message.userId), ...sharedActivity.map((activity) => activity.userId)])], [messages, sharedActivity]);
+  const { profiles: communityProfiles } = useProfiles(profileIds);
   const [openComments,setOpenComments]=useState<string|null>(null);
   const [comments,setComments]=useState<any[]>([]);
   const [commentDraft,setCommentDraft]=useState("");
-  const [feedMode,setFeedMode]=useState<"latest"|"popular">("latest");
+  const [feedMode,setFeedMode]=useState<"latest"|"popular"|"activity">("latest");
   const [draft, setDraft] = useState("");
   const [postType, setPostType] = useState<CommunityPostType>("discussion");
   const [postFilter, setPostFilter] = useState<CommunityPostType | "all">("all");
@@ -121,6 +129,7 @@ function CommunityPage() {
   const needsName = ready && Boolean(userId) && !nameLoading && !displayName;
   const activeCommunity = communityForRoom(room);
   const feedMessages=useMemo(()=>feedMode==="popular" ? [...messages].sort((a,b)=>(b.likeCount+b.commentCount*2)-(a.likeCount+a.commentCount*2)) : [...messages].reverse(),[messages,feedMode]);
+  const activityFeed = room === GENERAL_ROOM ? sharedActivity : [];
 
   if (ready && !userId) {
     return (
@@ -238,7 +247,7 @@ function CommunityPage() {
           {communityTab==="about"?<div className="p-6"><div className="max-w-2xl"><h2 className="font-display text-xl font-bold">About {activeCommunity.label}</h2><p className="mt-3 text-sm leading-7 text-muted-foreground">{activeCommunity.about}</p><div className="mt-5 rounded-xl border border-border/60 bg-secondary/30 p-4"><p className="text-sm font-bold">How to use this community</p><p className="mt-1 text-sm leading-6 text-muted-foreground">Ask useful questions, show what you tried, share progress and projects, and help other learners when you can. Community activity supports learning but never awards mastery or bypasses My Path prerequisites.</p></div></div></div>:<>
           <div className="border-b border-border/60 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-display text-lg font-bold">{communityTab==="questions"?"Questions":communityTab==="projects"?"Projects":"Latest Discussions"}</h2><p className="text-xs text-muted-foreground">{roomTitle(room)}</p></div><select aria-label="Community" value={room} onChange={(event)=>{setCommunityTab("feed");setPostFilter("all");void navigate({search:{room:event.target.value}})}} className="rounded-lg border border-border bg-background px-3 py-2 text-xs">{rooms.map((entry)=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
-            <div className={cn("mt-3 gap-2 overflow-x-auto pb-1",communityTab==="feed"?"flex":"hidden")}><Button size="sm" variant={postFilter==="all"&&feedMode==="latest"?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter("all")}}>All Posts</Button><Button size="sm" variant={feedMode==="popular"?"default":"outline"} onClick={()=>setFeedMode("popular")}>Popular</Button>{postTypes.map((type)=><Button key={type.value} size="sm" variant={postFilter===type.value?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter(type.value)}}>{type.label}</Button>)}</div>
+            <div className={cn("mt-3 gap-2 overflow-x-auto pb-1",communityTab==="feed"?"flex":"hidden")}><Button size="sm" variant={postFilter==="all"&&feedMode==="latest"?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter("all")}}>All Posts</Button><Button size="sm" variant={feedMode==="popular"?"default":"outline"} onClick={()=>setFeedMode("popular")}>Popular</Button>{room===GENERAL_ROOM?<Button size="sm" variant={feedMode==="activity"?"default":"outline"} onClick={()=>{setFeedMode("activity");setPostFilter("all")}}>Learning Activity</Button>:null}{postTypes.map((type)=><Button key={type.value} size="sm" variant={postFilter===type.value?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter(type.value)}}>{type.label}</Button>)}</div>
           </div>
 
           <form onSubmit={handleSend} className="border-b border-border/60 p-4">
@@ -246,7 +255,11 @@ function CommunityPage() {
           </form>
 
           <div>
-            {loading?<p className="p-5 text-sm text-muted-foreground">Loading discussions…</p>:filteredFeed.length===0?<div className="p-8 text-center"><MessagesSquare className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 font-semibold">{communityQuery?"No discussions match that search.":communityTab==="questions"?"No questions yet. Ask the first one.":communityTab==="projects"?"No projects yet. Share what you are building.":"Start the conversation"}</p></div>:filteredFeed.map((message)=>{const mine=message.userId===userId;const identity=communityProfiles[message.userId];const shownName=mine?displayName||"You":identity?.displayName||message.displayName;const avatarUrl=mine?ownProfile.avatarUrl:identity?.avatarUrl;const initial=shownName.trim().charAt(0).toUpperCase()||"?";return <article key={message.id} className="flex gap-3 border-b border-border/60 p-4 last:border-0"><Link to="/profile/$userId" params={{userId:message.userId}} className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-primary/15 font-bold text-primary">{avatarUrl?<img src={avatarUrl} alt="" className="h-full w-full object-cover"/>:initial}</Link><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-bold hover:underline">{mine?"You":shownName}</Link><span className="text-xs text-muted-foreground">· {timeLabel(message.createdAt)}</span><span className="ml-auto">{mine?<button type="button" onClick={()=>{setEditingPost(message.id);setEditDraft(message.body)}} className="p-1 text-muted-foreground"><Pencil className="size-4"/></button>:<button type="button" onClick={()=>void report({messageId:message.id})} className="p-1 text-muted-foreground"><Flag className="size-4"/></button>}</span></div><div className="mt-1"><span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">{postTypes.find((type)=>type.value===message.postType)?.label ?? "Discussion"}</span></div>{editingPost===message.id?<form className="mt-2 space-y-2" onSubmit={async(event)=>{event.preventDefault();const problem=checkMessage(editDraft);if(problem)return void toast.error(problem);await edit({id:message.id,body:editDraft});setEditingPost(null)}}><Textarea value={editDraft} onChange={(event)=>setEditDraft(event.target.value)}/><div className="flex justify-end gap-2"><Button type="button" size="sm" variant="ghost" onClick={()=>setEditingPost(null)}>Cancel</Button><Button size="sm" type="submit">Save</Button></div></form>:<p className="mt-1 whitespace-pre-wrap text-sm leading-6">{message.body}</p>}{message.imageUrl?<img src={message.imageUrl} alt="" className="mt-3 max-h-96 w-full rounded-xl object-cover"/>:null}<div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><button onClick={()=>void toggleLike(message)} className={cn("rounded-lg border border-border/60 px-2 py-1.5",message.liked&&"text-primary")}><Heart className={cn("mr-1 inline size-3.5",message.liked&&"fill-current")}/>{message.likeCount||0}</button><button onClick={async()=>{if(openComments===message.id){setOpenComments(null);return;}setOpenComments(message.id);setComments(await getComments(message.id));}} className="rounded-lg border border-border/60 px-2 py-1.5"><MessageCircle className="mr-1 inline size-3.5"/>{message.commentCount||0}</button><button onClick={()=>void toggleSave(message)} className="rounded-lg border border-border/60 px-2 py-1.5"><Bookmark className="mr-1 inline size-3.5"/>Save</button><button onClick={()=>{void navigator.clipboard?.writeText(location.href);toast.success("Community link copied.");}} className="rounded-lg border border-border/60 px-2 py-1.5"><Share2 className="mr-1 inline size-3.5"/>Share</button></div>{openComments===message.id?<div className="mt-3 space-y-2 border-t border-border/50 pt-3">{comments.map((comment)=><div key={comment.id} className="rounded-xl bg-secondary/50 p-3"><p className="text-xs font-bold">{comment.userId===userId?"You":comment.displayName}</p><p className="mt-1 text-sm">{comment.body}</p></div>)}<form onSubmit={async(event)=>{event.preventDefault();if(!commentDraft.trim())return;await addComment(message.id,commentDraft,displayName);setCommentDraft("");setComments(await getComments(message.id));}} className="flex gap-2"><Input value={commentDraft} onChange={(event)=>setCommentDraft(event.target.value)} placeholder="Write a reply…"/><Button size="icon"><Send className="size-4"/></Button></form></div>:null}</div></article>})}
+            {communityTab==="feed"&&feedMode==="activity" ? (
+              activityLoading ? <p className="p-5 text-sm text-muted-foreground">Loading learning activity…</p> :
+              activityFeed.length===0 ? <div className="p-8 text-center"><Trophy className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 font-semibold">No shared learning activity yet</p><p className="mt-1 text-sm text-muted-foreground">Accomplishments appear here when learners choose Friends, Community, or Public sharing.</p></div> :
+              activityFeed.map((activity) => <CommunityActivityCard key={activity.id} activity={activity} viewerId={userId} profile={activity.userId===userId ? ownProfile : communityProfiles[activity.userId]} />)
+            ) : loading?<p className="p-5 text-sm text-muted-foreground">Loading discussions…</p>:filteredFeed.length===0?<div className="p-8 text-center"><MessagesSquare className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 font-semibold">{communityQuery?"No discussions match that search.":communityTab==="questions"?"No questions yet. Ask the first one.":communityTab==="projects"?"No projects yet. Share what you are building.":"Start the conversation"}</p></div>:filteredFeed.map((message)=>{const mine=message.userId===userId;const identity=communityProfiles[message.userId];const shownName=mine?displayName||"You":identity?.displayName||message.displayName;const avatarUrl=mine?ownProfile.avatarUrl:identity?.avatarUrl;const initial=shownName.trim().charAt(0).toUpperCase()||"?";return <article key={message.id} className="flex gap-3 border-b border-border/60 p-4 last:border-0"><Link to="/profile/$userId" params={{userId:message.userId}} className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-primary/15 font-bold text-primary">{avatarUrl?<img src={avatarUrl} alt="" className="h-full w-full object-cover"/>:initial}</Link><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><Link to="/profile/$userId" params={{userId:message.userId}} className="truncate text-sm font-bold hover:underline">{mine?"You":shownName}</Link><span className="text-xs text-muted-foreground">· {timeLabel(message.createdAt)}</span><span className="ml-auto">{mine?<button type="button" onClick={()=>{setEditingPost(message.id);setEditDraft(message.body)}} className="p-1 text-muted-foreground"><Pencil className="size-4"/></button>:<button type="button" onClick={()=>void report({messageId:message.id})} className="p-1 text-muted-foreground"><Flag className="size-4"/></button>}</span></div><div className="mt-1"><span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">{postTypes.find((type)=>type.value===message.postType)?.label ?? "Discussion"}</span></div>{editingPost===message.id?<form className="mt-2 space-y-2" onSubmit={async(event)=>{event.preventDefault();const problem=checkMessage(editDraft);if(problem)return void toast.error(problem);await edit({id:message.id,body:editDraft});setEditingPost(null)}}><Textarea value={editDraft} onChange={(event)=>setEditDraft(event.target.value)}/><div className="flex justify-end gap-2"><Button type="button" size="sm" variant="ghost" onClick={()=>setEditingPost(null)}>Cancel</Button><Button size="sm" type="submit">Save</Button></div></form>:<p className="mt-1 whitespace-pre-wrap text-sm leading-6">{message.body}</p>}{message.imageUrl?<img src={message.imageUrl} alt="" className="mt-3 max-h-96 w-full rounded-xl object-cover"/>:null}<div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><button onClick={()=>void toggleLike(message)} className={cn("rounded-lg border border-border/60 px-2 py-1.5",message.liked&&"text-primary")}><Heart className={cn("mr-1 inline size-3.5",message.liked&&"fill-current")}/>{message.likeCount||0}</button><button onClick={async()=>{if(openComments===message.id){setOpenComments(null);return;}setOpenComments(message.id);setComments(await getComments(message.id));}} className="rounded-lg border border-border/60 px-2 py-1.5"><MessageCircle className="mr-1 inline size-3.5"/>{message.commentCount||0}</button><button onClick={()=>void toggleSave(message)} className="rounded-lg border border-border/60 px-2 py-1.5"><Bookmark className="mr-1 inline size-3.5"/>Save</button><button onClick={()=>{void navigator.clipboard?.writeText(location.href);toast.success("Community link copied.");}} className="rounded-lg border border-border/60 px-2 py-1.5"><Share2 className="mr-1 inline size-3.5"/>Share</button></div>{openComments===message.id?<div className="mt-3 space-y-2 border-t border-border/50 pt-3">{comments.map((comment)=><div key={comment.id} className="rounded-xl bg-secondary/50 p-3"><p className="text-xs font-bold">{comment.userId===userId?"You":comment.displayName}</p><p className="mt-1 text-sm">{comment.body}</p></div>)}<form onSubmit={async(event)=>{event.preventDefault();if(!commentDraft.trim())return;await addComment(message.id,commentDraft,displayName);setCommentDraft("");setComments(await getComments(message.id));}} className="flex gap-2"><Input value={commentDraft} onChange={(event)=>setCommentDraft(event.target.value)} placeholder="Write a reply…"/><Button size="icon"><Send className="size-4"/></Button></form></div>:null}</div></article>})}
           </div>
           </>}
         </section>
@@ -279,4 +292,56 @@ function CommunityHero() {
       </div>
     </header>
   );
+}
+
+
+function CommunityActivityCard({
+  activity,
+  viewerId,
+  profile,
+}: {
+  activity: LearningActivity;
+  viewerId: string | null;
+  profile?: { displayName?: string | null; avatarUrl?: string | null };
+}) {
+  const mine = activity.userId === viewerId;
+  const shownName = mine ? "You" : profile?.displayName || "IT PATH learner";
+  const initial = shownName.trim().charAt(0).toUpperCase() || "?";
+  const config = activityPresentation(activity.activityType);
+
+  return (
+    <article className="flex gap-3 border-b border-border/60 p-4 last:border-0">
+      <Link to="/profile/$userId" params={{ userId: activity.userId }} className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-primary/15 font-bold text-primary">
+        {profile?.avatarUrl ? <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" /> : initial}
+      </Link>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/profile/$userId" params={{ userId: activity.userId }} className="truncate text-sm font-bold hover:underline">{shownName}</Link>
+          <span className="text-xs text-muted-foreground">· {timeLabel(activity.occurredAt)}</span>
+          <span className="ml-auto rounded-full border border-border/60 px-2 py-0.5 text-[10px] font-semibold capitalize text-muted-foreground">{activity.visibility}</span>
+        </div>
+        <div className="mt-3 flex gap-3 rounded-xl border border-border/60 bg-secondary/25 p-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"><config.Icon className="size-5" /></span>
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-primary">{config.label}</p>
+            <p className="mt-0.5 font-semibold">{activity.title}</p>
+            {activity.description ? <p className="mt-1 text-sm leading-5 text-muted-foreground">{activity.description}</p> : null}
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function activityPresentation(type: LearningActivity["activityType"]) {
+  switch (type) {
+    case "lab_completed": return { label: "Lab completed", Icon: FlaskConical };
+    case "mastery_advanced": return { label: "Mastery advanced", Icon: TrendingUp };
+    case "achievement_earned": return { label: "Achievement earned", Icon: Award };
+    case "project_completed": return { label: "Project completed", Icon: FolderKanban };
+    case "streak_milestone": return { label: "Streak milestone", Icon: Flame };
+    case "certification_milestone": return { label: "Certification milestone", Icon: GraduationCap };
+    case "game_accomplishment": return { label: "Game accomplishment", Icon: Trophy };
+    default: return { label: "Learning progress", Icon: BookOpen };
+  }
 }

@@ -87,3 +87,46 @@ export function useLearningActivity(profileId?: string) {
     isOwn: Boolean(userId && id === userId),
   };
 }
+
+
+/**
+ * Shared accomplishments visible to the signed-in learner.
+ * RLS remains the authority: private rows and non-friend friends-only rows never
+ * reach the client.
+ */
+export function useCommunityLearningActivity() {
+  const { userId, ready } = useAuth();
+
+  const query = useQuery({
+    queryKey: ["learning-activity", "community-feed", userId],
+    enabled: ready && Boolean(userId),
+    queryFn: async (): Promise<LearningActivity[]> => {
+      const { data, error } = await supabase
+        .from("learning_activities")
+        .select("id,user_id,activity_type,title,description,entity_id,event_key,metadata,visibility,is_featured,occurred_at")
+        .neq("visibility", "private")
+        .order("occurred_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return (data ?? []).map((row) => ({
+        id: row.id,
+        userId: row.user_id,
+        activityType: row.activity_type as LearningActivityType,
+        title: row.title,
+        description: row.description,
+        entityId: row.entity_id,
+        eventKey: row.event_key,
+        metadata: row.metadata,
+        visibility: row.visibility as LearningActivityVisibility,
+        isFeatured: row.is_featured,
+        occurredAt: row.occurred_at,
+      }));
+    },
+  });
+
+  return {
+    activities: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error instanceof Error ? query.error.message : null,
+  };
+}
