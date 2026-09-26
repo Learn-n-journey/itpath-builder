@@ -613,6 +613,44 @@ export function VirusRun() {
         p.x -= (p.x - p.tx) * Math.min(0.018, dt * 0.4);
         p.y -= (p.y - p.ty) * Math.min(0.018, dt * 0.4);
       }
+      // Campaign systems 9-20 add readable pressure without blocking routes.
+      if (run.theme.system === "File System" && pulse > 2.8 && pulse < 3.8 && p.moving) {
+        p.x -= (p.x - p.tx) * Math.min(0.012, dt * 0.28); p.y -= (p.y - p.ty) * Math.min(0.012, dt * 0.28);
+      }
+      if (run.theme.system === "Process Table" && pulse > 5.8) {
+        for (const g of run.guards) g.stunned = Math.max(0, g.stunned - dt * 0.35);
+      }
+      if (run.theme.system === "System Configuration" && pulse < 1.1 && p.moving) {
+        p.invuln = Math.max(p.invuln, 0.08);
+      }
+      if (run.theme.system === "DNS Resolver" && Math.round(p.y) % 4 === 0) {
+        p.invuln = Math.max(p.invuln, 0.05);
+      }
+      if (run.theme.system === "Router Gateway" && Math.round(p.x) % 6 === 0 && p.moving) {
+        p.x += (p.tx - p.x) * Math.min(0.025, dt * 0.55); p.y += (p.ty - p.y) * Math.min(0.025, dt * 0.55);
+      }
+      if (run.theme.system === "Switch Fabric" && Math.round(p.y) % 3 === 0 && p.moving) {
+        p.x += (p.tx - p.x) * Math.min(0.03, dt * 0.65); p.y += (p.ty - p.y) * Math.min(0.03, dt * 0.65);
+      }
+      if (run.theme.system === "Authentication Server" && pulse > 3.4 && pulse < 4.3 && run.activePower?.kind !== "cloak") {
+        for (const g of run.guards) g.detection += 0.015;
+      }
+      if (run.theme.system === "Database" && Math.round(p.x) % 5 === 0 && p.moving) {
+        p.x -= (p.x - p.tx) * Math.min(0.01, dt * 0.22);
+      }
+      if (run.theme.system === "Web Server" && pulse > 1.5 && pulse < 2.5) {
+        for (const g of run.guards) g.detection += 0.01;
+      }
+      if (run.theme.system === "Cloud Network" && Math.round(p.y) % 5 === 0 && p.moving) {
+        p.x += (p.tx - p.x) * Math.min(0.02, dt * 0.45); p.y += (p.ty - p.y) * Math.min(0.02, dt * 0.45);
+      }
+      if (run.theme.system === "Security Operations Center" && pulse > 4.5 && pulse < 5.4 && run.activePower?.kind !== "cloak") {
+        for (const g of run.guards) g.detection += 0.025;
+      }
+      if (run.theme.system === "Core Infrastructure") {
+        if (pulse > 5.2 && pulse < 6.2 && p.moving) { p.x -= (p.x - p.tx) * Math.min(0.012, dt * 0.3); p.y -= (p.y - p.ty) * Math.min(0.012, dt * 0.3); }
+        if (pulse > 2.8 && pulse < 3.5) for (const g of run.guards) g.detection += 0.012;
+      }
 
       // Guards.
       for (const g of run.guards) {
@@ -650,6 +688,10 @@ export function VirusRun() {
         if (run.theme.system === "CPU Cache") systemGuardSpeed = 1.08;
         if (run.theme.system === "Storage Drive") systemGuardSpeed = 0.9;
         if (run.theme.system === "Firewall" && pulse > 5.2 && pulse < 6.6) systemGuardSpeed = 1.12;
+        if (run.theme.system === "Process Table" && pulse > 5.8) systemGuardSpeed = 1.1;
+        if (run.theme.system === "Web Server" && pulse > 1.5 && pulse < 2.5) systemGuardSpeed = 1.08;
+        if (run.theme.system === "Security Operations Center") systemGuardSpeed = 1.06;
+        if (run.theme.system === "Core Infrastructure" && pulse > 2.8 && pulse < 3.5) systemGuardSpeed = 1.1;
         const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * (g.kind==="hunter"&&toPlayer>=0&&toPlayer<=g.detection?1.12:1), dt);
         g.x = r.x;
         g.y = r.y;
