@@ -377,6 +377,8 @@ export function VirusRun() {
   const wallSquishRef = useRef({ amount: 0, angle: 0 });
   const motionPhysicsRef = useRef({ turn:0, turnSign:0, reverse:0, hit:0, hitAngle:0 });
   const playerVisualRef = useRef({ heading:0, stretch:0, squish:0, spikePhase:[0,1.1,2.2,3.3,4.4,5.5] });
+  const cameraRef = useRef({ power:0, angle:0 });
+  const trailRef = useRef<{x:number;y:number;born:number}[]>([]);
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
@@ -470,6 +472,7 @@ export function VirusRun() {
     wallSquishRef.current={amount:0,angle:0};
     motionPhysicsRef.current={turn:0,turnSign:0,reverse:0,hit:0,hitAngle:0};
     playerVisualRef.current={heading:0,stretch:0,squish:0,spikePhase:[0,1.1,2.2,3.3,4.4,5.5]};
+    cameraRef.current={power:0,angle:0};trailRef.current=[];
     syncHud(runRef.current);
     setPhaseBoth("playing");
     lastRef.current = 0;
@@ -613,6 +616,8 @@ export function VirusRun() {
           if(run.grid[cy+qdy]?.[cx+qdx]!==0){
             wallSquishRef.current.amount=Math.max(wallSquishRef.current.amount,.72);
             wallSquishRef.current.angle=Math.atan2(qdy,qdx);
+            cameraRef.current.power=Math.max(cameraRef.current.power,.12);
+            cameraRef.current.angle=Math.atan2(qdy,qdx);
           }
         }
         if (!queuedSucceeded) tryDirection(travelDirRef.current);
@@ -643,6 +648,12 @@ export function VirusRun() {
       phys.turn=Math.max(0,phys.turn-dt*5.8);
       phys.reverse=Math.max(0,phys.reverse-dt*4.6);
       phys.hit=Math.max(0,phys.hit-dt*3.6);
+      cameraRef.current.power=Math.max(0,cameraRef.current.power-dt*5.5);
+      if(p.moving){
+        const last=trailRef.current[trailRef.current.length-1];
+        if(!last || Math.hypot(last.x-p.x,last.y-p.y)>.16)trailRef.current.push({x:p.x,y:p.y,born:performance.now()});
+      }
+      trailRef.current=trailRef.current.filter(point=>performance.now()-point.born<360).slice(-10);
 
       // Packets.
       const px = Math.round(p.x);
@@ -657,6 +668,7 @@ export function VirusRun() {
           // can be sustained without making the bonus permanent.
           run.streakTimer = 4.25 + run.streak * 0.35;
           fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet", targetX:p.x, targetY:p.y });virusSound("packet");
+          cameraRef.current.power=Math.max(cameraRef.current.power,.08);cameraRef.current.angle=Math.atan2(p.y-packet.y,p.x-packet.x);
           if (run.collected >= run.required && !run.boss) run.portOpen = true;
           syncHud(run);
         }
@@ -792,6 +804,7 @@ export function VirusRun() {
           fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });virusSound("hit");
           motionPhysicsRef.current.hit=1;
           motionPhysicsRef.current.hitAngle=Math.atan2(p.y-g.y,p.x-g.x);
+          cameraRef.current.power=1;cameraRef.current.angle=motionPhysicsRef.current.hitAngle;
           p.x = 1;
           p.y = 1;
           p.tx = 1;
@@ -875,6 +888,11 @@ export function VirusRun() {
       const ctx2 = canvasEl.getContext("2d");
       if (!ctx2) return;
       ctx2.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const cam=cameraRef.current;
+      if(cam.power>.001){
+        const kick=Math.sin(time*.095)*cam.power*3.2;
+        ctx2.translate(Math.cos(cam.angle)*kick,Math.sin(cam.angle)*kick);
+      }
 
       const cell = Math.min(rect.width / COLS, rect.height / ROWS);
       const offX = (rect.width - cell * COLS) / 2;
@@ -1376,17 +1394,15 @@ export function VirusRun() {
         ctx2.restore();
       }
 
-      // Runner trail: dissolving data fragments imply motion through the system.
-      const trailX = offX + (run.player.x + 0.5) * cell;
-      const trailY = offY + (run.player.y + 0.5) * cell;
+      // True motion-history trail follows the route and bends naturally through turns.
       ctx2.save();
-      for (let i = 0; i < 5; i++) {
-        const angle = time / 420 + i * 1.7;
-        const distance = cell * (0.55 + i * 0.24);
-        const size = Math.max(1.5, cell * (0.11 - i * 0.012));
-        ctx2.globalAlpha = 0.32 - i * 0.045;
-        ctx2.fillStyle = i % 2 === 0 ? "#5eead4" : "#38bdf8";
-        ctx2.fillRect(trailX - Math.cos(angle) * distance - size / 2, trailY - Math.sin(angle) * distance - size / 2, size, size);
+      for(let i=0;i<trailRef.current.length;i++){
+        const point=trailRef.current[i]!;
+        const age=Math.max(0,time-point.born), fade=Math.max(0,1-age/360);
+        const size=cell*(.07+.08*fade);
+        ctx2.globalAlpha=.28*fade;
+        ctx2.fillStyle=run.activePower?.kind==="overclock"?"#fbbf24":"#5eead4";
+        ctx2.beginPath();ctx2.arc(offX+(point.x+.5)*cell,offY+(point.y+.5)*cell,size,0,Math.PI*2);ctx2.fill();
       }
       ctx2.restore();
 
@@ -1424,7 +1440,9 @@ export function VirusRun() {
 
       ctx2.save();
       if (run.player.invuln > 0) ctx2.globalAlpha = 0.5 + 0.35 * Math.sin(time / 55);
+      if(run.activePower?.kind==="cloak")ctx2.globalAlpha*=.48+.16*Math.sin(time/90);
       ctx2.translate(pcx,pcy);
+      if(run.activePower?.kind==="overclock")ctx2.scale(1.12,.9);
       // Wall compression is oriented toward the attempted collision direction.
       // Stretch is aligned with travel, giving acceleration a soft-body feel.
       if(motionPhys.hit>.001){
@@ -1554,6 +1572,13 @@ export function VirusRun() {
             ctx2.fillRect(fxX + Math.cos(a) * d - size / 2, fxY + Math.sin(a) * d - size / 2, size, fx.kind === "hit" ? size * 0.45 : size);
           }
         }
+        if(fx.kind==="packet" && q<.7 && run.streak>1){
+          const labelFade=1-q/.7;
+          ctx2.save();ctx2.globalAlpha=labelFade*.85;ctx2.fillStyle="#bae6fd";
+          ctx2.font=`bold ${Math.max(7,cell*.22)}px ui-monospace, monospace`;ctx2.textAlign="center";
+          ctx2.fillText(`x${run.streak}`,fxX,fxY-cell*(.5+q*.45));ctx2.restore();
+        }
+
         // Collected data streams from its grid cell into the virus instead of
         // simply vanishing. Ease-in acceleration makes it feel magnetically absorbed.
         if(fx.kind==="packet" && fx.targetX!==undefined && fx.targetY!==undefined){
