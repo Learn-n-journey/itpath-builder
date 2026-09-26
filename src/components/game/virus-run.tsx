@@ -354,7 +354,7 @@ function buildLevel(level: number): RunState {
 
 // --- Component -------------------------------------------------------------
 
-type Phase = "menu" | "playing" | "paused" | "gameover" | "levelclear" | "upgrade";
+type Phase = "menu" | "intro" | "playing" | "paused" | "gameover" | "levelclear" | "upgrade";
 
 export function VirusRun() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -368,6 +368,7 @@ export function VirusRun() {
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
+  const introTimerRef = useRef(0);
   const lastAlertSoundRef = useRef(0);
   const shakeRef = useRef({ strength: 0, until: 0 });
   const bestRef = useRef<Best>({ bestLevel: 0, packets: 0, currentLevel: 1 });
@@ -458,7 +459,8 @@ export function VirusRun() {
     queuedDirRef.current = null;
     travelDirRef.current = null;
     syncHud(runRef.current);
-    setPhaseBoth("playing");
+    introTimerRef.current = runRef.current.boss ? 1.8 : 1.15;
+    setPhaseBoth("intro");
     lastRef.current = 0;
   }, [setPhaseBoth, syncHud]);
 
@@ -1483,6 +1485,10 @@ export function VirusRun() {
       const dt = Math.min((time - last) / 1000, 0.05);
       lastRef.current = time;
 
+      if (phaseRef.current === "intro") {
+        introTimerRef.current -= dt;
+        if (introTimerRef.current <= 0) setPhaseBoth("playing");
+      }
       if (phaseRef.current === "playing") update(run, dt);
       if (phaseRef.current === "levelclear") {
         levelClearTimerRef.current -= dt;
@@ -1493,7 +1499,8 @@ export function VirusRun() {
           fieldAgeRef.current = 999;
           keysRef.current = [];
           syncHud(runRef.current);
-          setPhaseBoth("playing");
+          introTimerRef.current = runRef.current.boss ? 1.8 : 1.05;
+          setPhaseBoth("intro");
         }
       }
       draw(run, time);
@@ -1514,7 +1521,8 @@ export function VirusRun() {
     fieldAgeRef.current = 999;
     keysRef.current = [];
     syncHud(runRef.current);
-    setPhaseBoth("playing");
+    introTimerRef.current = runRef.current.boss ? 1.8 : 1.05;
+    setPhaseBoth("intro");
     lastRef.current = 0;
   }, [setPhaseBoth, syncHud]);
 
