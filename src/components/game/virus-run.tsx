@@ -1235,6 +1235,10 @@ export function VirusRun() {
           ctx2.arc(portalX, portalY, cell * (0.48 + ring * 0.13), time / (380 + ring * 110), time / (380 + ring * 110) + Math.PI * 1.3);
           ctx2.stroke();
         }
+        ctx2.save();
+        ctx2.globalCompositeOperation="screen";
+        for(let beam=0;beam<5;beam++){const a=time/(260+beam*55)+beam*1.25;ctx2.strokeStyle=`rgba(94,234,212,${.12+beam*.025})`;ctx2.lineWidth=Math.max(1,cell*.04);ctx2.beginPath();ctx2.moveTo(portalX+Math.cos(a)*cell*.4,portalY+Math.sin(a)*cell*.4);ctx2.lineTo(portalX+Math.cos(a)*cell*(1.1+beam*.25),portalY+Math.sin(a)*cell*(1.1+beam*.25));ctx2.stroke();}
+        ctx2.restore();
         ctx2.fillStyle = "#99f6e4";
         ctx2.font = `bold ${Math.max(7, cell * 0.24)}px ui-monospace, monospace`;
         ctx2.fillText("EXIT", portalX, portalY - cell * 0.75);
@@ -1492,6 +1496,11 @@ export function VirusRun() {
         }
         ctx2.restore();
       }
+
+      // Foreground atmosphere adds depth while staying sparse enough for maze readability.
+      ctx2.save();ctx2.globalCompositeOperation="screen";
+      for(let i=0;i<18;i++){const seed=i*97.31;const x=offX+((seed*13+time*(.006+(i%4)*.002))%(cell*COLS));const y=offY+((seed*7+Math.sin(time/(700+i*19)+i)*cell*2+i*cell*1.13)%(cell*ROWS));const rr=Math.max(.8,cell*(.025+(i%3)*.012));ctx2.fillStyle=i%3===0?"rgba(125,211,252,.18)":"rgba(94,234,212,.11)";ctx2.beginPath();ctx2.arc(x,y,rr,0,Math.PI*2);ctx2.fill();}
+      ctx2.restore();
 
       // A soft moving light sweep makes the larger maze feel alive without obscuring paths.
       ctx2.save();
