@@ -960,6 +960,31 @@ export function VirusRun() {
       } else if (sys === "Firewall" && hazardPhase > 5.2 && hazardPhase < 6.6) {
         const sweep=(hazardPhase-5.2)/1.4;const x=offX+sweep*cell*COLS;
         const fg=ctx2.createLinearGradient(x-cell*2,0,x+cell*2,0);fg.addColorStop(0,"rgba(251,146,60,0)");fg.addColorStop(.5,"rgba(251,146,60,.2)");fg.addColorStop(1,"rgba(251,146,60,0)");ctx2.fillStyle=fg;ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+ else if (sys === "File System" && hazardPhase > 2.8 && hazardPhase < 3.8) {
+        ctx2.fillStyle="rgba(94,234,212,.055)";for(let x=2;x<COLS-2;x+=5)ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);
+      } else if (sys === "Process Table" && hazardPhase > 5.8) {
+        ctx2.fillStyle="rgba(192,132,252,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+      } else if (sys === "System Configuration" && hazardPhase < 1.1) {
+        ctx2.fillStyle="rgba(251,191,36,.06)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+      } else if (sys === "DNS Resolver") {
+        for(let y=4;y<ROWS-1;y+=4){ctx2.fillStyle="rgba(34,211,238,.045)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
+      } else if (sys === "Router Gateway") {
+        for(let x=6;x<COLS-1;x+=6){ctx2.fillStyle="rgba(96,165,250,.045)";ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);}
+      } else if (sys === "Switch Fabric") {
+        for(let y=3;y<ROWS-1;y+=3){ctx2.fillStyle="rgba(74,222,128,.045)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
+      } else if (sys === "Authentication Server" && hazardPhase > 3.4 && hazardPhase < 4.3) {
+        const x=offX+((hazardPhase-3.4)/.9)*cell*COLS;ctx2.fillStyle="rgba(232,121,249,.13)";ctx2.fillRect(x-cell*.6,offY,cell*1.2,cell*ROWS);
+      } else if (sys === "Database") {
+        for(let x=5;x<COLS-1;x+=5){ctx2.fillStyle="rgba(163,230,53,.035)";ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);}
+      } else if (sys === "Web Server" && hazardPhase > 1.5 && hazardPhase < 2.5) {
+        ctx2.fillStyle="rgba(96,165,250,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+      } else if (sys === "Cloud Network") {
+        for(let y=5;y<ROWS-1;y+=5){ctx2.fillStyle="rgba(103,232,249,.04)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
+      } else if (sys === "Security Operations Center" && hazardPhase > 4.5 && hazardPhase < 5.4) {
+        const scan=Math.max(0,1-Math.abs(hazardPhase-4.95)/.45);ctx2.strokeStyle=`rgba(251,113,133,${.2+scan*.35})`;ctx2.lineWidth=Math.max(2,cell*.1);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,cell*(2+scan*12),0,Math.PI*2);ctx2.stroke();
+      } else if (sys === "Core Infrastructure") {
+        if(hazardPhase>2.8&&hazardPhase<3.5){ctx2.fillStyle="rgba(250,204,21,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);}
+        if(hazardPhase>5.2&&hazardPhase<6.2){const x=offX+((hazardPhase-5.2))*cell*COLS;ctx2.fillStyle="rgba(251,146,60,.11)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);}
       }
       ctx2.restore();
 
@@ -1073,7 +1098,7 @@ export function VirusRun() {
       // Power-ups.
       for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);ctx2.rotate(time/700);ctx2.shadowColor="#facc15";ctx2.shadowBlur=cell*.9;ctx2.strokeStyle="#fde68a";ctx2.lineWidth=Math.max(1,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*.32,0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="#facc15";ctx2.font=`bold ${cell*.34}px ui-monospace`;ctx2.textAlign="center";ctx2.textBaseline="middle";ctx2.rotate(-time/700);ctx2.fillText(power.kind==="cloak"?"C":power.kind==="overclock"?"O":power.kind==="emp"?"E":"M",0,0);ctx2.restore();}
 
-      // Boss security core every eighth level.
+      // Boss security core at campaign milestones and every fifth Endless Mode level.
       if(run.boss){const bx=offX+cell*COLS/2,by=offY+cell*ROWS/2;ctx2.save();ctx2.globalAlpha=.22+.08*Math.sin(time/160);ctx2.strokeStyle="#fb7185";ctx2.shadowColor="#ef4444";ctx2.shadowBlur=cell*1.4;ctx2.lineWidth=Math.max(2,cell*.12);for(let i=0;i<3;i++){ctx2.beginPath();ctx2.arc(bx,by,cell*(1.3+i*.5),time/(350+i*90),time/(350+i*90)+Math.PI*1.4);ctx2.stroke();}ctx2.restore();}
 
       // Antivirus sentinels: shield-like drones with scanning lenses.
