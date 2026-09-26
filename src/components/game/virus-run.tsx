@@ -1157,6 +1157,16 @@ export function VirusRun() {
       ctx2.fillStyle=vignette;ctx2.fillRect(0,0,rect.width,rect.height);
       ctx2.restore();
 
+      // Localized light pools make important gameplay objects illuminate the board.
+      ctx2.save();
+      ctx2.globalCompositeOperation="screen";
+      const lightPool=(x:number,y:number,r:number,inner:string)=>{const g=ctx2.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,inner);g.addColorStop(.35,inner.replace(/,[^)]+\)/,",0.10)"));g.addColorStop(1,"rgba(0,0,0,0)");ctx2.fillStyle=g;ctx2.fillRect(x-r,y-r,r*2,r*2);};
+      lightPool(offX+(run.player.x+.5)*cell,offY+(run.player.y+.5)*cell,cell*3.2,"rgba(45,212,191,0.22)");
+      for(const packet of run.packets)if(!packet.taken)lightPool(offX+(packet.x+.5)*cell,offY+(packet.y+.5)*cell,cell*1.5,"rgba(56,189,248,0.16)");
+      for(const power of run.powerUps)if(!power.taken)lightPool(offX+(power.x+.5)*cell,offY+(power.y+.5)*cell,cell*1.7,"rgba(250,204,21,0.15)");
+      for(const g of run.guards)if(g.state==="chase"&&g.stunned<=0)lightPool(offX+(g.x+.5)*cell,offY+(g.y+.5)*cell,cell*2.4,"rgba(239,68,68,0.14)");
+      ctx2.restore();
+
       // Walls as dimensional security architecture with illuminated traces.
       const pad = cell * 0.08;
       for (let y = 0; y < ROWS; y++) {
@@ -1177,9 +1187,11 @@ export function VirusRun() {
             ctx2.shadowBlur = cell * 0.18;
             ctx2.stroke();
             ctx2.shadowBlur = 0;
-            ctx2.fillStyle = "rgba(255,255,255,0.025)";
-            roundRect(ctx2, offX + x * cell + pad * 1.7, offY + y * cell + pad * 1.7, cell - pad * 3.4, Math.max(1, cell * 0.08), cell * 0.04);
+            ctx2.fillStyle = "rgba(255,255,255,0.055)";
+            roundRect(ctx2, offX + x * cell + pad * 1.7, offY + y * cell + pad * 1.7, cell - pad * 3.4, Math.max(1, cell * 0.09), cell * 0.04);
             ctx2.fill();
+            ctx2.fillStyle="rgba(0,0,0,.18)";roundRect(ctx2,bx+cell*.08,by+cell*.72,cell-pad*2-cell*.16,cell*.1,cell*.03);ctx2.fill();
+            if((x*7+y*11)%5===0){ctx2.fillStyle=`rgba(125,211,252,${.08+.06*Math.sin(time/300+x+y)})`;ctx2.fillRect(bx+cell*.18,by+cell*.2,cell*.08,cell*.08);}
             if ((x + y) % 3 === 0) {
               ctx2.strokeStyle = "rgba(45,212,191,0.16)";
               ctx2.lineWidth = Math.max(0.6, cell * 0.035);
