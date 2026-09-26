@@ -146,7 +146,7 @@ export function useCommunityChat(room = "general") {
       const { error } = await supabase.from("community_messages").update({ body }).eq("id", input.id).eq("user_id", userId);
       if (error) throw new Error(friendly(error.message));
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["community-messages", room] }),
+    onSuccess: () => { void queryClient.invalidateQueries({ queryKey: ["community-messages", room] }); void queryClient.invalidateQueries({ queryKey: ["community-post-stream"] }); },
   });
 
   const remove = useMutation({
