@@ -1321,6 +1321,10 @@ export function VirusRun() {
 
         // Body orientation follows travel, making movement feel physical rather than turret-like.
         ctx2.rotate(moveAim + Math.PI / 2);
+        const turnVector=(g.tx-g.x)*(g.y-g.fromY)-(g.ty-g.y)*(g.x-g.fromX);
+        const roleBank=g.kind==="interceptor"?.13:g.kind==="hunter"?.075:g.kind==="scanner"?.045:.025;
+        ctx2.rotate(Math.max(-1,Math.min(1,turnVector))*roleBank);
+        if(g.kind==="hunter" && g.state==="chase")ctx2.translate(0,-cell*(.025+.025*Math.sin(time/85)));
         if(g.stunned>0)ctx2.globalAlpha=.52+.12*Math.sin(time/75);
         const s = cell * 0.82;
         ctx2.shadowColor = alerted ? "rgba(248,113,113,0.95)" : "rgba(248,113,113,0.68)";
@@ -1462,6 +1466,15 @@ export function VirusRun() {
         ctx2.translate(-cell*reverseBounce*.075,cell*turnBank*.035);
         ctx2.rotate(turnBank*.16);
         ctx2.scale(1+movingStretch-reverseBounce*.12,1-movingStretch*.52+reverseBounce*.16);
+      }
+
+      if(run.activePower?.kind==="emp"){
+        ctx2.strokeStyle=`rgba(103,232,249,${.28+.12*Math.sin(time/110)})`;ctx2.lineWidth=Math.max(1,cell*.045);
+        ctx2.beginPath();ctx2.arc(0,0,bodyR*(1.65+.12*Math.sin(time/140)),0,Math.PI*2);ctx2.stroke();
+      }
+      if(run.activePower?.kind==="magnet"){
+        ctx2.strokeStyle="rgba(250,204,21,0.42)";ctx2.lineWidth=Math.max(1,cell*.04);
+        for(let m=0;m<2;m++){ctx2.beginPath();ctx2.arc(0,0,bodyR*(1.4+m*.35),-.8+time/900,.8+time/900);ctx2.stroke();}
       }
 
       // Momentum creates a rear energy wake, visually pointing in the travel direction.
@@ -1635,6 +1648,15 @@ export function VirusRun() {
       // Dynamic danger vignette intensifies when antivirus closes in.
       let nearest=99;for(const g of run.guards)if(g.stunned<=0)nearest=Math.min(nearest,Math.hypot(g.x-run.player.x,g.y-run.player.y));
       if(nearest<3.2){const danger=Math.max(0,1-nearest/3.2);ctx2.save();const dg=ctx2.createRadialGradient(rect.width/2,rect.height/2,rect.width*.22,rect.width/2,rect.height/2,rect.width*.72);dg.addColorStop(0,"rgba(127,29,29,0)");dg.addColorStop(1,`rgba(239,68,68,${danger*.2*(.75+.25*Math.sin(time/90))})`);ctx2.fillStyle=dg;ctx2.fillRect(0,0,rect.width,rect.height);ctx2.restore();}
+
+      if(phaseRef.current==="levelclear"){
+        const remaining=Math.max(0,levelClearTimerRef.current);
+        const progress=1-Math.min(1,remaining/1.4);
+        ctx2.save();ctx2.fillStyle=`rgba(2,6,23,${Math.min(.82,progress*.9)})`;ctx2.fillRect(0,0,rect.width,rect.height);
+        ctx2.globalAlpha=Math.min(1,progress*2.5);ctx2.fillStyle="#ccfbf1";ctx2.textAlign="center";ctx2.textBaseline="middle";
+        ctx2.font=`700 ${Math.max(14,cell*.72)}px ui-sans-serif, system-ui`;ctx2.fillText(run.boss?"SECURITY BREACHED":"SYSTEM CLEARED",rect.width/2,rect.height/2-cell*.2);
+        ctx2.fillStyle="rgba(153,246,228,.75)";ctx2.font=`600 ${Math.max(9,cell*.3)}px ui-monospace, monospace`;ctx2.fillText(`ENTERING ${STAGES[run.level%STAGES.length]?.system?.toUpperCase()??"NEXT SYSTEM"}`,rect.width/2,rect.height/2+cell*.65);ctx2.restore();
+      }
 
       // Restrained edge vignette keeps the field focused without retro scanlines.
       ctx2.strokeStyle = "rgba(255,255,255,0.08)";
@@ -1833,7 +1855,7 @@ export function VirusRun() {
             </Button>
           )}
         </div>
-        <div className={cn("grid grid-cols-5 divide-x divide-primary/15", mobileLandscape && "pointer-events-auto absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
+        <div className={cn("grid grid-cols-5 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-slate-950/80 shadow-[0_12px_40px_rgba(0,0,0,.35)] backdrop-blur-xl", mobileLandscape && "pointer-events-auto absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
           <GameStat label="Level" value={hud.level} />
           <div className={cn(mobileLandscape && "hidden")}><GameStat label="System" value={hud.boss ? hud.bossTitle : hud.system || "—"} accent /></div>
           <GameStat
