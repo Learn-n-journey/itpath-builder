@@ -666,15 +666,19 @@ export function VirusRun() {
         const toPlayer = field[gy]?.[gx] ?? -1;
         const hidden = run.activePower?.kind==="cloak";
         const systemDetection = run.theme.system==="Kernel Space"?2:run.theme.system==="Firewall"?1:0;
-        const seesPlayer = !hidden && toPlayer >= 0 && toPlayer <= g.detection + systemDetection;
+        const roleDetection =
+          g.kind === "scanner" ? 3 :
+          g.kind === "warden" ? 1 :
+          g.kind === "interceptor" ? -1 : 0;
+        const seesPlayer = !hidden && toPlayer >= 0 && toPlayer <= g.detection + systemDetection + roleDetection;
         if (seesPlayer) {
           g.state = "chase";
-          g.stateTimer = 1.8;
+          g.stateTimer = g.kind === "hunter" ? 2.8 : g.kind === "warden" ? 3.4 : 1.8;
           g.lastKnownX = Math.round(p.x);
           g.lastKnownY = Math.round(p.y);
         } else if (g.state === "chase") {
           g.state = "search";
-          g.stateTimer = 2.4;
+          g.stateTimer = g.kind === "hunter" ? 3.6 : g.kind === "warden" ? 4.5 : g.kind === "scanner" ? 1.8 : 2.4;
         } else if (g.state === "search") {
           g.stateTimer = Math.max(0, g.stateTimer - dt);
           if (g.stateTimer <= 0) g.state = "patrol";
@@ -692,7 +696,18 @@ export function VirusRun() {
           let chosen: [number, number];
           if (g.state === "chase") {
             if(g.kind==="interceptor" && p.moving){
-              options.sort((a,b)=>Math.abs(a[0]-p.tx)+Math.abs(a[1]-p.ty)-Math.abs(b[0]-p.tx)-Math.abs(b[1]-p.ty));
+              const leadX = p.tx + (p.tx - Math.round(p.x)) * 2;
+              const leadY = p.ty + (p.ty - Math.round(p.y)) * 2;
+              options.sort((a,b)=>Math.abs(a[0]-leadX)+Math.abs(a[1]-leadY)-Math.abs(b[0]-leadX)-Math.abs(b[1]-leadY));
+            } else if (g.kind === "warden") {
+              // Wardens pressure nearby junctions instead of perfectly tailing the player.
+              options.sort((a,b)=>{
+                const da=Math.abs(a[0]-p.x)+Math.abs(a[1]-p.y);
+                const db=Math.abs(b[0]-p.x)+Math.abs(b[1]-p.y);
+                const oa=((run.grid[a[1]-1]?.[a[0]]===0?1:0)+(run.grid[a[1]+1]?.[a[0]]===0?1:0)+(run.grid[a[1]]?.[a[0]-1]===0?1:0)+(run.grid[a[1]]?.[a[0]+1]===0?1:0));
+                const ob=((run.grid[b[1]-1]?.[b[0]]===0?1:0)+(run.grid[b[1]+1]?.[b[0]]===0?1:0)+(run.grid[b[1]]?.[b[0]-1]===0?1:0)+(run.grid[b[1]]?.[b[0]+1]===0?1:0));
+                return (da-oa*1.5)-(db-ob*1.5);
+              });
             } else options.sort((a, b) => (field[a[1]]![a[0]] ?? 999) - (field[b[1]]![b[0]] ?? 999));
             chosen = options[0]!;
           } else if (g.state === "search") {
@@ -711,7 +726,12 @@ export function VirusRun() {
         if (run.theme.system === "CPU Cache") systemGuardSpeed = 1.08;
         if (run.theme.system === "Storage Drive") systemGuardSpeed = 0.9;
         if (run.theme.system === "Firewall" && pulse > 5.2 && pulse < 6.6) systemGuardSpeed = 1.12;
-        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * (g.kind==="hunter"&&g.state==="chase"?1.12:1), dt);
+        const roleSpeed =
+          g.kind === "hunter" && g.state === "chase" ? 1.16 :
+          g.kind === "interceptor" && g.state === "chase" ? 1.08 :
+          g.kind === "warden" && g.state === "chase" ? 0.96 :
+          g.kind === "scanner" && g.state === "chase" ? 0.98 : 1;
+        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * roleSpeed, dt);
         g.x = r.x;
         g.y = r.y;
 
