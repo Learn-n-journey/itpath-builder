@@ -33,7 +33,7 @@ export const Route = createFileRoute("/section-quiz/$topicId")({
     const title = topic ? `${topic.title} ${checkLabel} | ${domain.appName}` : `${checkLabel} | ${domain.appName}`;
     const description = topic
       ? `A ${SECTION_QUIZ_SIZE} question quiz on ${topic.title}, all multiple choice.`
-      : "A section quiz on IT PATH.";
+      : `A ${checkLabel} on ${domain.appName}.`;
     return {
       meta: [
         { property: "og:type", content: "article" },
