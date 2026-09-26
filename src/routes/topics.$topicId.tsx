@@ -24,13 +24,14 @@ import { useAppState } from "@/state/app-state";
 import { trackFlow } from "@/lib/flow-events.functions";
 import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 import { learnerContinuity } from "@/lib/learner-continuity";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/topics/$topicId")({
   staticData: { sitemap: false },
   head: ({ params }) => {
     const topic = getTopic(params.topicId);
-    const title = topic ? `${topic.title} | IT PATH` : "Topic not found | IT PATH";
-    const description = topic?.summary ?? "The requested IT PATH curriculum topic could not be found.";
+    const title = topic ? `${topic.title} | ${domain.appName}` : `Topic not found | ${domain.appName}`;
+    const description = topic?.summary ?? `The requested ${domain.appName} curriculum topic could not be found.`;
     return {
       meta: [
         { property: "og:type", content: "article" },
@@ -163,6 +164,7 @@ function TopicPage() {
     }
   }
 
+  const isAutoPath = domain.id === "auto-repair";
   const TopicIcon = getTopicIcon(topic);
   const status = mastered ? "Passed" : progress ? "In progress" : "Not started";
   const availableTargets = new Set(
@@ -171,7 +173,7 @@ function TopicPage() {
 
   return (
     <article className="mx-auto w-full max-w-4xl">
-      <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, ...(certification ? [{ label: certification.title, to: "/certifications/$certId", params: { certId: certification.id } }] : []), { label: topic.title }]} />
+      <LearningBreadcrumbs items={[{ label: isAutoPath ? "Training Plan" : "My Path", to: "/my-path" }, ...(certification ? [{ label: certification.title, to: "/certifications/$certId", params: { certId: certification.id } }] : []), { label: topic.title }]} />
 
       <section className="mb-4 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
         <div className="flex items-start gap-3">
@@ -207,7 +209,7 @@ function TopicPage() {
         <dl className="mt-3 grid grid-cols-2 gap-2">
           <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5">
             <Shield className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-            <div className="min-w-0"><dt className="font-mono text-[10px] uppercase text-muted-foreground">Certification</dt><dd className="truncate text-xs font-semibold text-foreground">{certification?.title ?? "General IT"}</dd></div>
+            <div className="min-w-0"><dt className="font-mono text-[10px] uppercase text-muted-foreground">Certification</dt><dd className="truncate text-xs font-semibold text-foreground">{certification?.title ?? (isAutoPath ? "Automotive foundations" : "General IT")}</dd></div>
           </div>
           <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5">
             {mastered ? <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden /> : <Clock className="size-4 shrink-0 text-primary" aria-hidden />}
@@ -217,6 +219,29 @@ function TopicPage() {
       </section>
 
       <TopicSubnav activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {isAutoPath && activeTab === "overview" ? (
+        <section className="mb-5 rounded-xl border border-primary/30 bg-primary/[0.04] p-4 sm:p-5" aria-label="AUTO PATH technician workflow">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Technician workflow</p>
+          <h2 className="mt-1 font-display text-lg font-semibold">Take this system from knowledge to verified diagnosis.</h2>
+          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">AUTO PATH keeps the same mastery rules underneath, but your work follows the way a technician builds evidence in the shop.</p>
+          <ol className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+            {["Learn", "See", "Identify", "Test", "Diagnose", "Fix", "Verify"].map((step, index) => (
+              <li key={step} className="rounded-lg border border-border/70 bg-background/70 px-3 py-2">
+                <span className="block font-mono text-[10px] text-primary">{String(index + 1).padStart(2, "0")}</span>
+                <span className="mt-0.5 block text-xs font-semibold">{step}</span>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button asChild size="sm" variant="secondary"><Link to="/explore-engine">See & identify components</Link></Button>
+            <Button asChild size="sm" variant="secondary"><Link to="/obd-scanner">Test with OBD practice</Link></Button>
+            <Button asChild size="sm" variant="secondary"><Link to="/troubleshoot">Diagnose a repair order</Link></Button>
+            <Button asChild size="sm" variant="secondary"><Link to="/labs">Fix & verify in Shop Practice</Link></Button>
+          </div>
+        </section>
+      ) : null}
+
 
       {activeTab === "overview" ? (
         <>
