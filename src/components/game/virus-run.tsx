@@ -255,6 +255,7 @@ interface RunState {
 }
 
 function buildLevel(level: number): RunState {
+  // Levels 1-20 form the campaign in order. Level 21+ continues in Endless Mode by cycling the same systems.
   const theme = STAGES[(level - 1) % STAGES.length]!;
   const grid = generateMaze();
   const spawn = { x: 1, y: 1 };
