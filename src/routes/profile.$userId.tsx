@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { useCommunityChat } from "@/hooks/use-community-chat";
+import { useCommunityPostStream } from "@/hooks/use-community-chat";
 import { useSocialMessaging } from "@/hooks/use-social-messaging";
 import { useProfile } from "@/hooks/use-profile";
 import { useLearningActivity, type LearningActivity, type LearningActivityVisibility } from "@/hooks/use-learning-activity";
@@ -18,14 +18,14 @@ export const Route=createFileRoute("/profile/$userId")({staticData:{sitemap:fals
 
 function ProfilePage(){
  const {userId:profileId}=Route.useParams(); const nav=useNavigate();
- const {messages}=useCommunityChat("general"); const {friendships,requestFriend,userId}=useSocialMessaging();
+ const {messages:visiblePosts}=useCommunityPostStream(); const {friendships,requestFriend,userId}=useSocialMessaging();
  const {profile,saveProfile,savingProfile,uploadAvatar,uploading}=useProfile(profileId);
  const {activities,loading:activityLoading,updateSharing,updatingSharing}=useLearningActivity(profileId);
  const {user}=useAppState(); const stats=useStats(); const measures=overallMeasures(user);
  const [editing,setEditing]=useState(false);
  const [draft,setDraft]=useState({displayName:"",bio:"",currentlyLearning:"",learningGoal:"",showLearningProgress:true,showLearningGoal:true,showAchievements:true});
  useEffect(()=>setDraft({displayName:profile.displayName,bio:profile.bio,currentlyLearning:profile.currentlyLearning,learningGoal:profile.learningGoal,showLearningProgress:profile.showLearningProgress,showLearningGoal:profile.showLearningGoal,showAchievements:profile.showAchievements}),[profile]);
- const posts=useMemo(()=>messages.filter(p=>p.userId===profileId).slice().reverse(),[messages,profileId]);
+ const posts=useMemo(()=>visiblePosts.filter(p=>p.userId===profileId).slice().sort((a,b)=>new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime()),[visiblePosts,profileId]);
  const name=profile.displayName||posts[0]?.displayName||profile.firstName||"Learner";
  const isOwn=profileId===userId; const friendCount=friendships.filter(f=>f.status==="accepted").length;
  const evidence=useMemo(()=>{
