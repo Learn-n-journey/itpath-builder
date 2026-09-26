@@ -11,13 +11,14 @@ import type { Quiz } from "@/lib/app-data/types";
 import { journeyOrderedTopics, isMastered } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
 import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/stage-exam/$stageId")({
   staticData: { sitemap: false },
   head: ({ params }) => {
     const exam = getStageExam(params.stageId);
-    const title = exam ? `${exam.title} | IT PATH` : "Stage exam | IT PATH";
-    const description = exam?.description ?? "A twenty question stage exam on IT PATH.";
+    const title = exam ? `${exam.title} | ${domain.appName}` : `Stage exam | ${domain.appName}`;
+    const description = exam?.description ?? `A twenty question stage exam on ${domain.appName}.`;
     return {
       meta: [
         { property: "og:type", content: "article" },
@@ -73,10 +74,10 @@ function StageExamPage() {
   };
 
   async function share() {
-    const text = `I passed the ${exam!.stage} exam on IT PATH with ${best}%. ${exam!.title.replace(/^Stage \d+ exam: /, "")}. https://www.it-path.net`;
+    const text = `I passed the ${exam!.stage} exam on ${domain.appName} with ${best}%. ${exam!.title.replace(/^Stage \d+ exam: /, "")}.`;
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
-        await navigator.share({ title: "IT PATH stage exam passed", text });
+        await navigator.share({ title: `${domain.appName} stage exam passed`, text });
       } else {
         await navigator.clipboard.writeText(text);
         toast.success("Copied. Paste it wherever you like.");
@@ -90,7 +91,7 @@ function StageExamPage() {
   if (remaining.length > 0 && !passed) {
     return (
       <>
-        <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, { label: exam.stage }, { label: "Stage exam" }]} />
+        <LearningBreadcrumbs items={[{ label: domain.id === "auto-repair" ? "Training Plan" : "My Path", to: "/my-path" }, { label: exam.stage }, { label: "Stage exam" }]} />
         <PageHeader title={exam.title} description={exam.description} />
         <EmptyState
           icon={Lock}
@@ -112,7 +113,7 @@ function StageExamPage() {
 
   return (
     <>
-      <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, { label: exam.stage }, { label: "Stage exam" }]} />
+      <LearningBreadcrumbs items={[{ label: domain.id === "auto-repair" ? "Training Plan" : "My Path", to: "/my-path" }, { label: exam.stage }, { label: "Stage exam" }]} />
       <PageHeader title={exam.title} description={exam.description} />
 
       {passed ? (
