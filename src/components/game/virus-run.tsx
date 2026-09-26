@@ -322,7 +322,7 @@ function buildLevel(level: number): RunState {
     collected: 0,
     port,
     portOpen: false,
-    player: { x: spawn.x, y: spawn.y, tx: spawn.x, ty: spawn.y, moving: false, invuln: 1.5 },
+    player: { x: spawn.x, y: spawn.y, tx: spawn.x, ty: spawn.y, moving: false, invuln: 3 },
     guards,
     integrity: MAX_INTEGRITY,
     packetsTotal: packets.length,
@@ -667,7 +667,7 @@ export function VirusRun() {
           p.tx = 1;
           p.ty = 1;
           p.moving = false;
-          p.invuln = 2;
+          p.invuln = 3;
           keysRef.current = [];
           syncHud(run);
           if (run.integrity <= 0) {
