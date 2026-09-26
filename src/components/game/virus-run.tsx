@@ -1061,40 +1061,48 @@ export function VirusRun() {
       }
       ctx2.restore();
 
-      // Walls as dimensional security architecture with illuminated traces.
-      const pad = cell * 0.08;
+      // Walls: restrained connected security architecture. Interior wall cells stay
+      // dark; only edges facing playable corridors receive a bright rim. This
+      // removes the tiled/neon look and gives the maze one coherent structure.
+      const pad = cell * 0.055;
       for (let y = 0; y < ROWS; y++) {
         for (let x = 0; x < COLS; x++) {
-          if (run.grid[y]![x] === 1) {
-            const bx = offX + x * cell + pad;
-            const by = offY + y * cell + pad;
-            const block = ctx2.createLinearGradient(bx, by, bx, by + cell);
-            block.addColorStop(0, t.wallEdge);
-            block.addColorStop(0.18, t.wall);
-            block.addColorStop(1, t.bg);
-            ctx2.fillStyle = block;
-            roundRect(ctx2, offX + x * cell + pad, offY + y * cell + pad, cell - pad * 2, cell - pad * 2, cell * 0.18);
-            ctx2.fill();
+          if (run.grid[y]![x] !== 1) continue;
+          const bx = offX + x * cell;
+          const by = offY + y * cell;
+          const wallFill = ctx2.createLinearGradient(bx, by, bx + cell, by + cell);
+          wallFill.addColorStop(0, t.wall);
+          wallFill.addColorStop(1, t.bg);
+          ctx2.fillStyle = wallFill;
+          ctx2.fillRect(bx, by, cell + 0.5, cell + 0.5);
+
+          const topOpen = run.grid[y - 1]?.[x] === 0;
+          const bottomOpen = run.grid[y + 1]?.[x] === 0;
+          const leftOpen = run.grid[y]?.[x - 1] === 0;
+          const rightOpen = run.grid[y]?.[x + 1] === 0;
+          if (topOpen || bottomOpen || leftOpen || rightOpen) {
             ctx2.strokeStyle = t.wallEdge;
-            ctx2.lineWidth = 1;
+            ctx2.lineWidth = Math.max(1, cell * 0.055);
+            ctx2.shadowColor = t.wallEdge;
+            ctx2.shadowBlur = cell * 0.18;
+            ctx2.beginPath();
+            if (topOpen) { ctx2.moveTo(bx, by + pad); ctx2.lineTo(bx + cell, by + pad); }
+            if (bottomOpen) { ctx2.moveTo(bx, by + cell - pad); ctx2.lineTo(bx + cell, by + cell - pad); }
+            if (leftOpen) { ctx2.moveTo(bx + pad, by); ctx2.lineTo(bx + pad, by + cell); }
+            if (rightOpen) { ctx2.moveTo(bx + cell - pad, by); ctx2.lineTo(bx + cell - pad, by + cell); }
             ctx2.stroke();
-            ctx2.fillStyle = "rgba(255,255,255,0.025)";
-            roundRect(ctx2, offX + x * cell + pad * 1.7, offY + y * cell + pad * 1.7, cell - pad * 3.4, Math.max(1, cell * 0.08), cell * 0.04);
-            ctx2.fill();
-            if ((x + y) % 3 === 0) {
-              ctx2.strokeStyle = "rgba(45,212,191,0.16)";
-              ctx2.lineWidth = Math.max(0.6, cell * 0.035);
-              ctx2.beginPath();
-              ctx2.moveTo(bx + cell * 0.22, by + cell * 0.62);
-              ctx2.lineTo(bx + cell * 0.48, by + cell * 0.62);
-              ctx2.lineTo(bx + cell * 0.63, by + cell * 0.78);
-              ctx2.stroke();
+            ctx2.shadowBlur = 0;
+
+            // Sparse hardware detail only on exposed faces.
+            if ((x * 3 + y * 5) % 11 === 0) {
+              ctx2.fillStyle = "rgba(255,255,255,0.055)";
+              ctx2.fillRect(bx + cell * 0.34, by + cell * 0.34, cell * 0.32, Math.max(1, cell * 0.045));
             }
           }
         }
       }
 
-      // Port.
+            // Port.
       const pulse = 0.6 + 0.4 * Math.sin(time / 220);
       ctx2.save();
       ctx2.globalAlpha = run.portOpen ? pulse : 0.28;
