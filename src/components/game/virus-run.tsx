@@ -1480,7 +1480,7 @@ export function VirusRun() {
         // Body orientation follows travel, making movement feel physical rather than turret-like.
         ctx2.rotate(moveAim + Math.PI / 2);
         const turnVector=(g.tx-g.x)*(g.y-g.fromY)-(g.ty-g.y)*(g.x-g.fromX);
-        const roleBank=g.kind==="interceptor"?.13:g.kind==="hunter"?.075:g.kind==="scanner"?.045:.025;
+        const roleBank=g.kind==="interceptor"?.13:g.kind==="stalker"?.11:g.kind==="hunter"?.075:g.kind==="sweeper"?.035:g.kind==="scanner"?.045:g.kind==="sentry"?.018:.025;
         ctx2.rotate(Math.max(-1,Math.min(1,turnVector))*roleBank);
         if(g.kind==="hunter" && g.state==="chase")ctx2.translate(0,-cell*(.025+.025*Math.sin(time/85)));
         if(g.stunned>0)ctx2.globalAlpha=.52+.12*Math.sin(time/75);
@@ -1496,10 +1496,19 @@ export function VirusRun() {
         }else if(g.kind==="interceptor"){
           ctx2.rotate(Math.sin(personalityPhase*4.1)*.028);
           ctx2.translate(Math.sin(personalityPhase*5.3)*cell*.018,0);
+        }else if(g.kind==="sentry"){
+          ctx2.rotate(Math.sin(personalityPhase*.8)*.018);
+          ctx2.scale(1+Math.sin(personalityPhase*2.4)*.012,1-Math.sin(personalityPhase*2.4)*.012);
+        }else if(g.kind==="sweeper"){
+          ctx2.translate(Math.sin(personalityPhase*3.1)*cell*.012,0);
+          ctx2.rotate(Math.sin(personalityPhase*1.7)*.022);
+        }else if(g.kind==="stalker"){
+          ctx2.translate(0,Math.sin(personalityPhase*1.15)*cell*.02);
+          ctx2.rotate(Math.sin(personalityPhase*.72)*.045);
         }else{
-          const heavy=.012*Math.sin(personalityPhase*1.25);
-          ctx2.translate(0,Math.abs(Math.sin(personalityPhase*1.25))*cell*.018);
-          ctx2.scale(1+heavy,1-heavy*.45);
+          const heavy=.016*Math.sin(personalityPhase*.95);
+          ctx2.translate(0,Math.abs(Math.sin(personalityPhase*.95))*cell*.025);
+          ctx2.scale(1+heavy,1-heavy*.5);
         }
         ctx2.shadowColor = alerted ? "rgba(248,113,113,0.95)" : "rgba(248,113,113,0.68)";
         ctx2.shadowBlur = cell * (alerted ? 0.9 : 0.62);
@@ -1559,18 +1568,41 @@ export function VirusRun() {
         ctx2.strokeStyle="rgba(255,255,255,.08)";ctx2.lineWidth=Math.max(.5,cell*.018);
         for(let tex=-1;tex<=1;tex++){ctx2.beginPath();ctx2.moveTo(-s*.28,tex*s*.13);ctx2.lineTo(s*.28,tex*s*.13-s*.08);ctx2.stroke();}
 
+        // Role-specific armor makes silhouettes readable before the player learns names.
+        ctx2.save();ctx2.lineWidth=Math.max(1,cell*.035);
+        if(g.kind==="sentry"){
+          ctx2.strokeStyle="rgba(253,186,116,.85)";
+          for(let a=0;a<4;a++){ctx2.rotate(Math.PI/2);ctx2.beginPath();ctx2.moveTo(-s*.12,-s*.34);ctx2.lineTo(0,-s*.53);ctx2.lineTo(s*.12,-s*.34);ctx2.stroke();}
+        }else if(g.kind==="sweeper"){
+          ctx2.strokeStyle="rgba(251,146,60,.85)";
+          ctx2.beginPath();ctx2.moveTo(-s*.4,s*.18);ctx2.lineTo(s*.4,s*.18);ctx2.moveTo(-s*.34,s*.29);ctx2.lineTo(s*.34,s*.29);ctx2.stroke();
+        }else if(g.kind==="stalker"){
+          ctx2.strokeStyle="rgba(244,114,182,.8)";
+          ctx2.beginPath();ctx2.moveTo(-s*.32,s*.25);ctx2.lineTo(0,s*.48);ctx2.lineTo(s*.32,s*.25);ctx2.stroke();
+          ctx2.beginPath();ctx2.moveTo(-s*.22,-s*.3);ctx2.lineTo(0,-s*.48);ctx2.lineTo(s*.22,-s*.3);ctx2.stroke();
+        }else if(g.kind==="bulwark"){
+          ctx2.strokeStyle="rgba(253,164,175,.88)";ctx2.lineWidth=Math.max(1.5,cell*.055);
+          ctx2.strokeRect(-s*.36,-s*.34,s*.72,s*.68);
+          ctx2.beginPath();ctx2.moveTo(-s*.42,-s*.2);ctx2.lineTo(-s*.42,s*.22);ctx2.moveTo(s*.42,-s*.2);ctx2.lineTo(s*.42,s*.22);ctx2.stroke();
+        }
+        ctx2.restore();
+
         // Shared optical core keeps the enemy faction visually unified.
         ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.04, s * 0.15, 0, Math.PI * 2); ctx2.fill();
-        const guardBlink=((time+g.x*173+g.y*257)% (g.kind==="scanner"?2600:g.kind==="hunter"?3700:g.kind==="interceptor"?2100:4800))<110;
-        const eyeWide=g.kind==="scanner"?1.18:g.kind==="hunter"&&alerted?.72:g.kind==="interceptor"?1.05:.88;
-        const eyeTall=guardBlink?.16:g.kind==="warden"?.7:1;
+        const blinkPeriod=g.kind==="scanner"?2600:g.kind==="hunter"?3700:g.kind==="interceptor"?2100:g.kind==="sentry"?5200:g.kind==="sweeper"?3200:g.kind==="stalker"?6100:4800;
+        const guardBlink=((time+g.x*173+g.y*257)%blinkPeriod)<110;
+        const eyeWide=g.kind==="scanner"?1.18:g.kind==="hunter"&&alerted?.72:g.kind==="interceptor"?1.05:g.kind==="sentry"?1.3:g.kind==="stalker"?.65:g.kind==="bulwark"?1.15:.88;
+        const eyeTall=guardBlink?.16:g.kind==="warden"?.7:g.kind==="stalker"?1.25:g.kind==="bulwark"?.55:1;
         ctx2.fillStyle = g.stunned>0 ? "#e0f2fe" : alerted ? "#fff1f2" : g.state==="search" ? "#fed7aa" : "#fecaca";
         ctx2.beginPath(); ctx2.ellipse(0,-s*.055,s*.06*eyeWide,s*.06*eyeTall,0,0,Math.PI*2); ctx2.fill();
         // Scanner looks curious, Hunter squints, Interceptor twitches, Warden looks unimpressed.
         if(g.kind==="scanner"){ctx2.strokeStyle="rgba(254,202,202,.7)";ctx2.beginPath();ctx2.arc(0,-s*.055,s*.105,-2.7,-.45);ctx2.stroke();}
         else if(g.kind==="hunter"&&alerted){ctx2.strokeStyle="rgba(254,202,202,.8)";ctx2.beginPath();ctx2.moveTo(-s*.09,-s*.13);ctx2.lineTo(s*.09,-s*.1);ctx2.stroke();}
         else if(g.kind==="interceptor"){ctx2.fillStyle="rgba(255,255,255,.5)";ctx2.beginPath();ctx2.arc(Math.sin(time/95)*s*.025,-s*.07,s*.018,0,Math.PI*2);ctx2.fill();}
-        else if(g.kind==="warden"){ctx2.strokeStyle="rgba(254,202,202,.65)";ctx2.beginPath();ctx2.moveTo(-s*.1,-s*.12);ctx2.lineTo(s*.1,-s*.12);ctx2.stroke();}
+        else if(g.kind==="warden"||g.kind==="bulwark"){ctx2.strokeStyle="rgba(254,202,202,.65)";ctx2.beginPath();ctx2.moveTo(-s*.1,-s*.12);ctx2.lineTo(s*.1,-s*.12);ctx2.stroke();}
+        else if(g.kind==="sentry"){ctx2.strokeStyle="rgba(253,186,116,.8)";ctx2.beginPath();ctx2.arc(0,-s*.055,s*.12,time/700,time/700+Math.PI*1.35);ctx2.stroke();}
+        else if(g.kind==="sweeper"){ctx2.fillStyle="rgba(255,237,213,.6)";ctx2.fillRect(-s*.1,-s*.15,s*.2,s*.025);}
+        else if(g.kind==="stalker"){ctx2.fillStyle="rgba(251,207,232,.55)";ctx2.beginPath();ctx2.arc(Math.sin(time/330)*s*.05,-s*.06,s*.016,0,Math.PI*2);ctx2.fill();}
         if(g.stunned>0){
           // Electrical interruption makes EMP status immediately legible.
           ctx2.strokeStyle="rgba(125,211,252,0.9)";ctx2.lineWidth=Math.max(1,cell*.045);
