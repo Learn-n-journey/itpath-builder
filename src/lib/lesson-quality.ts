@@ -16,6 +16,8 @@ const MAX_SENTENCE_WORDS = 45;
 const MAX_AVERAGE_SENTENCE_WORDS = 28;
 const MAX_PARAGRAPH_WORDS = 220;
 const MIN_SELF_CHECKS = 2;
+const MIN_FOCUSED_READING_PARAGRAPHS = 3;
+const MIN_FOCUSED_READING_WORDS = 120;
 
 function sentences(value: string): string[] {
   return value
@@ -123,7 +125,18 @@ export function deepLessonIssues(deep: DeepLesson): string[] {
 /** The deep-layer checks the built-in lessons have always been held to. */
 function deepBaseIssues(deep: DeepLesson): string[] {
   const issues: string[] = [];
-  if (deep.sections.length < 2 || deep.sections.some((section) => section.paragraphs.length === 0)) {
+  const teachingParagraphs = deep.sections.flatMap((section) => section.paragraphs);
+  const teachingWords = teachingParagraphs.reduce((total, paragraph) => total + words(paragraph), 0);
+  const hasEmptySection = deep.sections.some((section) => section.paragraphs.length === 0);
+  const focusedReadingIsSubstantial =
+    deep.sections.length === 1 &&
+    teachingParagraphs.length >= MIN_FOCUSED_READING_PARAGRAPHS &&
+    teachingWords >= MIN_FOCUSED_READING_WORDS;
+  if (
+    deep.sections.length === 0 ||
+    hasEmptySection ||
+    (deep.sections.length === 1 && !focusedReadingIsSubstantial)
+  ) {
     issues.push("deep lesson lacks a complete teaching sequence");
   }
   if (deep.sections.some((section) => section.paragraphs.some((paragraph) => words(paragraph) > MAX_PARAGRAPH_WORDS))) {

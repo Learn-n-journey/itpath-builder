@@ -70,18 +70,20 @@ stage("audit", `${first.blocking} blocking, ${first.warnings} warnings across ${
 // second, independent draw shows whether the fault was the material or the draw.
 let report = first;
 if (!first.passed) {
-  stage("correct", "redrawing the sections that failed so the repair pass can act");
-  const failedTopics = [
-    ...new Set(
-      first.findings
-        .filter((finding) => finding.severity === "blocking")
-        .map((finding) => finding.subjectId.split(":")[1]?.split("#")[0] ?? "")
-        .filter(Boolean),
-    ),
-  ];
-  stage("retest", `re-auditing ${failedTopics.length} subjects`);
-  report = runContentAudit({ papersEach: 3 });
-  stage("retest", `${report.blocking} blocking remain`);
+  const blocking = first.findings.filter((finding) => finding.severity === "blocking");
+  const redrawable = blocking.filter(
+    (finding) => finding.ruleId.startsWith("papers.") || finding.subjectId.startsWith("quiz:") || finding.subjectId.startsWith("exam:"),
+  );
+  const deterministic = blocking.filter((finding) => !redrawable.includes(finding));
+
+  if (redrawable.length > 0) {
+    stage("correct", `redrawing assessment papers for ${redrawable.length} draw-related blocker(s)`);
+    report = runContentAudit({ papersEach: 3 });
+    stage("retest", `${report.blocking} blocking remain after an independent redraw`);
+  } else {
+    stage("correct", `skipped redraw: all ${deterministic.length} blocker(s) are deterministic content or structure findings`);
+    stage("retest", "not applicable; these findings require source material or rule changes");
+  }
 }
 
 // 6. Approve.

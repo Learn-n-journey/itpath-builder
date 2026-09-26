@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { Lesson, Topic } from "@/lib/app-data/types";
-import { lessonQualityIssues } from "@/lib/lesson-quality";
+import { deepLessonIssues, lessonQualityIssues } from "@/lib/lesson-quality";
+import type { DeepLesson } from "@/data/deep-lessons/types";
 
 const topic: Topic = {
   id: "topic-brakes",
