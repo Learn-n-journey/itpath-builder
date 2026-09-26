@@ -317,7 +317,7 @@ function buildLevel(level: number): RunState {
     const cell = openCells.splice(Math.floor(Math.random() * openCells.length), 1)[0]!;
     const kinds: GuardKind[] = boss ? ["hunter","interceptor","warden","scanner"] : ["scanner","hunter","interceptor"];
     const kind = kinds[i % kinds.length]!;
-    guards.push({ kind, state:"patrol", stateTimer:0, awareness:0, lastKnownX:cell.x, lastKnownY:cell.y, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden"?.9:1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y });
+    guards.push({ kind, state:"patrol", stateTimer:0, awareness:0, lastKnownX:cell.x, lastKnownY:cell.y, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden" ? .9 : 1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y });
   }
 
   const powerUps: PowerUp[] = [];
@@ -778,7 +778,7 @@ export function VirusRun() {
         const systemDetection = run.theme.system==="Kernel Space"?2:run.theme.system==="Firewall"?1:0;
         const visible=!hidden&&toPlayer>=0;
         const suspiciousRange=(g.detection+systemDetection)*(g.kind==="scanner"?1.2:g.kind==="warden"?1.05:.88);
-        const chaseRange=(g.detection+systemDetection)*(g.kind==="hunter"?1:g.kind==="interceptor"?.9:.78);
+        const chaseRange=(g.detection+systemDetection)*(g.kind==="hunter"?1:g.kind==="interceptor" ? .9 : .78);
         g.stateTimer=Math.max(0,g.stateTimer-dt);
         if(visible&&toPlayer<=suspiciousRange){
           const gain=dt*(g.kind==="scanner"?1.7:g.kind==="hunter"?1.45:g.kind==="interceptor"?1.3:1.15);
@@ -787,7 +787,7 @@ export function VirusRun() {
           if(g.awareness>=1||toPlayer<=chaseRange){g.state="chase";g.stateTimer=g.kind==="hunter"?4.8:3.5;}
           else if(g.state!=="chase")g.state="suspicious";
         }else{
-          g.awareness=Math.max(0,g.awareness-dt*(g.kind==="warden"?.22:.34));
+          g.awareness=Math.max(0,g.awareness-dt*(g.kind==="warden" ? .22 : .34));
           if(g.state==="chase"&&g.stateTimer<=0){g.state="search";g.stateTimer=g.kind==="hunter"?4.5:3.2;}
           else if(g.state==="suspicious"&&g.awareness<=.05){g.state="patrol";}
           else if(g.state==="search"&&g.stateTimer<=0){g.state="patrol";g.awareness=0;}
@@ -810,7 +810,7 @@ export function VirusRun() {
             chosen=options[0]!;
           } else if(g.state==="search"||g.state==="suspicious"){
             options.sort((a,b)=>Math.abs(a[0]-g.lastKnownX)+Math.abs(a[1]-g.lastKnownY)-Math.abs(b[0]-g.lastKnownX)-Math.abs(b[1]-g.lastKnownY));
-            chosen=(Math.random()<(g.state==="search"?.78:.9)?options[0]:options[Math.floor(Math.random()*options.length)])!;
+            chosen=(Math.random()<(g.state==="search" ? .78 : .9)?options[0]:options[Math.floor(Math.random()*options.length)])!;
           } else {
             // Wardens favor territory near packets/exit; other types roam.
             if(g.kind==="warden"){options.sort((a,b)=>Math.min(...run.packets.filter(q=>!q.taken).map(q=>Math.abs(a[0]-q.x)+Math.abs(a[1]-q.y)),Math.abs(a[0]-run.port.x)+Math.abs(a[1]-run.port.y))-Math.min(...run.packets.filter(q=>!q.taken).map(q=>Math.abs(b[0]-q.x)+Math.abs(b[1]-q.y)),Math.abs(b[0]-run.port.x)+Math.abs(b[1]-run.port.y)));chosen=options[0]!;}
@@ -1334,14 +1334,14 @@ export function VirusRun() {
         const coreCell=(()=>{const cx=Math.floor(COLS/2),cy=Math.floor(ROWS/2);if(run.grid[cy]?.[cx]===0)return{x:cx,y:cy};let best:{x:number;y:number;d:number}|null=null;for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(run.grid[y]?.[x]===0){const d=Math.abs(x-cx)+Math.abs(y-cy);if(!best||d<best.d)best={x,y,d};}return best??{x:cx,y:cy};})();
         const bx=offX+(coreCell.x+.5)*cell,by=offY+(coreCell.y+.5)*cell;ctx2.save();
         const vulnerable=run.bossPhase>=2&&!run.portOpen;
-        ctx2.globalAlpha=vulnerable?.72+.2*Math.sin(time/105):.24+.08*Math.sin(time/160);
+        ctx2.globalAlpha=vulnerable ? .72+.2*Math.sin(time/105) : .24+.08*Math.sin(time/160);
         ctx2.strokeStyle=vulnerable?"#fef08a":"#fb7185";ctx2.shadowColor=vulnerable?"#facc15":"#ef4444";ctx2.shadowBlur=cell*(vulnerable?2:1.4);ctx2.lineWidth=Math.max(2,cell*.12);
         const damageRatio=run.bossNodes/Math.max(1,run.bossNodesRequired);
         for(let i=0;i<3;i++){
           const broken=i<Math.floor(damageRatio*3);
           ctx2.setLineDash(broken?[cell*.18,cell*.22]:[]);
           ctx2.lineDashOffset=-time/(55+i*15);
-          ctx2.beginPath();ctx2.arc(bx,by,cell*(.65+i*.28),time/(260+i*70),time/(260+i*70)+Math.PI*(broken?.72:1.45));ctx2.stroke();
+          ctx2.beginPath();ctx2.arc(bx,by,cell*(.65+i*.28),time/(260+i*70),time/(260+i*70)+Math.PI*(broken ? .72 : 1.45));ctx2.stroke();
         }
         ctx2.setLineDash([]);
         if(run.bossNodes>0){
@@ -1387,7 +1387,7 @@ export function VirusRun() {
         ctx2.closePath();
         ctx2.fill();
         ctx2.rotate(Math.PI / 2);
-        const s = cell * (g.kind==="warden"?.94:g.kind==="interceptor"?.76:.82);
+        const s = cell * (g.kind==="warden" ? .94 : g.kind==="interceptor" ? .76 : .82);
         const guardAccent=g.kind==="scanner"?"#fb7185":g.kind==="hunter"?"#ef4444":g.kind==="interceptor"?"#f97316":"#a855f7";
         ctx2.shadowColor = guardAccent;
         ctx2.shadowBlur = cell * 0.72;
@@ -1436,7 +1436,7 @@ export function VirusRun() {
       const wobble = 1 + 0.055 * Math.sin(time / 105);
       ctx2.save();
       if (run.player.invuln > 0) ctx2.globalAlpha = 0.45 + 0.4 * Math.sin(time / 60);
-      ctx2.translate(pcx,pcy);ctx2.rotate(travelAngle);ctx2.scale(moving?1.12:1,moving?.9:1);ctx2.translate(-pcx,-pcy);
+      ctx2.translate(pcx,pcy);ctx2.rotate(travelAngle);ctx2.scale(moving?1.12:1,moving ? .9 : 1);ctx2.translate(-pcx,-pcy);
       const r = cell * 0.42 * wobble;
       ctx2.shadowColor = "rgba(45,212,191,0.95)";
       ctx2.shadowBlur = cell * 1.15;
