@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "node node_modules/wrangler/bin/wrangler.js dev .output/server/index.mjs --assets .output/public --compatibility-date 2026-09-24 --compatibility-flags nodejs_compat --ip 127.0.0.1 --port 4173",
+      "startServerCommand": "node node_modules/wrangler/bin/wrangler.js dev --config .output/server/wrangler.json --ip 127.0.0.1 --port 4173",
       "startServerReadyPattern": "Ready on",
       "startServerReadyTimeout": 180000,
       "numberOfRuns": 2,
