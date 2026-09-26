@@ -979,7 +979,7 @@ export function VirusRun() {
       const canvasEl = canvasRef.current;
       if (!canvasEl) return;
       const rect = canvasEl.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
       if (canvasEl.width !== Math.round(rect.width * dpr)) {
         canvasEl.width = Math.round(rect.width * dpr);
         canvasEl.height = Math.round(rect.height * dpr);
@@ -1214,6 +1214,18 @@ export function VirusRun() {
       }
       ctx2.restore();
 
+      // 2.5D floor: directional vignette, corridor sheen and scan texture create
+      // a material surface under the maze instead of a flat canvas backdrop.
+      ctx2.save();
+      const floorShade=ctx2.createLinearGradient(offX,offY,offX+cell*COLS,offY+cell*ROWS);
+      floorShade.addColorStop(0,"rgba(255,255,255,.025)");
+      floorShade.addColorStop(.42,"rgba(255,255,255,0)");
+      floorShade.addColorStop(1,"rgba(0,0,0,.32)");
+      ctx2.fillStyle=floorShade;ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+      ctx2.globalAlpha=.16;ctx2.strokeStyle="rgba(148,163,184,.12)";ctx2.lineWidth=Math.max(.5,cell*.018);
+      for(let sy=offY+cell*.25;sy<offY+cell*ROWS;sy+=cell*.48){ctx2.beginPath();ctx2.moveTo(offX,sy);ctx2.lineTo(offX+cell*COLS,sy);ctx2.stroke();}
+      ctx2.restore();
+
       // Walls: restrained connected security architecture. Interior wall cells stay
       // dark; only edges facing playable corridors receive a bright rim. This
       // removes the tiled/neon look and gives the maze one coherent structure.
@@ -1226,8 +1238,16 @@ export function VirusRun() {
           const wallFill = ctx2.createLinearGradient(bx, by, bx + cell, by + cell);
           wallFill.addColorStop(0, t.wall);
           wallFill.addColorStop(1, t.bg);
-          ctx2.fillStyle = wallFill;
-          ctx2.fillRect(bx, by, cell + 0.5, cell + 0.5);
+          // Faux extrusion: a consistent lower-right depth face makes each connected
+          // wall mass read as raised hardware under a top-left virtual light.
+          const depth=cell*.14;
+          ctx2.fillStyle="rgba(0,0,0,.42)";
+          ctx2.fillRect(bx+depth,by+depth,cell+.5,cell+.5);
+          ctx2.fillStyle=wallFill;
+          ctx2.fillRect(bx,by,cell+.5,cell+.5);
+          const topFace=ctx2.createLinearGradient(bx,by,bx,by+cell*.24);
+          topFace.addColorStop(0,"rgba(255,255,255,.09)");topFace.addColorStop(1,"rgba(255,255,255,0)");
+          ctx2.fillStyle=topFace;ctx2.fillRect(bx,by,cell,cell*.24);
           // Fine deterministic material grain and bevel lighting give the maze depth
           // without adding image assets or frame-to-frame noise.
           const grainSeed=(x*37+y*61)%17;
@@ -1277,7 +1297,13 @@ export function VirusRun() {
         }
       }
 
-            // Dynamic local lighting is composited after wall material so nearby actors
+            // Screen-space depth treatment: soft vignette and subtle bloom separation.
+      ctx2.save();
+      const vignette=ctx2.createRadialGradient(rect.width*.5,rect.height*.48,Math.min(rect.width,rect.height)*.2,rect.width*.5,rect.height*.48,Math.max(rect.width,rect.height)*.72);
+      vignette.addColorStop(0,"rgba(0,0,0,0)");vignette.addColorStop(.72,"rgba(0,0,0,.08)");vignette.addColorStop(1,"rgba(0,0,0,.48)");
+      ctx2.fillStyle=vignette;ctx2.fillRect(0,0,rect.width,rect.height);ctx2.restore();
+
+      // Dynamic local lighting is composited after wall material so nearby actors
       // appear to illuminate the architecture instead of merely glowing themselves.
       ctx2.save();
       ctx2.globalCompositeOperation="screen";
