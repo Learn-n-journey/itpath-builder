@@ -376,6 +376,7 @@ export function VirusRun() {
   // Visual-only soft-body response. Collision rules remain grid deterministic.
   const wallSquishRef = useRef({ amount: 0, angle: 0 });
   const motionPhysicsRef = useRef({ turn:0, turnSign:0, reverse:0, hit:0, hitAngle:0 });
+  const playerVisualRef = useRef({ heading:0, stretch:0, squish:0, spikePhase:[0,1.1,2.2,3.3,4.4,5.5] });
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
@@ -468,6 +469,7 @@ export function VirusRun() {
     travelDirRef.current = null;
     wallSquishRef.current={amount:0,angle:0};
     motionPhysicsRef.current={turn:0,turnSign:0,reverse:0,hit:0,hitAngle:0};
+    playerVisualRef.current={heading:0,stretch:0,squish:0,spikePhase:[0,1.1,2.2,3.3,4.4,5.5]};
     syncHud(runRef.current);
     setPhaseBoth("playing");
     lastRef.current = 0;
@@ -1369,13 +1371,21 @@ export function VirusRun() {
       const momentum = run.streak > 1 && run.streakTimer > 0 ? run.streak : 0;
       const dx = run.player.tx - run.player.x;
       const dy = run.player.ty - run.player.y;
-      const heading = Math.abs(dx) + Math.abs(dy) > 0.02 ? Math.atan2(dy, dx) : 0;
-      const movingPulse = run.player.moving ? Math.sin(time / 85) : Math.sin(time / 260);
-      const bodyR = cell * (0.36 + movingPulse * 0.018);
+      const targetHeading = Math.abs(dx) + Math.abs(dy) > 0.02 ? Math.atan2(dy, dx) : playerVisualRef.current.heading;
+      const visual=playerVisualRef.current;
+      // Shortest-path angular interpolation prevents 90-degree turns from snapping.
+      let angleDelta=((targetHeading-visual.heading+Math.PI*3)%(Math.PI*2))-Math.PI;
+      visual.heading+=angleDelta*.16;
+      const heading=visual.heading;
+      const movingPulse = run.player.moving ? Math.sin(time / 125) : Math.sin(time / 320);
+      const bodyR = cell * (0.36 + movingPulse * 0.013);
       const wallSquish=wallSquishRef.current.amount;
       const wallAngle=wallSquishRef.current.angle;
       const motionPhys=motionPhysicsRef.current;
-      const movingStretch=run.player.moving ? Math.min(.1,.035+momentum*.012) : 0;
+      const targetStretch=run.player.moving ? Math.min(.085,.028+momentum*.01) : 0;
+      visual.stretch+=(targetStretch-visual.stretch)*.13;
+      visual.squish+=(wallSquish-visual.squish)*.2;
+      const movingStretch=visual.stretch;
 
       // Restrained ground light anchors the character to the playfield.
       ctx2.save();
@@ -1426,15 +1436,24 @@ export function VirusRun() {
       ctx2.lineWidth=Math.max(1,cell*.065);
       ctx2.lineCap="round";
       for(let i=0;i<6;i++){
-        const angle=i*Math.PI/3 + (i%2 ? .08 : -.06);
+        const phase=visual.spikePhase[i]!;
+        const baseAngle=i*Math.PI/3 + (i%2 ? .065 : -.05);
+        // Slow organic drift plus a smaller secondary wave avoids mechanical pulsing.
+        const angle=baseAngle + .045*Math.sin(time/520+phase) + .018*Math.sin(time/930+phase*1.7);
         const root=bodyR*.82;
-        const length=bodyR*(1.34 + .08*Math.sin(time/220+i));
+        const length=bodyR*(1.32 + .055*Math.sin(time/430+phase) + .022*Math.sin(time/760+phase*1.4));
+        const tipX=Math.cos(angle)*length,tipY=Math.sin(angle)*length;
+        const rootX=Math.cos(angle)*root,rootY=Math.sin(angle)*root;
+        // A quadratic stem gives each spike a soft flex instead of a rigid line.
+        const bend=.08*Math.sin(time/610+phase);
+        const midAngle=angle+bend;
+        const midR=(root+length)*.52;
         ctx2.beginPath();
-        ctx2.moveTo(Math.cos(angle)*root,Math.sin(angle)*root);
-        ctx2.lineTo(Math.cos(angle)*length,Math.sin(angle)*length);
+        ctx2.moveTo(rootX,rootY);
+        ctx2.quadraticCurveTo(Math.cos(midAngle)*midR,Math.sin(midAngle)*midR,tipX,tipY);
         ctx2.stroke();
         ctx2.fillStyle=i===0?"#99f6e4":"#5eead4";
-        ctx2.beginPath();ctx2.arc(Math.cos(angle)*length,Math.sin(angle)*length,cell*(i===0?.075:.055),0,Math.PI*2);ctx2.fill();
+        ctx2.beginPath();ctx2.arc(tipX,tipY,cell*(i===0?.07:.052),0,Math.PI*2);ctx2.fill();
       }
 
       // Membrane has a subtle forward lean rather than a generic perfect circle.
