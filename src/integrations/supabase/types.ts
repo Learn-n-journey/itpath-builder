@@ -828,6 +828,67 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          actor_id: string
+          comment_id: string | null
+          community_message_id: string | null
+          created_at: string
+          friendship_id: string | null
+          id: string
+          notification_type: string
+          preview_text: string | null
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          actor_id: string
+          comment_id?: string | null
+          community_message_id?: string | null
+          created_at?: string
+          friendship_id?: string | null
+          id?: string
+          notification_type: string
+          preview_text?: string | null
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          actor_id?: string
+          comment_id?: string | null
+          community_message_id?: string | null
+          created_at?: string
+          friendship_id?: string | null
+          id?: string
+          notification_type?: string
+          preview_text?: string | null
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "community_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_community_message_id_fkey"
+            columns: ["community_message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_friendship_id_fkey"
+            columns: ["friendship_id"]
+            isOneToOne: false
+            referencedRelation: "friendships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       owner_lessons: {
         Row: {
           content_hash: string | null
