@@ -1154,6 +1154,8 @@ export function VirusRun() {
           const leftOpen = run.grid[y]?.[x - 1] === 0;
           const rightOpen = run.grid[y]?.[x + 1] === 0;
           if (topOpen || bottomOpen || leftOpen || rightOpen) {
+            const wallDist=Math.hypot((x+.5)-(run.player.x+.5),(y+.5)-(run.player.y+.5));
+            const localSpec=Math.max(0,1-wallDist/4.2);
             ctx2.strokeStyle = t.wallEdge;
             ctx2.lineWidth = Math.max(1, cell * 0.055);
             ctx2.shadowColor = t.wallEdge;
@@ -1164,6 +1166,13 @@ export function VirusRun() {
             if (leftOpen) { ctx2.moveTo(bx + pad, by); ctx2.lineTo(bx + pad, by + cell); }
             if (rightOpen) { ctx2.moveTo(bx + cell - pad, by); ctx2.lineTo(bx + cell - pad, by + cell); }
             ctx2.stroke();
+            if(localSpec>0){
+              ctx2.strokeStyle=`rgba(153,246,228,${localSpec*.18})`;ctx2.lineWidth=Math.max(.6,cell*.026);
+              ctx2.beginPath();
+              if(topOpen) {ctx2.moveTo(bx+cell*.12,by+pad);ctx2.lineTo(bx+cell*.88,by+pad);}
+              if(leftOpen) {ctx2.moveTo(bx+pad,by+cell*.12);ctx2.lineTo(bx+pad,by+cell*.88);}
+              ctx2.stroke();
+            }
             ctx2.shadowBlur = 0;
 
             // Sparse hardware detail only on exposed faces.
@@ -1175,7 +1184,39 @@ export function VirusRun() {
         }
       }
 
-            // Exit node: quiet while locked, unmistakable once the route is complete.
+            // Dynamic local lighting is composited after wall material so nearby actors
+      // appear to illuminate the architecture instead of merely glowing themselves.
+      ctx2.save();
+      ctx2.globalCompositeOperation="screen";
+      const castLight=(gx:number,gy:number,radius:number,rgb:string,strength:number)=>{
+        const lx=offX+(gx+.5)*cell,ly=offY+(gy+.5)*cell;
+        const lr=cell*radius;
+        const light=ctx2.createRadialGradient(lx,ly,0,lx,ly,lr);
+        light.addColorStop(0,`rgba(${rgb},${strength})`);
+        light.addColorStop(.28,`rgba(${rgb},${strength*.42})`);
+        light.addColorStop(.7,`rgba(${rgb},${strength*.11})`);
+        light.addColorStop(1,`rgba(${rgb},0)`);
+        ctx2.fillStyle=light;ctx2.beginPath();ctx2.arc(lx,ly,lr,0,Math.PI*2);ctx2.fill();
+      };
+      // Player is the primary moving light. Powers alter both radius and hue.
+      const playerLight=run.activePower?.kind==="overclock"?"251,191,36":run.activePower?.kind==="emp"?"103,232,249":run.activePower?.kind==="magnet"?"250,204,21":"45,212,191";
+      castLight(run.player.x,run.player.y,2.65+(run.streak>1?run.streak*.08:0),playerLight,run.activePower?.kind==="cloak"?.08:.17);
+      // Untaken data softly paints cyan onto nearby walls.
+      for(const packet of run.packets){
+        if(packet.taken)continue;
+        const pd=Math.hypot(packet.x-run.player.x,packet.y-run.player.y);
+        if(pd<8)castLight(packet.x,packet.y,1.15,"56,189,248",.115);
+      }
+      // Antivirus casts a darker red warning pool; chase state pushes it farther.
+      for(const guard of run.guards){
+        const gd=Math.hypot(guard.x-run.player.x,guard.y-run.player.y);
+        if(gd<10)castLight(guard.x,guard.y,guard.state==="chase"?2.05:1.35,guard.stunned>0?"56,189,248":"239,68,68",guard.state==="chase"?.14:.075);
+      }
+      // Open exits become environmental light sources, guiding the eye naturally.
+      if(run.portOpen)castLight(run.port.x,run.port.y,2.25,"94,234,212",.18);
+      ctx2.restore();
+
+      // Exit node: quiet while locked, unmistakable once the route is complete.
       const portalX = offX + (run.port.x + 0.5) * cell;
       const portalY = offY + (run.port.y + 0.5) * cell;
       ctx2.save();
