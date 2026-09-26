@@ -5,6 +5,7 @@
  * claims access to an external machine, network or cloud account.
  */
 import { learningModules } from "@/data/learning-content";
+import { a1PracticalProfileFor } from "@/data/auto/a1-practical";
 import type { Lab, Lesson, Topic } from "@/lib/app-data/types";
 
 type LabCategory = Lab["category"];
@@ -55,6 +56,7 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[], mode: "it" | 
     const lesson = lessons.find((item) => item.topicId === topic.id);
     const slug = topic.id.replace(/^topic-/, "");
     const category = categoryFor(topic);
+    const a1 = automotive ? a1PracticalProfileFor(topic.id) : undefined;
     const where = learningModule.whereYouSeeIt[0] ?? topic.summary;
     const terms = (lesson?.keyTerms ?? []).slice(0, 3);
     const prerequisites = automotive
@@ -104,6 +106,39 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[], mode: "it" | 
     const failures = learningModule.howItFails.slice(0, 2);
     const steps = learningModule.troubleshooting;
     if (problems.length === 0 || steps.length === 0) continue;
+
+    if (a1) {
+      out.push({
+        id: `lab-${slug}-a1-test-diagnose-verify`,
+        topicId: topic.id,
+        title: `${topic.title}: test, diagnose, repair decision, and verification`,
+        category,
+        objective: `Use an A1-style test sequence to gather evidence for ${topic.title}, choose a justified repair decision, and verify the result.`,
+        prerequisites: [...prerequisites, `${topic.title}: component identification`],
+        difficulty: topic.difficulty,
+        estimatedMinutes: Math.max(35, Math.round(topic.estimatedMinutes * 0.9)),
+        environment: "A written or supervised shop exercise using the listed tools and the correct manufacturer service information. Never substitute generic values in this activity for vehicle-specific procedures or specifications.",
+        instructions: [
+          `Tools/reference: ${a1.tools.join("; ")}.`,
+          ...a1.testPlan.map((step, index) => `Test ${index + 1}: ${sentence(step)}`),
+          `Repair decision: ${sentence(a1.repairDecision)}`,
+          ...a1.verification.map((step, index) => `Verification ${index + 1}: ${sentence(step)}`),
+          "Record the complaint, each test performed, the observed or supplied result, what that result proves, the repair decision, and the final verification evidence.",
+        ],
+        expectedResult: `A complete A1 diagnostic record for ${topic.title} that moves from symptom to measured evidence, justified repair decision, and verification without parts swapping or invented specifications.`,
+        checklist: checklist(`${slug}-a1`, [
+          "Verified the complaint and selected the correct service information",
+          "Identified the components involved before testing",
+          "Used the appropriate test sequence and recorded evidence",
+          "Separated the confirmed cause from plausible alternatives",
+          "Chose a repair supported by the evidence",
+          "Repeated the decisive test and verified the original complaint was resolved",
+        ]),
+        reflectionPrompt: "Which measurement or observation changed your diagnosis the most, and what alternative did it rule out?",
+        masteryScore: 100,
+      });
+      continue;
+    }
 
     const drillInstructions = [
       `Pick one fault to work through: ${problems.join("; ")}.`,

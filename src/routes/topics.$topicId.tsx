@@ -191,7 +191,8 @@ function TopicPage() {
   const isAutoPath = domain.id === "auto-repair";
   const TopicIcon = getTopicIcon(topic);
   const status = mastered ? "Passed" : progress ? "In progress" : "Not started";
-  const topicLab = labs.find((item) => item.topicId === topic.id);
+  const topicLab = labs.find((item) => item.topicId === topic.id && item.id.endsWith("-a1-test-diagnose-verify"))
+    ?? labs.find((item) => item.topicId === topic.id);
   const topicIncident = incidents.find((item) => item.topicId === topic.id);
   const explorerFocus = autoAssemblies.some((item) => item.id === automotiveFocusFor(topic.title)) ? automotiveFocusFor(topic.title) : "engine-bay";
   const obdScenario = [...obdScenarios].sort((a, b) => {
