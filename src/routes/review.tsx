@@ -17,6 +17,7 @@ import {
 import { useAppState } from "@/state/app-state";
 import { SectionTabs, REVIEW_TABS } from "@/components/layout/section-tabs";
 import { learnerContinuity } from "@/lib/learner-continuity";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/review")({
   staticData: { sitemap: false },
@@ -24,9 +25,9 @@ export const Route = createFileRoute("/review")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Review | IT PATH" },
+      { title: `${domain.id === "auto-repair" ? "Recheck" : "Review"} | ${domain.appName}` },
       { name: "description", content: "Missed questions, weak concepts, and topics due to practise again." },
-      { property: "og:title", content: "Review | IT PATH" },
+      { property: "og:title", content: `${domain.id === "auto-repair" ? "Recheck" : "Review"} | ${domain.appName}` },
       { property: "og:description", content: "Spaced repetition keeps what you learn from fading." },
     ],
   }),
