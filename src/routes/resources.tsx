@@ -14,6 +14,7 @@ import { resources, topics } from "@/data/static-content";
 import type { Resource } from "@/lib/app-data/types";
 import { useAppState } from "@/state/app-state";
 import { isStringPreference, useUiPreference } from "@/hooks/use-ui-preference";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/resources")({
   staticData: { sitemap: false },
@@ -21,9 +22,9 @@ export const Route = createFileRoute("/resources")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Resources | IT PATH" },
-      { name: "description", content: "Search verified IT learning resources and save bookmarks and notes." },
-      { property: "og:title", content: "Resources | IT PATH" },
+      { title: `${domain.id === "auto-repair" ? "Service Resources" : "Resources"} | ${domain.appName}` },
+      { name: "description", content: `Search verified ${domain.field} learning resources and save bookmarks and notes.` },
+      { property: "og:title", content: `${domain.id === "auto-repair" ? "Service Resources" : "Resources"} | ${domain.appName}` },
       { property: "og:description", content: "Verified technical learning resources organized by topic and skill area." },
     ],
   }),
