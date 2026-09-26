@@ -1542,6 +1542,31 @@ export function VirusRun() {
         ctx2.restore();
       }
 
+      // Autonomous offspring: smaller animated versions of the hero.
+      for(let hi=0;hi<run.helpers.length;hi++){
+        const helper=run.helpers[hi]!;
+        const hx=offX+(helper.x+.5)*cell,hy=offY+(helper.y+.5)*cell;
+        const age=Math.min(1,(time-helper.born)/240);
+        const bob=Math.sin(time/145+hi*1.9)*cell*.022;
+        const heading=Math.atan2(helper.ty-helper.y,helper.tx-helper.x);
+        ctx2.save();ctx2.translate(hx,hy+bob);ctx2.rotate(heading);ctx2.scale(age,age);
+        ctx2.shadowColor="rgba(45,212,191,.6)";ctx2.shadowBlur=cell*.3;
+        const hr=cell*.21;
+        const hg=ctx2.createRadialGradient(-hr*.22,-hr*.2,0,0,0,hr);
+        hg.addColorStop(0,"#ccfbf1");hg.addColorStop(.38,"#2dd4bf");hg.addColorStop(1,"#115e59");
+        ctx2.fillStyle=hg;ctx2.beginPath();ctx2.ellipse(0,0,hr*1.05,hr*.9,0,0,Math.PI*2);ctx2.fill();
+        ctx2.strokeStyle="rgba(153,246,228,.82)";ctx2.lineWidth=Math.max(1,cell*.032);ctx2.lineCap="round";
+        for(let k=0;k<5;k++){
+          const a=k*Math.PI*2/5+Math.sin(time/280+k+hi)*.07;
+          ctx2.beginPath();ctx2.moveTo(Math.cos(a)*hr*.72,Math.sin(a)*hr*.72);ctx2.lineTo(Math.cos(a)*hr*1.42,Math.sin(a)*hr*1.42);ctx2.stroke();
+        }
+        ctx2.fillStyle="rgba(236,254,255,.9)";
+        const blink=((time+hi*431)%3100)<100?.15:1;
+        ctx2.beginPath();ctx2.ellipse(hr*.42,-hr*.16,hr*.075,hr*.045*blink,0,0,Math.PI*2);ctx2.fill();
+        ctx2.beginPath();ctx2.ellipse(hr*.42,hr*.16,hr*.075,hr*.045*blink,0,0,Math.PI*2);ctx2.fill();
+        ctx2.restore();
+      }
+
       // True motion-history trail follows the route and bends naturally through turns.
       ctx2.save();
       for(let i=0;i<trailRef.current.length;i++){
