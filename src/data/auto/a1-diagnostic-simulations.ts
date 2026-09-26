@@ -1,12 +1,20 @@
 import { a1PracticalProfileFor } from "@/data/auto/a1-practical";
 
+export interface A1DiagnosticChoice {
+  id: string;
+  label: string;
+  result: string;
+  feedback: string;
+  value: "best" | "useful" | "low-value";
+}
+
 export interface A1DiagnosticTest {
   id: string;
   label: string;
   result: string;
   interpretation: string;
   rulesOut: string;
-  alternatives: Array<{ label: string; feedback: string }>;
+  choices: A1DiagnosticChoice[];
 }
 
 export interface A1DiagnosticSimulation {
@@ -118,6 +126,47 @@ const COMPLAINTS: Record<string, string> = {
   "complete-engine-mechanical-integration": "A repaired engine is being assembled and must be proven ready for service.",
 };
 
+
+const LOW_VALUE_TESTS = [
+  "Replace the most suspicious part and see whether the symptom changes",
+  "Clear any stored information and return the vehicle without reproducing the complaint",
+  "Skip the measurement and rely on the symptom description alone",
+];
+
+function alternatives(
+  topicId: string,
+  index: number,
+  correctLabel: string,
+  previousLabel?: string,
+): A1DiagnosticChoice[] {
+  const useful = previousLabel
+    ? `Repeat the previous step first: ${previousLabel}`
+    : "Perform a broader visual inspection without recording a baseline";
+  const low = LOW_VALUE_TESTS[(topicId.length + index) % LOW_VALUE_TESTS.length]!;
+  const correct: A1DiagnosticChoice = {
+    id: `${topicId}-choice-${index + 1}-best`,
+    label: correctLabel,
+    result: "",
+    feedback: "Best next test. It follows the evidence already gathered and advances the diagnosis.",
+    value: "best",
+  };
+  const secondary: A1DiagnosticChoice = {
+    id: `${topicId}-choice-${index + 1}-useful`,
+    label: useful,
+    result: "The check is valid, but it adds little new evidence at this point.",
+    feedback: "Useful in some situations, but less efficient here because the current evidence supports a more targeted next test.",
+    value: "useful",
+  };
+  const poor: A1DiagnosticChoice = {
+    id: `${topicId}-choice-${index + 1}-low`,
+    label: low,
+    result: "No defensible new diagnostic evidence is produced.",
+    feedback: "Low-value choice. Diagnosis should advance from controlled checks and measurements, not parts swapping or unsupported assumptions.",
+    value: "low-value",
+  };
+  return index % 2 === 0 ? [secondary, correct, poor] : [poor, secondary, correct];
+}
+
 function slug(topicId: string): string {
   return topicId.replace(/^topic-/, "");
 }
@@ -127,27 +176,24 @@ export function a1DiagnosticSimulationFor(topicId: string): A1DiagnosticSimulati
   if (!practical) return undefined;
   const key = slug(topicId);
   const results = RESULTS[key] ?? [];
-  const tests = practical.testPlan.map((label, index) => ({
-    id: `${topicId}-test-${index + 1}`,
-    label,
-    result: results[index] ?? "The result is recorded. Compare it with the supplied service information before continuing.",
-    interpretation: index === practical.testPlan.length - 1
-      ? "You now have enough evidence to justify a repair decision and define the verification step."
-      : "Use this result to narrow the fault before choosing the next test.",
-    rulesOut: index === 0
-      ? "This prevents jumping directly to parts replacement before the complaint and baseline condition are verified."
-      : "This result reduces the likelihood of alternatives that do not match the accumulated evidence.",
-    alternatives: [
-      {
-        label: index === 0 ? "Replace the most likely part now" : "Stop testing and replace the suspected component",
-        feedback: "That skips evidence. A plausible symptom is not enough to prove the failed component, so this choice adds diagnostic waste without narrowing the cause.",
-      },
-      {
-        label: index === 0 ? "Run an unrelated scan or electrical check first" : "Switch to an unrelated system test",
-        feedback: "That test may produce data, but the current evidence does not make it the most informative next step. Stay with the fault path until a result redirects you.",
-      },
-    ],
-  }));
+  const tests = practical.testPlan.map((label, index) => {
+    const result = results[index] ?? "The result is recorded. Compare it with the supplied service information before continuing.";
+    const choices = alternatives(topicId, index, label, practical.testPlan[index - 1]);
+    const best = choices.find((choice) => choice.value === "best");
+    if (best) best.result = result;
+    return {
+      id: `${topicId}-test-${index + 1}`,
+      label,
+      result,
+      interpretation: index === practical.testPlan.length - 1
+        ? "You now have enough evidence to justify a repair decision and define the verification step."
+        : "Use this result to narrow the fault before choosing the next test.",
+      rulesOut: index === 0
+        ? "This prevents jumping directly to parts replacement before the complaint and baseline condition are verified."
+        : "This result reduces the likelihood of alternatives that do not match the accumulated evidence.",
+      choices,
+    };
+  });
   return {
     topicId,
     complaint: COMPLAINTS[key] ?? "A repeatable engine concern requires an evidence-based diagnostic sequence.",
