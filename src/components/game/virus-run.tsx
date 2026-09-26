@@ -1382,11 +1382,20 @@ export function VirusRun() {
         guardGradient.addColorStop(0, g.kind==="warden"?"#e9d5ff":"#fecaca"); guardGradient.addColorStop(0.22, guardAccent); guardGradient.addColorStop(1, g.kind==="warden"?"#581c87":"#7f1d1d");
         ctx2.fillStyle = guardGradient;
         ctx2.beginPath();
-        ctx2.moveTo(0, -s * 0.52); ctx2.lineTo(s * 0.42, -s * 0.22); ctx2.lineTo(s * 0.34, s * 0.3); ctx2.lineTo(0, s * 0.54); ctx2.lineTo(-s * 0.34, s * 0.3); ctx2.lineTo(-s * 0.42, -s * 0.22); ctx2.closePath(); ctx2.fill();
+        if(g.kind==="scanner"){ctx2.moveTo(0,-s*.54);ctx2.lineTo(s*.48,-s*.12);ctx2.lineTo(s*.3,s*.42);ctx2.lineTo(-s*.3,s*.42);ctx2.lineTo(-s*.48,-s*.12);}
+        else if(g.kind==="hunter"){ctx2.moveTo(0,-s*.68);ctx2.lineTo(s*.38,-s*.08);ctx2.lineTo(s*.22,s*.5);ctx2.lineTo(0,s*.3);ctx2.lineTo(-s*.22,s*.5);ctx2.lineTo(-s*.38,-s*.08);}
+        else if(g.kind==="interceptor"){ctx2.moveTo(0,-s*.7);ctx2.lineTo(s*.5,s*.25);ctx2.lineTo(s*.14,s*.12);ctx2.lineTo(0,s*.56);ctx2.lineTo(-s*.14,s*.12);ctx2.lineTo(-s*.5,s*.25);}
+        else{for(let i=0;i<6;i++){const a=-Math.PI/2+i*Math.PI/3,rr=i%2===0?s*.56:s*.5;const xx=Math.cos(a)*rr,yy=Math.sin(a)*rr;i?ctx2.lineTo(xx,yy):ctx2.moveTo(xx,yy);}}
+        ctx2.closePath(); ctx2.fill();
         ctx2.shadowBlur = 0;
         ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.06, s * 0.16, 0, Math.PI * 2); ctx2.fill();
         ctx2.fillStyle = "#fee2e2"; ctx2.beginPath(); ctx2.arc(0, -s * 0.08, s * 0.065, 0, Math.PI * 2); ctx2.fill();
-        ctx2.fillStyle=guardAccent;ctx2.font=`bold ${Math.max(7,cell*.19)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText(g.kind==="scanner"?"S":g.kind==="hunter"?"H":g.kind==="interceptor"?"I":"W",0,s*.2);
+        // Distinct geometry now carries class identity; tiny accents reinforce it without requiring labels.
+        ctx2.strokeStyle=guardAccent;ctx2.lineWidth=Math.max(1,cell*.05);
+        if(g.kind==="scanner"){ctx2.beginPath();ctx2.arc(0,0,s*.31,time/350,time/350+Math.PI*1.3);ctx2.stroke();}
+        else if(g.kind==="hunter"){ctx2.beginPath();ctx2.moveTo(-s*.2,s*.18);ctx2.lineTo(0,s*.38);ctx2.lineTo(s*.2,s*.18);ctx2.stroke();}
+        else if(g.kind==="interceptor"){ctx2.beginPath();ctx2.moveTo(-s*.34,0);ctx2.lineTo(-s*.52,s*.22);ctx2.moveTo(s*.34,0);ctx2.lineTo(s*.52,s*.22);ctx2.stroke();}
+        else{ctx2.beginPath();ctx2.arc(0,0,s*.37,0,Math.PI*2);ctx2.stroke();}
         ctx2.strokeStyle = "rgba(254,202,202,0.65)"; ctx2.lineWidth = Math.max(0.8, cell * 0.045); ctx2.beginPath(); ctx2.arc(0, 0, s * 0.68, time / 500, time / 500 + Math.PI * 1.15); ctx2.stroke();
         ctx2.restore();
       }
