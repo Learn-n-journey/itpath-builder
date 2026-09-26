@@ -57,6 +57,7 @@ import { useCommunityLearningActivity, type LearningActivity } from "@/hooks/use
 import { checkDisplayName, checkMessage } from "@/lib/community/word-filter";
 import { COMMUNITY_ROOMS, GENERAL_ROOM, communityForRoom, isValidRoom, roomTitle } from "@/lib/community/rooms";
 import { cn } from "@/lib/utils";
+import { domain } from "@/domain/active";
 
 // Community workspace: responsive room navigation, conversation feed, and study context.
 
@@ -91,6 +92,7 @@ function timeLabel(iso: string): string {
 
 function CommunityPage() {
   const { userId, ready } = useAuth();
+  const isAutoPath = domain.id === "auto-repair";
   const { user } = useAppState();
   const navigate = useNavigate({ from: "/community" });
   const search = Route.useSearch();
@@ -101,10 +103,11 @@ function CommunityPage() {
   const membership = useCommunityMembership(room);
   const memberCount = useCommunityMemberCount(room);
   const { messages: communityStream, loading: streamLoading } = useCommunityPostStream();
+  const scopedCommunityStream = useMemo(() => communityStream.filter((message) => isValidRoom(message.room || GENERAL_ROOM)), [scopedCommunityStream]);
   const { rooms: joinedRooms, loading: membershipsLoading } = useMyCommunityMemberships();
   const { friendships, loading: friendshipsLoading } = useSocialMessaging();
   const { activities: sharedActivity, loading: activityLoading } = useCommunityLearningActivity();
-  const profileIds = useMemo(() => [...new Set([...messages.map((message) => message.userId), ...communityStream.map((message) => message.userId), ...sharedActivity.map((activity) => activity.userId)])], [messages, communityStream, sharedActivity]);
+  const profileIds = useMemo(() => [...new Set([...messages.map((message) => message.userId), ...scopedCommunityStream.map((message) => message.userId), ...sharedActivity.map((activity) => activity.userId)])], [messages, scopedCommunityStream, sharedActivity]);
   const { profiles: communityProfiles } = useProfiles(profileIds);
   const [openComments,setOpenComments]=useState<string|null>(null);
   const [comments,setComments]=useState<any[]>([]);
@@ -134,13 +137,13 @@ function CommunityPage() {
   const needsName = ready && Boolean(userId) && !nameLoading && !displayName;
   const activeCommunity = communityForRoom(room);
   const feedMessages=useMemo(()=>feedMode==="popular" ? [...messages].sort((a,b)=>(b.likeCount+b.commentCount*2)-(a.likeCount+a.commentCount*2)) : [...messages].reverse(),[messages,feedMode]);
-  const activityFeed = room === GENERAL_ROOM ? sharedActivity : [];
+  const activityFeed = room === GENERAL_ROOM && !isAutoPath ? sharedActivity : [];
 
   if (ready && !userId) {
     return (
       <>
         <CommunityHero />
-        <Panel title="Sign in to join" description="The rooms are for people with an IT PATH account.">
+        <Panel title="Sign in to join" description={`The rooms are for people with a ${domain.appName} account.`}>
           <Button asChild><Link to="/auth">Sign in or create an account</Link></Button>
         </Panel>
       </>
@@ -184,7 +187,7 @@ function CommunityPage() {
     if (room !== GENERAL_ROOM || communityTab !== "feed" || feedMode !== "latest" || postFilter !== "all") return [];
     const query = communityQuery.trim().toLowerCase();
     const matchesSearch = (text: string) => !query || text.toLowerCase().includes(query);
-    const candidatePosts = socialView === "communities" ? communityStream.filter((message) => Boolean(message.room && joinedRooms.includes(message.room))) : communityStream;
+    const candidatePosts = socialView === "communities" ? scopedCommunityStream.filter((message) => Boolean(message.room && joinedRooms.includes(message.room))) : scopedCommunityStream;
     const postItems = candidatePosts
       .filter((message) => {
         const identity = message.userId === userId ? ownProfile : communityProfiles[message.userId];
@@ -206,19 +209,19 @@ function CommunityPage() {
       })
       .map((activity) => ({ kind: "activity" as const, at: activity.occurredAt, activity }));
     return [...postItems, ...activityItems].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
-  }, [activityFeed, communityProfiles, communityQuery, communityStream, communityTab, feedMode, friendIds, joinedRooms, ownProfile, postFilter, room, socialView, userId]);
+  }, [activityFeed, communityProfiles, communityQuery, scopedCommunityStream, communityTab, feedMode, friendIds, joinedRooms, ownProfile, postFilter, room, socialView, userId]);
   const showingMixedFeed = room === GENERAL_ROOM && communityTab === "feed" && feedMode === "latest" && postFilter === "all";
   const showingDiscover = showingMixedFeed && socialView === "discover";
   const discoverPeople = useMemo(() => {
     const seen = new Set<string>();
-    return [...communityStream].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).filter((message) => {
+    return [...scopedCommunityStream].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).filter((message) => {
       if (message.userId === userId || friendIds.has(message.userId) || seen.has(message.userId)) return false;
       seen.add(message.userId);
       return true;
     }).slice(0, 6).map((message) => ({ userId: message.userId, profile: communityProfiles[message.userId], fallbackName: message.displayName }));
-  }, [communityProfiles, communityStream, friendIds, userId]);
-  const discoverProjects = useMemo(() => communityStream.filter((message) => message.postType === "project").slice(0, 4), [communityStream]);
-  const discoverDiscussions = useMemo(() => [...communityStream].sort((a, b) => (b.likeCount + b.commentCount * 2) - (a.likeCount + a.commentCount * 2)).slice(0, 4), [communityStream]);
+  }, [communityProfiles, scopedCommunityStream, friendIds, userId]);
+  const discoverProjects = useMemo(() => scopedCommunityStream.filter((message) => message.postType === "project").slice(0, 4), [scopedCommunityStream]);
+  const discoverDiscussions = useMemo(() => [...scopedCommunityStream].sort((a, b) => (b.likeCount + b.commentCount * 2) - (a.likeCount + a.commentCount * 2)).slice(0, 4), [scopedCommunityStream]);
   const discoverActivity = useMemo(() => activityFeed.filter((activity) => activity.userId !== userId).slice(0, 4), [activityFeed, userId]);
   const mixedFeedLoading = loading || streamLoading || activityLoading || membershipsLoading || friendshipsLoading;
   const postTypes: Array<{value: CommunityPostType; label: string}> = [
@@ -229,16 +232,27 @@ function CommunityPage() {
     { value: "project", label: "Project" },
     { value: "study-help", label: "Study Help" },
   ];
-  const popularTopics = [
-    { label: "New to IT", room: "new-to-it", icon: CircleHelp },
-    { label: "Career Changers", room: "career-changers", icon: BriefcaseBusiness },
-    { label: "Home Lab Builders", room: "home-lab-builders", icon: Wrench },
-    { label: "Certification Study", room: "certification-study", icon: GraduationCap },
-    { label: "Networking Crew", room: "networking-crew", icon: Network },
-    { label: "Cybersecurity", room: "cybersecurity", icon: Shield },
-    { label: "Build & Show", room: "build-show", icon: Rocket },
-    { label: "Troubleshooting Help", room: "troubleshooting-help", icon: Terminal },
-  ];
+  const popularTopics = isAutoPath
+    ? [
+        { label: "New to Auto", room: "auto-new-to-auto", icon: CircleHelp },
+        { label: "DIY Garage", room: "auto-diy-garage", icon: Wrench },
+        { label: "Aspiring Technicians", room: "auto-aspiring-techs", icon: BriefcaseBusiness },
+        { label: "ASE Study", room: "auto-ase-study", icon: GraduationCap },
+        { label: "Diagnostics", room: "auto-diagnostics", icon: Terminal },
+        { label: "Electrical", room: "auto-electrical", icon: Sparkles },
+        { label: "Engine & Drivability", room: "auto-engine", icon: Wrench },
+        { label: "Repair Help", room: "auto-troubleshooting-help", icon: Wrench },
+      ]
+    : [
+        { label: "New to IT", room: "new-to-it", icon: CircleHelp },
+        { label: "Career Changers", room: "career-changers", icon: BriefcaseBusiness },
+        { label: "Home Lab Builders", room: "home-lab-builders", icon: Wrench },
+        { label: "Certification Study", room: "certification-study", icon: GraduationCap },
+        { label: "Networking Crew", room: "networking-crew", icon: Network },
+        { label: "Cybersecurity", room: "cybersecurity", icon: Shield },
+        { label: "Build & Show", room: "build-show", icon: Rocket },
+        { label: "Troubleshooting Help", room: "troubleshooting-help", icon: Terminal },
+      ];
 
   return (
     <div className="space-y-4 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:space-y-6">
@@ -261,7 +275,7 @@ function CommunityPage() {
         {[
           {title:"Ask a Question",subtitle:"Get help from the community",icon:CircleHelp,classes:"from-blue-600 to-blue-700"},
           {title:"Share Progress",subtitle:"Celebrate your wins",icon:TrendingUp,classes:"from-emerald-600 to-emerald-700"},
-          {title:"Discuss Topics",subtitle:"Talk about IT, certs, and more",icon:Users,classes:"from-violet-600 to-purple-700"},
+          {title:"Discuss Topics",subtitle:isAutoPath?"Talk repairs, diagnostics, ASE, and more":"Talk about IT, certs, and more",icon:Users,classes:"from-violet-600 to-purple-700"},
           {title:"Showcase Projects",subtitle:"Share what you've built",icon:Rocket,classes:"from-orange-600 to-amber-700"},
         ].map((item)=><button key={item.title} type="button" onClick={()=>document.getElementById("communityMessage")?.focus()} className={cn("group min-w-[16rem] snap-start rounded-xl bg-gradient-to-br p-4 text-left text-white shadow-lg sm:min-w-0",item.classes)}><div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-full bg-white/15"><item.icon className="size-6"/></span><div><p className="font-display font-bold">{item.title}</p><p className="mt-1 text-xs text-white/75">{item.subtitle}</p></div><ArrowRight className="ml-auto size-4 transition-transform group-hover:translate-x-1"/></div></button>)}
       </section>
@@ -275,7 +289,7 @@ function CommunityPage() {
         <div className="bg-gradient-to-r from-primary/15 via-card to-card p-5 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="max-w-2xl">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Users className="size-4"/>{room===GENERAL_ROOM?"IT PATH Community":"Community"}</div>
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Users className="size-4"/>{room===GENERAL_ROOM?`${domain.appName} Community`:"Community"}</div>
               <h2 className="mt-2 font-display text-2xl font-bold">{activeCommunity.label}</h2>
               <p className="mt-1 text-sm font-medium">{activeCommunity.tagline}</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">{activeCommunity.description}</p>
@@ -291,7 +305,7 @@ function CommunityPage() {
 
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_260px]">
         <section className="overflow-hidden rounded-2xl border border-border/70 bg-card/55">
-          {communityTab==="about"?<div className="p-6"><div className="max-w-2xl"><h2 className="font-display text-xl font-bold">About {activeCommunity.label}</h2><p className="mt-3 text-sm leading-7 text-muted-foreground">{activeCommunity.about}</p><div className="mt-5 rounded-xl border border-border/60 bg-secondary/30 p-4"><p className="text-sm font-bold">How to use this community</p><p className="mt-1 text-sm leading-6 text-muted-foreground">Ask useful questions, show what you tried, share progress and projects, and help other learners when you can. Community activity supports learning but never awards mastery or bypasses My Path prerequisites.</p></div></div></div>:<>
+          {communityTab==="about"?<div className="p-6"><div className="max-w-2xl"><h2 className="font-display text-xl font-bold">About {activeCommunity.label}</h2><p className="mt-3 text-sm leading-7 text-muted-foreground">{activeCommunity.about}</p><div className="mt-5 rounded-xl border border-border/60 bg-secondary/30 p-4"><p className="text-sm font-bold">How to use this community</p><p className="mt-1 text-sm leading-6 text-muted-foreground">Ask useful questions, show what you tried, share progress and projects, and help other learners when you can. Community activity supports learning but never awards mastery or bypasses structured prerequisites.</p></div></div></div>:<>
           <div className="border-b border-border/60 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-display text-lg font-bold">{communityTab==="questions"?"Questions":communityTab==="projects"?"Projects":"Latest Discussions"}</h2><p className="text-xs text-muted-foreground">{roomTitle(room)}</p></div><select aria-label="Community" value={room} onChange={(event)=>{setCommunityTab("feed");setPostFilter("all");void navigate({search:{room:event.target.value}})}} className="rounded-lg border border-border bg-background px-3 py-2 text-xs">{rooms.map((entry)=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
             <div className={cn("mt-3 gap-2 overflow-x-auto pb-1",communityTab==="feed"?"flex":"hidden")}>{room===GENERAL_ROOM?([["for-you","For You"],["friends","Friends"],["communities","Communities"],["discover","Discover"]] as const).map(([value,label])=><Button key={value} size="sm" variant={postFilter==="all"&&feedMode==="latest"&&socialView===value?"default":"outline"} onClick={()=>{setSocialView(value);setFeedMode("latest");setPostFilter("all")}}>{label}</Button>):<Button size="sm" variant={postFilter==="all"&&feedMode==="latest"?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter("all")}}>All Posts</Button>}<Button size="sm" variant={feedMode==="popular"?"default":"outline"} onClick={()=>setFeedMode("popular")}>Popular</Button>{room===GENERAL_ROOM?<Button size="sm" variant={feedMode==="activity"?"default":"outline"} onClick={()=>{setFeedMode("activity");setPostFilter("all")}}>Learning Activity</Button>:null}{postTypes.map((type)=><Button key={type.value} size="sm" variant={postFilter===type.value?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter(type.value)}}>{type.label}</Button>)}</div>
@@ -336,7 +350,7 @@ function DockButton({icon,label,active,onClick}:{icon:React.ReactNode;label:stri
 function SocialNav({icon,label,active,onClick}:{icon:React.ReactNode;label:string;active?:boolean;onClick?:()=>void}){return <button onClick={onClick} className={cn("flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-secondary/70",active&&"bg-primary/10 text-primary")}>{icon}{label}</button>}
 
 function SocialHero() {
-  return <header className="mx-auto mb-3 flex max-w-2xl items-center justify-between border-b border-border/60 pb-3"><div><h1 className="font-display text-2xl font-semibold tracking-tight">Community</h1><p className="text-xs text-muted-foreground">IT PATH Network</p></div><button aria-label="Search community" className="rounded-full p-2 text-muted-foreground hover:bg-secondary"><Search className="size-5"/></button></header>
+  return <header className="mx-auto mb-3 flex max-w-2xl items-center justify-between border-b border-border/60 pb-3"><div><h1 className="font-display text-2xl font-semibold tracking-tight">Community</h1><p className="text-xs text-muted-foreground">{domain.appName} Network</p></div><button aria-label="Search community" className="rounded-full p-2 text-muted-foreground hover:bg-secondary"><Search className="size-5"/></button></header>
 }
 
 function CommunityHero() {
@@ -357,7 +371,7 @@ function CommunityHero() {
 function DiscoverPanel({ people, projects, discussions, activities, joinedRooms, popularTopics, userId, ownProfile, communityProfiles, navigate, ...postProps }: any) {
   const suggestedCommunities = popularTopics.filter((topic: any) => !joinedRooms.includes(topic.room)).slice(0, 4);
   return <div className="space-y-6 p-4 sm:p-5">
-    <section><div className="mb-3 flex items-center justify-between"><div><h3 className="font-display text-lg font-bold">People to discover</h3><p className="text-xs text-muted-foreground">Learners active around IT PATH who are not already your friends.</p></div><Users className="size-5 text-primary"/></div>
+    <section><div className="mb-3 flex items-center justify-between"><div><h3 className="font-display text-lg font-bold">People to discover</h3><p className="text-xs text-muted-foreground">Learners active around {domain.appName} who are not already your friends.</p></div><Users className="size-5 text-primary"/></div>
       {people.length===0?<p className="rounded-xl border border-border/60 p-4 text-sm text-muted-foreground">No new learners to suggest yet.</p>:<div className="grid gap-2 sm:grid-cols-2">{people.map((person: any)=>{const name=person.profile?.displayName||person.fallbackName||"Learner";return <Link key={person.userId} to="/profile/$userId" params={{userId:person.userId}} className="flex items-center gap-3 rounded-xl border border-border/70 bg-card/70 p-3 transition hover:border-primary/50"><span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-primary/15 font-bold text-primary">{person.profile?.avatarUrl?<img src={person.profile.avatarUrl} alt="" className="h-full w-full object-cover"/>:name.charAt(0).toUpperCase()}</span><div className="min-w-0"><p className="truncate text-sm font-bold">{name}</p><p className="text-xs text-muted-foreground">View learner profile</p></div><ArrowRight className="ml-auto size-4 text-muted-foreground"/></Link>})}</div>}
     </section>
     <section><div className="mb-3"><h3 className="font-display text-lg font-bold">Communities to explore</h3><p className="text-xs text-muted-foreground">Spaces you have not joined yet.</p></div><div className="grid gap-2 sm:grid-cols-2">{suggestedCommunities.map((topic:any)=>{const Icon=topic.icon;return <button key={topic.room} type="button" onClick={()=>void navigate({search:{room:topic.room}})} className="flex items-center gap-3 rounded-xl border border-border/70 bg-card/70 p-3 text-left transition hover:border-primary/50"><span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-4"/></span><span className="text-sm font-bold">{topic.label}</span><ArrowRight className="ml-auto size-4 text-muted-foreground"/></button>})}</div></section>
@@ -404,7 +418,7 @@ function CommunityActivityCard({
   profile?: { displayName?: string | null | undefined; avatarUrl?: string | null | undefined } | undefined;
 }) {
   const mine = activity.userId === viewerId;
-  const shownName = mine ? "You" : profile?.displayName || "IT PATH learner";
+  const shownName = mine ? "You" : profile?.displayName || `${domain.appName} learner`;
   const initial = shownName.trim().charAt(0).toUpperCase() || "?";
   const config = activityPresentation(activity.activityType);
 
