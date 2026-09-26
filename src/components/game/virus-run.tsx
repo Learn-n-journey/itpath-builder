@@ -1102,82 +1102,79 @@ export function VirusRun() {
         }
       }
 
-            // Port.
-      const pulse = 0.6 + 0.4 * Math.sin(time / 220);
+            // Exit node: quiet while locked, unmistakable once the route is complete.
+      const portalX = offX + (run.port.x + 0.5) * cell;
+      const portalY = offY + (run.port.y + 0.5) * cell;
       ctx2.save();
-      ctx2.globalAlpha = run.portOpen ? pulse : 0.28;
-      ctx2.shadowColor = "rgba(45,212,191,0.85)";
-      ctx2.shadowBlur = run.portOpen ? cell * 1.2 : 0;
-      const portGradient = ctx2.createRadialGradient(offX + (run.port.x + 0.5) * cell, offY + (run.port.y + 0.5) * cell, 0, offX + (run.port.x + 0.5) * cell, offY + (run.port.y + 0.5) * cell, cell * 0.65);
-      portGradient.addColorStop(0, "#ccfbf1");
-      portGradient.addColorStop(0.35, "#2dd4bf");
-      portGradient.addColorStop(1, "rgba(13,148,136,0.2)");
-      ctx2.fillStyle = portGradient;
-      roundRect(ctx2, offX + run.port.x * cell + pad, offY + run.port.y * cell + pad, cell - pad * 2, cell - pad * 2, cell * 0.3);
-      ctx2.fill();
+      ctx2.translate(portalX, portalY);
+      const portPulse = 0.5 + 0.5 * Math.sin(time / 260);
+      ctx2.strokeStyle = run.portOpen ? "rgba(94,234,212,0.92)" : "rgba(100,116,139,0.34)";
+      ctx2.lineWidth = Math.max(1, cell * 0.065);
+      ctx2.shadowColor = run.portOpen ? "rgba(45,212,191,0.72)" : "transparent";
+      ctx2.shadowBlur = run.portOpen ? cell * 0.72 : 0;
+      // Four corner brackets frame the destination without filling the corridor.
+      const pr=cell*.38, corner=cell*.16;
+      for(let i=0;i<4;i++){ctx2.save();ctx2.rotate(i*Math.PI/2);ctx2.beginPath();ctx2.moveTo(-corner,-pr);ctx2.lineTo(pr*.2,-pr);ctx2.lineTo(pr*.2,-pr+corner);ctx2.stroke();ctx2.restore();}
+      if(run.portOpen){
+        ctx2.rotate(time/1100);
+        ctx2.beginPath();ctx2.arc(0,0,cell*.28,0,Math.PI*1.45);ctx2.stroke();
+        ctx2.rotate(-time/550);
+        ctx2.strokeStyle=`rgba(153,246,228,${.45+.3*portPulse})`;
+        ctx2.beginPath();ctx2.arc(0,0,cell*.18,0,Math.PI*1.25);ctx2.stroke();
+        ctx2.fillStyle="#ccfbf1";ctx2.beginPath();ctx2.arc(0,0,cell*.07,0,Math.PI*2);ctx2.fill();
+      } else {
+        ctx2.fillStyle="rgba(148,163,184,0.42)";ctx2.fillRect(-cell*.08,-cell*.04,cell*.16,cell*.16);
+        ctx2.strokeStyle="rgba(148,163,184,0.42)";ctx2.beginPath();ctx2.arc(0,-cell*.07,cell*.11,Math.PI,0);ctx2.stroke();
+      }
       ctx2.restore();
-      ctx2.fillStyle = run.portOpen ? "#04211d" : "rgba(4,33,29,0.55)";
-      ctx2.font = `bold ${cell * 0.5}px ui-monospace, monospace`;
-      ctx2.textAlign = "center";
-      ctx2.textBaseline = "middle";
-      ctx2.fillText(">", offX + (run.port.x + 0.5) * cell, offY + (run.port.y + 0.55) * cell);
-      if (run.portOpen) {
-        const portalX = offX + (run.port.x + 0.5) * cell;
-        const portalY = offY + (run.port.y + 0.5) * cell;
-        ctx2.save();
-        ctx2.strokeStyle = "rgba(94,234,212,0.78)";
-        ctx2.lineWidth = Math.max(1, cell * 0.07);
-        for (let ring = 0; ring < 3; ring++) {
-          ctx2.beginPath();
-          ctx2.arc(portalX, portalY, cell * (0.48 + ring * 0.13), time / (380 + ring * 110), time / (380 + ring * 110) + Math.PI * 1.3);
-          ctx2.stroke();
-        }
-        ctx2.fillStyle = "#99f6e4";
-        ctx2.font = `bold ${Math.max(7, cell * 0.24)}px ui-monospace, monospace`;
-        ctx2.fillText("EXIT", portalX, portalY - cell * 0.75);
-        ctx2.restore();
+      if(run.portOpen){
+        ctx2.save();ctx2.fillStyle="rgba(153,246,228,0.88)";ctx2.font=`bold ${Math.max(7,cell*.22)}px ui-monospace, monospace`;ctx2.textAlign="center";ctx2.fillText("EXIT",portalX,portalY-cell*.68);ctx2.restore();
       }
 
-      // Data packets: faceted luminous cores with orbital rings.
+      // Data packets: compact encrypted data shards. Their restrained scale keeps
+      // the player and threats dominant while remaining readable at phone size.
       for (const packet of run.packets) {
         if (packet.taken) continue;
         ctx2.save();
         ctx2.translate(offX + (packet.x + 0.5) * cell, offY + (packet.y + 0.5) * cell);
-        ctx2.rotate(time / 850 + packet.x);
-        const sniffStacks = upgradesRef.current["packet-sniffer"];
-        if (sniffStacks > 0) {
-          const sniffPulse = 0.22 + 0.12 * Math.sin(time / 180 + packet.x);
-          ctx2.strokeStyle = "rgba(125,211,252," + sniffPulse + ")";
-          ctx2.lineWidth = Math.max(1, cell * 0.05);
-          ctx2.beginPath();
-          ctx2.arc(0, 0, cell * (0.75 + sniffStacks * 0.18), 0, Math.PI * 2);
-          ctx2.stroke();
-        }
-        const s = cell * 0.28;
-        ctx2.shadowColor = "#7dd3fc";
-        ctx2.shadowBlur = cell * 0.85;
-        const collectibleFill = ctx2.createLinearGradient(-s, -s, s, s);
-        collectibleFill.addColorStop(0, "#f0f9ff");
-        collectibleFill.addColorStop(0.45, "#38bdf8");
-        collectibleFill.addColorStop(1, "#0e7490");
-        ctx2.fillStyle = collectibleFill;
-        ctx2.beginPath();
-        ctx2.moveTo(0, -s); ctx2.lineTo(s, 0); ctx2.lineTo(0, s); ctx2.lineTo(-s, 0); ctx2.closePath(); ctx2.fill();
-        ctx2.strokeStyle = "#bae6fd";
-        ctx2.lineWidth = Math.max(0.8, cell * 0.045);
-        ctx2.beginPath();
-        ctx2.moveTo(0, -s); ctx2.lineTo(0, s);
-        ctx2.moveTo(-s, 0); ctx2.lineTo(0, s * 0.42); ctx2.lineTo(s, 0);
-        ctx2.stroke();
-        ctx2.shadowBlur = 0;
-        ctx2.strokeStyle = "rgba(125,211,252,0.72)";
-        ctx2.lineWidth = Math.max(1, cell * 0.07);
-        ctx2.beginPath(); ctx2.arc(0, 0, s * 1.65, 0.25, Math.PI * 1.55); ctx2.stroke();
+        const bob=Math.sin(time/260+packet.x*.7+packet.y*.35)*cell*.035;
+        ctx2.translate(0,bob);
+        ctx2.rotate(Math.PI/4 + Math.sin(time/700+packet.x)*.12);
+        const sniffStacks=upgradesRef.current["packet-sniffer"];
+        if(sniffStacks>0){ctx2.strokeStyle=`rgba(125,211,252,${.18+.1*Math.sin(time/180+packet.x)})`;ctx2.lineWidth=Math.max(.8,cell*.035);ctx2.beginPath();ctx2.arc(0,0,cell*(.48+sniffStacks*.12),0,Math.PI*2);ctx2.stroke();}
+        const shard=cell*.205;
+        ctx2.shadowColor="rgba(56,189,248,0.65)";ctx2.shadowBlur=cell*.42;
+        const dataFill=ctx2.createLinearGradient(-shard,-shard,shard,shard);
+        dataFill.addColorStop(0,"#e0f2fe");dataFill.addColorStop(.38,"#38bdf8");dataFill.addColorStop(1,"#0369a1");
+        ctx2.fillStyle=dataFill;ctx2.fillRect(-shard,-shard,shard*2,shard*2);
+        ctx2.shadowBlur=0;ctx2.strokeStyle="rgba(186,230,253,0.82)";ctx2.lineWidth=Math.max(.7,cell*.035);ctx2.strokeRect(-shard,-shard,shard*2,shard*2);
+        ctx2.fillStyle="rgba(240,249,255,0.8)";ctx2.fillRect(-shard*.5,-shard*.12,shard,shard*.24);
         ctx2.restore();
       }
 
-      // Power-ups.
-      for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);ctx2.rotate(time/700);ctx2.shadowColor="#facc15";ctx2.shadowBlur=cell*.9;ctx2.strokeStyle="#fde68a";ctx2.lineWidth=Math.max(1,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*.32,0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="#facc15";ctx2.font=`bold ${cell*.34}px ui-monospace`;ctx2.textAlign="center";ctx2.textBaseline="middle";ctx2.rotate(-time/700);ctx2.fillText(power.kind==="cloak"?"C":power.kind==="overclock"?"O":power.kind==="emp"?"E":"M",0,0);ctx2.restore();}
+      // Power modules use shape and color, not letters, so they read instantly.
+      for(const power of run.powerUps){
+        if(power.taken)continue;
+        const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;
+        const palette=power.kind==="cloak"?["167,139,250","196,181,253"]:power.kind==="overclock"?["251,146,60","254,215,170"]:power.kind==="emp"?["34,211,238","165,243,252"]:["250,204,21","254,240,138"];
+        ctx2.save();ctx2.translate(x,y);
+        const breathe=1+.055*Math.sin(time/180+power.x);ctx2.scale(breathe,breathe);
+        ctx2.shadowColor=`rgba(${palette[0]},0.72)`;ctx2.shadowBlur=cell*.65;
+        ctx2.strokeStyle=`rgba(${palette[1]},0.9)`;ctx2.fillStyle=`rgba(${palette[0]},0.2)`;ctx2.lineWidth=Math.max(1,cell*.055);
+        ctx2.beginPath();ctx2.arc(0,0,cell*.3,0,Math.PI*2);ctx2.fill();ctx2.stroke();ctx2.shadowBlur=0;
+        ctx2.strokeStyle=`rgba(${palette[1]},0.96)`;ctx2.lineWidth=Math.max(1,cell*.07);
+        if(power.kind==="cloak"){
+          ctx2.beginPath();ctx2.arc(0,0,cell*.14,.2,Math.PI*1.8);ctx2.stroke();ctx2.beginPath();ctx2.arc(cell*.055,0,cell*.035,0,Math.PI*2);ctx2.fillStyle=`rgba(${palette[1]},0.95)`;ctx2.fill();
+        }else if(power.kind==="overclock"){
+          ctx2.beginPath();ctx2.moveTo(cell*.04,-cell*.18);ctx2.lineTo(-cell*.11,cell*.02);ctx2.lineTo(cell*.01,cell*.02);ctx2.lineTo(-cell*.05,cell*.19);ctx2.lineTo(cell*.14,-cell*.05);ctx2.lineTo(cell*.02,-cell*.05);ctx2.closePath();ctx2.stroke();
+        }else if(power.kind==="emp"){
+          for(let ring=0;ring<2;ring++){ctx2.beginPath();ctx2.arc(0,0,cell*(.08+ring*.1),-Math.PI*.7,Math.PI*.7);ctx2.stroke();}
+          ctx2.fillStyle=`rgba(${palette[1]},0.95)`;ctx2.beginPath();ctx2.arc(0,0,cell*.035,0,Math.PI*2);ctx2.fill();
+        }else{
+          ctx2.beginPath();ctx2.arc(-cell*.07,0,cell*.1,Math.PI*.5,Math.PI*1.5);ctx2.arc(cell*.07,0,cell*.1,-Math.PI*.5,Math.PI*.5);ctx2.stroke();
+        }
+        ctx2.restore();
+      }
 
       // Boss security core. It stays subdued while packets remain, then
       // activates clearly so the player knows the next objective.
