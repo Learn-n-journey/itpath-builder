@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,31 +6,74 @@ import { useAuth } from "@/state/auth-state";
 
 export const LEARNING_DISCLAIMER_VERSION = "1.0";
 
+const STORAGE_KEY = "itpath_learning_disclaimer_version";
+const STORAGE_AT_KEY = "itpath_learning_disclaimer_accepted_at";
+
+function readLocalAcceptance(): string | null {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
 export function LearningDisclaimerGate({ children }: { children: ReactNode }) {
   const { user, ready, signOut } = useAuth();
   const [agreed, setAgreed] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  const [localAccepted, setLocalAccepted] = useState(false);
 
-  if (!ready || !user) return <>{children}</>;
+  useEffect(() => {
+    setLocalAccepted(readLocalAcceptance() === LEARNING_DISCLAIMER_VERSION);
+    setHydrated(true);
+  }, []);
 
-  const acceptedVersion = user.user_metadata?.["learning_disclaimer_version"];
-  if (acceptedVersion === LEARNING_DISCLAIMER_VERSION) return <>{children}</>;
+  const accountVersion = user?.user_metadata?.["learning_disclaimer_version"];
+  const accountAccepted = accountVersion === LEARNING_DISCLAIMER_VERSION;
+
+  // Carry a device acceptance up to the account once someone signs in.
+  useEffect(() => {
+    if (!ready || !user || accountAccepted || !localAccepted) return;
+    void supabase.auth.updateUser({
+      data: {
+        learning_disclaimer_version: LEARNING_DISCLAIMER_VERSION,
+        learning_disclaimer_accepted_at:
+          (() => {
+            try {
+              return window.localStorage.getItem(STORAGE_AT_KEY) ?? new Date().toISOString();
+            } catch {
+              return new Date().toISOString();
+            }
+          })(),
+      },
+    });
+  }, [ready, user, accountAccepted, localAccepted]);
+
+  // Never block the first server-rendered paint.
+  if (!hydrated) return <>{children}</>;
+  if (localAccepted || accountAccepted) return <>{children}</>;
 
   async function accept() {
     if (!agreed || saving) return;
     setSaving(true);
     const acceptedAt = new Date().toISOString();
-    const { error } = await supabase.auth.updateUser({
-      data: {
-        learning_disclaimer_version: LEARNING_DISCLAIMER_VERSION,
-        learning_disclaimer_accepted_at: acceptedAt,
-      },
-    });
-    if (error) {
-      setSaving(false);
-      return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, LEARNING_DISCLAIMER_VERSION);
+      window.localStorage.setItem(STORAGE_AT_KEY, acceptedAt);
+    } catch {
+      // Storage may be unavailable (private mode); account metadata still covers signed-in users.
     }
-    window.location.assign("/");
+    if (user) {
+      await supabase.auth.updateUser({
+        data: {
+          learning_disclaimer_version: LEARNING_DISCLAIMER_VERSION,
+          learning_disclaimer_accepted_at: acceptedAt,
+        },
+      });
+    }
+    setSaving(false);
+    setLocalAccepted(true);
   }
 
   return (
@@ -75,9 +118,11 @@ export function LearningDisclaimerGate({ children }: { children: ReactNode }) {
             <span>I understand that this platform is a supplemental learning resource and does not replace appropriate professional education, training, supervision, documentation, or safety procedures.</span>
           </label>
           <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button type="button" variant="outline" onClick={() => void signOut()}>
-              Decline &amp; Sign Out
-            </Button>
+            {user ? (
+              <Button type="button" variant="outline" onClick={() => void signOut()}>
+                Decline &amp; Sign Out
+              </Button>
+            ) : null}
             <Button type="button" disabled={!agreed || saving} onClick={() => void accept()}>
               {saving ? "Saving…" : "I Understand & Continue"}
             </Button>
