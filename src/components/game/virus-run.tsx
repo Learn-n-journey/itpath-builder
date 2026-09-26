@@ -592,6 +592,9 @@ export function VirusRun() {
       }
       if (p.moving) {
         let playerSpeed=PLAYER_SPEED * (1 + upgradesRef.current["kernel-boost"] * 0.08);
+        // Momentum turns risky, efficient routing into a tangible advantage.
+        // Each active streak tier adds 3% speed, capped at x5 (+15%).
+        if (run.streak > 1 && run.streakTimer > 0) playerSpeed *= 1 + run.streak * 0.03;
         if(run.activePower?.kind==="overclock")playerSpeed*=1.55;
         if(run.theme.system==="CPU Cache")playerSpeed*=1.08;
         if(run.theme.system==="Network Stack" && (Math.round(p.y)%4===0))playerSpeed*=1.22;
@@ -615,7 +618,10 @@ export function VirusRun() {
         if (!packet.taken && (packet.x === px && packet.y === py || (magnetRange > 0 && Math.hypot(packet.x - p.x, packet.y - p.y) <= magnetRange))) {
           packet.taken = true;
           run.collected += 1;
-          run.streak = Math.min(5, run.streak + 1); run.streakTimer = 4.5;
+          run.streak = Math.min(5, run.streak + 1);
+          // Higher momentum gets slightly more breathing room so a skilled route
+          // can be sustained without making the bonus permanent.
+          run.streakTimer = 4.25 + run.streak * 0.35;
           fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet" });virusSound("packet");
           if (run.collected >= run.required && !run.boss) run.portOpen = true;
           syncHud(run);
@@ -739,12 +745,16 @@ export function VirusRun() {
         const nearDist=Math.hypot(g.x-p.x,g.y-p.y);
         if(!hidden && toPlayer>=0 && toPlayer<=2 && performance.now()-lastAlertSoundRef.current>900){virusSound("alert");lastAlertSoundRef.current=performance.now();}
         if(p.invuln<=0 && nearDist<1.05 && nearDist>=0.55 && Math.random()<dt*1.4){
-          run.streak=Math.min(5,run.streak+1);run.streakTimer=3.5;
+          run.streak=Math.min(5,run.streak+1);
+          run.streakTimer=3.5 + run.streak * 0.3;
           fxRef.current.push({x:p.x,y:p.y,born:performance.now(),kind:"near"});
         }
         // Contact.
         if (p.invuln <= 0 && Math.abs(g.x - p.x) < 0.55 && Math.abs(g.y - p.y) < 0.55) {
           run.integrity -= 1;
+          // Getting caught breaks momentum immediately.
+          run.streak = 0;
+          run.streakTimer = 0;
           fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });virusSound("hit");
           p.x = 1;
           p.y = 1;
@@ -1478,7 +1488,7 @@ export function VirusRun() {
             value={hud.boss ? `${hud.bossBreaches}/${hud.bossBreachesRequired}` : `${hud.collected}/${hud.required}`}
             accent={hud.boss}
           />
-          <GameStat label={hud.power ? "Power" : "Streak"} value={hud.power || (hud.streak>1 ? `x${hud.streak}` : "—")} accent={Boolean(hud.power || hud.streak>1)} />
+          <GameStat label={hud.power ? "Power" : "Streak"} value={hud.power || (hud.streak>1 ? `x${hud.streak} · +${hud.streak * 3}%` : "—")} accent={Boolean(hud.power || hud.streak>1)} />
           <div className="px-2 py-2.5 sm:px-4">
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">Integrity</p>
             <div className="mt-1 flex gap-1">
