@@ -22,6 +22,7 @@ import {
   projectToMarkdown,
 } from "@/lib/portfolio-engine";
 import { useAppState } from "@/state/app-state";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/portfolio")({
   staticData: { sitemap: false },
@@ -29,10 +30,10 @@ export const Route = createFileRoute("/portfolio")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "IT Portfolio Evidence | IT PATH" },
-      { name: "description", content: "Record the problem, approach, skills, tools, result and evidence for every piece of IT work you finish." },
-      { property: "og:title", content: "IT Portfolio Evidence | IT PATH" },
-      { property: "og:description", content: "Turn completed labs and real projects into exportable IT work evidence." },
+      { title: `${domain.id === "auto-repair" ? "Work Evidence" : "IT Portfolio Evidence"} | ${domain.appName}` },
+      { name: "description", content: domain.id === "auto-repair" ? "Record the complaint, diagnosis, tools, repair result and evidence for automotive work you complete." : "Record the problem, approach, skills, tools, result and evidence for every piece of IT work you finish." },
+      { property: "og:title", content: `${domain.id === "auto-repair" ? "Work Evidence" : "IT Portfolio Evidence"} | ${domain.appName}` },
+      { property: "og:description", content: domain.id === "auto-repair" ? "Turn completed shop practice and real repairs into exportable work evidence." : "Turn completed labs and real projects into exportable IT work evidence." },
     ],
   }),
   component: Portfolio,
@@ -102,10 +103,10 @@ function Portfolio() {
       return;
     }
     if (format === "md") {
-      downloadFile("it-path-portfolio.md", portfolioToMarkdown(user.portfolio), "text/markdown");
+      downloadFile(domain.id === "auto-repair" ? "auto-path-work-evidence.md" : "it-path-portfolio.md", portfolioToMarkdown(user.portfolio), "text/markdown");
     } else {
       downloadFile(
-        "it-path-portfolio.json",
+        domain.id === "auto-repair" ? "auto-path-work-evidence.json" : "it-path-portfolio.json",
         JSON.stringify(user.portfolio, null, 2),
         "application/json",
       );
@@ -136,8 +137,8 @@ function Portfolio() {
       <div className="space-y-5">
         {labEvidence.length > 0 ? (
           <Panel
-            title="Completed labs ready for your portfolio"
-            description="Pre-populated from labs you actually completed. Review and edit before saving."
+            title={domain.id === "auto-repair" ? "Completed shop practice ready for your work evidence" : "Completed labs ready for your portfolio"}
+            description={domain.id === "auto-repair" ? "Pre-populated from shop practice you actually completed. Review and edit before saving." : "Pre-populated from labs you actually completed. Review and edit before saving."}
           >
             <ul className="divide-y divide-border">
               {labEvidence.map(({ lab, attempt }) => (
@@ -214,7 +215,7 @@ function Portfolio() {
             <EmptyState
               icon={FolderOpen}
               title="No projects yet"
-              body="Finish a lab or record real work you have done, and it will appear here as evidence you can export."
+              body={domain.id === "auto-repair" ? "Finish shop practice or record real repair work you have done, and it will appear here as evidence you can export." : "Finish a lab or record real work you have done, and it will appear here as evidence you can export."}
             />
           ) : (
             <ul className="divide-y divide-border">
