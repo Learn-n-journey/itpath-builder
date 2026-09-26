@@ -1043,12 +1043,15 @@ export function VirusRun() {
 
   const onCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (e.pointerType !== "touch") return;
-    e.preventDefault();\n    e.currentTarget.setPointerCapture(e.pointerId);\n    dragRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
   };
   const onCanvasPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const drag = dragRef.current;
     if (!drag || e.pointerId !== drag.id) return;
-    e.preventDefault();\n    steerFromDrag(e.clientX - drag.x, e.clientY - drag.y);
+    e.preventDefault();
+    steerFromDrag(e.clientX - drag.x, e.clientY - drag.y);
   };
   const onCanvasPointerEnd = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (dragRef.current && e.pointerId === dragRef.current.id) {
