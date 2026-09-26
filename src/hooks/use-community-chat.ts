@@ -18,6 +18,7 @@ export interface CommunityMessage {
   saved: boolean;
   commentCount: number;
   postType: CommunityPostType;
+  room?: string;
 }
 
 export interface CommunityComment { id:string; messageId:string; userId:string; displayName:string; body:string; createdAt:string; }
@@ -218,4 +219,44 @@ function friendly(message: string): string {
   if (match) return message.replace(/^.*?:\s*/, "");
   if (message.includes("community_messages_body_check")) return "Keep the message between 1 and 1000 characters.";
   return "That did not send. Try again in a moment.";
+}
+
+
+/** Lightweight cross-room post stream used by Community discovery views. */
+export function useCommunityPostStream() {
+  const { userId, ready } = useAuth();
+  const query = useQuery({
+    queryKey: ["community-post-stream", userId],
+    enabled: ready && Boolean(userId),
+    queryFn: async (): Promise<CommunityMessage[]> => {
+      const { data, error } = await supabase
+        .from("community_messages")
+        .select("id,user_id,display_name,body,created_at,image_url,post_type,room")
+        .eq("hidden", false)
+        .order("created_at", { ascending: false })
+        .limit(LIMIT);
+      if (error) throw error;
+      const paths = (data ?? []).map((row) => row.image_url).filter((value): value is string => Boolean(value) && !value!.startsWith("http"));
+      const signed = new Map<string, string>();
+      if (paths.length) {
+        const { data: signedRows } = await supabase.storage.from("community-images").createSignedUrls(paths, 3600);
+        for (const row of signedRows ?? []) if (row.signedUrl && row.path) signed.set(row.path, row.signedUrl);
+      }
+      return (data ?? []).map((row) => ({
+        id: row.id,
+        userId: row.user_id,
+        displayName: row.display_name,
+        body: row.body,
+        createdAt: row.created_at,
+        imageUrl: row.image_url ? signed.get(row.image_url) ?? row.image_url : null,
+        likeCount: 0,
+        liked: false,
+        saved: false,
+        commentCount: 0,
+        postType: (row.post_type ?? "discussion") as CommunityPostType,
+        room: row.room,
+      }));
+    },
+  });
+  return { messages: query.data ?? [], loading: query.isLoading };
 }
