@@ -393,7 +393,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
       <Panel title="Prerequisites">
         <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">{lab.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul>
       </Panel>
-      <Panel title="Instructions" description="Perform these steps yourself in the stated environment. IT PATH does not execute or verify external commands." descriptionVisibility="visible">
+      <Panel title="Instructions" description={domain.id === "auto-repair" ? "Perform these steps yourself in a safe training or shop environment. AUTO PATH records your work but does not physically verify the vehicle or repair." : "Perform these steps yourself in the stated environment. IT PATH does not execute or verify external commands."} descriptionVisibility="visible">
         <ol className="list-decimal space-y-3 pl-5 text-sm text-muted-foreground">{lab.instructions.map((item) => <li key={item}>{item}</li>)}</ol>
       </Panel>
 
