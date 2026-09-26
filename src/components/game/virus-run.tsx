@@ -510,7 +510,7 @@ export function VirusRun() {
         list.push(dir);
         keysRef.current = list;
         queuedDirRef.current = dir;
-      } else if (e.code === "Escape" || e.code === "KeyP") {
+      } else if (e.code === "Escape" || e.code === "KeyP" || e.code === "Space") {
         if (phaseRef.current === "playing") pause();
         else if (phaseRef.current === "paused") resume();
       }
@@ -697,21 +697,39 @@ export function VirusRun() {
         }
       }
 
-      // Autonomous helpers wander the maze and pick up items they encounter.
+      // Autonomous helpers deliberately seek remaining data. At each junction they
+      // score legal moves by packet distance plus local antivirus danger, so they
+      // will take a slightly longer route when the direct corridor is threatened.
       for(let hi=0;hi<run.helpers.length;hi++){
         const helper=run.helpers[hi]!,hx=Math.round(helper.x),hy=Math.round(helper.y);
         if(!helper.moving){
-          const forward:{x:number;y:number}[]=[],all:{x:number;y:number}[]=[];
-          for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]] as [number,number][]){
-            const nx=hx+dx,ny=hy+dy;
-            if(run.grid[ny]?.[nx]!==0)continue;
-            const option={x:nx,y:ny};all.push(option);
-            if(nx!==helper.fromX||ny!==helper.fromY)forward.push(option);
+          const remaining=run.packets.filter(packet=>!packet.taken);
+          let target:Packet|null=null,targetField:number[][]|null=null,bestTarget=Infinity;
+          for(const packet of remaining){
+            const fieldToPacket=distanceField(run.grid,packet.x,packet.y);
+            const d=fieldToPacket[hy]?.[hx]??-1;
+            if(d>=0&&d<bestTarget){bestTarget=d;target=packet;targetField=fieldToPacket;}
           }
-          const choices=forward.length?forward:all;
-          if(choices.length){
-            const next=choices[Math.floor(Math.random()*choices.length)]!;
-            helper.fromX=hx;helper.fromY=hy;helper.tx=next.x;helper.ty=next.y;helper.moving=true;
+          if(target&&targetField){
+            const choices:{x:number;y:number;score:number}[]=[];
+            for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]] as [number,number][]){
+              const nx=hx+dx,ny=hy+dy;
+              if(run.grid[ny]?.[nx]!==0)continue;
+              const route=targetField[ny]?.[nx]??999;
+              let danger=0;
+              for(const guard of run.guards){
+                if(guard.stunned>0)continue;
+                const gd=Math.hypot(nx-guard.x,ny-guard.y);
+                if(gd<1.25)danger+=40;
+                else if(gd<2.25)danger+=14;
+                else if(gd<3.5)danger+=4;
+              }
+              const backtrack=nx===helper.fromX&&ny===helper.fromY?1.5:0;
+              choices.push({x:nx,y:ny,score:route+danger+backtrack});
+            }
+            choices.sort((a,b)=>a.score-b.score);
+            const next=choices[0];
+            if(next){helper.fromX=hx;helper.fromY=hy;helper.tx=next.x;helper.ty=next.y;helper.moving=true;}
           }
         }
         if(helper.moving){
