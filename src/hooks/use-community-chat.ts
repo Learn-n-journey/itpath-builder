@@ -242,6 +242,17 @@ export function useCommunityPostStream() {
         const { data: signedRows } = await supabase.storage.from("community-images").createSignedUrls(paths, 3600);
         for (const row of signedRows ?? []) if (row.signedUrl && row.path) signed.set(row.path, row.signedUrl);
       }
+      const ids = (data ?? []).map((row) => row.id);
+      const [{ data: likes }, { data: comments }, { data: saves }] = ids.length ? await Promise.all([
+        supabase.from("community_likes").select("message_id,user_id").in("message_id", ids),
+        supabase.from("community_comments").select("message_id").in("message_id", ids),
+        supabase.from("community_saves").select("message_id,user_id").eq("user_id", userId!).in("message_id", ids),
+      ]) : [{ data: [] }, { data: [] }, { data: [] }];
+      const likeCounts = new Map<string, number>(), commentCounts = new Map<string, number>();
+      for (const item of likes ?? []) likeCounts.set(item.message_id, (likeCounts.get(item.message_id) ?? 0) + 1);
+      for (const item of comments ?? []) commentCounts.set(item.message_id, (commentCounts.get(item.message_id) ?? 0) + 1);
+      const liked = new Set((likes ?? []).filter((item) => item.user_id === userId).map((item) => item.message_id));
+      const saved = new Set((saves ?? []).map((item) => item.message_id));
       return (data ?? []).map((row) => ({
         id: row.id,
         userId: row.user_id,
@@ -249,10 +260,10 @@ export function useCommunityPostStream() {
         body: row.body,
         createdAt: row.created_at,
         imageUrl: row.image_url ? signed.get(row.image_url) ?? row.image_url : null,
-        likeCount: 0,
-        liked: false,
-        saved: false,
-        commentCount: 0,
+        likeCount: likeCounts.get(row.id) ?? 0,
+        liked: liked.has(row.id),
+        saved: saved.has(row.id),
+        commentCount: commentCounts.get(row.id) ?? 0,
         postType: (row.post_type ?? "discussion") as CommunityPostType,
         room: row.room,
       }));
