@@ -19,22 +19,32 @@ function A1BranchingDiagnosticPanel({ topicId }: { topicId: string }) {
   const [evidence, setEvidence] = useState<Record<string, A1EvidenceState>>({});
   const [diagnosisId, setDiagnosisId] = useState("");
   const [diagnosisFeedback, setDiagnosisFeedback] = useState("");
+  const [repairId, setRepairId] = useState("");
+  const [repairCommitted, setRepairCommitted] = useState(false);
+  const [verificationIds, setVerificationIds] = useState<string[]>([]);
+  const [verificationFeedback, setVerificationFeedback] = useState("");
+  const [postRepairEvidence, setPostRepairEvidence] = useState("");
+  const [closed, setClosed] = useState(false);
 
   if (!scenario) return null;
   const lastTest = scenario.tests.find((test) => test.id === testedIds[testedIds.length - 1]);
   const lastOutcome = lastTest?.outcomes[scenario.hiddenCauseId];
   const supportedSignals = testedIds.filter((testId) => scenario.tests.find((test) => test.id === testId)?.outcomes[scenario.hiddenCauseId]?.evidence[scenario.hiddenCauseId] === "supported").length;
   const enoughEvidence = supportedSignals >= scenario.diagnosisThreshold;
-  const diagnosed = diagnosisId === scenario.hiddenCauseId && enoughEvidence;
+  const diagnosed = diagnosisId === scenario.hiddenCauseId && enoughEvidence && diagnosisFeedback.startsWith("Diagnosis supported");
+  const selectedRepair = scenario.repairChoices.find((choice) => choice.id === repairId);
+  const requiredVerificationIds = scenario.verificationChoices.filter((choice) => choice.correct).map((choice) => choice.id);
+  const verificationReady = requiredVerificationIds.every((id) => verificationIds.includes(id));
 
   const runTest = (testId: string) => {
-    if (testedIds.includes(testId)) return;
+    if (testedIds.includes(testId) || repairCommitted || closed) return;
     const test = scenario.tests.find((item) => item.id === testId);
     const result = test?.outcomes[scenario.hiddenCauseId];
     if (!result) return;
     setTestedIds((ids) => [...ids, testId]);
     setEvidence((current) => ({ ...current, ...result.evidence }));
     setDiagnosisFeedback("");
+    setPostRepairEvidence("");
   };
 
   const submitDiagnosis = () => {
@@ -44,15 +54,68 @@ function A1BranchingDiagnosticPanel({ topicId }: { topicId: string }) {
       return;
     }
     setDiagnosisFeedback(diagnosisId === scenario.hiddenCauseId
-      ? "Diagnosis supported. The accumulated evidence justifies moving to the repair and verification plan."
+      ? "Diagnosis supported. The accumulated evidence justifies moving to the repair decision."
       : "That diagnosis does not fit all of the evidence. Recheck the cause board and test results before committing to a repair.");
+  };
+
+  const commitRepair = () => {
+    if (!selectedRepair) return;
+    setRepairCommitted(true);
+    setVerificationIds([]);
+    setVerificationFeedback("");
+  };
+
+  const chooseVerification = (id: string) => {
+    const choice = scenario.verificationChoices.find((item) => item.id === id);
+    if (!choice || verificationIds.includes(id)) return;
+    if (!choice.correct) {
+      setVerificationFeedback(choice.feedback + " Choose a verification step that directly proves the repair and original complaint.");
+      return;
+    }
+    setVerificationIds((ids) => [...ids, id]);
+    setVerificationFeedback(choice.feedback);
+  };
+
+  const performVerification = () => {
+    if (!selectedRepair || !verificationReady) return;
+    if (selectedRepair.correct) {
+      setClosed(true);
+      setVerificationFeedback("Verification passed. The repair corrected the measured fault and the original complaint. The repair order can be closed.");
+      return;
+    }
+
+    const newEvidence = selectedRepair.verificationFailureEvidence ?? "The original complaint remains after repair.";
+    setPostRepairEvidence(newEvidence);
+    setVerificationFeedback("Verification failed. The original complaint remains. Use the post-repair evidence and return to diagnosis.");
+    setRepairCommitted(false);
+    setRepairId("");
+    setVerificationIds([]);
+    setDiagnosisId("");
+    setDiagnosisFeedback("");
+    setEvidence((current) => ({
+      ...current,
+      [scenario.hiddenCauseId]: "supported",
+    }));
+  };
+
+  const reset = () => {
+    setTestedIds([]);
+    setEvidence({});
+    setDiagnosisId("");
+    setDiagnosisFeedback("");
+    setRepairId("");
+    setRepairCommitted(false);
+    setVerificationIds([]);
+    setVerificationFeedback("");
+    setPostRepairEvidence("");
+    setClosed(false);
   };
 
   return (
     <Panel className="border-primary/35">
-      <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">Branching diagnostic case</p>
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">Branching diagnostic case · Fix → Verify</p>
       <h3 className="mt-2 font-display text-lg font-semibold">{scenario.complaint}</h3>
-      <p className="mt-2 text-sm text-muted-foreground">Several faults can produce a similar complaint. Choose tests in the order you think is defensible, use the results to eliminate causes, and diagnose only when the evidence supports it. Practice only; mastery is unchanged.</p>
+      <p className="mt-2 text-sm text-muted-foreground">Diagnose from evidence, choose the repair, then prove the repair. A failed verification does not end the case—it gives you new evidence and sends you back into diagnosis. Practice only; mastery is unchanged.</p>
 
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         {scenario.causes.map((cause) => {
@@ -61,23 +124,45 @@ function A1BranchingDiagnosticPanel({ topicId }: { topicId: string }) {
         })}
       </div>
 
-      <div className="mt-5 space-y-2">
+      {postRepairEvidence ? <div className="mt-4 rounded-lg border border-destructive/30 bg-destructive/5 p-3"><p className="text-xs font-bold uppercase tracking-wide">Post-repair evidence</p><p className="mt-1 text-sm">{postRepairEvidence}</p><p className="mt-2 text-sm text-muted-foreground">Verification failed. Re-enter the diagnostic process using this new evidence instead of starting the case over.</p></div> : null}
+
+      {!repairCommitted && !closed ? <div className="mt-5 space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Choose a diagnostic test</p>
         {scenario.tests.map((test) => <button key={test.id} type="button" disabled={testedIds.includes(test.id) || diagnosed} onClick={() => runTest(test.id)} className="w-full rounded-lg border border-border bg-background p-3 text-left text-sm transition-colors hover:border-primary/50 hover:bg-primary/5 disabled:cursor-default disabled:opacity-60">{testedIds.includes(test.id) ? "Completed: " : ""}{test.label}</button>)}
-      </div>
+      </div> : null}
 
-      {lastOutcome ? <div className="mt-4 rounded-lg border border-border bg-muted/20 p-3"><p className="text-xs font-bold uppercase tracking-wide">Latest result</p><p className="mt-1 text-sm">{lastOutcome.result}</p><p className="mt-2 text-sm text-muted-foreground">{lastOutcome.interpretation}</p></div> : null}
+      {lastOutcome && !repairCommitted && !closed ? <div className="mt-4 rounded-lg border border-border bg-muted/20 p-3"><p className="text-xs font-bold uppercase tracking-wide">Latest result</p><p className="mt-1 text-sm">{lastOutcome.result}</p><p className="mt-2 text-sm text-muted-foreground">{lastOutcome.interpretation}</p></div> : null}
 
-      <div className="mt-5 space-y-2">
+      {!repairCommitted && !closed ? <div className="mt-5 space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Make the diagnosis</p>
         {scenario.causes.map((cause) => <button key={cause.id} type="button" disabled={diagnosed} onClick={() => setDiagnosisId(cause.id)} className={diagnosisId === cause.id ? "w-full rounded-lg border border-primary bg-primary/5 p-3 text-left text-sm" : "w-full rounded-lg border border-border bg-background p-3 text-left text-sm"}>{cause.label}</button>)}
         <Button onClick={submitDiagnosis} disabled={!diagnosisId || diagnosed}>Commit diagnosis</Button>
         {diagnosisFeedback ? <p className="text-sm text-muted-foreground">{diagnosisFeedback}</p> : null}
-      </div>
+      </div> : null}
 
-      {diagnosed ? <div className="mt-5 rounded-lg border border-success/30 bg-success/5 p-3"><p className="flex items-center gap-2 text-sm font-semibold"><CheckCircle2 className="size-4" aria-hidden />Evidence-supported diagnosis</p><p className="mt-2 text-sm">{scenario.repair}</p><p className="mt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verify the repair</p><ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-muted-foreground">{scenario.verification.map((item) => <li key={item}>{item}</li>)}</ul></div> : null}
+      {diagnosed && !repairCommitted && !closed ? <div className="mt-5 rounded-lg border border-primary/30 bg-primary/5 p-3">
+        <p className="text-xs font-bold uppercase tracking-wide">Choose the repair</p>
+        <p className="mt-1 text-sm text-muted-foreground">Diagnosis is the midpoint. Select the corrective action that best matches the evidence.</p>
+        <div className="mt-3 space-y-2">
+          {scenario.repairChoices.map((choice) => <button key={choice.id} type="button" onClick={() => setRepairId(choice.id)} className={repairId === choice.id ? "w-full rounded-lg border border-primary bg-background p-3 text-left text-sm" : "w-full rounded-lg border border-border bg-background p-3 text-left text-sm"}>{choice.label}</button>)}
+        </div>
+        {selectedRepair ? <p className="mt-3 text-sm text-muted-foreground">{selectedRepair.feedback}</p> : null}
+        <Button className="mt-3" onClick={commitRepair} disabled={!selectedRepair}>Perform selected repair</Button>
+      </div> : null}
 
-      <Button variant="ghost" size="sm" className="mt-3" onClick={() => { setTestedIds([]); setEvidence({}); setDiagnosisId(""); setDiagnosisFeedback(""); }}><RotateCcw className="size-4" />Restart case</Button>
+      {repairCommitted && !closed ? <div className="mt-5 rounded-lg border border-primary/30 bg-primary/5 p-3">
+        <p className="text-xs font-bold uppercase tracking-wide">Verify the repair</p>
+        <p className="mt-1 text-sm text-muted-foreground">Choose the checks needed to prove both the repair and the original complaint are resolved.</p>
+        <div className="mt-3 space-y-2">
+          {scenario.verificationChoices.map((choice) => <button key={choice.id} type="button" disabled={verificationIds.includes(choice.id)} onClick={() => chooseVerification(choice.id)} className={verificationIds.includes(choice.id) ? "w-full rounded-lg border border-success/30 bg-success/5 p-3 text-left text-sm" : "w-full rounded-lg border border-border bg-background p-3 text-left text-sm"}>{verificationIds.includes(choice.id) ? "Selected: " : ""}{choice.label}</button>)}
+        </div>
+        {verificationFeedback ? <p className="mt-3 text-sm text-muted-foreground">{verificationFeedback}</p> : null}
+        <Button className="mt-3" onClick={performVerification} disabled={!verificationReady}>Run verification sequence</Button>
+      </div> : null}
+
+      {closed ? <div className="mt-5 rounded-lg border border-success/30 bg-success/5 p-3"><p className="flex items-center gap-2 text-sm font-semibold"><CheckCircle2 className="size-4" aria-hidden />Repair verified · repair order closed</p><p className="mt-2 text-sm text-muted-foreground">The post-repair checks passed and the original complaint was reproduced without the fault returning.</p></div> : null}
+
+      <Button variant="ghost" size="sm" className="mt-3" onClick={reset}><RotateCcw className="size-4" />Restart case</Button>
     </Panel>
   );
 }
