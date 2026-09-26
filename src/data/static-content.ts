@@ -724,7 +724,7 @@ export const assignments: Assignment[] = [
 export const labs: Lab[] = [
   ...(domainOverlay ? [] : coreLabs),
   ...buildIdentificationLabs(topics, lessons),
-  ...buildTopicLabs(topics, lessons),
+  ...buildTopicLabs(topics, lessons, domainOverlay?.packageKey.startsWith("auto-repair@") ? "automotive" : "it"),
 ];
 export const incidents: Incident[] = [
   ...(domainOverlay ? [] : coreIncidents),
