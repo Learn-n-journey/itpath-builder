@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/state/auth-state";
+import { COMMUNITY_ROOMS } from "@/lib/community/rooms";
 
 export type CommunityPostType = "question" | "troubleshooting" | "discussion" | "progress" | "project" | "study-help";
 
@@ -231,15 +232,17 @@ function friendly(message: string): string {
 /** Lightweight cross-room post stream used by Community discovery views. */
 export function useCommunityPostStream() {
   const { userId, ready } = useAuth();
+  const activeRooms = COMMUNITY_ROOMS.map((entry) => entry.id);
   const queryClient = useQueryClient();
   const query = useQuery({
-    queryKey: ["community-post-stream", userId],
+    queryKey: ["community-post-stream", userId, activeRooms.join("|")],
     enabled: ready && Boolean(userId),
     queryFn: async (): Promise<CommunityMessage[]> => {
       const { data, error } = await supabase
         .from("community_messages")
         .select("id,user_id,display_name,body,created_at,image_url,post_type,room")
         .eq("hidden", false)
+        .in("room", activeRooms)
         .order("created_at", { ascending: false })
         .limit(LIMIT);
       if (error) throw error;
