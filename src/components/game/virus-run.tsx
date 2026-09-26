@@ -373,6 +373,8 @@ export function VirusRun() {
   const keysRef = useRef<string[]>([]);
   const queuedDirRef = useRef<string | null>(null);
   const travelDirRef = useRef<string | null>(null);
+  // Visual-only soft-body response. Collision rules remain grid deterministic.
+  const wallSquishRef = useRef({ amount: 0, angle: 0 });
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
@@ -463,6 +465,7 @@ export function VirusRun() {
     keysRef.current = [];
     queuedDirRef.current = null;
     travelDirRef.current = null;
+    wallSquishRef.current={amount:0,angle:0};
     syncHud(runRef.current);
     setPhaseBoth("playing");
     lastRef.current = 0;
@@ -586,9 +589,17 @@ export function VirusRun() {
           travelDirRef.current = dir;
           return true;
         };
-        // Prefer the player's queued turn. If it is not legal yet, continue
-        // through the corridor in the current travel direction.
-        if (!tryDirection(queued)) tryDirection(travelDirRef.current);
+        // Prefer the player's queued turn. If it is blocked, feed a visual
+        // compression impulse into the soft-body renderer before continuing.
+        const queuedSucceeded = tryDirection(queued);
+        if (!queuedSucceeded && queued) {
+          const [qdx,qdy]=DIR_VECS[queued]!;
+          if(run.grid[cy+qdy]?.[cx+qdx]!==0){
+            wallSquishRef.current.amount=Math.max(wallSquishRef.current.amount,.72);
+            wallSquishRef.current.angle=Math.atan2(qdy,qdx);
+          }
+        }
+        if (!queuedSucceeded) tryDirection(travelDirRef.current);
       }
       if (p.moving) {
         let playerSpeed=PLAYER_SPEED * (1 + upgradesRef.current["kernel-boost"] * 0.08);
@@ -609,6 +620,9 @@ export function VirusRun() {
         p.y = r.y;
         if (r.arrived) p.moving = false;
       }
+
+      // Soft-body impulses decay independently from deterministic movement.
+      wallSquishRef.current.amount=Math.max(0,wallSquishRef.current.amount-dt*4.8);
 
       // Packets.
       const px = Math.round(p.x);
@@ -1338,6 +1352,9 @@ export function VirusRun() {
       const heading = Math.abs(dx) + Math.abs(dy) > 0.02 ? Math.atan2(dy, dx) : 0;
       const movingPulse = run.player.moving ? Math.sin(time / 85) : Math.sin(time / 260);
       const bodyR = cell * (0.36 + movingPulse * 0.018);
+      const wallSquish=wallSquishRef.current.amount;
+      const wallAngle=wallSquishRef.current.angle;
+      const movingStretch=run.player.moving ? Math.min(.1,.035+momentum*.012) : 0;
 
       // Restrained ground light anchors the character to the playfield.
       ctx2.save();
@@ -1352,7 +1369,17 @@ export function VirusRun() {
       ctx2.save();
       if (run.player.invuln > 0) ctx2.globalAlpha = 0.5 + 0.35 * Math.sin(time / 55);
       ctx2.translate(pcx,pcy);
-      ctx2.rotate(heading);
+      // Wall compression is oriented toward the attempted collision direction.
+      // Stretch is aligned with travel, giving acceleration a soft-body feel.
+      if(wallSquish>.001){
+        ctx2.rotate(wallAngle);
+        ctx2.scale(1-wallSquish*.24,1+wallSquish*.16);
+        ctx2.translate(-cell*wallSquish*.055,0);
+        ctx2.rotate(heading-wallAngle);
+      }else{
+        ctx2.rotate(heading);
+        ctx2.scale(1+movingStretch,1-movingStretch*.52);
+      }
 
       // Momentum creates a rear energy wake, visually pointing in the travel direction.
       if (momentum > 0 && run.player.moving) {
