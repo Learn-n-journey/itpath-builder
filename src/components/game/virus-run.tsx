@@ -1317,45 +1317,83 @@ export function VirusRun() {
       }
       ctx2.restore();
 
-      // Player: layered bio-digital organism with nucleus, membrane and orbit.
+      // Player hero: a directional bio-digital virus with a stable silhouette.
       const pcx = offX + (run.player.x + 0.5) * cell;
-      // Ground halo keeps the player readable over every system palette and
-      // expands with momentum so speed has a visual identity.
-      ctx2.save();
-      const momentumGlow = run.streak > 1 ? 1 + run.streak * 0.09 : 1;
-      const halo = ctx2.createRadialGradient(pcx, offY + (run.player.y + 0.5) * cell, 0, pcx, offY + (run.player.y + 0.5) * cell, cell * 1.15 * momentumGlow);
-      halo.addColorStop(0, "rgba(94,234,212,0.24)");
-      halo.addColorStop(0.42, "rgba(45,212,191,0.09)");
-      halo.addColorStop(1, "rgba(45,212,191,0)");
-      ctx2.fillStyle = halo;
-      ctx2.beginPath();
-      ctx2.arc(pcx, offY + (run.player.y + 0.5) * cell, cell * 1.15 * momentumGlow, 0, Math.PI * 2);
-      ctx2.fill();
-      ctx2.restore();
       const pcy = offY + (run.player.y + 0.5) * cell;
-      const wobble = 1 + 0.08 * Math.sin(time / 120);
+      const momentum = run.streak > 1 && run.streakTimer > 0 ? run.streak : 0;
+      const dx = run.player.tx - run.player.x;
+      const dy = run.player.ty - run.player.y;
+      const heading = Math.abs(dx) + Math.abs(dy) > 0.02 ? Math.atan2(dy, dx) : 0;
+      const movingPulse = run.player.moving ? Math.sin(time / 85) : Math.sin(time / 260);
+      const bodyR = cell * (0.36 + movingPulse * 0.018);
+
+      // Restrained ground light anchors the character to the playfield.
       ctx2.save();
-      if (run.player.invuln > 0) ctx2.globalAlpha = 0.45 + 0.4 * Math.sin(time / 60);
-      const r = cell * 0.42 * wobble;
-      ctx2.shadowColor = "rgba(45,212,191,0.95)";
-      ctx2.shadowBlur = cell * 1.15;
-      const organism = ctx2.createRadialGradient(pcx - r * 0.28, pcy - r * 0.3, r * 0.08, pcx, pcy, r);
-      organism.addColorStop(0, "#f0fdfa"); organism.addColorStop(0.24, "#5eead4"); organism.addColorStop(0.7, "#14b8a6"); organism.addColorStop(1, "#115e59");
-      ctx2.fillStyle = organism;
-      ctx2.beginPath(); ctx2.arc(pcx, pcy, r, 0, Math.PI * 2); ctx2.fill();
-      ctx2.shadowBlur = 0;
-      ctx2.strokeStyle = "rgba(153,246,228,0.9)";
-      ctx2.lineWidth = Math.max(1, cell * 0.075);
-      for (let i = 0; i < 10; i++) {
-        const a = (i / 10) * Math.PI * 2 + time / 900;
-        ctx2.beginPath();
-        ctx2.moveTo(pcx + Math.cos(a) * r, pcy + Math.sin(a) * r);
-        ctx2.quadraticCurveTo(pcx + Math.cos(a + 0.12) * r * 1.3, pcy + Math.sin(a + 0.12) * r * 1.3, pcx + Math.cos(a) * r * 1.52, pcy + Math.sin(a) * r * 1.52);
-        ctx2.stroke();
+      const haloRadius = cell * (0.92 + momentum * 0.055);
+      const halo = ctx2.createRadialGradient(pcx, pcy, 0, pcx, pcy, haloRadius);
+      halo.addColorStop(0, `rgba(94,234,212,${0.2 + momentum * 0.018})`);
+      halo.addColorStop(0.46, "rgba(45,212,191,0.065)");
+      halo.addColorStop(1, "rgba(45,212,191,0)");
+      ctx2.fillStyle = halo; ctx2.beginPath(); ctx2.arc(pcx,pcy,haloRadius,0,Math.PI*2);ctx2.fill();
+      ctx2.restore();
+
+      ctx2.save();
+      if (run.player.invuln > 0) ctx2.globalAlpha = 0.5 + 0.35 * Math.sin(time / 55);
+      ctx2.translate(pcx,pcy);
+      ctx2.rotate(heading);
+
+      // Momentum creates a rear energy wake, visually pointing in the travel direction.
+      if (momentum > 0 && run.player.moving) {
+        for(let i=0;i<3;i++){
+          const wake=cell*(.34+i*.2);
+          ctx2.strokeStyle=`rgba(45,212,191,${.26-i*.065})`;
+          ctx2.lineWidth=Math.max(1,cell*(.075-i*.012));
+          ctx2.beginPath();ctx2.moveTo(-bodyR*.65,-bodyR*.38+i*bodyR*.38);ctx2.lineTo(-bodyR-wake,-bodyR*.28+i*bodyR*.28);ctx2.stroke();
+        }
       }
-      ctx2.strokeStyle = "rgba(94,234,212,0.62)"; ctx2.lineWidth = Math.max(0.8, cell * 0.045); ctx2.beginPath(); ctx2.ellipse(pcx, pcy, r * 1.48, r * 0.72, time / 650, 0, Math.PI * 2); ctx2.stroke();
-      ctx2.fillStyle = "rgba(4,47,46,0.88)"; ctx2.beginPath(); ctx2.arc(pcx, pcy, r * 0.34, 0, Math.PI * 2); ctx2.fill();
-      ctx2.fillStyle = "#ccfbf1"; ctx2.beginPath(); ctx2.arc(pcx - r * 0.11, pcy - r * 0.12, r * 0.1, 0, Math.PI * 2); ctx2.fill();
+
+      // Six asymmetrical viral spikes create a recognizable character silhouette.
+      ctx2.strokeStyle="rgba(153,246,228,0.88)";
+      ctx2.lineWidth=Math.max(1,cell*.065);
+      ctx2.lineCap="round";
+      for(let i=0;i<6;i++){
+        const angle=i*Math.PI/3 + (i%2 ? .08 : -.06);
+        const root=bodyR*.82;
+        const length=bodyR*(1.34 + .08*Math.sin(time/220+i));
+        ctx2.beginPath();
+        ctx2.moveTo(Math.cos(angle)*root,Math.sin(angle)*root);
+        ctx2.lineTo(Math.cos(angle)*length,Math.sin(angle)*length);
+        ctx2.stroke();
+        ctx2.fillStyle=i===0?"#99f6e4":"#5eead4";
+        ctx2.beginPath();ctx2.arc(Math.cos(angle)*length,Math.sin(angle)*length,cell*(i===0?.075:.055),0,Math.PI*2);ctx2.fill();
+      }
+
+      // Membrane has a subtle forward lean rather than a generic perfect circle.
+      ctx2.shadowColor="rgba(45,212,191,0.72)";
+      ctx2.shadowBlur=cell*(.52+momentum*.055);
+      const organism=ctx2.createRadialGradient(-bodyR*.18,-bodyR*.22,bodyR*.06,0,0,bodyR);
+      organism.addColorStop(0,"#ecfeff");organism.addColorStop(.22,"#5eead4");organism.addColorStop(.7,"#0d9488");organism.addColorStop(1,"#134e4a");
+      ctx2.fillStyle=organism;
+      ctx2.beginPath();
+      ctx2.ellipse(bodyR*.055,0,bodyR*1.08,bodyR*.92,0,0,Math.PI*2);
+      ctx2.fill();
+      ctx2.shadowBlur=0;
+
+      // Inner membrane and animated nucleus provide detail without muddying the outline.
+      ctx2.strokeStyle="rgba(204,251,241,0.5)";
+      ctx2.lineWidth=Math.max(.8,cell*.035);
+      ctx2.beginPath();ctx2.ellipse(bodyR*.03,0,bodyR*.76,bodyR*.62,time/1500,0,Math.PI*2);ctx2.stroke();
+      const nucleusX=bodyR*(.1+.07*Math.sin(time/310));
+      const nucleusY=bodyR*.08*Math.cos(time/270);
+      ctx2.fillStyle="rgba(4,47,46,0.94)";ctx2.beginPath();ctx2.arc(nucleusX,nucleusY,bodyR*.32,0,Math.PI*2);ctx2.fill();
+      ctx2.fillStyle="#ccfbf1";ctx2.beginPath();ctx2.arc(nucleusX-bodyR*.09,nucleusY-bodyR*.1,bodyR*.085,0,Math.PI*2);ctx2.fill();
+
+      // At high momentum the membrane gains a clean energy ring rather than more particles.
+      if(momentum>=4){
+        ctx2.strokeStyle=`rgba(103,232,249,${.42+.12*Math.sin(time/90)})`;
+        ctx2.lineWidth=Math.max(1,cell*.045);
+        ctx2.beginPath();ctx2.ellipse(0,0,bodyR*1.48,bodyR*1.12,time/520,0,Math.PI*2);ctx2.stroke();
+      }
       ctx2.restore();
 
       // Event effects: packet bursts, antivirus damage shockwaves and exit surges.
