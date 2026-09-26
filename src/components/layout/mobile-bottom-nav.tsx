@@ -3,13 +3,14 @@ import { BookOpen, ClipboardList, Home, Route as RouteIcon, Users } from "lucide
 
 import { cn } from "@/lib/utils";
 import { accentText, featureAccent } from "@/lib/visual-accents";
+import { domain } from "@/domain/active";
 
 const items = [
   { label: "Home", to: "/dashboard", icon: Home },
   { label: "Learn", to: "/learn", icon: BookOpen },
   { label: "Practice", to: "/practice", icon: ClipboardList },
   { label: "Community", to: "/community", icon: Users },
-  { label: "My Path", to: "/my-path", icon: RouteIcon },
+  { label: domain.id === "auto-repair" ? "Training" : "My Path", to: "/my-path", icon: RouteIcon },
 ] as const;
 
 export function MobileBottomNav({ onMore: _onMore }: { onMore: () => void }) {

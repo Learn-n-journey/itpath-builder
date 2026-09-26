@@ -153,6 +153,7 @@ const allNavItems: NavItem[] = [
     icon: Briefcase,
     group: "Practice",
     description: "A simulated support queue across five job roles.",
+    subjects: ["it-cybersecurity"],
   },
   {
     label: "Exam Simulator",
@@ -277,7 +278,7 @@ const allNavItems: NavItem[] = [
     to: "/knowledge",
     icon: Brain,
     group: "You",
-    description: "Save notes, links, videos and files; IT PATH reads them and connects them to your topics.",
+    description: `Save notes, links, videos and files; ${domain.appName} reads them and connects them to your topics.`,
     pro: true,
   },
   {
@@ -317,7 +318,7 @@ const allNavItems: NavItem[] = [
     to: "/community",
     icon: MessagesSquare,
     group: "Connect",
-    description: "One shared chat room with other IT PATH learners.",
+    description: `Connect with other ${domain.appName} learners.`,
   },
   {
     label: "Bookmarks",
@@ -352,7 +353,7 @@ const allNavItems: NavItem[] = [
     to: "/about",
     icon: Info,
     group: "You",
-    description: "Who built IT PATH, version number and contact details.",
+    description: `Who built ${domain.appName}, version number and contact details.`,
   },
   {
     label: "Go Pro",
@@ -382,8 +383,24 @@ const allNavItems: NavItem[] = [
 export const navGroups = ["Study", "Practice", "Career", "Connect", "You"] as const;
 
 /** Only the pages that make sense for the subject the app is running. */
-export const navItems: NavItem[] = allNavItems.filter(
-  (item) =>
-    (!item.feed || domain.feeds[item.feed]) &&
-    (!item.subjects || item.subjects.includes(domain.id)),
-);
+const autoLabels: Partial<Record<string, Pick<NavItem, "label" | "description">>> = {
+  "/my-path": { label: "Training Plan", description: "Your technician route through vehicle systems, shop skills and certification preparation." },
+  "/study-plan": { label: "Training Plan", description: "Build one timed training session from open work and due checks." },
+  "/practice": { label: "Skill Practice", description: "Written automotive tasks graded against a model answer." },
+  "/labs": { label: "Shop Practice", description: "Step-by-step hands-on walkthroughs, inspection exercises and fault drills." },
+  "/troubleshoot": { label: "Repair Orders", description: "Work customer complaints through inspection, testing, diagnosis, repair and verification." },
+  "/exam": { label: "Certification Test", description: "A full-length timed knowledge challenge with a detailed performance report." },
+  "/resources": { label: "Service Resources", description: "Official reading, references and video for the systems you are learning." },
+  "/review": { label: "Recheck", description: "Spaced repetition, your mistake log and targeted checks on weak systems." },
+  "/portfolio": { label: "Work Evidence", description: "Turn completed training and diagnostic work into evidence of technician capability." },
+  "/progress": { label: "Shop Progress", description: "Knowledge, diagnostic skill, training trends and technician development." },
+};
+
+/** Only the pages that make sense for the subject the app is running. */
+export const navItems: NavItem[] = allNavItems
+  .filter(
+    (item) =>
+      (!item.feed || domain.feeds[item.feed]) &&
+      (!item.subjects || item.subjects.includes(domain.id)),
+  )
+  .map((item) => domain.id === "auto-repair" && autoLabels[item.to] ? { ...item, ...autoLabels[item.to] } : item);
