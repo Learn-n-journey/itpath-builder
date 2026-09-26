@@ -717,6 +717,51 @@ export type Database = {
         }
         Relationships: []
       }
+      learning_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          description: string | null
+          entity_id: string | null
+          id: string
+          is_featured: boolean
+          metadata: Json
+          occurred_at: string
+          title: string
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          id?: string
+          is_featured?: boolean
+          metadata?: Json
+          occurred_at?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          description?: string | null
+          entity_id?: string | null
+          id?: string
+          is_featured?: boolean
+          metadata?: Json
+          occurred_at?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
       learning_paths: {
         Row: {
           created_at: string
