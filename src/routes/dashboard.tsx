@@ -1,22 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BarChart3, Bell, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Compass, Flame, Heart, MessageCircle, Play, Search, SlidersHorizontal, Sparkles, Users, Wrench } from "lucide-react";
+import { Bell, BookOpen, ChevronRight, Clock, Compass, Heart, MessageCircle, Play, Search, Sparkles, Users, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
-import { LearnerPageSkeleton, Panel, StatCard } from "@/components/page-kit";
-import { StreakPanel } from "@/components/streak-panel";
+import { LearnerPageSkeleton } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { computeDashboard } from "@/lib/dashboard-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
-import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
+import { missedQuestions } from "@/lib/missed-questions";
 import { nextActions, type NextAction } from "@/lib/next-action";
 import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
-import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
+import { visibleReviewTopics } from "@/lib/review-dismissals";
 import { learnerContinuity } from "@/lib/learner-continuity";
 import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics } from "@/lib/journey-order";
 import { certificationTopics } from "@/lib/cert-path";
-import { certifications } from "@/data/static-content";
-import { overallMeasures } from "@/lib/mastery-summary";
 import { topicScopeProgress } from "@/lib/scope-progress";
 import { useAppState } from "@/state/app-state";
 import itPathArtwork from "@/assets/path-it.jpg";
@@ -134,8 +131,6 @@ function Dashboard() {
   }, []);
 
   const d = useMemo(() => computeDashboard(user), [user]);
-  const measures = useMemo(() => overallMeasures(user), [user]);
-
   const path = useMemo(() => adaptivePath(user), [user]);
   const [dismissedVersion, setDismissedVersion] = useState(0);
   const actions = useMemo(
@@ -150,19 +145,7 @@ function Dashboard() {
     () => visibleReviewTopics(d.topicsNeedingReview),
     [d.topicsNeedingReview, dismissedVersion],
   );
-  const markReviewDone = useCallback((row: { topicId: string; reason: string }) => {
-    clearReviewTopic(row);
-    setDismissedVersion((v) => v + 1);
-  }, []);
   const continuity = useMemo(() => learnerContinuity(user), [user]);
-  const quizCount = user.quizAttempts.filter((a) => a.status === "submitted").length;
-  const missedAnchors = useMemo(() => {
-    const map: Record<string, string> = {};
-    for (const item of missedQuestions(user)) {
-      if (!map[item.mistake.topicId]) map[item.mistake.topicId] = missedQuestionAnchor(item);
-    }
-    return map;
-  }, [user]);
   const todayChips = useMemo(() => {
     const chips: React.ReactNode[] = [];
     if (reviewTopics.length > 0) {
@@ -198,9 +181,7 @@ function Dashboard() {
   const lastTouched = Object.values(user.topicProgress).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
   const activeTopic = (lastTouched && journeyList.find((topic) => topic.id === lastTouched.topicId && isTopicOpen(user, topic.id) && !isMastered(user, topic.id))) || journeyTopic;
   const journeyCourse = activeTopic && journeyList.some((topic) => topic.id === activeTopic.id) ? journeyList : activeTopic ? certificationTopics(activeTopic.certificationId) : path.topics;
-  const journeyCertification = (activeTopic && certifications.find((c) => c.id === activeTopic.certificationId)) || path.certification;
   const courseTopicIndex = activeTopic ? Math.max(0, journeyCourse.findIndex((topic) => topic.id === activeTopic.id)) : 0;
-  const currentStage = journeyTopic?.difficulty === "challenging" ? "Advanced" : journeyTopic?.difficulty === "standard" ? "Core" : "Foundation";
   const primary = {
     to: continuity.to,
     ...(continuity.params ? { params: continuity.params } : {}),
@@ -215,34 +196,6 @@ function Dashboard() {
     ? Math.min(100, Math.round(topicScopeProgress(user, activeTopic.id).overall))
     : 0;
   const currentTopicSummary = primary.detail || activeTopic?.summary || "Continue where you left off";
-
-  const journeyWindow = useMemo(() => {
-    if (journeyCourse.length === 0) return [];
-    const total = journeyCourse.length;
-    let start = Math.max(0, courseTopicIndex - 2);
-    const end = Math.min(total, start + 5);
-    if (end - start < 5) start = Math.max(0, end - 5);
-
-    return journeyCourse.slice(start, end).map((topic, idx) => {
-      const originalIndex = start + idx;
-      const isCompleted = isMastered(user, topic.id);
-      const isCurrent = originalIndex === courseTopicIndex;
-      return {
-        topic,
-        index: originalIndex + 1,
-        isCompleted,
-        isCurrent,
-        isUpcoming: !isCompleted && !isCurrent,
-        isOpen: isTopicOpen(user, topic.id),
-      };
-    });
-  }, [journeyCourse, courseTopicIndex, user]);
-
-  const currentWindowIndex = journeyWindow.findIndex((step) => step.isCurrent);
-  const journeyFillPercent =
-    currentWindowIndex >= 0 && journeyWindow.length > 1
-      ? (currentWindowIndex / (journeyWindow.length - 1)) * 100
-      : 0;
 
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} />;
 
