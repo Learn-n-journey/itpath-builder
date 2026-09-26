@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import { a1BranchingScenarios } from "@/data/auto/a1-branching-diagnosis";
 
 describe("A1 branching Fix → Verify cases", () => {
-  it("keeps the pilot limited to the three proven branching cases", () => {
-    expect(a1BranchingScenarios).toHaveLength(3);
+  it("covers the six diagnostic modules selected for the full branching lifecycle", () => {
+    expect(a1BranchingScenarios).toHaveLength(6);
+    expect(new Set(a1BranchingScenarios.map((scenario) => scenario.topicId)).size).toBe(6);
   });
 
   it.each(a1BranchingScenarios)("$topicId has one evidence-supported repair and realistic failed-repair evidence", (scenario) => {
