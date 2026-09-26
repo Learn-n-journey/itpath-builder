@@ -1220,32 +1220,37 @@ export function VirusRun() {
         const cx = offX + (g.x + 0.5) * cell;
         const cy = offY + (g.y + 0.5) * cell;
         ctx2.save();
-        const aim = Math.atan2(run.player.y - g.y, run.player.x - g.x);
+        const targetAim = Math.atan2(run.player.y - g.y, run.player.x - g.x);
+        const moveDx=g.tx-g.x, moveDy=g.ty-g.y;
+        const moveAim=Math.abs(moveDx)+Math.abs(moveDy)>.02?Math.atan2(moveDy,moveDx):targetAim;
         const distanceToRunner = renderField[Math.round(g.y)]?.[Math.round(g.x)] ?? -1;
-        const alerted = g.stunned<=0 && distanceToRunner >= 0 && distanceToRunner <= g.detection;
+        const alerted = g.stunned<=0 && g.state==="chase";
         ctx2.translate(cx, cy);
-        if(g.stunned>0)ctx2.globalAlpha=.35+.2*Math.sin(time/80);
-        ctx2.rotate(aim);
-        const coneLength = cell * (alerted ? 3.4 : 2.25);
-        const coneWidth = cell * (alerted ? 1.35 : 0.9);
-        const cone = ctx2.createLinearGradient(0, 0, coneLength, 0);
-        cone.addColorStop(0, alerted ? "rgba(248,113,113,0.32)" : "rgba(248,113,113,0.16)");
-        cone.addColorStop(1, "rgba(248,113,113,0)");
-        ctx2.fillStyle = cone;
-        ctx2.beginPath();
-        ctx2.moveTo(cell * 0.2, 0);
-        ctx2.lineTo(coneLength, -coneWidth);
-        ctx2.lineTo(coneLength, coneWidth);
-        ctx2.closePath();
-        ctx2.fill();
-        ctx2.rotate(Math.PI / 2);
+
+        // Detection light communicates AI state without covering the corridor.
+        if(g.stunned<=0){
+          const sensorAim=g.state==="chase"?targetAim:moveAim;
+          ctx2.save();ctx2.rotate(sensorAim);
+          const coneLength=cell*(g.state==="chase"?3.25:g.state==="search"?2.15:1.7);
+          const coneWidth=cell*(g.state==="chase"?1.05:g.state==="search"?.72:.52);
+          const cone=ctx2.createLinearGradient(cell*.12,0,coneLength,0);
+          const coneRgb=g.state==="search"?"251,146,60":"248,113,113";
+          cone.addColorStop(0,`rgba(${coneRgb},${g.state==="chase"?.24:g.state==="search"?.13:.075})`);
+          cone.addColorStop(1,`rgba(${coneRgb},0)`);
+          ctx2.fillStyle=cone;ctx2.beginPath();ctx2.moveTo(cell*.12,0);ctx2.lineTo(coneLength,-coneWidth);ctx2.lineTo(coneLength,coneWidth);ctx2.closePath();ctx2.fill();ctx2.restore();
+        }
+
+        // Body orientation follows travel, making movement feel physical rather than turret-like.
+        ctx2.rotate(moveAim + Math.PI / 2);
+        if(g.stunned>0)ctx2.globalAlpha=.52+.12*Math.sin(time/75);
         const s = cell * 0.82;
         ctx2.shadowColor = alerted ? "rgba(248,113,113,0.95)" : "rgba(248,113,113,0.68)";
         ctx2.shadowBlur = cell * (alerted ? 0.9 : 0.62);
-        const guardGradient = ctx2.createLinearGradient(0, -s / 2, 0, s / 2);
-        guardGradient.addColorStop(0, "#fee2e2");
-        guardGradient.addColorStop(0.24, "#ef4444");
-        guardGradient.addColorStop(1, "#7f1d1d");
+        const guardGradient = ctx2.createLinearGradient(-s*.35, -s*.5, s*.3, s*.5);
+        guardGradient.addColorStop(0, g.stunned>0 ? "#bae6fd" : "#fecaca");
+        guardGradient.addColorStop(0.18, g.stunned>0 ? "#38bdf8" : "#dc2626");
+        guardGradient.addColorStop(0.58, g.stunned>0 ? "#075985" : "#991b1b");
+        guardGradient.addColorStop(1, "#260909");
         ctx2.fillStyle = guardGradient;
         ctx2.strokeStyle = "rgba(254,202,202,0.82)";
         ctx2.lineWidth = Math.max(0.8, cell * 0.045);
@@ -1289,10 +1294,20 @@ export function VirusRun() {
         }
 
         ctx2.shadowBlur = 0;
+        // Brushed armor highlight adds material depth without another glow layer.
+        ctx2.strokeStyle=g.stunned>0?"rgba(186,230,253,0.5)":"rgba(255,255,255,0.16)";
+        ctx2.lineWidth=Math.max(.6,cell*.025);
+        ctx2.beginPath();ctx2.moveTo(-s*.2,-s*.28);ctx2.lineTo(s*.16,-s*.34);ctx2.stroke();
+
         // Shared optical core keeps the enemy faction visually unified.
         ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.04, s * 0.15, 0, Math.PI * 2); ctx2.fill();
-        ctx2.fillStyle = alerted ? "#fff1f2" : "#fee2e2"; ctx2.beginPath(); ctx2.arc(0, -s * 0.055, s * 0.06, 0, Math.PI * 2); ctx2.fill();
-        if (g.state === "search") {
+        ctx2.fillStyle = g.stunned>0 ? "#e0f2fe" : alerted ? "#fff1f2" : g.state==="search" ? "#fed7aa" : "#fecaca"; ctx2.beginPath(); ctx2.arc(0, -s * 0.055, s * 0.06, 0, Math.PI * 2); ctx2.fill();
+        if(g.stunned>0){
+          // Electrical interruption makes EMP status immediately legible.
+          ctx2.strokeStyle="rgba(125,211,252,0.9)";ctx2.lineWidth=Math.max(1,cell*.045);
+          for(let z=0;z<2;z++){const ox=(z?1:-1)*s*.34;ctx2.beginPath();ctx2.moveTo(ox,-s*.32);ctx2.lineTo(ox+s*.09,-s*.12);ctx2.lineTo(ox-s*.03,s*.02);ctx2.lineTo(ox+s*.08,s*.22);ctx2.stroke();}
+        }
+        if (g.state === "search" && g.stunned<=0) {
           ctx2.strokeStyle="rgba(253,186,116,0.72)";
           ctx2.lineWidth=Math.max(.8,cell*.04);
           ctx2.beginPath();ctx2.arc(0,0,s*.73,time/420,time/420+Math.PI*.85);ctx2.stroke();
