@@ -1241,20 +1241,26 @@ export function VirusRun() {
           // Faux extrusion: a consistent lower-right depth face makes each connected
           // wall mass read as raised hardware under a top-left virtual light.
           const depth=cell*.14;
-          ctx2.fillStyle="rgba(0,0,0,.42)";
-          ctx2.fillRect(bx+depth,by+depth,cell+.5,cell+.5);
-          ctx2.fillStyle=wallFill;
-          ctx2.fillRect(bx,by,cell+.5,cell+.5);
-          const topFace=ctx2.createLinearGradient(bx,by,bx,by+cell*.24);
-          topFace.addColorStop(0,"rgba(255,255,255,.09)");topFace.addColorStop(1,"rgba(255,255,255,0)");
-          ctx2.fillStyle=topFace;ctx2.fillRect(bx,by,cell,cell*.24);
+          // Soft contact shadow first, then explicit right/bottom depth faces.
+          ctx2.save();ctx2.shadowColor="rgba(0,0,0,.72)";ctx2.shadowBlur=cell*.22;ctx2.shadowOffsetX=depth*.7;ctx2.shadowOffsetY=depth*.9;
+          ctx2.fillStyle="rgba(2,6,23,.5)";ctx2.fillRect(bx+depth*.35,by+depth*.45,cell*.92,cell*.92);ctx2.restore();
+          const sideGrad=ctx2.createLinearGradient(bx+cell,by,bx+cell+depth,by+depth);
+          sideGrad.addColorStop(0,"rgba(30,41,59,.68)");sideGrad.addColorStop(1,"rgba(2,6,23,.88)");
+          ctx2.fillStyle=sideGrad;ctx2.beginPath();ctx2.moveTo(bx+cell,by);ctx2.lineTo(bx+cell+depth,by+depth);ctx2.lineTo(bx+cell+depth,by+cell+depth);ctx2.lineTo(bx+cell,by+cell);ctx2.closePath();ctx2.fill();
+          const bottomGrad=ctx2.createLinearGradient(bx,by+cell,bx+depth,by+cell+depth);
+          bottomGrad.addColorStop(0,"rgba(15,23,42,.72)");bottomGrad.addColorStop(1,"rgba(2,6,23,.92)");
+          ctx2.fillStyle=bottomGrad;ctx2.beginPath();ctx2.moveTo(bx,by+cell);ctx2.lineTo(bx+cell,by+cell);ctx2.lineTo(bx+cell+depth,by+cell+depth);ctx2.lineTo(bx+depth,by+cell+depth);ctx2.closePath();ctx2.fill();
+          ctx2.fillStyle=wallFill;ctx2.fillRect(bx,by,cell+.5,cell+.5);
+          const topFace=ctx2.createLinearGradient(bx,by,bx+cell*.72,by+cell*.72);
+          topFace.addColorStop(0,"rgba(255,255,255,.12)");topFace.addColorStop(.32,"rgba(255,255,255,.035)");topFace.addColorStop(1,"rgba(0,0,0,.06)");
+          ctx2.fillStyle=topFace;ctx2.fillRect(bx,by,cell,cell);
           // Fine deterministic material grain and bevel lighting give the maze depth
           // without adding image assets or frame-to-frame noise.
           const grainSeed=(x*37+y*61)%17;
-          ctx2.fillStyle="rgba(255,255,255,0.025)";
-          for(let g=0;g<2;g++){
-            const gx=bx+cell*((grainSeed+g*7)%13)/13;
-            const gy=by+cell*((grainSeed*3+g*5)%11)/11;
+          ctx2.fillStyle="rgba(255,255,255,0.03)";
+          for(let g=0;g<4;g++){
+            const gx=bx+cell*((grainSeed+g*7)%19)/19;
+            const gy=by+cell*((grainSeed*3+g*5)%17)/17;
             ctx2.fillRect(gx,gy,Math.max(.6,cell*.025),Math.max(.6,cell*.025));
           }
           ctx2.strokeStyle="rgba(255,255,255,0.045)";ctx2.lineWidth=Math.max(.5,cell*.018);
@@ -1510,6 +1516,8 @@ export function VirusRun() {
         ctx2.rotate(Math.max(-1,Math.min(1,turnVector))*roleBank);
         if(g.kind==="hunter" && g.state==="chase")ctx2.translate(0,-cell*(.025+.025*Math.sin(time/85)));
         if(g.stunned>0)ctx2.globalAlpha=.52+.12*Math.sin(time/75);
+        // Directional floor shadow grounds the raised enemy model.
+        ctx2.save();ctx2.fillStyle="rgba(0,0,0,.3)";ctx2.beginPath();ctx2.ellipse(cell*.08,cell*.17,cell*.32,cell*.13,0,0,Math.PI*2);ctx2.fill();ctx2.restore();
         const s = cell * 0.82;
         // Personality motion: same mechanics, different attitude.
         const personalityPhase=time/1000+g.x*.31+g.y*.17;
@@ -1649,6 +1657,7 @@ export function VirusRun() {
         const age=Math.min(1,(time-helper.born)/240);
         const bob=Math.sin(time/145+hi*1.9)*cell*.022;
         const heading=Math.atan2(helper.ty-helper.y,helper.tx-helper.x);
+        ctx2.save();ctx2.fillStyle="rgba(0,0,0,.26)";ctx2.beginPath();ctx2.ellipse(hx+cell*.06,hy+cell*.11,cell*.2,cell*.08,0,0,Math.PI*2);ctx2.fill();ctx2.restore();
         ctx2.save();ctx2.translate(hx,hy+bob);ctx2.rotate(heading);ctx2.scale(age,age);
         ctx2.shadowColor="rgba(45,212,191,.6)";ctx2.shadowBlur=cell*.3;
         const hr=cell*.21;
