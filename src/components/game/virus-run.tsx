@@ -1362,17 +1362,19 @@ export function VirusRun() {
         ctx2.closePath();
         ctx2.fill();
         ctx2.rotate(Math.PI / 2);
-        const s = cell * 0.82;
-        ctx2.shadowColor = "rgba(248,113,113,0.75)";
+        const s = cell * (g.kind==="warden"?.94:g.kind==="interceptor"?.76:.82);
+        const guardAccent=g.kind==="scanner"?"#fb7185":g.kind==="hunter"?"#ef4444":g.kind==="interceptor"?"#f97316":"#a855f7";
+        ctx2.shadowColor = guardAccent;
         ctx2.shadowBlur = cell * 0.72;
         const guardGradient = ctx2.createLinearGradient(0, -s / 2, 0, s / 2);
-        guardGradient.addColorStop(0, "#fecaca"); guardGradient.addColorStop(0.22, "#ef4444"); guardGradient.addColorStop(1, "#7f1d1d");
+        guardGradient.addColorStop(0, g.kind==="warden"?"#e9d5ff":"#fecaca"); guardGradient.addColorStop(0.22, guardAccent); guardGradient.addColorStop(1, g.kind==="warden"?"#581c87":"#7f1d1d");
         ctx2.fillStyle = guardGradient;
         ctx2.beginPath();
         ctx2.moveTo(0, -s * 0.52); ctx2.lineTo(s * 0.42, -s * 0.22); ctx2.lineTo(s * 0.34, s * 0.3); ctx2.lineTo(0, s * 0.54); ctx2.lineTo(-s * 0.34, s * 0.3); ctx2.lineTo(-s * 0.42, -s * 0.22); ctx2.closePath(); ctx2.fill();
         ctx2.shadowBlur = 0;
         ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.06, s * 0.16, 0, Math.PI * 2); ctx2.fill();
         ctx2.fillStyle = "#fee2e2"; ctx2.beginPath(); ctx2.arc(0, -s * 0.08, s * 0.065, 0, Math.PI * 2); ctx2.fill();
+        ctx2.fillStyle=guardAccent;ctx2.font=`bold ${Math.max(7,cell*.19)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText(g.kind==="scanner"?"S":g.kind==="hunter"?"H":g.kind==="interceptor"?"I":"W",0,s*.2);
         ctx2.strokeStyle = "rgba(254,202,202,0.65)"; ctx2.lineWidth = Math.max(0.8, cell * 0.045); ctx2.beginPath(); ctx2.arc(0, 0, s * 0.68, time / 500, time / 500 + Math.PI * 1.15); ctx2.stroke();
         ctx2.restore();
       }
