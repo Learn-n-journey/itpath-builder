@@ -894,7 +894,9 @@ export function VirusRun() {
             const next: Best = {
               bestLevel: Math.max(best.bestLevel, run.level - 1),
               packets: best.packets + run.collected,
-              currentLevel: 1,
+              // Resume from the level where this run ended instead of sending
+              // an established player back to the beginning.
+              currentLevel: run.level,
             };
             writeBest(next);
             bestRef.current = next;
@@ -2032,7 +2034,7 @@ export function VirusRun() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-destructive">Connection terminated</p>
         <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-destructive">Quarantined</h3>
         <p className="text-sm text-muted-foreground">
-          The antivirus found you on system {hud.level}. You harvested {hud.collected} packets this breach.
+          The antivirus found you on system {hud.level}. You harvested {hud.collected} packets this breach. Your next run resumes here.
         </p>
         {hud.bestLevel > 0 && (
           <p className="font-mono text-xs text-muted-foreground">
@@ -2040,7 +2042,7 @@ export function VirusRun() {
           </p>
         )}
         <Button onClick={startRun} className="mt-2">
-          <RotateCcw className="size-4" aria-hidden /> Run again
+          <RotateCcw className="size-4" aria-hidden /> Resume system {hud.level}
         </Button>
       </Overlay>
     ) : null;
