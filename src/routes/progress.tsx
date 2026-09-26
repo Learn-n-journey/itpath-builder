@@ -12,6 +12,7 @@ import { evidenceSourceLabels } from "@/lib/skills-engine";
 import { useAppState } from "@/state/app-state";
 import { AlertTriangle, ArrowRight, Brain, CheckCircle2, Clock3, Target, TrendingUp } from "lucide-react";
 import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/progress")({
   staticData: { sitemap: false },
@@ -19,13 +20,13 @@ export const Route = createFileRoute("/progress")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Progress | IT PATH" },
+      { title: `${domain.id === "auto-repair" ? "Shop Progress" : "Progress"} | ${domain.appName}` },
       {
         name: "description",
         content:
-          "Detailed IT PATH progress by certification, stage, topic, skill and activity type.",
+          `Detailed ${domain.appName} progress by certification, stage, topic, skill and activity type.`,
       },
-      { property: "og:title", content: "Progress | IT PATH" },
+      { property: "og:title", content: `${domain.id === "auto-repair" ? "Shop Progress" : "Progress"} | ${domain.appName}` },
       { property: "og:description", content: "Every number here comes from your own activity." },
     ],
   }),
@@ -77,18 +78,18 @@ function ProgressPage() {
         <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-primary/[0.08] blur-3xl" />
         <div className="relative grid gap-7 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-primary">Learning progress</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-primary">{domain.id === "auto-repair" ? "Shop progress" : "Learning progress"}</p>
             <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-5xl">See what is actually sticking.</h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">Progress shows the work you have completed, the evidence behind your mastery, and where your next effort will matter most.</p>
           </div>
-          <Button asChild><Link to="/my-path">Continue learning <ArrowRight className="ml-1 size-4" /></Link></Button>
+          <Button asChild><Link to="/my-path">{domain.id === "auto-repair" ? "Continue training" : "Continue learning"} <ArrowRight className="ml-1 size-4" /></Link></Button>
         </div>
       </section>
 
       <section className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <HeadlineStat icon={TrendingUp} label="Learning progress" value={`${measures.learningProgress}%`} detail={`${measures.activitiesCompleted} of ${measures.activitiesTotal} activities`} />
-        <HeadlineStat icon={Brain} label="Overall mastery" value={`${measures.overallMastery}%`} detail={`${measures.assessmentsTaken} of ${measures.assessmentsTotal} finals taken`} />
-        <HeadlineStat icon={CheckCircle2} label="Topics mastered" value={String(report.masteredTopics.length)} detail={`${startedTopics.length} topics started`} />
+        <HeadlineStat icon={TrendingUp} label={domain.id === "auto-repair" ? "Training progress" : "Learning progress"} value={`${measures.learningProgress}%`} detail={`${measures.activitiesCompleted} of ${measures.activitiesTotal} activities`} />
+        <HeadlineStat icon={Brain} label="Overall mastery" value={`${measures.overallMastery}%`} detail={`${measures.assessmentsTaken} of ${measures.assessmentsTotal} ${domain.id === "auto-repair" ? "certification checks taken" : "finals taken"}`} />
+        <HeadlineStat icon={CheckCircle2} label={domain.id === "auto-repair" ? "Systems mastered" : "Topics mastered"} value={String(report.masteredTopics.length)} detail={`${startedTopics.length} topics started`} />
         <HeadlineStat icon={Clock3} label="Study time" value={`${Math.round((report.study.totalMinutes / 60) * 10) / 10}h`} detail={`${report.study.sessions} recorded sessions`} />
       </section>
 
@@ -233,17 +234,17 @@ function ProgressPage() {
               </dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Labs completed</dt>
+              <dt className="text-muted-foreground">{domain.id === "auto-repair" ? "Shop practice completed" : "Labs completed"}</dt>
               <dd className="mt-1 tabular-nums">
                 {report.lab.completed} / {report.lab.total}
               </dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Labs mastered</dt>
+              <dt className="text-muted-foreground">{domain.id === "auto-repair" ? "Shop practice mastered" : "Labs mastered"}</dt>
               <dd className="mt-1 tabular-nums">{report.lab.mastered}</dd>
             </div>
             <div>
-              <dt className="text-muted-foreground">Lab average</dt>
+              <dt className="text-muted-foreground">{domain.id === "auto-repair" ? "Shop practice average" : "Lab average"}</dt>
               <dd className="mt-1 tabular-nums">
                 {report.lab.attempts ? `${report.lab.average}%` : "-"}
               </dd>
