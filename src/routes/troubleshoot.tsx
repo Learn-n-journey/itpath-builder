@@ -501,7 +501,7 @@ function IncidentWorkspace({
         </div>
       </Panel>
 
-      <Panel title={isAutoPath ? "Close the repair order" : "Document"} description={isAutoPath ? "Record the customer complaint, tests performed, evidence, root cause, repair, and verification." : "Write the ticket note: symptom, evidence, cause, action taken and verification.">
+      <Panel title={isAutoPath ? "Close the repair order" : "Document"} description={isAutoPath ? "Record the customer complaint, tests performed, evidence, root cause, repair, and verification." : "Write the ticket note: symptom, evidence, cause, action taken and verification."}>
         <Textarea
           value={documentation}
           onChange={(event) => setDocumentation(event.target.value)}
