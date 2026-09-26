@@ -5,6 +5,7 @@
  * evidence; nothing here claims to inspect real equipment.
  */
 import { learningModules } from "@/data/learning-content";
+import { a1PracticalProfileFor } from "@/data/auto/a1-practical";
 import type { Incident, IncidentCategory, IncidentOption, Lesson, Topic } from "@/lib/app-data/types";
 
 const CATEGORY_RULES: Array<[IncidentCategory, RegExp]> = [
@@ -71,6 +72,7 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[], mode: "i
     const failure = failures[0] as string;
     const where = learningModule.whereYouSeeIt[0] ?? topic.summary;
     const practical = learningModule.practicalKnowledge;
+    const a1 = automotive ? a1PracticalProfileFor(topic.id) : undefined;
 
     const actions = [
       {
@@ -81,11 +83,16 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[], mode: "i
           : `One team reports the problem since a change yesterday. A comparable system that did not receive the change behaves normally. ${sentence(failure)}`,
         informative: true,
       },
-      ...steps.slice(0, 3).map((step, index) => ({
+      ...(a1 ? a1.testPlan : steps.slice(0, 3)).map((step, index) => ({
         id: `ia-${slug}-step-${index + 1}`,
         label: sentence(step).replace(/\.$/, ""),
-        finding:
-          index === 0
+        finding: a1
+          ? index === 0
+            ? "The complaint is verified and the baseline inspection gives you evidence to choose the next test instead of guessing."
+            : index === (a1.testPlan.length - 1)
+              ? "The result completes the test sequence. Compare the accumulated evidence with service information before choosing the repair."
+              : "Record the supplied or observed result and state what it rules in or rules out before continuing."
+          : index === 0
             ? `The observations line up with ${lower(sentence(primary))} Nothing yet supports ${lower(sentence(secondary))}`
             : `Recorded. The result is consistent with the first finding and does not introduce a new fault.`,
         informative: true,
@@ -140,7 +147,7 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[], mode: "i
     const fixes: IncidentOption[] = [
       {
         id: `if-${slug}-correct`,
-        label: practical[0] ? sentence(practical[0]) : `Correct the condition behind ${lower(sentence(primary))}`,
+        label: a1 ? sentence(a1.repairDecision) : practical[0] ? sentence(practical[0]) : `Correct the condition behind ${lower(sentence(primary))}`,
         correct: true,
       },
       {
@@ -164,9 +171,13 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[], mode: "i
     ];
 
     const verifications: IncidentOption[] = [
-      { id: `iv-${slug}-repeat`, label: "Repeat the check that first exposed the fault and confirm the result changed", correct: true },
-      { id: `iv-${slug}-user`, label: automotive ? "Recreate the customer complaint under the original operating conditions" : "Have an affected user repeat the original failing task", correct: true },
-      { id: `iv-${slug}-watch`, label: automotive ? "Complete an appropriate road or functional test and check for recurrence" : "Watch for a recurrence over an agreed period before closing", correct: true },
+      ...(a1
+        ? a1.verification.map((step, index) => ({ id: `iv-${slug}-a1-${index + 1}`, label: sentence(step), correct: true }))
+        : [
+            { id: `iv-${slug}-repeat`, label: "Repeat the check that first exposed the fault and confirm the result changed", correct: true },
+            { id: `iv-${slug}-user`, label: automotive ? "Recreate the customer complaint under the original operating conditions" : "Have an affected user repeat the original failing task", correct: true },
+            { id: `iv-${slug}-watch`, label: automotive ? "Complete an appropriate road or functional test and check for recurrence" : "Watch for a recurrence over an agreed period before closing", correct: true },
+          ]),
       {
         id: `iv-${slug}-assume`,
         label: automotive ? "Return the vehicle because the repair step completed without an error" : "Close it because the change applied without an error",
@@ -196,7 +207,7 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[], mode: "i
         ...keywords(primary, 3),
       ],
       documentationKeywords: automotive ? ["complaint", "test", "cause", "repair", "verif"] : ["symptom", "check", "cause", "fix", "verif"],
-      rootCause: `${sentence(primary)} ${sentence(failure)} Working the documented order, ${steps
+      rootCause: `${sentence(primary)} ${sentence(failure)} Working the documented order, ${(a1 ? a1.testPlan : steps)
         .map((step) => lower(sentence(step)).replace(/\.$/, ""))
         .join("; then ")}, separates this cause from ${lower(sentence(secondary))}`,
     });
