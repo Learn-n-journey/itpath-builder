@@ -391,7 +391,7 @@ export function VirusRun() {
   const [upgradeChoices, setUpgradeChoices] = useState<RunUpgrade[]>([]);
   const [upgradeCount, setUpgradeCount] = useState(0);
   const [mobileLandscape, setMobileLandscape] = useState(false);
-  const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" | "power" | "near" }[]>([]);
+  const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" | "power" | "near"; targetX?: number; targetY?: number }[]>([]);
   const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false, bossTitle: "", bossBreaches: 0, bossBreachesRequired: 0 });
 
   useEffect(() => {
@@ -656,7 +656,7 @@ export function VirusRun() {
           // Higher momentum gets slightly more breathing room so a skilled route
           // can be sustained without making the bonus permanent.
           run.streakTimer = 4.25 + run.streak * 0.35;
-          fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet" });virusSound("packet");
+          fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet", targetX:p.x, targetY:p.y });virusSound("packet");
           if (run.collected >= run.required && !run.boss) run.portOpen = true;
           syncHud(run);
         }
@@ -1554,6 +1554,37 @@ export function VirusRun() {
             ctx2.fillRect(fxX + Math.cos(a) * d - size / 2, fxY + Math.sin(a) * d - size / 2, size, fx.kind === "hit" ? size * 0.45 : size);
           }
         }
+        // Collected data streams from its grid cell into the virus instead of
+        // simply vanishing. Ease-in acceleration makes it feel magnetically absorbed.
+        if(fx.kind==="packet" && fx.targetX!==undefined && fx.targetY!==undefined){
+          const transferLife=.62;
+          const tq=Math.min(1,q/transferLife);
+          const eased=tq*tq*(3-2*tq);
+          const targetX=offX+(fx.targetX+.5)*cell;
+          const targetY=offY+(fx.targetY+.5)*cell;
+          const tx=fxX+(targetX-fxX)*eased;
+          const ty=fxY+(targetY-fxY)*eased;
+          ctx2.save();
+          ctx2.globalAlpha=Math.max(0,1-tq);
+          ctx2.strokeStyle=`rgba(125,211,252,${.72*(1-tq)})`;
+          ctx2.lineWidth=Math.max(1,cell*.055*(1-tq*.45));
+          ctx2.shadowColor="#38bdf8";ctx2.shadowBlur=cell*.55;
+          ctx2.beginPath();ctx2.moveTo(fxX,fxY);ctx2.quadraticCurveTo((fxX+targetX)/2,Math.min(fxY,targetY)-cell*.55,tx,ty);ctx2.stroke();
+          ctx2.translate(tx,ty);ctx2.rotate(time/180);
+          const dataSize=cell*(.16-.07*tq);
+          ctx2.fillStyle="#e0f2fe";ctx2.fillRect(-dataSize,-dataSize,dataSize*2,dataSize*2);
+          ctx2.restore();
+
+          // Final absorption briefly energizes the virus membrane/nucleus.
+          if(tq>.72){
+            const absorb=(tq-.72)/.28;
+            ctx2.save();ctx2.globalAlpha=(1-absorb)*.7;
+            ctx2.strokeStyle="rgba(94,234,212,0.9)";ctx2.lineWidth=Math.max(1,cell*.06);
+            ctx2.beginPath();ctx2.arc(targetX,targetY,cell*(.22+absorb*.48),0,Math.PI*2);ctx2.stroke();
+            ctx2.restore();
+          }
+        }
+
         // A brief central flash gives pickups and impacts a crisp first frame.
         if (q < 0.22 && fx.kind !== "near") {
           const flash = ctx2.createRadialGradient(fxX, fxY, 0, fxX, fxY, cell * (0.9 + q * 2));
