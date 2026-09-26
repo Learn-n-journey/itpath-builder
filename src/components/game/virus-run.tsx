@@ -677,8 +677,8 @@ export function VirusRun() {
       // Port.
       if (run.portOpen && px === run.port.x && py === run.port.y) {
         fxRef.current.push({ x: run.port.x, y: run.port.y, born: performance.now(), kind: "exit" });virusSound(run.boss?"boss":"exit");
-        // Level cleared: heal one point (capped) and bank packets.
-        run.integrity = Math.min(MAX_INTEGRITY, run.integrity + 1);
+        // Level cleared: fully restore integrity before the next system.
+        run.integrity = MAX_INTEGRITY;
         const best = readBest();
         const next: Best = {
           bestLevel: Math.max(best.bestLevel, run.level),
