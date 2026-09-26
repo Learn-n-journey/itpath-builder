@@ -238,6 +238,8 @@ interface RunState {
   guards: Guard[];
   integrity: number;
   packetsTotal: number;
+  systemClock: number;
+  hazardPulse: number;
 }
 
 function buildLevel(level: number): RunState {
@@ -311,6 +313,8 @@ function buildLevel(level: number): RunState {
     guards,
     integrity: MAX_INTEGRITY,
     packetsTotal: packets.length,
+    systemClock: 0,
+    hazardPulse: 0,
   };
 }
 
@@ -495,6 +499,8 @@ export function VirusRun() {
 
     const update = (run: RunState, dt: number) => {
       const p = run.player;
+      run.systemClock += dt;
+      run.hazardPulse = (run.hazardPulse + dt) % 8;
 
       // Timers, combo decay and temporary abilities.
       if (p.invuln > 0) p.invuln = Math.max(0, p.invuln - dt);
@@ -531,6 +537,10 @@ export function VirusRun() {
         if(run.theme.system==="Network Stack" && (Math.round(p.y)%4===0))playerSpeed*=1.22;
         if(run.theme.system==="GPU Memory" && (Math.round(p.x)%5===0))playerSpeed*=1.12;
         if(run.theme.system==="Storage Drive")playerSpeed*=0.94;
+        // Each computer system has a distinct traversal rhythm.
+        if(run.theme.system==="Boot Sector" && run.hazardPulse<1.5)playerSpeed*=0.82;
+        if(run.theme.system==="GPU Memory" && (Math.round(p.y)%3===0))playerSpeed*=1.18;
+        if(run.theme.system==="Network Stack" && (Math.round(p.y)%4===0))playerSpeed*=1.12;
         const r = stepEntity(p.x, p.y, p.tx, p.ty, playerSpeed, dt);
         p.x = r.x;
         p.y = r.y;
@@ -569,6 +579,25 @@ export function VirusRun() {
         }
       }
 
+      // System hazards are intentionally readable and non-lethal on their own.
+      // They change the chase without invalidating a generated maze route.
+      const pulse = run.hazardPulse;
+      if (run.theme.system === "System RAM" && pulse < dt + 0.02 && p.invuln <= 0) {
+        // A memory-page fault briefly interrupts movement.
+        p.moving = false;
+        p.tx = Math.round(p.x); p.ty = Math.round(p.y);
+      }
+      if (run.theme.system === "Kernel Space" && pulse > 3.7 && pulse < 4.2 && p.invuln <= 0 && run.activePower?.kind !== "cloak") {
+        // Kernel scan: short exposure window, communicated by the ring sweep.
+        p.invuln = Math.max(p.invuln, 0.18);
+        for (const g of run.guards) g.detection += 0.02;
+      }
+      if (run.theme.system === "Firewall" && pulse > 5.2 && pulse < 6.6 && p.moving) {
+        // Firewall sweep slows traversal but never seals a corridor.
+        p.x -= (p.x - p.tx) * Math.min(0.018, dt * 0.4);
+        p.y -= (p.y - p.ty) * Math.min(0.018, dt * 0.4);
+      }
+
       // Guards.
       for (const g of run.guards) {
         const gx = Math.round(g.x);
@@ -601,7 +630,11 @@ export function VirusRun() {
           g.tx = chosen[0];
           g.ty = chosen[1];
         }
-        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * (g.kind==="hunter"&&toPlayer>=0&&toPlayer<=g.detection?1.12:1), dt);
+        let systemGuardSpeed = 1;
+        if (run.theme.system === "CPU Cache") systemGuardSpeed = 1.08;
+        if (run.theme.system === "Storage Drive") systemGuardSpeed = 0.9;
+        if (run.theme.system === "Firewall" && pulse > 5.2 && pulse < 6.6) systemGuardSpeed = 1.12;
+        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * (g.kind==="hunter"&&toPlayer>=0&&toPlayer<=g.detection?1.12:1), dt);
         g.x = r.x;
         g.y = r.y;
 
@@ -817,6 +850,34 @@ export function VirusRun() {
           ctx2.beginPath(); ctx2.moveTo(offX, y); ctx2.lineTo(offX + cell * COLS, y); ctx2.stroke();
         }
         ctx2.setLineDash([]);
+      }
+      ctx2.restore();
+
+      // Gameplay telegraphs: the visuals below correspond to the active system mechanic.
+      ctx2.save();
+      const hazardPhase = run.hazardPulse;
+      if (sys === "Boot Sector" && hazardPhase < 1.5) {
+        ctx2.fillStyle = "rgba(250,204,21,0.055)";
+        ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
+        ctx2.fillStyle = "rgba(253,224,71,0.8)";
+        ctx2.font = `bold ${Math.max(8,cell*.28)}px ui-monospace`;
+        ctx2.textAlign = "left"; ctx2.fillText("BOOT SYNC", offX + cell, offY + cell * 1.1);
+      } else if (sys === "System RAM" && hazardPhase < 0.7) {
+        ctx2.fillStyle = "rgba(34,211,238,0.07)";
+        for(let x=1;x<COLS-1;x+=4)ctx2.fillRect(offX+x*cell,offY,cell*.8,cell*ROWS);
+      } else if (sys === "GPU Memory") {
+        for(let y=3;y<ROWS-1;y+=3){ctx2.fillStyle="rgba(232,121,249,0.055)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
+      } else if (sys === "Storage Drive") {
+        const seekX = offX + (((time/55)%(COLS-2))+1)*cell;
+        ctx2.fillStyle="rgba(74,222,128,0.12)";ctx2.fillRect(seekX,offY,cell*.35,cell*ROWS);
+      } else if (sys === "Network Stack") {
+        for(let y=4;y<ROWS-1;y+=4){ctx2.fillStyle="rgba(94,234,212,0.06)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
+      } else if (sys === "Kernel Space") {
+        const scan = Math.max(0,1-Math.abs(hazardPhase-3.95)/.45);
+        if(scan>0){ctx2.strokeStyle=`rgba(248,113,113,${.18+scan*.4})`;ctx2.lineWidth=Math.max(2,cell*.1);const rr=cell*(2+scan*11);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,rr,0,Math.PI*2);ctx2.stroke();}
+      } else if (sys === "Firewall" && hazardPhase > 5.2 && hazardPhase < 6.6) {
+        const sweep=(hazardPhase-5.2)/1.4;const x=offX+sweep*cell*COLS;
+        const fg=ctx2.createLinearGradient(x-cell*2,0,x+cell*2,0);fg.addColorStop(0,"rgba(251,146,60,0)");fg.addColorStop(.5,"rgba(251,146,60,.2)");fg.addColorStop(1,"rgba(251,146,60,0)");ctx2.fillStyle=fg;ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
       }
       ctx2.restore();
 
