@@ -1578,7 +1578,16 @@ export function VirusRun() {
 
   const run = runRef.current;
   const overlay =
-    phase === "menu" ? (
+    phase === "intro" ? (
+      <Overlay>
+        <div className="h-px w-48 bg-gradient-to-r from-transparent via-primary to-transparent" aria-hidden />
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">{hud.level > 20 ? "Endless Mode" : `System ${String(hud.level).padStart(2,"0")}`}</p>
+        <h3 className="font-display text-3xl font-black uppercase tracking-[0.08em] sm:text-4xl">{hud.boss ? hud.bossTitle : hud.system}</h3>
+        <p className="max-w-md text-center text-sm text-muted-foreground">{hud.boss ? (hud.level===5?"Seek patterns are destabilizing the drive.":hud.level===10?"Scheduler pressure is accelerating hostile processes.":hud.level===15?"Identity scans are locking onto movement.":hud.level===20?"All security layers are converging on the core.":"An evolved defender is blocking the breach.") : hud.hint}</p>
+        {hud.boss && <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-destructive">Major security encounter</p>}
+        <div className="h-px w-48 bg-gradient-to-r from-transparent via-primary to-transparent" aria-hidden />
+      </Overlay>
+    ) : phase === "menu" ? (
       <Overlay>
         <VirusCoreGraphic />
         <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary">Containment protocol</p>
