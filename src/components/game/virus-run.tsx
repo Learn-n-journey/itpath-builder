@@ -237,7 +237,7 @@ interface Player {
   invuln: number;
 }
 
-interface GameClone { x:number;y:number;tx:number;ty:number;fromX:number;fromY:number;moving:boolean;born:number; }
+interface HelperRunner { x:number;y:number;tx:number;ty:number;fromX:number;fromY:number;moving:boolean;born:number; }
 
 interface RunState {
   level: number;
@@ -257,7 +257,7 @@ interface RunState {
   port: { x: number; y: number };
   portOpen: boolean;
   player: Player;
-  clones: GameClone[];
+  helpers: HelperRunner[];
   guards: Guard[];
   integrity: number;
   packetsTotal: number;
@@ -355,7 +355,7 @@ function buildLevel(level: number): RunState {
     port,
     portOpen: false,
     player: { x: spawn.x, y: spawn.y, tx: spawn.x, ty: spawn.y, moving: false, invuln: 3 },
-    clones: [],
+    helpers: [],
     guards,
     integrity: MAX_INTEGRITY,
     packetsTotal: packets.length,
@@ -685,7 +685,7 @@ export function VirusRun() {
         if (!packet.taken && (packet.x === px && packet.y === py || (magnetRange > 0 && Math.hypot(packet.x - p.x, packet.y - p.y) <= magnetRange))) {
           packet.taken = true;
           run.collected += 1;
-          run.clones.push({x:packet.x,y:packet.y,tx:packet.x,ty:packet.y,fromX:packet.x,fromY:packet.y,moving:false,born:performance.now()});
+          run.helpers.push({x:packet.x,y:packet.y,tx:packet.x,ty:packet.y,fromX:packet.x,fromY:packet.y,moving:false,born:performance.now()});
           run.streak = Math.min(5, run.streak + 1);
           // Higher momentum gets slightly more breathing room so a skilled route
           // can be sustained without making the bonus permanent.
