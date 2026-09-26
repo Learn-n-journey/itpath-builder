@@ -1226,84 +1226,71 @@ export function VirusRun() {
       for(let sy=offY+cell*.25;sy<offY+cell*ROWS;sy+=cell*.48){ctx2.beginPath();ctx2.moveTo(offX,sy);ctx2.lineTo(offX+cell*COLS,sy);ctx2.stroke();}
       ctx2.restore();
 
-      // Walls: restrained connected security architecture. Interior wall cells stay
-      // dark; only edges facing playable corridors receive a bright rim. This
-      // removes the tiled/neon look and gives the maze one coherent structure.
-      const pad = cell * 0.055;
-      for (let y = 0; y < ROWS; y++) {
-        for (let x = 0; x < COLS; x++) {
-          if (run.grid[y]![x] !== 1) continue;
-          const bx = offX + x * cell;
-          const by = offY + y * cell;
-          const wallFill = ctx2.createLinearGradient(bx, by, bx + cell, by + cell);
-          wallFill.addColorStop(0, t.wall);
-          wallFill.addColorStop(1, t.bg);
-          // Faux extrusion: a consistent lower-right depth face makes each connected
-          // wall mass read as raised hardware under a top-left virtual light.
-          const depth=cell*.14;
-          // Soft contact shadow first, then explicit right/bottom depth faces.
-          ctx2.save();ctx2.shadowColor="rgba(0,0,0,.72)";ctx2.shadowBlur=cell*.22;ctx2.shadowOffsetX=depth*.7;ctx2.shadowOffsetY=depth*.9;
-          ctx2.fillStyle="rgba(2,6,23,.5)";ctx2.fillRect(bx+depth*.35,by+depth*.45,cell*.92,cell*.92);ctx2.restore();
-          const sideGrad=ctx2.createLinearGradient(bx+cell,by,bx+cell+depth,by+depth);
-          sideGrad.addColorStop(0,"rgba(30,41,59,.68)");sideGrad.addColorStop(1,"rgba(2,6,23,.88)");
-          ctx2.fillStyle=sideGrad;ctx2.beginPath();ctx2.moveTo(bx+cell,by);ctx2.lineTo(bx+cell+depth,by+depth);ctx2.lineTo(bx+cell+depth,by+cell+depth);ctx2.lineTo(bx+cell,by+cell);ctx2.closePath();ctx2.fill();
-          const bottomGrad=ctx2.createLinearGradient(bx,by+cell,bx+depth,by+cell+depth);
-          bottomGrad.addColorStop(0,"rgba(15,23,42,.72)");bottomGrad.addColorStop(1,"rgba(2,6,23,.92)");
-          ctx2.fillStyle=bottomGrad;ctx2.beginPath();ctx2.moveTo(bx,by+cell);ctx2.lineTo(bx+cell,by+cell);ctx2.lineTo(bx+cell+depth,by+cell+depth);ctx2.lineTo(bx+depth,by+cell+depth);ctx2.closePath();ctx2.fill();
-          ctx2.fillStyle=wallFill;ctx2.fillRect(bx,by,cell+.5,cell+.5);
-          const topFace=ctx2.createLinearGradient(bx,by,bx+cell*.72,by+cell*.72);
-          topFace.addColorStop(0,"rgba(255,255,255,.12)");topFace.addColorStop(.32,"rgba(255,255,255,.035)");topFace.addColorStop(1,"rgba(0,0,0,.06)");
-          ctx2.fillStyle=topFace;ctx2.fillRect(bx,by,cell,cell);
-          // Fine deterministic material grain and bevel lighting give the maze depth
-          // without adding image assets or frame-to-frame noise.
-          const grainSeed=(x*37+y*61)%17;
-          ctx2.fillStyle="rgba(255,255,255,0.03)";
-          for(let g=0;g<4;g++){
-            const gx=bx+cell*((grainSeed+g*7)%19)/19;
-            const gy=by+cell*((grainSeed*3+g*5)%17)/17;
-            ctx2.fillRect(gx,gy,Math.max(.6,cell*.025),Math.max(.6,cell*.025));
+      // Raised maze architecture. Connected wall cells share one material; depth is
+      // communicated with broad exposed faces and shadow, never an outline around each tile.
+      const depth=cell*.13;
+      for(let y=0;y<ROWS;y++){
+        for(let x=0;x<COLS;x++){
+          if(run.grid[y]![x]!==1)continue;
+          const bx=offX+x*cell,by=offY+y*cell;
+          const topOpen=run.grid[y-1]?.[x]===0,bottomOpen=run.grid[y+1]?.[x]===0;
+          const leftOpen=run.grid[y]?.[x-1]===0,rightOpen=run.grid[y]?.[x+1]===0;
+
+          // Ambient occlusion/contact shadow appears only beside corridor-facing geometry.
+          ctx2.save();
+          ctx2.fillStyle="rgba(0,0,0,.32)";
+          ctx2.shadowColor="rgba(0,0,0,.58)";ctx2.shadowBlur=cell*.16;
+          if(rightOpen)ctx2.fillRect(bx+cell,by+depth*.4,depth,cell);
+          if(bottomOpen)ctx2.fillRect(bx+depth*.4,by+cell,cell,depth);
+          ctx2.restore();
+
+          // Actual visible vertical faces. These are filled planes, not bevel strokes.
+          if(rightOpen){
+            const side=ctx2.createLinearGradient(bx+cell,by,bx+cell+depth,by);
+            side.addColorStop(0,"rgba(49,46,80,.9)");side.addColorStop(1,"rgba(8,10,24,.98)");
+            ctx2.fillStyle=side;ctx2.beginPath();ctx2.moveTo(bx+cell,by);ctx2.lineTo(bx+cell+depth,by+depth);ctx2.lineTo(bx+cell+depth,by+cell+depth);ctx2.lineTo(bx+cell,by+cell);ctx2.closePath();ctx2.fill();
           }
-          ctx2.strokeStyle="rgba(255,255,255,0.045)";ctx2.lineWidth=Math.max(.5,cell*.018);
-          ctx2.beginPath();ctx2.moveTo(bx+pad,by+pad);ctx2.lineTo(bx+cell-pad,by+pad);ctx2.stroke();
-          ctx2.strokeStyle="rgba(0,0,0,0.22)";
-          ctx2.beginPath();ctx2.moveTo(bx+pad,by+cell-pad);ctx2.lineTo(bx+cell-pad,by+cell-pad);ctx2.stroke();
+          if(bottomOpen){
+            const front=ctx2.createLinearGradient(bx,by+cell,bx,by+cell+depth);
+            front.addColorStop(0,"rgba(35,30,60,.94)");front.addColorStop(1,"rgba(6,8,20,.99)");
+            ctx2.fillStyle=front;ctx2.beginPath();ctx2.moveTo(bx,by+cell);ctx2.lineTo(bx+cell,by+cell);ctx2.lineTo(bx+cell+depth,by+cell+depth);ctx2.lineTo(bx+depth,by+cell+depth);ctx2.closePath();ctx2.fill();
+          }
 
-          const topOpen = run.grid[y - 1]?.[x] === 0;
-          const bottomOpen = run.grid[y + 1]?.[x] === 0;
-          const leftOpen = run.grid[y]?.[x - 1] === 0;
-          const rightOpen = run.grid[y]?.[x + 1] === 0;
-          if (topOpen || bottomOpen || leftOpen || rightOpen) {
-            const wallDist=Math.hypot((x+.5)-(run.player.x+.5),(y+.5)-(run.player.y+.5));
-            const localSpec=Math.max(0,1-wallDist/4.2);
-            ctx2.strokeStyle = t.wallEdge;
-            ctx2.lineWidth = Math.max(1, cell * 0.055);
-            ctx2.shadowColor = t.wallEdge;
-            ctx2.shadowBlur = cell * 0.18;
-            ctx2.beginPath();
-            if (topOpen) { ctx2.moveTo(bx, by + pad); ctx2.lineTo(bx + cell, by + pad); }
-            if (bottomOpen) { ctx2.moveTo(bx, by + cell - pad); ctx2.lineTo(bx + cell, by + cell - pad); }
-            if (leftOpen) { ctx2.moveTo(bx + pad, by); ctx2.lineTo(bx + pad, by + cell); }
-            if (rightOpen) { ctx2.moveTo(bx + cell - pad, by); ctx2.lineTo(bx + cell - pad, by + cell); }
+          // Continuous top material. Neighboring wall cells intentionally have no seams.
+          const top=ctx2.createLinearGradient(bx,by,bx+cell*.8,by+cell);
+          top.addColorStop(0,t.wall);top.addColorStop(.55,t.wall);top.addColorStop(1,t.bg);
+          ctx2.fillStyle=top;ctx2.fillRect(bx,by,cell+.65,cell+.65);
+
+          // Broad light falloff replaces the old line-drawn bevel.
+          const faceLight=ctx2.createLinearGradient(bx,by,bx+cell*.55,by+cell*.55);
+          faceLight.addColorStop(0,"rgba(255,255,255,.075)");
+          faceLight.addColorStop(.38,"rgba(255,255,255,.018)");
+          faceLight.addColorStop(1,"rgba(0,0,0,.08)");
+          ctx2.fillStyle=faceLight;ctx2.fillRect(bx,by,cell+.5,cell+.5);
+
+          // Very sparse material imperfections, avoiding visible tile borders.
+          const seed=(x*41+y*67)%23;
+          if(seed%5===0){ctx2.fillStyle="rgba(255,255,255,.025)";ctx2.fillRect(bx+cell*((seed%11)+2)/15,by+cell*((seed%7)+3)/13,cell*.16,Math.max(.7,cell*.018));}
+
+          // Only physically exposed upper/left lips catch the virtual top-left light.
+          ctx2.strokeStyle="rgba(255,255,255,.075)";ctx2.lineWidth=Math.max(.7,cell*.025);ctx2.beginPath();
+          if(topOpen){ctx2.moveTo(bx+cell*.04,by+cell*.025);ctx2.lineTo(bx+cell*.96,by+cell*.025);}
+          if(leftOpen){ctx2.moveTo(bx+cell*.025,by+cell*.04);ctx2.lineTo(bx+cell*.025,by+cell*.96);}
+          ctx2.stroke();
+
+          // Nearby player light gives a restrained material response without neon outlining.
+          const wallDist=Math.hypot((x+.5)-(run.player.x+.5),(y+.5)-(run.player.y+.5));
+          const spec=Math.max(0,1-wallDist/3.8);
+          if(spec>0&&(topOpen||leftOpen)){
+            ctx2.strokeStyle=`rgba(153,246,228,${spec*.1})`;ctx2.lineWidth=Math.max(.6,cell*.018);ctx2.beginPath();
+            if(topOpen){ctx2.moveTo(bx+cell*.16,by+cell*.04);ctx2.lineTo(bx+cell*.84,by+cell*.04);}
+            if(leftOpen){ctx2.moveTo(bx+cell*.04,by+cell*.16);ctx2.lineTo(bx+cell*.04,by+cell*.84);}
             ctx2.stroke();
-            if(localSpec>0){
-              ctx2.strokeStyle=`rgba(153,246,228,${localSpec*.18})`;ctx2.lineWidth=Math.max(.6,cell*.026);
-              ctx2.beginPath();
-              if(topOpen) {ctx2.moveTo(bx+cell*.12,by+pad);ctx2.lineTo(bx+cell*.88,by+pad);}
-              if(leftOpen) {ctx2.moveTo(bx+pad,by+cell*.12);ctx2.lineTo(bx+pad,by+cell*.88);}
-              ctx2.stroke();
-            }
-            ctx2.shadowBlur = 0;
-
-            // Sparse hardware detail only on exposed faces.
-            if ((x * 3 + y * 5) % 11 === 0) {
-              ctx2.fillStyle = "rgba(255,255,255,0.055)";
-              ctx2.fillRect(bx + cell * 0.34, by + cell * 0.34, cell * 0.32, Math.max(1, cell * 0.045));
-            }
           }
         }
       }
 
-            // Screen-space depth treatment: soft vignette and subtle bloom separation.
+      // Screen-space depth treatment: soft vignette and subtle bloom separation.
       ctx2.save();
       const vignette=ctx2.createRadialGradient(rect.width*.5,rect.height*.48,Math.min(rect.width,rect.height)*.2,rect.width*.5,rect.height*.48,Math.max(rect.width,rect.height)*.72);
       vignette.addColorStop(0,"rgba(0,0,0,0)");vignette.addColorStop(.72,"rgba(0,0,0,.08)");vignette.addColorStop(1,"rgba(0,0,0,.48)");
