@@ -241,14 +241,14 @@ function CommunityPage() {
   ];
 
   return (
-    <div className="space-y-6 pb-24">
-      <section className="relative overflow-hidden rounded-2xl border border-primary/25 bg-gradient-to-r from-slate-950 via-blue-950/80 to-slate-950 p-5 shadow-xl sm:p-7">
+    <div className="space-y-4 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:space-y-6">
+      <section className="relative overflow-hidden rounded-none border-y border-primary/25 bg-gradient-to-r from-slate-950 via-blue-950/80 to-slate-950 p-4 shadow-xl sm:rounded-2xl sm:border sm:p-7">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgba(59,130,246,.22),transparent_34%),radial-gradient(circle_at_20%_100%,rgba(14,165,233,.12),transparent_38%)]" aria-hidden />
         <div className="relative flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div><h1 className="font-display text-3xl font-bold tracking-tight text-white">Community</h1><p className="mt-1 text-sm text-slate-300">Learn together. Ask questions. Share progress. Help others.</p></div>
-          <div className="flex w-full gap-2 xl:max-w-xl">
+          <div className="flex w-full flex-col gap-2 min-[420px]:flex-row xl:max-w-xl">
             <div className="relative flex-1"><Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"/><Input value={communityQuery} onChange={(event)=>setCommunityQuery(event.target.value)} placeholder="Search the community…" className="h-11 border-slate-600/70 bg-slate-950/70 pl-9 text-white placeholder:text-slate-400"/></div>
-            <Button onClick={()=>document.getElementById("communityMessage")?.focus()} className="h-11"><Pencil className="size-4"/>New Post</Button>
+            <Button onClick={()=>document.getElementById("communityMessage")?.focus()} className="h-11 shrink-0"><Pencil className="size-4"/>New Post</Button>
           </div>
         </div>
       </section>
@@ -257,18 +257,18 @@ function CommunityPage() {
         <section className="rounded-xl border border-primary/30 bg-primary/5 p-4"><form onSubmit={handleName} className="flex flex-col gap-3 sm:flex-row sm:items-end"><div className="min-w-0 flex-1 space-y-1.5"><Label htmlFor="communityName">{displayName ? "Change display name" : "Choose your display name"}</Label><Input id="communityName" value={nameDraft} onChange={(event)=>setNameDraft(event.target.value)} placeholder="For example, Dave B" maxLength={24}/></div><Button type="submit" disabled={saving}>{saving?"Saving":"Save name"}</Button>{displayName?<Button type="button" variant="ghost" onClick={()=>setEditingName(false)}>Cancel</Button>:null}</form></section>
       ) : null}
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 xl:grid-cols-4">
         {[
           {title:"Ask a Question",subtitle:"Get help from the community",icon:CircleHelp,classes:"from-blue-600 to-blue-700"},
           {title:"Share Progress",subtitle:"Celebrate your wins",icon:TrendingUp,classes:"from-emerald-600 to-emerald-700"},
           {title:"Discuss Topics",subtitle:"Talk about IT, certs, and more",icon:Users,classes:"from-violet-600 to-purple-700"},
           {title:"Showcase Projects",subtitle:"Share what you've built",icon:Rocket,classes:"from-orange-600 to-amber-700"},
-        ].map((item)=><button key={item.title} type="button" onClick={()=>document.getElementById("communityMessage")?.focus()} className={cn("group rounded-xl bg-gradient-to-br p-4 text-left text-white shadow-lg",item.classes)}><div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-full bg-white/15"><item.icon className="size-6"/></span><div><p className="font-display font-bold">{item.title}</p><p className="mt-1 text-xs text-white/75">{item.subtitle}</p></div><ArrowRight className="ml-auto size-4 transition-transform group-hover:translate-x-1"/></div></button>)}
+        ].map((item)=><button key={item.title} type="button" onClick={()=>document.getElementById("communityMessage")?.focus()} className={cn("group min-w-[16rem] snap-start rounded-xl bg-gradient-to-br p-4 text-left text-white shadow-lg sm:min-w-0",item.classes)}><div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-full bg-white/15"><item.icon className="size-6"/></span><div><p className="font-display font-bold">{item.title}</p><p className="mt-1 text-xs text-white/75">{item.subtitle}</p></div><ArrowRight className="ml-auto size-4 transition-transform group-hover:translate-x-1"/></div></button>)}
       </section>
 
       <section>
         <div className="mb-3 flex items-center justify-between"><h2 className="font-display text-lg font-bold">Communities</h2><button type="button" className="text-xs font-semibold text-primary" onClick={()=>document.querySelector<HTMLSelectElement>('select[aria-label="Community"]')?.focus()}>View all →</button></div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">{popularTopics.map((item)=>{const Icon=item.icon;return <button key={item.label} type="button" onClick={()=>void navigate({search:{room:item.room}})} className="rounded-xl border border-border/70 bg-card/80 p-3 text-center transition hover:border-primary/50 hover:bg-card"><span className="mx-auto grid size-10 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-5"/></span><p className="mt-2 text-xs font-bold">{item.label}</p><p className="mt-1 text-[10px] text-muted-foreground">Community</p></button>})}</div>
+        <div className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 sm:mx-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:px-0 xl:grid-cols-8">{popularTopics.map((item)=>{const Icon=item.icon;return <button key={item.label} type="button" onClick={()=>void navigate({search:{room:item.room}})} className="min-w-[8.5rem] snap-start rounded-xl border border-border/70 bg-card/80 p-3 text-center transition hover:border-primary/50 hover:bg-card sm:min-w-0"><span className="mx-auto grid size-10 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-5"/></span><p className="mt-2 text-xs font-bold">{item.label}</p><p className="mt-1 text-[10px] text-muted-foreground">Community</p></button>})}</div>
       </section>
 
       <section className="overflow-hidden rounded-2xl border border-border/70 bg-card/70">
@@ -284,8 +284,8 @@ function CommunityPage() {
             {room!==GENERAL_ROOM?<Button variant={membership.joined?"secondary":"default"} disabled={membership.loading||membership.changing} onClick={async()=>{try{const joined=await membership.toggle();toast.success(joined?`Joined ${activeCommunity.label}`:`Left ${activeCommunity.label}`)}catch{toast.error("Could not update membership.")}}}>{membership.changing?"Saving…":membership.joined?"Joined ✓":"Join Community"}</Button>:null}
           </div>
         </div>
-        <div className="flex gap-1 overflow-x-auto border-t border-border/60 px-3 py-2">
-          {(["feed","questions","projects","about"] as const).map((tab)=><button key={tab} type="button" onClick={()=>{setCommunityTab(tab);if(tab==="feed")setPostFilter("all")}} className={cn("rounded-lg px-3 py-2 text-xs font-semibold capitalize transition",communityTab===tab?"bg-primary text-primary-foreground":"text-muted-foreground hover:bg-secondary hover:text-foreground")}>{tab}</button>)}
+        <div className="sticky top-0 z-[5] flex snap-x gap-1 overflow-x-auto border-t border-border/60 bg-card/95 px-3 py-2 backdrop-blur">
+          {(["feed","questions","projects","about"] as const).map((tab)=><button key={tab} type="button" onClick={()=>{setCommunityTab(tab);if(tab==="feed")setPostFilter("all")}} className={cn("min-h-11 shrink-0 snap-start rounded-lg px-4 py-2 text-xs font-semibold capitalize transition",communityTab===tab?"bg-primary text-primary-foreground":"text-muted-foreground hover:bg-secondary hover:text-foreground")}>{tab}</button>)}
         </div>
       </section>
 
