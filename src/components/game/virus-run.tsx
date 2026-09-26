@@ -608,6 +608,37 @@ export function VirusRun() {
         }
       }
 
+      // Boss breach phase: after collecting the normal packets, the security
+      // core exposes breach nodes one at a time. Touch the pulsing core to break
+      // each layer; the final breach opens the exit.
+      if (run.boss && run.bossPhase >= 2 && !run.portOpen) {
+        const coreX = Math.floor(COLS / 2), coreY = Math.floor(ROWS / 2);
+        let target = { x: coreX, y: coreY };
+        if (run.grid[target.y]?.[target.x] !== 0) {
+          let best: {x:number;y:number;d:number}|null=null;
+          for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(run.grid[y]?.[x]===0){const d=Math.abs(x-coreX)+Math.abs(y-coreY);if(!best||d<best.d)best={x,y,d};}
+          if(best)target={x:best.x,y:best.y};
+        }
+        if (px === target.x && py === target.y) {
+          run.bossNodes += 1;
+          run.bossPhase = 3;
+          p.invuln = Math.max(p.invuln, 1.1);
+          for (const g of run.guards) g.stunned = Math.max(g.stunned, 1.4);
+          fxRef.current.push({x:target.x,y:target.y,born:performance.now(),kind:"power"});
+          virusSound("boss");
+          if (run.bossNodes >= run.bossNodesRequired) {
+            run.portOpen = true;
+            run.bossPhase = 4;
+          } else {
+            // Require a short repositioning window before the next core layer.
+            run.bossPhase = 2;
+            p.x = 1; p.y = 1; p.tx = 1; p.ty = 1; p.moving = false;
+            queuedDirRef.current = null; travelDirRef.current = null;
+          }
+          syncHud(run);
+        }
+      }
+
       // Power-ups.
       for(const power of run.powerUps){
         if(!power.taken && power.x===px && power.y===py){
