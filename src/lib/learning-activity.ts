@@ -6,11 +6,11 @@ export interface LearningActivityEvent {
   activityType: LearningActivityType;
   eventKey: string;
   title: string;
-  description?: string;
-  entityId?: string;
-  metadata?: Json;
-  visibility?: LearningActivityVisibility;
-  occurredAt?: string;
+  description?: string | undefined;
+  entityId?: string | undefined;
+  metadata?: Json | undefined;
+  visibility?: LearningActivityVisibility | undefined;
+  occurredAt?: string | undefined;
 }
 
 /**
