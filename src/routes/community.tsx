@@ -401,7 +401,7 @@ function CommunityActivityCard({
 }: {
   activity: LearningActivity;
   viewerId: string | null;
-  profile?: { displayName?: string | null; avatarUrl?: string | null };
+  profile?: { displayName?: string | null | undefined; avatarUrl?: string | null | undefined } | undefined;
 }) {
   const mine = activity.userId === viewerId;
   const shownName = mine ? "You" : profile?.displayName || "IT PATH learner";
