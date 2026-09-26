@@ -47,7 +47,7 @@ export interface NavItem {
   label: string;
   to: string;
   icon: LucideIcon;
-  group: "Home" | "Learn" | "Practice" | "Explore" | "Games" | "Career" | "Community" | "My Stuff" | "Help & Account";
+  group: "Home" | "Study" | "Practice" | "Connect" | "Career" | "You";
   /** One line explaining what this section is for, shown in the guide and as a tooltip. */
   description: string;
   /** True if this route is gated behind Pro. A small crown is shown in the sidebar. */
@@ -380,7 +380,7 @@ const allNavItems: NavItem[] = [
 
 ];
 
-export const navGroups = ["Home", "Learn", "Practice", "Explore", "Games", "Career", "Community", "My Stuff", "Help & Account"] as const;
+export const navGroups = ["Home", "Study", "Practice", "Connect", "Career", "You"] as const;
 
 /** Only the pages that make sense for the subject the app is running. */
 const autoLabels: Partial<Record<string, Pick<NavItem, "label" | "description">>> = {
