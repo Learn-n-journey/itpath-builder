@@ -141,29 +141,32 @@ function MyPath() {
 
       <GaylPathNote className="mb-4" {...(current ? { topicId: current.id } : {})} />
 
-      <section className="relative mb-6 overflow-hidden rounded-3xl border border-primary/40 bg-card/95 p-5 shadow-lg sm:p-6" aria-labelledby="path-next-action">\n        <div className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-primary/10 blur-3xl" />\n        <div className="relative">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
-              {continuity.kind === "study_plan" ? "Continue your session" : continuity.kind === "resume" ? "Pick up where you left off" : "Recommended next"}
-            </p>
-            <h2 id="path-next-action" className="mt-1 line-clamp-2 font-display text-lg font-semibold text-foreground">
-              {continuity.label}
-            </h2>
-            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-              {continuity.reason}{continuity.minutes ? ` · About ${continuity.minutes} min` : ""}
-            </p>
+      <section className="relative mb-6 overflow-hidden rounded-3xl border border-primary/40 bg-card/95 p-5 shadow-lg sm:p-6" aria-labelledby="path-next-action">
+        <div className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+                {continuity.kind === "study_plan" ? "Continue your session" : continuity.kind === "resume" ? "Pick up where you left off" : "Recommended next"}
+              </p>
+              <h2 id="path-next-action" className="mt-1 line-clamp-2 font-display text-lg font-semibold text-foreground">
+                {continuity.label}
+              </h2>
+              <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                {continuity.reason}{continuity.minutes ? ` · About ${continuity.minutes} min` : ""}
+              </p>
+            </div>
+            <Button asChild className="h-12 shrink-0 rounded-xl px-6 text-sm font-bold shadow-md">
+              <Link
+                to={continuity.to as never}
+                {...(continuity.params ? { params: continuity.params as never } : {})}
+                {...(continuity.search ? { search: continuity.search as never } : {})}
+              >
+                Continue
+                <ChevronRight className="ml-1 size-4" aria-hidden />
+              </Link>
+            </Button>
           </div>
-          <Button asChild className="h-12 shrink-0 rounded-xl px-6 text-sm font-bold shadow-md">
-            <Link
-              to={continuity.to as never}
-              {...(continuity.params ? { params: continuity.params as never } : {})}
-              {...(continuity.search ? { search: continuity.search as never } : {})}
-            >
-              Continue
-              <ChevronRight className="ml-1 size-4" aria-hidden />
-            </Link>
-          </Button>
         </div>
       </section>
 
