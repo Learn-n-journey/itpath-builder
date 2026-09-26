@@ -343,7 +343,7 @@ function buildLevel(level: number): RunState {
     collected: 0,
     port,
     portOpen: false,
-    player: { x: spawn.x, y: spawn.y, tx: spawn.x, ty: spawn.y, moving: false, invuln: 3.25 },
+    player: { x: spawn.x, y: spawn.y, tx: spawn.x, ty: spawn.y, moving: false, invuln: 3 },
     guards,
     integrity: MAX_INTEGRITY,
     packetsTotal: packets.length,
@@ -766,7 +766,8 @@ export function VirusRun() {
         const gy = Math.round(g.y);
         if(g.stunned>0)continue;
         const toPlayer = field[gy]?.[gx] ?? -1;
-        const openingGrace = run.systemClock < 3.25;
+        const spawnProtected = p.invuln > 0 && Math.abs(p.x-1)<1.5 && Math.abs(p.y-1)<1.5;
+        const openingGrace = run.systemClock < 3 || spawnProtected;
         const hidden = run.activePower?.kind==="cloak" || openingGrace;
         const systemDetection = run.theme.system==="Kernel Space"?2:run.theme.system==="Firewall"?1:0;
         const visible=!hidden&&toPlayer>=0;
@@ -848,7 +849,10 @@ export function VirusRun() {
           p.tx = 1;
           p.ty = 1;
           p.moving = false;
-          p.invuln = 2;
+          p.invuln = 3;
+          // Respawn protection mirrors the opening grace period so a guard
+          // cannot camp the spawn and chain multiple lives.
+          for(const other of run.guards)if(Math.hypot(other.x-1,other.y-1)<9){other.stunned=Math.max(other.stunned,1.25);other.state="search";other.stateTimer=2;other.awareness=0;}
           keysRef.current = [];
           queuedDirRef.current = null;
           travelDirRef.current = null;
