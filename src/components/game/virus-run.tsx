@@ -293,8 +293,12 @@ function buildLevel(level: number): RunState {
   const guardSpeed = Math.min(BASE_GUARD_SPEED + (level - 1) * 0.16, MAX_GUARD_SPEED);
   const detection = 6 + Math.min(level, 9);
   const guards: Guard[] = [];
+  // Keep guards a meaningful maze-path distance from the player's starting cell.
+  // This prevents a wall from making an enemy look far away by coordinates while
+  // actually placing it only a few corridor steps from spawn.
+  const minSpawnPath = boss ? 18 : 15;
   const openCells = candidates.filter(
-    (c) => dist[c.y]![c.x]! > 8 && Math.abs(c.x - spawn.x) + Math.abs(c.y - spawn.y) > 10,
+    (c) => (dist[c.y]?.[c.x] ?? -1) >= minSpawnPath,
   );
   for (let i = 0; i < guardCount && openCells.length > 0; i++) {
     const cell = openCells.splice(Math.floor(Math.random() * openCells.length), 1)[0]!;
