@@ -174,6 +174,24 @@ function CommunityPage() {
   const filteredFeed = communityQuery.trim()
     ? typeFilteredFeed.filter((message) => message.body.toLowerCase().includes(communityQuery.trim().toLowerCase()) || message.displayName.toLowerCase().includes(communityQuery.trim().toLowerCase()))
     : typeFilteredFeed;
+  const mixedFeed = useMemo(() => {
+    if (room !== GENERAL_ROOM || communityTab !== "feed" || feedMode !== "latest" || postFilter !== "all") return [];
+    const query = communityQuery.trim().toLowerCase();
+    const postItems = feedMessages
+      .filter((message) => !query || message.body.toLowerCase().includes(query) || message.displayName.toLowerCase().includes(query))
+      .map((message) => ({ kind: "post" as const, at: message.createdAt, message }));
+    const activityItems = activityFeed
+      .filter((activity) => {
+        if (!query) return true;
+        const identity = activity.userId === userId ? ownProfile : communityProfiles[activity.userId];
+        return activity.title.toLowerCase().includes(query)
+          || (activity.description ?? "").toLowerCase().includes(query)
+          || (identity?.displayName ?? "").toLowerCase().includes(query);
+      })
+      .map((activity) => ({ kind: "activity" as const, at: activity.occurredAt, activity }));
+    return [...postItems, ...activityItems].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+  }, [activityFeed, communityProfiles, communityQuery, communityTab, feedMessages, feedMode, ownProfile, postFilter, room, userId]);
+  const showingMixedFeed = room === GENERAL_ROOM && communityTab === "feed" && feedMode === "latest" && postFilter === "all";
   const postTypes: Array<{value: CommunityPostType; label: string}> = [
     { value: "question", label: "Question" },
     { value: "troubleshooting", label: "Troubleshooting" },
@@ -255,7 +273,14 @@ function CommunityPage() {
           </form>
 
           <div>
-            {communityTab==="feed"&&feedMode==="activity" ? (
+            {showingMixedFeed ? (
+              loading || activityLoading ? <p className="p-5 text-sm text-muted-foreground">Loading community…</p> :
+              mixedFeed.length===0 ? <div className="p-8 text-center"><MessagesSquare className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 font-semibold">{communityQuery ? "Nothing matches that search." : "Start the conversation"}</p></div> :
+              mixedFeed.map((item) => item.kind === "activity"
+                ? <CommunityActivityCard key={`activity-${item.activity.id}`} activity={item.activity} viewerId={userId} profile={item.activity.userId===userId ? ownProfile : communityProfiles[item.activity.userId]} />
+                : <CommunityPostCard key={`post-${item.message.id}`} message={item.message} userId={userId} displayName={displayName} ownProfile={ownProfile} identity={communityProfiles[item.message.userId]} postTypes={postTypes} editingPost={editingPost} setEditingPost={setEditingPost} editDraft={editDraft} setEditDraft={setEditDraft} edit={edit} report={report} toggleLike={toggleLike} toggleSave={toggleSave} openComments={openComments} setOpenComments={setOpenComments} comments={comments} setComments={setComments} getComments={getComments} commentDraft={commentDraft} setCommentDraft={setCommentDraft} addComment={addComment} />
+              )
+            ) : communityTab==="feed"&&feedMode==="activity" ? (
               activityLoading ? <p className="p-5 text-sm text-muted-foreground">Loading learning activity…</p> :
               activityFeed.length===0 ? <div className="p-8 text-center"><Trophy className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 font-semibold">No shared learning activity yet</p><p className="mt-1 text-sm text-muted-foreground">Accomplishments appear here when learners choose Friends, Community, or Public sharing.</p></div> :
               activityFeed.map((activity) => <CommunityActivityCard key={activity.id} activity={activity} viewerId={userId} profile={activity.userId===userId ? ownProfile : communityProfiles[activity.userId]} />)
