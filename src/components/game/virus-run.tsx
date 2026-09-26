@@ -1263,8 +1263,18 @@ export function VirusRun() {
         const vulnerable=run.bossPhase>=2&&!run.portOpen;
         ctx2.globalAlpha=vulnerable?.72+.2*Math.sin(time/105):.24+.08*Math.sin(time/160);
         ctx2.strokeStyle=vulnerable?"#fef08a":"#fb7185";ctx2.shadowColor=vulnerable?"#facc15":"#ef4444";ctx2.shadowBlur=cell*(vulnerable?2:1.4);ctx2.lineWidth=Math.max(2,cell*.12);
-        for(let i=0;i<3;i++){ctx2.beginPath();ctx2.arc(bx,by,cell*(.65+i*.28),time/(260+i*70),time/(260+i*70)+Math.PI*1.45);ctx2.stroke();}
-        ctx2.fillStyle=vulnerable?"rgba(254,240,138,.75)":"rgba(251,113,133,.3)";ctx2.beginPath();ctx2.arc(bx,by,cell*.25,0,Math.PI*2);ctx2.fill();
+        const damageRatio=run.bossNodes/Math.max(1,run.bossNodesRequired);
+        for(let i=0;i<3;i++){
+          const broken=i<Math.floor(damageRatio*3);
+          ctx2.setLineDash(broken?[cell*.18,cell*.22]:[]);
+          ctx2.lineDashOffset=-time/(55+i*15);
+          ctx2.beginPath();ctx2.arc(bx,by,cell*(.65+i*.28),time/(260+i*70),time/(260+i*70)+Math.PI*(broken?.72:1.45));ctx2.stroke();
+        }
+        ctx2.setLineDash([]);
+        if(run.bossNodes>0){
+          for(let spark=0;spark<4+run.bossNodes*2;spark++){const a=time/(90+spark*9)+spark*2.1,r=cell*(.45+(spark%3)*.28);ctx2.strokeStyle=`rgba(254,240,138,${.25+.12*Math.sin(time/80+spark)})`;ctx2.beginPath();ctx2.moveTo(bx+Math.cos(a)*r*.35,by+Math.sin(a)*r*.35);ctx2.lineTo(bx+Math.cos(a)*r,by+Math.sin(a)*r);ctx2.stroke();}
+        }
+        ctx2.fillStyle=vulnerable?"rgba(254,240,138,.75)":"rgba(251,113,133,.3)";ctx2.beginPath();ctx2.arc(bx,by,cell*(.25+.05*Math.sin(time/(120-Math.min(60,run.bossNodes*12)))),0,Math.PI*2);ctx2.fill();
         ctx2.fillStyle=vulnerable?"#fef9c3":"#fecdd3";ctx2.font=`bold ${Math.max(8,cell*.24)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText(vulnerable?`BREACH ${run.bossNodes+1}/${run.bossNodesRequired}`:"CORE SEALED",bx,by-cell*1.25);
         ctx2.restore();
       }
