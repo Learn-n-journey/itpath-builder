@@ -4,7 +4,7 @@ import { CheckCircle2, RotateCcw } from "lucide-react";
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { a1DiagnosticSimulationFor } from "@/data/auto/a1-diagnostic-simulations";
-import { a1BranchingScenarioFor, type A1EvidenceState } from "@/data/auto/a1-branching-diagnosis";
+import { a1BranchingScenarioFor, type A1EvidenceState } from "@/data/auto/a1-branching-diagnosis";\nimport { a1MeasurementScenarioFor } from "@/data/auto/a1-measurement-decisions";
 
 const evidenceLabel: Record<A1EvidenceState, string> = {
   plausible: "Plausible",
@@ -162,6 +162,73 @@ function A1BranchingDiagnosticPanel({ topicId }: { topicId: string }) {
 
       {closed ? <div className="mt-5 rounded-lg border border-success/30 bg-success/5 p-3"><p className="flex items-center gap-2 text-sm font-semibold"><CheckCircle2 className="size-4" aria-hidden />Repair verified · repair order closed</p><p className="mt-2 text-sm text-muted-foreground">The post-repair checks passed and the original complaint was reproduced without the fault returning.</p></div> : null}
 
+      <Button variant="ghost" size="sm" className="mt-3" onClick={reset}><RotateCcw className="size-4" />Restart case</Button>
+    </Panel>
+  );
+}
+
+
+function A1MeasurementDecisionPanel({ topicId }: { topicId: string }) {
+  const scenario = a1MeasurementScenarioFor(topicId);
+  const [step, setStep] = useState(0);
+  const [decisionId, setDecisionId] = useState("");
+  const [decisionFeedback, setDecisionFeedback] = useState("");
+  const [verificationIds, setVerificationIds] = useState<string[]>([]);
+  const [closed, setClosed] = useState(false);
+
+  if (!scenario) return null;
+  const measurementsComplete = step >= scenario.measurements.length;
+  const selectedDecision = scenario.decisionChoices.find((choice) => choice.id === decisionId);
+  const correctDecision = selectedDecision?.correct === true;
+  const verificationReady = scenario.verification.every((_, index) => verificationIds.includes(`verify-${index}`));
+
+  const reset = () => {
+    setStep(0);
+    setDecisionId("");
+    setDecisionFeedback("");
+    setVerificationIds([]);
+    setClosed(false);
+  };
+
+  return (
+    <Panel className="border-primary/35">
+      <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">Measurement case · Measure → Decide → Verify</p>
+      <h3 className="mt-2 font-display text-lg font-semibold">{scenario.job}</h3>
+      <p className="mt-2 text-sm text-muted-foreground">Build the service decision from measurements and supplied limits. Do not reuse, machine, replace, or start an assembly from appearance or guesswork. Practice only; mastery is unchanged.</p>
+
+      {!measurementsComplete ? <div className="mt-5 rounded-xl border border-border bg-muted/20 p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Measurement {step + 1} of {scenario.measurements.length}</p>
+        <p className="mt-2 text-sm font-medium">{scenario.measurements[step]!.label}</p>
+        <Button className="mt-3" onClick={() => setStep((value) => value + 1)}>Perform and record measurement</Button>
+        <div className="mt-3 rounded-lg border border-border bg-background p-3">
+          <p className="text-sm">{scenario.measurements[step]!.result}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{scenario.measurements[step]!.interpretation}</p>
+        </div>
+      </div> : null}
+
+      {measurementsComplete && !correctDecision && !closed ? <div className="mt-5 rounded-lg border border-primary/30 bg-primary/5 p-3">
+        <p className="text-xs font-bold uppercase tracking-wide">Make the service decision</p>
+        <p className="mt-1 text-sm text-muted-foreground">Use the recorded dimensional evidence—not appearance—to choose the next action.</p>
+        <div className="mt-3 space-y-2">
+          {scenario.decisionChoices.map((choice) => <button key={choice.id} type="button" onClick={() => { setDecisionId(choice.id); setDecisionFeedback(choice.feedback); }} className={decisionId === choice.id ? "w-full rounded-lg border border-primary bg-background p-3 text-left text-sm" : "w-full rounded-lg border border-border bg-background p-3 text-left text-sm"}>{choice.label}</button>)}
+        </div>
+        {decisionFeedback ? <p className="mt-3 text-sm text-muted-foreground">{decisionFeedback}</p> : null}
+      </div> : null}
+
+      {correctDecision && !closed ? <div className="mt-5 rounded-lg border border-primary/30 bg-primary/5 p-3">
+        <p className="text-xs font-bold uppercase tracking-wide">Verify the decision and work</p>
+        <p className="mt-1 text-sm text-muted-foreground">Complete every required check before approving the component or engine for the next stage.</p>
+        <div className="mt-3 space-y-2">
+          {scenario.verification.map((item, index) => {
+            const id = `verify-${index}`;
+            const selected = verificationIds.includes(id);
+            return <button key={id} type="button" disabled={selected} onClick={() => setVerificationIds((ids) => [...ids, id])} className={selected ? "w-full rounded-lg border border-success/30 bg-success/5 p-3 text-left text-sm" : "w-full rounded-lg border border-border bg-background p-3 text-left text-sm"}>{selected ? "Verified: " : ""}{item}</button>;
+          })}
+        </div>
+        <Button className="mt-3" disabled={!verificationReady} onClick={() => setClosed(true)}>Approve verified work</Button>
+      </div> : null}
+
+      {closed ? <div className="mt-5 rounded-lg border border-success/30 bg-success/5 p-3"><p className="flex items-center gap-2 text-sm font-semibold"><CheckCircle2 className="size-4" aria-hidden />Measurements and service decision verified</p><p className="mt-2 text-sm text-muted-foreground">The decision is supported by recorded measurements, applicable limits, and post-work verification.</p></div> : null}
       <Button variant="ghost" size="sm" className="mt-3" onClick={reset}><RotateCcw className="size-4" />Restart case</Button>
     </Panel>
   );
