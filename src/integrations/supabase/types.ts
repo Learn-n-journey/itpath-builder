@@ -723,6 +723,7 @@ export type Database = {
           created_at: string
           description: string | null
           entity_id: string | null
+          event_key: string | null
           id: string
           is_featured: boolean
           metadata: Json
@@ -737,6 +738,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           entity_id?: string | null
+          event_key?: string | null
           id?: string
           is_featured?: boolean
           metadata?: Json
@@ -751,6 +753,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           entity_id?: string | null
+          event_key?: string | null
           id?: string
           is_featured?: boolean
           metadata?: Json
