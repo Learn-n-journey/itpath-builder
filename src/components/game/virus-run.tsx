@@ -651,7 +651,9 @@ export function VirusRun() {
           } else {
             // Require a short repositioning window before the next core layer.
             run.bossPhase = 2;
-            p.x = 1; p.y = 1; p.tx = 1; p.ty = 1; p.moving = false;
+            p.x = 1; p.y = 1; p.tx = 1; p.ty = 1; p.moving = false; p.invuln = 3;
+            // Every forced boss reposition gets the same anti-camp protection as a normal respawn.
+            for(const other of run.guards)if(Math.hypot(other.x-1,other.y-1)<9){other.stunned=Math.max(other.stunned,1.25);other.state="search";other.stateTimer=2;other.awareness=0;}
             queuedDirRef.current = null; travelDirRef.current = null;
           }
           syncHud(run);
