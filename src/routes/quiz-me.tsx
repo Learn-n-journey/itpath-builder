@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { quizzes, topics } from "@/data/static-content";
 import { getCertQuizQuestions, getCertQuizzes } from "@/data/cert-quizzes";
 import { selectedCertification } from "@/lib/adaptive-path";
+import { domain } from "@/domain/active";
 import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
 import { useAppState } from "@/state/app-state";
 
@@ -21,9 +22,9 @@ export const Route = createFileRoute("/quiz-me")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "IT Knowledge Quiz | IT PATH" },
+      { title: `${domain.appName} Knowledge Quiz | ${domain.appName}` },
       { name: "description", content: "Take randomized IT quizzes with saved results and targeted review." },
-      { property: "og:title", content: "IT Knowledge Quiz | IT PATH" },
+      { property: "og:title", content: `${domain.appName} Knowledge Quiz | ${domain.appName}` },
       { property: "og:description", content: "Reasoning-focused IT quizzes with explanations and immutable attempt history." },
     ],
   }),
