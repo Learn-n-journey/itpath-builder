@@ -1,22 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BarChart3, Bell, BookOpen, CalendarDays, Check, ChevronDown, ChevronRight, Clock, Compass, Flame, Heart, MessageCircle, Play, Search, SlidersHorizontal, Sparkles, Users, Wrench } from "lucide-react";
+import { Bell, BookOpen, ChevronRight, Clock, Compass, Heart, MessageCircle, Play, Search, Sparkles, Users, Wrench } from "lucide-react";
 
 import { NextActionCard } from "@/components/next-action-card";
-import { LearnerPageSkeleton, Panel, StatCard } from "@/components/page-kit";
-import { StreakPanel } from "@/components/streak-panel";
+import { LearnerPageSkeleton } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { computeDashboard } from "@/lib/dashboard-engine";
 import { adaptivePath } from "@/lib/adaptive-path";
-import { missedQuestionAnchor, missedQuestions } from "@/lib/missed-questions";
+import { missedQuestions } from "@/lib/missed-questions";
 import { nextActions, type NextAction } from "@/lib/next-action";
 import { dismissNextAction, visibleNextActions } from "@/lib/next-action-dismissals";
-import { clearReviewTopic, visibleReviewTopics } from "@/lib/review-dismissals";
+import { visibleReviewTopics } from "@/lib/review-dismissals";
 import { learnerContinuity } from "@/lib/learner-continuity";
 import { currentJourneyTopic, isMastered, isTopicOpen, journeyTopics } from "@/lib/journey-order";
 import { certificationTopics } from "@/lib/cert-path";
-import { certifications } from "@/data/static-content";
-import { overallMeasures } from "@/lib/mastery-summary";
 import { topicScopeProgress } from "@/lib/scope-progress";
 import { useAppState } from "@/state/app-state";
 import itPathArtwork from "@/assets/path-it.jpg";
@@ -134,8 +131,6 @@ function Dashboard() {
   }, []);
 
   const d = useMemo(() => computeDashboard(user), [user]);
-  const measures = useMemo(() => overallMeasures(user), [user]);
-
   const path = useMemo(() => adaptivePath(user), [user]);
   const [dismissedVersion, setDismissedVersion] = useState(0);
   const actions = useMemo(
@@ -150,19 +145,7 @@ function Dashboard() {
     () => visibleReviewTopics(d.topicsNeedingReview),
     [d.topicsNeedingReview, dismissedVersion],
   );
-  const markReviewDone = useCallback((row: { topicId: string; reason: string }) => {
-    clearReviewTopic(row);
-    setDismissedVersion((v) => v + 1);
-  }, []);
   const continuity = useMemo(() => learnerContinuity(user), [user]);
-  const quizCount = user.quizAttempts.filter((a) => a.status === "submitted").length;
-  const missedAnchors = useMemo(() => {
-    const map: Record<string, string> = {};
-    for (const item of missedQuestions(user)) {
-      if (!map[item.mistake.topicId]) map[item.mistake.topicId] = missedQuestionAnchor(item);
-    }
-    return map;
-  }, [user]);
   const todayChips = useMemo(() => {
     const chips: React.ReactNode[] = [];
     if (reviewTopics.length > 0) {
@@ -198,9 +181,7 @@ function Dashboard() {
   const lastTouched = Object.values(user.topicProgress).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0];
   const activeTopic = (lastTouched && journeyList.find((topic) => topic.id === lastTouched.topicId && isTopicOpen(user, topic.id) && !isMastered(user, topic.id))) || journeyTopic;
   const journeyCourse = activeTopic && journeyList.some((topic) => topic.id === activeTopic.id) ? journeyList : activeTopic ? certificationTopics(activeTopic.certificationId) : path.topics;
-  const journeyCertification = (activeTopic && certifications.find((c) => c.id === activeTopic.certificationId)) || path.certification;
   const courseTopicIndex = activeTopic ? Math.max(0, journeyCourse.findIndex((topic) => topic.id === activeTopic.id)) : 0;
-  const currentStage = journeyTopic?.difficulty === "challenging" ? "Advanced" : journeyTopic?.difficulty === "standard" ? "Core" : "Foundation";
   const primary = {
     to: continuity.to,
     ...(continuity.params ? { params: continuity.params } : {}),
@@ -215,34 +196,6 @@ function Dashboard() {
     ? Math.min(100, Math.round(topicScopeProgress(user, activeTopic.id).overall))
     : 0;
   const currentTopicSummary = primary.detail || activeTopic?.summary || "Continue where you left off";
-
-  const journeyWindow = useMemo(() => {
-    if (journeyCourse.length === 0) return [];
-    const total = journeyCourse.length;
-    let start = Math.max(0, courseTopicIndex - 2);
-    const end = Math.min(total, start + 5);
-    if (end - start < 5) start = Math.max(0, end - 5);
-
-    return journeyCourse.slice(start, end).map((topic, idx) => {
-      const originalIndex = start + idx;
-      const isCompleted = isMastered(user, topic.id);
-      const isCurrent = originalIndex === courseTopicIndex;
-      return {
-        topic,
-        index: originalIndex + 1,
-        isCompleted,
-        isCurrent,
-        isUpcoming: !isCompleted && !isCurrent,
-        isOpen: isTopicOpen(user, topic.id),
-      };
-    });
-  }, [journeyCourse, courseTopicIndex, user]);
-
-  const currentWindowIndex = journeyWindow.findIndex((step) => step.isCurrent);
-  const journeyFillPercent =
-    currentWindowIndex >= 0 && journeyWindow.length > 1
-      ? (currentWindowIndex / (journeyWindow.length - 1)) * 100
-      : 0;
 
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} />;
 
@@ -386,116 +339,89 @@ function Dashboard() {
         ) : null}
       </section>
 
+      <section className="mb-7" aria-labelledby="today-heading">
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Today</p>
+            <h2 id="today-heading" className="font-display text-xl font-semibold">{isAutoPath ? "Your shop plan" : "Your learning plan"}</h2>
+          </div>
+          <Link to="/study-plan" className="text-xs font-semibold text-primary hover:underline">Study plan</Link>
+        </div>
+        {d.todaysTasks.length === 0 && reviewTopics.length === 0 ? (
+          <div className="rounded-xl border border-border/50 bg-card/40 px-4 py-4">
+            <p className="text-sm font-medium">You’re caught up.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Continue your current topic when you’re ready.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-border/60 rounded-xl border border-border/50 bg-card/40 px-3">
+            {reviewTopics.length > 0 ? (
+              <Link to="/review" className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-1 py-3 hover:bg-secondary/30">
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium">{reviewTopics.length} {reviewTopics.length === 1 ? "topic" : "topics"} due for review</span>
+                  <span className="block text-xs text-muted-foreground">Strengthen material before it fades.</span>
+                </span>
+                <span className="text-xs font-semibold text-primary">Review</span>
+              </Link>
+            ) : null}
+            {d.todaysTasks.slice(0, 3).map((task) => (
+              <Link key={task.id} to={task.to} params={task.params as never} className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-1 py-3 hover:bg-secondary/30">
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium">{task.label}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{task.detail}</span>
+                </span>
+                <span className="text-xs font-semibold text-primary">Open</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
       {d.hasAnyActivity ? (
-        <section className="mb-6 grid grid-cols-3 divide-x divide-border/50 rounded-xl border border-border/50 bg-card/40 py-3" aria-label="Learning status">
-          <div className="px-3 text-center"><p className="text-lg font-bold tabular-nums">{currentTopicPercent}%</p><p className="text-[10px] text-muted-foreground">{isAutoPath ? "Current system" : "Current topic"}</p></div>
-          <div className="px-3 text-center"><p className="text-lg font-bold tabular-nums">{reviewTopics.length}</p><p className="text-[10px] text-muted-foreground">{isAutoPath ? "Due checks" : "Due review"}</p></div>
-          <div className="px-3 text-center"><p className="text-lg font-bold tabular-nums">{d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p><p className="text-[10px] text-muted-foreground">Streak</p></div>
+        <section className="mb-8" aria-labelledby="progress-heading">
+          <div className="mb-3 flex items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Progress</p>
+              <h2 id="progress-heading" className="font-display text-xl font-semibold">{isAutoPath ? "Your training progress" : "Your learning progress"}</h2>
+            </div>
+            <Link to="/progress" className="text-xs font-semibold text-primary hover:underline">View full progress</Link>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-border/50 rounded-xl border border-border/50 bg-card/40 py-4">
+            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{d.masteredTopics}</p><p className="mt-0.5 text-[10px] text-muted-foreground">{isAutoPath ? "Systems mastered" : "Topics mastered"}</p></div>
+            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{reviewTopics.length}</p><p className="mt-0.5 text-[10px] text-muted-foreground">{isAutoPath ? "Due checks" : "Due review"}</p></div>
+            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{d.streakDays > 0 ? d.streakDays + "d" : "—"}</p><p className="mt-0.5 text-[10px] text-muted-foreground">Streak</p></div>
+          </div>
         </section>
       ) : null}
 
-      <section className="mb-8">
-        <div className="mb-3 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">{isAutoPath ? "Training shop" : "Explore"}</p><h2 className="font-display text-xl font-semibold">{isAutoPath ? "Build shop skill" : "Find your next thing"}</h2></div><Link to="/learn" className="text-xs font-semibold text-primary hover:underline">See all</Link></div>
+      <section className="mb-8" aria-labelledby="practice-heading">
+        <div className="mb-3">
+          <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">{isAutoPath ? "Train" : "Practice"}</p>
+          <h2 id="practice-heading" className="font-display text-xl font-semibold">Choose another way to learn</h2>
+        </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Link to="/learn" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Compass className="size-5 text-feature-blue"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Explore systems" : "Explore topics"}</p><p className="mt-1 text-xs text-muted-foreground">{isAutoPath ? "Choose a vehicle system to train on." : "Find something new to learn."}</p></Link>
-          <Link to="/labs" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Wrench className="size-5 text-feature-orange"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Enter the shop" : "Try a lab"}</p><p className="mt-1 text-xs text-muted-foreground">{isAutoPath ? "Practice inspection, testing and repair." : "Learn by doing."}</p></Link>
-          <Link to="/community" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Users className="size-5 text-feature-violet"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Talk shop" : "Meet learners"}</p><p className="mt-1 text-xs text-muted-foreground">{isAutoPath ? "Compare diagnoses, ask and share." : "Ask, share and connect."}</p></Link>
-          <Link to="/review" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Sparkles className="size-5 text-feature-cyan"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Recheck weak systems" : "Review"}</p><p className="mt-1 text-xs text-muted-foreground">{reviewTopics.length ? reviewTopics.length+(isAutoPath ? " checks ready" : " ready for you") : (isAutoPath ? "Keep diagnostic knowledge sharp." : "Keep knowledge fresh.")}</p></Link>
+          <Link to="/practice" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><BookOpen className="size-5 text-feature-blue"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Skill practice" : "Practice"}</p><p className="mt-1 text-xs text-muted-foreground">Apply what you know.</p></Link>
+          <Link to="/labs" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Wrench className="size-5 text-feature-orange"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Shop practice" : "Labs"}</p><p className="mt-1 text-xs text-muted-foreground">Learn by doing.</p></Link>
+          <Link to="/review" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Sparkles className="size-5 text-feature-cyan"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Recheck" : "Review"}</p><p className="mt-1 text-xs text-muted-foreground">{reviewTopics.length ? reviewTopics.length + " ready now." : "Keep knowledge fresh."}</p></Link>
+          <Link to="/quiz-me" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Compass className="size-5 text-feature-violet"/><p className="mt-3 text-sm font-semibold">Quiz Me</p><p className="mt-1 text-xs text-muted-foreground">Challenge yourself.</p></Link>
         </div>
       </section>
 
-      <section className="mb-8">
-        <div className="mb-2 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Community</p><h2 className="font-display text-xl font-semibold">Learning together</h2></div><Link to="/community" className="text-xs font-semibold text-primary hover:underline">Open community</Link></div>
+      <section className="mb-8" aria-labelledby="community-heading">
+        <div className="mb-2 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Community</p><h2 id="community-heading" className="font-display text-xl font-semibold">{isAutoPath ? "Talk shop" : "Learning together"}</h2></div><Link to="/community" className="text-xs font-semibold text-primary hover:underline">Open community</Link></div>
         <div className="divide-y divide-border/60 border-y border-border/60">
-          {communityPosts.length===0?<Link to="/community" className="flex items-center gap-3 py-5 text-sm text-muted-foreground"><Users className="size-5"/>Be the first to start a conversation.</Link>:communityPosts.slice(0,3).map(post=><Link key={post.id} to="/community" search={{room:post.room}} className="block py-4 hover:bg-secondary/20"><div className="flex gap-3"><div className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-bold">{post.displayName.charAt(0).toUpperCase()}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="truncate text-sm font-semibold">{post.displayName}</span><span className="truncate text-[11px] text-muted-foreground">{post.room==="general"?"General":post.room}</span></div>{post.body.trim()?<p className="mt-1 line-clamp-2 text-sm leading-relaxed text-foreground/90">{post.body}</p>:null}{post.imageUrl?<img src={post.imageUrl} alt="" className="mt-2 max-h-48 w-full rounded-xl object-cover"/>:null}<div className="mt-2 flex gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1"><Heart className="size-3.5"/>{post.likeCount}</span><span className="inline-flex items-center gap-1"><MessageCircle className="size-3.5"/>{post.commentCount}</span></div></div></div></Link>)}
+          {communityPosts.length===0?<Link to="/community" className="flex items-center gap-3 py-5 text-sm text-muted-foreground"><Users className="size-5"/>Be the first to start a conversation.</Link>:communityPosts.slice(0,2).map(post=><Link key={post.id} to="/community" search={{room:post.room}} className="block py-4 hover:bg-secondary/20"><div className="flex gap-3"><div className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-bold">{post.displayName.charAt(0).toUpperCase()}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="truncate text-sm font-semibold">{post.displayName}</span><span className="truncate text-[11px] text-muted-foreground">{post.room==="general"?"General":post.room}</span></div>{post.body.trim()?<p className="mt-1 line-clamp-2 text-sm leading-relaxed text-foreground/90">{post.body}</p>:null}<div className="mt-2 flex gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1"><Heart className="size-3.5"/>{post.likeCount}</span><span className="inline-flex items-center gap-1"><MessageCircle className="size-3.5"/>{post.commentCount}</span></div></div></div></Link>)}
         </div>
       </section>
 
-      <Link
-        to="/meditation"
-        className="group mb-8 flex min-h-20 items-center justify-between gap-4 rounded-xl border border-border/50 bg-card/40 p-4 shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      >
-        <span className="flex min-w-0 items-center gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-feature-violet/15 text-feature-violet">
-            <Sparkles className="size-4" aria-hidden />
-          </span>
-          <span className="min-w-0">
-            <span className="block font-display text-sm font-semibold text-foreground">Meditation & Focus</span>
-            <span className="mt-0.5 block text-xs text-muted-foreground">Breathing, calming sounds, and a quick mental reset.</span>
-          </span>
-        </span>
-        <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" aria-hidden />
-      </Link>
-
-      <section className="border-b border-border/60 py-6">
-        <div>
-          <h2 className="font-display text-lg font-semibold tracking-tight sm:text-xl">{isAutoPath ? "Your shop week" : "Your week"}</h2>
+      <section className="mb-4" aria-labelledby="discover-heading">
+        <div className="mb-3"><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Discover</p><h2 id="discover-heading" className="font-display text-lg font-semibold">More when you want it</h2></div>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/learn" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Explore topics</Link>
+          <Link to="/pomodoro" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Focus timer</Link>
+          {!isAutoPath ? <Link to="/virus" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link> : <Link to="/garage-match" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link>}
+          <Link to="/meditation" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Meditation & Focus</Link>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-2.5 sm:rounded-xl sm:border sm:border-border/40 sm:bg-card/50 sm:px-3 sm:py-2.5">
-            <SlidersHorizontal className="size-4 text-feature-violet" aria-hidden />
-            <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">{isAutoPath ? "Systems mastered" : "Topics mastered"}</p>
-            <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.masteredTopics}</p>
-          </div>
-          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-2.5 sm:rounded-xl sm:border sm:border-border/40 sm:bg-card/50 sm:px-3 sm:py-2.5">
-            <BarChart3 className="size-4 text-feature-blue" aria-hidden />
-            <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">{isAutoPath ? "Knowledge-check avg." : "Quiz average"}</p>
-            <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{quizCount > 0 ? `${d.quizAverage}%` : "—"}</p>
-            <p className="text-[0.625rem] text-muted-foreground">{quizCount > 0 ? `${quizCount} completed` : "No quizzes yet"}</p>
-          </div>
-          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-2.5 sm:rounded-xl sm:border sm:border-border/40 sm:bg-card/50 sm:px-3 sm:py-2.5">
-            <Clock className="size-4 text-feature-cyan" aria-hidden />
-            <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Study time</p>
-            <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.studyMinutesTotal < 60 ? `${d.studyMinutesTotal} min` : `${d.studyHoursTotal}h`}</p>
-            <p className="text-[0.625rem] text-muted-foreground">Recorded in app</p>
-          </div>
-          <div className="min-w-0 rounded-lg border border-border/40 bg-card/50 p-2.5 sm:rounded-xl sm:border sm:border-border/40 sm:bg-card/50 sm:px-3 sm:py-2.5">
-            <Flame className="size-4 text-feature-orange" aria-hidden />
-            <p className="mt-1.5 truncate text-[0.6875rem] font-medium text-muted-foreground">Streak</p>
-            <p className="mt-0.5 font-display text-xl font-bold tabular-nums text-foreground">{d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p>
-            <p className="text-[0.625rem] text-muted-foreground">{d.streakDays > 0 ? `${d.streakDays === 1 ? "day" : "days"} active` : "No streak yet"}</p>
-          </div>
-        </div>
-        <details className="mt-1">
-          <summary className="inline-block min-h-11 cursor-pointer list-none py-2.5 text-xs font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background [&::-webkit-details-marker]:hidden">
-            View progress details →
-          </summary>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4">
-            <StatCard label="Practice" value={`${d.assignmentsCompleted}/${d.assignmentsTotal}`} />
-            <StatCard label="Labs" value={`${d.labsCompleted}/${d.labsTotal}`} />
-            <StatCard label="Activities" value={`${measures.activitiesCompleted}/${measures.activitiesTotal}`} />
-            <StatCard label="Final assessments" value={`${measures.assessmentsTaken}/${measures.assessmentsTotal}`} />
-          </div>
-          {d.hasAnyActivity ? (
-            <div className="mt-7 grid gap-7 lg:grid-cols-2">
-              <StreakPanel />
-            </div>
-          ) : null}
-        </details>
       </section>
-
-      <div className="grid gap-6 sm:gap-7">
-        <Panel title="Today" className="py-5">
-          {d.todaysTasks.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nothing outstanding.</p>
-          ) : (
-            <ul className="divide-y divide-border/60">
-              {d.todaysTasks.map((task) => (
-                <li key={task.id}>
-                  <Link to={task.to} params={task.params as never} className="grid min-h-11 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none">
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm">{task.label}</span>
-                      <span className="block truncate text-xs text-muted-foreground">{task.detail}</span>
-                    </span>
-                    <span className="text-xs text-primary">Open</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-
-      </div>
 
       <p className="mt-12 text-xs text-muted-foreground">
         <Link to="/guide" className="rounded-sm hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">How scores are calculated</Link>
