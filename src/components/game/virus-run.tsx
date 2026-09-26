@@ -1129,6 +1129,19 @@ export function VirusRun() {
           wallFill.addColorStop(1, t.bg);
           ctx2.fillStyle = wallFill;
           ctx2.fillRect(bx, by, cell + 0.5, cell + 0.5);
+          // Fine deterministic material grain and bevel lighting give the maze depth
+          // without adding image assets or frame-to-frame noise.
+          const grainSeed=(x*37+y*61)%17;
+          ctx2.fillStyle="rgba(255,255,255,0.025)";
+          for(let g=0;g<2;g++){
+            const gx=bx+cell*((grainSeed+g*7)%13)/13;
+            const gy=by+cell*((grainSeed*3+g*5)%11)/11;
+            ctx2.fillRect(gx,gy,Math.max(.6,cell*.025),Math.max(.6,cell*.025));
+          }
+          ctx2.strokeStyle="rgba(255,255,255,0.045)";ctx2.lineWidth=Math.max(.5,cell*.018);
+          ctx2.beginPath();ctx2.moveTo(bx+pad,by+pad);ctx2.lineTo(bx+cell-pad,by+pad);ctx2.stroke();
+          ctx2.strokeStyle="rgba(0,0,0,0.22)";
+          ctx2.beginPath();ctx2.moveTo(bx+pad,by+cell-pad);ctx2.lineTo(bx+cell-pad,by+cell-pad);ctx2.stroke();
 
           const topOpen = run.grid[y - 1]?.[x] === 0;
           const bottomOpen = run.grid[y + 1]?.[x] === 0;
@@ -1219,6 +1232,11 @@ export function VirusRun() {
         const dataFill=ctx2.createLinearGradient(-shard,-shard,shard,shard);
         dataFill.addColorStop(0,"#f0f9ff");dataFill.addColorStop(.28,"#7dd3fc");dataFill.addColorStop(.62,"#0ea5e9");dataFill.addColorStop(1,"#075985");
         ctx2.fillStyle=dataFill;ctx2.fillRect(-shard,-shard,shard*2,shard*2);
+        // Raised glass-like face: top/left catch light while bottom/right recede.
+        ctx2.fillStyle="rgba(255,255,255,.18)";ctx2.fillRect(-shard,-shard,shard*2,shard*.18);
+        ctx2.fillRect(-shard,-shard,shard*.18,shard*2);
+        ctx2.fillStyle="rgba(2,132,199,.28)";ctx2.fillRect(-shard,shard*.78,shard*2,shard*.22);
+        ctx2.fillRect(shard*.78,-shard,shard*.22,shard*2);
         ctx2.shadowBlur=0;
         ctx2.strokeStyle="rgba(224,242,254,0.95)";ctx2.lineWidth=Math.max(.8,cell*.04);ctx2.strokeRect(-shard,-shard,shard*2,shard*2);
 
@@ -1381,6 +1399,9 @@ export function VirusRun() {
         ctx2.strokeStyle=g.stunned>0?"rgba(186,230,253,0.5)":"rgba(255,255,255,0.16)";
         ctx2.lineWidth=Math.max(.6,cell*.025);
         ctx2.beginPath();ctx2.moveTo(-s*.2,-s*.28);ctx2.lineTo(s*.16,-s*.34);ctx2.stroke();
+        ctx2.globalAlpha*=.9;
+        ctx2.strokeStyle="rgba(255,255,255,.08)";ctx2.lineWidth=Math.max(.5,cell*.018);
+        for(let tex=-1;tex<=1;tex++){ctx2.beginPath();ctx2.moveTo(-s*.28,tex*s*.13);ctx2.lineTo(s*.28,tex*s*.13-s*.08);ctx2.stroke();}
 
         // Shared optical core keeps the enemy faction visually unified.
         ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.04, s * 0.15, 0, Math.PI * 2); ctx2.fill();
@@ -1431,6 +1452,9 @@ export function VirusRun() {
       visual.stretch+=(targetStretch-visual.stretch)*.13;
       visual.squish+=(wallSquish-visual.squish)*.2;
       const movingStretch=visual.stretch;
+
+      // A soft offset contact shadow creates separation from the board before the glow.
+      ctx2.save();ctx2.fillStyle="rgba(0,0,0,.34)";ctx2.beginPath();ctx2.ellipse(pcx+cell*.08,pcy+cell*.17,cell*.39,cell*.2,0,0,Math.PI*2);ctx2.fill();ctx2.restore();
 
       // Restrained ground light anchors the character to the playfield.
       ctx2.save();
@@ -1508,6 +1532,8 @@ export function VirusRun() {
         ctx2.moveTo(rootX,rootY);
         ctx2.quadraticCurveTo(Math.cos(midAngle)*midR,Math.sin(midAngle)*midR,tipX,tipY);
         ctx2.stroke();
+        ctx2.save();ctx2.globalAlpha=.42;ctx2.strokeStyle="#ecfeff";ctx2.lineWidth=Math.max(.5,cell*.018);
+        ctx2.beginPath();ctx2.moveTo(rootX-cell*.012,rootY-cell*.012);ctx2.quadraticCurveTo(Math.cos(midAngle)*midR-cell*.012,Math.sin(midAngle)*midR-cell*.012,tipX-cell*.012,tipY-cell*.012);ctx2.stroke();ctx2.restore();
         ctx2.fillStyle=i===0?"#99f6e4":"#5eead4";
         ctx2.beginPath();ctx2.arc(tipX,tipY,cell*(i===0?.07:.052),0,Math.PI*2);ctx2.fill();
       }
@@ -1531,6 +1557,18 @@ export function VirusRun() {
       const nucleusY=bodyR*.08*Math.cos(time/270);
       ctx2.fillStyle="rgba(4,47,46,0.94)";ctx2.beginPath();ctx2.arc(nucleusX,nucleusY,bodyR*.32,0,Math.PI*2);ctx2.fill();
       ctx2.fillStyle="#ccfbf1";ctx2.beginPath();ctx2.arc(nucleusX-bodyR*.09,nucleusY-bodyR*.1,bodyR*.085,0,Math.PI*2);ctx2.fill();
+
+      // Semi-transparent membrane texture follows the body, suggesting organic depth.
+      ctx2.save();ctx2.globalAlpha=.14;ctx2.fillStyle="#ecfeff";
+      for(let pore=0;pore<7;pore++){const pa=pore*2.399+time/9000;const pr=bodyR*(.25+(pore%3)*.18);ctx2.beginPath();ctx2.arc(Math.cos(pa)*pr,Math.sin(pa)*pr*.72,bodyR*(.025+(pore%2)*.012),0,Math.PI*2);ctx2.fill();}ctx2.restore();
+
+      // Organic blink: two forward-facing optical slits close briefly on an irregular cycle.
+      const blinkCycle=(time+1370)%4300;
+      const blink=blinkCycle<150 ? Math.max(.08,Math.abs(blinkCycle-75)/75) : 1;
+      const eyeX=bodyR*.42,eyeY=bodyR*.18;
+      ctx2.fillStyle="rgba(236,254,255,.94)";ctx2.shadowColor="rgba(153,246,228,.7)";ctx2.shadowBlur=bodyR*.18;
+      for(const ey of [-eyeY,eyeY]){ctx2.beginPath();ctx2.ellipse(eyeX,ey,bodyR*.095,bodyR*.052*blink,0,0,Math.PI*2);ctx2.fill();}
+      ctx2.shadowBlur=0;
 
       // At high momentum the membrane gains a clean energy ring rather than more particles.
       if(momentum>=4){
