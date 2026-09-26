@@ -192,6 +192,7 @@ interface Packet {
 }
 
 type GuardKind = "scanner" | "hunter" | "interceptor" | "warden";
+type GuardState = "patrol" | "chase" | "search";
 type PowerKind = "cloak" | "overclock" | "emp" | "magnet";
 interface PowerUp { x:number; y:number; kind:PowerKind; taken:boolean; }
 
@@ -221,6 +222,10 @@ interface Guard {
   detection: number;
   fromX: number;
   fromY: number;
+  state: GuardState;
+  stateTimer: number;
+  lastKnownX: number;
+  lastKnownY: number;
 }
 
 interface Player {
@@ -321,7 +326,7 @@ function buildLevel(level: number): RunState {
     const cell = openCells.splice(Math.floor(Math.random() * openCells.length), 1)[0]!;
     const kinds: GuardKind[] = boss ? ["hunter","interceptor","warden","scanner"] : ["scanner","hunter","interceptor"];
     const kind = kinds[i % kinds.length]!;
-    guards.push({ kind, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden"?.9:1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y });
+    guards.push({ kind, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden"?.9:1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y, state: "patrol", stateTimer: 0, lastKnownX: cell.x, lastKnownY: cell.y });
   }
 
   const powerUps: PowerUp[] = [];
@@ -661,6 +666,19 @@ export function VirusRun() {
         const toPlayer = field[gy]?.[gx] ?? -1;
         const hidden = run.activePower?.kind==="cloak";
         const systemDetection = run.theme.system==="Kernel Space"?2:run.theme.system==="Firewall"?1:0;
+        const seesPlayer = !hidden && toPlayer >= 0 && toPlayer <= g.detection + systemDetection;
+        if (seesPlayer) {
+          g.state = "chase";
+          g.stateTimer = 1.8;
+          g.lastKnownX = Math.round(p.x);
+          g.lastKnownY = Math.round(p.y);
+        } else if (g.state === "chase") {
+          g.state = "search";
+          g.stateTimer = 2.4;
+        } else if (g.state === "search") {
+          g.stateTimer = Math.max(0, g.stateTimer - dt);
+          if (g.stateTimer <= 0) g.state = "patrol";
+        }
         if (g.x === g.tx && g.y === g.ty) {
           const options: [number, number][] = [];
           for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as [number, number][]) {
@@ -672,11 +690,15 @@ export function VirusRun() {
           }
           if (options.length === 0) options.push([g.fromX, g.fromY]);
           let chosen: [number, number];
-          if (!hidden && toPlayer >= 0 && toPlayer <= g.detection + systemDetection) {
+          if (g.state === "chase") {
             if(g.kind==="interceptor" && p.moving){
               options.sort((a,b)=>Math.abs(a[0]-p.tx)+Math.abs(a[1]-p.ty)-Math.abs(b[0]-p.tx)-Math.abs(b[1]-p.ty));
             } else options.sort((a, b) => (field[a[1]]![a[0]] ?? 999) - (field[b[1]]![b[0]] ?? 999));
             chosen = options[0]!;
+          } else if (g.state === "search") {
+            options.sort((a,b)=>Math.abs(a[0]-g.lastKnownX)+Math.abs(a[1]-g.lastKnownY)-Math.abs(b[0]-g.lastKnownX)-Math.abs(b[1]-g.lastKnownY));
+            chosen = options[0]!;
+            if (chosen[0] === g.lastKnownX && chosen[1] === g.lastKnownY) g.stateTimer = Math.min(g.stateTimer, 0.6);
           } else {
             chosen = options[Math.floor(Math.random() * options.length)]!;
           }
@@ -689,7 +711,7 @@ export function VirusRun() {
         if (run.theme.system === "CPU Cache") systemGuardSpeed = 1.08;
         if (run.theme.system === "Storage Drive") systemGuardSpeed = 0.9;
         if (run.theme.system === "Firewall" && pulse > 5.2 && pulse < 6.6) systemGuardSpeed = 1.12;
-        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * (g.kind==="hunter"&&toPlayer>=0&&toPlayer<=g.detection?1.12:1), dt);
+        const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * (g.kind==="hunter"&&g.state==="chase"?1.12:1), dt);
         g.x = r.x;
         g.y = r.y;
 
