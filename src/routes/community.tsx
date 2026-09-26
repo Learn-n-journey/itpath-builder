@@ -48,8 +48,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
-import { useCommunityChat, type CommunityPostType } from "@/hooks/use-community-chat";
-import { useCommunityMembership, useCommunityMemberCount } from "@/hooks/use-community-membership";
+import { useCommunityChat, useCommunityPostStream, type CommunityPostType } from "@/hooks/use-community-chat";
+import { useCommunityMembership, useCommunityMemberCount, useMyCommunityMemberships } from "@/hooks/use-community-membership";
+import { useSocialMessaging } from "@/hooks/use-social-messaging";
 import { useDisplayName } from "@/hooks/use-display-name";
 import { useProfile, useProfiles } from "@/hooks/use-profile";
 import { useCommunityLearningActivity, type LearningActivity } from "@/hooks/use-learning-activity";
@@ -99,13 +100,17 @@ function CommunityPage() {
   const { messages, loading, send, sending, edit, editing, remove, report, toggleLike, toggleSave, getComments, addComment } = useCommunityChat(room);
   const membership = useCommunityMembership(room);
   const memberCount = useCommunityMemberCount(room);
+  const { messages: communityStream, loading: streamLoading } = useCommunityPostStream();
+  const { rooms: joinedRooms, loading: membershipsLoading } = useMyCommunityMemberships();
+  const { friendships, loading: friendshipsLoading } = useSocialMessaging();
   const { activities: sharedActivity, loading: activityLoading } = useCommunityLearningActivity();
-  const profileIds = useMemo(() => [...new Set([...messages.map((message) => message.userId), ...sharedActivity.map((activity) => activity.userId)])], [messages, sharedActivity]);
+  const profileIds = useMemo(() => [...new Set([...messages.map((message) => message.userId), ...communityStream.map((message) => message.userId), ...sharedActivity.map((activity) => activity.userId)])], [messages, communityStream, sharedActivity]);
   const { profiles: communityProfiles } = useProfiles(profileIds);
   const [openComments,setOpenComments]=useState<string|null>(null);
   const [comments,setComments]=useState<any[]>([]);
   const [commentDraft,setCommentDraft]=useState("");
   const [feedMode,setFeedMode]=useState<"latest"|"popular"|"activity">("latest");
+  const [socialView,setSocialView]=useState<"for-you"|"friends"|"communities"|"discover">("for-you");
   const [draft, setDraft] = useState("");
   const [postType, setPostType] = useState<CommunityPostType>("discussion");
   const [postFilter, setPostFilter] = useState<CommunityPostType | "all">("all");
@@ -174,24 +179,36 @@ function CommunityPage() {
   const filteredFeed = communityQuery.trim()
     ? typeFilteredFeed.filter((message) => message.body.toLowerCase().includes(communityQuery.trim().toLowerCase()) || message.displayName.toLowerCase().includes(communityQuery.trim().toLowerCase()))
     : typeFilteredFeed;
+  const friendIds = useMemo(() => new Set(friendships.filter((friendship) => friendship.status === "accepted").map((friendship) => friendship.requesterId === userId ? friendship.addresseeId : friendship.requesterId)), [friendships, userId]);
   const mixedFeed = useMemo(() => {
     if (room !== GENERAL_ROOM || communityTab !== "feed" || feedMode !== "latest" || postFilter !== "all") return [];
     const query = communityQuery.trim().toLowerCase();
-    const postItems = feedMessages
-      .filter((message) => !query || message.body.toLowerCase().includes(query) || message.displayName.toLowerCase().includes(query))
+    const matchesSearch = (text: string) => !query || text.toLowerCase().includes(query);
+    const candidatePosts = socialView === "communities" ? communityStream.filter((message) => Boolean(message.room && joinedRooms.includes(message.room))) : communityStream;
+    const postItems = candidatePosts
+      .filter((message) => {
+        const identity = message.userId === userId ? ownProfile : communityProfiles[message.userId];
+        const inSearch = matchesSearch(message.body) || matchesSearch(message.displayName) || matchesSearch(identity?.displayName ?? "");
+        if (!inSearch) return false;
+        if (socialView === "friends") return friendIds.has(message.userId);
+        if (socialView === "for-you") return message.userId === userId || friendIds.has(message.userId) || Boolean(message.room && joinedRooms.includes(message.room));
+        return true;
+      })
       .map((message) => ({ kind: "post" as const, at: message.createdAt, message }));
     const activityItems = activityFeed
       .filter((activity) => {
-        if (!query) return true;
         const identity = activity.userId === userId ? ownProfile : communityProfiles[activity.userId];
-        return activity.title.toLowerCase().includes(query)
-          || (activity.description ?? "").toLowerCase().includes(query)
-          || (identity?.displayName ?? "").toLowerCase().includes(query);
+        const inSearch = matchesSearch(activity.title) || matchesSearch(activity.description ?? "") || matchesSearch(identity?.displayName ?? "");
+        if (!inSearch || socialView === "communities") return false;
+        if (socialView === "friends") return friendIds.has(activity.userId);
+        if (socialView === "for-you") return activity.userId === userId || friendIds.has(activity.userId);
+        return true;
       })
       .map((activity) => ({ kind: "activity" as const, at: activity.occurredAt, activity }));
     return [...postItems, ...activityItems].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
-  }, [activityFeed, communityProfiles, communityQuery, communityTab, feedMessages, feedMode, ownProfile, postFilter, room, userId]);
+  }, [activityFeed, communityProfiles, communityQuery, communityStream, communityTab, feedMode, friendIds, joinedRooms, ownProfile, postFilter, room, socialView, userId]);
   const showingMixedFeed = room === GENERAL_ROOM && communityTab === "feed" && feedMode === "latest" && postFilter === "all";
+  const mixedFeedLoading = loading || streamLoading || activityLoading || membershipsLoading || friendshipsLoading;
   const postTypes: Array<{value: CommunityPostType; label: string}> = [
     { value: "question", label: "Question" },
     { value: "troubleshooting", label: "Troubleshooting" },
@@ -265,7 +282,7 @@ function CommunityPage() {
           {communityTab==="about"?<div className="p-6"><div className="max-w-2xl"><h2 className="font-display text-xl font-bold">About {activeCommunity.label}</h2><p className="mt-3 text-sm leading-7 text-muted-foreground">{activeCommunity.about}</p><div className="mt-5 rounded-xl border border-border/60 bg-secondary/30 p-4"><p className="text-sm font-bold">How to use this community</p><p className="mt-1 text-sm leading-6 text-muted-foreground">Ask useful questions, show what you tried, share progress and projects, and help other learners when you can. Community activity supports learning but never awards mastery or bypasses My Path prerequisites.</p></div></div></div>:<>
           <div className="border-b border-border/60 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-display text-lg font-bold">{communityTab==="questions"?"Questions":communityTab==="projects"?"Projects":"Latest Discussions"}</h2><p className="text-xs text-muted-foreground">{roomTitle(room)}</p></div><select aria-label="Community" value={room} onChange={(event)=>{setCommunityTab("feed");setPostFilter("all");void navigate({search:{room:event.target.value}})}} className="rounded-lg border border-border bg-background px-3 py-2 text-xs">{rooms.map((entry)=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
-            <div className={cn("mt-3 gap-2 overflow-x-auto pb-1",communityTab==="feed"?"flex":"hidden")}><Button size="sm" variant={postFilter==="all"&&feedMode==="latest"?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter("all")}}>All Posts</Button><Button size="sm" variant={feedMode==="popular"?"default":"outline"} onClick={()=>setFeedMode("popular")}>Popular</Button>{room===GENERAL_ROOM?<Button size="sm" variant={feedMode==="activity"?"default":"outline"} onClick={()=>{setFeedMode("activity");setPostFilter("all")}}>Learning Activity</Button>:null}{postTypes.map((type)=><Button key={type.value} size="sm" variant={postFilter===type.value?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter(type.value)}}>{type.label}</Button>)}</div>
+            <div className={cn("mt-3 gap-2 overflow-x-auto pb-1",communityTab==="feed"?"flex":"hidden")}>{room===GENERAL_ROOM?([["for-you","For You"],["friends","Friends"],["communities","Communities"],["discover","Discover"]] as const).map(([value,label])=><Button key={value} size="sm" variant={postFilter==="all"&&feedMode==="latest"&&socialView===value?"default":"outline"} onClick={()=>{setSocialView(value);setFeedMode("latest");setPostFilter("all")}}>{label}</Button>):<Button size="sm" variant={postFilter==="all"&&feedMode==="latest"?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter("all")}}>All Posts</Button>}<Button size="sm" variant={feedMode==="popular"?"default":"outline"} onClick={()=>setFeedMode("popular")}>Popular</Button>{room===GENERAL_ROOM?<Button size="sm" variant={feedMode==="activity"?"default":"outline"} onClick={()=>{setFeedMode("activity");setPostFilter("all")}}>Learning Activity</Button>:null}{postTypes.map((type)=><Button key={type.value} size="sm" variant={postFilter===type.value?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter(type.value)}}>{type.label}</Button>)}</div>
           </div>
 
           <form onSubmit={handleSend} className="border-b border-border/60 p-4">
@@ -274,7 +291,7 @@ function CommunityPage() {
 
           <div>
             {showingMixedFeed ? (
-              loading || activityLoading ? <p className="p-5 text-sm text-muted-foreground">Loading community…</p> :
+              mixedFeedLoading ? <p className="p-5 text-sm text-muted-foreground">Loading community…</p> :
               mixedFeed.length===0 ? <div className="p-8 text-center"><MessagesSquare className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 font-semibold">{communityQuery ? "Nothing matches that search." : "Start the conversation"}</p></div> :
               mixedFeed.map((item) => item.kind === "activity"
                 ? <CommunityActivityCard key={`activity-${item.activity.id}`} activity={item.activity} viewerId={userId} profile={item.activity.userId===userId ? ownProfile : communityProfiles[item.activity.userId]} />
