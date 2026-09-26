@@ -109,25 +109,25 @@ function MeditationPage() {
     source.buffer = buffer;
     const filter = ctx.createBiquadFilter();
     filter.type = "bandpass";
-    filter.Q.value = 0.55;
+    filter.Q.value = 0.8;
     const gain = ctx.createGain();
     const now = ctx.currentTime;
-    const level = Math.max(0.02, Math.min(0.12, (volume / 100) * 0.18));
+    const level = Math.max(0.012, Math.min(0.075, (volume / 100) * 0.11));
 
     if (kind === "inhale") {
       // The inhale cue begins audibly at the exact start of the countdown
       // and breathes slowly across the entire inhale phase.
-      filter.frequency.setValueAtTime(520, now);
-      filter.frequency.linearRampToValueAtTime(900, now + duration);
-      gain.gain.setValueAtTime(level * 0.18, now);
-      gain.gain.linearRampToValueAtTime(level * 0.72, now + duration * 0.5);
-      gain.gain.linearRampToValueAtTime(level, now + duration * 0.82);
+      filter.frequency.setValueAtTime(430, now);
+      filter.frequency.linearRampToValueAtTime(720, now + duration);
+      gain.gain.setValueAtTime(level * 0.12, now);
+      gain.gain.linearRampToValueAtTime(level * 0.58, now + duration * 0.45);
+      gain.gain.linearRampToValueAtTime(level * 0.78, now + duration * 0.78);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     } else {
-      filter.frequency.setValueAtTime(1050, now);
-      filter.frequency.linearRampToValueAtTime(480, now + duration);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(level * 0.9, now + Math.min(0.3, duration * 0.12));
+      filter.frequency.setValueAtTime(760, now);
+      filter.frequency.linearRampToValueAtTime(390, now + duration);
+      gain.gain.setValueAtTime(level * 0.08, now);
+      gain.gain.linearRampToValueAtTime(level * 0.65, now + Math.min(0.45, duration * 0.16));
       gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     }
 
