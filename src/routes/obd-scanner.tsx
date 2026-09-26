@@ -25,7 +25,11 @@ export const Route = createFileRoute("/obd-scanner")({
   staticData: { sitemap: false },
   validateSearch: (search: Record<string, unknown>) => {
     const scenario = typeof search["scenario"] === "string" ? search["scenario"] : undefined;
-    return scenario && obdScenarios.some((item) => item.id === scenario) ? { scenario } : {};
+    const topic = typeof search["topic"] === "string" && search["topic"] ? search["topic"] : undefined;
+    return {
+      ...(scenario && obdScenarios.some((item) => item.id === scenario) ? { scenario } : {}),
+      ...(topic ? { topic } : {}),
+    };
   },
   component: ObdScannerPage,
 });
@@ -59,7 +63,7 @@ function reading(pid: LivePid, revving: boolean, tick: number): number {
 }
 
 function ObdScannerPage() {
-  const { scenario: requestedScenario } = Route.useSearch();
+  const { scenario: requestedScenario, topic } = Route.useSearch();
   const [scenarioId, setScenarioId] = useState(requestedScenario ?? obdScenarios[0]!.id);
   const [connected, setConnected] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -120,6 +124,13 @@ function ObdScannerPage() {
         title={TITLE}
         description="Pick a vehicle, plug in, and work the fault the way you would in the bay: codes first, then freeze frame, then live data."
       />
+
+      {topic ? (
+        <Panel className="mb-5 border-primary/30">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">From your current training</p>
+          <p className="mt-1 text-sm text-muted-foreground">Practice gathering scan-tool evidence related to <span className="font-medium text-foreground">{topic}</span>. Compare the complaint, codes, freeze frame, and live data before choosing the next test.</p>
+        </Panel>
+      ) : null}
 
       <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Vehicles">
         {obdScenarios.map((item) => (

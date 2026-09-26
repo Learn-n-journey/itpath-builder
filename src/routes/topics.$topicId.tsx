@@ -11,7 +11,9 @@ import { TopicQuickLinks } from "@/components/learning/topic-quick-links";
 import { TopicSubnav, type TopicTab } from "@/components/learning/topic-subnav";
 import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { certifications, lessons, topics, type Topic } from "@/data/static-content";
+import { certifications, incidents, labs, lessons, topics, type Topic } from "@/data/static-content";
+import { obdScenarios } from "@/data/auto/obd";
+import { autoAssemblies } from "@/data/engine-explorer";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
 import { activeDomainKey } from "@/lib/active-domain";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
@@ -54,6 +56,28 @@ const TOPIC_SHORTCUTS = [
   { label: "Practice It", target: "#try-it", when: () => true },
   { label: "Prove It", target: "#prove-it", when: () => true },
 ] as const;
+
+
+function automotiveFocusFor(title: string): string {
+  const text = title.toLowerCase();
+  const matches: Array<[string, string[]]> = [
+    ["brakes", ["brake", "hydraulic"]],
+    ["battery", ["battery", "charging", "electrical", "starting"]],
+    ["starter", ["starter", "crank", "starting"]],
+    ["alternator", ["alternator", "charging"]],
+    ["radiator", ["cooling", "coolant", "radiator", "overheat"]],
+    ["spark-plug", ["ignition", "spark", "misfire"]],
+    ["engine-cutaway", ["engine", "compression", "cylinder", "valve", "piston", "timing", "lubrication", "oil"]],
+  ];
+  return matches.find(([, words]) => words.some((word) => text.includes(word)))?.[0] ?? "engine-bay";
+}
+
+function wordOverlapScore(topicTitle: string, text: string): number {
+  const stop = new Set(["and", "the", "with", "from", "system", "systems", "service", "repair", "diagnosis", "general"]);
+  const words = topicTitle.toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length > 3 && !stop.has(word));
+  const haystack = text.toLowerCase();
+  return words.reduce((score, word) => score + (haystack.includes(word) ? 1 : 0), 0);
+}
 
 function getTopicIcon(topic: { id: string; title: string }) {
   const text = `${topic.id} ${topic.title}`.toLowerCase();
@@ -167,6 +191,13 @@ function TopicPage() {
   const isAutoPath = domain.id === "auto-repair";
   const TopicIcon = getTopicIcon(topic);
   const status = mastered ? "Passed" : progress ? "In progress" : "Not started";
+  const topicLab = labs.find((item) => item.topicId === topic.id);
+  const topicIncident = incidents.find((item) => item.topicId === topic.id);
+  const explorerFocus = autoAssemblies.some((item) => item.id === automotiveFocusFor(topic.title)) ? automotiveFocusFor(topic.title) : "engine-bay";
+  const obdScenario = [...obdScenarios].sort((a, b) => {
+    const textOf = (item: (typeof obdScenarios)[number]) => `${item.complaint} ${item.rootCause} ${item.teaching} ${item.codes.map((code) => `${code.code} ${code.title} ${code.meaning}`).join(" ")}`;
+    return wordOverlapScore(topic.title, textOf(b)) - wordOverlapScore(topic.title, textOf(a));
+  })[0];
   const availableTargets = new Set(
     TOPIC_SHORTCUTS.filter((shortcut) => shortcut.when(topic)).map((shortcut) => shortcut.target),
   );
@@ -234,10 +265,10 @@ function TopicPage() {
             ))}
           </ol>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button asChild size="sm" variant="secondary"><Link to="/explore-engine">See & identify components</Link></Button>
-            <Button asChild size="sm" variant="secondary"><Link to="/obd-scanner">Test with OBD practice</Link></Button>
-            <Button asChild size="sm" variant="secondary"><Link to="/troubleshoot">Diagnose a repair order</Link></Button>
-            <Button asChild size="sm" variant="secondary"><Link to="/labs">Fix & verify in Shop Practice</Link></Button>
+            <Button asChild size="sm" variant="secondary"><Link to="/explore-engine" search={{ focus: explorerFocus, topic: topic.title }}>See & identify related components</Link></Button>
+            <Button asChild size="sm" variant="secondary"><Link to="/obd-scanner" search={{ ...(obdScenario ? { scenario: obdScenario.id } : {}), topic: topic.title }}>Test with related OBD evidence</Link></Button>
+            <Button asChild size="sm" variant="secondary"><Link to="/troubleshoot" search={topicIncident ? { incident: topicIncident.id } : {}}>Diagnose {topicIncident ? "this system" : "a repair order"}</Link></Button>
+            <Button asChild size="sm" variant="secondary"><Link to="/labs" search={topicLab ? { lab: topicLab.id } : {}}>Fix & verify {topicLab ? "this system" : "in Shop Practice"}</Link></Button>
           </div>
         </section>
       ) : null}

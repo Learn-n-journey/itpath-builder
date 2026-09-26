@@ -23,11 +23,16 @@ export const Route = createFileRoute("/explore-engine")({
     ],
   }),
   staticData: { sitemap: false },
+  validateSearch: (search: Record<string, unknown>): { focus?: string; topic?: string } => ({
+    ...(typeof search["focus"] === "string" && autoAssemblies.some((item) => item.id === search["focus"]) ? { focus: search["focus"] } : {}),
+    ...(typeof search["topic"] === "string" && search["topic"] ? { topic: search["topic"] } : {}),
+  }),
   component: ExploreEnginePage,
 });
 
 function ExploreEnginePage() {
-  const [assemblyId, setAssemblyId] = useState(autoAssemblies[0]!.id);
+  const { focus, topic } = Route.useSearch();
+  const [assemblyId, setAssemblyId] = useState(focus ?? autoAssemblies[0]!.id);
   const [partId, setPartId] = useState<string | null>(null);
 
   const assembly = autoAssemblies.find((a) => a.id === assemblyId)!;
@@ -45,6 +50,13 @@ function ExploreEnginePage() {
         title={TITLE}
         description="Tap the numbered markers on each photo to see what that part is and what it does."
       />
+
+      {topic ? (
+        <Panel className="mb-5 border-primary/30">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">From your current training</p>
+          <p className="mt-1 text-sm text-muted-foreground">Inspect the components most closely connected to <span className="font-medium text-foreground">{topic}</span>. Focus on location, function, failure clues, and what you would verify next.</p>
+        </Panel>
+      ) : null}
 
       <div className="mb-6 flex flex-wrap gap-2" role="tablist" aria-label="Vehicle assemblies">
         {autoAssemblies.map((a) => (
