@@ -65,6 +65,9 @@ import {
   type UserSettings,
 } from "@/lib/app-data/types";
 import { allTopicScopeProgress } from "@/lib/scope-progress";
+import { recordLearningActivity } from "@/lib/learning-activity";
+import { allBadges } from "@/lib/badges";
+import { labs, topics } from "@/data/static-content";
 
 interface AppActions {
   addQuizAttempt: (attempt: QuizAttempt) => void;
@@ -153,6 +156,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [cloudError, setCloudError] = useState<string | null>(null);
   const [syncedUserId, setSyncedUserId] = useState<string | null>(null);
   const pushedSnapshot = useRef<string>("");
+  const activityBaseline = useRef<UserData | null>(null);
 
   // Hydrate after mount so server and client render the same initial markup.
   useEffect(() => {
@@ -274,6 +278,89 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }, 1200);
 
     return () => clearTimeout(timer);
+  }, [user, hydrated, userId, syncedUserId]);
+
+  // Mirror newly recorded accomplishments into the social activity ledger.
+  // The first hydrated snapshot becomes the baseline, so existing history is not
+  // suddenly published as new activity. Database event keys make every write retry-safe.
+  useEffect(() => {
+    if (!hydrated || !userId || syncedUserId !== userId) {
+      activityBaseline.current = null;
+      return;
+    }
+    const previous = activityBaseline.current;
+    activityBaseline.current = user;
+    if (!previous) return;
+
+    const writes: Promise<void>[] = [];
+    const previousLabs = new Map(previous.labAttempts.map((attempt) => [attempt.id, attempt]));
+    for (const attempt of user.labAttempts) {
+      const before = previousLabs.get(attempt.id);
+      const completedNow =
+        (attempt.status === "completed" || attempt.status === "mastered") &&
+        before?.status !== "completed" &&
+        before?.status !== "mastered";
+      if (!completedNow) continue;
+      const lab = labs.find((item) => item.id === attempt.labId);
+      writes.push(recordLearningActivity(userId, {
+        activityType: "lab_completed",
+        eventKey: `lab:${attempt.id}:completed`,
+        entityId: attempt.labId,
+        title: lab?.title ?? "Hands-on lab completed",
+        description: attempt.maxScore > 0 ? `Completed with ${attempt.score} of ${attempt.maxScore} checklist points.` : undefined,
+        metadata: { topicId: attempt.topicId, attemptId: attempt.id },
+        occurredAt: attempt.completedAt ?? attempt.updatedAt,
+      }));
+    }
+
+    const previousProjects = new Set(previous.portfolio.map((project) => project.id));
+    for (const project of user.portfolio) {
+      if (previousProjects.has(project.id)) continue;
+      writes.push(recordLearningActivity(userId, {
+        activityType: "project_completed",
+        eventKey: `project:${project.id}:created`,
+        entityId: project.id,
+        title: project.title,
+        description: project.summary || undefined,
+        metadata: { source: project.source, topicIds: project.topicIds },
+        occurredAt: project.createdAt,
+      }));
+    }
+
+    const oldBadges = new Set(allBadges(previous).filter((badge) => badge.earned).map((badge) => badge.id));
+    for (const badge of allBadges(user)) {
+      if (!badge.earned || oldBadges.has(badge.id)) continue;
+      writes.push(recordLearningActivity(userId, {
+        activityType: badge.group === "Consistency" ? "streak_milestone" : "achievement_earned",
+        eventKey: `achievement:${badge.id}`,
+        entityId: badge.id,
+        title: badge.title,
+        description: badge.requirement,
+        metadata: { group: badge.group },
+      }));
+    }
+
+    const previousProgress = previous.topicProgress;
+    for (const [topicId, progress] of Object.entries(user.topicProgress)) {
+      const before = previousProgress[topicId];
+      if (!before || before.status === progress.status) continue;
+      const topic = topics.find((item) => item.id === topicId);
+      writes.push(recordLearningActivity(userId, {
+        activityType: "mastery_advanced",
+        eventKey: `mastery:${topicId}:${progress.status}`,
+        entityId: topicId,
+        title: topic ? `${topic.title}: ${progress.status.replace(/_/g, " ")}` : `Mastery advanced to ${progress.status.replace(/_/g, " ")}`,
+        metadata: { from: before.status, to: progress.status },
+        occurredAt: progress.updatedAt,
+      }));
+    }
+
+    if (writes.length) {
+      void Promise.allSettled(writes).then((results) => {
+        const failed = results.filter((result) => result.status === "rejected");
+        if (failed.length) console.warn(`Learning activity: ${failed.length} event(s) could not be recorded.`);
+      });
+    }
   }, [user, hydrated, userId, syncedUserId]);
 
   const updateUser = useCallback((updater: (current: UserData) => UserData) => {

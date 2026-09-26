@@ -23,6 +23,7 @@ export interface LearningActivity {
   title: string;
   description: string | null;
   entityId: string | null;
+  eventKey: string | null;
   metadata: Json;
   visibility: LearningActivityVisibility;
   isFeatured: boolean;
@@ -40,7 +41,7 @@ export function useLearningActivity(profileId?: string) {
     queryFn: async (): Promise<LearningActivity[]> => {
       const { data, error } = await supabase
         .from("learning_activities")
-        .select("id,user_id,activity_type,title,description,entity_id,metadata,visibility,is_featured,occurred_at")
+        .select("id,user_id,activity_type,title,description,entity_id,event_key,metadata,visibility,is_featured,occurred_at")
         .eq("user_id", id!)
         .order("occurred_at", { ascending: false })
         .limit(100);
@@ -52,6 +53,7 @@ export function useLearningActivity(profileId?: string) {
         title: row.title,
         description: row.description,
         entityId: row.entity_id,
+        eventKey: row.event_key,
         metadata: row.metadata,
         visibility: row.visibility as LearningActivityVisibility,
         isFeatured: row.is_featured,
