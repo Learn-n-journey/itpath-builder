@@ -183,6 +183,21 @@ type GuardKind = "scanner" | "hunter" | "interceptor" | "warden";
 type PowerKind = "cloak" | "overclock" | "emp" | "magnet";
 interface PowerUp { x:number; y:number; kind:PowerKind; taken:boolean; }
 
+type UpgradeKind = "packet-sniffer" | "cache-boost" | "ghost-protocol" | "emp-amplifier" | "data-magnet" | "kernel-boost";
+interface RunUpgrade { kind: UpgradeKind; name: string; detail: string; }
+const RUN_UPGRADES: RunUpgrade[] = [
+  { kind: "packet-sniffer", name: "Packet Sniffer", detail: "Data packets pulse more visibly through the system." },
+  { kind: "cache-boost", name: "Cache Boost", detail: "Overclock lasts 35% longer per stack." },
+  { kind: "ghost-protocol", name: "Ghost Protocol", detail: "Cloak lasts 35% longer per stack." },
+  { kind: "emp-amplifier", name: "EMP Amplifier", detail: "EMP disables antivirus longer." },
+  { kind: "data-magnet", name: "Data Magnet", detail: "Collect packets from farther away." },
+  { kind: "kernel-boost", name: "Kernel Boost", detail: "Permanent movement speed increase for this run." },
+];
+
+function pickUpgradeChoices(): RunUpgrade[] {
+  return [...RUN_UPGRADES].sort(() => Math.random() - 0.5).slice(0, 3);
+}
+
 interface Guard {
   kind: GuardKind;
   stunned: number;
@@ -301,7 +316,7 @@ function buildLevel(level: number): RunState {
 
 // --- Component -------------------------------------------------------------
 
-type Phase = "menu" | "playing" | "paused" | "gameover" | "levelclear";
+type Phase = "menu" | "playing" | "paused" | "gameover" | "levelclear" | "upgrade";
 
 export function VirusRun() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -315,8 +330,14 @@ export function VirusRun() {
   const levelClearTimerRef = useRef(0);
   const lastAlertSoundRef = useRef(0);
   const bestRef = useRef<Best>({ bestLevel: 0, packets: 0, currentLevel: 1 });
+  const upgradesRef = useRef<Record<UpgradeKind, number>>({
+    "packet-sniffer": 0, "cache-boost": 0, "ghost-protocol": 0,
+    "emp-amplifier": 0, "data-magnet": 0, "kernel-boost": 0,
+  });
 
   const [phase, setPhase] = useState<Phase>("menu");
+  const [upgradeChoices, setUpgradeChoices] = useState<RunUpgrade[]>([]);
+  const [upgradeCount, setUpgradeCount] = useState(0);
   const [mobileLandscape, setMobileLandscape] = useState(false);
   const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" | "power" | "near" }[]>([]);
   const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false });
@@ -379,6 +400,12 @@ export function VirusRun() {
 
   const startRun = useCallback(() => {
     bestRef.current = readBest();
+    upgradesRef.current = {
+      "packet-sniffer": 0, "cache-boost": 0, "ghost-protocol": 0,
+      "emp-amplifier": 0, "data-magnet": 0, "kernel-boost": 0,
+    };
+    setUpgradeCount(0);
+    setUpgradeChoices([]);
     runRef.current = buildLevel(bestRef.current.currentLevel);
     distFieldRef.current = null;
     fieldAgeRef.current = 999;
@@ -498,7 +525,7 @@ export function VirusRun() {
         }
       }
       if (p.moving) {
-        let playerSpeed=PLAYER_SPEED;
+        let playerSpeed=PLAYER_SPEED * (1 + upgradesRef.current["kernel-boost"] * 0.08);
         if(run.activePower?.kind==="overclock")playerSpeed*=1.55;
         if(run.theme.system==="CPU Cache")playerSpeed*=1.08;
         if(run.theme.system==="Network Stack" && (Math.round(p.y)%4===0))playerSpeed*=1.22;
@@ -514,7 +541,8 @@ export function VirusRun() {
       const px = Math.round(p.x);
       const py = Math.round(p.y);
       for (const packet of run.packets) {
-        if (!packet.taken && packet.x === px && packet.y === py) {
+        const magnetRange = upgradesRef.current["data-magnet"] * 0.7;
+        if (!packet.taken && (packet.x === px && packet.y === py || (magnetRange > 0 && Math.hypot(packet.x - p.x, packet.y - p.y) <= magnetRange))) {
           packet.taken = true;
           run.collected += 1;
           run.streak = Math.min(5, run.streak + 1); run.streakTimer = 4.5;
@@ -527,9 +555,12 @@ export function VirusRun() {
       // Power-ups.
       for(const power of run.powerUps){
         if(!power.taken && power.x===px && power.y===py){
-          power.taken=true;run.activePower={kind:power.kind,left:power.kind==="emp"?5:8};run.streakTimer=5;
+          power.taken=true;
+          const stacks = power.kind === "cloak" ? upgradesRef.current["ghost-protocol"] : power.kind === "overclock" ? upgradesRef.current["cache-boost"] : 0;
+          const powerDuration = (power.kind==="emp"?5:8) * (1 + stacks * 0.35);
+          run.activePower={kind:power.kind,left:powerDuration};run.streakTimer=5;
           fxRef.current.push({x:power.x,y:power.y,born:performance.now(),kind:"power"});virusSound("power");
-          if(power.kind==="emp")for(const g of run.guards)g.stunned=5;
+          if(power.kind==="emp")for(const g of run.guards)g.stunned=5 + upgradesRef.current["emp-amplifier"] * 2.5;
           if(run.theme.system==="System RAM"){
             const jumps: {x:number;y:number}[]=[];for(let y=1;y<ROWS-1;y++)for(let x=1;x<COLS-1;x++)if(run.grid[y]?.[x]===0&&Math.abs(x-px)+Math.abs(y-py)>12)jumps.push({x,y});
             const jump=jumps[Math.floor(Math.random()*jumps.length)];if(jump){p.x=jump.x;p.y=jump.y;p.tx=jump.x;p.ty=jump.y;p.moving=false;p.invuln=Math.max(p.invuln,.6);}
@@ -624,8 +655,13 @@ export function VirusRun() {
         writeBest(next);
         bestRef.current = next;
         syncHud(run);
-        levelClearTimerRef.current = 1.4;
-        setPhaseBoth("levelclear");
+        if (run.level % 3 === 0) {
+          setUpgradeChoices(pickUpgradeChoices());
+          setPhaseBoth("upgrade");
+        } else {
+          levelClearTimerRef.current = 1.4;
+          setPhaseBoth("levelclear");
+        }
         return;
       }
     };
@@ -859,6 +895,15 @@ export function VirusRun() {
         ctx2.save();
         ctx2.translate(offX + (packet.x + 0.5) * cell, offY + (packet.y + 0.5) * cell);
         ctx2.rotate(time / 850 + packet.x);
+        const sniffStacks = upgradesRef.current["packet-sniffer"];
+        if (sniffStacks > 0) {
+          const sniffPulse = 0.22 + 0.12 * Math.sin(time / 180 + packet.x);
+          ctx2.strokeStyle = "rgba(125,211,252," + sniffPulse + ")";
+          ctx2.lineWidth = Math.max(1, cell * 0.05);
+          ctx2.beginPath();
+          ctx2.arc(0, 0, cell * (0.75 + sniffStacks * 0.18), 0, Math.PI * 2);
+          ctx2.stroke();
+        }
         const s = cell * 0.28;
         ctx2.shadowColor = "#7dd3fc";
         ctx2.shadowBlur = cell * 0.85;
@@ -1053,6 +1098,21 @@ export function VirusRun() {
     return () => cancelAnimationFrame(rafRef.current);
   }, [setPhaseBoth, syncHud]);
 
+  const chooseUpgrade = useCallback((upgrade: RunUpgrade) => {
+    upgradesRef.current[upgrade.kind] += 1;
+    setUpgradeCount((value) => value + 1);
+    const current = runRef.current;
+    if (!current) return;
+    runRef.current = buildLevel(current.level + 1);
+    if (runRef.current.boss) virusSound("boss");
+    distFieldRef.current = null;
+    fieldAgeRef.current = 999;
+    keysRef.current = [];
+    syncHud(runRef.current);
+    setPhaseBoth("playing");
+    lastRef.current = 0;
+  }, [setPhaseBoth, syncHud]);
+
   // Touch d-pad handlers.
   const pressDir = (dir: string) => {
     const list = keysRef.current.filter((k) => k !== dir);
@@ -1140,6 +1200,25 @@ export function VirusRun() {
         <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">System breached</h3>
         <div className="h-px w-40 bg-gradient-to-r from-transparent via-primary to-transparent" aria-hidden />
         <p className="text-sm text-muted-foreground">{hud.boss ? "Antivirus core defeated · routing deeper…" : "Entering the next system…"}</p>
+      </Overlay>
+    ) : phase === "upgrade" ? (
+      <Overlay>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Mutation available</p>
+        <h3 className="font-display text-2xl font-bold uppercase">Evolve the virus</h3>
+        <p className="max-w-sm text-sm text-muted-foreground">Choose one upgrade. It lasts for the rest of this run and can stack if it appears again.</p>
+        <div className="mt-2 grid w-full gap-2 sm:grid-cols-3">
+          {upgradeChoices.map((upgrade) => {
+            const currentStacks = upgradesRef.current[upgrade.kind];
+            return (
+              <button key={upgrade.kind} type="button" onClick={() => chooseUpgrade(upgrade)} className="rounded-xl border border-primary/20 bg-background/60 p-3 text-left transition hover:border-primary/60 hover:bg-primary/10">
+                <span className="block font-display text-sm font-bold text-primary">{upgrade.name}</span>
+                <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{upgrade.detail}</span>
+                <span className="mt-2 block font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{currentStacks ? "Stack " + (currentStacks + 1) : "New mutation"}</span>
+              </button>
+            );
+          })}
+        </div>
+        <p className="font-mono text-[10px] text-muted-foreground">{upgradeCount} mutation{upgradeCount === 1 ? "" : "s"} active this run</p>
       </Overlay>
     ) : phase === "gameover" ? (
       <Overlay>
