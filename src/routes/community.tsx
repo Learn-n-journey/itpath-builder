@@ -113,7 +113,7 @@ function CommunityPage() {
   const [comments,setComments]=useState<any[]>([]);
   const [commentDraft,setCommentDraft]=useState("");
   const [feedMode,setFeedMode]=useState<"latest"|"popular"|"activity">("latest");
-  const [socialView,setSocialView]=useState<"for-you"|"friends"|"communities"|"discover">("for-you");
+  const [socialView,setSocialView]=useState<"all"|"for-you"|"friends"|"communities"|"discover">("all");
   const [draft, setDraft] = useState("");
   const [postType, setPostType] = useState<CommunityPostType>("discussion");
   const [postFilter, setPostFilter] = useState<CommunityPostType | "all">("all");
@@ -195,6 +195,7 @@ function CommunityPage() {
         if (!inSearch) return false;
         if (socialView === "friends") return friendIds.has(message.userId);
         if (socialView === "for-you") return message.userId === userId || friendIds.has(message.userId) || Boolean(message.room && joinedRooms.includes(message.room));
+        if (socialView === "all") return true;
         return true;
       })
       .map((message) => ({ kind: "post" as const, at: message.createdAt, message }));
@@ -202,7 +203,7 @@ function CommunityPage() {
       .filter((activity) => {
         const identity = activity.userId === userId ? ownProfile : communityProfiles[activity.userId];
         const inSearch = matchesSearch(activity.title) || matchesSearch(activity.description ?? "") || matchesSearch(identity?.displayName ?? "");
-        if (!inSearch || socialView === "communities") return false;
+        if (!inSearch || socialView === "communities" || socialView === "all") return false;
         if (socialView === "friends") return friendIds.has(activity.userId);
         if (socialView === "for-you") return activity.userId === userId || friendIds.has(activity.userId);
         return true;
@@ -308,7 +309,7 @@ function CommunityPage() {
           {communityTab==="about"?<div className="p-6"><div className="max-w-2xl"><h2 className="font-display text-xl font-bold">About {activeCommunity.label}</h2><p className="mt-3 text-sm leading-7 text-muted-foreground">{activeCommunity.about}</p><div className="mt-5 rounded-xl border border-border/60 bg-secondary/30 p-4"><p className="text-sm font-bold">How to use this community</p><p className="mt-1 text-sm leading-6 text-muted-foreground">Ask useful questions, show what you tried, share progress and projects, and help other learners when you can. Community activity supports learning but never awards mastery or bypasses structured prerequisites.</p></div></div></div>:<>
           <div className="border-b border-border/60 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-display text-lg font-bold">{communityTab==="questions"?"Questions":communityTab==="projects"?"Projects":"Latest Discussions"}</h2><p className="text-xs text-muted-foreground">{roomTitle(room)}</p></div><select aria-label="Community" value={room} onChange={(event)=>{setCommunityTab("feed");setPostFilter("all");void navigate({search:{room:event.target.value}})}} className="rounded-lg border border-border bg-background px-3 py-2 text-xs">{rooms.map((entry)=><option key={entry.id} value={entry.id}>{entry.label}</option>)}</select></div>
-            <div className={cn("mt-3 gap-2 overflow-x-auto pb-1",communityTab==="feed"?"flex":"hidden")}>{room===GENERAL_ROOM?([["for-you","For You"],["friends","Friends"],["communities","Communities"],["discover","Discover"]] as const).map(([value,label])=><Button key={value} size="sm" variant={postFilter==="all"&&feedMode==="latest"&&socialView===value?"default":"outline"} onClick={()=>{setSocialView(value);setFeedMode("latest");setPostFilter("all")}}>{label}</Button>):<Button size="sm" variant={postFilter==="all"&&feedMode==="latest"?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter("all")}}>All Posts</Button>}<Button size="sm" variant={feedMode==="popular"?"default":"outline"} onClick={()=>setFeedMode("popular")}>Popular</Button>{room===GENERAL_ROOM?<Button size="sm" variant={feedMode==="activity"?"default":"outline"} onClick={()=>{setFeedMode("activity");setPostFilter("all")}}>Learning Activity</Button>:null}{postTypes.map((type)=><Button key={type.value} size="sm" variant={postFilter===type.value?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter(type.value)}}>{type.label}</Button>)}</div>
+            <div className={cn("mt-3 gap-2 overflow-x-auto pb-1",communityTab==="feed"?"flex":"hidden")}>{room===GENERAL_ROOM?([["all","All Chats"],["for-you","For You"],["friends","Friends"],["communities","Communities"],["discover","Discover"]] as const).map(([value,label])=><Button key={value} size="sm" variant={postFilter==="all"&&feedMode==="latest"&&socialView===value?"default":"outline"} onClick={()=>{setSocialView(value);setFeedMode("latest");setPostFilter("all")}}>{label}</Button>):<Button size="sm" variant={postFilter==="all"&&feedMode==="latest"?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter("all")}}>All Posts</Button>}<Button size="sm" variant={feedMode==="popular"?"default":"outline"} onClick={()=>setFeedMode("popular")}>Popular</Button>{room===GENERAL_ROOM?<Button size="sm" variant={feedMode==="activity"?"default":"outline"} onClick={()=>{setFeedMode("activity");setPostFilter("all")}}>Learning Activity</Button>:null}{postTypes.map((type)=><Button key={type.value} size="sm" variant={postFilter===type.value?"default":"outline"} onClick={()=>{setFeedMode("latest");setPostFilter(type.value)}}>{type.label}</Button>)}</div>
           </div>
 
           <form onSubmit={handleSend} className="border-b border-border/60 p-4">
