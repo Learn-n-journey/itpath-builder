@@ -17,6 +17,21 @@ export interface A1BranchingTest {
   outcomes: Record<string, A1BranchingOutcome>;
 }
 
+export interface A1RepairChoice {
+  id: string;
+  label: string;
+  feedback: string;
+  correct: boolean;
+  verificationFailureEvidence?: string;
+}
+
+export interface A1VerificationChoice {
+  id: string;
+  label: string;
+  feedback: string;
+  correct: boolean;
+}
+
 export interface A1BranchingScenario {
   topicId: string;
   complaint: string;
@@ -26,6 +41,8 @@ export interface A1BranchingScenario {
   diagnosisThreshold: number;
   repair: string;
   verification: string[];
+  repairChoices: A1RepairChoice[];
+  verificationChoices: A1VerificationChoice[];
 }
 
 const outcome = (
@@ -47,6 +64,18 @@ export const a1BranchingScenarios: A1BranchingScenario[] = [
     diagnosisThreshold: 2,
     repair: "Inspect and service the affected valve, seat, guide, or related cylinder-head component according to service information after the sealing fault is confirmed.",
     verification: ["Repeat the cylinder sealing test.", "Recheck cylinder contribution and the original rough-running complaint.", "Confirm there are no new fluid leaks, abnormal noises, or warning indicators."],
+    repairChoices: [
+      { id: "service-valve-path", label: "Service the confirmed valve-sealing fault using service information, correcting the affected valve/seat/guide condition as measurements require.", feedback: "This repair addresses the fault localized by the leak-down and supporting cylinder-sealing evidence.", correct: true },
+      { id: "replace-rings", label: "Replace the piston rings because low compression was measured.", feedback: "Low compression alone did not localize the leak. The later evidence points away from the ring/cylinder path.", correct: false, verificationFailureEvidence: "Post-repair compression remains low and leak-down still escapes through the valve path. The original rough-running complaint remains." },
+      { id: "adjust-only", label: "Perform an adjustment only and return the vehicle without correcting the confirmed sealing defect.", feedback: "An adjustment is incomplete when the evidence identifies a physical valve-sealing fault that still fails the sealing test.", correct: false, verificationFailureEvidence: "The adjustment does not restore cylinder sealing. Leak-down still identifies leakage at the intake or exhaust path." },
+      { id: "replace-head-gasket", label: "Replace the head gasket without evidence of cylinder-to-cylinder or cooling-system leakage.", feedback: "That replacement does not match the localized evidence and adds unnecessary work.", correct: false, verificationFailureEvidence: "The original cylinder still loses pressure through the valve path after the unrelated gasket replacement." },
+    ],
+    verificationChoices: [
+      { id: "repeat-sealing", label: "Repeat the cylinder sealing test under the same controlled conditions and compare the result with the pre-repair evidence.", feedback: "This directly checks whether the repaired sealing path now holds pressure.", correct: true },
+      { id: "recheck-complaint", label: "Recheck cylinder contribution and reproduce the original rough-running operating condition.", feedback: "This verifies that the measured repair also corrected the customer's original complaint.", correct: true },
+      { id: "final-inspection", label: "Inspect for new leaks, abnormal noises, warning indicators, and disturbed connections before closing the repair order.", feedback: "A final inspection checks for repair-induced or remaining concerns.", correct: true },
+      { id: "clear-codes", label: "Clear stored information and consider the repair verified if no warning light immediately returns.", feedback: "Clearing information is not proof that cylinder sealing or the original complaint has been corrected.", correct: false },
+    ],
     tests: [
       {
         id: "compression",
@@ -90,6 +119,18 @@ export const a1BranchingScenarios: A1BranchingScenario[] = [
     diagnosisThreshold: 2,
     repair: "Repair the confirmed fan, control, wiring, or airflow fault using the vehicle-specific service procedure.",
     verification: ["Bring the engine through the original low-speed operating condition.", "Verify commanded and actual fan operation.", "Confirm stable coolant temperature, fluid level, and no leaks after cool-down."],
+    repairChoices: [
+      { id: "repair-fan-path", label: "Repair the confirmed fan, control, wiring, or airflow fault identified by the command-versus-operation evidence.", feedback: "This repair follows the evidence that fan response failed under the condition that produced overheating.", correct: true },
+      { id: "replace-thermostat", label: "Replace the thermostat because overheating can be caused by restricted coolant flow.", feedback: "That is a possible cause in general, but the case evidence showed consistent circulation and an airflow-dependent temperature change.", correct: false, verificationFailureEvidence: "At low road speed the engine still overheats. Fan command is present, but actual fan operation still does not match the command." },
+      { id: "replace-radiator", label: "Replace the radiator without evidence of abnormal heat-transfer distribution or restriction.", feedback: "The measured pattern did not support radiator restriction, so replacement is not evidence-based.", correct: false, verificationFailureEvidence: "The new radiator does not change the low-speed complaint. Commanded fan operation is still absent at the fan." },
+      { id: "top-off-only", label: "Top off the coolant and return the vehicle because the system held pressure during the cold test.", feedback: "Pressure retention ruled out a simple leak; it did not correct the confirmed fan/airflow fault.", correct: false, verificationFailureEvidence: "Coolant level remains correct, but temperature again rises at low speed while commanded fan operation is not achieved." },
+    ],
+    verificationChoices: [
+      { id: "repeat-low-speed", label: "Reproduce the original low-speed operating condition while monitoring coolant temperature.", feedback: "Verification should recreate the condition that originally exposed the fault.", correct: true },
+      { id: "command-fan", label: "Verify commanded fan state matches actual fan operation through the required operating range.", feedback: "This directly proves the repaired fan/control path responds correctly.", correct: true },
+      { id: "cooldown-check", label: "After cool-down, confirm coolant level and inspect for leaks or disturbed connections.", feedback: "This closes the loop safely after the thermal test.", correct: true },
+      { id: "idle-briefly", label: "Idle the engine briefly and close the repair order if the gauge does not immediately rise.", feedback: "A brief idle does not adequately reproduce or measure the original low-speed overheating condition.", correct: false },
+    ],
     tests: [
       {
         id: "cold-pressure",
@@ -135,6 +176,18 @@ export const a1BranchingScenarios: A1BranchingScenario[] = [
     diagnosisThreshold: 2,
     repair: "Correct the mechanical timing alignment using the exact service-information procedure, then inspect the timing components that allowed the misalignment.",
     verification: ["Rotate the engine by hand as required by the service procedure and recheck timing references.", "Confirm cam/crank correlation data after startup.", "Reproduce the original operating condition and verify normal power, idle quality, and warning-indicator status."],
+    repairChoices: [
+      { id: "correct-timing", label: "Correct the mechanical cam/crank timing using the exact service procedure and inspect the components involved in the misalignment.", feedback: "This addresses the fixed mechanical offset demonstrated by both correlation data and reference inspection.", correct: true },
+      { id: "replace-sensors", label: "Replace the camshaft and crankshaft position sensors because a correlation fault was reported.", feedback: "The signals were present and stable. The mechanical references, not the signal source, were misaligned.", correct: false, verificationFailureEvidence: "New sensors produce the same stable but displaced correlation. Mechanical timing references remain out of specification and the low-power complaint remains." },
+      { id: "replace-tensioner", label: "Replace only the tensioner even though inspection showed normal tension and a fixed reference misalignment.", feedback: "The evidence ruled out a tension-control problem as the cause of this fixed timing error.", correct: false, verificationFailureEvidence: "Timing-system tension is normal, but the cam/crank references remain misaligned. Rough operation and low power remain." },
+      { id: "clear-correlation", label: "Clear the correlation fault and perform a relearn without correcting the mechanical alignment.", feedback: "A relearn cannot correct mechanical timing references that are physically out of position.", correct: false, verificationFailureEvidence: "Correlation returns displaced after startup because the mechanical references were never corrected." },
+    ],
+    verificationChoices: [
+      { id: "hand-rotate", label: "Rotate the engine by hand as required and recheck the mechanical timing references before startup.", feedback: "This is the critical pre-start check after mechanical timing service.", correct: true },
+      { id: "correlation-recheck", label: "After startup, confirm cam/crank correlation data is within the vehicle-specific expected relationship.", feedback: "This verifies that the mechanical correction is reflected in operating data.", correct: true },
+      { id: "road-condition", label: "Reproduce the original operating condition and verify normal power, idle quality, and warning-indicator status.", feedback: "This confirms the original complaint is actually resolved.", correct: true },
+      { id: "codes-only", label: "Close the repair order if no code sets during the first few seconds after startup.", feedback: "A brief code check does not verify mechanical alignment or reproduce the original complaint.", correct: false },
+    ],
     tests: [
       {
         id: "correlation-data",
