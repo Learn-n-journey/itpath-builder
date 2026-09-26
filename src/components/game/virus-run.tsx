@@ -1360,21 +1360,48 @@ export function VirusRun() {
         const fxY = offY + (fx.y + 0.5) * cell;
         const rgb = fx.kind === "hit" ? "248,113,113" : fx.kind === "exit" ? "94,234,212" : fx.kind === "power" ? "250,204,21" : fx.kind === "near" ? "251,146,60" : "125,211,252";
         ctx2.save();
-        ctx2.globalAlpha = 1 - q;
-        ctx2.strokeStyle = `rgba(${rgb},${0.9 * (1 - q)})`;
-        ctx2.lineWidth = Math.max(1, cell * (0.12 - q * 0.07));
-        for (let ring = 0; ring < (fx.kind === "exit" ? 4 : 2); ring++) {
+        const fade = 1 - q;
+        ctx2.globalAlpha = fade;
+        ctx2.strokeStyle = `rgba(${rgb},${0.95 * fade})`;
+        ctx2.shadowColor = `rgba(${rgb},0.8)`;
+        ctx2.shadowBlur = cell * (fx.kind === "hit" ? 1.25 : fx.kind === "power" ? 1.05 : 0.7) * fade;
+        ctx2.lineWidth = Math.max(1, cell * (0.13 - q * 0.075));
+        const ringCount = fx.kind === "exit" ? 4 : fx.kind === "power" || fx.kind === "hit" ? 3 : 2;
+        for (let ring = 0; ring < ringCount; ring++) {
           ctx2.beginPath();
-          ctx2.arc(fxX, fxY, cell * (0.25 + q * (1.4 + ring * 0.42)), 0, Math.PI * 2);
+          const radius = cell * (0.2 + q * (1.25 + ring * 0.42));
+          if (fx.kind === "near") {
+            // Near misses read as fast broken arcs instead of a pickup explosion.
+            ctx2.arc(fxX, fxY, radius, -0.7 + ring * 0.4, 0.9 + ring * 0.4);
+          } else {
+            ctx2.arc(fxX, fxY, radius, 0, Math.PI * 2);
+          }
           ctx2.stroke();
         }
-        const particles = fx.kind === "exit" ? 22 : fx.kind === "hit" ? 16 : 12;
+        const particles = fx.kind === "exit" ? 24 : fx.kind === "hit" ? 20 : fx.kind === "power" ? 18 : fx.kind === "near" ? 8 : 14;
         for (let i = 0; i < particles; i++) {
           const a = (i / particles) * Math.PI * 2 + (fx.born % 97) * 0.03;
-          const d = cell * q * (0.7 + (i % 5) * 0.22);
-          const s = Math.max(1, cell * (0.11 - q * 0.055));
-          ctx2.fillStyle = `rgba(${rgb},${0.95 * (1 - q)})`;
-          ctx2.fillRect(fxX + Math.cos(a) * d - s / 2, fxY + Math.sin(a) * d - s / 2, s, s);
+          const burst = fx.kind === "hit" ? 1.55 : fx.kind === "power" ? 1.35 : fx.kind === "near" ? 0.8 : 1;
+          const d = cell * q * burst * (0.7 + (i % 5) * 0.22);
+          const size = Math.max(1, cell * (0.12 - q * 0.06));
+          ctx2.fillStyle = `rgba(${rgb},${0.98 * fade})`;
+          if (fx.kind === "packet") {
+            ctx2.save();
+            ctx2.translate(fxX + Math.cos(a) * d, fxY + Math.sin(a) * d);
+            ctx2.rotate(a + Math.PI / 4);
+            ctx2.fillRect(-size / 2, -size / 2, size, size);
+            ctx2.restore();
+          } else {
+            ctx2.fillRect(fxX + Math.cos(a) * d - size / 2, fxY + Math.sin(a) * d - size / 2, size, fx.kind === "hit" ? size * 0.45 : size);
+          }
+        }
+        // A brief central flash gives pickups and impacts a crisp first frame.
+        if (q < 0.22 && fx.kind !== "near") {
+          const flash = ctx2.createRadialGradient(fxX, fxY, 0, fxX, fxY, cell * (0.9 + q * 2));
+          flash.addColorStop(0, `rgba(${rgb},${0.5 * (1 - q / 0.22)})`);
+          flash.addColorStop(1, `rgba(${rgb},0)`);
+          ctx2.fillStyle = flash;
+          ctx2.beginPath(); ctx2.arc(fxX, fxY, cell * (0.9 + q * 2), 0, Math.PI * 2); ctx2.fill();
         }
         ctx2.restore();
       }
