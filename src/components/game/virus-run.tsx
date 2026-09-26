@@ -1174,11 +1174,10 @@ export function VirusRun() {
     lastRef.current = 0;
   }, [setPhaseBoth, syncHud]);
 
-  // Touch d-pad handlers.
+  // Mobile steering uses a single buffered direction. Keeping the last direction
+  // active lets players make clean maze turns without continuously holding a tiny target.
   const pressDir = (dir: string) => {
-    const list = keysRef.current.filter((k) => k !== dir);
-    list.push(dir);
-    keysRef.current = list;
+    keysRef.current = [dir];
   };
   const releaseDir = (dir: string) => {
     keysRef.current = keysRef.current.filter((k) => k !== dir);
@@ -1192,9 +1191,14 @@ export function VirusRun() {
   const dragRef = useRef<{ id: number; x: number; y: number } | null>(null);
 
   const steerFromDrag = (dx: number, dy: number) => {
-    if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return; // dead zone
-    const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up";
-    keysRef.current = [dir];
+    // A generous swipe threshold prevents accidental turns while still allowing
+    // short flicks. Once selected, the direction remains buffered until changed.
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+    const axisBias = 1.18;
+    const horizontal = Math.abs(dx) > Math.abs(dy) * axisBias;
+    const vertical = Math.abs(dy) > Math.abs(dx) * axisBias;
+    if (!horizontal && !vertical) return;
+    keysRef.current = [horizontal ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up")];
   };
 
   const onCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -1212,7 +1216,8 @@ export function VirusRun() {
   const onCanvasPointerEnd = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (dragRef.current && e.pointerId === dragRef.current.id) {
       dragRef.current = null;
-      keysRef.current = [];
+      // Keep the last swipe direction buffered. The maze movement code naturally
+      // stops at walls and takes the turn when that direction becomes available.
     }
   };
 
@@ -1344,7 +1349,7 @@ export function VirusRun() {
 
       {/* Phone controls: one large thumb stick. The playfield itself also supports drag-to-steer. */}
       <div className={cn("mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden", mobileLandscape && "absolute bottom-[max(12px,env(safe-area-inset-bottom))] right-[max(12px,env(safe-area-inset-right))] z-40 m-0 w-auto bg-transparent p-0")} aria-label="Mobile game controls">
-        <p className={cn("max-w-[12rem] text-xs leading-relaxed text-muted-foreground", mobileLandscape && "hidden")}>Drag anywhere on the maze, or use the thumb stick.</p>
+        <p className={cn("max-w-[12rem] text-xs leading-relaxed text-muted-foreground", mobileLandscape && "hidden")}>Swipe the maze to steer, or flick the thumb stick. Your last direction stays active until you steer again.</p>
         <Joystick onDir={(dir) => pressDir(dir)} onRelease={releaseAllDirs} mobile />
       </div>
     </div>
@@ -1417,11 +1422,12 @@ function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) =
       dy = (dy / mag) * max;
     }
     setKnob({ x: dx, y: dy });
-    if (mag < 11) {
-      onRelease(); // stick near centre: stop
-    } else {
-      onDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : dy > 0 ? "down" : "up");
-    }
+    if (mag < 8) return;
+    // Require a little axis commitment so diagonal thumb drift does not
+    // constantly flip between horizontal and vertical movement.
+    const axisBias = 1.16;
+    if (Math.abs(dx) > Math.abs(dy) * axisBias) onDir(dx > 0 ? "right" : "left");
+    else if (Math.abs(dy) > Math.abs(dx) * axisBias) onDir(dy > 0 ? "down" : "up");
   };
 
   return (
@@ -1429,7 +1435,7 @@ function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) =
       ref={baseRef}
       role="application"
       aria-label="Movement stick"
-      className={cn("relative flex touch-none select-none items-center justify-center rounded-full border border-border bg-card/90 shadow-lg backdrop-blur-xl [-webkit-user-select:none] [-webkit-touch-callout:none]", mobile ? "size-24" : "size-16")}
+      className={cn("relative flex touch-none select-none items-center justify-center rounded-full border border-border bg-card/90 shadow-lg backdrop-blur-xl [-webkit-user-select:none] [-webkit-touch-callout:none]", mobile ? "size-32" : "size-16")}
       onPointerDown={(e) => {
         e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -1442,18 +1448,17 @@ function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) =
       onPointerUp={() => {
         holdingRef.current = false;
         setKnob({ x: 0, y: 0 });
-        onRelease();
+        // Direction stays buffered after release for smoother corridor travel.
       }}
       onPointerCancel={() => {
         holdingRef.current = false;
         setKnob({ x: 0, y: 0 });
-        onRelease();
       }}
       onContextMenu={(e) => e.preventDefault()}
     >
       <span className="absolute inset-2 rounded-full border border-dashed border-border/60" aria-hidden />
       <span
-        className={cn("pointer-events-none absolute rounded-full border border-primary/40 bg-primary/20 shadow-md transition-transform duration-75", mobile ? "size-10" : "size-7")}
+        className={cn("pointer-events-none absolute rounded-full border border-primary/40 bg-primary/20 shadow-md transition-transform duration-75", mobile ? "size-12" : "size-7")}
         style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
         aria-hidden
       />
