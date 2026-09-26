@@ -208,6 +208,18 @@ function CommunityPage() {
     return [...postItems, ...activityItems].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
   }, [activityFeed, communityProfiles, communityQuery, communityStream, communityTab, feedMode, friendIds, joinedRooms, ownProfile, postFilter, room, socialView, userId]);
   const showingMixedFeed = room === GENERAL_ROOM && communityTab === "feed" && feedMode === "latest" && postFilter === "all";
+  const showingDiscover = showingMixedFeed && socialView === "discover";
+  const discoverPeople = useMemo(() => {
+    const seen = new Set<string>();
+    return [...communityStream].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).filter((message) => {
+      if (message.userId === userId || friendIds.has(message.userId) || seen.has(message.userId)) return false;
+      seen.add(message.userId);
+      return true;
+    }).slice(0, 6).map((message) => ({ userId: message.userId, profile: communityProfiles[message.userId], fallbackName: message.displayName }));
+  }, [communityProfiles, communityStream, friendIds, userId]);
+  const discoverProjects = useMemo(() => communityStream.filter((message) => message.postType === "project").slice(0, 4), [communityStream]);
+  const discoverDiscussions = useMemo(() => [...communityStream].sort((a, b) => (b.likeCount + b.commentCount * 2) - (a.likeCount + a.commentCount * 2)).slice(0, 4), [communityStream]);
+  const discoverActivity = useMemo(() => activityFeed.filter((activity) => activity.userId !== userId).slice(0, 4), [activityFeed, userId]);
   const mixedFeedLoading = loading || streamLoading || activityLoading || membershipsLoading || friendshipsLoading;
   const postTypes: Array<{value: CommunityPostType; label: string}> = [
     { value: "question", label: "Question" },
@@ -290,7 +302,10 @@ function CommunityPage() {
           </form>
 
           <div>
-            {showingMixedFeed ? (
+            {showingDiscover ? (
+              mixedFeedLoading ? <p className="p-5 text-sm text-muted-foreground">Loading Discover…</p> :
+              <DiscoverPanel people={discoverPeople} projects={discoverProjects} discussions={discoverDiscussions} activities={discoverActivity} joinedRooms={joinedRooms} popularTopics={popularTopics} userId={userId} ownProfile={ownProfile} communityProfiles={communityProfiles} navigate={navigate} postTypes={postTypes} editingPost={editingPost} setEditingPost={setEditingPost} editDraft={editDraft} setEditDraft={setEditDraft} edit={edit} report={report} toggleLike={toggleLike} toggleSave={toggleSave} openComments={openComments} setOpenComments={setOpenComments} comments={comments} setComments={setComments} getComments={getComments} commentDraft={commentDraft} setCommentDraft={setCommentDraft} addComment={addComment} displayName={displayName} />
+            ) : showingMixedFeed ? (
               mixedFeedLoading ? <p className="p-5 text-sm text-muted-foreground">Loading community…</p> :
               mixedFeed.length===0 ? <div className="p-8 text-center"><MessagesSquare className="mx-auto size-8 text-muted-foreground"/><p className="mt-3 font-semibold">{communityQuery ? "Nothing matches that search." : "Start the conversation"}</p></div> :
               mixedFeed.map((item) => item.kind === "activity"
@@ -337,6 +352,20 @@ function CommunityHero() {
 }
 
 
+
+
+function DiscoverPanel({ people, projects, discussions, activities, joinedRooms, popularTopics, userId, ownProfile, communityProfiles, navigate, ...postProps }: any) {
+  const suggestedCommunities = popularTopics.filter((topic: any) => !joinedRooms.includes(topic.room)).slice(0, 4);
+  return <div className="space-y-6 p-4 sm:p-5">
+    <section><div className="mb-3 flex items-center justify-between"><div><h3 className="font-display text-lg font-bold">People to discover</h3><p className="text-xs text-muted-foreground">Learners active around IT PATH who are not already your friends.</p></div><Users className="size-5 text-primary"/></div>
+      {people.length===0?<p className="rounded-xl border border-border/60 p-4 text-sm text-muted-foreground">No new learners to suggest yet.</p>:<div className="grid gap-2 sm:grid-cols-2">{people.map((person: any)=>{const name=person.profile?.displayName||person.fallbackName||"Learner";return <Link key={person.userId} to="/profile/$userId" params={{userId:person.userId}} className="flex items-center gap-3 rounded-xl border border-border/70 bg-card/70 p-3 transition hover:border-primary/50"><span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-primary/15 font-bold text-primary">{person.profile?.avatarUrl?<img src={person.profile.avatarUrl} alt="" className="h-full w-full object-cover"/>:name.charAt(0).toUpperCase()}</span><div className="min-w-0"><p className="truncate text-sm font-bold">{name}</p><p className="text-xs text-muted-foreground">View learner profile</p></div><ArrowRight className="ml-auto size-4 text-muted-foreground"/></Link>})}</div>}
+    </section>
+    <section><div className="mb-3"><h3 className="font-display text-lg font-bold">Communities to explore</h3><p className="text-xs text-muted-foreground">Spaces you have not joined yet.</p></div><div className="grid gap-2 sm:grid-cols-2">{suggestedCommunities.map((topic:any)=>{const Icon=topic.icon;return <button key={topic.room} type="button" onClick={()=>void navigate({search:{room:topic.room}})} className="flex items-center gap-3 rounded-xl border border-border/70 bg-card/70 p-3 text-left transition hover:border-primary/50"><span className="grid size-9 place-items-center rounded-lg bg-primary/10 text-primary"><Icon className="size-4"/></span><span className="text-sm font-bold">{topic.label}</span><ArrowRight className="ml-auto size-4 text-muted-foreground"/></button>})}</div></section>
+    {projects.length>0?<section><div className="mb-3"><h3 className="font-display text-lg font-bold">Projects worth seeing</h3><p className="text-xs text-muted-foreground">Recent work learners chose to share.</p></div><div className="overflow-hidden rounded-xl border border-border/70">{projects.map((message:any)=><CommunityPostCard key={message.id} message={message} userId={userId} ownProfile={ownProfile} identity={communityProfiles[message.userId]} {...postProps}/>)}</div></section>:null}
+    {discussions.length>0?<section><div className="mb-3"><h3 className="font-display text-lg font-bold">Active discussions</h3><p className="text-xs text-muted-foreground">Conversations with the most community interaction right now.</p></div><div className="overflow-hidden rounded-xl border border-border/70">{discussions.map((message:any)=><CommunityPostCard key={message.id} message={message} userId={userId} ownProfile={ownProfile} identity={communityProfiles[message.userId]} {...postProps}/>)}</div></section>:null}
+    {activities.length>0?<section><div className="mb-3"><h3 className="font-display text-lg font-bold">Learning happening now</h3><p className="text-xs text-muted-foreground">Shared accomplishments from across the community.</p></div><div className="overflow-hidden rounded-xl border border-border/70">{activities.map((activity:any)=><CommunityActivityCard key={activity.id} activity={activity} viewerId={userId} profile={communityProfiles[activity.userId]}/>)}</div></section>:null}
+  </div>;
+}
 
 function CommunityPostCard({
   message, userId, displayName, ownProfile, identity, postTypes, editingPost, setEditingPost,
