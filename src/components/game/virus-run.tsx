@@ -1621,8 +1621,26 @@ export function VirusRun() {
         }
         ctx2.restore();
 
+        // Material-volume pass: moving specular and rim light sell a rounded/armored
+        // surface even though gameplay remains deterministic 2D.
+        ctx2.save();
+        ctx2.globalCompositeOperation="screen";
+        const specX=-s*.18+Math.sin(time/1700+g.x)*s*.045;
+        const specY=-s*.2+Math.cos(time/1900+g.y)*s*.035;
+        const armorSpec=ctx2.createRadialGradient(specX,specY,0,specX,specY,s*.42);
+        armorSpec.addColorStop(0,g.stunned>0?"rgba(224,242,254,.42)":"rgba(255,241,242,.27)");
+        armorSpec.addColorStop(.32,g.kind==="stalker"?"rgba(244,114,182,.12)":"rgba(248,113,113,.1)");
+        armorSpec.addColorStop(1,"rgba(255,255,255,0)");
+        ctx2.fillStyle=armorSpec;ctx2.beginPath();ctx2.ellipse(0,0,s*.43,s*.4,0,0,Math.PI*2);ctx2.fill();
+        ctx2.strokeStyle=alerted?"rgba(254,226,226,.42)":"rgba(254,202,202,.2)";
+        ctx2.lineWidth=Math.max(.7,cell*.025);ctx2.beginPath();ctx2.arc(-s*.025,-s*.015,s*.39,-2.65,-.5);ctx2.stroke();
+        ctx2.restore();
+
         // Shared optical core keeps the enemy faction visually unified.
-        ctx2.fillStyle = "#2a0b0b"; ctx2.beginPath(); ctx2.arc(0, -s * 0.04, s * 0.15, 0, Math.PI * 2); ctx2.fill();
+        const opticWell=ctx2.createRadialGradient(0,-s*.04,0,0,-s*.04,s*.17);
+        opticWell.addColorStop(0,"#050505");opticWell.addColorStop(.68,"#2a0b0b");opticWell.addColorStop(1,"rgba(254,202,202,.34)");
+        ctx2.fillStyle=opticWell;ctx2.beginPath();ctx2.arc(0,-s*.04,s*.17,0,Math.PI*2);ctx2.fill();
+        ctx2.strokeStyle="rgba(0,0,0,.5)";ctx2.lineWidth=Math.max(.7,cell*.025);ctx2.beginPath();ctx2.arc(0,-s*.04,s*.135,0,Math.PI*2);ctx2.stroke();
         const blinkPeriod=g.kind==="scanner"?2600:g.kind==="hunter"?3700:g.kind==="interceptor"?2100:g.kind==="sentry"?5200:g.kind==="sweeper"?3200:g.kind==="stalker"?6100:4800;
         const guardBlink=((time+g.x*173+g.y*257)%blinkPeriod)<110;
         const eyeWide=g.kind==="scanner"?1.18:g.kind==="hunter"&&alerted?.72:g.kind==="interceptor"?1.05:g.kind==="sentry"?1.3:g.kind==="stalker"?.65:g.kind==="bulwark"?1.15:.88;
@@ -1806,13 +1824,28 @@ export function VirusRun() {
       ctx2.fill();
       ctx2.shadowBlur=0;
 
+      // Wet membrane volume: a moving specular lobe, lower occlusion and rim highlight
+      // make the organism feel translucent and rounded instead of painted.
+      ctx2.save();ctx2.globalCompositeOperation="screen";
+      const wetX=-bodyR*.27+Math.sin(time/1250)*bodyR*.035;
+      const wetY=-bodyR*.3+Math.cos(time/1430)*bodyR*.025;
+      const wet=ctx2.createRadialGradient(wetX,wetY,0,wetX,wetY,bodyR*.58);
+      wet.addColorStop(0,"rgba(255,255,255,.72)");wet.addColorStop(.13,"rgba(204,251,241,.32)");wet.addColorStop(.55,"rgba(94,234,212,.06)");wet.addColorStop(1,"rgba(255,255,255,0)");
+      ctx2.fillStyle=wet;ctx2.beginPath();ctx2.ellipse(bodyR*.055,0,bodyR*1.04,bodyR*.89,0,0,Math.PI*2);ctx2.fill();
+      ctx2.strokeStyle="rgba(236,254,255,.3)";ctx2.lineWidth=Math.max(.8,cell*.03);ctx2.beginPath();ctx2.arc(-bodyR*.03,-bodyR*.02,bodyR*.88,-2.7,-.52);ctx2.stroke();ctx2.restore();
+      const lowerShade=ctx2.createLinearGradient(0,-bodyR,0,bodyR);
+      lowerShade.addColorStop(.35,"rgba(0,0,0,0)");lowerShade.addColorStop(1,"rgba(2,44,42,.34)");
+      ctx2.fillStyle=lowerShade;ctx2.beginPath();ctx2.ellipse(bodyR*.055,0,bodyR*1.04,bodyR*.89,0,0,Math.PI*2);ctx2.fill();
+
       // Inner membrane and animated nucleus provide detail without muddying the outline.
       ctx2.strokeStyle="rgba(204,251,241,0.5)";
       ctx2.lineWidth=Math.max(.8,cell*.035);
       ctx2.beginPath();ctx2.ellipse(bodyR*.03,0,bodyR*.76,bodyR*.62,time/1500,0,Math.PI*2);ctx2.stroke();
       const nucleusX=bodyR*(.1+.07*Math.sin(time/310));
       const nucleusY=bodyR*.08*Math.cos(time/270);
-      ctx2.fillStyle="rgba(4,47,46,0.94)";ctx2.beginPath();ctx2.arc(nucleusX,nucleusY,bodyR*.32,0,Math.PI*2);ctx2.fill();
+      const nucleus=ctx2.createRadialGradient(nucleusX-bodyR*.09,nucleusY-bodyR*.1,0,nucleusX,nucleusY,bodyR*.34);
+      nucleus.addColorStop(0,"rgba(20,184,166,.95)");nucleus.addColorStop(.35,"rgba(4,78,74,.98)");nucleus.addColorStop(1,"rgba(2,44,42,.98)");
+      ctx2.fillStyle=nucleus;ctx2.beginPath();ctx2.arc(nucleusX,nucleusY,bodyR*.32,0,Math.PI*2);ctx2.fill();
       ctx2.fillStyle="#ccfbf1";ctx2.beginPath();ctx2.arc(nucleusX-bodyR*.09,nucleusY-bodyR*.1,bodyR*.085,0,Math.PI*2);ctx2.fill();
 
       // Semi-transparent membrane texture follows the body, suggesting organic depth.
