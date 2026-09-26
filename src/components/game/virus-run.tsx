@@ -2047,11 +2047,11 @@ export function VirusRun() {
 
   return (
     <div className={cn("virus-game mx-auto w-full max-w-5xl select-none [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "fixed inset-0 z-[100] m-0 h-[100dvh] w-[100dvw] max-w-none overflow-hidden overscroll-none bg-black p-0 touch-none")}>
-      <div className={cn("mb-3 overflow-hidden rounded-xl border border-primary/25 bg-background/80 shadow-2xl backdrop-blur-xl", mobileLandscape && "pointer-events-none absolute inset-x-0 top-0 z-30 m-0 border-0 bg-transparent shadow-none backdrop-blur-none")}>
-        <div className={cn("flex items-center justify-between gap-3 border-b border-primary/15 px-3 py-2.5 sm:px-4", mobileLandscape && "pointer-events-auto absolute right-[max(8px,env(safe-area-inset-right))] top-[max(8px,env(safe-area-inset-top))] w-fit rounded-xl border bg-background/85 p-1 shadow-lg backdrop-blur-md")}>
+      <div className={cn("mb-3 overflow-hidden rounded-xl border border-primary/25 bg-background/80 shadow-2xl backdrop-blur-xl", mobileLandscape && "pointer-events-none absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] bottom-[max(8px,env(safe-area-inset-bottom))] z-30 m-0 flex w-[clamp(150px,14vw,210px)] flex-col overflow-hidden rounded-xl border border-primary/20 bg-slate-950/88 shadow-2xl backdrop-blur-xl")}>
+        <div className={cn("flex items-center justify-between gap-3 border-b border-primary/15 px-3 py-2.5 sm:px-4", mobileLandscape && "pointer-events-auto static w-full border-0 border-b border-white/10 bg-transparent px-3 py-3 shadow-none backdrop-blur-none")}>
           <div className="min-w-0">
             <p className="font-display text-lg font-bold uppercase tracking-[0.12em] text-primary">Virus Run</p>
-            <p className="hidden truncate text-xs text-muted-foreground sm:block">Collect data · Avoid detection · Reach the exit</p>
+            <p className="hidden truncate text-xs text-muted-foreground sm:block">Collect data · Avoid detection · Space pauses</p>
           </div>
           {(phase === "playing" || phase === "paused") && (
             <Button onClick={phase === "playing" ? pause : resume} aria-label={phase === "playing" ? "Pause" : "Resume"} variant="outline" size="icon" className="shrink-0">
@@ -2059,15 +2059,16 @@ export function VirusRun() {
             </Button>
           )}
         </div>
-        <div className={cn("grid grid-cols-5 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-slate-950/80 shadow-[0_12px_40px_rgba(0,0,0,.35)] backdrop-blur-xl", mobileLandscape && "pointer-events-auto absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
+        <div className={cn("grid grid-cols-5 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-slate-950/80 shadow-[0_12px_40px_rgba(0,0,0,.35)] backdrop-blur-xl", mobileLandscape && "pointer-events-auto static flex flex-1 flex-col divide-x-0 divide-y divide-white/10 overflow-hidden rounded-none border-0 bg-transparent shadow-none backdrop-blur-none")}>
           <GameStat label="Level" value={hud.level} />
-          <div className={cn(mobileLandscape && "hidden")}><GameStat label="System" value={hud.boss ? hud.bossTitle : hud.system || "—"} accent /></div>
+          <div><GameStat label="System" value={hud.boss ? hud.bossTitle : hud.system || "—"} accent /></div>
           <GameStat
             label={hud.boss ? "Security" : "Packets"}
             value={hud.boss ? `${hud.bossBreaches}/${hud.bossBreachesRequired}` : `${hud.collected}/${hud.required}`}
             accent={hud.boss}
           />
           <GameStat label={hud.power ? "Power" : "Streak"} value={hud.power || (hud.streak>1 ? `x${hud.streak} · +${hud.streak * 3}%` : "—")} accent={Boolean(hud.power || hud.streak>1)} />
+          <GameStat label="Copies" value={runRef.current?.helpers.length ?? 0} />
           <div className="px-2 py-2.5 sm:px-4">
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">Integrity</p>
             <div className="mt-1 flex gap-1">
@@ -2079,7 +2080,7 @@ export function VirusRun() {
         </div>
       </div>
 
-      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", mobileLandscape && "absolute inset-0 m-0 h-[100dvh] w-[100dvw] rounded-none border-0 bg-black p-0 shadow-none")}>
+      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", mobileLandscape && "absolute bottom-0 right-0 top-0 m-0 h-[100dvh] w-[calc(100dvw-clamp(166px,15vw,226px))] rounded-none border-0 bg-black p-0 shadow-none")}>
         <canvas
           ref={canvasRef}
            className={cn("block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "h-[100dvh] w-[100dvw] max-w-none rounded-none aspect-auto")}
