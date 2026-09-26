@@ -366,6 +366,8 @@ export function VirusRun() {
   const distFieldRef = useRef<number[][] | null>(null);
   const fieldAgeRef = useRef(0);
   const keysRef = useRef<string[]>([]);
+  const queuedDirRef = useRef<string | null>(null);
+  const travelDirRef = useRef<string | null>(null);
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
@@ -454,6 +456,8 @@ export function VirusRun() {
     distFieldRef.current = null;
     fieldAgeRef.current = 999;
     keysRef.current = [];
+    queuedDirRef.current = null;
+    travelDirRef.current = null;
     syncHud(runRef.current);
     setPhaseBoth("playing");
     lastRef.current = 0;
@@ -486,6 +490,7 @@ export function VirusRun() {
         const list = keysRef.current.filter((k) => k !== dir);
         list.push(dir);
         keysRef.current = list;
+        queuedDirRef.current = dir;
       } else if (e.code === "Escape" || e.code === "KeyP") {
         if (phaseRef.current === "playing") pause();
         else if (phaseRef.current === "paused") resume();
@@ -556,19 +561,29 @@ export function VirusRun() {
       }
       const field = distFieldRef.current!;
 
-      // Player movement, cell to cell.
+      // Player movement, cell to cell. Direction requests are buffered:
+      // an early turn stays queued until the next cell where it is legal.
       if (!p.moving) {
-        const held = keysRef.current[keysRef.current.length - 1];
-        if (held) {
-          const [dx, dy] = DIR_VECS[held]!;
-          const nx = Math.round(p.x) + dx;
-          const ny = Math.round(p.y) + dy;
-          if (run.grid[ny]?.[nx] === 0) {
-            p.tx = nx;
-            p.ty = ny;
-            p.moving = true;
-          }
-        }
+        p.x = Math.round(p.x);
+        p.y = Math.round(p.y);
+        const cx = p.x;
+        const cy = p.y;
+        const queued = queuedDirRef.current ?? keysRef.current[keysRef.current.length - 1] ?? null;
+        const tryDirection = (dir: string | null) => {
+          if (!dir) return false;
+          const [dx, dy] = DIR_VECS[dir]!;
+          const nx = cx + dx;
+          const ny = cy + dy;
+          if (run.grid[ny]?.[nx] !== 0) return false;
+          p.tx = nx;
+          p.ty = ny;
+          p.moving = true;
+          travelDirRef.current = dir;
+          return true;
+        };
+        // Prefer the player's queued turn. If it is not legal yet, continue
+        // through the corridor in the current travel direction.
+        if (!tryDirection(queued)) tryDirection(travelDirRef.current);
       }
       if (p.moving) {
         let playerSpeed=PLAYER_SPEED * (1 + upgradesRef.current["kernel-boost"] * 0.08);
@@ -1269,6 +1284,7 @@ export function VirusRun() {
   // active lets players make clean maze turns without continuously holding a tiny target.
   const pressDir = (dir: string) => {
     keysRef.current = [dir];
+    queuedDirRef.current = dir;
   };
   const releaseDir = (dir: string) => {
     keysRef.current = keysRef.current.filter((k) => k !== dir);
@@ -1289,7 +1305,9 @@ export function VirusRun() {
     const horizontal = Math.abs(dx) > Math.abs(dy) * axisBias;
     const vertical = Math.abs(dy) > Math.abs(dx) * axisBias;
     if (!horizontal && !vertical) return;
-    keysRef.current = [horizontal ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up")];
+    const dir = horizontal ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up");
+    keysRef.current = [dir];
+    queuedDirRef.current = dir;
   };
 
   const onCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
