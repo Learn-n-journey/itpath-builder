@@ -317,8 +317,17 @@ export function VirusRun() {
   const bestRef = useRef<Best>({ bestLevel: 0, packets: 0, currentLevel: 1 });
 
   const [phase, setPhase] = useState<Phase>("menu");
+  const [mobileLandscape, setMobileLandscape] = useState(false);
   const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" | "power" | "near" }[]>([]);
   const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false });
+
+  useEffect(() => {
+    const query = window.matchMedia("(orientation: landscape) and (max-height: 600px) and (pointer: coarse)");
+    const syncOrientation = () => setMobileLandscape(query.matches);
+    syncOrientation();
+    query.addEventListener("change", syncOrientation);
+    return () => query.removeEventListener("change", syncOrientation);
+  }, []);
 
   const setPhaseBoth = useCallback((p: Phase) => {
     phaseRef.current = p;
@@ -1126,9 +1135,9 @@ export function VirusRun() {
     ) : null;
 
   return (
-    <div className="virus-game mx-auto w-full max-w-5xl select-none [-webkit-user-select:none] [-webkit-touch-callout:none]">
-      <div className="mb-3 overflow-hidden rounded-xl border border-primary/25 bg-background/80 shadow-2xl backdrop-blur-xl">
-        <div className="flex items-center justify-between gap-3 border-b border-primary/15 px-3 py-2.5 sm:px-4">
+    <div className={cn("virus-game mx-auto w-full max-w-5xl select-none [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "fixed inset-0 z-[100] flex h-[100dvh] max-w-none items-stretch overflow-hidden bg-background p-[max(4px,env(safe-area-inset-top))_max(4px,env(safe-area-inset-right))_max(4px,env(safe-area-inset-bottom))_max(4px,env(safe-area-inset-left))]")}>
+      <div className={cn("mb-3 overflow-hidden rounded-xl border border-primary/25 bg-background/80 shadow-2xl backdrop-blur-xl", mobileLandscape && "pointer-events-none absolute left-[max(8px,env(safe-area-inset-left))] right-[max(8px,env(safe-area-inset-right))] top-[max(8px,env(safe-area-inset-top))] z-20 mb-0 border-0 bg-transparent shadow-none backdrop-blur-none")}>
+        <div className={cn("flex items-center justify-between gap-3 border-b border-primary/15 px-3 py-2.5 sm:px-4", mobileLandscape && "pointer-events-auto ml-auto w-fit rounded-xl border bg-background/85 p-1.5 shadow-lg backdrop-blur-md")}>
           <div className="min-w-0">
             <p className="font-display text-lg font-bold uppercase tracking-[0.12em] text-primary">Virus Run</p>
             <p className="hidden truncate text-xs text-muted-foreground sm:block">Collect data · Avoid detection · Reach the exit</p>
@@ -1139,9 +1148,9 @@ export function VirusRun() {
             </Button>
           )}
         </div>
-        <div className="grid grid-cols-5 divide-x divide-primary/15">
+        <div className={cn("grid grid-cols-5 divide-x divide-primary/15", mobileLandscape && "pointer-events-auto absolute left-0 top-0 w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
           <GameStat label="Level" value={hud.level} />
-          <GameStat label="System" value={hud.boss ? "ANTIVIRUS CORE" : hud.system || "—"} accent />
+          <div className={cn(mobileLandscape && "hidden")}><GameStat label="System" value={hud.boss ? "ANTIVIRUS CORE" : hud.system || "—"} accent /></div>
           <GameStat label="Packets" value={`${hud.collected}/${hud.required}`} />
           <GameStat label={hud.power ? "Power" : "Streak"} value={hud.power || (hud.streak>1 ? `x${hud.streak}` : "—")} accent={Boolean(hud.power || hud.streak>1)} />
           <div className="px-2 py-2.5 sm:px-4">
@@ -1155,10 +1164,10 @@ export function VirusRun() {
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl">
+      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", mobileLandscape && "m-0 flex h-full min-w-0 flex-1 items-center justify-center rounded-none border-0 bg-black p-0 shadow-none")}>
         <canvas
           ref={canvasRef}
-           className="block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]"
+           className={cn("block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "h-full w-auto max-w-full rounded-none")}
           onPointerDown={onCanvasPointerDown}
           onPointerMove={onCanvasPointerMove}
           onPointerUp={onCanvasPointerEnd}
@@ -1168,8 +1177,8 @@ export function VirusRun() {
       </div>
 
       {/* Phone controls: one large thumb stick. The playfield itself also supports drag-to-steer. */}
-      <div className="mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden" aria-label="Mobile game controls">
-        <p className="max-w-[12rem] text-xs leading-relaxed text-muted-foreground">Drag anywhere on the maze, or use the thumb stick.</p>
+      <div className={cn("mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden", mobileLandscape && "m-0 w-28 shrink-0 flex-col justify-end bg-background/95 px-2 pb-[max(8px,env(safe-area-inset-bottom))] pt-16")} aria-label="Mobile game controls">
+        <p className={cn("max-w-[12rem] text-xs leading-relaxed text-muted-foreground", mobileLandscape && "hidden")}>Drag anywhere on the maze, or use the thumb stick.</p>
         <Joystick onDir={(dir) => pressDir(dir)} onRelease={releaseAllDirs} mobile />
       </div>
     </div>
