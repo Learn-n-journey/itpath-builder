@@ -36,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { labs, topics } from "@/data/static-content";
 import { isIdentificationLab } from "@/data/identification-labs";
 import { IdentificationLab } from "@/components/labs/identification-lab";
+import { A1DiagnosticTestPanel } from "@/components/auto/a1-diagnostic-test-panel";
 import type { Lab, LabAttempt } from "@/lib/app-data/types";
 import { projectFromLabAttempt } from "@/lib/portfolio-engine";
 import { shuffleWithSeed, useShuffleSeed } from "@/lib/shuffle";
@@ -372,6 +373,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
 
   return (
     <div className="space-y-5">
+      {domain.id === "auto-repair" && lab.id.endsWith("-a1-test-diagnose-verify") ? <A1DiagnosticTestPanel topicId={lab.topicId} /> : null}
       <LearningBreadcrumbs items={[{ label: "Labs", to: "/labs" }, ...(topic ? [{ label: topic.title, to: "/topics/$topicId", params: { topicId: topic.id } }] : []), { label: lab.title }]} />
       <Panel>
         <div className="flex flex-wrap items-start justify-between gap-4">
