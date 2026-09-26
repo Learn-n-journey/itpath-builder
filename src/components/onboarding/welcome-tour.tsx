@@ -170,8 +170,8 @@ export function WelcomeTour() {
     (goToSettings: boolean) => {
       markTourSeen();
       setOpen(false);
+      markSetupPending();
       if (goToSettings) {
-        markSetupPending();
         void navigate({ to: "/settings" });
       }
     },
