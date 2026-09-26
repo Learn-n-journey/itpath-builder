@@ -224,6 +224,7 @@ function IncidentWorkspace({
   latestAttempt?: IncidentAttempt;
 }) {
   const { user, actions } = useAppState();
+  const isAutoPath = activeDomainKey().split("@")[0] === "auto-repair";
   const [attemptId, setAttemptId] = useState(latestAttempt?.id ?? "");
   const attempt =
     user.incidentAttempts.find((item) => item.id === attemptId) ??
@@ -390,8 +391,8 @@ function IncidentWorkspace({
       </Panel>
 
       <Panel
-        title="Diagnostic actions"
-        description="Each step returns its own finding. Choosing everything costs efficiency; choosing nothing costs accuracy."
+        title={isAutoPath ? "Inspect & test" : "Diagnostic actions"}
+        description={isAutoPath ? "Choose inspections and tests that gather useful evidence before replacing parts." : "Each step returns its own finding. Choosing everything costs efficiency; choosing nothing costs accuracy."}
       >
         <div className="space-y-3">
           {incident.actions.map((action) => {
@@ -429,7 +430,7 @@ function IncidentWorkspace({
         </p>
       </Panel>
 
-      <Panel title="Diagnose" description="Name the root cause. A wrong choice narrows the search but never reveals the answer.">
+      <Panel title={isAutoPath ? "Diagnosis" : "Diagnose"} description={isAutoPath ? "Use the evidence to identify the most likely root cause before choosing a repair." : "Name the root cause. A wrong choice narrows the search but never reveals the answer."}>
         <div className="space-y-2">
           {incident.causes.map((cause) => (
             <Button
@@ -464,7 +465,7 @@ function IncidentWorkspace({
         />
       </Panel>
 
-      <Panel title="Fix" description="Choose the action proportionate to the cause.">
+      <Panel title={isAutoPath ? "Repair decision" : "Fix"} description={isAutoPath ? "Choose the repair that addresses the confirmed cause without unnecessary parts replacement." : "Choose the action proportionate to the cause."}>
         <div className="space-y-2">
           {incident.fixes.map((fix) => (
             <Button
@@ -485,7 +486,7 @@ function IncidentWorkspace({
         ) : null}
       </Panel>
 
-      <Panel title="Verify" description="Select every check that proves full functionality is restored.">
+      <Panel title={isAutoPath ? "Verify the repair" : "Verify"} description={isAutoPath ? "Select the checks that prove the original customer complaint is gone and the system operates correctly." : "Select every check that proves full functionality is restored."}>
         <div className="space-y-3">
           {incident.verifications.map((item) => (
             <label key={item.id} className="flex items-start gap-3 text-sm">
@@ -500,7 +501,7 @@ function IncidentWorkspace({
         </div>
       </Panel>
 
-      <Panel title="Document" description="Write the ticket note: symptom, evidence, cause, action taken and verification.">
+      <Panel title={isAutoPath ? "Close the repair order" : "Document"} description={isAutoPath ? "Record the customer complaint, tests performed, evidence, root cause, repair, and verification." : "Write the ticket note: symptom, evidence, cause, action taken and verification.">
         <Textarea
           value={documentation}
           onChange={(event) => setDocumentation(event.target.value)}
