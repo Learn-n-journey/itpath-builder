@@ -1299,6 +1299,7 @@ export function VirusRun() {
         const alerted = g.stunned<=0 && distanceToRunner >= 0 && distanceToRunner <= g.detection;
         ctx2.translate(cx, cy);
         if(g.stunned>0)ctx2.globalAlpha=.35+.2*Math.sin(time/80);
+        if(alerted && g.stunned<=0){const alarm=.72+.28*Math.sin(time/55);ctx2.strokeStyle=`rgba(254,202,202,${alarm})`;ctx2.lineWidth=Math.max(1.5,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*(.58+.12*Math.sin(time/70)),0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="rgba(254,226,226,.95)";ctx2.font=`bold ${Math.max(8,cell*.3)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText("!",0,-cell*.72);}
         ctx2.rotate(aim);
         const coneLength = cell * (alerted ? 3.4 : 2.25);
         const coneWidth = cell * (alerted ? 1.35 : 0.9);
@@ -1345,9 +1346,13 @@ export function VirusRun() {
       // Player: layered bio-digital organism with nucleus, membrane and orbit.
       const pcx = offX + (run.player.x + 0.5) * cell;
       const pcy = offY + (run.player.y + 0.5) * cell;
-      const wobble = 1 + 0.08 * Math.sin(time / 120);
+      const moving=run.player.moving;
+      const dx=run.player.tx-run.player.x,dy=run.player.ty-run.player.y;
+      const travelAngle=moving?Math.atan2(dy,dx):0;
+      const wobble = 1 + 0.055 * Math.sin(time / 105);
       ctx2.save();
       if (run.player.invuln > 0) ctx2.globalAlpha = 0.45 + 0.4 * Math.sin(time / 60);
+      ctx2.translate(pcx,pcy);ctx2.rotate(travelAngle);ctx2.scale(moving?1.12:1,moving?.9:1);ctx2.translate(-pcx,-pcy);
       const r = cell * 0.42 * wobble;
       ctx2.shadowColor = "rgba(45,212,191,0.95)";
       ctx2.shadowBlur = cell * 1.15;
