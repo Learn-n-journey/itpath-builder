@@ -123,6 +123,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const current = navItems.find((i) => i.to === pathname)?.label ?? domain.appName;
   const immersiveBackground = pathname === "/pomodoro" || pathname === "/meditation";
+  const virusRun = pathname === "/virus";
 
   // The course chooser is the neutral front door, before either subject loads.
   if (pathname === "/") return <>{children}</>;
@@ -168,7 +169,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <header className="fixed inset-x-0 top-0 z-40 grid h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-background/92 px-2 backdrop-blur-xl lg:hidden">
+      <header className={cn("fixed inset-x-0 top-0 z-40 grid h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 border-b border-border bg-background/92 px-2 backdrop-blur-xl lg:hidden", virusRun && "virus-run-shell-header")}>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Open navigation">
@@ -199,7 +200,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Button>
       </header>
 
-      <main className={cn("relative z-10 pb-16 pt-12 lg:pl-68 lg:pb-0 lg:pt-0")}>
+      <main className={cn("relative z-10 pb-16 pt-12 lg:pl-68 lg:pb-0 lg:pt-0", virusRun && "virus-run-shell-main")}>
         <div className={cn(
           immersiveBackground
             ? "w-full p-0"
@@ -239,7 +240,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </footer>
       </main>
-      <MobileBottomNav onMore={() => setOpen(true)} />
+      <div className={cn(virusRun && "virus-run-shell-bottom-nav")}><MobileBottomNav onMore={() => setOpen(true)} /></div>
     </div>
     </MaintenanceGate>
   );
