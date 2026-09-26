@@ -63,18 +63,20 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[], mode: "it" | 
 
     const studyInstructions = [
       `Write down what you already know about ${topic.title} before opening the lesson.`,
-      ...learningModule.howItWorks.map((step) => `Record evidence for this behaviour in your own words: ${sentence(step)}`),
+      ...learningModule.howItWorks.map((step) => automotive
+        ? `Explain this system behavior in your own words and name what you would observe or measure in the shop: ${sentence(step)}`
+        : `Record evidence for this behaviour in your own words: ${sentence(step)}`),
       `Find one place this appears in real work and describe it: ${sentence(where)}`,
       terms.length
         ? `Define these terms from memory, then correct yourself against the lesson: ${terms.map((term) => term.term).join(", ")}.`
         : `Summarise ${topic.title} in five sentences from memory, then correct yourself against the lesson.`,
-      "Save your notes with today's date so you can compare them with a later attempt.",
+      automotive ? "Save the inspection notes with today's date so you can compare them with a later attempt." : "Save your notes with today's date so you can compare them with a later attempt.",
     ];
 
     out.push({
       id: `lab-${slug}-documented-walkthrough`,
       topicId: topic.id,
-      title: `${topic.title}: documented walkthrough`,
+      title: automotive ? `${topic.title}: inspection and service-information walkthrough` : `${topic.title}: documented walkthrough`,
       category,
       objective: topic.learningObjectives[0] ?? `Explain and document how ${topic.title} works in practice.`,
       prerequisites,
@@ -84,13 +86,15 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[], mode: "it" | 
         ? "Your notes, the training scenario, and the correct service information for the vehicle or component. Use manufacturer procedures and specifications whenever a real vehicle is involved."
         : "Your own notes plus any system or official documentation you are permitted to read. This lab is read-only: it never asks you to change a configuration you do not own.",
       instructions: studyInstructions,
-      expectedResult: `A dated write-up that explains ${topic.title} accurately, with at least one real-world example and correct vocabulary.`,
+      expectedResult: automotive
+        ? `A dated shop-style record that explains ${topic.title}, identifies what would be inspected or measured, and uses the correct service vocabulary.`
+        : `A dated write-up that explains ${topic.title} accurately, with at least one real-world example and correct vocabulary.`,
       checklist: checklist(`${slug}-doc`, [
-        "Recorded prior knowledge before reading",
+        automotive ? "Recorded the complaint or service goal before testing" : "Recorded prior knowledge before reading",
         "Explained how it works in your own words",
-        "Recorded a real-world example",
+        automotive ? "Named the inspection or measurement that would provide evidence" : "Recorded a real-world example",
         "Defined the key vocabulary correctly",
-        "Saved dated notes for later comparison",
+        automotive ? "Saved dated shop notes for later comparison" : "Saved dated notes for later comparison",
       ]),
       reflectionPrompt: `Which part of ${topic.title} did you explain least confidently, and what evidence would make it clear?`,
       masteryScore: 100,
