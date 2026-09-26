@@ -266,7 +266,7 @@ function TopicPage() {
             ))}
           </ol>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Button asChild size="sm" variant="secondary"><Link to="/explore-engine" search={{ focus: explorerFocus, topic: topic.title }}>See & identify related components</Link></Button>
+            <Button asChild size="sm" variant="secondary"><Link to="/explore-engine" search={{ focus: explorerFocus, topic: topic.title, topicId: topic.id }}>See & identify related components</Link></Button>
             <Button asChild size="sm" variant="secondary"><Link to="/obd-scanner" search={{ ...(obdScenario ? { scenario: obdScenario.id } : {}), topic: topic.title }}>Test with related OBD evidence</Link></Button>
             <Button asChild size="sm" variant="secondary"><Link to="/troubleshoot" search={topicIncident ? { incident: topicIncident.id } : {}}>Diagnose {topicIncident ? "this system" : "a repair order"}</Link></Button>
             <Button asChild size="sm" variant="secondary"><Link to="/labs" search={topicLab ? { lab: topicLab.id } : {}}>Fix & verify {topicLab ? "this system" : "in Shop Practice"}</Link></Button>
