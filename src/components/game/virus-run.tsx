@@ -1199,7 +1199,17 @@ export function VirusRun() {
       for (const packet of run.packets) {
         if (packet.taken) continue;
         ctx2.save();
-        ctx2.translate(offX + (packet.x + 0.5) * cell, offY + (packet.y + 0.5) * cell);
+        const packetX=offX+(packet.x+.5)*cell,packetY=offY+(packet.y+.5)*cell;
+        const playerX=offX+(run.player.x+.5)*cell,playerY=offY+(run.player.y+.5)*cell;
+        const packetDist=Math.hypot(packet.x-run.player.x,packet.y-run.player.y);
+        if(packetDist<3.2){
+          const pull=Math.max(0,1-packetDist/3.2);
+          ctx2.strokeStyle=`rgba(125,211,252,${.08+pull*.28})`;ctx2.lineWidth=Math.max(1,cell*.035);
+          ctx2.setLineDash([cell*.12,cell*.18]);ctx2.lineDashOffset=-time/55;
+          ctx2.beginPath();ctx2.moveTo(packetX,packetY);ctx2.quadraticCurveTo((packetX+playerX)/2+Math.sin(time/140+packet.x)*cell*.35,(packetY+playerY)/2+Math.cos(time/150+packet.y)*cell*.35,playerX,playerY);ctx2.stroke();ctx2.setLineDash([]);
+        }
+        ctx2.translate(packetX,packetY);
+        const attractPulse=packetDist<2.2?1+.1*Math.sin(time/75):1;ctx2.scale(attractPulse,attractPulse);
         ctx2.rotate(time / 850 + packet.x);
         const sniffStacks = upgradesRef.current["packet-sniffer"];
         if (sniffStacks > 0) {
