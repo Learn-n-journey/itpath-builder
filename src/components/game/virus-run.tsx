@@ -243,6 +243,7 @@ interface RunState {
   streakTimer: number;
   boss: boolean;
   bossTitle: string;
+  bossCoreBreached: boolean;
   required: number;
   collected: number;
   port: { x: number; y: number };
@@ -337,6 +338,7 @@ function buildLevel(level: number): RunState {
     streakTimer: 0,
     boss,
     bossTitle,
+    bossCoreBreached: false,
     required,
     collected: 0,
     port,
@@ -590,7 +592,7 @@ export function VirusRun() {
           run.collected += 1;
           run.streak = Math.min(5, run.streak + 1); run.streakTimer = 4.5;
           fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet" });virusSound("packet");
-          if (run.collected >= run.required) run.portOpen = true;
+          if (run.collected >= run.required && !run.boss) run.portOpen = true;
           syncHud(run);
         }
       }
@@ -704,6 +706,20 @@ export function VirusRun() {
             syncHud(run);
             return;
           }
+        }
+      }
+
+      // Boss core. Once all packets are collected on a boss level, the
+      // player must breach the central security core before the exit opens.
+      if (run.boss && !run.bossCoreBreached && run.collected >= run.required) {
+        const coreX = Math.floor(COLS / 2);
+        const coreY = Math.floor(ROWS / 2);
+        if (Math.abs(p.x - coreX) < 0.8 && Math.abs(p.y - coreY) < 0.8) {
+          run.bossCoreBreached = true;
+          run.portOpen = true;
+          fxRef.current.push({ x: coreX, y: coreY, born: performance.now(), kind: "exit" });
+          virusSound("boss");
+          syncHud(run);
         }
       }
 
