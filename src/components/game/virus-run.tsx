@@ -1334,13 +1334,17 @@ export function VirusRun() {
         ctx2.save();
         const aim = Math.atan2(run.player.y - g.y, run.player.x - g.x);
         const distanceToRunner = renderField[Math.round(g.y)]?.[Math.round(g.x)] ?? -1;
-        const alerted = g.stunned<=0 && distanceToRunner >= 0 && distanceToRunner <= g.detection;
+        const alerted = g.stunned<=0 && g.state==="chase";
+        const suspicious = g.stunned<=0 && g.state==="suspicious";
+        const searching = g.stunned<=0 && g.state==="search";
         ctx2.translate(cx, cy);
         if(g.stunned>0)ctx2.globalAlpha=.35+.2*Math.sin(time/80);
         if(alerted && g.stunned<=0){const alarm=.72+.28*Math.sin(time/55);ctx2.strokeStyle=`rgba(254,202,202,${alarm})`;ctx2.lineWidth=Math.max(1.5,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*(.58+.12*Math.sin(time/70)),0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="rgba(254,226,226,.95)";ctx2.font=`bold ${Math.max(8,cell*.3)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText("!",0,-cell*.72);}
+        else if(suspicious){ctx2.strokeStyle="rgba(253,224,71,.72)";ctx2.lineWidth=Math.max(1,cell*.065);ctx2.beginPath();ctx2.arc(0,0,cell*(.52+.08*g.awareness),0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="rgba(254,249,195,.95)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText("?",0,-cell*.68);}
+        else if(searching){ctx2.strokeStyle="rgba(251,146,60,.52)";ctx2.setLineDash([cell*.1,cell*.1]);ctx2.lineDashOffset=-time/90;ctx2.beginPath();ctx2.arc(0,0,cell*.58,0,Math.PI*2);ctx2.stroke();ctx2.setLineDash([]);}
         ctx2.rotate(aim);
-        const coneLength = cell * (alerted ? 3.4 : 2.25);
-        const coneWidth = cell * (alerted ? 1.35 : 0.9);
+        const coneLength = cell * (alerted ? 3.4 : suspicious ? 2.8 : searching ? 2.55 : 2.25);
+        const coneWidth = cell * (alerted ? 1.35 : suspicious ? 1.05 : 0.9);
         const cone = ctx2.createLinearGradient(0, 0, coneLength, 0);
         cone.addColorStop(0, alerted ? "rgba(248,113,113,0.32)" : "rgba(248,113,113,0.16)");
         cone.addColorStop(1, "rgba(248,113,113,0)");
