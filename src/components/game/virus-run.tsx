@@ -381,7 +381,7 @@ export function VirusRun() {
   const [upgradeCount, setUpgradeCount] = useState(0);
   const [mobileLandscape, setMobileLandscape] = useState(false);
   const fxRef = useRef<{ x: number; y: number; born: number; kind: "packet" | "hit" | "exit" | "power" | "near" }[]>([]);
-  const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false, bossTitle: "" });
+  const [hud, setHud] = useState({ level: 1, integrity: MAX_INTEGRITY, collected: 0, required: 3, system: "", hint: "", bestLevel: 0, bestPackets: 0, streak: 0, power: "", boss: false, bossTitle: "", bossBreaches: 0, bossBreachesRequired: 0 });
 
   useEffect(() => {
     const syncOrientation = () => {
@@ -437,6 +437,8 @@ export function VirusRun() {
       power: run.activePower ? `${run.activePower.kind.toUpperCase()} ${Math.ceil(run.activePower.left)}s` : "",
       boss: run.boss,
       bossTitle: run.bossTitle,
+      bossBreaches: run.bossBreaches,
+      bossBreachesRequired: run.bossBreachesRequired,
     }));
   }, []);
 
@@ -1057,14 +1059,15 @@ export function VirusRun() {
         const by = offY + cell * ROWS / 2;
         const coreReady = run.collected >= run.required && run.bossBreaches < run.bossBreachesRequired;
         ctx2.save();
-        ctx2.globalAlpha = coreReady ? 0.72 + 0.2 * Math.sin(time / 140) : 0.18;
+        const breachProgress = run.bossBreachesRequired > 0 ? run.bossBreaches / run.bossBreachesRequired : 0;
+        ctx2.globalAlpha = coreReady ? 0.72 + 0.2 * Math.sin(time / 140) : Math.max(0.07, 0.18 - breachProgress * 0.1);
         ctx2.strokeStyle = coreReady ? "#fda4af" : "#fb7185";
         ctx2.fillStyle = coreReady ? "rgba(244,63,94,0.28)" : "rgba(244,63,94,0.08)";
         ctx2.shadowColor = "#ef4444";
         ctx2.shadowBlur = coreReady ? cell * 2 : cell * 0.7;
         ctx2.lineWidth = Math.max(2, cell * 0.12);
         ctx2.beginPath();
-        ctx2.arc(bx, by, cell * 0.72, 0, Math.PI * 2);
+        ctx2.arc(bx, by, cell * Math.max(0.42, 0.72 - breachProgress * 0.22), 0, Math.PI * 2);
         ctx2.fill();
         ctx2.stroke();
         for (let ring = 0; ring < 3; ring++) {
@@ -1077,7 +1080,7 @@ export function VirusRun() {
           ctx2.font = `bold ${Math.max(7, cell * 0.24)}px ui-monospace, monospace`;
           ctx2.textAlign = "center";
           ctx2.textBaseline = "middle";
-          ctx2.fillText("BREACH", bx, by - cell * 1.05);
+          ctx2.fillText(`BREACH ${run.bossBreaches + 1}/${run.bossBreachesRequired}`, bx, by - cell * 1.05);
         }
         ctx2.restore();
       }
@@ -1410,7 +1413,11 @@ export function VirusRun() {
         <div className={cn("grid grid-cols-5 divide-x divide-primary/15", mobileLandscape && "pointer-events-auto absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
           <GameStat label="Level" value={hud.level} />
           <div className={cn(mobileLandscape && "hidden")}><GameStat label="System" value={hud.boss ? hud.bossTitle : hud.system || "—"} accent /></div>
-          <GameStat label="Packets" value={`${hud.collected}/${hud.required}`} />
+          <GameStat
+            label={hud.boss ? "Security" : "Packets"}
+            value={hud.boss ? `${hud.bossBreaches}/${hud.bossBreachesRequired}` : `${hud.collected}/${hud.required}`}
+            accent={hud.boss}
+          />
           <GameStat label={hud.power ? "Power" : "Streak"} value={hud.power || (hud.streak>1 ? `x${hud.streak}` : "—")} accent={Boolean(hud.power || hud.streak>1)} />
           <div className="px-2 py-2.5 sm:px-4">
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">Integrity</p>
