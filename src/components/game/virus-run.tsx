@@ -697,6 +697,40 @@ export function VirusRun() {
         }
       }
 
+      // Autonomous helpers wander the maze and pick up items they encounter.
+      for(let hi=0;hi<run.helpers.length;hi++){
+        const helper=run.helpers[hi]!,hx=Math.round(helper.x),hy=Math.round(helper.y);
+        if(!helper.moving){
+          const forward:{x:number;y:number}[]=[],all:{x:number;y:number}[]=[];
+          for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]] as [number,number][]){
+            const nx=hx+dx,ny=hy+dy;
+            if(run.grid[ny]?.[nx]!==0)continue;
+            const option={x:nx,y:ny};all.push(option);
+            if(nx!==helper.fromX||ny!==helper.fromY)forward.push(option);
+          }
+          const choices=forward.length?forward:all;
+          if(choices.length){
+            const next=choices[Math.floor(Math.random()*choices.length)]!;
+            helper.fromX=hx;helper.fromY=hy;helper.tx=next.x;helper.ty=next.y;helper.moving=true;
+          }
+        }
+        if(helper.moving){
+          const moved=stepEntity(helper.x,helper.y,helper.tx,helper.ty,PLAYER_SPEED*.82,dt);
+          helper.x=moved.x;helper.y=moved.y;
+          if(moved.arrived)helper.moving=false;
+        }
+        const cellX=Math.round(helper.x),cellY=Math.round(helper.y);
+        for(const packet of run.packets){
+          if(packet.taken||packet.x!==cellX||packet.y!==cellY)continue;
+          packet.taken=true;run.collected+=1;
+          fxRef.current.push({x:packet.x,y:packet.y,born:performance.now(),kind:"packet",targetX:helper.x,targetY:helper.y});
+          run.helpers.push({x:packet.x,y:packet.y,tx:packet.x,ty:packet.y,fromX:packet.x,fromY:packet.y,moving:false,born:performance.now()});
+          if(run.collected>=run.required&&!run.boss)run.portOpen=true;
+          syncHud(run);break;
+        }
+      }
+      run.helpers=run.helpers.filter(helper=>!run.guards.some(g=>g.stunned<=0&&Math.hypot(helper.x-g.x,helper.y-g.y)<.62));
+
       // Power-ups.
       for(const power of run.powerUps){
         if(!power.taken && power.x===px && power.y===py){
