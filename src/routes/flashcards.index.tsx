@@ -9,14 +9,15 @@ import { deckCounts, deckFor, topicFlashcards } from "@/lib/flashcards";
 import { journeyTopics } from "@/lib/journey-order";
 import { useAppState } from "@/state/app-state";
 import { cn } from "@/lib/utils";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/flashcards/")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Flashcards | IT PATH" },
-      { name: "description", content: "Spaced repetition flashcards built from the material in every IT PATH section." },
-      { property: "og:title", content: "Flashcards | IT PATH" },
+      { title: `Flashcards | ${domain.appName}` },
+      { name: "description", content: `Spaced repetition flashcards built from the material in every ${domain.appName} section.` },
+      { property: "og:title", content: `Flashcards | ${domain.appName}` },
       { property: "og:description", content: "Fast mobile revision from the material in your sections, spaced so it sticks." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
