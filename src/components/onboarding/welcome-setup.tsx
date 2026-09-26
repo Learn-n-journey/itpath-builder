@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { certifications } from "@/data/static-content";
 import { useProfile } from "@/hooks/use-profile";
-import { markSetupDone, setupPending } from "@/lib/onboarding";
+import { markSetupDone, markSetupPending, setupPending } from "@/lib/onboarding";
 import { learnerContinuity } from "@/lib/learner-continuity";
 import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
@@ -193,9 +193,10 @@ export function WelcomeSetup({ onFinished }: { onFinished?: () => void }) {
             variant="ghost"
             size="sm"
             onClick={() => {
-              markSetupDone();
+              markSetupPending();
               setShow(false);
               onFinished?.();
+              void navigate({ to: "/dashboard" });
             }}
           >
             Do this later
