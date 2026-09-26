@@ -100,6 +100,7 @@ export function useCommunityChat(room = "general") {
         { event: "*", schema: "public", table: "community_messages", filter: `room=eq.${room}` },
         () => {
           void queryClient.invalidateQueries({ queryKey: ["community-messages", room] });
+      void queryClient.invalidateQueries({ queryKey: ["community-post-stream"] });
         },
       )
       .subscribe();
@@ -133,6 +134,7 @@ export function useCommunityChat(room = "general") {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["community-messages", room] });
+      void queryClient.invalidateQueries({ queryKey: ["community-post-stream"] });
     },
   });
 
@@ -155,6 +157,7 @@ export function useCommunityChat(room = "general") {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["community-messages", room] });
+      void queryClient.invalidateQueries({ queryKey: ["community-post-stream"] });
     },
   });
 
@@ -177,6 +180,7 @@ export function useCommunityChat(room = "general") {
     const {error}=message.liked ? await query.delete().eq("message_id",message.id).eq("user_id",userId) : await query.insert({message_id:message.id,user_id:userId});
     if(error)throw new Error(friendly(error.message));
     await queryClient.invalidateQueries({queryKey:["community-messages",room]});
+    await queryClient.invalidateQueries({queryKey:["community-post-stream"]});
   };
 
   const toggleSave = async (message: CommunityMessage) => {
@@ -185,6 +189,7 @@ export function useCommunityChat(room = "general") {
     const {error}=message.saved ? await query.delete().eq("message_id",message.id).eq("user_id",userId) : await query.insert({message_id:message.id,user_id:userId});
     if(error)throw new Error(friendly(error.message));
     await queryClient.invalidateQueries({queryKey:["community-messages",room]});
+    await queryClient.invalidateQueries({queryKey:["community-post-stream"]});
   };
 
   const getComments = async (messageId:string):Promise<CommunityComment[]> => {
@@ -198,6 +203,7 @@ export function useCommunityChat(room = "general") {
     const {error}=await supabase.from("community_comments").insert({message_id:messageId,user_id:userId,display_name:displayName,body:body.trim()});
     if(error)throw new Error(friendly(error.message));
     await queryClient.invalidateQueries({queryKey:["community-messages",room]});
+    await queryClient.invalidateQueries({queryKey:["community-post-stream"]});
   };
 
   return {
@@ -225,6 +231,7 @@ function friendly(message: string): string {
 /** Lightweight cross-room post stream used by Community discovery views. */
 export function useCommunityPostStream() {
   const { userId, ready } = useAuth();
+  const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: ["community-post-stream", userId],
     enabled: ready && Boolean(userId),
@@ -269,5 +276,17 @@ export function useCommunityPostStream() {
       }));
     },
   });
+  useEffect(() => {
+    if (!userId) return;
+    const refresh = () => void queryClient.invalidateQueries({ queryKey: ["community-post-stream"] });
+    const channel = supabase
+      .channel("community-post-stream-" + userId)
+      .on("postgres_changes", { event: "*", schema: "public", table: "community_messages" }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "community_likes" }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "community_comments" }, refresh)
+      .on("postgres_changes", { event: "*", schema: "public", table: "community_saves" }, refresh)
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, [queryClient, userId]);
   return { messages: query.data ?? [], loading: query.isLoading };
 }
