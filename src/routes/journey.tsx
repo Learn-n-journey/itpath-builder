@@ -44,6 +44,7 @@ import { topicScopeProgress } from "@/lib/scope-progress";
 import { cn } from "@/lib/utils";
 import { accentFill, accentSurface, accentText, journeyAccent } from "@/lib/visual-accents";
 import { useAppState } from "@/state/app-state";
+import { activeDomainKey } from "@/domain/active";
 
 type TopicStatus = "closed" | "current" | "started" | "not-started" | "locked";
 type JourneyFilter = "all" | "todo" | "passed" | "locked";
@@ -117,6 +118,7 @@ function getTopicIcon(topic: { id: string; title: string }) {
 
 function JourneyPage() {
   const { user } = useAppState();
+  const isAutoPath = activeDomainKey.split("@")[0] === "auto-repair";
   const current = currentJourneyTopic(user);
   const queue = adaptiveQueue(user);
   const [filter, setFilter] = useState<JourneyFilter>("all");
@@ -164,7 +166,7 @@ function JourneyPage() {
           className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors motion-safe:duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <BookOpen className="size-4 shrink-0" aria-hidden />
-          <span>My Path</span>
+          <span>{isAutoPath ? "Training Plan" : "My Path"}</span>
         </Link>
         <Link
           to="/journey"
@@ -172,7 +174,7 @@ function JourneyPage() {
           className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-[background-color,color] motion-safe:duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <MapIcon className="size-4 shrink-0" aria-hidden />
-          <span>Journey Map</span>
+          <span>{isAutoPath ? "Technician Journey" : "Journey Map"}</span>
         </Link>
       </nav>
 
@@ -184,13 +186,13 @@ function JourneyPage() {
             className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Target className="size-3.5 shrink-0" aria-hidden />
-            <span>Show my starting point</span>
+            <span>{isAutoPath ? "Show my starting bay" : "Show my starting point"}</span>
           </button>
         ) : startHere ? (
           <div className="flex flex-wrap items-center justify-end gap-2">
             <span className="inline-flex min-h-11 items-center gap-1.5 text-xs font-medium text-primary/80">
               <Target className="size-3.5 shrink-0 text-primary" aria-hidden />
-              <span>Starting point: {startHere.topic.title}</span>
+              <span>{isAutoPath ? "Starting bay" : "Starting point"}: {startHere.topic.title}</span>
             </span>
             <Button variant="ghost" size="sm" onClick={clearStartHere}>Hide</Button>
           </div>
@@ -198,11 +200,11 @@ function JourneyPage() {
       </div>
 
       <div className="mb-6">
-        <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Journey map</h2>
-        <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">The complete learning route, stage by stage.</p>
+        <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{isAutoPath ? "Technician journey" : "Journey map"}</h2>
+        <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">{isAutoPath ? "Build capability system by system, from shop fundamentals through diagnosis and repair." : "The complete learning route, stage by stage."}</p>
       </div>
 
-      <ol className="relative space-y-4" aria-label="Learning route stages">
+      <ol className="relative space-y-4" aria-label={isAutoPath ? "Technician training stages" : "Learning route stages"}>
         {phases.map((phase, phaseIndex) => {
           const allPhaseTopics = phase.topics.map((topic) => ({ topic, status: statusOf(topic.id) }));
           const phaseTopics = allPhaseTopics.filter((entry) => statusMatchesFilter(entry.status, filter));
@@ -281,7 +283,7 @@ function JourneyPage() {
 
                 {isExpanded ? (
                   <div className="border-t border-border/40 px-3 pb-4 pt-3 sm:px-5 sm:pb-5">
-                    <div className="mb-3.5 flex gap-1.5 overflow-x-auto pb-1 sm:gap-2" role="group" aria-label="Filter stage topics">
+                    <div className="mb-3.5 flex gap-1.5 overflow-x-auto pb-1 sm:gap-2" role="group" aria-label={isAutoPath ? "Filter shop systems" : "Filter stage topics"}>
                       {FILTERS.map((entry) => (
                         <button
                           key={entry.value}
@@ -351,10 +353,10 @@ function JourneyPage() {
                                     </span>
                                     <span className="block truncate text-[11px] text-muted-foreground sm:text-xs">
                                       {isCurrent ? (
-                                        <span className="font-semibold text-primary">Currently on this one</span>
+                                        <span className="font-semibold text-primary">{isAutoPath ? "Current training" : "Currently on this one"}</span>
                                       ) : isClosed ? (
                                         <span>
-                                          Passed{best > 0 ? ` · quiz ${best}%` : ""}{passedAt ? ` · ${shortDate(passedAt)}` : ""}
+                                          {isAutoPath ? "Verified" : "Passed"}{best > 0 ? ` · ${isAutoPath ? "check" : "quiz"} ${best}%` : ""}{passedAt ? ` · ${shortDate(passedAt)}` : ""}
                                         </span>
                                       ) : status === "started" ? "In progress" : STATUS_WORD[status]}
                                     </span>
@@ -378,8 +380,8 @@ function JourneyPage() {
                                     <Link
                                       to="/section-quiz/$topicId"
                                       params={{ topicId: topic.id }}
-                                      title={`Take the ${topic.title} quiz`}
-                                      aria-label={`Take the ${topic.title} quiz`}
+                                      title={`${isAutoPath ? "Check knowledge for" : "Take the"} ${topic.title}${isAutoPath ? "" : " quiz"}`}
+                                      aria-label={`${isAutoPath ? "Check knowledge for" : "Take the"} ${topic.title}${isAutoPath ? "" : " quiz"}`}
                                       className="flex size-9 items-center justify-center rounded-full border border-border/60 bg-secondary/40 text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                     >
                                       <FileText className="size-3.5" aria-hidden />
@@ -388,8 +390,8 @@ function JourneyPage() {
                                       <Link
                                         to="/labs"
                                         search={{ lab: labId }}
-                                        title={`Open the ${topic.title} lab`}
-                                        aria-label={`Open the ${topic.title} lab`}
+                                        title={`Open the ${topic.title} ${isAutoPath ? "shop practice" : "lab"}`}
+                                        aria-label={`Open the ${topic.title} ${isAutoPath ? "shop practice" : "lab"}`}
                                         className="flex size-9 items-center justify-center rounded-full border border-border/60 bg-secondary/40 text-muted-foreground transition-colors hover:border-primary/60 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                       >
                                         <FlaskConical className="size-3.5" aria-hidden />
@@ -413,14 +415,14 @@ function JourneyPage() {
                     {stageExams[phaseIndex] ? (
                       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-secondary/20 p-3.5">
                         <p className="min-w-0 text-xs text-muted-foreground">
-                          End of stage exam: {STAGE_EXAM_SIZE} questions, written answers included. {STAGE_PASS_SCORE}% to pass.
+                          {isAutoPath ? "Technician checkpoint" : "End of stage exam"}: {STAGE_EXAM_SIZE} questions, written answers included. {STAGE_PASS_SCORE}% to pass.
                         </p>
                         <Link
                           to="/stage-exam/$stageId"
                           params={{ stageId: stageExams[phaseIndex]!.id }}
                           className="shrink-0 rounded-sm text-xs font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                          Open the {stageExams[phaseIndex]!.stage} exam →
+                          {isAutoPath ? "Open technician checkpoint" : `Open the ${stageExams[phaseIndex]!.stage} exam`} →
                         </Link>
                       </div>
                     ) : null}
@@ -437,9 +439,9 @@ function JourneyPage() {
           <Trophy className="size-5 sm:size-6" aria-hidden />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-sm font-semibold text-foreground sm:text-base">Your complete journey</h3>
+          <h3 className="font-display text-sm font-semibold text-foreground sm:text-base">{isAutoPath ? "Build technician capability" : "Your complete journey"}</h3>
           <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-            Follow this path from top to bottom. As you make progress, new sections unlock along your selected certification journey.
+            {isAutoPath ? "Work through vehicle systems in order. New training opens as you demonstrate the knowledge, testing, diagnostic reasoning, and practical evidence needed to move forward." : "Follow this path from top to bottom. As you make progress, new sections unlock along your selected certification journey."}
           </p>
         </div>
       </div>
