@@ -41,7 +41,7 @@ export function LearningDisclaimerGate({ children }: { children: ReactNode }) {
         </header>
 
         <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5 text-sm leading-relaxed text-muted-foreground sm:px-7">
-          <p className="text-foreground">IT PATH and AUTO PATH are learning platforms designed to help you learn, practice, connect with others, and enjoy building real-world skills.</p>
+          <p className="text-foreground">IT PATH is a learning platform designed to help you learn, practice, connect with others, and enjoy building real-world skills.</p>
           <p>This platform is not intended to replace an accredited school, college, apprenticeship, trade program, instructor-led training, manufacturer training, or supervised hands-on experience. It should be used as a learning and practice resource alongside other appropriate education and experience.</p>
 
           <section>
