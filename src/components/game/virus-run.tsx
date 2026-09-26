@@ -1058,7 +1058,7 @@ export function VirusRun() {
           ctx2.beginPath(); ctx2.moveTo(offX, y); ctx2.lineTo(offX + cell * COLS, y); ctx2.stroke();
         }
         ctx2.setLineDash([]);
- else if (sys === "File System") {
+      } else if (sys === "File System") {
         for(let i=0;i<7;i++){const x=offX+cell*(2+i*4.3),y=offY+cell*(2+(i%3)*6);ctx2.strokeStyle="rgba(94,234,212,.2)";ctx2.strokeRect(x,y,cell*2.2,cell*1.15);ctx2.fillStyle="rgba(94,234,212,.35)";ctx2.fillRect(x+cell*.25,y+cell*.3,cell*(.6+.35*Math.sin(time/330+i)),cell*.12);}
       } else if (sys === "Process Table") {
         for(let i=0;i<10;i++){const y=offY+cell*(1.5+i*1.85),w=cell*(2.5+2*(1+Math.sin(time/260+i))/2);ctx2.fillStyle=`rgba(192,132,252,${.08+(i%3)*.035})`;ctx2.fillRect(offX+cell*(2+(i%4)*6.5),y,w,cell*.35);}
