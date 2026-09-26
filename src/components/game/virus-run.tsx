@@ -375,6 +375,7 @@ export function VirusRun() {
   const travelDirRef = useRef<string | null>(null);
   // Visual-only soft-body response. Collision rules remain grid deterministic.
   const wallSquishRef = useRef({ amount: 0, angle: 0 });
+  const motionPhysicsRef = useRef({ turn:0, turnSign:0, reverse:0, hit:0, hitAngle:0 });
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
@@ -466,6 +467,7 @@ export function VirusRun() {
     queuedDirRef.current = null;
     travelDirRef.current = null;
     wallSquishRef.current={amount:0,angle:0};
+    motionPhysicsRef.current={turn:0,turnSign:0,reverse:0,hit:0,hitAngle:0};
     syncHud(runRef.current);
     setPhaseBoth("playing");
     lastRef.current = 0;
@@ -583,6 +585,18 @@ export function VirusRun() {
           const nx = cx + dx;
           const ny = cy + dy;
           if (run.grid[ny]?.[nx] !== 0) return false;
+          const previous=travelDirRef.current;
+          if(previous && previous!==dir){
+            const [odx,ody]=DIR_VECS[previous]!;
+            const dot=odx*dx+ody*dy;
+            if(dot<0){
+              motionPhysicsRef.current.reverse=Math.max(motionPhysicsRef.current.reverse,.9);
+            }else{
+              const cross=odx*dy-ody*dx;
+              motionPhysicsRef.current.turn=Math.max(motionPhysicsRef.current.turn,.72);
+              motionPhysicsRef.current.turnSign=Math.sign(cross)||1;
+            }
+          }
           p.tx = nx;
           p.ty = ny;
           p.moving = true;
@@ -623,6 +637,10 @@ export function VirusRun() {
 
       // Soft-body impulses decay independently from deterministic movement.
       wallSquishRef.current.amount=Math.max(0,wallSquishRef.current.amount-dt*4.8);
+      const phys=motionPhysicsRef.current;
+      phys.turn=Math.max(0,phys.turn-dt*5.8);
+      phys.reverse=Math.max(0,phys.reverse-dt*4.6);
+      phys.hit=Math.max(0,phys.hit-dt*3.6);
 
       // Packets.
       const px = Math.round(p.x);
@@ -770,6 +788,8 @@ export function VirusRun() {
           run.streak = 0;
           run.streakTimer = 0;
           fxRef.current.push({ x: p.x, y: p.y, born: performance.now(), kind: "hit" });virusSound("hit");
+          motionPhysicsRef.current.hit=1;
+          motionPhysicsRef.current.hitAngle=Math.atan2(p.y-g.y,p.x-g.x);
           p.x = 1;
           p.y = 1;
           p.tx = 1;
@@ -1354,6 +1374,7 @@ export function VirusRun() {
       const bodyR = cell * (0.36 + movingPulse * 0.018);
       const wallSquish=wallSquishRef.current.amount;
       const wallAngle=wallSquishRef.current.angle;
+      const motionPhys=motionPhysicsRef.current;
       const movingStretch=run.player.moving ? Math.min(.1,.035+momentum*.012) : 0;
 
       // Restrained ground light anchors the character to the playfield.
@@ -1371,14 +1392,23 @@ export function VirusRun() {
       ctx2.translate(pcx,pcy);
       // Wall compression is oriented toward the attempted collision direction.
       // Stretch is aligned with travel, giving acceleration a soft-body feel.
-      if(wallSquish>.001){
+      if(motionPhys.hit>.001){
+        ctx2.rotate(motionPhys.hitAngle);
+        ctx2.translate(cell*motionPhys.hit*.11,0);
+        ctx2.scale(1-motionPhys.hit*.2,1+motionPhys.hit*.14);
+        ctx2.rotate(heading-motionPhys.hitAngle);
+      }else if(wallSquish>.001){
         ctx2.rotate(wallAngle);
         ctx2.scale(1-wallSquish*.24,1+wallSquish*.16);
         ctx2.translate(-cell*wallSquish*.055,0);
         ctx2.rotate(heading-wallAngle);
       }else{
         ctx2.rotate(heading);
-        ctx2.scale(1+movingStretch,1-movingStretch*.52);
+        const reverseBounce=motionPhys.reverse;
+        const turnBank=motionPhys.turn*motionPhys.turnSign;
+        ctx2.translate(-cell*reverseBounce*.075,cell*turnBank*.035);
+        ctx2.rotate(turnBank*.16);
+        ctx2.scale(1+movingStretch-reverseBounce*.12,1-movingStretch*.52+reverseBounce*.16);
       }
 
       // Momentum creates a rear energy wake, visually pointing in the travel direction.
