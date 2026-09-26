@@ -531,18 +531,6 @@ function Dashboard() {
           )}
         </Panel>
 
-        <Panel title="Career readiness" className="relative py-5">
-          <Link to="/career-skills" className="absolute right-0 top-5 text-sm text-primary hover:underline">View all →</Link>
-          <div className="divide-y divide-border/60">
-            {d.careerReadiness.map((track) => (
-              <div key={track.track} className="group grid min-h-11 grid-cols-[minmax(0,1fr)_5.5rem_auto] items-center gap-3 rounded-md px-2 py-2.5 motion-safe:transition-colors motion-safe:duration-150 hover:bg-secondary/40 active:scale-[0.995] motion-reduce:transition-none sm:grid-cols-[minmax(0,1fr)_7rem_auto]">
-                <p className="truncate text-sm">{track.label}</p>
-                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><Meter value={track.score} /><span className="text-sm font-semibold tabular-nums">{track.score}%</span></div>
-                <ChevronRight className="size-4 text-muted-foreground motion-safe:transition-all motion-safe:duration-150 group-hover:translate-x-0.5 group-hover:text-primary motion-reduce:transition-none" aria-hidden />
-              </div>
-            ))}
-          </div>
-        </Panel>
       </div>
 
       <p className="mt-12 text-xs text-muted-foreground">
