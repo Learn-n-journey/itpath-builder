@@ -391,6 +391,7 @@ export function VirusRun() {
   const playerVisualRef = useRef({ heading:0, stretch:0, squish:0, spikePhase:[0,1.1,2.2,3.3,4.4,5.5] });
   const cameraRef = useRef({ power:0, angle:0 });
   const trailRef = useRef<{x:number;y:number;born:number}[]>([]);
+  const materialRef = useRef<{boot?: HTMLCanvasElement}>({});
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
@@ -998,6 +999,28 @@ export function VirusRun() {
       const offY = (rect.height - cell * ROWS) / 2;
       const t = run.theme;
 
+      // Build the Boot Sector material once. CanvasPattern supports an offscreen
+      // canvas source, so this becomes a continuous material rather than per-tile marks.
+      if(run.theme.system==="Boot Sector" && !materialRef.current.boot){
+        const tex=document.createElement("canvas");tex.width=384;tex.height=384;
+        const tx=tex.getContext("2d");
+        if(tx){
+          const base=tx.createLinearGradient(0,0,384,384);base.addColorStop(0,"#252b31");base.addColorStop(.5,"#171d22");base.addColorStop(1,"#101419");
+          tx.fillStyle=base;tx.fillRect(0,0,384,384);
+          // Large uneven grime clouds.
+          for(let i=0;i<24;i++){const x=(i*83)%384,y=(i*137)%384,r=34+(i%5)*19;const g=tx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,i%3===0?"rgba(92,66,39,.13)":"rgba(0,0,0,.18)");g.addColorStop(1,"rgba(0,0,0,0)");tx.fillStyle=g;tx.fillRect(x-r,y-r,r*2,r*2);}
+          // Oxidized copper traces and occasional vias.
+          tx.lineCap="round";
+          for(let i=0;i<15;i++){const y=18+i*25+(i%3)*3;tx.strokeStyle=i%4===0?"rgba(126,87,49,.24)":"rgba(74,113,102,.17)";tx.lineWidth=i%5===0?3:1.5;tx.beginPath();tx.moveTo(-20,y);tx.lineTo(70+(i*31)%120,y);tx.lineTo(90+(i*31)%120,y+((i%2)?18:-18));tx.lineTo(410,y+((i%2)?18:-18));tx.stroke();}
+          for(let i=0;i<34;i++){const x=(i*97)%380,y=(i*53+31)%380;tx.fillStyle="rgba(104,126,119,.2)";tx.beginPath();tx.arc(x,y,2+(i%3),0,Math.PI*2);tx.fill();tx.fillStyle="rgba(5,8,9,.65)";tx.beginPath();tx.arc(x,y,Math.max(1,1+(i%2)),0,Math.PI*2);tx.fill();}
+          // Scratches and old maintenance scuffs.
+          for(let i=0;i<30;i++){const x=(i*47)%360,y=(i*109)%370;tx.strokeStyle=i%3===0?"rgba(183,167,139,.09)":"rgba(255,255,255,.045)";tx.lineWidth=.7;tx.beginPath();tx.moveTo(x,y);tx.lineTo(x+12+(i%5)*8,y-3+(i%4)*2);tx.stroke();}
+          // Sparse repaired panels.
+          for(let i=0;i<5;i++){const x=24+(i*73)%300,y=40+(i*91)%270,w=38+(i%3)*15,h=25+(i%2)*18;tx.fillStyle="rgba(49,53,54,.72)";tx.fillRect(x,y,w,h);tx.strokeStyle="rgba(139,126,101,.16)";tx.strokeRect(x+.5,y+.5,w-1,h-1);for(const [sx,sy] of [[x+5,y+5],[x+w-5,y+5],[x+5,y+h-5],[x+w-5,y+h-5]]){tx.fillStyle="rgba(8,10,10,.8)";tx.beginPath();tx.arc(sx,sy,1.7,0,Math.PI*2);tx.fill();}}
+        }
+        materialRef.current.boot=tex;
+      }
+
       ctx2.fillStyle = t.bg;
       ctx2.fillRect(0, 0, rect.width, rect.height);
 
@@ -1260,6 +1283,14 @@ export function VirusRun() {
           const top=ctx2.createLinearGradient(bx,by,bx+cell*.8,by+cell);
           top.addColorStop(0,t.wall);top.addColorStop(.55,t.wall);top.addColorStop(1,t.bg);
           ctx2.fillStyle=top;ctx2.fillRect(bx,by,cell+.65,cell+.65);
+          if(run.theme.system==="Boot Sector"&&materialRef.current.boot){
+            const pattern=ctx2.createPattern(materialRef.current.boot,"repeat");
+            if(pattern){
+              // Keep texture in world coordinates so connected cells share stains/traces.
+              pattern.setTransform(new DOMMatrix().translate(offX,offY).scale(Math.max(.45,cell/28)));
+              ctx2.save();ctx2.globalAlpha=.72;ctx2.fillStyle=pattern;ctx2.fillRect(bx,by,cell+.7,cell+.7);ctx2.restore();
+            }
+          }
 
           // Broad light falloff replaces the old line-drawn bevel.
           const faceLight=ctx2.createLinearGradient(bx,by,bx+cell*.55,by+cell*.55);
@@ -1288,6 +1319,21 @@ export function VirusRun() {
             ctx2.stroke();
           }
         }
+      }
+
+      // Boot Sector story decals: rare, large-scale details make the maze feel
+      // maintained and repaired rather than procedurally decorated cell by cell.
+      if(run.theme.system==="Boot Sector"){
+        ctx2.save();
+        const decals=[[4,3,3,1],[18,6,2,2],[9,14,4,1],[24,16,3,1]] as const;
+        for(let i=0;i<decals.length;i++){const [dx,dy,dw,dh]=decals[i];const x=offX+dx*cell,y=offY+dy*cell,w=dw*cell,h=dh*cell;
+          ctx2.fillStyle="rgba(6,10,12,.28)";ctx2.fillRect(x,y,w,h);
+          ctx2.strokeStyle="rgba(171,146,103,.16)";ctx2.lineWidth=Math.max(1,cell*.025);ctx2.strokeRect(x+.5,y+.5,w-1,h-1);
+          ctx2.fillStyle="rgba(211,189,146,.18)";ctx2.font=`${Math.max(7,cell*.2)}px monospace`;ctx2.fillText(i%2?"SERVICE BUS":"FW "+(i+1).toString().padStart(2,"0"),x+cell*.16,y+cell*.36);
+        }
+        // Dim diagnostic LEDs; only a few blink.
+        for(let i=0;i<7;i++){const x=offX+cell*(2.5+i*4.1),y=offY+cell*(1.2+(i%3)*6.4);const on=((time/700+i*1.7)%4)<.65;ctx2.fillStyle=on?"rgba(245,158,11,.8)":"rgba(73,57,32,.45)";ctx2.shadowColor=on?"rgba(245,158,11,.8)":"transparent";ctx2.shadowBlur=on?cell*.28:0;ctx2.beginPath();ctx2.arc(x,y,Math.max(1.2,cell*.055),0,Math.PI*2);ctx2.fill();}
+        ctx2.restore();
       }
 
       // Screen-space depth treatment: soft vignette and subtle bloom separation.
