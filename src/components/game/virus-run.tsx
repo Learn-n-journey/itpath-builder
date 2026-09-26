@@ -1225,6 +1225,29 @@ export function VirusRun() {
       // Power-ups.
       for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);ctx2.rotate(time/700);ctx2.shadowColor="#facc15";ctx2.shadowBlur=cell*.9;ctx2.strokeStyle="#fde68a";ctx2.lineWidth=Math.max(1,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*.32,0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="#facc15";ctx2.font=`bold ${cell*.34}px ui-monospace`;ctx2.textAlign="center";ctx2.textBaseline="middle";ctx2.rotate(-time/700);ctx2.fillText(power.kind==="cloak"?"C":power.kind==="overclock"?"O":power.kind==="emp"?"E":"M",0,0);ctx2.restore();}
 
+      // Boss encounter telegraphs. Every pressure window is announced visually
+      // before or while its matching mechanic is active.
+      if(run.boss){
+        ctx2.save();
+        if(run.level===5){
+          const angle=time/620;const cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;
+          ctx2.strokeStyle="rgba(134,239,172,.34)";ctx2.lineWidth=Math.max(2,cell*.09);ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(cx+Math.cos(angle)*cell*18,cy+Math.sin(angle)*cell*18);ctx2.stroke();
+          ctx2.fillStyle="rgba(134,239,172,.75)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText("SEEK SWEEP",offX+cell,offY+cell*1.2);
+        }else if(run.level===10){
+          const active=hazardPhase>4.8&&hazardPhase<6;ctx2.fillStyle=active?"rgba(192,132,252,.10)":"rgba(192,132,252,.035)";for(let y=2;y<ROWS-1;y+=3)ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell*.55);
+          if(active){ctx2.fillStyle="rgba(216,180,254,.85)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText("SCHEDULER BURST",offX+cell,offY+cell*1.2);}
+        }else if(run.level===15){
+          const active=hazardPhase>2.6&&hazardPhase<3.7;const x=offX+(((time/22)%(cell*COLS)));ctx2.fillStyle=active?"rgba(244,114,182,.16)":"rgba(244,114,182,.05)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);
+          if(active){ctx2.fillStyle="rgba(251,207,232,.9)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText("IDENTITY SCAN",offX+cell,offY+cell*1.2);}
+        }else if(run.level===20){
+          const activeA=hazardPhase>1.1&&hazardPhase<2,activeB=hazardPhase>4&&hazardPhase<5;
+          if(activeA){const rr=cell*(3+(hazardPhase-1.1)*10);ctx2.strokeStyle="rgba(251,113,133,.5)";ctx2.lineWidth=Math.max(2,cell*.11);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,rr,0,Math.PI*2);ctx2.stroke();}
+          if(activeB){const x=offX+((hazardPhase-4))*cell*COLS;ctx2.fillStyle="rgba(251,146,60,.15)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);}
+          ctx2.fillStyle="rgba(254,240,138,.88)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText(activeA?"CORE SCAN":activeB?"LOCKDOWN SWEEP":"CORE DEFENDER",offX+cell,offY+cell*1.2);
+        }
+        ctx2.restore();
+      }
+
       // Boss security core: sealed during packet collection, then visibly
       // vulnerable during the breach phase.
       if(run.boss){
