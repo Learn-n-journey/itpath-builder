@@ -1551,12 +1551,11 @@ function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) =
       dy = (dy / mag) * max;
     }
     setKnob({ x: dx, y: dy });
-    if (mag < 8) return;
-    // Require a little axis commitment so diagonal thumb drift does not
-    // constantly flip between horizontal and vertical movement.
-    const axisBias = 1.16;
-    if (Math.abs(dx) > Math.abs(dy) * axisBias) onDir(dx > 0 ? "right" : "left");
-    else if (Math.abs(dy) > Math.abs(dx) * axisBias) onDir(dy > 0 ? "down" : "up");
+    if (mag < 6) return;
+    // Snap every deliberate gesture to one of four directions. This is a maze,
+    // not an analog movement game, so diagonal input should never be ambiguous.
+    if (Math.abs(dx) >= Math.abs(dy)) onDir(dx > 0 ? "right" : "left");
+    else onDir(dy > 0 ? "down" : "up");
   };
 
   return (
@@ -1564,7 +1563,7 @@ function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) =
       ref={baseRef}
       role="application"
       aria-label="Movement stick"
-      className={cn("relative flex touch-none select-none items-center justify-center rounded-full border border-border bg-card/90 shadow-lg backdrop-blur-xl [-webkit-user-select:none] [-webkit-touch-callout:none]", mobile ? "size-32" : "size-16")}
+      className={cn("relative flex touch-none select-none items-center justify-center rounded-full border border-border bg-card/90 shadow-lg backdrop-blur-xl [-webkit-user-select:none] [-webkit-touch-callout:none]", mobile ? "size-36" : "size-16")}
       onPointerDown={(e) => {
         e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -1586,8 +1585,12 @@ function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) =
       onContextMenu={(e) => e.preventDefault()}
     >
       <span className="absolute inset-2 rounded-full border border-dashed border-border/60" aria-hidden />
+      <ChevronUp className="pointer-events-none absolute top-2 size-5 text-primary/70" aria-hidden />
+      <ChevronDown className="pointer-events-none absolute bottom-2 size-5 text-primary/70" aria-hidden />
+      <ChevronLeft className="pointer-events-none absolute left-2 size-5 text-primary/70" aria-hidden />
+      <ChevronRight className="pointer-events-none absolute right-2 size-5 text-primary/70" aria-hidden />
       <span
-        className={cn("pointer-events-none absolute rounded-full border border-primary/40 bg-primary/20 shadow-md transition-transform duration-75", mobile ? "size-12" : "size-7")}
+        className={cn("pointer-events-none absolute rounded-full border border-primary/40 bg-primary/20 shadow-md transition-transform duration-75", mobile ? "size-14" : "size-7")}
         style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
         aria-hidden
       />
