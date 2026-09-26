@@ -211,8 +211,15 @@ function pickUpgradeChoices(): RunUpgrade[] {
   return [...RUN_UPGRADES].sort(() => Math.random() - 0.5).slice(0, 3);
 }
 
+type GuardState = "patrol" | "suspicious" | "chase" | "search";
+
 interface Guard {
   kind: GuardKind;
+  state: GuardState;
+  stateTimer: number;
+  awareness: number;
+  lastKnownX: number;
+  lastKnownY: number;
   stunned: number;
   x: number;
   y: number;
@@ -310,7 +317,7 @@ function buildLevel(level: number): RunState {
     const cell = openCells.splice(Math.floor(Math.random() * openCells.length), 1)[0]!;
     const kinds: GuardKind[] = boss ? ["hunter","interceptor","warden","scanner"] : ["scanner","hunter","interceptor"];
     const kind = kinds[i % kinds.length]!;
-    guards.push({ kind, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden"?.9:1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y });
+    guards.push({ kind, state:"patrol", stateTimer:0, awareness:0, lastKnownX:cell.x, lastKnownY:cell.y, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * (kind==="interceptor"?1.08:kind==="warden"?.9:1), detection: detection + (kind==="hunter"?5:kind==="warden"?2:0), fromX: cell.x, fromY: cell.y });
   }
 
   const powerUps: PowerUp[] = [];
