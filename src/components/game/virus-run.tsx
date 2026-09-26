@@ -1083,14 +1083,14 @@ export function VirusRun() {
 
       // Gameplay telegraphs: the visuals below correspond to the active system mechanic.
       ctx2.save();
-      const hazardPhase = run.hazardPulse;
-      if (sys === "Boot Sector" && hazardPhase < 1.5) {
+      const run.hazardPulse = run.hazardPulse;
+      if (sys === "Boot Sector" && run.hazardPulse < 1.5) {
         ctx2.fillStyle = "rgba(250,204,21,0.055)";
         ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
         ctx2.fillStyle = "rgba(253,224,71,0.8)";
         ctx2.font = `bold ${Math.max(8,cell*.28)}px ui-monospace`;
         ctx2.textAlign = "left"; ctx2.fillText("BOOT SYNC", offX + cell, offY + cell * 1.1);
-      } else if (sys === "System RAM" && hazardPhase < 0.7) {
+      } else if (sys === "System RAM" && run.hazardPulse < 0.7) {
         ctx2.fillStyle = "rgba(34,211,238,0.07)";
         for(let x=1;x<COLS-1;x+=4)ctx2.fillRect(offX+x*cell,offY,cell*.8,cell*ROWS);
       } else if (sys === "GPU Memory") {
@@ -1101,16 +1101,16 @@ export function VirusRun() {
       } else if (sys === "Network Stack") {
         for(let y=4;y<ROWS-1;y+=4){ctx2.fillStyle="rgba(94,234,212,0.06)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
       } else if (sys === "Kernel Space") {
-        const scan = Math.max(0,1-Math.abs(hazardPhase-3.95)/.45);
+        const scan = Math.max(0,1-Math.abs(run.hazardPulse-3.95)/.45);
         if(scan>0){ctx2.strokeStyle=`rgba(248,113,113,${.18+scan*.4})`;ctx2.lineWidth=Math.max(2,cell*.1);const rr=cell*(2+scan*11);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,rr,0,Math.PI*2);ctx2.stroke();}
-      } else if (sys === "Firewall" && hazardPhase > 5.2 && hazardPhase < 6.6) {
-        const sweep=(hazardPhase-5.2)/1.4;const x=offX+sweep*cell*COLS;
+      } else if (sys === "Firewall" && run.hazardPulse > 5.2 && run.hazardPulse < 6.6) {
+        const sweep=(run.hazardPulse-5.2)/1.4;const x=offX+sweep*cell*COLS;
         const fg=ctx2.createLinearGradient(x-cell*2,0,x+cell*2,0);fg.addColorStop(0,"rgba(251,146,60,0)");fg.addColorStop(.5,"rgba(251,146,60,.2)");fg.addColorStop(1,"rgba(251,146,60,0)");ctx2.fillStyle=fg;ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
- else if (sys === "File System" && hazardPhase > 2.8 && hazardPhase < 3.8) {
+ else if (sys === "File System" && run.hazardPulse > 2.8 && run.hazardPulse < 3.8) {
         ctx2.fillStyle="rgba(94,234,212,.055)";for(let x=2;x<COLS-2;x+=5)ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);
-      } else if (sys === "Process Table" && hazardPhase > 5.8) {
+      } else if (sys === "Process Table" && run.hazardPulse > 5.8) {
         ctx2.fillStyle="rgba(192,132,252,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
-      } else if (sys === "System Configuration" && hazardPhase < 1.1) {
+      } else if (sys === "System Configuration" && run.hazardPulse < 1.1) {
         ctx2.fillStyle="rgba(251,191,36,.06)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
       } else if (sys === "DNS Resolver") {
         for(let y=4;y<ROWS-1;y+=4){ctx2.fillStyle="rgba(34,211,238,.045)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
@@ -1118,19 +1118,19 @@ export function VirusRun() {
         for(let x=6;x<COLS-1;x+=6){ctx2.fillStyle="rgba(96,165,250,.045)";ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);}
       } else if (sys === "Switch Fabric") {
         for(let y=3;y<ROWS-1;y+=3){ctx2.fillStyle="rgba(74,222,128,.045)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
-      } else if (sys === "Authentication Server" && hazardPhase > 3.4 && hazardPhase < 4.3) {
-        const x=offX+((hazardPhase-3.4)/.9)*cell*COLS;ctx2.fillStyle="rgba(232,121,249,.13)";ctx2.fillRect(x-cell*.6,offY,cell*1.2,cell*ROWS);
+      } else if (sys === "Authentication Server" && run.hazardPulse > 3.4 && run.hazardPulse < 4.3) {
+        const x=offX+((run.hazardPulse-3.4)/.9)*cell*COLS;ctx2.fillStyle="rgba(232,121,249,.13)";ctx2.fillRect(x-cell*.6,offY,cell*1.2,cell*ROWS);
       } else if (sys === "Database") {
         for(let x=5;x<COLS-1;x+=5){ctx2.fillStyle="rgba(163,230,53,.035)";ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);}
-      } else if (sys === "Web Server" && hazardPhase > 1.5 && hazardPhase < 2.5) {
+      } else if (sys === "Web Server" && run.hazardPulse > 1.5 && run.hazardPulse < 2.5) {
         ctx2.fillStyle="rgba(96,165,250,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
       } else if (sys === "Cloud Network") {
         for(let y=5;y<ROWS-1;y+=5){ctx2.fillStyle="rgba(103,232,249,.04)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
-      } else if (sys === "Security Operations Center" && hazardPhase > 4.5 && hazardPhase < 5.4) {
-        const scan=Math.max(0,1-Math.abs(hazardPhase-4.95)/.45);ctx2.strokeStyle=`rgba(251,113,133,${.2+scan*.35})`;ctx2.lineWidth=Math.max(2,cell*.1);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,cell*(2+scan*12),0,Math.PI*2);ctx2.stroke();
+      } else if (sys === "Security Operations Center" && run.hazardPulse > 4.5 && run.hazardPulse < 5.4) {
+        const scan=Math.max(0,1-Math.abs(run.hazardPulse-4.95)/.45);ctx2.strokeStyle=`rgba(251,113,133,${.2+scan*.35})`;ctx2.lineWidth=Math.max(2,cell*.1);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,cell*(2+scan*12),0,Math.PI*2);ctx2.stroke();
       } else if (sys === "Core Infrastructure") {
-        if(hazardPhase>2.8&&hazardPhase<3.5){ctx2.fillStyle="rgba(250,204,21,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);}
-        if(hazardPhase>5.2&&hazardPhase<6.2){const x=offX+((hazardPhase-5.2))*cell*COLS;ctx2.fillStyle="rgba(251,146,60,.11)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);}
+        if(run.hazardPulse>2.8&&run.hazardPulse<3.5){ctx2.fillStyle="rgba(250,204,21,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);}
+        if(run.hazardPulse>5.2&&run.hazardPulse<6.2){const x=offX+((run.hazardPulse-5.2))*cell*COLS;ctx2.fillStyle="rgba(251,146,60,.11)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);}
       }
       ctx2.restore();
 
@@ -1310,15 +1310,15 @@ export function VirusRun() {
           ctx2.strokeStyle="rgba(134,239,172,.34)";ctx2.lineWidth=Math.max(2,cell*.09);ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(cx+Math.cos(angle)*cell*18,cy+Math.sin(angle)*cell*18);ctx2.stroke();
           ctx2.fillStyle="rgba(134,239,172,.75)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText("SEEK SWEEP",offX+cell,offY+cell*1.2);
         }else if(run.level===10){
-          const active=hazardPhase>4.8&&hazardPhase<6;ctx2.fillStyle=active?"rgba(192,132,252,.10)":"rgba(192,132,252,.035)";for(let y=2;y<ROWS-1;y+=3)ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell*.55);
+          const active=run.hazardPulse>4.8&&run.hazardPulse<6;ctx2.fillStyle=active?"rgba(192,132,252,.10)":"rgba(192,132,252,.035)";for(let y=2;y<ROWS-1;y+=3)ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell*.55);
           if(active){ctx2.fillStyle="rgba(216,180,254,.85)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText("SCHEDULER BURST",offX+cell,offY+cell*1.2);}
         }else if(run.level===15){
-          const active=hazardPhase>2.6&&hazardPhase<3.7;const x=offX+(((time/22)%(cell*COLS)));ctx2.fillStyle=active?"rgba(244,114,182,.16)":"rgba(244,114,182,.05)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);
+          const active=run.hazardPulse>2.6&&run.hazardPulse<3.7;const x=offX+(((time/22)%(cell*COLS)));ctx2.fillStyle=active?"rgba(244,114,182,.16)":"rgba(244,114,182,.05)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);
           if(active){ctx2.fillStyle="rgba(251,207,232,.9)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText("IDENTITY SCAN",offX+cell,offY+cell*1.2);}
         }else if(run.level===20){
-          const activeA=hazardPhase>1.1&&hazardPhase<2,activeB=hazardPhase>4&&hazardPhase<5;
-          if(activeA){const rr=cell*(3+(hazardPhase-1.1)*10);ctx2.strokeStyle="rgba(251,113,133,.5)";ctx2.lineWidth=Math.max(2,cell*.11);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,rr,0,Math.PI*2);ctx2.stroke();}
-          if(activeB){const x=offX+((hazardPhase-4))*cell*COLS;ctx2.fillStyle="rgba(251,146,60,.15)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);}
+          const activeA=run.hazardPulse>1.1&&run.hazardPulse<2,activeB=run.hazardPulse>4&&run.hazardPulse<5;
+          if(activeA){const rr=cell*(3+(run.hazardPulse-1.1)*10);ctx2.strokeStyle="rgba(251,113,133,.5)";ctx2.lineWidth=Math.max(2,cell*.11);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,rr,0,Math.PI*2);ctx2.stroke();}
+          if(activeB){const x=offX+((run.hazardPulse-4))*cell*COLS;ctx2.fillStyle="rgba(251,146,60,.15)";ctx2.fillRect(x-cell,offY,cell*2,cell*ROWS);}
           ctx2.fillStyle="rgba(254,240,138,.88)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="left";ctx2.fillText(activeA?"CORE SCAN":activeB?"LOCKDOWN SWEEP":"CORE DEFENDER",offX+cell,offY+cell*1.2);
         }
         ctx2.restore();
