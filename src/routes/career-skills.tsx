@@ -7,7 +7,6 @@ import {
   evidenceSourceLabels,
   recommendActivities,
   scoreSkills,
-  scoreTracks,
   type SkillScore,
 } from "@/lib/skills-engine";
 import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
@@ -86,7 +85,6 @@ function CareerSkills() {
   const [openSkill, setOpenSkill] = useState<string | null>(null);
 
   const skills = useMemo(() => scoreSkills(user), [user]);
-  const tracks = useMemo(() => scoreTracks(skills), [skills]);
   const recommendations = useMemo(() => recommendActivities(user, skills), [user, skills]);
 
   const evidenceTotal = skills.reduce((sum, s) => sum + s.evidenceCount, 0);
@@ -122,31 +120,6 @@ function CareerSkills() {
         </Panel>
 
         <div className="grid gap-4 content-start">
-          <Panel title="Job readiness" description="Weighted by how much each skill matters in that role.">
-            <ul className="space-y-4">
-              {tracks.map((track) => (
-                <li key={track.track}>
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
-                    <p className="truncate text-sm font-medium">{track.label}</p>
-                    <span className="font-display text-sm font-semibold tabular-nums">{track.score}%</span>
-                  </div>
-                  <div className="mt-2">
-                    <Meter value={track.score} />
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {track.evidenceCount === 0
-                      ? "No evidence recorded for this role yet."
-                      : `Average of ${track.performance}% on work done and ${track.coverage}% of the role covered · weak: ${
-                          track.weakSkills.length === 0
-                            ? "none"
-                            : track.weakSkills.slice(0, 3).map((s) => s.label).join(", ")
-                        }`}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </Panel>
-
           <Panel title="Weak areas" description="Lowest scoring skills first.">
             {weak.length === 0 ? (
               <p className="text-sm text-muted-foreground">
