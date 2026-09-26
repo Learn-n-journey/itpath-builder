@@ -1730,7 +1730,7 @@ export function VirusRun() {
             </Button>
           )}
         </div>
-        <div className={cn("grid grid-cols-5 divide-x divide-primary/15", mobileLandscape && "pointer-events-auto absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
+        <div className={cn("grid grid-cols-5 divide-x divide-primary/10 bg-gradient-to-r from-background/95 via-background/80 to-primary/[.04]", mobileLandscape && "pointer-events-auto absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
           <GameStat label="Level" value={hud.level} />
           <div className={cn(mobileLandscape && "hidden")}><GameStat label="System" value={hud.boss ? hud.bossTitle : hud.system || "—"} accent /></div>
           <GameStat label={hud.boss && hud.bossPhase >= 2 ? "Breach" : "Packets"} value={hud.boss && hud.bossPhase >= 2 ? `${hud.bossNodes}/${hud.bossNodesRequired}` : `${hud.collected}/${hud.required}`} />
@@ -1755,6 +1755,12 @@ export function VirusRun() {
           onPointerUp={onCanvasPointerEnd}
           onPointerCancel={onCanvasPointerEnd}
         />
+        {hud.boss && (phase==="playing"||phase==="paused") && (
+          <div className="pointer-events-none absolute inset-x-0 top-2 z-[5] mx-auto flex w-[min(78%,34rem)] flex-col items-center gap-1 rounded-full border border-destructive/20 bg-black/45 px-4 py-1.5 shadow-xl backdrop-blur-md">
+            <div className="flex w-full items-center justify-between font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-red-200"><span>{hud.bossTitle}</span><span>Security {hud.bossNodes}/{hud.bossNodesRequired}</span></div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-red-950/70"><div className="h-full rounded-full bg-gradient-to-r from-red-500 via-orange-400 to-yellow-300 transition-[width] duration-300" style={{width:`${Math.max(0,100-(hud.bossNodes/Math.max(1,hud.bossNodesRequired))*100)}%`}} /></div>
+          </div>
+        )}
         {overlay}
       </div>
 
@@ -1770,8 +1776,8 @@ export function VirusRun() {
 function GameStat({ label, value, accent = false }: { label: string; value: string | number; accent?: boolean }) {
   return (
     <div className="min-w-0 px-2 py-2.5 sm:px-4">
-      <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">{label}</p>
-      <p className={cn("mt-1 truncate font-mono text-xs font-bold sm:text-sm", accent && "text-primary")}>{value}</p>
+      <p className="text-[8px] font-semibold uppercase tracking-[0.16em] text-muted-foreground sm:text-[9px]">{label}</p>
+      <p className={cn("mt-0.5 truncate font-mono text-sm font-black tracking-tight sm:text-base", accent && "text-primary drop-shadow-[0_0_8px_rgba(45,212,191,.35)]")}>{value}</p>
     </div>
   );
 }
