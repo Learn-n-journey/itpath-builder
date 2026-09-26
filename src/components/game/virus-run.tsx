@@ -720,6 +720,9 @@ export function VirusRun() {
       // Boss-specific encounter rhythms. These remain non-lethal by themselves:
       // they alter movement/detection while the breach objective stays readable.
       if (run.boss) {
+        // Every successful core breach escalates the encounter. The multiplier
+        // stays bounded so late phases feel urgent without becoming unavoidable.
+        const breachEscalation = 1 + Math.min(run.bossNodes, run.bossNodesRequired) * 0.12;
         if (run.level === 5) {
           // Storage Sentinel: a rotating seek cycle alternates slow and fast traversal.
           if (pulse > 1.8 && pulse < 3.0 && p.moving) {
@@ -728,15 +731,15 @@ export function VirusRun() {
           }
         } else if (run.level === 10) {
           // Process Warden: scheduler bursts temporarily accelerate active daemons.
-          if (pulse > 4.8 && pulse < 6.0) for (const g of run.guards) g.detection += 0.018;
+          if (pulse > 4.8 - run.bossNodes * .12 && pulse < 6.0) for (const g of run.guards) g.detection += 0.018 * breachEscalation;
         } else if (run.level === 15) {
           // Authentication Guardian: credential scan exposes uncloaked movement.
           if (pulse > 2.6 && pulse < 3.7 && run.activePower?.kind !== "cloak") {
-            for (const g of run.guards) g.detection += p.moving ? 0.03 : 0.012;
+            for (const g of run.guards) g.detection += (p.moving ? 0.03 : 0.012) * breachEscalation;
           }
         } else if (run.level === 20) {
           // Core Defender: cycles seek pressure, detection and a firewall-style drag.
-          if (pulse > 1.1 && pulse < 2.0) for (const g of run.guards) g.detection += 0.022;
+          if (pulse > 1.1 - run.bossNodes * .08 && pulse < 2.0) for (const g of run.guards) g.detection += 0.022 * breachEscalation;
           if (pulse > 4.0 && pulse < 5.0 && p.moving) {
             p.x -= (p.x - p.tx) * Math.min(0.014, dt * 0.32);
             p.y -= (p.y - p.ty) * Math.min(0.014, dt * 0.32);
@@ -785,9 +788,9 @@ export function VirusRun() {
         if (run.theme.system === "Web Server" && pulse > 1.5 && pulse < 2.5) systemGuardSpeed = 1.08;
         if (run.theme.system === "Security Operations Center") systemGuardSpeed = 1.06;
         if (run.theme.system === "Core Infrastructure" && pulse > 2.8 && pulse < 3.5) systemGuardSpeed = 1.1;
-        if (run.boss && run.level === 10 && pulse > 4.8 && pulse < 6.0) systemGuardSpeed *= 1.18;
-        if (run.boss && run.level === 15 && pulse > 2.6 && pulse < 3.7) systemGuardSpeed *= 1.08;
-        if (run.boss && run.level === 20 && pulse > 1.1 && pulse < 2.0) systemGuardSpeed *= 1.15;
+        if (run.boss && run.level === 10 && pulse > 4.8 - run.bossNodes * .12 && pulse < 6.0) systemGuardSpeed *= 1.18 + run.bossNodes * .04;
+        if (run.boss && run.level === 15 && pulse > 2.6 && pulse < 3.7) systemGuardSpeed *= 1.08 + run.bossNodes * .035;
+        if (run.boss && run.level === 20 && pulse > 1.1 - run.bossNodes * .08 && pulse < 2.0) systemGuardSpeed *= 1.15 + run.bossNodes * .04;
         // During the opening grace period guards patrol, but do not accelerate
         // into the spawn pocket. This prevents repeated unavoidable spawn deaths.
         if (openingGrace && toPlayer >= 0 && toPlayer < 10) systemGuardSpeed *= 0.55;
