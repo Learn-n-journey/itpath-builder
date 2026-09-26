@@ -390,73 +390,73 @@ function Dashboard() {
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Today</p>
-            <h2 id="today-heading" className="font-display text-xl font-semibold">${isAutoPath ? "Your shop plan" : "Your learning plan"}</h2>
+            <h2 id="today-heading" className="font-display text-xl font-semibold">{isAutoPath ? "Your shop plan" : "Your learning plan"}</h2>
           </div>
           <Link to="/study-plan" className="text-xs font-semibold text-primary hover:underline">Study plan</Link>
         </div>
-        ${d.todaysTasks.length === 0 && reviewTopics.length === 0 ? (
+        {d.todaysTasks.length === 0 && reviewTopics.length === 0 ? (
           <div className="rounded-xl border border-border/50 bg-card/40 px-4 py-4">
             <p className="text-sm font-medium">You’re caught up.</p>
             <p className="mt-1 text-xs text-muted-foreground">Continue your current topic when you’re ready.</p>
           </div>
         ) : (
           <div className="divide-y divide-border/60 rounded-xl border border-border/50 bg-card/40 px-3">
-            ${reviewTopics.length > 0 ? (
+            {reviewTopics.length > 0 ? (
               <Link to="/review" className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-1 py-3 hover:bg-secondary/30">
                 <span className="min-w-0">
-                  <span className="block text-sm font-medium">${reviewTopics.length} ${reviewTopics.length === 1 ? "topic" : "topics"} due for review</span>
+                  <span className="block text-sm font-medium">{reviewTopics.length} {reviewTopics.length === 1 ? "topic" : "topics"} due for review</span>
                   <span className="block text-xs text-muted-foreground">Strengthen material before it fades.</span>
                 </span>
                 <span className="text-xs font-semibold text-primary">Review</span>
               </Link>
-            ) : null}"}
-            ${d.todaysTasks.slice(0, 3).map((task) => (
+            ) : null}
+            {d.todaysTasks.slice(0, 3).map((task) => (
               <Link key={task.id} to={task.to} params={task.params as never} className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-1 py-3 hover:bg-secondary/30">
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium">${task.label}</span>
-                  <span className="block truncate text-xs text-muted-foreground">${task.detail}</span>
+                  <span className="block truncate text-sm font-medium">{task.label}</span>
+                  <span className="block truncate text-xs text-muted-foreground">{task.detail}</span>
                 </span>
                 <span className="text-xs font-semibold text-primary">Open</span>
               </Link>
-            ))}"}
+            ))}
           </div>
-        )}"}
+        )}
       </section>
 
-      ${d.hasAnyActivity ? (
+      {d.hasAnyActivity ? (
         <section className="mb-8" aria-labelledby="progress-heading">
           <div className="mb-3 flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Progress</p>
-              <h2 id="progress-heading" className="font-display text-xl font-semibold">${isAutoPath ? "Your training progress" : "Your learning progress"}</h2>
+              <h2 id="progress-heading" className="font-display text-xl font-semibold">{isAutoPath ? "Your training progress" : "Your learning progress"}</h2>
             </div>
             <Link to="/progress" className="text-xs font-semibold text-primary hover:underline">View full progress</Link>
           </div>
           <div className="grid grid-cols-3 divide-x divide-border/50 rounded-xl border border-border/50 bg-card/40 py-4">
-            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">${d.masteredTopics}</p><p className="mt-0.5 text-[10px] text-muted-foreground">${isAutoPath ? "Systems mastered" : "Topics mastered"}</p></div>
-            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">${reviewTopics.length}</p><p className="mt-0.5 text-[10px] text-muted-foreground">${isAutoPath ? "Due checks" : "Due review"}</p></div>
-            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">${d.streakDays > 0 ? `${d.streakDays}d` : "—"}</p><p className="mt-0.5 text-[10px] text-muted-foreground">Streak</p></div>
+            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{d.masteredTopics}</p><p className="mt-0.5 text-[10px] text-muted-foreground">{isAutoPath ? "Systems mastered" : "Topics mastered"}</p></div>
+            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{reviewTopics.length}</p><p className="mt-0.5 text-[10px] text-muted-foreground">{isAutoPath ? "Due checks" : "Due review"}</p></div>
+            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{d.streakDays > 0 ? d.streakDays + "d" : "—"}</p><p className="mt-0.5 text-[10px] text-muted-foreground">Streak</p></div>
           </div>
         </section>
-      ) : null}"}
+      ) : null}
 
       <section className="mb-8" aria-labelledby="practice-heading">
         <div className="mb-3">
-          <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">${isAutoPath ? "Train" : "Practice"}</p>
+          <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">{isAutoPath ? "Train" : "Practice"}</p>
           <h2 id="practice-heading" className="font-display text-xl font-semibold">Choose another way to learn</h2>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Link to="/practice" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><BookOpen className="size-5 text-feature-blue"/><p className="mt-3 text-sm font-semibold">${isAutoPath ? "Skill practice" : "Practice"}</p><p className="mt-1 text-xs text-muted-foreground">Apply what you know.</p></Link>
-          <Link to="/labs" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Wrench className="size-5 text-feature-orange"/><p className="mt-3 text-sm font-semibold">${isAutoPath ? "Shop practice" : "Labs"}</p><p className="mt-1 text-xs text-muted-foreground">Learn by doing.</p></Link>
-          <Link to="/review" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Sparkles className="size-5 text-feature-cyan"/><p className="mt-3 text-sm font-semibold">${isAutoPath ? "Recheck" : "Review"}</p><p className="mt-1 text-xs text-muted-foreground">${reviewTopics.length ? `${reviewTopics.length} ready now.` : "Keep knowledge fresh."}</p></Link>
+          <Link to="/practice" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><BookOpen className="size-5 text-feature-blue"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Skill practice" : "Practice"}</p><p className="mt-1 text-xs text-muted-foreground">Apply what you know.</p></Link>
+          <Link to="/labs" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Wrench className="size-5 text-feature-orange"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Shop practice" : "Labs"}</p><p className="mt-1 text-xs text-muted-foreground">Learn by doing.</p></Link>
+          <Link to="/review" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Sparkles className="size-5 text-feature-cyan"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Recheck" : "Review"}</p><p className="mt-1 text-xs text-muted-foreground">{reviewTopics.length ? reviewTopics.length + " ready now." : "Keep knowledge fresh."}</p></Link>
           <Link to="/quiz-me" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Compass className="size-5 text-feature-violet"/><p className="mt-3 text-sm font-semibold">Quiz Me</p><p className="mt-1 text-xs text-muted-foreground">Challenge yourself.</p></Link>
         </div>
       </section>
 
       <section className="mb-8" aria-labelledby="community-heading">
-        <div className="mb-2 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Community</p><h2 id="community-heading" className="font-display text-xl font-semibold">${isAutoPath ? "Talk shop" : "Learning together"}</h2></div><Link to="/community" className="text-xs font-semibold text-primary hover:underline">Open community</Link></div>
+        <div className="mb-2 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Community</p><h2 id="community-heading" className="font-display text-xl font-semibold">{isAutoPath ? "Talk shop" : "Learning together"}</h2></div><Link to="/community" className="text-xs font-semibold text-primary hover:underline">Open community</Link></div>
         <div className="divide-y divide-border/60 border-y border-border/60">
-          ${communityPosts.length===0?<Link to="/community" className="flex items-center gap-3 py-5 text-sm text-muted-foreground"><Users className="size-5"/>Be the first to start a conversation.</Link>:communityPosts.slice(0,2).map(post=><Link key={post.id} to="/community" search={{room:post.room}} className="block py-4 hover:bg-secondary/20"><div className="flex gap-3"><div className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-bold">{post.displayName.charAt(0).toUpperCase()}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="truncate text-sm font-semibold">{post.displayName}</span><span className="truncate text-[11px] text-muted-foreground">{post.room==="general"?"General":post.room}</span></div>{post.body.trim()?<p className="mt-1 line-clamp-2 text-sm leading-relaxed text-foreground/90">{post.body}</p>:null}<div className="mt-2 flex gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1"><Heart className="size-3.5"/>{post.likeCount}</span><span className="inline-flex items-center gap-1"><MessageCircle className="size-3.5"/>{post.commentCount}</span></div></div></div></Link>)}
+          {communityPosts.length===0?<Link to="/community" className="flex items-center gap-3 py-5 text-sm text-muted-foreground"><Users className="size-5"/>Be the first to start a conversation.</Link>:communityPosts.slice(0,2).map(post=><Link key={post.id} to="/community" search={{room:post.room}} className="block py-4 hover:bg-secondary/20"><div className="flex gap-3"><div className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-bold">{post.displayName.charAt(0).toUpperCase()}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="truncate text-sm font-semibold">{post.displayName}</span><span className="truncate text-[11px] text-muted-foreground">{post.room==="general"?"General":post.room}</span></div>{post.body.trim()?<p className="mt-1 line-clamp-2 text-sm leading-relaxed text-foreground/90">{post.body}</p>:null}<div className="mt-2 flex gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1"><Heart className="size-3.5"/>{post.likeCount}</span><span className="inline-flex items-center gap-1"><MessageCircle className="size-3.5"/>{post.commentCount}</span></div></div></div></Link>)}
         </div>
       </section>
 
@@ -465,7 +465,7 @@ function Dashboard() {
         <div className="flex flex-wrap gap-2">
           <Link to="/learn" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Explore topics</Link>
           <Link to="/pomodoro" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Focus timer</Link>
-          ${!isAutoPath ? <Link to="/virus" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link> : <Link to="/garage-match" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link>}
+          {!isAutoPath ? <Link to="/virus" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link> : <Link to="/garage-match" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link>}
           <Link to="/meditation" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Meditation & Focus</Link>
         </div>
       </section>
