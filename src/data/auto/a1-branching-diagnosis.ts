@@ -382,6 +382,136 @@ export const a1BranchingScenarios: A1BranchingScenario[] = [
         },
       },
     ],
+  },
+  {
+    topicId: "topic-engine-external-performance-assessment",
+    complaint: "The engine has a repeatable roughness and hissing noise under load. Determine whether the cause is an intake leak, failed engine mount, or exhaust leak before condemning an internal component.",
+    hiddenCauseId: "intake-leak",
+    causes: [
+      { id: "intake-leak", label: "Unmetered intake-air leak" },
+      { id: "engine-mount", label: "Failed or collapsed engine mount" },
+      { id: "exhaust-leak", label: "Exhaust manifold or joint leak" },
+    ],
+    diagnosisThreshold: 2,
+    repair: "Repair the confirmed intake sealing or routing fault using vehicle-specific service information.",
+    verification: ["Repeat the decisive leak test.", "Reproduce the original operating condition.", "Confirm normal airflow/fuel-control behavior and no abnormal noise or warning indication."],
+    repairChoices: [
+      { id: "repair-intake", label: "Repair the confirmed intake leak and any damaged sealing, hose, or routing condition identified by testing.", feedback: "This directly addresses the path proven by the leak and operating evidence.", correct: true },
+      { id: "replace-mount", label: "Replace the engine mount because the driver reported roughness and vibration.", feedback: "A mount can transmit vibration, but it does not explain the confirmed unmetered-air evidence.", correct: false, verificationFailureEvidence: "The vibration may feel different, but the hissing and unmetered-air behavior remain under the original condition." },
+      { id: "replace-exhaust", label: "Replace the exhaust manifold or gasket based on the hissing noise alone.", feedback: "Noise location must be tested; the accumulated evidence localized the leak to the intake path.", correct: false, verificationFailureEvidence: "The original hissing and fuel-control disturbance remain. Leak testing still identifies the intake path." },
+      { id: "internal-teardown", label: "Begin internal-engine disassembly because the engine runs rough under load.", feedback: "The external fault has already been localized, so internal disassembly is unsupported.", correct: false, verificationFailureEvidence: "The original complaint remains because the confirmed external intake leak was not corrected." },
+    ],
+    verificationChoices: [
+      { id: "repeat-leak-test", label: "Repeat the same controlled intake leak test and confirm the previously leaking path is sealed.", feedback: "This directly retests the failed condition.", correct: true },
+      { id: "reproduce-load", label: "Reproduce the original load/operating condition and confirm the roughness and hissing are gone.", feedback: "This proves the customer's original complaint is resolved.", correct: true },
+      { id: "check-data", label: "Confirm relevant airflow/fuel-control data and disturbed connections are normal after repair.", feedback: "This verifies system behavior as well as the physical repair.", correct: true },
+      { id: "visual-only", label: "Look at the repaired area and close the repair order if it appears secure.", feedback: "Appearance alone does not prove the leak or original operating complaint is corrected.", correct: false },
+    ],
+    tests: [
+      { id: "external-inspection", label: "Inspect intake routing, mounts, exhaust joints, hoses, and evidence of recent work", outcomes: {
+        "intake-leak": outcome("A suspect intake connection shows deterioration or disturbance, but visual inspection alone cannot prove leakage.", "The finding makes an intake leak plausible and identifies where to test.", { "intake-leak": "supported", "engine-mount": "plausible", "exhaust-leak": "plausible" }),
+        "engine-mount": outcome("A mount shows abnormal movement or deterioration while intake and exhaust routing appear intact.", "The physical condition supports a mount path but should be correlated with loaded movement.", { "intake-leak": "less-likely", "engine-mount": "supported", "exhaust-leak": "less-likely" }),
+        "exhaust-leak": outcome("Soot or disturbance is visible near an exhaust joint.", "The finding supports targeted exhaust leak testing.", { "intake-leak": "less-likely", "engine-mount": "plausible", "exhaust-leak": "supported" }),
+      }},
+      { id: "leak-functional-test", label: "Use the appropriate controlled leak or functional test on the suspected external path", outcomes: {
+        "intake-leak": outcome("The controlled test confirms leakage into the intake path at the suspected connection.", "The leak is now demonstrated rather than inferred from noise.", { "intake-leak": "supported", "engine-mount": "less-likely", "exhaust-leak": "ruled-out" }),
+        "engine-mount": outcome("No intake or exhaust leak is found; controlled loading reproduces excessive powertrain movement.", "The absence of leakage plus abnormal movement supports the mount.", { "intake-leak": "ruled-out", "engine-mount": "supported", "exhaust-leak": "ruled-out" }),
+        "exhaust-leak": outcome("The approved exhaust leak check localizes escaping gas at the manifold or joint.", "The leak is directly localized to the exhaust path.", { "intake-leak": "ruled-out", "engine-mount": "less-likely", "exhaust-leak": "supported" }),
+      }},
+      { id: "known-good-comparison", label: "Compare movement, airflow behavior, or scan evidence with service information or a known-good condition", outcomes: {
+        "intake-leak": outcome("Airflow/fuel-control behavior changes consistently with the confirmed intake leak and normalizes when the leak path is controlled.", "The operating data independently supports the intake-leak diagnosis.", { "intake-leak": "supported", "engine-mount": "ruled-out", "exhaust-leak": "ruled-out" }),
+        "engine-mount": outcome("Powertrain movement exceeds the known-good/service-information condition while engine operation remains otherwise normal.", "The comparison independently supports the mount fault.", { "intake-leak": "ruled-out", "engine-mount": "supported", "exhaust-leak": "ruled-out" }),
+        "exhaust-leak": outcome("Noise and gas leakage track the exhaust joint while intake behavior and mount movement remain normal.", "The comparison independently supports the exhaust fault.", { "intake-leak": "ruled-out", "engine-mount": "ruled-out", "exhaust-leak": "supported" }),
+      }},
+    ],
+  },
+  {
+    topicId: "topic-advanced-internal-mechanical-diagnosis",
+    complaint: "One cylinder remains weak after basic ignition, fuel, and control checks. Localize the internal mechanical loss before opening the engine.",
+    hiddenCauseId: "ring-seal",
+    causes: [
+      { id: "ring-seal", label: "Piston-ring/cylinder sealing loss" },
+      { id: "intake-valve", label: "Intake-valve sealing loss" },
+      { id: "exhaust-valve", label: "Exhaust-valve sealing loss" },
+      { id: "adjacent-seal", label: "Head-gasket or adjacent sealing-path loss" },
+    ],
+    diagnosisThreshold: 2,
+    repair: "Service the confirmed piston-ring/cylinder sealing fault only after measurements and inspection establish the required repair scope.",
+    verification: ["Repeat the decisive compression/leak-down test.", "Reproduce the original operating condition.", "Confirm no abnormal smoke, noise, leakage, or fluid contamination."],
+    repairChoices: [
+      { id: "repair-ring-cylinder", label: "Correct the measured piston-ring/cylinder sealing fault to the scope supported by inspection and service limits.", feedback: "This follows the localized crankcase leakage and supporting mechanical evidence.", correct: true },
+      { id: "valve-job", label: "Perform a valve job because low compression can result from valve leakage.", feedback: "The leak-down evidence localized pressure loss away from the valve paths.", correct: false, verificationFailureEvidence: "Compression remains weak and leak-down still escapes primarily into the crankcase after the unrelated valve work." },
+      { id: "head-gasket", label: "Replace the head gasket without evidence of adjacent-cylinder or coolant-path leakage.", feedback: "The evidence does not support that sealing path.", correct: false, verificationFailureEvidence: "The weak cylinder remains and leak-down still localizes pressure loss to the crankcase." },
+      { id: "rings-only-no-measure", label: "Install rings without measuring the cylinder or inspecting the related wear surfaces.", feedback: "That is an incomplete repair decision because cylinder condition determines whether rings alone can restore sealing.", correct: false, verificationFailureEvidence: "Post-repair sealing remains outside the expected condition because the underlying cylinder wear was not corrected." },
+    ],
+    verificationChoices: [
+      { id: "repeat-decisive", label: "Repeat compression and/or leak-down under comparable conditions and confirm the previous loss is corrected.", feedback: "This directly measures whether sealing was restored.", correct: true },
+      { id: "original-condition", label: "Reproduce the original operating condition and confirm cylinder contribution is restored.", feedback: "This verifies the original symptom rather than only the component.", correct: true },
+      { id: "secondary-check", label: "Check for abnormal smoke, noise, leakage, and fluid cross-contamination after repair.", feedback: "This checks for remaining or repair-induced mechanical concerns.", correct: true },
+      { id: "idle-only", label: "Let the engine idle briefly and close the repair order if it sounds smoother.", feedback: "Subjective idle quality alone does not verify the measured sealing fault.", correct: false },
+    ],
+    tests: [
+      { id: "compression-compare", label: "Compare cylinder compression under the specified test conditions", outcomes: {
+        "ring-seal": outcome("The affected cylinder is consistently lower than its companions.", "Compression confirms a mechanical imbalance but does not yet localize the leak.", { "ring-seal": "supported", "intake-valve": "supported", "exhaust-valve": "supported", "adjacent-seal": "plausible" }),
+        "intake-valve": outcome("The affected cylinder is consistently lower than its companions.", "The imbalance requires leakage localization.", { "ring-seal": "supported", "intake-valve": "supported", "exhaust-valve": "supported", "adjacent-seal": "plausible" }),
+        "exhaust-valve": outcome("The affected cylinder is consistently lower than its companions.", "The imbalance requires leakage localization.", { "ring-seal": "supported", "intake-valve": "supported", "exhaust-valve": "supported", "adjacent-seal": "plausible" }),
+        "adjacent-seal": outcome("Two adjacent cylinders show a related compression loss.", "The pattern raises suspicion for an adjacent sealing path.", { "ring-seal": "less-likely", "intake-valve": "less-likely", "exhaust-valve": "less-likely", "adjacent-seal": "supported" }),
+      }},
+      { id: "leakdown-localize", label: "Perform leak-down testing and identify the primary escape path", outcomes: {
+        "ring-seal": outcome("Test air escapes primarily through the crankcase path.", "This localizes the pressure loss toward the piston-ring/cylinder interface.", { "ring-seal": "supported", "intake-valve": "ruled-out", "exhaust-valve": "ruled-out", "adjacent-seal": "ruled-out" }),
+        "intake-valve": outcome("Test air escapes primarily through the intake path.", "This localizes loss to intake-valve sealing.", { "ring-seal": "ruled-out", "intake-valve": "supported", "exhaust-valve": "ruled-out", "adjacent-seal": "ruled-out" }),
+        "exhaust-valve": outcome("Test air escapes primarily through the exhaust path.", "This localizes loss to exhaust-valve sealing.", { "ring-seal": "ruled-out", "intake-valve": "ruled-out", "exhaust-valve": "supported", "adjacent-seal": "ruled-out" }),
+        "adjacent-seal": outcome("Test air communicates with an adjacent cylinder or cooling path.", "This localizes loss to an adjacent/head-gasket sealing path.", { "ring-seal": "ruled-out", "intake-valve": "ruled-out", "exhaust-valve": "ruled-out", "adjacent-seal": "supported" }),
+      }},
+      { id: "supporting-inspection", label: "Correlate the primary tests with appropriate visual, borescope, noise, vacuum, or fluid evidence", outcomes: {
+        "ring-seal": outcome("Cylinder-wall/ring-related evidence agrees with the crankcase leakage path.", "A second independent observation supports the ring/cylinder diagnosis.", { "ring-seal": "supported", "intake-valve": "ruled-out", "exhaust-valve": "ruled-out", "adjacent-seal": "ruled-out" }),
+        "intake-valve": outcome("Supporting evidence agrees with intake-valve leakage and no ring or adjacent-path evidence is found.", "The evidence converges on intake-valve sealing.", { "ring-seal": "ruled-out", "intake-valve": "supported", "exhaust-valve": "ruled-out", "adjacent-seal": "ruled-out" }),
+        "exhaust-valve": outcome("Supporting evidence agrees with exhaust-valve leakage and no ring or adjacent-path evidence is found.", "The evidence converges on exhaust-valve sealing.", { "ring-seal": "ruled-out", "intake-valve": "ruled-out", "exhaust-valve": "supported", "adjacent-seal": "ruled-out" }),
+        "adjacent-seal": outcome("Fluid or adjacent-cylinder evidence agrees with the leak-down communication path.", "Independent evidence supports the adjacent sealing fault.", { "ring-seal": "ruled-out", "intake-valve": "ruled-out", "exhaust-valve": "ruled-out", "adjacent-seal": "supported" }),
+      }},
+    ],
+  },
+  {
+    topicId: "topic-fuel-delivery-exhaust-backpressure",
+    complaint: "The engine loses power under load. Determine whether the restriction is fuel delivery, exhaust flow, or an intake/airflow problem before replacing components.",
+    hiddenCauseId: "exhaust-restriction",
+    causes: [
+      { id: "fuel-delivery", label: "Fuel delivery pressure/volume deficiency" },
+      { id: "exhaust-restriction", label: "Excessive exhaust restriction/backpressure" },
+      { id: "intake-airflow", label: "Intake airflow restriction or measurement-path fault" },
+    ],
+    diagnosisThreshold: 2,
+    repair: "Correct the confirmed exhaust restriction using the vehicle-specific service procedure and address the condition that caused it where applicable.",
+    verification: ["Repeat the failed exhaust-flow/backpressure test.", "Recheck relevant fuel-control/airflow data.", "Reproduce the original loaded performance condition and inspect for leaks or warnings."],
+    repairChoices: [
+      { id: "repair-exhaust", label: "Correct the measured exhaust restriction and address any confirmed underlying cause of the restriction.", feedback: "This directly addresses the restriction proven by targeted testing.", correct: true },
+      { id: "replace-pump", label: "Replace the fuel pump because low power under load can result from inadequate fuel delivery.", feedback: "Fuel delivery tested within the required condition; the restriction was localized to exhaust flow.", correct: false, verificationFailureEvidence: "Fuel pressure remains acceptable, but power still falls under load and the exhaust restriction measurement remains abnormal." },
+      { id: "replace-airflow-sensor", label: "Replace the airflow sensor based on scan-data suspicion without proving a sensor fault.", feedback: "The scan evidence justified testing but did not condemn the sensor; the targeted exhaust test identified the restriction.", correct: false, verificationFailureEvidence: "The replacement does not restore loaded performance. Exhaust-flow testing still shows excessive restriction." },
+      { id: "clear-adaptives", label: "Clear learned values and return the vehicle without correcting the measured restriction.", feedback: "Resetting learned values cannot remove a physical exhaust restriction.", correct: false, verificationFailureEvidence: "The original low-power complaint returns under load and backpressure remains excessive." },
+    ],
+    verificationChoices: [
+      { id: "repeat-backpressure", label: "Repeat the same approved exhaust restriction/backpressure test and confirm the abnormal result is corrected.", feedback: "This directly retests the measured fault.", correct: true },
+      { id: "recheck-data", label: "Recheck relevant fuel-control and airflow data under the original operating condition.", feedback: "This confirms related system behavior normalized after restoring exhaust flow.", correct: true },
+      { id: "loaded-performance", label: "Reproduce the original loaded condition and confirm expected performance with no leaks or warning indicators.", feedback: "This verifies the customer's original complaint is resolved.", correct: true },
+      { id: "rev-neutral", label: "Rev the engine briefly in neutral and close the repair order if it sounds normal.", feedback: "An unloaded rev does not reproduce the condition that exposed the restriction.", correct: false },
+    ],
+    tests: [
+      { id: "scan-direction", label: "Review scan evidence under the complaint condition to choose the next targeted test", outcomes: {
+        "fuel-delivery": outcome("Fuel-control evidence under load is consistent with inadequate delivery, while airflow and exhaust indicators do not yet localize another cause.", "Scan data supports testing fuel delivery but does not by itself condemn a pump.", { "fuel-delivery": "supported", "exhaust-restriction": "plausible", "intake-airflow": "plausible" }),
+        "exhaust-restriction": outcome("Load-related airflow/fuel-control behavior is consistent with a breathing restriction rather than a simple ignition event.", "The pattern justifies targeted exhaust-flow testing.", { "fuel-delivery": "plausible", "exhaust-restriction": "supported", "intake-airflow": "plausible" }),
+        "intake-airflow": outcome("Airflow evidence is implausible for the operating condition and directs attention to the intake/measurement path.", "The data supports testing intake airflow before replacing a sensor.", { "fuel-delivery": "less-likely", "exhaust-restriction": "plausible", "intake-airflow": "supported" }),
+      }},
+      { id: "fuel-capacity", label: "Measure fuel pressure/volume with the specified equipment under the condition that produces the complaint", outcomes: {
+        "fuel-delivery": outcome("Fuel pressure or delivered volume falls outside the supplied requirement under load.", "The measured capacity deficiency supports a fuel-delivery fault.", { "fuel-delivery": "supported", "exhaust-restriction": "less-likely", "intake-airflow": "less-likely" }),
+        "exhaust-restriction": outcome("Fuel pressure and volume remain within the supplied requirement while power falls.", "Normal delivery reduces the likelihood of fuel supply as the cause.", { "fuel-delivery": "ruled-out", "exhaust-restriction": "supported", "intake-airflow": "plausible" }),
+        "intake-airflow": outcome("Fuel delivery remains within requirement.", "Normal delivery shifts attention back to airflow/breathing evidence.", { "fuel-delivery": "ruled-out", "exhaust-restriction": "plausible", "intake-airflow": "supported" }),
+      }},
+      { id: "flow-restriction", label: "Perform the manufacturer-recommended intake/exhaust restriction test justified by the earlier evidence", outcomes: {
+        "fuel-delivery": outcome("Intake and exhaust restriction tests are normal.", "Normal breathing paths reinforce the measured fuel-delivery deficiency.", { "fuel-delivery": "supported", "exhaust-restriction": "ruled-out", "intake-airflow": "ruled-out" }),
+        "exhaust-restriction": outcome("The exhaust test shows excessive restriction under the specified condition.", "The targeted measurement directly supports excessive exhaust backpressure.", { "fuel-delivery": "ruled-out", "exhaust-restriction": "supported", "intake-airflow": "ruled-out" }),
+        "intake-airflow": outcome("The intake path or measurement check identifies the abnormal restriction/airflow condition while exhaust flow is normal.", "The targeted test localizes the fault to the intake/airflow path.", { "fuel-delivery": "ruled-out", "exhaust-restriction": "ruled-out", "intake-airflow": "supported" }),
+      }},
+    ],
   }
 ];
 
