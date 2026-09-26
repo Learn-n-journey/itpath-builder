@@ -83,7 +83,7 @@ function topicStatusMetadata(
   const mastered = isMastered(user, entry.topic.id);
   const active = hasTopicActivity(user, entry.topic.id) || entry.mastery > 0;
   let status = "Not started";
-  if (!entry.unlocked) status = "Locked until previous";
+  if (!entry.unlocked) status = "Locked · master the previous topic";
   else if (mastered) status = "Complete";
   else if (entry.openMistakes > 0) status = `${entry.openMistakes} open mistake${entry.openMistakes === 1 ? "" : "s"}`;
   else if (entry.dueReviews > 0) status = `${entry.dueReviews} review${entry.dueReviews === 1 ? "" : "s"} due`;
@@ -141,7 +141,7 @@ function MyPath() {
 
       <GaylPathNote className="mb-4" {...(current ? { topicId: current.id } : {})} />
 
-      <section className="glass-surface mb-5 rounded-2xl border border-primary/25 p-4 sm:p-5" aria-labelledby="path-next-action">
+      <section className="relative mb-6 overflow-hidden rounded-3xl border border-primary/40 bg-card/95 p-5 shadow-lg sm:p-6" aria-labelledby="path-next-action">\n        <div className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-primary/10 blur-3xl" />\n        <div className="relative">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
@@ -154,7 +154,7 @@ function MyPath() {
               {continuity.reason}{continuity.minutes ? ` · About ${continuity.minutes} min` : ""}
             </p>
           </div>
-          <Button asChild className="h-11 shrink-0 rounded-xl">
+          <Button asChild className="h-12 shrink-0 rounded-xl px-6 text-sm font-bold shadow-md">
             <Link
               to={continuity.to as never}
               {...(continuity.params ? { params: continuity.params as never } : {})}
@@ -169,9 +169,9 @@ function MyPath() {
 
       <section className="mb-6" aria-labelledby="your-order-heading">
         <div className="mb-4">
-          <h2 id="your-order-heading" className="font-display text-2xl font-bold tracking-tight text-foreground">Your order</h2>
+          <h2 id="your-order-heading" className="font-display text-2xl font-bold tracking-tight text-foreground">Your next steps</h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {queue.entries.length} topics · Work through these in order.
+            You are here now. The next steps unlock as you prove the work behind them.
           </p>
         </div>
 
@@ -221,7 +221,7 @@ function MyPath() {
 
                 <div className="min-w-0 flex-1">
                   {isFeatured ? (
-                    <div className="glass-surface relative overflow-hidden rounded-2xl border border-primary/40 p-4 sm:p-5">
+                    <div className="relative overflow-hidden rounded-2xl border border-primary/45 bg-card/95 p-4 shadow-md sm:p-5">
                       <div className="mb-2 flex items-center gap-1.5 text-[0.625rem] font-bold uppercase tracking-[0.18em] text-primary">
                         <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" aria-hidden />
                         <span>Next up</span>
@@ -265,7 +265,7 @@ function MyPath() {
                       </div>
                     </div>
                   ) : entry.unlocked ? (
-                    <div className="group relative flex items-center justify-between gap-3 glass-surface rounded-xl border border-border/60 p-3 transition-colors hover:border-border sm:p-3.5">
+                    <div className="group relative flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/90 p-3 transition-colors hover:border-primary/30 hover:bg-card/95 sm:p-3.5">
                       <Link
                         to="/topics/$topicId"
                         params={{ topicId: entry.topic.id }}
@@ -285,7 +285,7 @@ function MyPath() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between gap-3 glass-surface rounded-xl border border-border/40 p-3 opacity-75 sm:p-3.5">
+                    <div className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-card/80 p-3 opacity-80 sm:p-3.5">
                       <div className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
                         <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/30 bg-secondary/30 text-muted-foreground/50">
                           <TopicIcon className="size-5" aria-hidden />
@@ -307,7 +307,7 @@ function MyPath() {
           })}
         </div>
 
-        <div className="glass-surface mt-4 flex items-center gap-3.5 rounded-2xl border border-border/60 p-4">
+        <div className="mt-4 flex items-center gap-3.5 rounded-2xl border border-border/70 bg-card/90 p-4">
           <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-feature-amber/25 bg-feature-amber/10 text-feature-amber">
             <Trophy className="size-5" aria-hidden />
           </div>
@@ -322,7 +322,7 @@ function MyPath() {
         </div>
       </section>
 
-      <CompactStats className="grid-cols-4"><CompactStat label="Learning paths" value={certCount} /><CompactStat label="Topics" value={topics.length} /><CompactStat label="Completed" value={stats.topicsCompleted} /><CompactStat label="Mastered" value={stats.topicsMastered} /></CompactStats>
+      <CompactStats className="grid-cols-4"><CompactStat label="Certification paths" value={certCount} /><CompactStat label="Topics" value={topics.length} /><CompactStat label="Completed" value={stats.topicsCompleted} /><CompactStat label="Mastered" value={stats.topicsMastered} /></CompactStats>
 
       {(() => {
         const flat = levels.flatMap((group) => group.items);
@@ -336,10 +336,10 @@ function MyPath() {
         let running = 0;
         return (
           <ol className="relative mt-5" aria-label="Learning journey">
-            <span className="journey-spectrum absolute bottom-6 left-[0.8125rem] top-6 w-0.5 rounded-full opacity-35" aria-hidden />
+            <span className="journey-spectrum absolute bottom-6 left-[0.8125rem] top-6 w-1 rounded-full opacity-55" aria-hidden />
             {currentIndex > 0 && (
               <span
-                className="journey-spectrum absolute left-[0.8125rem] top-6 w-0.5 rounded-full"
+                className="journey-spectrum absolute left-[0.8125rem] top-6 w-1 rounded-full"
                 style={{ height: `calc(${Math.min(100, (currentIndex / Math.max(1, flat.length - 1)) * 100)}% - 3rem)`, backgroundSize: "100% calc(100% * " + (flat.length - 1) / Math.max(1, currentIndex) + ")" }}
                 aria-hidden
               />
