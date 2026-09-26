@@ -68,10 +68,10 @@ export const Route = createFileRoute("/community")({
   }),
   head: () => ({
     meta: [
-      { title: "Community and study rooms | IT PATH" },
-      { name: "description", content: "Talk with other IT PATH learners in general chat or topic study rooms." },
-      { property: "og:title", content: "Community and study rooms | IT PATH" },
-      { property: "og:description", content: "General chat plus a study room for every section of the curriculum." },
+      { title: `Community and study rooms | ${domain.appName}` },
+      { name: "description", content: `Talk with other ${domain.appName} learners in general chat or focused community rooms.` },
+      { property: "og:title", content: `Community and study rooms | ${domain.appName}` },
+      { property: "og:description", content: `General chat plus focused communities for ${domain.field} learners.` },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -103,7 +103,7 @@ function CommunityPage() {
   const membership = useCommunityMembership(room);
   const memberCount = useCommunityMemberCount(room);
   const { messages: communityStream, loading: streamLoading } = useCommunityPostStream();
-  const scopedCommunityStream = useMemo(() => communityStream.filter((message) => isValidRoom(message.room || GENERAL_ROOM)), [scopedCommunityStream]);
+  const scopedCommunityStream = useMemo(() => communityStream.filter((message) => isValidRoom(message.room || GENERAL_ROOM)), [communityStream]);
   const { rooms: joinedRooms, loading: membershipsLoading } = useMyCommunityMemberships();
   const { friendships, loading: friendshipsLoading } = useSocialMessaging();
   const { activities: sharedActivity, loading: activityLoading } = useCommunityLearningActivity();
