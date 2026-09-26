@@ -7,6 +7,7 @@ import { EXAM_READY_SCORE, certificationStatusLabels, scoreAllCertifications } f
 import type { CertificationReadiness } from "@/lib/certification-engine";
 import { certificationsByLevel, certificationTopics } from "@/lib/cert-path";
 import { selectedCertification } from "@/lib/adaptive-path";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/certifications/")({
   staticData: { sitemap: false },
@@ -14,15 +15,15 @@ export const Route = createFileRoute("/certifications/")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Certifications | IT PATH" },
+      { title: `Certifications | ${domain.appName}` },
       {
         name: "description",
-        content: "Every certification in the IT PATH programme, grouped by level, with topic coverage and readiness.",
+        content: `Every certification in ${domain.appName}, grouped by level, with topic coverage and readiness.`,
       },
-      { property: "og:title", content: "Certifications | IT PATH" },
+      { property: "og:title", content: `Certifications | ${domain.appName}` },
       {
         property: "og:description",
-        content: "Level, topic coverage, readiness and status for each CompTIA certification you are working towards.",
+        content: domain.id === "auto-repair" ? "ASE certification coverage, readiness and status across your automotive training." : "Level, topic coverage, readiness and status for each CompTIA certification you are working towards.",
       },
     ],
   }),
@@ -76,8 +77,8 @@ function CertificationsIndex() {
       />
 
       <p className="mb-4 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-        IT PATH does not issue certificates. Readiness here estimates how prepared you are for the
-        official vendor exam, which you still need to register for and pass separately.
+        {domain.appName} does not issue certificates. Readiness here estimates how prepared you are for the
+        {domain.id === "auto-repair" ? " official ASE certification test" : " official vendor exam"}, which you still need to register for and pass separately.
       </p>
 
       <div className="grid gap-4 sm:grid-cols-3">
