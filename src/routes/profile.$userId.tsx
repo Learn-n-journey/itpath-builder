@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, BookOpen, Clock3, MessageCircle, Pencil, Target, UserCheck, UserPlus, Users } from "lucide-react";
+import { ArrowLeft, Award, BookOpen, Clock3, FlaskConical, Gamepad2, GraduationCap, MessageCircle, Pencil, Star, Target, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCommunityChat } from "@/hooks/use-community-chat";
 import { useSocialMessaging } from "@/hooks/use-social-messaging";
 import { useProfile } from "@/hooks/use-profile";
+import { useLearningActivity, type LearningActivity, type LearningActivityVisibility } from "@/hooks/use-learning-activity";
 import { useAppState, useStats } from "@/state/app-state";
 import { overallMeasures } from "@/lib/mastery-summary";
 
@@ -19,6 +20,7 @@ function ProfilePage(){
  const {userId:profileId}=Route.useParams(); const nav=useNavigate();
  const {messages}=useCommunityChat("general"); const {friendships,requestFriend,userId}=useSocialMessaging();
  const {profile,saveProfile,savingProfile,uploadAvatar,uploading}=useProfile(profileId);
+ const {activities,loading:activityLoading,updateSharing,updatingSharing}=useLearningActivity(profileId);
  const {user}=useAppState(); const stats=useStats(); const measures=overallMeasures(user);
  const [editing,setEditing]=useState(false);
  const [draft,setDraft]=useState({displayName:"",bio:"",currentlyLearning:"",learningGoal:"",showLearningProgress:true,showLearningGoal:true,showAchievements:true});
@@ -53,7 +55,32 @@ function ProfilePage(){
     {isOwn?<div className="mt-5 rounded-xl border bg-card p-4"><div className="flex items-center justify-between"><div className="flex items-center gap-2 text-sm font-semibold"><Clock3 className="size-4 text-primary"/>Your learning</div><Link to="/progress" className="text-xs text-primary hover:underline">View progress</Link></div><div className="mt-3 flex items-end justify-between"><div><p className="text-2xl font-bold">{measures.learningProgress}%</p><p className="text-xs text-muted-foreground">overall learning progress</p></div><p className="text-xs text-muted-foreground">{measures.activitiesCompleted} activities done</p></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{width:measures.learningProgress+"%"}}/></div></div>:null}
     {!isOwn&&<div className="mt-4 flex gap-2">{accepted?<Button className="flex-1" onClick={()=>void nav({to:"/messages",search:{user:profileId}} as any)}><MessageCircle className="mr-2 size-4"/>Message</Button>:<Button className="flex-1" onClick={add} disabled={pending}>{pending?<><UserCheck className="mr-2 size-4"/>Request sent</>:<><UserPlus className="mr-2 size-4"/>Add friend</>}</Button>}</div>}
    </section>
-   <section><div className="flex items-center justify-between border-b px-4 py-3"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Posts</p>{isOwn?<Link to="/community" className="text-xs font-medium text-primary hover:underline">Create a post</Link>:null}</div>{posts.length?posts.map(p=><article key={p.id} className="border-b px-4 py-4"><p className="whitespace-pre-wrap text-[15px] leading-6">{p.body}</p>{p.imageUrl&&<img src={p.imageUrl} alt="" className="mt-3 max-h-[30rem] w-full rounded-xl object-cover"/>}</article>):<p className="px-4 py-10 text-center text-sm text-muted-foreground">No public posts yet.</p>}</section>
+   <section>
+    <div className="flex items-center justify-between border-b px-4 py-3"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Learning activity</p><span className="text-xs text-muted-foreground">{activities.length ? `${activities.length} recent` : ""}</span></div>
+    {activityLoading?<p className="px-4 py-10 text-center text-sm text-muted-foreground">Loading activity…</p>:activities.length?activities.map(activity=><ActivityCard key={activity.id} activity={activity} isOwn={isOwn} updating={updatingSharing} onUpdate={updateSharing}/>):<div className="px-4 py-10 text-center"><Trophy className="mx-auto size-7 text-muted-foreground/60"/><p className="mt-3 text-sm font-medium">No learning activity yet</p><p className="mt-1 text-xs text-muted-foreground">{isOwn?"Future learning milestones will appear here.":"This learner has not shared any activity yet."}</p></div>}
+   </section>
+   <section><div className="flex items-center justify-between border-y px-4 py-3"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Posts</p>{isOwn?<Link to="/community" className="text-xs font-medium text-primary hover:underline">Create a post</Link>:null}</div>{posts.length?posts.map(p=><article key={p.id} className="border-b px-4 py-4"><p className="whitespace-pre-wrap text-[15px] leading-6">{p.body}</p>{p.imageUrl&&<img src={p.imageUrl} alt="" className="mt-3 max-h-[30rem] w-full rounded-xl object-cover"/>}</article>):<p className="px-4 py-10 text-center text-sm text-muted-foreground">No public posts yet.</p>}</section>
   </main>
  </div>
+}
+
+
+function ActivityCard({activity,isOwn,updating,onUpdate}:{activity:LearningActivity;isOwn:boolean;updating:boolean;onUpdate:(input:{id:string;visibility?:LearningActivityVisibility;isFeatured?:boolean})=>Promise<void>}){
+ const config={
+  lesson_completed:{label:"Lesson completed",icon:BookOpen},
+  mastery_advanced:{label:"Mastery advanced",icon:Target},
+  lab_completed:{label:"Lab completed",icon:FlaskConical},
+  achievement_earned:{label:"Achievement earned",icon:Award},
+  project_completed:{label:"Project completed",icon:Trophy},
+  certification_milestone:{label:"Certification milestone",icon:GraduationCap},
+  streak_milestone:{label:"Streak milestone",icon:Star},
+  game_accomplishment:{label:"Game accomplishment",icon:Gamepad2},
+ }[activity.activityType];
+ const Icon=config.icon;
+ const when=new Date(activity.occurredAt).toLocaleDateString(undefined,{month:"short",day:"numeric",year:new Date(activity.occurredAt).getFullYear()===new Date().getFullYear()?undefined:"numeric"});
+ return <article className="border-b px-4 py-4">
+  <div className="flex gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary"><Icon className="size-5"/></span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-3"><div><p className="text-xs font-semibold text-primary">{config.label}</p><h3 className="mt-0.5 font-semibold leading-5">{activity.title}</h3></div>{activity.isFeatured?<span title="Featured on profile"><Star className="size-4 fill-current text-primary"/></span>:null}</div>{activity.description?<p className="mt-1.5 text-sm leading-5 text-muted-foreground">{activity.description}</p>:null}<p className="mt-2 text-xs text-muted-foreground">{when}</p>
+  {isOwn?<div className="mt-3 flex flex-wrap items-center gap-2"><select aria-label="Activity visibility" value={activity.visibility} disabled={updating} onChange={e=>void onUpdate({id:activity.id,visibility:e.target.value as LearningActivityVisibility})} className="h-8 rounded-lg border border-border bg-background px-2 text-xs"><option value="private">Private</option><option value="friends">Friends</option><option value="community">Community</option><option value="public">Public</option></select><Button size="sm" variant={activity.isFeatured?"secondary":"ghost"} disabled={updating} onClick={()=>void onUpdate({id:activity.id,isFeatured:!activity.isFeatured})}><Star className="mr-1.5 size-3.5"/>{activity.isFeatured?"Featured":"Feature"}</Button></div>:null}
+  </div></div>
+ </article>;
 }
