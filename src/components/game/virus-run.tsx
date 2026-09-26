@@ -345,6 +345,8 @@ export function VirusRun() {
   const distFieldRef = useRef<number[][] | null>(null);
   const fieldAgeRef = useRef(0);
   const keysRef = useRef<string[]>([]);
+  const queuedDirRef = useRef<string | null>(null);
+  const travelDirRef = useRef<string | null>(null);
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
@@ -430,6 +432,8 @@ export function VirusRun() {
     distFieldRef.current = null;
     fieldAgeRef.current = 999;
     keysRef.current = [];
+    queuedDirRef.current = null;
+    travelDirRef.current = null;
     syncHud(runRef.current);
     setPhaseBoth("playing");
     lastRef.current = 0;
@@ -532,18 +536,28 @@ export function VirusRun() {
       }
       const field = distFieldRef.current!;
 
-      // Player movement, cell to cell.
+      // Player movement, cell to cell. Turns are buffered and the current
+      // travel direction continues through corridors, Pac-Man style.
       if (!p.moving) {
-        const held = keysRef.current[keysRef.current.length - 1];
-        if (held) {
-          const [dx, dy] = DIR_VECS[held]!;
-          const nx = Math.round(p.x) + dx;
-          const ny = Math.round(p.y) + dy;
-          if (run.grid[ny]?.[nx] === 0) {
-            p.tx = nx;
-            p.ty = ny;
-            p.moving = true;
-          }
+        const cx = Math.round(p.x), cy = Math.round(p.y);
+        const requested = queuedDirRef.current ?? keysRef.current[keysRef.current.length - 1] ?? null;
+        const canMove = (dir: string | null) => {
+          if (!dir) return false;
+          const [dx, dy] = DIR_VECS[dir]!;
+          return run.grid[cy + dy]?.[cx + dx] === 0;
+        };
+        let nextDir: string | null = null;
+        if (canMove(requested)) nextDir = requested;
+        else if (canMove(travelDirRef.current)) nextDir = travelDirRef.current;
+        if (nextDir) {
+          const [dx, dy] = DIR_VECS[nextDir]!;
+          p.x = cx; p.y = cy;
+          p.tx = cx + dx; p.ty = cy + dy;
+          p.moving = true;
+          travelDirRef.current = nextDir;
+          if (requested === nextDir) queuedDirRef.current = null;
+        } else {
+          travelDirRef.current = null;
         }
       }
       if (p.moving) {
@@ -560,7 +574,9 @@ export function VirusRun() {
         const r = stepEntity(p.x, p.y, p.tx, p.ty, playerSpeed, dt);
         p.x = r.x;
         p.y = r.y;
-        if (r.arrived) p.moving = false;
+        if (r.arrived) {
+          p.x = p.tx; p.y = p.ty; p.moving = false;
+        }
       }
 
       // Packets.
@@ -714,6 +730,8 @@ export function VirusRun() {
           p.moving = false;
           p.invuln = 2;
           keysRef.current = [];
+          queuedDirRef.current = null;
+          travelDirRef.current = null;
           syncHud(run);
           if (run.integrity <= 0) {
             // Game over: record bests honestly from this run.
@@ -1284,6 +1302,8 @@ export function VirusRun() {
   // Mobile steering uses a single buffered direction. Keeping the last direction
   // active lets players make clean maze turns without continuously holding a tiny target.
   const pressDir = (dir: string) => {
+    // Keep a requested turn queued until the next legal intersection.
+    queuedDirRef.current = dir;
     keysRef.current = [dir];
   };
   const releaseDir = (dir: string) => {
@@ -1301,11 +1321,12 @@ export function VirusRun() {
     // A generous swipe threshold prevents accidental turns while still allowing
     // short flicks. Once selected, the direction remains buffered until changed.
     if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
-    const axisBias = 1.18;
+    const axisBias = 1.06;
     const horizontal = Math.abs(dx) > Math.abs(dy) * axisBias;
     const vertical = Math.abs(dy) > Math.abs(dx) * axisBias;
-    if (!horizontal && !vertical) return;
-    keysRef.current = [horizontal ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up")];
+    const dir = horizontal ? (dx > 0 ? "right" : "left") : vertical ? (dy > 0 ? "down" : "up") : Math.abs(dx) >= Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up");
+    queuedDirRef.current = dir;
+    keysRef.current = [dir];
   };
 
   const onCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
