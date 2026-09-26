@@ -10,7 +10,7 @@ import { computeProgress, type ProgressReport } from "@/lib/progress-engine";
 import { overallMeasures } from "@/lib/mastery-summary";
 import { evidenceSourceLabels } from "@/lib/skills-engine";
 import { useAppState } from "@/state/app-state";
-import { TrendingUp } from "lucide-react";
+import { AlertTriangle, ArrowRight, Brain, CheckCircle2, Clock3, Target, TrendingUp } from "lucide-react";
 import { SectionTabs, PROGRESS_TABS } from "@/components/layout/section-tabs";
 
 export const Route = createFileRoute("/progress")({
@@ -58,6 +58,12 @@ function ProgressPage() {
   const report = useMemo<ProgressReport>(() => computeProgress(user), [user]);
   const measures = useMemo(() => overallMeasures(user), [user]);
   const [showAllTopics, setShowAllTopics] = useState(false);
+  const dimensions = Object.entries(report.dimensions)
+    .filter(([key]) => key !== "knowledge")
+    .map(([key, score]) => ({ key, score, label: key === "practicalAbility" ? "Practical ability" : key.charAt(0).toUpperCase() + key.slice(1) }));
+  const strongestDimension = [...dimensions].sort((a, b) => b.score - a.score)[0];
+  const weakestDimension = [...dimensions].sort((a, b) => a.score - b.score)[0];
+  const attentionTopic = [...report.byTopic].filter((row) => row.hasActivity && row.status !== "mastered").sort((a, b) => a.score - b.score)[0];
 
   const startedTopics = report.byTopic.filter((row) => row.hasActivity);
   const topicRows = showAllTopics
@@ -67,20 +73,63 @@ function ProgressPage() {
   return (
     <>
       <SectionTabs tabs={PROGRESS_TABS} />
-      <PageHeader
-        title="Progress"
-        description="Correct and completed work is measured against everything available. Untouched work counts as zero."
-      />
+      <section className="relative mt-4 overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-br from-card via-card/70 to-primary/[0.07] p-6 sm:p-8">
+        <div className="pointer-events-none absolute -right-20 -top-24 size-72 rounded-full bg-primary/[0.08] blur-3xl" />
+        <div className="relative grid gap-7 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-primary">Learning progress</p>
+            <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-5xl">See what is actually sticking.</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">Progress shows the work you have completed, the evidence behind your mastery, and where your next effort will matter most.</p>
+          </div>
+          <Button asChild><Link to="/my-path">Continue learning <ArrowRight className="ml-1 size-4" /></Link></Button>
+        </div>
+      </section>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        <StatCard label="Learning progress" value={`${measures.learningProgress}%`} />
-        <StatCard label="Overall mastery" value={`${measures.overallMastery}%`} />
-        <StatCard label="Topics started" value={`${startedTopics.length}/${report.byTopic.length}`} />
-        <StatCard label="Mastered" value={report.masteredTopics.length} />
-        <StatCard label="Study time" value={`${Math.round((report.study.totalMinutes / 60) * 10) / 10}h`} />
-        <StatCard label="Quiz average" value={report.quiz.attempts ? `${report.quiz.average}%` : "-"} />
-        <StatCard label="Open mistakes" value={report.mistakes.open} />
-      </div>
+      <section className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <HeadlineStat icon={TrendingUp} label="Learning progress" value={`${measures.learningProgress}%`} detail={`${measures.activitiesCompleted} of ${measures.activitiesTotal} activities`} />
+        <HeadlineStat icon={Brain} label="Overall mastery" value={`${measures.overallMastery}%`} detail={`${measures.assessmentsTaken} of ${measures.assessmentsTotal} finals taken`} />
+        <HeadlineStat icon={CheckCircle2} label="Topics mastered" value={String(report.masteredTopics.length)} detail={`${startedTopics.length} topics started`} />
+        <HeadlineStat icon={Clock3} label="Study time" value={`${Math.round((report.study.totalMinutes / 60) * 10) / 10}h`} detail={`${report.study.sessions} recorded sessions`} />
+      </section>
+
+      {report.hasActivity ? (
+        <section className="mt-4 grid gap-4 lg:grid-cols-[1.35fr_1fr]">
+          <div className="rounded-2xl border border-border/70 bg-card/25 p-5">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div><p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">Capability profile</p><h2 className="mt-1 font-display text-xl font-semibold">How your learning is developing</h2></div>
+              <Link to="/learner" className="text-xs font-semibold text-primary hover:underline">Full learner model</Link>
+            </div>
+            <div className="space-y-4">
+              {dimensions.map((dimension) => (
+                <div key={dimension.key}>
+                  <div className="mb-1.5 flex items-center justify-between gap-3"><span className="text-sm font-medium">{dimension.label}</span><span className={`text-sm font-semibold tabular-nums ${scoreTone(dimension.score)}`}>{dimension.score}%</span></div>
+                  <ProgressBar value={dimension.score} className="h-2" />
+                </div>
+              ))}
+            </div>
+            <div className="mt-5 grid gap-3 border-t border-border/70 pt-4 sm:grid-cols-2">
+              <div><p className="text-[11px] uppercase tracking-wider text-muted-foreground">Strongest evidence</p><p className="mt-1 text-sm font-semibold">{strongestDimension?.label ?? "Not enough evidence"}{strongestDimension ? ` · ${strongestDimension.score}%` : ""}</p></div>
+              <div><p className="text-[11px] uppercase tracking-wider text-muted-foreground">Needs more evidence</p><p className="mt-1 text-sm font-semibold">{weakestDimension?.label ?? "Not enough evidence"}{weakestDimension ? ` · ${weakestDimension.score}%` : ""}</p></div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-primary/25 bg-primary/[0.05] p-5">
+            <div className="flex items-center gap-2 text-primary"><Target className="size-5" /><p className="text-xs font-bold uppercase tracking-[0.14em]">Best next move</p></div>
+            {report.mistakes.open > 0 ? (
+              <><h2 className="mt-4 font-display text-xl font-semibold">Clear your open mistakes</h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">You have {report.mistakes.open} unresolved mistake{report.mistakes.open === 1 ? "" : "s"}. Correcting known misses is a direct way to strengthen weak evidence.</p><Button asChild className="mt-5" size="sm"><Link to="/review">Start review <ArrowRight className="ml-1 size-4" /></Link></Button></>
+            ) : attentionTopic ? (
+              <><h2 className="mt-4 font-display text-xl font-semibold">Strengthen {attentionTopic.title}</h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">This started topic currently has {attentionTopic.score}% evidence across the measured dimensions. It is a useful place to build next.</p><Button asChild className="mt-5" size="sm"><Link to="/topics/$topicId" params={{ topicId: attentionTopic.topicId }}>Open topic <ArrowRight className="ml-1 size-4" /></Link></Button></>
+            ) : (
+              <><h2 className="mt-4 font-display text-xl font-semibold">Keep moving through your path</h2><p className="mt-2 text-sm leading-relaxed text-muted-foreground">Your recorded work does not show an urgent weak spot right now. Continue with the next available learning milestone.</p><Button asChild className="mt-5" size="sm"><Link to="/my-path">Open My Path <ArrowRight className="ml-1 size-4" /></Link></Button></>
+            )}
+            <div className="mt-6 border-t border-primary/15 pt-4">
+              <div className="flex items-center justify-between text-xs"><span className="text-muted-foreground">Reviews due</span><span className="font-semibold tabular-nums">{report.review.due}</span></div>
+              <div className="mt-2 flex items-center justify-between text-xs"><span className="text-muted-foreground">Open mistakes</span><span className="font-semibold tabular-nums">{report.mistakes.open}</span></div>
+              <div className="mt-2 flex items-center justify-between text-xs"><span className="text-muted-foreground">Weak prerequisites</span><span className="font-semibold tabular-nums">{report.weakPrerequisites.length}</span></div>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {!report.hasActivity ? (
         <Panel className="mt-6">
@@ -95,7 +144,7 @@ function ProgressPage() {
 
       <Panel
         className="mt-6"
-        title="Where you stand"
+        title="Evidence summary"
         description="Work you have not done counts as zero, and an assessment you have not taken counts as zero."
       >
         <ul className="divide-y divide-border">
@@ -131,8 +180,7 @@ function ProgressPage() {
         </ul>
       </Panel>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <Panel title="By activity type" description="Completion uses the full library; averages describe attempted work only.">
+      <div className="mt-4 border-t border-border/70 pt-6"><p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Detailed evidence</p><h2 className="mt-1 font-display text-2xl font-semibold">Dig into the numbers</h2><p className="mt-1 text-sm text-muted-foreground">The same recorded data, broken down by activity, certification, skill, and topic.</p></div>\n\n      <div className="mt-4 grid gap-4 lg:grid-cols-2">\n        <Panel title="By activity type" description="Completion uses the full library; averages describe attempted work only.">
           <ul className="divide-y divide-border">
             {report.byActivity.map((row) => (
               <li key={row.key} className="flex flex-wrap items-center justify-between gap-2 py-3">
@@ -401,4 +449,8 @@ function ProgressPage() {
       </Panel>
     </>
   );
+}
+
+function HeadlineStat({ icon: Icon, label, value, detail }: { icon: typeof TrendingUp; label: string; value: string; detail: string }) {
+  return <div className="rounded-2xl border border-border/70 bg-card/25 p-5"><div className="flex items-center justify-between gap-3"><span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary"><Icon className="size-5" aria-hidden /></span><span className="text-3xl font-semibold tabular-nums">{value}</span></div><p className="mt-4 text-sm font-semibold">{label}</p><p className="mt-1 text-xs text-muted-foreground">{detail}</p></div>;
 }
