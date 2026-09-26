@@ -1043,12 +1043,12 @@ export function VirusRun() {
 
   const onCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (e.pointerType !== "touch") return;
-    dragRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
+    e.preventDefault();\n    e.currentTarget.setPointerCapture(e.pointerId);\n    dragRef.current = { id: e.pointerId, x: e.clientX, y: e.clientY };
   };
   const onCanvasPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const drag = dragRef.current;
     if (!drag || e.pointerId !== drag.id) return;
-    steerFromDrag(e.clientX - drag.x, e.clientY - drag.y);
+    e.preventDefault();\n    steerFromDrag(e.clientX - drag.x, e.clientY - drag.y);
   };
   const onCanvasPointerEnd = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (dragRef.current && e.pointerId === dragRef.current.id) {
@@ -1123,12 +1123,12 @@ export function VirusRun() {
     ) : null;
 
   return (
-    <div className="virus-game mx-auto w-full max-w-5xl">
+    <div className="virus-game mx-auto w-full max-w-5xl select-none [-webkit-user-select:none] [-webkit-touch-callout:none]">
       <div className="mb-3 overflow-hidden rounded-xl border border-primary/25 bg-background/80 shadow-2xl backdrop-blur-xl">
         <div className="flex items-center justify-between gap-3 border-b border-primary/15 px-3 py-2.5 sm:px-4">
           <div className="min-w-0">
             <p className="font-display text-lg font-bold uppercase tracking-[0.12em] text-primary">Virus Run</p>
-            <p className="truncate text-xs text-muted-foreground">Collect data · Avoid detection · Reach the exit</p>
+            <p className="hidden truncate text-xs text-muted-foreground sm:block">Collect data · Avoid detection · Reach the exit</p>
           </div>
           {(phase === "playing" || phase === "paused") && (
             <Button onClick={phase === "playing" ? pause : resume} aria-label={phase === "playing" ? "Pause" : "Resume"} variant="outline" size="icon" className="shrink-0">
@@ -1155,7 +1155,7 @@ export function VirusRun() {
       <div className="relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl">
         <canvas
           ref={canvasRef}
-           className="block w-full rounded-md aspect-[4/5] touch-none sm:aspect-[25/17]"
+           className="block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]"
           onPointerDown={onCanvasPointerDown}
           onPointerMove={onCanvasPointerMove}
           onPointerUp={onCanvasPointerEnd}
@@ -1164,19 +1164,10 @@ export function VirusRun() {
         {overlay}
       </div>
 
-      {/* Touch pad, visible on small screens. */}
-      <div className="mt-4 flex justify-center md:hidden select-none" aria-label="Movement pad">
-        <div className="grid grid-cols-3 gap-2">
-          <span />
-          <PadButton label="Up" icon={<ChevronUp className="size-7" aria-hidden />} onPress={() => pressDir("up")} onRelease={() => releaseDir("up")} />
-          <span />
-          <PadButton label="Left" icon={<ChevronLeft className="size-7" aria-hidden />} onPress={() => pressDir("left")} onRelease={() => releaseDir("left")} />
-          <Joystick onDir={(dir) => pressDir(dir)} onRelease={releaseAllDirs} />
-          <PadButton label="Right" icon={<ChevronRight className="size-7" aria-hidden />} onPress={() => pressDir("right")} onRelease={() => releaseDir("right")} />
-          <span />
-          <PadButton label="Down" icon={<ChevronDown className="size-7" aria-hidden />} onPress={() => pressDir("down")} onRelease={() => releaseDir("down")} />
-          <span />
-        </div>
+      {/* Phone controls: one large thumb stick. The playfield itself also supports drag-to-steer. */}
+      <div className="mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden" aria-label="Mobile game controls">
+        <p className="max-w-[12rem] text-xs leading-relaxed text-muted-foreground">Drag anywhere on the maze, or use the thumb stick.</p>
+        <Joystick onDir={(dir) => pressDir(dir)} onRelease={releaseAllDirs} mobile />
       </div>
     </div>
   );
@@ -1228,36 +1219,7 @@ function VirusCoreGraphic() {
   );
 }
 
-function PadButton({
-  label,
-  icon,
-  onPress,
-  onRelease,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  onPress: () => void;
-  onRelease: () => void;
-}) {
-  return (
-    <button
-      aria-label={label}
-      onPointerDown={(e) => {
-        e.preventDefault();
-        onPress();
-      }}
-      onPointerUp={onRelease}
-      onPointerLeave={onRelease}
-      onPointerCancel={onRelease}
-      onContextMenu={(e) => e.preventDefault()}
-      className="flex size-16 items-center justify-center rounded-lg border border-border bg-card/80 text-muted-foreground shadow-lg backdrop-blur-xl transition-[transform,border-color,background-color] active:scale-95 active:border-primary active:bg-primary/15 active:text-primary"
-    >
-      {icon}
-    </button>
-  );
-}
-
-function Joystick({ onDir, onRelease }: { onDir: (dir: string) => void; onRelease: () => void }) {
+function Joystick({ onDir, onRelease, mobile = false }: { onDir: (dir: string) => void; onRelease: () => void; mobile?: boolean }) {
   const baseRef = useRef<HTMLDivElement>(null);
   const holdingRef = useRef(false);
   const [knob, setKnob] = useState({ x: 0, y: 0 });
@@ -1289,7 +1251,7 @@ function Joystick({ onDir, onRelease }: { onDir: (dir: string) => void; onReleas
       ref={baseRef}
       role="application"
       aria-label="Movement stick"
-      className="relative flex size-16 touch-none items-center justify-center rounded-full border border-border bg-card/80 shadow-lg backdrop-blur-xl select-none"
+      className={cn("relative flex touch-none select-none items-center justify-center rounded-full border border-border bg-card/90 shadow-lg backdrop-blur-xl [-webkit-user-select:none] [-webkit-touch-callout:none]", mobile ? "size-24" : "size-16")}
       onPointerDown={(e) => {
         e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -1313,7 +1275,7 @@ function Joystick({ onDir, onRelease }: { onDir: (dir: string) => void; onReleas
     >
       <span className="absolute inset-2 rounded-full border border-dashed border-border/60" aria-hidden />
       <span
-        className="pointer-events-none absolute size-7 rounded-full border border-border bg-card shadow-md transition-transform duration-75"
+        className={cn("pointer-events-none absolute rounded-full border border-primary/40 bg-primary/20 shadow-md transition-transform duration-75", mobile ? "size-10" : "size-7")}
         style={{ transform: `translate(${knob.x}px, ${knob.y}px)` }}
         aria-hidden
       />
