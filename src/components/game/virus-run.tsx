@@ -374,7 +374,7 @@ export function VirusRun() {
   const queuedDirRef = useRef<string | null>(null);
   const travelDirRef = useRef<string | null>(null);
   // Visual-only soft-body response. Collision rules remain grid deterministic.
-  const wallSquishRef = useRef({ amount: 0, target:0, velocity:0, angle: 0 });
+  const wallSquishRef = useRef({ amount: 0, target:0, velocity:0, angle: 0, hold:0, wobble:0 });
   const motionPhysicsRef = useRef({ turn:0, turnSign:0, reverse:0, hit:0, hitAngle:0 });
   const playerVisualRef = useRef({ heading:0, stretch:0, squish:0, spikePhase:[0,1.1,2.2,3.3,4.4,5.5] });
   const cameraRef = useRef({ power:0, angle:0 });
@@ -469,7 +469,7 @@ export function VirusRun() {
     keysRef.current = [];
     queuedDirRef.current = null;
     travelDirRef.current = null;
-    wallSquishRef.current={amount:0,target:0,velocity:0,angle:0};
+    wallSquishRef.current={amount:0,target:0,velocity:0,angle:0,hold:0,wobble:0};
     motionPhysicsRef.current={turn:0,turnSign:0,reverse:0,hit:0,hitAngle:0};
     playerVisualRef.current={heading:0,stretch:0,squish:0,spikePhase:[0,1.1,2.2,3.3,4.4,5.5]};
     cameraRef.current={power:0,angle:0};trailRef.current=[];
@@ -614,8 +614,12 @@ export function VirusRun() {
         if (!queuedSucceeded && queued) {
           const [qdx,qdy]=DIR_VECS[queued]!;
           if(run.grid[cy+qdy]?.[cx+qdx]!==0){
-            wallSquishRef.current.target=Math.max(wallSquishRef.current.target,.72);
-            wallSquishRef.current.angle=Math.atan2(qdy,qdx);
+            const soft=wallSquishRef.current;
+            soft.target=Math.max(soft.target,.9);
+            soft.velocity=Math.max(soft.velocity,2.8);
+            soft.hold=.11;
+            soft.wobble=Math.max(soft.wobble,1);
+            soft.angle=Math.atan2(qdy,qdx);
             cameraRef.current.power=Math.max(cameraRef.current.power,.12);
             cameraRef.current.angle=Math.atan2(qdy,qdx);
           }
@@ -645,11 +649,19 @@ export function VirusRun() {
       // Organic damped spring: compression builds, overshoots and settles instead
       // of switching between squashed and normal poses.
       const wallBody=wallSquishRef.current;
-      wallBody.target=Math.max(0,wallBody.target-dt*5.2);
-      const springForce=(wallBody.target-wallBody.amount)*34;
-      wallBody.velocity=(wallBody.velocity+springForce*dt)*Math.exp(-7.2*dt);
+      // Hold compression just long enough to read, then release into a lively,
+      // under-damped rebound. Repeated wall pressure feeds the same spring.
+      if(wallBody.hold>0){
+        wallBody.hold=Math.max(0,wallBody.hold-dt);
+      }else{
+        wallBody.target*=Math.exp(-dt*7.5);
+      }
+      const springForce=(wallBody.target-wallBody.amount)*46;
+      wallBody.velocity=(wallBody.velocity+springForce*dt)*Math.exp(-4.7*dt);
       wallBody.amount+=wallBody.velocity*dt;
-      if(Math.abs(wallBody.amount)<.001 && Math.abs(wallBody.velocity)<.002){wallBody.amount=0;wallBody.velocity=0;}
+      wallBody.amount=Math.max(-.34,Math.min(1.05,wallBody.amount));
+      wallBody.wobble*=Math.exp(-dt*3.3);
+      if(Math.abs(wallBody.amount)<.001 && Math.abs(wallBody.velocity)<.002 && wallBody.target<.002){wallBody.amount=0;wallBody.velocity=0;wallBody.wobble=0;}
       const phys=motionPhysicsRef.current;
       phys.turn=Math.max(0,phys.turn-dt*5.8);
       phys.reverse=Math.max(0,phys.reverse-dt*4.6);
@@ -1549,13 +1561,15 @@ export function VirusRun() {
       const reverseBounce=motionPhys.reverse;
       const turnBank=motionPhys.turn*motionPhys.turnSign;
       const impact=Math.max(0,motionPhys.hit);
-      const squash=Math.max(-.18,Math.min(.82,wallSquish));
-      const deformationAngle=impact>.08?motionPhys.hitAngle:squash>.02?wallAngle:heading;
+      const squash=Math.max(-.34,Math.min(1.05,wallSquish));
+      const deformationAngle=impact>.08?motionPhys.hitAngle:Math.abs(squash)>.015?wallAngle:heading;
+      const jellyWave=Math.sin(time/72)*wallSquishRef.current.wobble*Math.min(.12,Math.abs(squash)*.16);
       ctx2.rotate(deformationAngle);
-      ctx2.translate(cell*(impact*.1-squash*.045-reverseBounce*.055),cell*turnBank*.03);
-      const compression=impact*.18+squash*.23+reverseBounce*.1;
-      ctx2.scale(1+movingStretch-compression,1-movingStretch*.5+compression*.68);
-      ctx2.rotate(heading-deformationAngle+turnBank*.14);
+      ctx2.translate(cell*(impact*.11-squash*.075-reverseBounce*.055),cell*(turnBank*.03+jellyWave*.22));
+      const compression=impact*.2+squash*.34+reverseBounce*.1;
+      const lateralBulge=compression*.82+jellyWave;
+      ctx2.scale(Math.max(.58,1+movingStretch-compression),Math.max(.68,1-movingStretch*.5+lateralBulge));
+      ctx2.rotate(heading-deformationAngle+turnBank*.14+jellyWave*.18);
 
       if(run.activePower?.kind==="emp"){
         ctx2.strokeStyle=`rgba(103,232,249,${.28+.12*Math.sin(time/110)})`;ctx2.lineWidth=Math.max(1,cell*.045);
@@ -1584,9 +1598,13 @@ export function VirusRun() {
         const phase=visual.spikePhase[i]!;
         const baseAngle=i*Math.PI/3 + (i%2 ? .065 : -.05);
         // Slow organic drift plus a smaller secondary wave avoids mechanical pulsing.
-        const angle=baseAngle + .045*Math.sin(time/520+phase) + .018*Math.sin(time/930+phase*1.7);
+        const localSquish=Math.max(-.3,Math.min(1,wallSquish));
+        const contactFacing=Math.max(0,Math.cos(baseAngle-(wallAngle-heading)));
+        const recoilFacing=Math.max(0,-Math.cos(baseAngle-(wallAngle-heading)));
+        const angle=baseAngle + .045*Math.sin(time/520+phase) + .018*Math.sin(time/930+phase*1.7) + Math.sin(time/95+phase)*wallSquishRef.current.wobble*.035;
         const root=bodyR*.82;
-        const length=bodyR*(1.32 + .055*Math.sin(time/430+phase) + .022*Math.sin(time/760+phase*1.4));
+        const reactiveLength=1-contactFacing*Math.max(0,localSquish)*.24+recoilFacing*Math.max(0,localSquish)*.13;
+        const length=bodyR*(1.32 + .055*Math.sin(time/430+phase) + .022*Math.sin(time/760+phase*1.4))*reactiveLength;
         const tipX=Math.cos(angle)*length,tipY=Math.sin(angle)*length;
         const rootX=Math.cos(angle)*root,rootY=Math.sin(angle)*root;
         // A quadratic stem gives each spike a soft flex instead of a rigid line.
@@ -1610,7 +1628,8 @@ export function VirusRun() {
       organism.addColorStop(0,"#ecfeff");organism.addColorStop(.22,"#5eead4");organism.addColorStop(.7,"#0d9488");organism.addColorStop(1,"#134e4a");
       ctx2.fillStyle=organism;
       ctx2.beginPath();
-      ctx2.ellipse(bodyR*.055,0,bodyR*1.08,bodyR*.92,0,0,Math.PI*2);
+      const membraneWobble=wallSquishRef.current.wobble*Math.sin(time/88)*.035;
+      ctx2.ellipse(bodyR*.055,0,bodyR*(1.08+membraneWobble),bodyR*(.92-membraneWobble*.7),membraneWobble*.35,0,Math.PI*2);
       ctx2.fill();
       ctx2.shadowBlur=0;
 
