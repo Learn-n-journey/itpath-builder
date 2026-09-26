@@ -50,6 +50,18 @@ const STAGES: StageTheme[] = [
   { system: "Network Stack", hint: "Packets route around you.", bg: "#0a1020", wall: "#1b325c", wallEdge: "#294a85" },
   { system: "Kernel Space", hint: "Root guards patrol every ring.", bg: "#160d0d", wall: "#4d2020", wallEdge: "#702f2f" },
   { system: "Firewall", hint: "The perimeter fights back.", bg: "#1a1005", wall: "#5c3a10", wallEdge: "#835416" },
+  { system: "File System", hint: "Directories branch into locked paths.", bg: "#0c1518", wall: "#1d3a40", wallEdge: "#2d5961" },
+  { system: "Process Table", hint: "Running processes compete for space.", bg: "#121019", wall: "#332b45", wallEdge: "#4d4166" },
+  { system: "System Configuration", hint: "One setting can change the whole machine.", bg: "#15110d", wall: "#49351f", wallEdge: "#684c2d" },
+  { system: "DNS Resolver", hint: "Names race toward the right destination.", bg: "#08151b", wall: "#174354", wallEdge: "#216078" },
+  { system: "Router Gateway", hint: "Every route leads somewhere else.", bg: "#0b1119", wall: "#26364c", wallEdge: "#374e6d" },
+  { system: "Switch Fabric", hint: "Connections change at wire speed.", bg: "#0b1512", wall: "#24443a", wallEdge: "#356455" },
+  { system: "Authentication Server", hint: "Identity checks guard every door.", bg: "#160e18", wall: "#4c244f", wallEdge: "#6d3471" },
+  { system: "Database", hint: "Structured records hide the path forward.", bg: "#10140d", wall: "#344725", wallEdge: "#4c6636" },
+  { system: "Web Server", hint: "Requests pile up from every direction.", bg: "#0c121a", wall: "#253c59", wallEdge: "#36577f" },
+  { system: "Cloud Network", hint: "The machine is no longer in one place.", bg: "#0a1418", wall: "#1f4650", wallEdge: "#2d6572" },
+  { system: "Security Operations Center", hint: "Every sensor is looking for you.", bg: "#170d10", wall: "#50242d", wallEdge: "#733440" },
+  { system: "Core Infrastructure", hint: "Everything converges here.", bg: "#171205", wall: "#574716", wallEdge: "#7d6620" },
 ];
 
 interface Best {
