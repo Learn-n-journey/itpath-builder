@@ -45,8 +45,9 @@ function lower(text: string): string {
 }
 
 /** Two labs per topic: a documentation lab and a fault-diagnosis drill. */
-export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
+export function buildTopicLabs(topics: Topic[], lessons: Lesson[], mode: "it" | "automotive" = "it"): Lab[] {
   const out: Lab[] = [];
+  const automotive = mode === "automotive";
 
   for (const topic of topics) {
     const learningModule = learningModules.find((item) => item.topicId === topic.id);
@@ -56,7 +57,9 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
     const category = categoryFor(topic);
     const where = learningModule.whereYouSeeIt[0] ?? topic.summary;
     const terms = (lesson?.keyTerms ?? []).slice(0, 3);
-    const prerequisites = [topic.title, "A computer or documentation you are authorized to inspect"];
+    const prerequisites = automotive
+      ? [topic.title, "A safe training vehicle, component, simulator, or service-information exercise you are authorized to use"]
+      : [topic.title, "A computer or documentation you are authorized to inspect"];
 
     const studyInstructions = [
       `Write down what you already know about ${topic.title} before opening the lesson.`,
@@ -77,8 +80,9 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
       prerequisites,
       difficulty: topic.difficulty,
       estimatedMinutes: Math.max(25, Math.round(topic.estimatedMinutes * 0.7)),
-      environment:
-        "Your own notes plus any system or official documentation you are permitted to read. This lab is read-only: it never asks you to change a configuration you do not own.",
+      environment: automotive
+        ? "Your notes, the training scenario, and the correct service information for the vehicle or component. Use manufacturer procedures and specifications whenever a real vehicle is involved."
+        : "Your own notes plus any system or official documentation you are permitted to read. This lab is read-only: it never asks you to change a configuration you do not own.",
       instructions: studyInstructions,
       expectedResult: `A dated write-up that explains ${topic.title} accurately, with at least one real-world example and correct vocabulary.`,
       checklist: checklist(`${slug}-doc`, [
@@ -102,7 +106,9 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
       ...failures.map((failure) => `Write the symptoms a user would report when this happens: ${sentence(failure)}`),
       ...steps.map((step, index) => `Step ${index + 1}, carry out and record the result of: ${sentence(step)}`),
       "State the single most likely cause, and say which observation rules out the alternatives.",
-      "Write the fix, the verification you would run, and what you would put in the ticket notes.",
+      automotive
+        ? "Write the repair decision, the verification you would run, and what you would record on the repair order."
+        : "Write the fix, the verification you would run, and what you would put in the ticket notes.",
     ];
 
     out.push({
@@ -114,8 +120,9 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
       prerequisites: [...prerequisites, "The documented walkthrough lab for this topic"],
       difficulty: topic.difficulty,
       estimatedMinutes: Math.max(30, Math.round(topic.estimatedMinutes * 0.8)),
-      environment:
-        "A written diagnostic exercise. You record the checks you would run and what each result would prove; the app does not inspect any real system for you.",
+      environment: automotive
+        ? "A written shop diagnostic exercise. Record the inspection or test, tool, expected evidence, repair decision, and verification. The app does not claim to measure a real vehicle."
+        : "A written diagnostic exercise. You record the checks you would run and what each result would prove; the app does not inspect any real system for you.",
       instructions: drillInstructions,
       expectedResult:
         "A diagnostic record that follows the documented order, names one most-likely cause with supporting evidence, and ends with a fix plus a verification step.",
@@ -124,7 +131,7 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
         "Followed the documented diagnostic order",
         "Recorded what each check would prove",
         "Named one most-likely cause with evidence",
-        "Wrote a fix, a verification and ticket notes",
+        automotive ? "Wrote a repair decision, verification, and repair-order notes" : "Wrote a fix, a verification and ticket notes",
       ]),
       reflectionPrompt: "Which check gave you the most information for the least effort, and why would you run it earlier next time?",
       masteryScore: 100,
