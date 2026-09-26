@@ -1199,8 +1199,8 @@ export function VirusRun() {
         ctx2.fillStyle=light;ctx2.beginPath();ctx2.arc(lx,ly,lr,0,Math.PI*2);ctx2.fill();
       };
       // Player is the primary moving light. Powers alter both radius and hue.
-      const playerLight=run.activePower?.kind==="overclock"?"251,191,36":run.activePower?.kind==="emp"?"103,232,249":run.activePower?.kind==="magnet"?"250,204,21":"45,212,191";
-      castLight(run.player.x,run.player.y,2.65+(run.streak>1?run.streak*.08:0),playerLight,run.activePower?.kind==="cloak"?.08:.17);
+      const playerLightRgb=run.activePower?.kind==="overclock"?"251,191,36":run.activePower?.kind==="emp"?"103,232,249":run.activePower?.kind==="magnet"?"250,204,21":"45,212,191";
+      castLight(run.player.x,run.player.y,2.65+(run.streak>1?run.streak*.08:0),playerLightRgb,run.activePower?.kind==="cloak"?.08:.17);
       // Untaken data softly paints cyan onto nearby walls.
       for(const packet of run.packets){
         if(packet.taken)continue;
