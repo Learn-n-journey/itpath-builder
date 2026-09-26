@@ -452,7 +452,9 @@ export function VirusRun() {
     };
     setUpgradeCount(0);
     setUpgradeChoices([]);
-    runRef.current = buildLevel(bestRef.current.currentLevel);
+    // A new run always starts at system 1. Persisted best/deepest progress is a record,
+    // not a checkpoint, because run mutations intentionally reset on restart.
+    runRef.current = buildLevel(1);
     distFieldRef.current = null;
     fieldAgeRef.current = 999;
     keysRef.current = [];
