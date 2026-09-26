@@ -129,26 +129,44 @@ function build(pkg: DomainPackage): DomainOverlay {
   const detailOf = new Map((pkg.moduleDetails ?? []).map((detail) => [detail.sectionId, detail]));
   const scenarioOf = new Map((pkg.scenarios ?? []).map((scenario) => [scenario.sectionId, scenario]));
 
-  const modules: LearningModule[] = pkg.sections.map((section) => ({
-    id: `module-${section.slug}`,
-    lessonId: `lesson-${section.slug}`,
-    topicId: topicIdOf(section.slug),
-    howItWorks: (pkg.lessons.find((lesson) => lesson.sectionId === section.id)?.body ?? "")
+  const modules: LearningModule[] = pkg.sections.map((section) => {
+    const lesson = pkg.lessons.find((item) => item.sectionId === section.id);
+    const detail = detailOf.get(section.id);
+    const sectionSkills = pkg.skills.filter((skill) => skill.sectionId === section.id).map((skill) => skill.statement);
+    const sectionConcepts = pkg.concepts.filter((concept) => concept.sectionId === section.id);
+    const bodySentences = (lesson?.body ?? "")
       .split(/(?<=[.!?])\s+/)
       .map((line) => line.trim())
-      .filter((line) => line.length > 30)
-      .slice(0, 4),
-    whereYouSeeIt: detailOf.get(section.id)?.whereYouSeeIt ?? [],
-    commonProblems: detailOf.get(section.id)?.commonProblems ?? [],
-    howItFails: detailOf.get(section.id)?.howItFails ?? [],
-    troubleshooting: detailOf.get(section.id)?.troubleshooting ?? [],
-    practicalKnowledge: pkg.skills.filter((skill) => skill.sectionId === section.id).map((skill) => skill.statement),
-    examCoverage: section.objectiveIds,
-    interviewQuestions: detailOf.get(section.id)?.interviewQuestions ?? [],
-    recallQuestionIds: [],
-    practiceActivityId: `practice-${section.slug}`,
-    scenarioId: scenarioOf.get(section.id)?.id ?? "",
-  }));
+      .filter((line) => line.length > 30);
+    const diagnosticSkills = sectionSkills.filter((skill) => /diagnos|inspect|test|measure|verify|determin|evaluat|check/i.test(skill));
+    const repairSkills = sectionSkills.filter((skill) => /repair|replace|service|install|adjust|recondition|correct|perform/i.test(skill));
+    const fallbackProblems = [
+      ...(lesson?.commonMisconceptions ?? []),
+      ...sectionConcepts.slice(0, 3).map((concept) => `A fault involving ${concept.term.toLowerCase()}`),
+    ].slice(0, 3);
+    const fallbackTroubleshooting = [
+      `Verify the complaint and operating conditions before changing parts in ${section.title.toLowerCase()}.`,
+      ...(diagnosticSkills.length ? diagnosticSkills : sectionSkills).slice(0, 3),
+      `Compare the result with the correct service information and isolate the failed condition before repair.`,
+      `After the repair, repeat the original test and verify the complaint is gone.`,
+    ];
+    return {
+      id: `module-${section.slug}`,
+      lessonId: `lesson-${section.slug}`,
+      topicId: topicIdOf(section.slug),
+      howItWorks: bodySentences.slice(0, 4),
+      whereYouSeeIt: detail?.whereYouSeeIt?.length ? detail.whereYouSeeIt : [lesson?.whyItMatters ?? section.summary],
+      commonProblems: detail?.commonProblems?.length ? detail.commonProblems : fallbackProblems,
+      howItFails: detail?.howItFails?.length ? detail.howItFails : [lesson?.summary ?? section.summary],
+      troubleshooting: detail?.troubleshooting?.length ? detail.troubleshooting : fallbackTroubleshooting,
+      practicalKnowledge: repairSkills.length ? repairSkills : sectionSkills,
+      examCoverage: section.objectiveIds,
+      interviewQuestions: detail?.interviewQuestions ?? [],
+      recallQuestionIds: [],
+      practiceActivityId: `practice-${section.slug}`,
+      scenarioId: scenarioOf.get(section.id)?.id ?? "",
+    };
+  });
 
   const scenarios: RealWorldScenario[] = (pkg.scenarios ?? []).map((scenario) => ({
     id: scenario.id,
