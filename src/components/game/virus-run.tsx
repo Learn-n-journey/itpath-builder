@@ -1484,7 +1484,7 @@ export function VirusRun() {
         <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-primary">Access granted</p>
         <h3 className="font-display text-3xl font-bold uppercase tracking-wide text-primary">System breached</h3>
         <div className="h-px w-40 bg-gradient-to-r from-transparent via-primary to-transparent" aria-hidden />
-        <p className="text-sm text-muted-foreground">{hud.boss ? "Antivirus core defeated · routing deeper…" : "Entering the next system…"}</p>
+        <p className="text-sm text-muted-foreground">{hud.boss ? (hud.level === 20 ? "CORE DEFENDER destroyed · campaign breached · Endless Mode unlocked." : hud.bossTitle + " defeated · routing deeper…") : "Entering the next system…"}</p>
       </Overlay>
     ) : phase === "upgrade" ? (
       <Overlay>
@@ -1540,8 +1540,8 @@ export function VirusRun() {
         </div>
         <div className={cn("grid grid-cols-5 divide-x divide-primary/15", mobileLandscape && "pointer-events-auto absolute left-[max(8px,env(safe-area-inset-left))] top-[max(8px,env(safe-area-inset-top))] w-fit grid-cols-4 overflow-hidden rounded-xl border border-primary/20 bg-background/85 shadow-lg backdrop-blur-md")}>
           <GameStat label="Level" value={hud.level} />
-          <div className={cn(mobileLandscape && "hidden")}><GameStat label="System" value={hud.boss ? "ANTIVIRUS CORE" : hud.system || "—"} accent /></div>
-          <GameStat label="Packets" value={`${hud.collected}/${hud.required}`} />
+          <div className={cn(mobileLandscape && "hidden")}><GameStat label="System" value={hud.boss ? hud.bossTitle : hud.system || "—"} accent /></div>
+          <GameStat label={hud.boss && hud.bossPhase >= 2 ? "Breach" : "Packets"} value={hud.boss && hud.bossPhase >= 2 ? `${hud.bossNodes}/${hud.bossNodesRequired}` : `${hud.collected}/${hud.required}`} />
           <GameStat label={hud.power ? "Power" : "Streak"} value={hud.power || (hud.streak>1 ? `x${hud.streak}` : "—")} accent={Boolean(hud.power || hud.streak>1)} />
           <div className="px-2 py-2.5 sm:px-4">
             <p className="text-[9px] uppercase tracking-wider text-muted-foreground sm:text-[10px]">Integrity</p>
