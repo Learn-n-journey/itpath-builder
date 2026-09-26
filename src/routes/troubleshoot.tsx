@@ -28,6 +28,8 @@ import { activeDomainKey } from "@/lib/active-domain";
 
 export const Route = createFileRoute("/troubleshoot")({
   staticData: { sitemap: false },
+  validateSearch: (search: Record<string, unknown>): { incident?: string } =>
+    typeof search["incident"] === "string" && search["incident"] ? { incident: search["incident"] } : {},
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -80,8 +82,9 @@ const incidentCategoryIcons = {
 
 function TroubleshootPage() {
   const { user } = useAppState();
+  const { incident: requestedIncidentId } = Route.useSearch();
   const isAutoPath = activeDomainKey().split("@")[0] === "auto-repair";
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState(requestedIncidentId ?? "");
   const ordered = useMemo(() => {
     const focusIds = new Set(adaptivePath(user).topics.map((topic) => topic.id));
     return [...incidents].sort(
