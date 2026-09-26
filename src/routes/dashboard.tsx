@@ -413,13 +413,28 @@ function Dashboard() {
         </div>
       </section>
 
+      <Link
+        to="/meditation"
+        className="group mb-8 flex min-h-20 items-center justify-between gap-4 rounded-xl border border-border/50 bg-card/40 p-4 shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
+        <span className="flex min-w-0 items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-feature-violet/15 text-feature-violet">
+            <Sparkles className="size-4" aria-hidden />
+          </span>
+          <span className="min-w-0">
+            <span className="block font-display text-sm font-semibold text-foreground">Meditation & Focus</span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">Breathing, calming sounds, and a quick mental reset.</span>
+          </span>
+        </span>
+        <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" aria-hidden />
+      </Link>
+
       <section className="mb-4" aria-labelledby="discover-heading">
         <div className="mb-3"><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Discover</p><h2 id="discover-heading" className="font-display text-lg font-semibold">More when you want it</h2></div>
         <div className="flex flex-wrap gap-2">
           <Link to="/learn" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Explore topics</Link>
           <Link to="/pomodoro" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Focus timer</Link>
           {!isAutoPath ? <Link to="/virus" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link> : <Link to="/garage-match" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link>}
-          <Link to="/meditation" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Meditation & Focus</Link>
         </div>
       </section>
 
