@@ -908,6 +908,30 @@ export function VirusRun() {
           ctx2.beginPath(); ctx2.moveTo(offX, y); ctx2.lineTo(offX + cell * COLS, y); ctx2.stroke();
         }
         ctx2.setLineDash([]);
+ else if (sys === "File System") {
+        for(let i=0;i<7;i++){const x=offX+cell*(2+i*4.3),y=offY+cell*(2+(i%3)*6);ctx2.strokeStyle="rgba(94,234,212,.2)";ctx2.strokeRect(x,y,cell*2.2,cell*1.15);ctx2.fillStyle="rgba(94,234,212,.35)";ctx2.fillRect(x+cell*.25,y+cell*.3,cell*(.6+.35*Math.sin(time/330+i)),cell*.12);}
+      } else if (sys === "Process Table") {
+        for(let i=0;i<10;i++){const y=offY+cell*(1.5+i*1.85),w=cell*(2.5+2*(1+Math.sin(time/260+i))/2);ctx2.fillStyle=`rgba(192,132,252,${.08+(i%3)*.035})`;ctx2.fillRect(offX+cell*(2+(i%4)*6.5),y,w,cell*.35);}
+      } else if (sys === "System Configuration") {
+        for(let i=0;i<6;i++){const y=offY+cell*(2+i*3.1),x=offX+cell*(4+(i%2)*13);ctx2.strokeStyle="rgba(251,191,36,.2)";ctx2.beginPath();ctx2.moveTo(x,y);ctx2.lineTo(x+cell*8,y);ctx2.stroke();const knob=x+cell*(1+6*(1+Math.sin(time/500+i))/2);ctx2.fillStyle="rgba(253,230,138,.65)";ctx2.beginPath();ctx2.arc(knob,y,cell*.2,0,Math.PI*2);ctx2.fill();}
+      } else if (sys === "DNS Resolver") {
+        for(let i=0;i<12;i++){const a=time/700+i*.9,r=cell*(2+(i%4)*1.6),cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;ctx2.fillStyle="rgba(34,211,238,.45)";ctx2.beginPath();ctx2.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,cell*.12,0,Math.PI*2);ctx2.fill();}
+      } else if (sys === "Router Gateway") {
+        for(let i=0;i<6;i++){const x=offX+cell*(3+i*5),y=offY+cell*(3+(i%3)*6);ctx2.strokeStyle="rgba(96,165,250,.24)";ctx2.beginPath();ctx2.arc(x,y,cell*.45,0,Math.PI*2);ctx2.stroke();ctx2.beginPath();ctx2.moveTo(x,y);ctx2.lineTo(offX+cell*COLS/2,offY+cell*ROWS/2);ctx2.stroke();}
+      } else if (sys === "Switch Fabric") {
+        for(let i=0;i<8;i++){const y=offY+cell*(2+i*2.3),travel=((time/(10+i%3*2)+i*cell*3)%(cell*COLS));ctx2.fillStyle="rgba(74,222,128,.5)";ctx2.fillRect(offX+travel,y,cell*.55,cell*.1);}
+      } else if (sys === "Authentication Server") {
+        const scan=(time/18)%(cell*COLS);ctx2.fillStyle="rgba(232,121,249,.12)";ctx2.fillRect(offX+scan-cell*.4,offY,cell*.8,cell*ROWS);for(let i=0;i<5;i++){ctx2.strokeStyle="rgba(244,114,182,.2)";ctx2.strokeRect(offX+cell*(3+i*6),offY+cell*(4+(i%2)*9),cell*1.6,cell*1.2);}
+      } else if (sys === "Database") {
+        for(let r=0;r<7;r++){const y=offY+cell*(2+r*2.6);ctx2.fillStyle=`rgba(163,230,53,${.05+(r%2)*.035})`;ctx2.fillRect(offX+cell*2,y,cell*(COLS-4),cell*.7);for(let k=0;k<5;k++){ctx2.fillStyle="rgba(190,242,100,.22)";ctx2.fillRect(offX+cell*(3+k*5.2),y+cell*.18,cell*2.5,cell*.12);}}
+      } else if (sys === "Web Server") {
+        for(let i=0;i<14;i++){const y=offY+cell*(1+(i*1.37)%(ROWS-2)),x=offX+((time/(9+i%4*2)+i*cell*2)%(cell*COLS));ctx2.fillStyle=i%2?"rgba(96,165,250,.5)":"rgba(125,211,252,.42)";ctx2.fillRect(x,y,cell*.5,cell*.16);}
+      } else if (sys === "Cloud Network") {
+        for(let i=0;i<7;i++){const x=offX+cell*(3+(i%4)*8),y=offY+cell*(3+Math.floor(i/4)*11);ctx2.strokeStyle="rgba(103,232,249,.2)";ctx2.beginPath();ctx2.arc(x,y,cell*(.7+.08*Math.sin(time/350+i)),0,Math.PI*2);ctx2.stroke();ctx2.beginPath();ctx2.moveTo(x,y);ctx2.lineTo(offX+cell*COLS/2,offY+cell*ROWS/2);ctx2.stroke();}
+      } else if (sys === "Security Operations Center") {
+        const cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;for(let i=0;i<4;i++){const a=time/(420+i*80)+i;ctx2.strokeStyle=`rgba(251,113,133,${.12+i*.025})`;ctx2.beginPath();ctx2.moveTo(cx,cy);ctx2.lineTo(cx+Math.cos(a)*cell*15,cy+Math.sin(a)*cell*15);ctx2.stroke();}
+      } else if (sys === "Core Infrastructure") {
+        const cx=offX+cell*COLS/2,cy=offY+cell*ROWS/2;for(let i=0;i<5;i++){ctx2.strokeStyle=`rgba(250,204,21,${.08+i*.025})`;ctx2.beginPath();ctx2.arc(cx,cy,cell*(2+i*1.6+.12*Math.sin(time/250+i)),0,Math.PI*2);ctx2.stroke();}for(let i=0;i<8;i++){const a=time/500+i*Math.PI/4;ctx2.fillStyle="rgba(125,211,252,.45)";ctx2.fillRect(cx+Math.cos(a)*cell*(3+i*.5),cy+Math.sin(a)*cell*(3+i*.5),cell*.16,cell*.16);}
       }
       ctx2.restore();
 
