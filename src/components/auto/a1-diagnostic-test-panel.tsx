@@ -4,7 +4,8 @@ import { CheckCircle2, RotateCcw } from "lucide-react";
 import { Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 import { a1DiagnosticSimulationFor } from "@/data/auto/a1-diagnostic-simulations";
-import { a1BranchingScenarioFor, type A1EvidenceState } from "@/data/auto/a1-branching-diagnosis";\nimport { a1MeasurementScenarioFor } from "@/data/auto/a1-measurement-decisions";
+import { a1BranchingScenarioFor, type A1EvidenceState } from "@/data/auto/a1-branching-diagnosis";
+import { a1MeasurementScenarioFor } from "@/data/auto/a1-measurement-decisions";
 
 const evidenceLabel: Record<A1EvidenceState, string> = {
   plausible: "Plausible",
