@@ -1289,8 +1289,13 @@ export function VirusRun() {
         ctx2.restore();
       }
 
-      // Power-ups.
-      for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);ctx2.rotate(time/700);ctx2.shadowColor="#facc15";ctx2.shadowBlur=cell*.9;ctx2.strokeStyle="#fde68a";ctx2.lineWidth=Math.max(1,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*.32,0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="#facc15";ctx2.font=`bold ${cell*.34}px ui-monospace`;ctx2.textAlign="center";ctx2.textBaseline="middle";ctx2.rotate(-time/700);ctx2.fillText(power.kind==="cloak"?"C":power.kind==="overclock"?"O":power.kind==="emp"?"E":"M",0,0);ctx2.restore();}
+      // Power-ups use recognizable shapes rather than letter badges.
+      for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);const spin=time/700;ctx2.rotate(spin);ctx2.shadowColor=power.kind==="cloak"?"#a78bfa":power.kind==="overclock"?"#fb923c":power.kind==="emp"?"#60a5fa":"#facc15";ctx2.shadowBlur=cell*1.05;ctx2.strokeStyle=ctx2.shadowColor;ctx2.fillStyle=ctx2.shadowColor;ctx2.lineWidth=Math.max(1,cell*.075);
+        if(power.kind==="cloak"){ctx2.beginPath();ctx2.arc(0,0,cell*.31,.18,Math.PI*1.82);ctx2.stroke();ctx2.beginPath();ctx2.arc(0,0,cell*.13,0,Math.PI*2);ctx2.fill();}
+        else if(power.kind==="overclock"){ctx2.beginPath();ctx2.moveTo(-cell*.08,-cell*.34);ctx2.lineTo(cell*.13,-cell*.06);ctx2.lineTo(0,-cell*.06);ctx2.lineTo(cell*.08,cell*.34);ctx2.lineTo(-cell*.15,cell*.05);ctx2.lineTo(-cell*.02,cell*.05);ctx2.closePath();ctx2.fill();}
+        else if(power.kind==="emp"){for(let i=0;i<3;i++){ctx2.beginPath();ctx2.arc(0,0,cell*(.12+i*.11),0,Math.PI*2);ctx2.stroke();}}
+        else{ctx2.beginPath();ctx2.arc(0,0,cell*.3,0,Math.PI*2);ctx2.stroke();ctx2.beginPath();ctx2.moveTo(-cell*.28,0);ctx2.lineTo(cell*.28,0);ctx2.moveTo(0,-cell*.28);ctx2.lineTo(0,cell*.28);ctx2.stroke();}
+        ctx2.restore();}
 
       // Boss encounter telegraphs. Every pressure window is announced visually
       // before or while its matching mechanic is active.
@@ -1445,6 +1450,15 @@ export function VirusRun() {
       ctx2.fillStyle = "rgba(4,47,46,0.88)"; ctx2.beginPath(); ctx2.arc(pcx, pcy, r * 0.34, 0, Math.PI * 2); ctx2.fill();
       ctx2.fillStyle = "#ccfbf1"; ctx2.beginPath(); ctx2.arc(pcx - r * 0.11, pcy - r * 0.12, r * 0.1, 0, Math.PI * 2); ctx2.fill();
       ctx2.restore();
+      if(run.activePower){
+        ctx2.save();ctx2.globalCompositeOperation="screen";
+        const ar=cell*(.72+.06*Math.sin(time/80));ctx2.lineWidth=Math.max(1.5,cell*.07);
+        if(run.activePower.kind==="cloak"){ctx2.strokeStyle="rgba(167,139,250,.75)";ctx2.setLineDash([cell*.16,cell*.12]);ctx2.lineDashOffset=-time/45;}
+        else if(run.activePower.kind==="overclock"){ctx2.strokeStyle="rgba(251,146,60,.8)";for(let i=0;i<3;i++){ctx2.beginPath();ctx2.moveTo(pcx-cell*(.8+i*.3),pcy+(i-1)*cell*.16);ctx2.lineTo(pcx-cell*(.25+i*.18),pcy+(i-1)*cell*.16);ctx2.stroke();}}
+        else if(run.activePower.kind==="magnet"){ctx2.strokeStyle="rgba(250,204,21,.7)";}
+        else ctx2.strokeStyle="rgba(96,165,250,.8)";
+        ctx2.beginPath();ctx2.arc(pcx,pcy,ar,0,Math.PI*2);ctx2.stroke();ctx2.setLineDash([]);ctx2.restore();
+      }
       if(run.player.invuln>0){
         ctx2.save();const shieldPulse=.72+.18*Math.sin(time/85);ctx2.strokeStyle=`rgba(103,232,249,${shieldPulse})`;ctx2.lineWidth=Math.max(1.5,cell*.09);ctx2.shadowColor="#22d3ee";ctx2.shadowBlur=cell*.7;ctx2.beginPath();ctx2.arc(pcx,pcy,cell*(.68+.05*Math.sin(time/100)),0,Math.PI*2);ctx2.stroke();ctx2.shadowBlur=0;
         ctx2.fillStyle="rgba(207,250,254,.95)";ctx2.font=`bold ${Math.max(8,cell*.25)}px ui-monospace`;ctx2.textAlign="center";ctx2.fillText(`SAFE ${Math.max(1,Math.ceil(run.player.invuln))}`,pcx,pcy-cell*.9);ctx2.restore();
