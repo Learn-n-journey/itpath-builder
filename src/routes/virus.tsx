@@ -28,8 +28,8 @@ export const Route = createFileRoute("/virus")({
 function VirusPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-6xl px-4 py-8">
-        <header className="mb-6">
+      <div className="mx-auto max-w-6xl px-2 py-3 sm:px-4 sm:py-8">
+        <header className="mb-3 hidden sm:block sm:mb-6">
           <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Arcade</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight">Virus Run</h1>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
