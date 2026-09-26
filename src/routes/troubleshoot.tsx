@@ -24,6 +24,7 @@ import {
   scoreIncident,
 } from "@/lib/troubleshoot-engine";
 import { useAppState } from "@/state/app-state";
+import { activeDomainKey } from "@/lib/active-domain";
 
 export const Route = createFileRoute("/troubleshoot")({
   staticData: { sitemap: false },
@@ -79,6 +80,7 @@ const incidentCategoryIcons = {
 
 function TroubleshootPage() {
   const { user } = useAppState();
+  const isAutoPath = activeDomainKey().split("@")[0] === "auto-repair";
   const [selectedId, setSelectedId] = useState("");
   const ordered = useMemo(() => {
     const focusIds = new Set(adaptivePath(user).topics.map((topic) => topic.id));
@@ -111,8 +113,8 @@ function TroubleshootPage() {
   return (
     <>
       <PageHeader
-        title="Troubleshoot"
-        description="Build diagnostic thinking with realistic incidents."
+        title={isAutoPath ? "Repair Orders" : "Troubleshoot"}
+        description={isAutoPath ? "Work customer complaints from verification through testing, diagnosis, repair decision, and final verification." : "Build diagnostic thinking with realistic incidents."}
       />
 
       {recommended ? (
@@ -120,33 +122,33 @@ function TroubleshootPage() {
           <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
           <div className="relative">
             <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
-              <Sparkles className="size-4" aria-hidden />Recommended incident
+              <Sparkles className="size-4" aria-hidden />{isAutoPath ? "Recommended repair order" : "Recommended incident"}
             </p>
             <h2 className="mt-3 max-w-2xl font-display text-xl font-semibold sm:text-2xl">{recommended.title}</h2>
             <p className="mt-2 line-clamp-2 max-w-2xl text-sm leading-6 text-muted-foreground">{recommended.report}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Badge variant="outline">{incidentCategoryLabels[recommended.category]}</Badge>
-              <Badge variant="outline"><Clock3 className="mr-1 size-3" />Diagnostic scenario</Badge>
+              <Badge variant="outline"><Clock3 className="mr-1 size-3" />{isAutoPath ? "Diagnostic work order" : "Diagnostic scenario"}</Badge>
             </div>
             <Button className="mt-4 w-full sm:w-auto" onClick={() => setSelectedId(recommended.id)}>
-              {recommendedAttempt?.status === "in_progress" ? "Continue Incident" : "View Incident"} <ArrowRight />
+              {recommendedAttempt?.status === "in_progress" ? (isAutoPath ? "Continue Repair Order" : "Continue Incident") : (isAutoPath ? "Open Repair Order" : "View Incident")} <ArrowRight />
             </Button>
           </div>
         </section>
       ) : null}
 
-      <section className="mt-4 grid grid-cols-4 divide-x divide-border border-y border-border py-3" aria-label="Troubleshooting progress">
-        <TroubleshootStat value={incidents.length} label="Available" />
-        <TroubleshootStat value={attempts.filter((attempt) => attempt.status === "in_progress").length} label="Active" />
-        <TroubleshootStat value={resolved.length} label="Resolved" />
+      <section className="mt-4 grid grid-cols-4 divide-x divide-border border-y border-border py-3" aria-label={isAutoPath ? "Repair order progress" : "Troubleshooting progress"}>
+        <TroubleshootStat value={incidents.length} label={isAutoPath ? "Orders" : "Available"} />
+        <TroubleshootStat value={attempts.filter((attempt) => attempt.status === "in_progress").length} label={isAutoPath ? "In Bay" : "Active"} />
+        <TroubleshootStat value={resolved.length} label={isAutoPath ? "Verified" : "Resolved"} />
         <TroubleshootStat value={resolved.length ? `${averageScore}%` : "—"} label="Average" />
       </section>
 
       <section className="mt-6">
         <div className="flex items-end justify-between gap-3">
           <div>
-            <h2 className="font-display text-lg font-semibold">Incident Library</h2>
-            <p className="mt-1 text-xs text-muted-foreground">Recommended incidents appear first based on your current learning path.</p>
+            <h2 className="font-display text-lg font-semibold">{isAutoPath ? "Repair Order Board" : "Incident Library"}</h2>
+            <p className="mt-1 text-xs text-muted-foreground">{isAutoPath ? "Customer complaints are prioritized around the vehicle systems you are currently learning." : "Recommended incidents appear first based on your current learning path."}</p>
           </div>
           <Trophy className="size-5 text-primary" aria-hidden />
         </div>
@@ -182,11 +184,11 @@ function TroubleshootPage() {
                 </button>
                 {selected ? (
                   <div className="border-t border-border/70 bg-muted/20 px-4 py-4">
-                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">Incident report</p>
+                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">{isAutoPath ? "Customer complaint" : "Incident report"}</p>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.report}</p>
                     <p className="mt-3 text-xs text-muted-foreground"><span className="font-medium text-foreground">Environment:</span> {item.environment}</p>
                     <Button className="mt-4 w-full sm:w-auto" onClick={() => document.getElementById("active-incident-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" })}>
-                      {itemAttempt?.status === "in_progress" ? "Continue Incident" : itemAttempt?.status === "submitted" ? "Review Incident" : "Start Incident"} <ArrowRight />
+                      {itemAttempt?.status === "in_progress" ? (isAutoPath ? "Continue Repair Order" : "Continue Incident") : itemAttempt?.status === "submitted" ? (isAutoPath ? "Review Repair Order" : "Review Incident") : (isAutoPath ? "Start Repair Order" : "Start Incident")} <ArrowRight />
                     </Button>
                   </div>
                 ) : null}
@@ -222,6 +224,7 @@ function IncidentWorkspace({
   latestAttempt?: IncidentAttempt;
 }) {
   const { user, actions } = useAppState();
+  const isAutoPath = activeDomainKey().split("@")[0] === "auto-repair";
   const [attemptId, setAttemptId] = useState(latestAttempt?.id ?? "");
   const attempt =
     user.incidentAttempts.find((item) => item.id === attemptId) ??
@@ -388,8 +391,8 @@ function IncidentWorkspace({
       </Panel>
 
       <Panel
-        title="Diagnostic actions"
-        description="Each step returns its own finding. Choosing everything costs efficiency; choosing nothing costs accuracy."
+        title={isAutoPath ? "Inspect & test" : "Diagnostic actions"}
+        description={isAutoPath ? "Choose inspections and tests that gather useful evidence before replacing parts." : "Each step returns its own finding. Choosing everything costs efficiency; choosing nothing costs accuracy."}
       >
         <div className="space-y-3">
           {incident.actions.map((action) => {
@@ -427,7 +430,7 @@ function IncidentWorkspace({
         </p>
       </Panel>
 
-      <Panel title="Diagnose" description="Name the root cause. A wrong choice narrows the search but never reveals the answer.">
+      <Panel title={isAutoPath ? "Diagnosis" : "Diagnose"} description={isAutoPath ? "Use the evidence to identify the most likely root cause before choosing a repair." : "Name the root cause. A wrong choice narrows the search but never reveals the answer."}>
         <div className="space-y-2">
           {incident.causes.map((cause) => (
             <Button
@@ -462,7 +465,7 @@ function IncidentWorkspace({
         />
       </Panel>
 
-      <Panel title="Fix" description="Choose the action proportionate to the cause.">
+      <Panel title={isAutoPath ? "Repair decision" : "Fix"} description={isAutoPath ? "Choose the repair that addresses the confirmed cause without unnecessary parts replacement." : "Choose the action proportionate to the cause."}>
         <div className="space-y-2">
           {incident.fixes.map((fix) => (
             <Button
@@ -483,7 +486,7 @@ function IncidentWorkspace({
         ) : null}
       </Panel>
 
-      <Panel title="Verify" description="Select every check that proves full functionality is restored.">
+      <Panel title={isAutoPath ? "Verify the repair" : "Verify"} description={isAutoPath ? "Select the checks that prove the original customer complaint is gone and the system operates correctly." : "Select every check that proves full functionality is restored."}>
         <div className="space-y-3">
           {incident.verifications.map((item) => (
             <label key={item.id} className="flex items-start gap-3 text-sm">
@@ -498,7 +501,7 @@ function IncidentWorkspace({
         </div>
       </Panel>
 
-      <Panel title="Document" description="Write the ticket note: symptom, evidence, cause, action taken and verification.">
+      <Panel title={isAutoPath ? "Close the repair order" : "Document"} description={isAutoPath ? "Record the customer complaint, tests performed, evidence, root cause, repair, and verification." : "Write the ticket note: symptom, evidence, cause, action taken and verification."}>
         <Textarea
           value={documentation}
           onChange={(event) => setDocumentation(event.target.value)}

@@ -718,16 +718,22 @@ const authoredResources: Resource[] = [
 /** A generated subject brings its own reading and watching material. */
 export const resources: Resource[] = domainOverlay ? domainOverlay.resources : authoredResources;
 export const assignments: Assignment[] = [
-  ...coreAssignments,
+  ...(domainOverlay ? [] : coreAssignments),
   ...buildTopicAssignments(topics, lessons),
 ];
 export const labs: Lab[] = [
-  ...coreLabs,
+  ...(domainOverlay ? [] : coreLabs),
   ...buildIdentificationLabs(topics, lessons),
   ...buildTopicLabs(topics, lessons),
 ];
-export const incidents: Incident[] = [...coreIncidents, ...buildTopicIncidents(topics, lessons)];
-export const tickets: Ticket[] = [...coreTickets, ...buildTopicTickets(topics, lessons)];
+export const incidents: Incident[] = [
+  ...(domainOverlay ? [] : coreIncidents),
+  ...buildTopicIncidents(topics, lessons, domainOverlay?.packageKey.startsWith("auto-repair@") ? "automotive" : "it"),
+];
+export const tickets: Ticket[] = [
+  ...(domainOverlay ? [] : coreTickets),
+  ...buildTopicTickets(topics, lessons),
+];
 export { questions, quizzes };
 export { weeks } from "./week-content";
 export { certifications, certificationObjectives };
