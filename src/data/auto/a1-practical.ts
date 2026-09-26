@@ -283,3 +283,72 @@ export const a1PracticalProfiles: A1PracticalProfile[] = [
 export function a1PracticalProfileFor(topicId: string): A1PracticalProfile | undefined {
   return a1PracticalProfiles.find((item) => item.topicId === topicId);
 }
+
+const normalizePartName = (value: string) =>
+  value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+
+const PART_ALIASES: Record<string, string[]> = {
+  "cylinder": ["piston", "engine cover"],
+  "piston and rings": ["piston and rings"],
+  "valve train": ["valves and springs", "camshaft"],
+  "crankshaft": ["crankshaft"],
+  "head gasket": ["engine cover", "coolant reservoir"],
+  "cylinder head": ["valves and springs", "camshaft", "spark plug in the chamber"],
+  "intake valve": ["valves and springs"],
+  "exhaust valve": ["valves and springs"],
+  "valve spring": ["valves and springs"],
+  "camshaft": ["camshaft"],
+  "cylinder bore": ["piston and rings"],
+  "piston": ["piston and rings"],
+  "piston rings": ["piston and rings"],
+  "connecting rod": ["connecting rod"],
+  "main and rod bearings": ["crankshaft", "connecting rod"],
+  "oil pump": ["oil pickup and strainer", "oil pan"],
+  "oil pressure regulating valve": ["oil pickup and strainer"],
+  "water pump": ["radiator", "coolant reservoir"],
+  "thermostat": ["radiator", "coolant reservoir"],
+  "radiator": ["radiator", "core and fins"],
+  "drive belt": ["alternator", "drive pulley"],
+  "engine mount": ["engine cover"],
+  "intake manifold": ["intake duct", "air filter housing"],
+  "exhaust manifold": ["engine cover"],
+  "crankcase ventilation path": ["oil filler cap", "intake duct"],
+  "combustion chamber": ["spark plug in the chamber", "piston and rings", "valves and springs"],
+  "valve sealing surface": ["valves and springs"],
+  "piston ring seal": ["piston and rings"],
+  "head gasket fire ring": ["piston and rings", "valves and springs"],
+  "crankcase": ["oil pan", "oil pickup and strainer", "crankshaft"],
+  "outside micrometer": ["crankshaft", "piston and rings"],
+  "dial bore gauge": ["piston and rings"],
+  "straightedge": ["engine cover"],
+  "feeler gauge": ["valves and springs"],
+  "dial indicator": ["camshaft", "crankshaft"],
+  "pressure cap": ["pressure cap"],
+  "cooling fan": ["core and fins"],
+  "coolant temperature sensor": ["coolant reservoir", "radiator"],
+  "crankshaft timing reference": ["crankshaft", "timing chain"],
+  "camshaft timing reference": ["camshaft", "timing chain"],
+  "timing chain or belt": ["timing chain"],
+  "tensioner": ["timing chain"],
+  "guide or idler": ["timing chain"],
+  "fuel delivery path": ["engine cover"],
+  "fuel injector": ["engine cover"],
+  "intake air path": ["air filter housing", "intake duct"],
+  "catalytic converter": ["engine cover"],
+  "exhaust restriction point": ["engine cover"],
+  "deck surface": ["piston and rings", "valves and springs"],
+  "main bearing bore": ["crankshaft"],
+  "threaded fastener hole": ["engine cover"],
+  "oil and coolant passages": ["oil pickup and strainer", "coolant reservoir"],
+  "short block": ["piston and rings", "connecting rod", "crankshaft"],
+  "cylinder-head assembly": ["camshaft", "valves and springs", "spark plug in the chamber"],
+  "timing system": ["timing chain", "camshaft", "crankshaft"],
+  "lubrication circuit": ["oil pan", "oil pickup and strainer", "crankshaft"],
+  "cooling circuit": ["coolant reservoir", "radiator"],
+};
+
+export function a1ExplorerPartNames(topicId: string): string[] {
+  const practical = a1PracticalProfileFor(topicId);
+  if (!practical) return [];
+  return [...new Set(practical.identify.flatMap((part) => PART_ALIASES[normalizePartName(part.name)] ?? [part.name]))];
+}

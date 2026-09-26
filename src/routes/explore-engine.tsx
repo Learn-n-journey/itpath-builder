@@ -4,6 +4,7 @@ import { Wrench, MousePointerClick, Car } from "lucide-react";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { autoAssemblies, type AutoPart } from "@/data/engine-explorer";
+import { a1ExplorerPartNames, a1PracticalProfileFor } from "@/data/auto/a1-practical";
 import { autoPhotos } from "@/components/auto/photos";
 import { cn } from "@/lib/utils";
 
@@ -23,21 +24,26 @@ export const Route = createFileRoute("/explore-engine")({
     ],
   }),
   staticData: { sitemap: false },
-  validateSearch: (search: Record<string, unknown>): { focus?: string; topic?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { focus?: string; topic?: string; topicId?: string } => ({
     ...(typeof search["focus"] === "string" && autoAssemblies.some((item) => item.id === search["focus"]) ? { focus: search["focus"] } : {}),
     ...(typeof search["topic"] === "string" && search["topic"] ? { topic: search["topic"] } : {}),
+    ...(typeof search["topicId"] === "string" && search["topicId"] ? { topicId: search["topicId"] } : {}),
   }),
   component: ExploreEnginePage,
 });
 
 function ExploreEnginePage() {
-  const { focus, topic } = Route.useSearch();
+  const { focus, topic, topicId } = Route.useSearch();
   const [assemblyId, setAssemblyId] = useState(focus ?? autoAssemblies[0]!.id);
   const [partId, setPartId] = useState<string | null>(null);
 
   const assembly = autoAssemblies.find((a) => a.id === assemblyId)!;
   const photo = autoPhotos[assembly.id]!;
   const selected: AutoPart | null = assembly.parts.find((p) => p.id === partId) ?? null;
+  const a1Profile = topicId ? a1PracticalProfileFor(topicId) : undefined;
+  const relevantNames = new Set(topicId ? a1ExplorerPartNames(topicId).map((name) => name.toLowerCase()) : []);
+  const isRelevant = (part: AutoPart) => relevantNames.has(part.name.toLowerCase());
+  const relevantCount = autoAssemblies.reduce((count, item) => count + item.parts.filter(isRelevant).length, 0);
 
   const pickAssembly = (id: string) => {
     setAssemblyId(id);
@@ -55,6 +61,9 @@ function ExploreEnginePage() {
         <Panel className="mb-5 border-primary/30">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-primary">From your current training</p>
           <p className="mt-1 text-sm text-muted-foreground">Inspect the components most closely connected to <span className="font-medium text-foreground">{topic}</span>. Focus on location, function, failure clues, and what you would verify next.</p>
+          {a1Profile && relevantCount > 0 ? (
+            <p className="mt-2 text-xs font-medium text-foreground">{relevantCount} relevant explorer components are highlighted for this A1 module. Use them as your visual starting point before the identification and test stages.</p>
+          ) : null}
         </Panel>
       ) : null}
 
@@ -101,7 +110,11 @@ function ExploreEnginePage() {
                     "motion-press absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border text-sm font-bold shadow-lg ring-2 backdrop-blur-[2px] transition-all",
                     active
                       ? "scale-110 border-primary bg-primary text-primary-foreground ring-primary/60"
-                      : "border-primary/70 bg-background/85 text-primary ring-background/40 hover:scale-110 hover:bg-primary hover:text-primary-foreground",
+                      : isRelevant(p)
+                        ? "scale-110 border-primary bg-primary/20 text-primary ring-primary/50 hover:bg-primary hover:text-primary-foreground"
+                        : a1Profile
+                          ? "border-border/60 bg-background/70 text-muted-foreground ring-background/40 opacity-60 hover:opacity-100"
+                          : "border-primary/70 bg-background/85 text-primary ring-background/40 hover:scale-110 hover:bg-primary hover:text-primary-foreground",
                   )}
                 >
                   {i + 1}
@@ -165,6 +178,8 @@ function ExploreEnginePage() {
                     className={cn(
                       "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-muted/60",
                       p.id === partId && "bg-primary/10 text-primary",
+                      isRelevant(p) && p.id !== partId && "border border-primary/30 bg-primary/5 text-foreground",
+                      a1Profile && !isRelevant(p) && p.id !== partId && "opacity-60",
                     )}
                   >
                     <span
