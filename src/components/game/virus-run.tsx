@@ -1088,13 +1088,13 @@ export function VirusRun() {
       // Gameplay telegraphs: the visuals below correspond to the active system mechanic.
       ctx2.save();
       const hazardPulse = run.hazardPulse;
-      if (sys === "Boot Sector" && run.hazardPulse < 1.5) {
+      if (sys === "Boot Sector" && hazardPulse < 1.5) {
         ctx2.fillStyle = "rgba(250,204,21,0.055)";
         ctx2.fillRect(offX, offY, cell * COLS, cell * ROWS);
         ctx2.fillStyle = "rgba(253,224,71,0.8)";
         ctx2.font = `bold ${Math.max(8,cell*.28)}px ui-monospace`;
         ctx2.textAlign = "left"; ctx2.fillText("BOOT SYNC", offX + cell, offY + cell * 1.1);
-      } else if (sys === "System RAM" && run.hazardPulse < 0.7) {
+      } else if (sys === "System RAM" && hazardPulse < 0.7) {
         ctx2.fillStyle = "rgba(34,211,238,0.07)";
         for(let x=1;x<COLS-1;x+=4)ctx2.fillRect(offX+x*cell,offY,cell*.8,cell*ROWS);
       } else if (sys === "GPU Memory") {
@@ -1105,16 +1105,16 @@ export function VirusRun() {
       } else if (sys === "Network Stack") {
         for(let y=4;y<ROWS-1;y+=4){ctx2.fillStyle="rgba(94,234,212,0.06)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
       } else if (sys === "Kernel Space") {
-        const scan = Math.max(0,1-Math.abs(run.hazardPulse-3.95)/.45);
+        const scan = Math.max(0,1-Math.abs(hazardPulse-3.95)/.45);
         if(scan>0){ctx2.strokeStyle=`rgba(248,113,113,${.18+scan*.4})`;ctx2.lineWidth=Math.max(2,cell*.1);const rr=cell*(2+scan*11);ctx2.beginPath();ctx2.arc(offX+cell*COLS/2,offY+cell*ROWS/2,rr,0,Math.PI*2);ctx2.stroke();}
-      } else if (sys === "Firewall" && run.hazardPulse > 5.2 && run.hazardPulse < 6.6) {
-        const sweep=(run.hazardPulse-5.2)/1.4;const x=offX+sweep*cell*COLS;
+      } else if (sys === "Firewall" && hazardPulse > 5.2 && hazardPulse < 6.6) {
+        const sweep=(hazardPulse-5.2)/1.4;const x=offX+sweep*cell*COLS;
         const fg=ctx2.createLinearGradient(x-cell*2,0,x+cell*2,0);fg.addColorStop(0,"rgba(251,146,60,0)");fg.addColorStop(.5,"rgba(251,146,60,.2)");fg.addColorStop(1,"rgba(251,146,60,0)");ctx2.fillStyle=fg;ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
-      } else if (sys === "File System" && run.hazardPulse > 2.8 && run.hazardPulse < 3.8) {
+      } else if (sys === "File System" && hazardPulse > 2.8 && hazardPulse < 3.8) {
         ctx2.fillStyle="rgba(94,234,212,.055)";for(let x=2;x<COLS-2;x+=5)ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);
-      } else if (sys === "Process Table" && run.hazardPulse > 5.8) {
+      } else if (sys === "Process Table" && hazardPulse > 5.8) {
         ctx2.fillStyle="rgba(192,132,252,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
-      } else if (sys === "System Configuration" && run.hazardPulse < 1.1) {
+      } else if (sys === "System Configuration" && hazardPulse < 1.1) {
         ctx2.fillStyle="rgba(251,191,36,.06)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
       } else if (sys === "DNS Resolver") {
         for(let y=4;y<ROWS-1;y+=4){ctx2.fillStyle="rgba(34,211,238,.045)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
@@ -1122,11 +1122,11 @@ export function VirusRun() {
         for(let x=6;x<COLS-1;x+=6){ctx2.fillStyle="rgba(96,165,250,.045)";ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);}
       } else if (sys === "Switch Fabric") {
         for(let y=3;y<ROWS-1;y+=3){ctx2.fillStyle="rgba(74,222,128,.045)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
-      } else if (sys === "Authentication Server" && run.hazardPulse > 3.4 && run.hazardPulse < 4.3) {
-        const x=offX+((run.hazardPulse-3.4)/.9)*cell*COLS;ctx2.fillStyle="rgba(232,121,249,.13)";ctx2.fillRect(x-cell*.6,offY,cell*1.2,cell*ROWS);
+      } else if (sys === "Authentication Server" && hazardPulse > 3.4 && hazardPulse < 4.3) {
+        const x=offX+((hazardPulse-3.4)/.9)*cell*COLS;ctx2.fillStyle="rgba(232,121,249,.13)";ctx2.fillRect(x-cell*.6,offY,cell*1.2,cell*ROWS);
       } else if (sys === "Database") {
         for(let x=5;x<COLS-1;x+=5){ctx2.fillStyle="rgba(163,230,53,.035)";ctx2.fillRect(offX+x*cell,offY,cell,cell*ROWS);}
-      } else if (sys === "Web Server" && run.hazardPulse > 1.5 && run.hazardPulse < 2.5) {
+      } else if (sys === "Web Server" && hazardPulse > 1.5 && hazardPulse < 2.5) {
         ctx2.fillStyle="rgba(96,165,250,.055)";ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
       } else if (sys === "Cloud Network") {
         for(let y=5;y<ROWS-1;y+=5){ctx2.fillStyle="rgba(103,232,249,.04)";ctx2.fillRect(offX,offY+y*cell,cell*COLS,cell);}
