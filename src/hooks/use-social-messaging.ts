@@ -18,27 +18,33 @@ export function useSocialMessaging(){
  return {friendships:friendships.data??[],loading:friendships.isLoading,requestFriend,setStatus,userId};
 }
 
-export type CommunityNotification = { id:string; kind:"message"|"friend-request"; userId:string; displayName:string; preview:string; createdAt:string };
+export type CommunityNotification = { id:string; kind:"message"|"friend-request"|"post-comment"|"post-like"|"friend-accepted"; userId:string; displayName:string; preview:string; createdAt:string; readAt?:string|null; messageId?:string|null };
 
-export function useCommunityNotifications(limit=5){
+export function useCommunityNotifications(limit=20){
  const {userId,ready}=useAuth(); const qc=useQueryClient();
  const query=useQuery({queryKey:["community-notifications",userId,limit],enabled:ready&&!!userId,queryFn:async()=>{
-  const [{data:messages,error:messageError},{data:requests,error:requestError}]=await Promise.all([
+  const [{data:messages,error:messageError},{data:requests,error:requestError},{data:events,error:eventError}]=await Promise.all([
    supabase.from("direct_messages").select("id,sender_id,body,created_at").neq("sender_id",userId!).is("read_at",null).order("created_at",{ascending:false}).limit(limit),
    supabase.from("friendships").select("id,requester_id,created_at").eq("addressee_id",userId!).eq("status","pending").order("created_at",{ascending:false}).limit(limit),
+   supabase.from("notifications").select("id,actor_id,notification_type,preview_text,created_at,read_at,community_message_id").eq("user_id",userId!).order("created_at",{ascending:false}).limit(limit),
   ]);
-  if(messageError)throw messageError;if(requestError)throw requestError;
-  const ids=[...new Set([...(messages??[]).map(x=>x.sender_id),...(requests??[]).map(x=>x.requester_id)])];
+  if(messageError)throw messageError;if(requestError)throw requestError;if(eventError)throw eventError;
+  const ids=[...new Set([...(messages??[]).map(x=>x.sender_id),...(requests??[]).map(x=>x.requester_id),...(events??[]).map(x=>x.actor_id)])];
   const names=new Map<string,string>();
   if(ids.length){const {data:profiles}=await supabase.rpc("get_public_profiles",{_ids:ids});for(const p of profiles??[])names.set(p.user_id,p.display_name?.trim()||p.first_name?.trim()||"Learner");}
+  const eventKind=(type:string):CommunityNotification["kind"]=>type==="post_comment"?"post-comment":type==="post_like"?"post-like":type==="friend_accepted"?"friend-accepted":"post-comment";
   const rows:CommunityNotification[]=[
-   ...(messages??[]).map(x=>({id:x.id,kind:"message" as const,userId:x.sender_id,displayName:names.get(x.sender_id)??"Learner",preview:x.body,createdAt:x.created_at})),
-   ...(requests??[]).map(x=>({id:x.id,kind:"friend-request" as const,userId:x.requester_id,displayName:names.get(x.requester_id)??"Learner",preview:"Sent you a friend request",createdAt:x.created_at})),
+   ...(messages??[]).map(x=>({id:x.id,kind:"message" as const,userId:x.sender_id,displayName:names.get(x.sender_id)??"Learner",preview:x.body,createdAt:x.created_at,readAt:null})),
+   ...(requests??[]).map(x=>({id:x.id,kind:"friend-request" as const,userId:x.requester_id,displayName:names.get(x.requester_id)??"Learner",preview:"Sent you a friend request",createdAt:x.created_at,readAt:null})),
+   ...(events??[]).map(x=>({id:x.id,kind:eventKind(x.notification_type),userId:x.actor_id,displayName:names.get(x.actor_id)??"Learner",preview:x.preview_text??(x.notification_type==="post_like"?"Liked your post":x.notification_type==="friend_accepted"?"Accepted your friend request":"Commented on your post"),createdAt:x.created_at,readAt:x.read_at,messageId:x.community_message_id})),
   ];
   return rows.sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,limit);
  }});
- useEffect(()=>{if(!userId)return;const ch=supabase.channel("community-notifications-"+userId).on("postgres_changes",{event:"*",schema:"public",table:"direct_messages"},()=>void qc.invalidateQueries({queryKey:["community-notifications"]})).on("postgres_changes",{event:"*",schema:"public",table:"friendships"},()=>void qc.invalidateQueries({queryKey:["community-notifications"]})).subscribe();return()=>{void supabase.removeChannel(ch)}},[userId,qc]);
- return {notifications:query.data??[],unreadCount:query.data?.length??0,loading:query.isLoading};
+ useEffect(()=>{if(!userId)return;const ch=supabase.channel("community-notifications-"+userId).on("postgres_changes",{event:"*",schema:"public",table:"direct_messages"},()=>void qc.invalidateQueries({queryKey:["community-notifications"]})).on("postgres_changes",{event:"*",schema:"public",table:"friendships"},()=>void qc.invalidateQueries({queryKey:["community-notifications"]})).on("postgres_changes",{event:"*",schema:"public",table:"notifications",filter:"user_id=eq."+userId},()=>void qc.invalidateQueries({queryKey:["community-notifications"]})).subscribe();return()=>{void supabase.removeChannel(ch)}},[userId,qc]);
+ async function markNotificationRead(id:string){if(!userId)return;const {error}=await supabase.from("notifications").update({read_at:new Date().toISOString()}).eq("id",id).eq("user_id",userId);if(error)throw error;await qc.invalidateQueries({queryKey:["community-notifications"]});}
+ async function markAllEventNotificationsRead(){if(!userId)return;const {error}=await supabase.from("notifications").update({read_at:new Date().toISOString()}).eq("user_id",userId).is("read_at",null);if(error)throw error;await qc.invalidateQueries({queryKey:["community-notifications"]});}
+ const rows=query.data??[];
+ return {notifications:rows,unreadCount:rows.filter(x=>!x.readAt).length,loading:query.isLoading,markNotificationRead,markAllEventNotificationsRead};
 }
 
 export function useDirectMessages(friendshipId:string|null){
