@@ -49,6 +49,7 @@ import { learnerStatusLabel } from "@/lib/learner-status";
 import { nextJourneyTopic } from "@/lib/journey-order";
 import type { VisualAccent } from "@/lib/visual-accents";
 import type { LucideIcon } from "lucide-react";
+import { domain } from "@/domain/active";
 
 export const Route = createFileRoute("/labs")({
   staticData: { sitemap: false },
@@ -58,10 +59,10 @@ export const Route = createFileRoute("/labs")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Hands-on IT Labs | IT PATH" },
-      { name: "description", content: "Complete guided practical IT labs with saved evidence and review." },
-      { property: "og:title", content: "Hands-on IT Labs | IT PATH" },
-      { property: "og:description", content: "Guided hardware, systems, networking, security, and cloud exercises." },
+      { title: `${domain.id === "auto-repair" ? "Shop Practice" : "Hands-on IT Labs"} | ${domain.appName}` },
+      { name: "description", content: domain.id === "auto-repair" ? "Complete guided automotive shop practice with saved evidence and review." : "Complete guided practical IT labs with saved evidence and review." },
+      { property: "og:title", content: `${domain.id === "auto-repair" ? "Shop Practice" : "Hands-on IT Labs"} | ${domain.appName}` },
+      { property: "og:description", content: domain.id === "auto-repair" ? "Guided vehicle inspection, testing, diagnosis and repair exercises." : "Guided hardware, systems, networking, security, and cloud exercises." },
     ],
   }),
   component: LabsPageGated,
@@ -69,7 +70,7 @@ export const Route = createFileRoute("/labs")({
 
 function LabsPageGated() {
   return (
-    <ProGate feature="Hands-on labs">
+    <ProGate feature={domain.id === "auto-repair" ? "Shop practice" : "Hands-on labs"}>
       <LabsPage />
     </ProGate>
   );
@@ -157,7 +158,7 @@ function LabsPage() {
   return (
     <div>
       <PageHeader
-        title="Labs"
+        title={domain.id === "auto-repair" ? "Shop Practice" : "Labs"}
         description="Hands-on practice in a safe environment."
         actions={<Button variant="outline" onClick={() => { reshuffle(); setSelectedId(""); }}><RefreshCw /> Shuffle</Button>}
       />
@@ -167,21 +168,21 @@ function LabsPage() {
           <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
           <div className="relative">
             <div className="flex items-center justify-between gap-3">
-              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Star className="size-4 fill-current" aria-hidden />Recommended Lab</p>
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Star className="size-4 fill-current" aria-hidden />{domain.id === "auto-repair" ? "Recommended Shop Practice" : "Recommended Lab"}</p>
               <p className="max-w-[48%] truncate text-xs font-medium text-primary">{categoryLabels[recommended.category]}</p>
             </div>
             <h2 className="mt-3 max-w-2xl font-display text-xl font-semibold sm:text-2xl">{recommended.title}</h2>
             <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{recommendedTopic?.title}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Badge variant="outline">{categoryLabels[recommended.category]}</Badge>
-              <Badge variant="outline"><Clock3 className="mr-1 size-3" />Hands-on lab</Badge>
+              <Badge variant="outline"><Clock3 className="mr-1 size-3" />{domain.id === "auto-repair" ? "Shop practice" : "Hands-on lab"}</Badge>
             </div>
-            <Button className="mt-4 w-full sm:w-auto" onClick={() => setSelectedId(recommended.id)}>Start Lab <ArrowRight /></Button>
+            <Button className="mt-4 w-full sm:w-auto" onClick={() => setSelectedId(recommended.id)}>{domain.id === "auto-repair" ? "Start Practice" : "Start Lab"} <ArrowRight /></Button>
           </div>
         </section>
       ) : null}
 
-      <section className="mt-4 grid grid-cols-4 gap-2" aria-label="Lab progress">
+      <section className="mt-4 grid grid-cols-4 gap-2" aria-label={domain.id === "auto-repair" ? "Shop practice progress" : "Lab progress"}>
         <LabStat icon={ListChecks} value={labs.length} label="Available" />
         <LabStat icon={PlayCircle} value={inProgressCount} label="In Progress" />
         <LabStat icon={RotateCcw} value={reviewCount} label="Review" />
@@ -190,7 +191,7 @@ function LabsPage() {
 
       <section className="mt-6">
         <div className="flex items-end justify-between gap-3">
-          <div><h2 className="font-display text-lg font-semibold">Lab Library</h2><p className="text-xs text-muted-foreground">{labs.length} hands-on labs</p></div>
+          <div><h2 className="font-display text-lg font-semibold">{domain.id === "auto-repair" ? "Shop Practice Library" : "Lab Library"}</h2><p className="text-xs text-muted-foreground">{labs.length} {domain.id === "auto-repair" ? "shop practice activities" : "hands-on labs"}</p></div>
           <Button variant="outline" size="sm" onClick={() => { reshuffle(); setSelectedId(""); }}><RefreshCw className="size-4" />Shuffle</Button>
         </div>
         <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
@@ -218,7 +219,7 @@ function LabsPage() {
                 </button>
                 {selected ? (
                   <div className="border-t border-border/70 bg-muted/20 px-4 py-4">
-                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">Lab objective</p>
+                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">{domain.id === "auto-repair" ? "Shop objective" : "Lab objective"}</p>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.objective}</p>
                     <div className="mt-4">
                       <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">You'll practice</p>
@@ -229,7 +230,7 @@ function LabsPage() {
                       </div>
                     </div>
                     <Button className="mt-4 w-full sm:w-auto" onClick={(event) => { event.stopPropagation(); document.getElementById("selected-lab-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
-                      {itemAttempt?.status === "in_progress" ? "Continue Lab" : "Start Lab"} <ArrowRight />
+                      {itemAttempt?.status === "in_progress" ? domain.id === "auto-repair" ? "Continue Practice" : "Continue Lab" : domain.id === "auto-repair" ? "Start Practice" : "Start Lab"} <ArrowRight />
                     </Button>
                   </div>
                 ) : null}
@@ -392,7 +393,7 @@ function LabWorkspace({ lab, latestAttempt }: { lab: Lab; latestAttempt?: LabAtt
       <Panel title="Prerequisites">
         <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">{lab.prerequisites.map((item) => <li key={item}>{item}</li>)}</ul>
       </Panel>
-      <Panel title="Instructions" description="Perform these steps yourself in the stated environment. IT PATH does not execute or verify external commands." descriptionVisibility="visible">
+      <Panel title="Instructions" description={domain.id === "auto-repair" ? "Perform these steps yourself in a safe training or shop environment. AUTO PATH records your work but does not physically verify the vehicle or repair." : "Perform these steps yourself in the stated environment. IT PATH does not execute or verify external commands."} descriptionVisibility="visible">
         <ol className="list-decimal space-y-3 pl-5 text-sm text-muted-foreground">{lab.instructions.map((item) => <li key={item}>{item}</li>)}</ol>
       </Panel>
 

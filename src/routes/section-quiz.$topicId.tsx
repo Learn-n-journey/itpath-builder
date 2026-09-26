@@ -21,6 +21,7 @@ import { learnerContinuity } from "@/lib/learner-continuity";
 import { useAppState } from "@/state/app-state";
 import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 import { certifications } from "@/data/static-content";
+import { domain } from "@/domain/active";
 
 const findTopic = (topicId: string) => topics.find((topic) => topic.id === topicId);
 
@@ -28,10 +29,11 @@ export const Route = createFileRoute("/section-quiz/$topicId")({
   staticData: { sitemap: false },
   head: ({ params }) => {
     const topic = findTopic(params.topicId);
-    const title = topic ? `${topic.title} section quiz | IT PATH` : "Section quiz | IT PATH";
+    const checkLabel = domain.id === "auto-repair" ? "shop knowledge check" : "section quiz";
+    const title = topic ? `${topic.title} ${checkLabel} | ${domain.appName}` : `${checkLabel} | ${domain.appName}`;
     const description = topic
       ? `A ${SECTION_QUIZ_SIZE} question quiz on ${topic.title}, all multiple choice.`
-      : "A section quiz on IT PATH.";
+      : `A ${checkLabel} on ${domain.appName}.`;
     return {
       meta: [
         { property: "og:type", content: "article" },
@@ -95,9 +97,9 @@ function SectionQuizPage() {
 
   return (
     <>
-      <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, ...(certifications.find((item) => item.id === topic.certificationId) ? [{ label: certifications.find((item) => item.id === topic.certificationId)?.title ?? "Certification", to: "/certifications/$certId", params: { certId: topic.certificationId } }] : []), { label: topic.title, to: "/topics/$topicId", params: { topicId } }, { label: "Section quiz" }]} />
+      <LearningBreadcrumbs items={[{ label: domain.id === "auto-repair" ? "Training Plan" : "My Path", to: "/my-path" }, ...(certifications.find((item) => item.id === topic.certificationId) ? [{ label: certifications.find((item) => item.id === topic.certificationId)?.title ?? "Certification", to: "/certifications/$certId", params: { certId: topic.certificationId } }] : []), { label: topic.title, to: "/topics/$topicId", params: { topicId } }, { label: domain.id === "auto-repair" ? "Shop knowledge check" : "Section quiz" }]} />
       <PageHeader
-        title={`${topic.title}: section quiz`}
+        title={`${topic.title}: ${domain.id === "auto-repair" ? "shop knowledge check" : "section quiz"}`}
         description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Every question is multiple choice, and ${SECTION_PASS_SCORE}% is a pass. This is one part of what opens the next section, alongside recall, teach back and the hands on work.`}
       />
 

@@ -38,12 +38,12 @@ export const Route = createFileRoute("/exam")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "Exam Simulator | IT PATH" },
+      { title: `${domain.id === "auto-repair" ? "Certification Test" : "Exam Simulator"} | ${domain.appName}` },
       {
         name: "description",
         content: "Sit a timed mock exam for any certification, or the 80-question final exam covering the whole course, with a pass or fail report and a review of every question you missed.",
       },
-      { property: "og:title", content: "Exam Simulator | IT PATH" },
+      { property: "og:title", content: `${domain.id === "auto-repair" ? "Certification Test" : "Exam Simulator"} | ${domain.appName}` },
       {
         property: "og:description",
         content: "Randomised timed mock exams and an 80-question course-wide final exam, drawn from the full question bank.",
@@ -55,7 +55,7 @@ export const Route = createFileRoute("/exam")({
 
 function ExamPageGated() {
   return (
-    <ProGate feature="The exam simulator">
+    <ProGate feature={domain.id === "auto-repair" ? "The certification test simulator" : "The exam simulator"}>
       <ExamPage />
     </ProGate>
   );
@@ -143,8 +143,8 @@ function ExamPage() {
   return (
     <>
       <PageHeader
-        title="Exam Simulator"
-        description="A timed mock exam for one certification, or the 80-question final exam covering the whole course. Score 75% or higher to pass, then review every question you missed."
+        title={domain.id === "auto-repair" ? "Certification Test" : "Exam Simulator"}
+        description={domain.id === "auto-repair" ? "Run a timed knowledge test for an automotive certification or the full AUTO PATH course. Score 75% or higher to pass, then review every question you missed." : "A timed mock exam for one certification, or the 80-question final exam covering the whole course. Score 75% or higher to pass, then review every question you missed."}
         actions={
           started ? (
             <Button variant="outline" onClick={start}>
