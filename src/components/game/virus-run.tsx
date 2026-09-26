@@ -243,6 +243,10 @@ interface RunState {
   streak: number;
   streakTimer: number;
   boss: boolean;
+  bossPhase: number;
+  bossNodes: number;
+  bossNodesRequired: number;
+  bossTitle: string;
   required: number;
   collected: number;
   port: { x: number; y: number };
@@ -292,6 +296,8 @@ function buildLevel(level: number): RunState {
   // Campaign bosses punctuate each five-level chapter. Endless Mode keeps
   // that five-level boss cadence after the campaign is complete.
   const boss = level % 5 === 0;
+  const bossNodesRequired = boss ? (level >= 20 ? 4 : level >= 15 ? 3 : 2) : 0;
+  const bossTitle = !boss ? "" : level === 5 ? "STORAGE SENTINEL" : level === 10 ? "PROCESS WARDEN" : level === 15 ? "AUTHENTICATION GUARDIAN" : level === 20 ? "CORE DEFENDER" : "ENDLESS DEFENDER";
   const guardCount = Math.min((boss ? 5 : 2) + Math.floor(level * 0.7), 14);
   const guardSpeed = Math.min(BASE_GUARD_SPEED + (level - 1) * 0.16, MAX_GUARD_SPEED);
   const detection = 6 + Math.min(level, 9);
@@ -322,6 +328,10 @@ function buildLevel(level: number): RunState {
     streak: 0,
     streakTimer: 0,
     boss,
+    bossPhase: boss ? 1 : 0,
+    bossNodes: 0,
+    bossNodesRequired,
+    bossTitle,
     required,
     collected: 0,
     port,
@@ -590,7 +600,10 @@ export function VirusRun() {
           run.collected += 1;
           run.streak = Math.min(5, run.streak + 1); run.streakTimer = 4.5;
           fxRef.current.push({ x: packet.x, y: packet.y, born: performance.now(), kind: "packet" });virusSound("packet");
-          if (run.collected >= run.required) run.portOpen = true;
+          if (run.collected >= run.required) {
+            if (!run.boss) run.portOpen = true;
+            else run.bossPhase = Math.max(run.bossPhase, 2);
+          }
           syncHud(run);
         }
       }
