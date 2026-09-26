@@ -196,6 +196,7 @@ export function WelcomeSetup({ onFinished }: { onFinished?: () => void }) {
               markSetupPending();
               setShow(false);
               onFinished?.();
+              void navigate({ to: "/dashboard" });
             }}
           >
             Do this later
