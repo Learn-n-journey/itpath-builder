@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Award, BookOpen, Clock3, FlaskConical, Gamepad2, GraduationCap, MessageCircle, Pencil, Star, Target, Trophy, UserCheck, UserPlus, Users } from "lucide-react";
+import { ArrowLeft, Award, BookOpen, Clock3, FlaskConical, Gamepad2, GraduationCap, MessageCircle, Pencil, Star, Target, Trophy, UserCheck, UserPlus, Users, CalendarDays } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,19 @@ function ProfilePage(){
  const posts=useMemo(()=>messages.filter(p=>p.userId===profileId).slice().reverse(),[messages,profileId]);
  const name=profile.displayName||posts[0]?.displayName||profile.firstName||"Learner";
  const isOwn=profileId===userId; const friendCount=friendships.filter(f=>f.status==="accepted").length;
+ const evidence=useMemo(()=>{
+  const visible=activities;
+  const projects=visible.filter(a=>a.activityType==="project_completed");
+  const labs=visible.filter(a=>a.activityType==="lab_completed");
+  const mastery=visible.filter(a=>a.activityType==="mastery_advanced");
+  const milestones=visible.filter(a=>a.activityType==="certification_milestone"||a.activityType==="achievement_earned");
+  const featured=visible.filter(a=>a.isFeatured).slice(0,4);
+  const days=new Map<string,number>();
+  for(const a of visible){const key=a.occurredAt.slice(0,10);days.set(key,(days.get(key)??0)+1)}
+  const graph=Array.from({length:84},(_,i)=>{const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-(83-i));const key=d.toISOString().slice(0,10);return {key,count:days.get(key)??0,label:d.toLocaleDateString(undefined,{month:"short",day:"numeric"})}});
+  const activeDays=graph.filter(d=>d.count>0).length;
+  return {projects,labs,mastery,milestones,featured,graph,activeDays};
+ },[activities]);
  const friendship=friendships.find(f=>f.requesterId===profileId||f.addresseeId===profileId);
  const accepted=friendship?.status==="accepted",pending=friendship?.status==="pending";
  async function add(){try{await requestFriend(profileId);toast.success("Friend request sent.")}catch{toast.error("Could not send friend request.")}}
@@ -54,6 +67,17 @@ function ProfilePage(){
     {(isOwn||profile.showLearningProgress)?<div className="mt-5 grid grid-cols-4 gap-2 border-t pt-4 text-center"><div><p className="font-bold">{isOwn?stats.studyHours:"—"}</p><p className="text-[11px] text-muted-foreground">Hours</p></div><div><p className="font-bold">{isOwn?stats.topicsCompleted:"—"}</p><p className="text-[11px] text-muted-foreground">Completed</p></div><div><p className="font-bold">{isOwn?stats.labsCompleted:"—"}</p><p className="text-[11px] text-muted-foreground">Labs</p></div><div><p className="font-bold">{isOwn?friendCount:"—"}</p><p className="text-[11px] text-muted-foreground">Friends</p></div></div>:null}
     {isOwn?<div className="mt-5 rounded-xl border bg-card p-4"><div className="flex items-center justify-between"><div className="flex items-center gap-2 text-sm font-semibold"><Clock3 className="size-4 text-primary"/>Your learning</div><Link to="/progress" className="text-xs text-primary hover:underline">View progress</Link></div><div className="mt-3 flex items-end justify-between"><div><p className="text-2xl font-bold">{measures.learningProgress}%</p><p className="text-xs text-muted-foreground">overall learning progress</p></div><p className="text-xs text-muted-foreground">{measures.activitiesCompleted} activities done</p></div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-primary" style={{width:measures.learningProgress+"%"}}/></div></div>:null}
     {!isOwn&&<div className="mt-4 flex gap-2">{accepted?<Button className="flex-1" onClick={()=>void nav({to:"/messages",search:{user:profileId}} as any)}><MessageCircle className="mr-2 size-4"/>Message</Button>:<Button className="flex-1" onClick={add} disabled={pending}>{pending?<><UserCheck className="mr-2 size-4"/>Request sent</>:<><UserPlus className="mr-2 size-4"/>Add friend</>}</Button>}</div>}
+   </section>
+   <section className="border-b px-4 py-5">
+    <div className="flex items-center gap-2"><Award className="size-4 text-primary"/><h2 className="text-sm font-bold">Learning identity</h2></div>
+    <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+     <EvidenceStat value={evidence.projects.length} label="Projects" icon={Trophy}/>
+     <EvidenceStat value={evidence.labs.length} label="Labs" icon={FlaskConical}/>
+     <EvidenceStat value={evidence.mastery.length} label="Mastery gains" icon={Target}/>
+     <EvidenceStat value={evidence.milestones.length} label="Milestones" icon={GraduationCap}/>
+    </div>
+    {evidence.featured.length?<div className="mt-5"><p className="mb-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">Featured evidence</p><div className="grid gap-2 sm:grid-cols-2">{evidence.featured.map(a=><div key={a.id} className="rounded-xl border bg-card p-3"><div className="flex items-center gap-2"><Star className="size-3.5 fill-current text-primary"/><span className="text-[11px] font-semibold uppercase tracking-wide text-primary">{a.activityType.replaceAll("_"," ")}</span></div><p className="mt-1.5 text-sm font-semibold">{a.title}</p>{a.description?<p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{a.description}</p>:null}</div>)}</div></div>:null}
+    <div className="mt-5 rounded-xl border bg-card p-4"><div className="flex items-center justify-between gap-3"><div className="flex items-center gap-2"><CalendarDays className="size-4 text-primary"/><p className="text-sm font-semibold">Learning consistency</p></div><span className="text-xs text-muted-foreground">{evidence.activeDays} active days · 12 weeks</span></div><div className="mt-3 grid grid-flow-col grid-rows-7 gap-1 overflow-x-auto pb-1" aria-label="Learning activity over the last 12 weeks">{evidence.graph.map(day=><span key={day.key} title={day.label+": "+day.count+" learning "+(day.count===1?"event":"events")} className={"size-3 rounded-[3px] "+(day.count>=3?"bg-primary":day.count===2?"bg-primary/70":day.count===1?"bg-primary/40":"bg-secondary")} />)}</div><p className="mt-2 text-[11px] text-muted-foreground">Built from recorded learning activity, not profile claims.</p></div>
    </section>
    <section>
     <div className="flex items-center justify-between border-b px-4 py-3"><p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Learning activity</p><span className="text-xs text-muted-foreground">{activities.length ? `${activities.length} recent` : ""}</span></div>
@@ -84,3 +108,5 @@ function ActivityCard({activity,isOwn,updating,onUpdate}:{activity:LearningActiv
   </div></div>
  </article>;
 }
+
+function EvidenceStat({value,label,icon:Icon}:{value:number;label:string;icon:React.ComponentType<{className?:string}>}){return <div className="rounded-xl border bg-card p-3"><Icon className="size-4 text-primary"/><p className="mt-2 text-xl font-bold tabular-nums">{value}</p><p className="text-[11px] text-muted-foreground">{label}</p></div>}
