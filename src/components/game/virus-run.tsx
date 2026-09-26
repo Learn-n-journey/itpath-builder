@@ -1072,7 +1072,7 @@ export function VirusRun() {
         }
       } else if (["DNS Resolver","Router Gateway","Switch Fabric"].includes(sys)) {
         // Network infrastructure: topology nodes joined by animated links.
-        const nodes=[[3,4],[9,2.5],[15,6],[22,3],[27,8],[7,15],[17,16],[25,14]];
+        const nodes:[number,number][]=[[3,4],[9,2.5],[15,6],[22,3],[27,8],[7,15],[17,16],[25,14]];
         ctx2.strokeStyle="rgba(56,189,248,0.14)";ctx2.lineWidth=Math.max(1,cell*.05);
         for(let i=1;i<nodes.length;i++){const a=nodes[i-1]!,b=nodes[i]!;ctx2.beginPath();ctx2.moveTo(offX+a[0]*cell,offY+a[1]*cell);ctx2.lineTo(offX+b[0]*cell,offY+b[1]*cell);ctx2.stroke();}
         for(let i=0;i<nodes.length;i++){const n=nodes[i]!,pulse=.14+.1*(1+Math.sin(time/300+i))/2;ctx2.fillStyle=`rgba(94,234,212,${pulse})`;ctx2.beginPath();ctx2.arc(offX+n[0]*cell,offY+n[1]*cell,cell*.28,0,Math.PI*2);ctx2.fill();}
@@ -1199,8 +1199,8 @@ export function VirusRun() {
         ctx2.fillStyle=light;ctx2.beginPath();ctx2.arc(lx,ly,lr,0,Math.PI*2);ctx2.fill();
       };
       // Player is the primary moving light. Powers alter both radius and hue.
-      const playerLight=run.activePower?.kind==="overclock"?"251,191,36":run.activePower?.kind==="emp"?"103,232,249":run.activePower?.kind==="magnet"?"250,204,21":"45,212,191";
-      castLight(run.player.x,run.player.y,2.65+(run.streak>1?run.streak*.08:0),playerLight,run.activePower?.kind==="cloak"?.08:.17);
+      const playerLightRgb=run.activePower?.kind==="overclock"?"251,191,36":run.activePower?.kind==="emp"?"103,232,249":run.activePower?.kind==="magnet"?"250,204,21":"45,212,191";
+      castLight(run.player.x,run.player.y,2.65+(run.streak>1?run.streak*.08:0),playerLightRgb,run.activePower?.kind==="cloak"?.08:.17);
       // Untaken data softly paints cyan onto nearby walls.
       for(const packet of run.packets){
         if(packet.taken)continue;
