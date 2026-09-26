@@ -1624,10 +1624,10 @@ export function VirusRun() {
         </div>
       </div>
 
-      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", mobileLandscape && "absolute inset-0 m-0 h-[100dvh] w-[100dvw] rounded-none border-0 bg-black p-0 shadow-none")}>
+      <div className={cn("relative overflow-hidden rounded-lg border border-border/80 bg-card/75 p-1.5 shadow-2xl backdrop-blur-xl", mobileLandscape && "absolute bottom-0 left-0 top-0 m-0 h-[100dvh] w-[calc(100dvw-176px-env(safe-area-inset-right))] rounded-none border-0 bg-black p-0 shadow-none")}>
         <canvas
           ref={canvasRef}
-           className={cn("block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "h-[100dvh] w-[100dvw] max-w-none rounded-none aspect-auto")}
+           className={cn("block w-full touch-none select-none rounded-md aspect-[31/21] [-webkit-user-select:none] [-webkit-touch-callout:none]", mobileLandscape && "h-[100dvh] w-full max-w-none rounded-none aspect-auto")}
           onPointerDown={onCanvasPointerDown}
           onPointerMove={onCanvasPointerMove}
           onPointerUp={onCanvasPointerEnd}
@@ -1637,7 +1637,7 @@ export function VirusRun() {
       </div>
 
       {/* Phone controls: one large thumb stick. The playfield itself also supports drag-to-steer. */}
-      <div className={cn("mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden", mobileLandscape && "absolute bottom-[max(12px,env(safe-area-inset-bottom))] right-[max(12px,env(safe-area-inset-right))] z-40 m-0 w-auto bg-transparent p-0")} aria-label="Mobile game controls">
+      <div className={cn("mt-3 flex items-center justify-between gap-4 px-2 pb-[max(.5rem,env(safe-area-inset-bottom))] md:hidden", mobileLandscape && "absolute bottom-0 right-0 top-0 z-40 m-0 flex w-[calc(176px+env(safe-area-inset-right))] items-center justify-center border-l border-primary/15 bg-background/80 pb-0 pl-2 pr-[max(10px,env(safe-area-inset-right))] pt-0 shadow-2xl backdrop-blur-xl")} aria-label="Mobile game controls">
         <p className={cn("max-w-[12rem] text-xs leading-relaxed text-muted-foreground", mobileLandscape && "hidden")}>Swipe the maze to steer, or flick the thumb stick. Your last direction stays active until you steer again.</p>
         <Joystick onDir={(dir) => pressDir(dir)} onRelease={releaseAllDirs} mobile />
       </div>
