@@ -1040,8 +1040,37 @@ export function VirusRun() {
       // Power-ups.
       for(const power of run.powerUps){if(power.taken)continue;const x=offX+(power.x+.5)*cell,y=offY+(power.y+.5)*cell;ctx2.save();ctx2.translate(x,y);ctx2.rotate(time/700);ctx2.shadowColor="#facc15";ctx2.shadowBlur=cell*.9;ctx2.strokeStyle="#fde68a";ctx2.lineWidth=Math.max(1,cell*.08);ctx2.beginPath();ctx2.arc(0,0,cell*.32,0,Math.PI*2);ctx2.stroke();ctx2.fillStyle="#facc15";ctx2.font=`bold ${cell*.34}px ui-monospace`;ctx2.textAlign="center";ctx2.textBaseline="middle";ctx2.rotate(-time/700);ctx2.fillText(power.kind==="cloak"?"C":power.kind==="overclock"?"O":power.kind==="emp"?"E":"M",0,0);ctx2.restore();}
 
-      // Boss security core every eighth level.
-      if(run.boss){const bx=offX+cell*COLS/2,by=offY+cell*ROWS/2;ctx2.save();ctx2.globalAlpha=.22+.08*Math.sin(time/160);ctx2.strokeStyle="#fb7185";ctx2.shadowColor="#ef4444";ctx2.shadowBlur=cell*1.4;ctx2.lineWidth=Math.max(2,cell*.12);for(let i=0;i<3;i++){ctx2.beginPath();ctx2.arc(bx,by,cell*(1.3+i*.5),time/(350+i*90),time/(350+i*90)+Math.PI*1.4);ctx2.stroke();}ctx2.restore();}
+      // Boss security core. It stays subdued while packets remain, then
+      // activates clearly so the player knows the next objective.
+      if (run.boss) {
+        const bx = offX + cell * COLS / 2;
+        const by = offY + cell * ROWS / 2;
+        const coreReady = run.collected >= run.required && !run.bossCoreBreached;
+        ctx2.save();
+        ctx2.globalAlpha = coreReady ? 0.72 + 0.2 * Math.sin(time / 140) : 0.18;
+        ctx2.strokeStyle = coreReady ? "#fda4af" : "#fb7185";
+        ctx2.fillStyle = coreReady ? "rgba(244,63,94,0.28)" : "rgba(244,63,94,0.08)";
+        ctx2.shadowColor = "#ef4444";
+        ctx2.shadowBlur = coreReady ? cell * 2 : cell * 0.7;
+        ctx2.lineWidth = Math.max(2, cell * 0.12);
+        ctx2.beginPath();
+        ctx2.arc(bx, by, cell * 0.72, 0, Math.PI * 2);
+        ctx2.fill();
+        ctx2.stroke();
+        for (let ring = 0; ring < 3; ring++) {
+          ctx2.beginPath();
+          ctx2.arc(bx, by, cell * (1.3 + ring * 0.5), time / (350 + ring * 90), time / (350 + ring * 90) + Math.PI * 1.4);
+          ctx2.stroke();
+        }
+        if (coreReady) {
+          ctx2.fillStyle = "#fecdd3";
+          ctx2.font = `bold ${Math.max(7, cell * 0.24)}px ui-monospace, monospace`;
+          ctx2.textAlign = "center";
+          ctx2.textBaseline = "middle";
+          ctx2.fillText("BREACH", bx, by - cell * 1.05);
+        }
+        ctx2.restore();
+      }
 
       // Antivirus sentinels: shield-like drones with scanning lenses.
       // Reuse the distance field maintained by the update loop. Previously this
