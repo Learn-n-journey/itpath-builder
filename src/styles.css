@@ -497,6 +497,15 @@ html.dark .app-background .app-wallpaper-image {
   content: url("/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png");
 }
 
+/* AUTO PATH has its own day/night automotive wallpaper pair. */
+html.light[data-subject="auto-repair"] .app-background .app-wallpaper-image {
+  content: url("/ChatGPT%20Image%20Sep%2026%2C%202026%2C%2011_29_36%20PM.png");
+}
+
+html.dark[data-subject="auto-repair"] .app-background .app-wallpaper-image {
+  content: url("/ChatGPT%20Image%20Sep%2026%2C%202026%2C%2011_29_23%20PM.png");
+}
+
 /* Global glass shell. Background artwork will be layered underneath this system later. */
 body {
   background-image:
