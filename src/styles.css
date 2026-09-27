@@ -471,7 +471,14 @@ html.light[data-subject="auto-repair"] {
     0 12px 32px -24px color-mix(in oklab, var(--color-background) 65%, transparent);
 }
 
-/* A non-default course is resolved in the browser from its persisted choice.\n * Hide the server-default IT frame for that brief hydration window so Auto\n * never flashes as IT or exposes a half-switched interface. */\nhtml[data-subject-hydrating="true"] body {\n  visibility: hidden;\n}\n\n/* App artwork sits on its own fixed layer beneath every glass surface. */
+/* A non-default course is resolved in the browser from its persisted choice.
+ * Hide the server-default IT frame for that brief hydration window so Auto
+ * never flashes as IT or exposes a half-switched interface. */
+html[data-subject-hydrating="true"] body {
+  visibility: hidden;
+}
+
+/* App artwork sits on its own fixed layer beneath every glass surface. */
 .app-background {
   position: fixed;
   inset: 0;
