@@ -57,9 +57,20 @@ export function domainOverride(): string | null {
   try {
     const stored = window.localStorage.getItem(OVERRIDE_KEY) ?? readSubjectCookie();
     if (!stored) return null;
-    if (findEntry(stored) || learningPathForKey(stored)) return stored;
+    // Created paths have no version migration: their exact key is the identity.
+    if (learningPathForKey(stored)) return stored;
+
+    // Built-in subjects may keep retired versions registered for rollback, but
+    // a learner's saved subject choice means "this subject", not "pin this old
+    // package forever". Always resolve it to that subject's newest registered
+    // version. This is especially important for AUTO PATH because spreadsheet
+    // topic IDs follow the current authored curriculum.
     const [id = stored] = stored.split("@");
-    return newestKeyFor(id);
+    const newest = newestKeyFor(id);
+    if (newest) return newest;
+
+    // Unknown keys are ignored rather than opening mismatched material.
+    return null;
   } catch {
     return null;
   }
