@@ -231,7 +231,7 @@ function LabsPage() {
                       </div>
                     </div>
                     <Button className="mt-4 w-full sm:w-auto" onClick={(event) => { event.stopPropagation(); document.getElementById("selected-lab-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
-                      {itemAttempt?.status === "in_progress" ? domain.id === "auto-repair" ? "Continue Practice" : "Continue Lab" : "Start Lab"} <ArrowRight />
+                      {itemAttempt?.status === "in_progress" ? "Continue Lab" : "Start Lab"} <ArrowRight />
                     </Button>
                   </div>
                 ) : null}
