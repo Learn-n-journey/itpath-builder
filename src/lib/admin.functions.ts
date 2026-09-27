@@ -180,7 +180,7 @@ export const factualQualityChallenge = createServerFn({ method: "POST" })
     await writeActivity({
       area: "content",
       action: "factual_quality_challenge",
-      result: results.every((item) => item.detected) ? "passed" : "warning",
+      result: results.every((item) => item.detected) ? "pass" : "fail",
       detail: { cases: results.length, caught: results.filter((item) => item.detected).length },
       actor: emailOf(context),
     });
@@ -294,7 +294,7 @@ export const verifyImportedTopicFacts = createServerFn({ method: "POST" })
       area: "content",
       action: "topic_factual_verification",
       subject: data.topicId,
-      result: state === "healthy" ? "passed" : "warning",
+      result: state === "healthy" ? "pass" : "fail",
       detail: { sourceFile: row.source_file, findings: findings.length, chunks: chunks.length, verifierFailed },
       actor: emailOf(context),
     });

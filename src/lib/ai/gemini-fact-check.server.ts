@@ -1,4 +1,3 @@
-import { env as cloudflareEnv } from "cloudflare:workers";
 
 export interface GeminiFactFinding {
   claim: string;
@@ -14,13 +13,11 @@ export interface GeminiFactCheckResult {
 }
 
 function runtimeValue(name: "GEMINI_API_KEY" | "GEMINI_FACT_CHECK_MODEL"): string | undefined {
-  const binding = (cloudflareEnv as Record<string, unknown>)[name];
-  if (typeof binding === "string" && binding.trim()) return binding.trim();
   const processValue = typeof process !== "undefined" ? process.env?.[name] : undefined;
   return typeof processValue === "string" && processValue.trim() ? processValue.trim() : undefined;
 }
 
-const MODEL = runtimeValue("GEMINI_FACT_CHECK_MODEL") || "gemini-2.5-flash-lite";
+function model(): string { return runtimeValue("GEMINI_FACT_CHECK_MODEL") || "gemini-2.5-flash-lite"; }
 
 function parseFindings(text: string): GeminiFactFinding[] {
   const start = text.indexOf("{");
@@ -31,11 +28,11 @@ function parseFindings(text: string): GeminiFactFinding[] {
   return parsed.findings.flatMap((item) => {
     if (!item || typeof item !== "object") return [];
     const finding = item as Record<string, unknown>;
-    if (typeof finding.claim !== "string" || typeof finding.problem !== "string") return [];
+    if (typeof finding["claim"] !== "string" || typeof finding["problem"] !== "string") return [];
     return [{
-      claim: finding.claim.trim(),
-      problem: finding.problem.trim(),
-      correction: typeof finding.correction === "string" ? finding.correction.trim() : "",
+      claim: finding["claim"].trim(),
+      problem: finding["problem"].trim(),
+      correction: typeof finding["correction"] === "string" ? finding["correction"].trim() : "",
     }];
   });
 }
@@ -67,7 +64,7 @@ export async function checkFactsWithGemini(input: {
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(MODEL)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model())}:generateContent?key=${encodeURIComponent(apiKey)}`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -88,10 +85,10 @@ export async function checkFactsWithGemini(input: {
         candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
       };
       const text = body.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("") ?? "";
-      return { ok: true, findings: parseFindings(text), model: MODEL };
+      return { ok: true, findings: parseFindings(text), model: model() };
     } catch (error) {
       lastError = error instanceof Error ? error.message : "Gemini fact check failed.";
     }
   }
-  return { ok: false, findings: [], model: MODEL, error: lastError };
+  return { ok: false, findings: [], model: model(), error: lastError };
 }

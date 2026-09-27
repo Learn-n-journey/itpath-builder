@@ -244,7 +244,7 @@ export interface SheetSyncResult {
   topics?: number;
   approved?: number;
   rejected?: number;
-  report?: Record<string, unknown>[];
+  report?: Record<string, string | number | boolean | null | undefined | string[]>[];
   error?: string;
   /** True when the run used up its time slice and still has work left. */
   partial?: boolean;
