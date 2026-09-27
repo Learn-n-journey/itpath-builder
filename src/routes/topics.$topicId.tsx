@@ -19,6 +19,7 @@ import { loadOwnerLessons } from "@/lib/owner-lesson-store";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { loadOwnerWork } from "@/lib/owner-work-store";
 import { refreshTopic } from "@/lib/sheet-sync.functions";
+import { verifyImportedTopicFacts, type TopicFactualVerification } from "@/lib/admin.functions";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { trackFlow } from "@/lib/flow-events.functions";
@@ -77,7 +78,10 @@ function TopicPage() {
   const { user, hydrated } = useAppState();
   const { email } = useAuth();
   const refresh = useServerFn(refreshTopic);
+  const verifyFacts = useServerFn(verifyImportedTopicFacts);
   const [refreshing, setRefreshing] = useState(false);
+  const [verifyingFacts, setVerifyingFacts] = useState(false);
+  const [factVerification, setFactVerification] = useState<TopicFactualVerification | null>(null);
   const [activeTab, setActiveTab] = useState<TopicTab>("overview");
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
   // Workbook-backed media can arrive after the route first renders. Subscribe
@@ -187,6 +191,29 @@ function TopicPage() {
     }
   }
 
+  async function handleVerifyFacts() {
+    setVerifyingFacts(true);
+    try {
+      const result = await verifyFacts({ data: { topicId: refreshTopicId } });
+      if (!result.owner) {
+        toast.error("Only the owner can run factual verification.");
+        return;
+      }
+      setFactVerification(result);
+      if (result.error && result.findings.length === 0) {
+        toast.error(result.error, { duration: 10000 });
+      } else if (result.findings.length > 0) {
+        toast.warning(`${result.findings.length} factual finding${result.findings.length === 1 ? "" : "s"} need review.`, { duration: 10000 });
+      } else {
+        toast.success("No factual errors were found in the imported lesson.");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Factual verification could not finish.");
+    } finally {
+      setVerifyingFacts(false);
+    }
+  }
+
   const TopicIcon = getTopicIcon(topic);
   const status = mastered ? "Passed" : progress ? "In progress" : "Not started";
   const availableTargets = new Set(
@@ -214,12 +241,41 @@ function TopicPage() {
               <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden />
               {refreshing ? "Refreshing…" : "Refresh topic"}
             </Button>
+            <Button variant="outline" size="sm" onClick={handleVerifyFacts} disabled={verifyingFacts || refreshing}>
+              <Shield className={verifyingFacts ? "animate-pulse" : ""} aria-hidden />
+              {verifyingFacts ? "Verifying…" : "Verify facts"}
+            </Button>
           ) : null}
           <Button asChild variant="secondary" size="sm">
             <Link to="/flashcards/$topicId" params={{ topicId: topic.id }}><Layers aria-hidden />Flashcards</Link>
           </Button>
           <TopicRowMenu topicId={topic.id} title={topic.title} />
         </div>
+
+        {isOwner && factVerification ? (
+          <div className="mt-3 rounded-lg border border-border/60 bg-muted/20 p-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs font-semibold">Factual verification</p>
+              <span className={`text-xs font-medium ${factVerification.findings.length > 0 || factVerification.error ? "text-warning" : "text-success"}`}>
+                {factVerification.findings.length > 0 ? `${factVerification.findings.length} TO REVIEW` : factVerification.error ? "INCOMPLETE" : "NO ERRORS FOUND"}
+              </span>
+            </div>
+            {factVerification.sourceFile ? <p className="mt-1 text-[11px] text-muted-foreground">Checked imported file: {factVerification.sourceFile}</p> : null}
+            {factVerification.error ? <p className="mt-2 text-xs text-warning">{factVerification.error}</p> : null}
+            {factVerification.findings.length > 0 ? (
+              <ul className="mt-2 divide-y divide-border/40">
+                {factVerification.findings.map((finding, index) => (
+                  <li key={index} className="py-2 text-xs">
+                    <p className="font-medium">Flagged: {finding.claim}</p>
+                    <p className="mt-1 text-muted-foreground">Why: {finding.problem}</p>
+                    {finding.correction ? <p className="mt-1 text-muted-foreground">Correction: {finding.correction}</p> : null}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <p className="mt-2 text-[11px] text-muted-foreground">Owner-only advisory check. It never edits the lesson.</p>
+          </div>
+        ) : null}
 
         <Button asChild variant="ghost" className="mt-2.5 h-11 w-full justify-between rounded-lg border border-border/60 bg-muted/20 px-3.5">
           <Link to="/community" search={{ room: topic.id }}>
