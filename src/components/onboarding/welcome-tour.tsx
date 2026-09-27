@@ -44,6 +44,7 @@ const IT_STEPS: Step[] = [
   {
     id: "path",
     icon: Compass,
+    image: "/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png",
     eyebrow: "Learn",
     title: "A path that keeps you moving",
     body: "You do not need to assemble your own curriculum. IT PATH organizes the journey so concepts build on one another, remembers where you stopped, and brings important material back when it needs more work.",
