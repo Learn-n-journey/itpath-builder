@@ -166,7 +166,7 @@ function CourseChooser() {
           <div className="mt-4 flex flex-wrap gap-2">
             <Button asChild variant="outline"><Link to="/guides">Free IT study guides</Link></Button>
             <Button asChild variant="outline"><Link to="/tracks">CompTIA study tracks</Link></Button>
-            <Button asChild variant="outline"><Link to="/practice-tests/$certId" params={{ certId: "cert-comptia-a-plus" }}>Free CompTIA A+ practice test</Link></Button>
+            <Button asChild variant="outline"><Link to="/practice-tests">Free CompTIA practice tests</Link></Button>
           </div>
         </section>
 
