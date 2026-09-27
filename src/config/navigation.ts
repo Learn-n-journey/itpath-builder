@@ -392,8 +392,8 @@ export const navGroups = ["Home", "Learn", "Practice", "Tools", "Games", "Career
 
 /** Only the pages that make sense for the subject the app is running. */
 const autoLabels: Partial<Record<string, Pick<NavItem, "label" | "description">>> = {
-  "/my-path": { label: "Training Plan", description: "Your technician route through vehicle systems, shop skills and certification preparation." },
-  "/study-plan": { label: "Training Plan", description: "Build one timed training session from open work and due checks." },
+  "/my-path": { label: "My Path", description: "Your technician route through vehicle systems, shop skills and certification preparation." },
+  "/study-plan": { label: "Study Plan", description: "Build one timed training session from open work and due checks." },
   "/practice": { label: "Skill Practice", description: "Written automotive tasks graded against a model answer." },
   "/labs": { label: "Shop Practice", description: "Step-by-step hands-on walkthroughs, inspection exercises and fault drills." },
   "/troubleshoot": { label: "Repair Orders", description: "Work customer complaints through inspection, testing, diagnosis, repair and verification." },
