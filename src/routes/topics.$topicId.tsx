@@ -11,7 +11,7 @@ import { TopicQuickLinks } from "@/components/learning/topic-quick-links";
 import { TopicSubnav, type TopicTab } from "@/components/learning/topic-subnav";
 import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { certifications, incidents, labs, lessons, topics, type Topic } from "@/data/static-content";
+import { lessons, topics, type Topic } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
 import { activeDomainKey } from "@/lib/active-domain";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
@@ -173,7 +173,6 @@ function TopicPage() {
     }
   }
 
-  const isAutoPath = domain.id === "auto-repair";
   const TopicIcon = getTopicIcon(topic);
   const status = mastered ? "Passed" : progress ? "In progress" : "Not started";
   const availableTargets = new Set(
@@ -218,7 +217,7 @@ function TopicPage() {
         <dl className="mt-3 grid grid-cols-2 gap-2">
           <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5">
             <Shield className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-            <div className="min-w-0"><dt className="font-mono text-[10px] uppercase text-muted-foreground">Certification</dt><dd className="truncate text-xs font-semibold text-foreground">{certification?.title ?? (isAutoPath ? "Automotive foundations" : "General IT")}</dd></div>
+            <div className="min-w-0"><dt className="font-mono text-[10px] uppercase text-muted-foreground">Certification</dt><dd className="truncate text-xs font-semibold text-foreground">{certification?.title ?? "General"}</dd></div>
           </div>
           <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5">
             {mastered ? <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden /> : <Clock className="size-4 shrink-0 text-primary" aria-hidden />}
