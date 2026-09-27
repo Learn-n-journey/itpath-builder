@@ -31,7 +31,7 @@ function shuffled<T>(items: T[], seed: string): T[] {
   return copy;
 }
 
-export export function autoPathCurriculumPackage(): DomainPackage {
+export function autoPathCurriculumPackage(): DomainPackage {
   const groups = [...new Set(AUTO_PATH_CURRICULUM.map((lesson) => lesson.group))];
   const qualificationId = (group: string) => `auto-repair:curriculum-group:${slug(group)}`;
   return {
