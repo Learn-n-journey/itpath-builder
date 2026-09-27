@@ -42,8 +42,8 @@ export function achievedMilestones(intel: Intelligence, user: UserData): Milesto
           title: step === 1 ? "First concept holding steady" : `${step} concepts holding steady`,
           description:
             step === 1
-              ? `${intel.concepts.find((concept) => concept.state === "reliable" || concept.state === "transferable" || concept.state === "retained")?.title ?? "A concept"} now holds up on its own: answered right, checked again later, still there. That is real learning, not a lucky run.`
-              : `${solid} concepts now hold up on their own across ${intel.certificationTitle}. They answered right, came back later, and stayed right. That is the pattern that passes exams.`,
+              ? `${intel.concepts.find((concept) => concept.state === "reliable" || concept.state === "transferable" || concept.state === "retained")?.title ?? "A concept"} now holds up on its own: answered right, checked again later, still there. That held across separate checks. That's the evidence I was waiting for.`
+              : `${solid} concepts now hold up on their own across ${intel.certificationTitle}. They answered right, came back later, and stayed right. That's stronger evidence than one good run.`,
           detail: `Counted from your recorded answers. Concepts reach this only on independent evidence spread over time.`,
         });
       }
@@ -56,7 +56,7 @@ export function achievedMilestones(intel: Intelligence, user: UserData): Milesto
       out.push({
         id: `path-${step}`,
         title: `${step}% of the path holding up`,
-        description: `About ${percent}% of ${intel.certificationTitle} now holds up in questions. ${step >= 75 ? "The finish line is close; keep the reviews coming." : "Step by step, it is adding up."}`,
+        description: `About ${percent}% of ${intel.certificationTitle} now holds up in questions. ${step >= 75 ? "The finish line is close; keep the reviews coming." : "The path is filling in from work you've actually completed."}`,
         detail: "Measured across every topic in the certification, from the answers you have actually recorded.",
       });
     }
@@ -68,7 +68,7 @@ export function achievedMilestones(intel: Intelligence, user: UserData): Milesto
       out.push({
         id: `streak-${step}`,
         title: `${step} days in a row`,
-        description: `A ${step}-day run of real study. Repeated exposure over days is what turns reading into memory, and you are doing exactly that.`,
+        description: `A ${step}-day run of real study. You've kept returning to the work across separate days. That spacing gives the later checks more meaning.`,
         detail: `Longest recorded run: ${summary.longest} days. ${
           freezesAvailable(user) > 0 ? "You have a freeze banked if a day ever gets away from you." : ""
         }`,
