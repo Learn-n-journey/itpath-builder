@@ -4,7 +4,7 @@ import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/refund-policy")({
-  staticData: { sitemap: true },
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Refund Policy | IT PATH" },
