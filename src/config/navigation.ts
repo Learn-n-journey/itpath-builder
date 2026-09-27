@@ -391,24 +391,9 @@ const allNavItems: NavItem[] = [
 export const navGroups = ["Home", "Learn", "Practice", "Tools", "Games", "Career", "Community", "My Progress", "More"] as const;
 
 /** Only the pages that make sense for the subject the app is running. */
-const autoLabels: Partial<Record<string, Pick<NavItem, "label" | "description">>> = {
-  "/my-path": { label: "My Path", description: "Your technician route through vehicle systems, shop skills and certification preparation." },
-  "/study-plan": { label: "Study Plan", description: "Build one timed training session from open work and due checks." },
-  "/practice": { label: "Skill Practice", description: "Written automotive tasks graded against a model answer." },
-  "/labs": { label: "Shop Practice", description: "Step-by-step hands-on walkthroughs, inspection exercises and fault drills." },
-  "/troubleshoot": { label: "Repair Orders", description: "Work customer complaints through inspection, testing, diagnosis, repair and verification." },
-  "/exam": { label: "Certification Test", description: "A full-length timed knowledge challenge with a detailed performance report." },
-  "/resources": { label: "Service Resources", description: "Official reading, references and video for the systems you are learning." },
-  "/review": { label: "Recheck", description: "Spaced repetition, your mistake log and targeted checks on weak systems." },
-  "/portfolio": { label: "Work Evidence", description: "Turn completed training and diagnostic work into evidence of technician capability." },
-  "/progress": { label: "Shop Progress", description: "Knowledge, diagnostic skill, training trends and technician development." },
-};
-
-/** Only the pages that make sense for the subject the app is running. */
 export const navItems: NavItem[] = allNavItems
   .filter(
     (item) =>
       (!item.feed || domain.feeds[item.feed]) &&
       (!item.subjects || item.subjects.includes(domain.id)),
-  )
-  .map((item) => domain.id === "auto-repair" && autoLabels[item.to] ? { ...item, ...autoLabels[item.to] } : item);
+  );
