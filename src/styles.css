@@ -1387,3 +1387,34 @@ html.virus-run-landscape .virus-run-shell-main > div { width: 100% !important; m
 html.virus-run-landscape .virus-run-shell-main [data-page-content] { height: 100% !important; margin: 0 !important; animation: none !important; transform: none !important; }
 html.virus-run-landscape .virus-run-shell-main footer,
 html.virus-run-landscape .virus-run-shell-main > div > nav { display: none !important; }
+
+
+/* Virus Run threat monitor: slow pursuit alarm with light spilling beyond the card. */
+@keyframes virus-threat-strobe {
+  0%,100% { border-color: rgba(248,113,113,.28); box-shadow: 0 0 8px rgba(239,68,68,.08), inset 0 0 18px rgba(239,68,68,.06); }
+  50% { border-color: rgba(248,113,113,.82); box-shadow: 0 0 28px rgba(239,68,68,.38), 0 0 58px rgba(239,68,68,.14), inset 0 0 28px rgba(239,68,68,.18); }
+}
+@keyframes virus-threat-name-strobe {
+  0%,100% { color: rgb(254 202 202); text-shadow: 0 0 4px rgba(239,68,68,.28); }
+  50% { color: rgb(255 255 255); text-shadow: 0 0 8px rgba(248,113,113,.95), 0 0 20px rgba(239,68,68,.72); }
+}
+@keyframes virus-threat-spill {
+  0%,100% { opacity:.16; transform:scale(.94); }
+  50% { opacity:.55; transform:scale(1.06); }
+}
+.virus-threat-active {
+  background: rgba(69,10,10,.28);
+  animation: virus-threat-strobe 2.8s ease-in-out infinite;
+}
+.virus-threat-active .virus-threat-name { animation: virus-threat-name-strobe 2.8s ease-in-out infinite; }
+.virus-threat-spill {
+  background: radial-gradient(ellipse at 35% 50%, rgba(239,68,68,.36) 0%, rgba(239,68,68,.12) 42%, transparent 72%);
+  filter: blur(14px);
+  animation: virus-threat-spill 2.8s ease-in-out infinite;
+}
+.virus-threat-scan {
+  background: linear-gradient(90deg, transparent 0%, rgba(248,113,113,.035) 45%, rgba(248,113,113,.09) 50%, rgba(248,113,113,.035) 55%, transparent 100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .virus-threat-active,.virus-threat-active .virus-threat-name,.virus-threat-spill { animation:none; }
+}
