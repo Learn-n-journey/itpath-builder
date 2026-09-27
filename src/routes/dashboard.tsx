@@ -26,7 +26,7 @@ import { useCommunityNotifications } from "@/hooks/use-social-messaging";
 
 
 export const Route = createFileRoute("/dashboard")({
-  staticData: { sitemap: true },
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
