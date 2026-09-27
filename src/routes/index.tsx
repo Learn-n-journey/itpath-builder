@@ -100,23 +100,23 @@ function CourseChooser() {
               ? ["Beginner to advanced", "Hands-on labs and simulations", "Real-world troubleshooting", "Certification preparation", "Career-ready skills"]
               : ["From basics to advanced systems", "Step-by-step repair guidance", "Interactive diagrams and simulations", "Real-world diagnostic practice", "Build job-ready skills"];
             return (
-              <article key={path.id} className={`group relative min-h-[34rem] overflow-hidden rounded-2xl border bg-card shadow-2xl ${isIt ? "border-path-it/70" : "border-path-auto/70"}`}>
+              <article key={path.id} className={`group relative min-h-[34rem] overflow-hidden rounded-2xl border bg-card shadow-2xl ${isIt ? "border-path-it/70" : "border-amber-400/80 shadow-[0_0_55px_-20px_rgba(250,204,21,0.55)]"}`}>
                 <img src={path.image} alt="" width={1024} height={640} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.025]" />
                 <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/25" aria-hidden />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/10" aria-hidden />
                 <div className="relative flex min-h-[34rem] max-w-[82%] flex-col p-6 sm:p-8">
-                  <span className={`grid size-16 place-items-center rounded-2xl border backdrop-blur-sm ${isIt ? "border-path-it bg-path-it/20 text-path-it" : "border-path-auto bg-path-auto/20 text-path-auto"}`}>
+                  <span className={`grid size-16 place-items-center rounded-2xl border backdrop-blur-sm ${isIt ? "border-path-it bg-path-it/20 text-path-it" : "border-amber-400/80 bg-amber-400/20 text-amber-500 shadow-[0_0_28px_-10px_rgba(250,204,21,0.75)]"}`}>
                     <Icon className="size-8" aria-hidden />
                   </span>
                   <h2 className="mt-5 font-display text-4xl font-bold tracking-tight">{path.name}</h2>
-                  <p className={`mt-1 text-xl font-semibold ${isIt ? "text-path-it" : "text-path-auto"}`}>{isIt ? "Technology & IT" : "Automotive Technology"}</p>
+                  <p className={`mt-1 text-xl font-semibold ${isIt ? "text-path-it" : "text-amber-500"}`}>{isIt ? "Technology & IT" : "Automotive Technology"}</p>
                   <p className="mt-4 max-w-xl text-base leading-relaxed text-foreground/90">
                     {isIt ? "Build practical IT skills from computer fundamentals through networking, security, cloud, and beyond." : "Learn how vehicles work, diagnose problems, and develop practical repair knowledge."}
                   </p>
                   <ul className="mt-6 space-y-2.5 text-sm sm:text-base">
-                    {features.map((feature) => <li key={feature} className="flex items-center gap-3"><ShieldCheck className={`size-4 shrink-0 ${isIt ? "text-path-it" : "text-path-auto"}`} aria-hidden /><span>{feature}</span></li>)}
+                    {features.map((feature) => <li key={feature} className="flex items-center gap-3"><ShieldCheck className={`size-4 shrink-0 ${isIt ? "text-path-it" : "text-amber-500"}`} aria-hidden /><span>{feature}</span></li>)}
                   </ul>
-                  <Button type="button" size="lg" onClick={() => choose(path.id)} className={`mt-auto h-14 w-full justify-center text-base font-bold ${isIt ? "bg-path-it text-white hover:bg-path-it/90" : "bg-path-auto text-background hover:bg-path-auto/90"}`}>
+                  <Button type="button" size="lg" onClick={() => choose(path.id)} className={`mt-auto h-14 w-full justify-center text-base font-bold ${isIt ? "bg-path-it text-white hover:bg-path-it/90" : "bg-amber-400 text-zinc-950 hover:bg-amber-300 shadow-[0_0_30px_-12px_rgba(250,204,21,0.8)]"}`}>
                     {isIt ? "Start IT PATH" : "Start AUTO PATH"}<ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" aria-hidden />
                   </Button>
                 </div>
