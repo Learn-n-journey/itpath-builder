@@ -1571,3 +1571,26 @@ html.byte-break-active .byte-board-shell,html.byte-break-active .byte-board-shel
 }
 .byte-board-shell button:active:not([style*="byteSwap"]):not([style*="byteDrop"]){transform:translate3d(0,2px,0) scale(.965)!important}
 .byte-board-shell button .byte-tile-shine,.byte-board-shell button .byte-module-icon{will-change:opacity,transform}
+
+/* BYTE render pipeline: motion shell stays cheap; chrome/effects live on child layers. */
+.byte-board-shell{contain:layout paint;isolation:isolate}
+.byte-board-shell .grid{contain:layout paint}
+.byte-tile{
+ position:relative;
+ background:#06131d;
+ border-color:rgba(136,220,235,.18);
+ box-shadow:none!important;
+ backface-visibility:hidden;
+ transform-origin:50% 50%;
+ contain:layout paint style;
+ transition:border-color 120ms ease!important;
+}
+.byte-tile-chrome{position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(145deg,rgba(16,37,49,.96),rgba(4,15,24,.99));box-shadow:inset 0 1px rgba(255,255,255,.06),inset 0 -8px 16px rgba(0,0,0,.2),0 2px 4px rgba(0,0,0,.3)}
+.byte-tile-color{box-shadow:inset 0 0 10px rgba(0,0,0,.18);pointer-events:none}
+.byte-tile-content{pointer-events:none;transform:translateZ(0)}
+.byte-tile:hover{border-color:rgba(34,211,238,.58)}
+.byte-tile:hover .byte-tile-chrome{box-shadow:inset 0 0 16px rgba(34,211,238,.08),0 0 10px rgba(34,211,238,.12)}
+.byte-tile[style*="byteSwap"],.byte-tile[style*="byteDrop"]{transition:none!important;box-shadow:none!important}
+.byte-tile[style*="byteSwap"] .byte-tile-chrome,.byte-tile[style*="byteDrop"] .byte-tile-chrome{box-shadow:inset 0 1px rgba(255,255,255,.055),inset 0 -5px 10px rgba(0,0,0,.18)}
+.byte-tile[style*="byteSwap"] .byte-tile-shine,.byte-tile[style*="byteDrop"] .byte-tile-shine{animation-play-state:paused!important}
+.byte-match-flash,.byte-match-ring,.byte-board-scan,.byte-energy-transfer,.byte-ability-burst{pointer-events:none;contain:paint}
