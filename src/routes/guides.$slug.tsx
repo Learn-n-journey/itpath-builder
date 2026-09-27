@@ -6,7 +6,9 @@ import { BookOpen } from "lucide-react";
 import {
   GUIDE_BASE_URL,
   certificationTitle,
+  guidePath,
   guideSlug,
+  guideTopics,
   lessonForTopic,
   topicForSlug,
 } from "@/lib/public-guides";
@@ -68,6 +70,24 @@ function GuidePage() {
   }
 
   const lesson = lessonForTopic(topic.id);
+  const certificationTopics = guideTopics().filter(
+    (candidate) => candidate.certificationId === topic.certificationId,
+  );
+  const currentIndex = certificationTopics.findIndex((candidate) => candidate.id === topic.id);
+  const relatedTopics = [
+    currentIndex > 0 ? certificationTopics[currentIndex - 1] : undefined,
+    currentIndex >= 0 && currentIndex < certificationTopics.length - 1
+      ? certificationTopics[currentIndex + 1]
+      : undefined,
+    ...certificationTopics.filter(
+      (candidate) =>
+        candidate.id !== topic.id &&
+        candidate.id !== certificationTopics[currentIndex - 1]?.id &&
+        candidate.id !== certificationTopics[currentIndex + 1]?.id,
+    ),
+  ]
+    .filter((candidate): candidate is (typeof certificationTopics)[number] => Boolean(candidate))
+    .slice(0, 4);
 
   return (
     <article className="space-y-6">
@@ -82,6 +102,12 @@ function GuidePage() {
           <p className="mt-3 text-sm text-muted-foreground">{lesson.definition}</p>
         ) : null}
       </Panel>
+
+      {lesson?.body ? (
+        <Panel title={lesson.title || `Understanding ${topic.title}`}>
+          <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">{lesson.body}</p>
+        </Panel>
+      ) : null}
 
       {topic.learningObjectives.length > 0 ? (
         <Panel title="What you will be able to do">
@@ -127,6 +153,44 @@ function GuidePage() {
           <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
             {lesson.commonMisconceptions.map((item) => (
               <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
+
+      {lesson?.summary ? (
+        <Panel title="What to remember">
+          <p className="text-sm leading-7 text-muted-foreground">{lesson.summary}</p>
+        </Panel>
+      ) : null}
+
+      {lesson && lesson.nextSteps.length > 0 ? (
+        <Panel title="Try it next">
+          <ol className="list-decimal space-y-2 pl-5 text-sm text-muted-foreground">
+            {lesson.nextSteps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </Panel>
+      ) : null}
+
+      {relatedTopics.length > 0 ? (
+        <Panel
+          title="Related study guides"
+          description={`Keep building through the ${certificationTitle(topic.certificationId)} track.`}
+        >
+          <ul className="grid gap-2 sm:grid-cols-2">
+            {relatedTopics.map((related) => (
+              <li key={related.id}>
+                <Link
+                  to="/guides/$slug"
+                  params={{ slug: guidePath(related.id).replace("/guides/", "") }}
+                  className="font-medium text-primary hover:underline"
+                >
+                  {related.title}
+                </Link>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{related.summary}</p>
+              </li>
             ))}
           </ul>
         </Panel>
