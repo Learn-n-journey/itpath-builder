@@ -15,6 +15,7 @@ import gaylAvatar from "@/assets/gayl-avatar.png";
 import { useAppState } from "@/state/app-state";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import { checkInMessage, gaylMessages, type GaylMessage } from "@/lib/gayl/insights";
+import { gaylContinuityEvent } from "@/lib/gayl/continuity-events";
 import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
 import { cn } from "@/lib/utils";
 
@@ -109,6 +110,7 @@ export function GaylBubble() {
     [user],
   );
   const checkIn = useMemo(() => checkInMessage(user), [user]);
+  const continuity = useMemo(() => gaylContinuityEvent(user, intel), [user, intel]);
   const [clearedIds, setClearedIds] = useState<string[]>([]);
   // Problems come first. A welcome back only speaks up when nothing else is
   // asking for attention, so the corner stays a vital-only space. Cleared
@@ -116,12 +118,15 @@ export function GaylBubble() {
   // and the message id changes with it.
   const messages = useMemo(() => {
     const base = gaylMessages(intel, openDetail);
-    const all = base.length === 0 && checkIn ? [checkIn] : base;
+    // A meaningful change gets one chance to speak first. Ordinary problems
+    // follow it; a return greeting only appears when there is nothing else.
+    const active = continuity ? [continuity, ...base] : base;
+    const all = active.length === 0 && checkIn ? [checkIn] : active;
     return all.filter((message) => !clearedIds.includes(message.id));
-  }, [intel, openDetail, checkIn, clearedIds]);
+  }, [intel, openDetail, continuity, checkIn, clearedIds]);
   const latest = messages[0] ?? null;
   const threadId = messages.map((message) => message.id).join("|");
-  const unreadCount = messages.filter((message) => message.urgent).length;
+  const unreadCount = messages.length;
 
   const [dismissed, setDismissed] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
