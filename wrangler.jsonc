@@ -13,7 +13,7 @@
 {
   // ...
   "vars": {
-    "Google_api_key": "AQ.Ab8RN6JkbqG4BQqvDnyS3I1dMgyf3bpz208O5wTZ94XSURX8uA"
+    "GOOGLE_API_KEY": "AQ.Ab8RN6JkbqG4BQqvDnyS3I1dMgyf3bpz208O5wTZ94XSURX8uA"
   },
   // ...
 }
