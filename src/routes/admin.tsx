@@ -36,6 +36,7 @@ import { canRollback, lifecycleLabel } from "@/lib/admin/release";
 import {
   advanceVersion,
   factualQualityChallenge,
+  verifyImportedTopicFacts,
   flowHealth,
   importHealth,
   lastHealthRuns,
@@ -47,6 +48,7 @@ import {
   systemHealth,
   type SourceHealthRow,
   type FactualChallengeResult,
+  type TopicFactualVerification,
 } from "@/lib/admin.functions";
 import { runContentAudit } from "@/lib/quality/audit";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
@@ -232,6 +234,7 @@ function AdminPage() {
 
   const runSystem = useServerFn(systemHealth);
   const runFactualChallenge = useServerFn(factualQualityChallenge);
+  const runTopicFactCheck = useServerFn(verifyImportedTopicFacts);
   const readRuns = useServerFn(lastHealthRuns);
   const saveRun = useServerFn(recordHealthRun);
   const readSources = useServerFn(sourceHealth);
@@ -265,6 +268,8 @@ function AdminPage() {
   const [openTopic, setOpenTopic] = useState<string | null>(null);
   const [qualityChallenge, setQualityChallenge] = useState<QualityChallengeResult[] | null>(null);
   const [factualChallenge, setFactualChallenge] = useState<FactualChallengeResult[] | null>(null);
+  const [topicFactChecks, setTopicFactChecks] = useState<Record<string, TopicFactualVerification>>({});
+  const [checkingTopicFacts, setCheckingTopicFacts] = useState<string | null>(null);
 
   // What was checked before, so "not yet checked" stays honest across visits.
   useEffect(() => {
@@ -341,6 +346,22 @@ function AdminPage() {
     });
     return report;
   }, [saveRun]);
+
+  const verifyTopicFacts = useCallback(async (topicId: string) => {
+    setCheckingTopicFacts(topicId);
+    try {
+      const reply = await runTopicFactCheck({ data: { topicId } });
+      if (!reply.owner) throw new Error("Only the owner can run factual verification.");
+      setTopicFactChecks((current) => ({ ...current, [topicId]: reply }));
+      if (reply.error && reply.findings.length === 0) toast.error(reply.error);
+      else if (reply.findings.length > 0) toast.warning(`${reply.findings.length} factual finding${reply.findings.length === 1 ? "" : "s"} need review.`);
+      else toast.success("No factual errors were found in the imported lesson.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Factual verification could not finish.");
+    } finally {
+      setCheckingTopicFacts(null);
+    }
+  }, [runTopicFactCheck]);
 
   const challengeFactualAccuracy = useCallback(async () => {
     const reply = await runFactualChallenge({});
@@ -783,11 +804,54 @@ function AdminPage() {
                         <StateChip state={topic.state} />
                       </button>
                       {openTopic === topic.topicId ? (
-                        <ul className="mt-2 divide-y divide-border/40 pl-3">
-                          {topic.checks.map((check) => (
-                            <CheckRow key={check.id} check={check} />
-                          ))}
-                        </ul>
+                        <div className="mt-2 pl-3">
+                          <div className="mb-3 rounded-lg border border-border/60 p-3">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-medium">Factual accuracy</p>
+                                <p className="text-xs text-muted-foreground">Owner-only review of the actual approved lesson imported from this topic's spreadsheet.</p>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={checkingTopicFacts !== null}
+                                onClick={() => void verifyTopicFacts(topic.topicId)}
+                              >
+                                {checkingTopicFacts === topic.topicId ? "Verifying…" : topicFactChecks[topic.topicId] ? "Verify again" : "Verify factual accuracy"}
+                              </Button>
+                            </div>
+                            {topicFactChecks[topic.topicId] ? (
+                              <div className="mt-3">
+                                <p className="text-xs text-muted-foreground">
+                                  {topicFactChecks[topic.topicId]!.sourceFile ? `Imported file: ${topicFactChecks[topic.topicId]!.sourceFile} · ` : ""}
+                                  {topicFactChecks[topic.topicId]!.findings.length === 0 && !topicFactChecks[topic.topicId]!.error
+                                    ? "No factual errors found."
+                                    : `${topicFactChecks[topic.topicId]!.findings.length} finding${topicFactChecks[topic.topicId]!.findings.length === 1 ? "" : "s"} need review.`}
+                                </p>
+                                {topicFactChecks[topic.topicId]!.error ? (
+                                  <p className="mt-1 text-xs text-warning">{topicFactChecks[topic.topicId]!.error}</p>
+                                ) : null}
+                                {topicFactChecks[topic.topicId]!.findings.length > 0 ? (
+                                  <ul className="mt-2 divide-y divide-border/40">
+                                    {topicFactChecks[topic.topicId]!.findings.map((finding, index) => (
+                                      <li key={`${topic.topicId}-fact-${index}`} className="py-2">
+                                        <p className="text-xs font-medium">Flagged: {finding.claim}</p>
+                                        <p className="mt-1 text-xs text-muted-foreground">Why: {finding.problem}</p>
+                                        {finding.correction ? <p className="mt-1 text-xs text-muted-foreground">Correction: {finding.correction}</p> : null}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : null}
+                                <p className="mt-2 text-[11px] text-muted-foreground">Advisory only. This check never edits the lesson automatically.</p>
+                              </div>
+                            ) : null}
+                          </div>
+                          <ul className="divide-y divide-border/40">
+                            {topic.checks.map((check) => (
+                              <CheckRow key={check.id} check={check} />
+                            ))}
+                          </ul>
+                        </div>
                       ) : null}
                     </li>
                   ))}
