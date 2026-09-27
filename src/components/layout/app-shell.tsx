@@ -246,8 +246,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
         <MilestoneOverlay />
-        <div className="hidden lg:block"><GaylBubble /></div>
-        <div className="hidden lg:block"><SidePanel /></div>
+        <GaylBubble />
+        <SidePanel />
         <SyncLiveBadge />
         <footer className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
