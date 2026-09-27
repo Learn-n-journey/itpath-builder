@@ -3,7 +3,7 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel } from "@/components/page-kit";
 
 export const Route = createFileRoute("/terms")({
-  staticData: { sitemap: true },
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Terms of Use | IT PATH" },
