@@ -24,8 +24,9 @@ export const Route = createFileRoute("/guides/$slug")({
       };
     }
     const url = `${GUIDE_BASE_URL}/guides/${guideSlug(topic.id)}`;
-    const title = `${topic.title}: a beginner's guide`;
-    const description = topic.summary;
+    const subject = certificationTitle(topic.certificationId);
+    const title = `${topic.title} Study Guide for Beginners`;
+    const description = `${topic.summary} Free ${subject} study guide with key terms, examples and practical next steps.`;
     return {
       meta: [
         { title: `${title} | IT PATH` },
@@ -93,7 +94,7 @@ function GuidePage() {
     <article className="space-y-6">
       <PageHeader
         title={topic.title}
-        description={`${certificationTitle(topic.certificationId)} study guide`}
+        description={`Free ${certificationTitle(topic.certificationId)} study guide for beginners`}
       />
 
       <Panel title="What this covers">
