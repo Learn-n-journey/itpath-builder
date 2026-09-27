@@ -852,7 +852,7 @@ export function VirusRun() {
           } else if(g.kind==="sentry"){
             // Sentries favor high-visibility junctions and linger around them.
             options.sort((a,b)=>{
-              const exits=(q:[number,number])=>[[1,0],[-1,0],[0,1],[0,-1]].filter(([dx,dy])=>run.grid[q[1]+dy]?.[q[0]+dx]===0).length;
+              const exits=(q:[number,number])=>([[1,0],[-1,0],[0,1],[0,-1]] as [number,number][]).filter(([dx,dy])=>run.grid[q[1]+dy]?.[q[0]+dx]===0).length;
               return exits(b)-exits(a);
             });
             chosen = options[0]!;
