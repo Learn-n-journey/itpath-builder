@@ -145,13 +145,15 @@ export function loadOwnerLessons(): Promise<boolean> {
         const extra = row.extras as unknown as OwnerLessonExtras | null;
         if (
           extra &&
-          (extra.recall?.length ||
+          (extra.keyTerms?.length ||
+            extra.recall?.length ||
             extra.workedExamples?.length ||
             extra.labs?.length ||
             extra.teachBack ||
             extra.scenario)
         ) {
           extras[topicId] = {
+            keyTerms: extra.keyTerms ?? [],
             recall: extra.recall ?? [],
             workedExamples: extra.workedExamples ?? [],
             ...(extra.labs?.length ? { labs: extra.labs } : {}),
