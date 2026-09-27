@@ -26,7 +26,7 @@ function evidence(pkg: DomainPackage, outcome: "strong" | "weak", count = 30): L
   });
 }
 
-async function packages(): Promise<DomainPackage[]> {
+function supportsStaticPackageQa(pkg: DomainPackage): boolean {\n  return pkg.questions.length > 0 && pkg.sources.length > 0 && pkg.qualifications.every((item) => item.objectives.length >= 3);\n}\n\nasync function packages(): Promise<DomainPackage[]> {
   return Promise.all(Object.values(registry).map(async (entry) => {
     if (!entry.load) throw new Error(`${entry.manifest.key} has no loader.`);
     return entry.load();
