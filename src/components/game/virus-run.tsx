@@ -24,6 +24,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { GPU_MEMORY_TEXTURE } from "./gpu-memory-texture";
 
 const COLS = 31;
 const ROWS = 21;
@@ -391,7 +392,7 @@ export function VirusRun() {
   const playerVisualRef = useRef({ heading:0, stretch:0, squish:0, spikePhase:[0,1.1,2.2,3.3,4.4,5.5] });
   const cameraRef = useRef({ power:0, angle:0 });
   const trailRef = useRef<{x:number;y:number;born:number}[]>([]);
-  const materialRef = useRef<{boot?: HTMLCanvasElement}>({});
+  const materialRef = useRef<{boot?: HTMLCanvasElement;gpu?: HTMLImageElement}>({});
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
@@ -999,6 +1000,9 @@ export function VirusRun() {
       const offY = (rect.height - cell * ROWS) / 2;
       const t = run.theme;
 
+      // Load the approved Level 4 GPU Memory texture as a browser-native image.
+      if(run.theme.system==="GPU Memory"&&!materialRef.current.gpu){const gpu=new Image();gpu.decoding="async";gpu.onload=()=>{materialRef.current.gpu=gpu;};gpu.src=GPU_MEMORY_TEXTURE;}
+
       // Build the Boot Sector material once. CanvasPattern supports an offscreen
       // canvas source, so this becomes a continuous material rather than per-tile marks.
       if(run.theme.system==="Boot Sector" && !materialRef.current.boot){
@@ -1283,6 +1287,8 @@ export function VirusRun() {
           const top=ctx2.createLinearGradient(bx,by,bx+cell*.8,by+cell);
           if(run.theme.system==="Boot Sector"){
             top.addColorStop(0,"#303733");top.addColorStop(.48,"#202925");top.addColorStop(1,"#111815");
+          }else if(run.theme.system==="GPU Memory"){
+            top.addColorStop(0,"#252b2b");top.addColorStop(.5,"#151c1d");top.addColorStop(1,"#080d0e");
           }else{
             top.addColorStop(0,t.wall);top.addColorStop(.55,t.wall);top.addColorStop(1,t.bg);
           }
@@ -1294,6 +1300,11 @@ export function VirusRun() {
               pattern.setTransform(new DOMMatrix().translate(offX,offY).scale(Math.max(.45,cell/28)));
               ctx2.save();ctx2.globalAlpha=.72;ctx2.fillStyle=pattern;ctx2.fillRect(bx,by,cell+.7,cell+.7);ctx2.restore();
             }
+          }
+
+          if(run.theme.system==="GPU Memory"&&materialRef.current.gpu){
+            const pattern=ctx2.createPattern(materialRef.current.gpu,"repeat");
+            if(pattern){const scale=Math.max(.32,cell/46);pattern.setTransform(new DOMMatrix().translate(offX,offY).scale(scale));ctx2.save();ctx2.globalAlpha=.96;ctx2.fillStyle=pattern;ctx2.fillRect(bx,by,cell+.75,cell+.75);ctx2.restore();const heat=((x*17+y*29)%11===0);ctx2.fillStyle=heat?"rgba(245,158,11,.055)":"rgba(34,211,238,.025)";ctx2.fillRect(bx,by,cell+.5,cell+.5);}
           }
 
           // Broad light falloff replaces the old line-drawn bevel.
