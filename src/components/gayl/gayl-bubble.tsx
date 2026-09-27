@@ -154,11 +154,21 @@ export function GaylBubble() {
     });
   };
 
-  if (!latest) return null;
+  const restingMessage: GaylMessage = {
+    id: "gayl:resting",
+    topicId: "",
+    title: "GAYL",
+    text: "Nothing I'd stop you for right now. Keep going.",
+    detail: null,
+    route: "/",
+    urgent: false,
+    why: [],
+  };
+  const visibleLatest = latest ?? restingMessage;
 
   // Once dismissed, the mark goes quiet until the evidence changes, but the
   // thread itself stays reachable from the corner.
-  const quiet = dismissed === threadId;
+  const quiet = !latest || dismissed === threadId;
 
   const dismiss = () => {
     setOpen(false);
@@ -172,7 +182,7 @@ export function GaylBubble() {
   };
 
   return (
-    <div className="pointer-events-none fixed right-4 top-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col-reverse items-end gap-2 sm:right-6 sm:top-6">
+    <div className="pointer-events-none fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-3 z-50 flex max-w-[calc(100vw-1.5rem)] flex-col-reverse items-start gap-2 sm:left-4 lg:bottom-6 lg:left-[18rem]">
       <div
         aria-hidden={!open}
         className={cn(
@@ -226,7 +236,7 @@ export function GaylBubble() {
           </div>
 
           <div key={showAll ? "all" : "latest"} className="gayl-rise max-h-[60vh] space-y-3 overflow-y-auto p-3">
-            {(showAll ? messages : [latest]).map((message) => (
+            {(showAll ? messages : [visibleLatest]).map((message) => (
               <MessageCard
                 key={message.id}
                 message={message}
