@@ -40,35 +40,35 @@ function evidenceKey(concept: ConceptIntel): string {
 function becauseClause(concept: ConceptIntel): string {
   switch (concept.diagnosis) {
     case "never_learned":
-      return "I do not have enough completed work here yet to judge it";
+      return "I haven't seen enough work here yet to call it either way";
     case "prerequisite_gap":
       return concept.prerequisiteGaps[0]
         ? `${concept.prerequisiteGaps[0].title} needs more work first`
         : "one of the skills it depends on needs more work first";
     case "retrieval_failure":
-      return "you answered this correctly before, but a recent answer was missed";
+      return "you had this before, but it slipped on a recent check";
     case "misconception":
-      return "the same misunderstanding has appeared more than once";
+      return "the same mix-up has shown up more than once";
     case "confident_but_wrong":
-      return "some answers were given confidently but were incorrect";
+      return "you were pretty sure on a few answers that didn't land";
     case "application_failure":
-      return "your explanation is stronger than your hands-on application";
+      return "you can explain it better than you can use it right now";
     case "troubleshooting_failure":
-      return "your knowledge checks are stronger than your troubleshooting work";
+      return "you know the facts better than you're using them to troubleshoot";
     case "fading":
-      return "recent recall is weaker than your earlier results";
+      return "this isn't coming back as cleanly as it did before";
     case "solid":
-      return "your recent work is holding up well, so a harder check would be useful";
+      return "this is holding up, so I'd make the next check harder";
   }
 }
 
 function evidenceLines(concept: ConceptIntel): string[] {
   const lines = [concept.evidence];
   if (concept.attempts > 0) {
-    lines.push(`This comes from ${concept.attempts} answer${concept.attempts === 1 ? "" : "s"} you have recorded here.`);
+    lines.push(`I'm basing this on ${concept.attempts} recorded answer${concept.attempts === 1 ? "" : "s"}.`);
   }
   if (concept.certainty < 0.6) {
-    lines.push("There is not much recorded yet, so treat this as a first read rather than a conclusion.");
+    lines.push("I don't have much to go on yet, so take this as a first read, not a conclusion.");
   }
   return lines;
 }
@@ -85,7 +85,7 @@ export function dashboardInsight(intel: Intelligence): GaylInsight | null {
     return {
       message:
         steady.length > 0
-          ? `Nothing is asking for attention right now. ${steady.length} concept${steady.length === 1 ? " is" : "s are"} holding up on their own.`
+          ? `Nothing needs your attention right now. ${steady.length} concept${steady.length === 1 ? " is" : "s are"} holding up on their own.`
           : "Nothing is flagged right now. Record some work and I'll have more to go on.",
     };
   }
@@ -96,7 +96,7 @@ export function dashboardInsight(intel: Intelligence): GaylInsight | null {
       : "";
 
   return {
-    message: `${opener}${top.title} is the one I would look at next, because ${becauseClause(top)}. ${top.instruction}`,
+    message: `${opener}I'd go to ${top.title} next because ${becauseClause(top)}. ${top.instruction}`,
     why: evidenceLines(top),
   };
 }
@@ -109,7 +109,7 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
   if (concept.attempts === 0) {
     return {
       message:
-        "Nothing recorded here yet. Read through, then try the recall questions. That gives me something real to work from instead of guessing.",
+        "I haven't seen you work with this one yet. Read through it, then try the recall questions. That'll give me something real to go on.",
     };
   }
 
@@ -120,41 +120,41 @@ export function lessonInsight(intel: Intelligence, topicId: string): GaylInsight
     case "retrieval_failure":
       return {
         message:
-          "You've had this before, so it isn't new learning. It just needs bringing back. A short review pass should be enough.",
+          "You've had this before. It's just a little fuzzy right now. Give it a quick review and see what comes back.",
         why,
       };
     case "misconception":
     case "confident_but_wrong":
       return {
         message:
-          "A few answers here came back as quick misses, which usually means an idea is being remembered slightly differently than it works. Worth slowing down on the explanation rather than repeating the questions.",
+          "Same kind of miss more than once. I'd slow down and straighten out the idea before throwing more questions at it.",
         why,
       };
     case "prerequisite_gap":
       return {
-        message: `Something underneath this is still unproven${
+        message: `There's something underneath this we need to clear up first${
           concept.prerequisiteGaps[0] ? `: ${concept.prerequisiteGaps[0].title}` : ""
-        }. Shoring that up first usually makes this one much easier.`,
+        }. Get that straight first, then come back to this.`,
         why,
       };
     case "application_failure":
       return {
         message:
-          "The explanation side is landing; using it in a task is where it's slipping. Hands-on work will tell us more than another quiz.",
+          "You know what this means. Using it is where you're getting hung up. Try it hands-on instead of taking another quiz.",
         why,
       };
     case "troubleshooting_failure":
       return {
         message:
-          "The facts are here, but the fault-finding process is the part that needs work. An incident or scenario is the better next step.",
+          "You know the facts. The part getting messy is how you're narrowing down the problem. Try an incident or scenario next.",
         why,
       };
     case "solid":
       return {
         message:
           concept.difficulty === "advanced"
-            ? "This is holding up well. Something harder would tell us more than repeating what already works."
-            : "This is looking solid. You can move forward; I'll bring it back later to check it stuck.",
+            ? "Yep, this is holding. Let's make the next check harder instead of repeating the easy stuff."
+            : "This is holding up. Keep moving. I'll bring it back later and make sure it still does.",
         why,
       };
     default:
@@ -178,14 +178,14 @@ export function quizResultInsight(input: {
   if (total === 0) {
     message = "No questions were scored in this attempt.";
   } else if (score > 80) {
-    message = "That run held together. There is nothing to fix from this attempt. I'll bring some of it back later to see whether it still holds.";
+    message = "That held together. Nothing I'd stop you for here. I'll bring some of it back later and see if it still sticks.";
   } else if (score >= 60) {
     message =
       spread <= 1
         ? `A mixed result, mostly sitting in one area. ${retake}`
         : `The misses are spread across ${spread} topics rather than sitting in one place. ${retake}`;
   } else {
-    message = `This attempt shows the material is not holding consistently yet. ${retake}`;
+    message = `I wouldn't move on just yet. Too much of this is still slipping. ${retake}`;
   }
 
   return {
@@ -223,8 +223,8 @@ export function troubleshootingInsight(scores: {
 
   const message =
     best[1] - worst[1] < 15
-      ? `Your work was even across the whole process, no single step is dragging the rest down.`
-      : `The strongest part of this was ${best[0]}. The step costing you most was ${worst[0]}. That points to process rather than a broad knowledge gap. Work on that step first.`;
+      ? `Pretty even across the board. No single step is causing most of the trouble.`
+      : `You were strongest at ${best[0]}. ${worst[0]} is where you're losing the most ground. I'd work on that step first.`;
 
   return {
     message,
@@ -242,7 +242,7 @@ export function reviewInsight(intel: Intelligence): GaylInsight | null {
   if (due.length === 0 && fading.length === 0 && errors.length === 0) {
     return {
       message:
-        "Nothing is overdue. Topics come back here when the timing says recall is slipping, or when the same mistake is still open, not on a fixed schedule.",
+        "Nothing's overdue. I bring things back when they start getting fuzzy or when we still have a mistake to clear up, not just because a date came around.",
     };
   }
 
@@ -252,7 +252,7 @@ export function reviewInsight(intel: Intelligence): GaylInsight | null {
   if (errors.length > 0) parts.push(`${errors.length} where a mistake is still unfixed`);
 
   return {
-    message: `These came back because of timing and mistakes still open, not as a judgement of your work. There ${due.length + fading.length + errors.length === 1 ? "is" : "are"} ${parts.join(", ")}.`,
+    message: `These are back because something got fuzzy or we still have a mistake to clear up. There ${due.length + fading.length + errors.length === 1 ? "is" : "are"} ${parts.join(", ")}.`,
     why: intel.queue
       .slice(0, 4)
       .map((concept) => `${concept.title}: ${concept.evidence}`),
@@ -290,7 +290,7 @@ export function pathInsight(intel: Intelligence, preferredTopicId?: string): Gay
   if (!top) return null;
 
   const reason = top.isDiagnostic
-    ? "I have not seen enough of your work there yet to know how it is landing, and a short check shows us where to go next"
+    ? "I haven't seen enough from you here yet to know what's sticking, so a quick check will tell us where to go next"
     : becauseClause(top);
 
   const action =
@@ -305,7 +305,7 @@ export function pathInsight(intel: Intelligence, preferredTopicId?: string): Gay
             : top.instruction;
 
   return {
-    message: `I recommend ${top.title} next because ${reason}. ${action}`,
+    message: `I'd go to ${top.title} next because ${reason}. ${action}`,
     why: [top, ...intel.queue.filter((concept) => concept.topicId !== top.topicId)]
       .slice(0, 4)
       .map((concept) => `${concept.title}: ${concept.evidence}`),
@@ -346,20 +346,20 @@ function problemIssue(concept: ConceptIntel): string {
   if (concept.diagnosis === "fading") {
     return concept.daysOverdue >= 7
       ? `it has been a while since you worked on it, ${Math.round(concept.daysOverdue)} days past its review point, and recall has faded`
-      : "recall here has faded since you last had it right";
+      : "this has gotten a little fuzzy since you last had it right";
   }
   if (concept.misconceptions[0]) {
     return `the same mix-up keeps coming back: ${concept.misconceptions[0].toLowerCase()}`;
   }
   if (concept.diagnosis === "confident_but_wrong") {
-    return "some quick answers here did not quite land";
+    return "you were pretty sure on a few answers here that didn't land";
   }
   if (concept.unresolvedMistakes > 0) {
     return `${concept.unresolvedMistakes} answer${concept.unresolvedMistakes === 1 ? "" : "s"} here ${
       concept.unresolvedMistakes === 1 ? "is" : "are"
     } still unfixed`;
   }
-  return "an idea here is being remembered differently to how it works";
+  return "something here isn't lining up with how it actually works";
 }
 
 /** The same thing, said the way GAYL would say it out loud. */
@@ -418,21 +418,21 @@ function casualText(concept: ConceptIntel): string {
   }
   if (concept.diagnosis === "application_failure") {
     return stableVariant(key, [
-      `You can explain ${concept.title}; using it in a task is where the evidence drops. Do something hands-on next.`,
-      `The recall side of ${concept.title} is ahead of the application side. A lab or scenario will tell us more than another quiz.`,
-      `${concept.title} makes sense on paper. Now it needs to survive a real task. Go hands-on next.`,
+      `You know ${concept.title}. Using it is where you're getting hung up. Do something hands-on next.`,
+      `You know the ${concept.title} facts better than you're using them. Try a lab or scenario instead of another quiz.`,
+      `${concept.title} makes sense on paper. Now let's see you use it. Go hands-on next.`,
     ]);
   }
   if (concept.diagnosis === "troubleshooting_failure") {
     return stableVariant(key, [
-      `The facts on ${concept.title} are there. The fault-finding order is the weaker part, so use a scenario next.`,
+      `You know the ${concept.title} facts. It's the order you're troubleshooting in that's getting messy. Try a scenario next.`,
       `You know more of ${concept.title} than the troubleshooting result shows. Work the diagnostic sequence next, not the definitions.`,
-      `This isn't pointing at a broad ${concept.title} knowledge gap. It's pointing at how you narrow a fault. Practice that process.`,
+      `This doesn't look like a ${concept.title} knowledge problem. It's how you're narrowing down the fault. Practice that part.`,
     ]);
   }
   return stableVariant(key, [
-    `Finish ${concept.title} before moving on. ${concept.instruction}`,
-    `${concept.title} is already in motion. Close that loop before starting another one. ${concept.instruction}`,
+    `I'd finish ${concept.title} before moving on. ${concept.instruction}`,
+    `You're already into ${concept.title}. I'd finish that before starting something else. ${concept.instruction}`,
   ]);
 }
 
