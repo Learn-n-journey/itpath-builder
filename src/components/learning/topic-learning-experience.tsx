@@ -360,7 +360,7 @@ export function TopicLearningExperience({ topic, view = "learning" }: { topic: T
   const topicMedia = mediaFor(topic);
   const mediaVideos = topicMedia.filter((resource) => resource.kind === "video");
   const mediaReading = topicMedia.filter((resource) => resource.kind !== "video");
-  const extraStages = (mediaReading.length > 0 ? 1 : 0) + (mediaVideos.length > 0 ? 1 : 0);
+  const extraStages = (mediaReading.length > 0 ? 1 : 0) + 1;
   const stageNo = (base: number) => String(base + extraStages).padStart(2, "0");
 
   if (view === "resources") {
@@ -424,9 +424,11 @@ export function TopicLearningExperience({ topic, view = "learning" }: { topic: T
       <MediaGroup title="Reading and courses" items={mediaReading} />
     </LearningStage> : null}
 
-    {mediaVideos.length > 0 ? <LearningStage id="watch-it" number={mediaReading.length > 0 ? "04" : "03"} title="Watch It" icon={<PlayCircle />}>
-      <MediaGroup title="Video training" items={mediaVideos} video />
-    </LearningStage> : null}
+    <LearningStage id="watch-it" number={mediaReading.length > 0 ? "04" : "03"} title="Watch It" icon={<PlayCircle />}>
+      {mediaVideos.length > 0
+        ? <MediaGroup title="Video training" items={mediaVideos} video />
+        : <Panel title="Video training" description="Video resources for this topic will appear here when they are available." descriptionVisibility="visible" />}
+    </LearningStage>
 
     <LearningStage id="practice-it" number={stageNo(3)} title={experience.practice} icon={<Wrench />} tone="practice">
       <div id="try-it" className="scroll-mt-24 space-y-4">
