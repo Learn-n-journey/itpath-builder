@@ -1281,7 +1281,11 @@ export function VirusRun() {
 
           // Continuous top material. Neighboring wall cells intentionally have no seams.
           const top=ctx2.createLinearGradient(bx,by,bx+cell*.8,by+cell);
-          top.addColorStop(0,t.wall);top.addColorStop(.55,t.wall);top.addColorStop(1,t.bg);
+          if(run.theme.system==="Boot Sector"){
+            top.addColorStop(0,"#303733");top.addColorStop(.48,"#202925");top.addColorStop(1,"#111815");
+          }else{
+            top.addColorStop(0,t.wall);top.addColorStop(.55,t.wall);top.addColorStop(1,t.bg);
+          }
           ctx2.fillStyle=top;ctx2.fillRect(bx,by,cell+.65,cell+.65);
           if(run.theme.system==="Boot Sector"&&materialRef.current.boot){
             const pattern=ctx2.createPattern(materialRef.current.boot,"repeat");
@@ -1321,18 +1325,61 @@ export function VirusRun() {
         }
       }
 
-      // Boot Sector story decals: rare, large-scale details make the maze feel
-      // maintained and repaired rather than procedurally decorated cell by cell.
+      // Boot Sector environmental storytelling. Details are intentionally large
+      // enough to read at gameplay scale and sit across the grid rather than inside tiles.
       if(run.theme.system==="Boot Sector"){
         ctx2.save();
-        const decals=[[4,3,3,1],[18,6,2,2],[9,14,4,1],[24,16,3,1]] as const;
-        for(let i=0;i<decals.length;i++){const [dx,dy,dw,dh]=decals[i];const x=offX+dx*cell,y=offY+dy*cell,w=dw*cell,h=dh*cell;
-          ctx2.fillStyle="rgba(6,10,12,.28)";ctx2.fillRect(x,y,w,h);
-          ctx2.strokeStyle="rgba(171,146,103,.16)";ctx2.lineWidth=Math.max(1,cell*.025);ctx2.strokeRect(x+.5,y+.5,w-1,h-1);
-          ctx2.fillStyle="rgba(211,189,146,.18)";ctx2.font=`${Math.max(7,cell*.2)}px monospace`;ctx2.fillText(i%2?"SERVICE BUS":"FW "+(i+1).toString().padStart(2,"0"),x+cell*.16,y+cell*.36);
+        // Aged PCB tint and dirty perimeter accumulation unify floor + walls.
+        ctx2.globalCompositeOperation="multiply";
+        const ageWash=ctx2.createLinearGradient(offX,offY,offX+cell*COLS,offY+cell*ROWS);
+        ageWash.addColorStop(0,"rgba(42,66,52,.28)");ageWash.addColorStop(.5,"rgba(48,45,31,.12)");ageWash.addColorStop(1,"rgba(16,24,20,.35)");
+        ctx2.fillStyle=ageWash;ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+        ctx2.restore();
+
+        ctx2.save();
+        // Long copper buses cross the machine, with joints/vias at turns.
+        const buses=[{y:2.4,x1:1,x2:12},{y:7.7,x1:4,x2:27},{y:12.6,x1:1,x2:18},{y:18.2,x1:11,x2:30}];
+        for(let i=0;i<buses.length;i++){const bus=buses[i],y=offY+bus.y*cell,x1=offX+bus.x1*cell,x2=offX+bus.x2*cell;
+          ctx2.strokeStyle=i%2?"rgba(132,93,48,.34)":"rgba(78,126,103,.3)";ctx2.lineWidth=Math.max(2,cell*.07);ctx2.beginPath();ctx2.moveTo(x1,y);ctx2.lineTo(x2,y);ctx2.stroke();
+          for(let v=0;v<4;v++){const vx=x1+(x2-x1)*(v+1)/5;ctx2.fillStyle="rgba(12,18,15,.8)";ctx2.beginPath();ctx2.arc(vx,y,cell*.09,0,Math.PI*2);ctx2.fill();ctx2.strokeStyle="rgba(153,112,62,.35)";ctx2.lineWidth=Math.max(1,cell*.025);ctx2.stroke();}
         }
-        // Dim diagnostic LEDs; only a few blink.
-        for(let i=0;i<7;i++){const x=offX+cell*(2.5+i*4.1),y=offY+cell*(1.2+(i%3)*6.4);const on=((time/700+i*1.7)%4)<.65;ctx2.fillStyle=on?"rgba(245,158,11,.8)":"rgba(73,57,32,.45)";ctx2.shadowColor=on?"rgba(245,158,11,.8)":"transparent";ctx2.shadowBlur=on?cell*.28:0;ctx2.beginPath();ctx2.arc(x,y,Math.max(1.2,cell*.055),0,Math.PI*2);ctx2.fill();}
+
+        // Large component banks: ROM/firmware packages and old controller chips.
+        const chips=[[2.2,4.1,3.5,1.45],[20.5,3.1,4.2,1.5],[13.2,9.4,3.8,1.55],[22.8,14.3,4.6,1.6],[5.2,16.1,3.7,1.45]] as const;
+        for(let i=0;i<chips.length;i++){const [cx,cy,cw,ch]=chips[i],x=offX+cx*cell,y=offY+cy*cell,w=cw*cell,h=ch*cell;
+          ctx2.save();ctx2.shadowColor="rgba(0,0,0,.7)";ctx2.shadowBlur=cell*.18;ctx2.shadowOffsetY=cell*.09;
+          const cg=ctx2.createLinearGradient(x,y,x,y+h);cg.addColorStop(0,"rgba(57,63,58,.96)");cg.addColorStop(1,"rgba(13,18,16,.98)");ctx2.fillStyle=cg;ctx2.fillRect(x,y,w,h);ctx2.restore();
+          ctx2.strokeStyle="rgba(138,145,124,.25)";ctx2.lineWidth=Math.max(1,cell*.025);ctx2.strokeRect(x+.5,y+.5,w-1,h-1);
+          // IC pins.
+          ctx2.strokeStyle="rgba(151,135,100,.36)";ctx2.lineWidth=Math.max(1,cell*.035);
+          for(let p=0;p<7;p++){const px=x+w*(p+1)/8;ctx2.beginPath();ctx2.moveTo(px,y-cell*.11);ctx2.lineTo(px,y);ctx2.moveTo(px,y+h);ctx2.lineTo(px,y+h+cell*.11);ctx2.stroke();}
+          ctx2.fillStyle="rgba(202,190,151,.38)";ctx2.font=`${Math.max(7,cell*.17)}px monospace`;ctx2.fillText(i===0?"BOOT ROM":i===1?"CTRL 86":`IC-${120+i*17}`,x+cell*.18,y+h*.57);
+          ctx2.fillStyle="rgba(5,8,7,.9)";ctx2.beginPath();ctx2.arc(x+cell*.25,y+cell*.24,cell*.07,0,Math.PI*2);ctx2.fill();
+        }
+
+        // Bundled service cables with dark sheathing and worn colored conductors.
+        const cableSets=[[1.2,10.1,8.5,10.1],[17.2,17.1,28.8,17.1]] as const;
+        for(const [x1,y1,x2,y2] of cableSets){for(let c=0;c<4;c++){const sy=offY+(y1+c*.13)*cell,ey=offY+(y2+c*.13)*cell;
+          ctx2.strokeStyle=c===0?"rgba(14,18,18,.9)":c===1?"rgba(119,72,45,.5)":c===2?"rgba(59,102,88,.48)":"rgba(117,103,65,.45)";
+          ctx2.lineWidth=Math.max(1.5,cell*.055);ctx2.beginPath();ctx2.moveTo(offX+x1*cell,sy);ctx2.bezierCurveTo(offX+(x1+2)*cell,sy-cell*.3,offX+(x2-2)*cell,ey+cell*.25,offX+x2*cell,ey);ctx2.stroke();}}
+
+        // Cooling vents and maintenance plates.
+        const vents=[[9.8,5.3,2.5,1.15],[26.1,9.4,2.4,1.2],[15.4,15.2,2.8,1.1]] as const;
+        for(const [vx,vy,vw,vh] of vents){const x=offX+vx*cell,y=offY+vy*cell,w=vw*cell,h=vh*cell;ctx2.fillStyle="rgba(8,12,12,.75)";ctx2.fillRect(x,y,w,h);ctx2.strokeStyle="rgba(116,126,112,.2)";ctx2.strokeRect(x,y,w,h);ctx2.strokeStyle="rgba(0,0,0,.75)";ctx2.lineWidth=Math.max(1,cell*.035);for(let sl=.18;sl<.9;sl+=.16){ctx2.beginPath();ctx2.moveTo(x+w*.08,y+h*sl);ctx2.lineTo(x+w*.92,y+h*sl);ctx2.stroke();}}
+
+        const plates=[[4,3,3,1],[18,6,2.5,1.2],[9,14,4,1],[24,18,3,1]] as const;
+        for(let i=0;i<plates.length;i++){const [dx,dy,dw,dh]=plates[i],x=offX+dx*cell,y=offY+dy*cell,w=dw*cell,h=dh*cell;
+          ctx2.fillStyle="rgba(54,53,45,.72)";ctx2.fillRect(x,y,w,h);ctx2.strokeStyle="rgba(180,147,94,.22)";ctx2.lineWidth=Math.max(1,cell*.025);ctx2.strokeRect(x+.5,y+.5,w-1,h-1);
+          for(const [sx,sy] of [[x+cell*.12,y+cell*.12],[x+w-cell*.12,y+cell*.12],[x+cell*.12,y+h-cell*.12],[x+w-cell*.12,y+h-cell*.12]]){ctx2.fillStyle="rgba(4,7,7,.9)";ctx2.beginPath();ctx2.arc(sx,sy,cell*.045,0,Math.PI*2);ctx2.fill();}
+          ctx2.fillStyle="rgba(224,193,135,.42)";ctx2.font=`${Math.max(8,cell*.2)}px monospace`;ctx2.fillText(i%2?"SERVICE BUS":`FW-${(i+1).toString().padStart(2,"0")}`,x+cell*.25,y+h*.58);
+        }
+
+        // Localized grime/rust around service hardware rather than uniform noise.
+        for(let i=0;i<13;i++){const gx=offX+cell*(1.5+(i*7.13)%28),gy=offY+cell*(1+(i*4.77)%19),r=cell*(.45+(i%4)*.22);const grime=ctx2.createRadialGradient(gx,gy,0,gx,gy,r);grime.addColorStop(0,i%3===0?"rgba(116,72,34,.17)":"rgba(0,0,0,.2)");grime.addColorStop(1,"rgba(0,0,0,0)");ctx2.fillStyle=grime;ctx2.fillRect(gx-r,gy-r,r*2,r*2);}
+
+        // Diagnostic lamps and a few caution stripes create recognizable maintenance history.
+        for(let i=0;i<8;i++){const x=offX+cell*(2.5+i*3.7),y=offY+cell*(1.25+(i%3)*6.2),on=((time/700+i*1.7)%4)<.65;ctx2.fillStyle=on?"rgba(245,158,11,.86)":"rgba(73,57,32,.5)";ctx2.shadowColor=on?"rgba(245,158,11,.75)":"transparent";ctx2.shadowBlur=on?cell*.3:0;ctx2.beginPath();ctx2.arc(x,y,Math.max(1.3,cell*.06),0,Math.PI*2);ctx2.fill();}
+        ctx2.shadowBlur=0;
         ctx2.restore();
       }
 
