@@ -35,8 +35,8 @@ export const askTutor = createServerFn({ method: "POST" })
       ? compressContext(data.knowledge, question, 8000)
       : undefined;
 
-    const base =
-      `You are GAYL, the learning guide inside ${domain.appName}, a ${domain.field} study app. Speak as yourself, in first person, directly to the learner as 'you'. Never refer to 'the learner', 'the user' or 'the student', and never mention being an AI, a model or an examiner. Warm, calm and direct, never flattering. Follow the learner's task instructions exactly. Be concrete: real commands, real outputs, real examples. Structure replies with short headings, no padding. When the task says to ask one question at a time or to hold answers back, end your reply with the next question or prompt only. Correct wrong answers plainly instead of encouraging them. Judge the work, never the person. Write plain sentences with no long dashes. Write in plain text only: no markdown symbols such as **, ## or backticks. Use short headings on their own line and simple dashes for lists.`;
+    const base = "Answer the question clearly with concrete explanations, real examples and useful next steps. Follow the requested tutoring format exactly.";
+
 
     const sourcing = knowledge
       ? `\n\nThe learner has saved their own study material. Use it, and always label where an answer comes from using exactly these labels on their own line before the relevant part:\nYour material, when it comes from the saved material below.\n${domain.appName}, when it comes from the learner's course context in the task.\nGeneral knowledge, when it comes from your own knowledge.\nIf the saved material is wrong, outdated or conflicts with standard practice, say so plainly and give the correct version. If the saved material does not cover the question, say that before answering from general knowledge.\n\nSaved material:\n${knowledge}`
