@@ -219,14 +219,14 @@ export function GaylBubble() {
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-3 z-50 flex max-w-[calc(100vw-1.5rem)] flex-col-reverse items-start gap-2 sm:left-4 lg:bottom-6 lg:left-6">
+    <div className="pointer-events-none fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-4 z-[60] lg:bottom-6 lg:left-[18rem]">
       <div
         aria-hidden={!open}
         className={cn(
-          "origin-top-right transition-all duration-200 ease-out",
+          "absolute bottom-[calc(100%+0.5rem)] left-0 w-80 max-w-[calc(100vw-2rem)] origin-bottom-left transition-all duration-200 ease-out",
           open
             ? "pointer-events-auto visible translate-y-0 scale-100 opacity-100"
-            : "pointer-events-none invisible -translate-y-2 scale-95 opacity-0",
+            : "pointer-events-none invisible translate-y-2 scale-95 opacity-0",
         )}
       >
         <div className="flex w-80 max-w-full flex-col rounded-lg border border-border bg-card shadow-lg">
