@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronDown, Crown, Menu, Search, ShieldCheck } from "lucide-react";
+import { ChevronDown, Crown, Menu, Search } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { navGroups, navItems } from "@/config/navigation";
@@ -21,6 +21,7 @@ import { useAuth } from "@/state/auth-state";
 import { MaintenanceGate } from "@/components/maintenance-screen";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { accentSurface, featureAccent } from "@/lib/visual-accents";
+import { PathLogo } from "@/components/layout/path-logo";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useSidebarAttention();
@@ -112,9 +113,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
 function Brand() {
   return (
     <Link to="/" className="group flex items-center gap-3 px-5 py-5">
-      <span className="flex size-9 items-center justify-center rounded-md border border-primary/25 bg-primary/12 text-primary shadow-sm transition-transform duration-150 group-hover:-translate-y-0.5">
-        <ShieldCheck className="size-4.5" aria-hidden />
-      </span>
+      <PathLogo className="size-9 transition-transform duration-150 group-hover:-translate-y-0.5" />
       <span className="min-w-0">
         <span className="block font-display text-base font-semibold tracking-tight">{domain.appName}</span>
         <span className="block text-[11px] leading-tight text-muted-foreground">
@@ -216,7 +215,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </SheetContent>
         </Sheet>
         <span className="flex min-w-0 items-center gap-2 truncate font-display text-sm font-semibold">
-          <ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden />
+          <PathLogo className="size-5" />
           <span className="truncate">{domain.appName}</span>
           <span className="truncate text-xs font-normal text-muted-foreground">· {current}</span>
         </span>
