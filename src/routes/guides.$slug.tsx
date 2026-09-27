@@ -6,6 +6,7 @@ import { BookOpen } from "lucide-react";
 import {
   GUIDE_BASE_URL,
   certificationTitle,
+  deepLessonForTopic,
   guidePath,
   guideSlug,
   guideTopics,
@@ -71,6 +72,7 @@ function GuidePage() {
   }
 
   const lesson = lessonForTopic(topic.id);
+  const deepLesson = deepLessonForTopic(topic.id);
   const certificationTopics = guideTopics().filter(
     (candidate) => candidate.certificationId === topic.certificationId,
   );
@@ -108,6 +110,37 @@ function GuidePage() {
         <Panel title={lesson.title || `Understanding ${topic.title}`}>
           <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">{lesson.body}</p>
         </Panel>
+      ) : null}
+
+      {deepLesson ? (
+        <>
+          <Panel title="In plain words">
+            <p className="text-sm leading-7 text-muted-foreground">
+              {deepLesson.plain?.plainIntro ?? deepLesson.intro}
+            </p>
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">
+              <span className="font-medium text-foreground">Where you meet it: </span>
+              {deepLesson.whereYouMeetIt}
+            </p>
+          </Panel>
+
+          {deepLesson.sections.map((section) => (
+            <Panel key={section.id ?? section.heading} title={section.heading}>
+              <div className="space-y-3 text-sm leading-7 text-muted-foreground">
+                {section.paragraphs.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+                {section.bullets && section.bullets.length > 0 ? (
+                  <ul className="list-disc space-y-2 pl-5">
+                    {section.bullets.map((bullet) => (
+                      <li key={bullet}>{bullet}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            </Panel>
+          ))}
+        </>
       ) : null}
 
       {topic.learningObjectives.length > 0 ? (
