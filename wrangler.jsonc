@@ -2,7 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "itpath-builder",
   "compatibility_date": "2026-09-24",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
   "main": ".output/server/index.mjs",
   "assets": {
     "directory": ".output/public"
@@ -10,5 +10,8 @@
   "observability": {
     "enabled": true
   },
-  "vars": {}
+  "vars": {},
+  "secrets": {
+    "required": ["GEMINI_API_KEY"]
+  }
 }
