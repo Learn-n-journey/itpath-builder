@@ -852,9 +852,10 @@ export function VirusRun() {
           } else if(g.kind==="sentry"){
             // Sentries favor high-visibility junctions and linger around them.
             options.sort((a,b)=>{
-              const exits=(q:[number,number])=>[[1,0],[-1,0],[0,1],[0,-1]].filter(([dx,dy])=>run.grid[q[1]+dy]?.[q[0]+dx]===0).length;
+              const exits=(q:[number,number])=>([[1,0],[-1,0],[0,1],[0,-1]] as [number,number][]).filter(([dx,dy])=>run.grid[q[1]+dy]?.[q[0]+dx]===0).length;
               return exits(b)-exits(a);
             });
+            chosen = options[0]!;
           } else if(g.kind==="sweeper"){
             // Sweepers strongly prefer continuing forward, creating predictable corridor patrols.
             options.sort((a,b)=>{
@@ -862,6 +863,7 @@ export function VirusRun() {
               const fx=gx-g.fromX,fy=gy-g.fromY;
               return (bx*fx+by*fy)-(ax*fx+ay*fy);
             });
+            chosen = options[0]!;
           } else if (g.state === "search") {
             options.sort((a,b)=>Math.abs(a[0]-g.lastKnownX)+Math.abs(a[1]-g.lastKnownY)-Math.abs(b[0]-g.lastKnownX)-Math.abs(b[1]-g.lastKnownY));
             chosen = options[0]!;
@@ -1021,7 +1023,7 @@ export function VirusRun() {
           // Scratches and old maintenance scuffs.
           for(let i=0;i<30;i++){const x=(i*47)%360,y=(i*109)%370;tx.strokeStyle=i%3===0?"rgba(183,167,139,.09)":"rgba(255,255,255,.045)";tx.lineWidth=.7;tx.beginPath();tx.moveTo(x,y);tx.lineTo(x+12+(i%5)*8,y-3+(i%4)*2);tx.stroke();}
           // Sparse repaired panels.
-          for(let i=0;i<5;i++){const x=24+(i*73)%300,y=40+(i*91)%270,w=38+(i%3)*15,h=25+(i%2)*18;tx.fillStyle="rgba(49,53,54,.72)";tx.fillRect(x,y,w,h);tx.strokeStyle="rgba(139,126,101,.16)";tx.strokeRect(x+.5,y+.5,w-1,h-1);for(const [sx,sy] of [[x+5,y+5],[x+w-5,y+5],[x+5,y+h-5],[x+w-5,y+h-5]]){tx.fillStyle="rgba(8,10,10,.8)";tx.beginPath();tx.arc(sx,sy,1.7,0,Math.PI*2);tx.fill();}}
+          for(let i=0;i<5;i++){const x=24+(i*73)%300,y=40+(i*91)%270,w=38+(i%3)*15,h=25+(i%2)*18;tx.fillStyle="rgba(49,53,54,.72)";tx.fillRect(x,y,w,h);tx.strokeStyle="rgba(139,126,101,.16)";tx.strokeRect(x+.5,y+.5,w-1,h-1);for(const [sx,sy] of [[x+5,y+5],[x+w-5,y+5],[x+5,y+h-5],[x+w-5,y+h-5]] as [number,number][]){tx.fillStyle="rgba(8,10,10,.8)";tx.beginPath();tx.arc(sx,sy,1.7,0,Math.PI*2);tx.fill();}}
         }
         materialRef.current.boot=tex;
       }
@@ -1389,14 +1391,14 @@ export function VirusRun() {
         ctx2.save();
         // Long copper buses cross the machine, with joints/vias at turns.
         const buses=[{y:2.4,x1:1,x2:12},{y:7.7,x1:4,x2:27},{y:12.6,x1:1,x2:18},{y:18.2,x1:11,x2:30}];
-        for(let i=0;i<buses.length;i++){const bus=buses[i],y=offY+bus.y*cell,x1=offX+bus.x1*cell,x2=offX+bus.x2*cell;
+        for(let i=0;i<buses.length;i++){const bus=buses[i]!,y=offY+bus.y*cell,x1=offX+bus.x1*cell,x2=offX+bus.x2*cell;
           ctx2.strokeStyle=i%2?"rgba(132,93,48,.34)":"rgba(78,126,103,.3)";ctx2.lineWidth=Math.max(2,cell*.07);ctx2.beginPath();ctx2.moveTo(x1,y);ctx2.lineTo(x2,y);ctx2.stroke();
           for(let v=0;v<4;v++){const vx=x1+(x2-x1)*(v+1)/5;ctx2.fillStyle="rgba(12,18,15,.8)";ctx2.beginPath();ctx2.arc(vx,y,cell*.09,0,Math.PI*2);ctx2.fill();ctx2.strokeStyle="rgba(153,112,62,.35)";ctx2.lineWidth=Math.max(1,cell*.025);ctx2.stroke();}
         }
 
         // Large component banks: ROM/firmware packages and old controller chips.
         const chips=[[2.2,4.1,3.5,1.45],[20.5,3.1,4.2,1.5],[13.2,9.4,3.8,1.55],[22.8,14.3,4.6,1.6],[5.2,16.1,3.7,1.45]] as const;
-        for(let i=0;i<chips.length;i++){const [cx,cy,cw,ch]=chips[i],x=offX+cx*cell,y=offY+cy*cell,w=cw*cell,h=ch*cell;
+        for(let i=0;i<chips.length;i++){const [cx,cy,cw,ch]=chips[i]!,x=offX+cx*cell,y=offY+cy*cell,w=cw*cell,h=ch*cell;
           ctx2.save();ctx2.shadowColor="rgba(0,0,0,.7)";ctx2.shadowBlur=cell*.18;ctx2.shadowOffsetY=cell*.09;
           const cg=ctx2.createLinearGradient(x,y,x,y+h);cg.addColorStop(0,"rgba(57,63,58,.96)");cg.addColorStop(1,"rgba(13,18,16,.98)");ctx2.fillStyle=cg;ctx2.fillRect(x,y,w,h);ctx2.restore();
           ctx2.strokeStyle="rgba(138,145,124,.25)";ctx2.lineWidth=Math.max(1,cell*.025);ctx2.strokeRect(x+.5,y+.5,w-1,h-1);
@@ -1418,9 +1420,9 @@ export function VirusRun() {
         for(const [vx,vy,vw,vh] of vents){const x=offX+vx*cell,y=offY+vy*cell,w=vw*cell,h=vh*cell;ctx2.fillStyle="rgba(8,12,12,.75)";ctx2.fillRect(x,y,w,h);ctx2.strokeStyle="rgba(116,126,112,.2)";ctx2.strokeRect(x,y,w,h);ctx2.strokeStyle="rgba(0,0,0,.75)";ctx2.lineWidth=Math.max(1,cell*.035);for(let sl=.18;sl<.9;sl+=.16){ctx2.beginPath();ctx2.moveTo(x+w*.08,y+h*sl);ctx2.lineTo(x+w*.92,y+h*sl);ctx2.stroke();}}
 
         const plates=[[4,3,3,1],[18,6,2.5,1.2],[9,14,4,1],[24,18,3,1]] as const;
-        for(let i=0;i<plates.length;i++){const [dx,dy,dw,dh]=plates[i],x=offX+dx*cell,y=offY+dy*cell,w=dw*cell,h=dh*cell;
+        for(let i=0;i<plates.length;i++){const [dx,dy,dw,dh]=plates[i]!,x=offX+dx*cell,y=offY+dy*cell,w=dw*cell,h=dh*cell;
           ctx2.fillStyle="rgba(54,53,45,.72)";ctx2.fillRect(x,y,w,h);ctx2.strokeStyle="rgba(180,147,94,.22)";ctx2.lineWidth=Math.max(1,cell*.025);ctx2.strokeRect(x+.5,y+.5,w-1,h-1);
-          for(const [sx,sy] of [[x+cell*.12,y+cell*.12],[x+w-cell*.12,y+cell*.12],[x+cell*.12,y+h-cell*.12],[x+w-cell*.12,y+h-cell*.12]]){ctx2.fillStyle="rgba(4,7,7,.9)";ctx2.beginPath();ctx2.arc(sx,sy,cell*.045,0,Math.PI*2);ctx2.fill();}
+          for(const [sx,sy] of [[x+cell*.12,y+cell*.12],[x+w-cell*.12,y+cell*.12],[x+cell*.12,y+h-cell*.12],[x+w-cell*.12,y+h-cell*.12]] as [number,number][]){ctx2.fillStyle="rgba(4,7,7,.9)";ctx2.beginPath();ctx2.arc(sx,sy,cell*.045,0,Math.PI*2);ctx2.fill();}
           ctx2.fillStyle="rgba(224,193,135,.42)";ctx2.font=`${Math.max(8,cell*.2)}px monospace`;ctx2.fillText(i%2?"SERVICE BUS":`FW-${(i+1).toString().padStart(2,"0")}`,x+cell*.25,y+h*.58);
         }
 
@@ -1653,7 +1655,7 @@ export function VirusRun() {
         ctx2.shadowColor = alerted ? "rgba(248,113,113,0.95)" : "rgba(248,113,113,0.68)";
         ctx2.shadowBlur = cell * (alerted ? 0.9 : 0.62);
         const guardGradient = ctx2.createLinearGradient(-s*.35, -s*.5, s*.3, s*.5);
-        const roleColor=g.kind==="scanner"?["#fde68a","#f59e0b","#92400e","#1c0d02"]:g.kind==="hunter"?["#fecaca","#ef4444","#991b1b","#260909"]:g.kind==="interceptor"?["#ffe4e6","#fb7185","#be123c","#2a0710"]:g.kind==="warden"?["#fed7aa","#f97316","#9a3412","#271006"]:g.kind==="sentry"?["#fef08a","#eab308","#854d0e","#211804"]:g.kind==="sweeper"?["#cffafe","#22d3ee","#0e7490","#031b22"]:g.kind==="stalker"?["#f3e8ff","#a855f7","#6b21a8","#1b0826"]:["#fde68a","#f59e0b","#78350f","#211204"];
+        const roleColor:[string,string,string,string]=g.kind==="scanner"?["#fde68a","#f59e0b","#92400e","#1c0d02"]:g.kind==="hunter"?["#fecaca","#ef4444","#991b1b","#260909"]:g.kind==="interceptor"?["#ffe4e6","#fb7185","#be123c","#2a0710"]:g.kind==="warden"?["#fed7aa","#f97316","#9a3412","#271006"]:g.kind==="sentry"?["#fef08a","#eab308","#854d0e","#211804"]:g.kind==="sweeper"?["#cffafe","#22d3ee","#0e7490","#031b22"]:g.kind==="stalker"?["#f3e8ff","#a855f7","#6b21a8","#1b0826"]:["#fde68a","#f59e0b","#78350f","#211204"];
         guardGradient.addColorStop(0, g.stunned>0 ? "#bae6fd" : roleColor[0]);
         guardGradient.addColorStop(0.18, g.stunned>0 ? "#38bdf8" : roleColor[1]);
         guardGradient.addColorStop(0.58, g.stunned>0 ? "#075985" : roleColor[2]);
