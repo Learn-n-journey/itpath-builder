@@ -42,7 +42,7 @@ export const Route = createFileRoute("/practice-tests/$certId")({
             "@type": "BreadcrumbList",
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "IT PATH", item: "https://it-path.net/" },
-              { "@type": "ListItem", position: 2, name: "Free Practice Tests", item: "https://it-path.net/practice-tests/comptia-a-plus" },
+              { "@type": "ListItem", position: 2, name: "Free Practice Tests", item: "https://it-path.net/practice-tests" },
               { "@type": "ListItem", position: 3, name: page.headTitle, item: url },
             ],
           }),
