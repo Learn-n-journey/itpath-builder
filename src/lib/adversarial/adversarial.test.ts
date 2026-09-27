@@ -1,9 +1,10 @@
 /**
- * Permanent regression tests.
+ * Permanent regression tests for self-contained domain packages.
  *
- * Every defect the stress test ever found lives here as a standing test, so a
- * hole that was closed once can never quietly reopen. The tests run against
- * both registered subjects and contain no subject knowledge themselves.
+ * Workbook-backed packages intentionally keep questions, sources and full
+ * lesson content outside the static DomainPackage. Those live materials are
+ * covered by the owner/content QA suites; injecting static-package defects
+ * into fields that are deliberately empty would be a false test.
  */
 import { describe, expect, it } from "vitest";
 
@@ -21,7 +22,11 @@ async function loadAll(): Promise<{ key: string; pkg: DomainPackage }[]> {
   return out;
 }
 
-const packages = await loadAll();
+function supportsStaticAdversarialQa(pkg: DomainPackage): boolean {
+  return pkg.questions.length > 0 && pkg.sources.length > 0 && pkg.lessons.some((lesson) => lesson.body.trim().length > 0);
+}
+
+const packages = (await loadAll()).filter(({ pkg }) => supportsStaticAdversarialQa(pkg));
 
 describe("the independent engines catch every kind of sabotage", () => {
   it("covers every defect category with at least one injection", () => {
