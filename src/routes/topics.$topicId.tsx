@@ -109,6 +109,10 @@ function TopicPage() {
     trackFlow("Open a lesson", lessonFound ? "ok" : "failed");
   }, [topicId, lessonFound]);
 
+  // Hooks must run before any early return below, or React crashes when the
+  // page hydrates and the hook count changes.
+  const continuity = useMemo(() => learnerContinuity(user), [user]);
+
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={3} />;
 
   if (!topic) {
@@ -160,7 +164,6 @@ function TopicPage() {
   const progress = user.topicProgress[topic.id];
   const mastered = isMastered(user, topic.id);
   const next = mastered ? nextJourneyTopic(topic.id, user) : undefined;
-  const continuity = useMemo(() => learnerContinuity(user), [user]);
   const prerequisites = topic.prerequisiteTopicIds
     .map((id) => topics.find((candidate) => candidate.id === id))
     .filter((candidate) => candidate !== undefined);
