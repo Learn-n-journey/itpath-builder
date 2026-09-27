@@ -237,14 +237,16 @@ function TopicPage() {
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {isOwner ? (
-            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
-              <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden />
-              {refreshing ? "Refreshing…" : "Refresh topic"}
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleVerifyFacts} disabled={verifyingFacts || refreshing}>
-              <Shield className={verifyingFacts ? "animate-pulse" : ""} aria-hidden />
-              {verifyingFacts ? "Verifying…" : "Verify facts"}
-            </Button>
+            <>
+              <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
+                <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden />
+                {refreshing ? "Refreshing…" : "Refresh topic"}
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleVerifyFacts} disabled={verifyingFacts || refreshing}>
+                <Shield className={verifyingFacts ? "animate-pulse" : ""} aria-hidden />
+                {verifyingFacts ? "Verifying…" : "Verify facts"}
+              </Button>
+            </>
           ) : null}
           <Button asChild variant="secondary" size="sm">
             <Link to="/flashcards/$topicId" params={{ topicId: topic.id }}><Layers aria-hidden />Flashcards</Link>
