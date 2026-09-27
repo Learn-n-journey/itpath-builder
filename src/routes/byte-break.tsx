@@ -1,4 +1,59 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowLeft, Cpu, ShieldCheck, Zap } from "lucide-react";
+
 import { ByteBreak } from "@/components/game/byte-break";
-export const Route=createFileRoute("/byte-break")({staticData:{sitemap:false},head:()=>({meta:[{title:"BYTE//BREAK | IT PATH"},{name:"description",content:"A high-energy tech-themed block matching game inside IT PATH."}]}),component:Page});
-function Page(){return <div className="min-h-screen"><div className="mx-auto max-w-4xl px-1 py-5 sm:px-4 sm:py-8"><header className="mb-5"><p className="font-mono text-xs uppercase tracking-[.22em] text-primary">Arcade // Core systems</p><h1 className="mt-1 font-display text-3xl font-bold tracking-tight">BYTE//BREAK</h1><p className="mt-1 max-w-xl text-sm text-muted-foreground">Swap adjacent modules, trigger chain reactions and push the system into overclock.</p></header><ByteBreak/></div></div>}
+import { Button } from "@/components/ui/button";
+
+export const Route = createFileRoute("/byte-break")({
+  staticData: { sitemap: false },
+  head: () => ({
+    meta: [
+      { title: "BYTE//BREAK | IT PATH" },
+      { name: "description", content: "BYTE//BREAK, a systems-matching arcade game inside IT PATH." },
+    ],
+  }),
+  component: Page,
+});
+
+function Page() {
+  return (
+    <main className="byte-break-screen relative min-h-[100dvh] overflow-hidden">
+      <div className="byte-break-grid" aria-hidden />
+      <div className="byte-break-ambient byte-break-ambient-a" aria-hidden />
+      <div className="byte-break-ambient byte-break-ambient-b" aria-hidden />
+
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-[1500px] flex-col px-3 pb-8 pt-3 sm:px-5 lg:px-8">
+        <header className="byte-break-commandbar mb-4 flex items-center justify-between gap-3 rounded-2xl border border-primary/20 px-3 py-2.5 sm:px-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <Button asChild variant="ghost" size="icon" className="shrink-0 rounded-xl border border-border/50 bg-background/25" aria-label="Exit BYTE//BREAK">
+              <Link to="/dashboard"><ArrowLeft className="size-4" /></Link>
+            </Button>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="byte-break-live-dot" aria-hidden />
+                <p className="truncate font-mono text-[10px] font-semibold uppercase tracking-[.28em] text-primary">IT PATH // ARCADE CORE</p>
+              </div>
+              <h1 className="truncate font-display text-xl font-black tracking-[-.04em] sm:text-2xl">BYTE<span className="text-primary">//</span>BREAK</h1>
+            </div>
+          </div>
+
+          <div className="hidden items-center gap-2 md:flex">
+            <span className="byte-break-system-chip"><Cpu className="size-3.5" /> SYSTEM ONLINE</span>
+            <span className="byte-break-system-chip"><ShieldCheck className="size-3.5" /> CORE SECURE</span>
+            <span className="byte-break-system-chip is-hot"><Zap className="size-3.5" /> OVERCLOCK READY</span>
+          </div>
+        </header>
+
+        <section className="byte-break-stage flex flex-1 items-start justify-center rounded-[2rem] border border-primary/15 p-2 sm:p-4 lg:p-6">
+          <ByteBreak />
+        </section>
+
+        <footer className="mt-3 flex items-center justify-between gap-3 px-2 font-mono text-[9px] uppercase tracking-[.18em] text-muted-foreground/70">
+          <span>BYTE//BREAK BUILD 01</span>
+          <span className="hidden sm:inline">Match // Cascade // Build // Overclock</span>
+          <span>IT PATH ARCADE</span>
+        </footer>
+      </div>
+    </main>
+  );
+}
