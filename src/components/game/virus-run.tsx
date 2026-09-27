@@ -1636,39 +1636,14 @@ export function VirusRun() {
 
         // Body orientation follows travel, making movement feel physical rather than turret-like.
         ctx2.rotate(moveAim + Math.PI / 2);
-        // Stable banking derives from actual progress through the current cell.
-        // Avoid high-frequency oscillation: it made guards visibly vibrate at large scale.
-        const segmentDx=g.tx-g.fromX,segmentDy=g.ty-g.fromY;
-        const segmentLen=Math.max(.001,Math.hypot(segmentDx,segmentDy));
-        const progress=Math.max(0,Math.min(1,Math.hypot(g.x-g.fromX,g.y-g.fromY)/segmentLen));
-        const turnEase=Math.sin(progress*Math.PI);
-        const roleBank=g.kind==="interceptor"?.055:g.kind==="stalker"?.045:g.kind==="hunter"?.035:g.kind==="sweeper"?.022:g.kind==="scanner"?.018:g.kind==="sentry"?.012:.016;
-        ctx2.rotate((segmentDx!==0?segmentDx:segmentDy)*roleBank*turnEase);
-        if(g.kind==="hunter" && g.state==="chase")ctx2.translate(0,-cell*.018);
-        if(g.stunned>0)ctx2.globalAlpha=.58+.06*Math.sin(time/240);
+        // Rigid travel diagnostic: no body banking. Orientation follows the corridor only.
+        if(g.kind==="hunter" && g.state==="chase")ctx2.translate(0,-cell*.012);
+        if(g.stunned>0)ctx2.globalAlpha=.62;
         // Directional floor shadow grounds the raised enemy model.
         ctx2.save();ctx2.fillStyle="rgba(0,0,0,.3)";ctx2.beginPath();ctx2.ellipse(cell*.08,cell*.17,cell*.32,cell*.13,0,0,Math.PI*2);ctx2.fill();ctx2.restore();
         const s = cell * 0.82;
-        // Personality is now slow, low-amplitude posture rather than vibration.
-        const personalityPhase=time/2400+g.fromX*.29+g.fromY*.17;
-        if(g.kind==="scanner"){
-          ctx2.translate(0,Math.sin(personalityPhase*1.15)*cell*.004);
-          ctx2.rotate(Math.sin(personalityPhase*.8)*.009);
-        }else if(g.kind==="hunter"){
-          const prowl=Math.sin(personalityPhase*1.1)*(g.state==="chase"?.008:.005);
-          ctx2.scale(1-prowl*.35,1+prowl);
-        }else if(g.kind==="interceptor"){
-          ctx2.rotate(Math.sin(personalityPhase*1.3)*.007);
-        }else if(g.kind==="sentry"){
-          const breathe=Math.sin(personalityPhase*.8)*.004;ctx2.scale(1+breathe,1-breathe*.4);
-        }else if(g.kind==="sweeper"){
-          ctx2.rotate(Math.sin(personalityPhase*.75)*.006);
-        }else if(g.kind==="stalker"){
-          ctx2.translate(0,Math.sin(personalityPhase*.62)*cell*.006);
-          ctx2.rotate(Math.sin(personalityPhase*.5)*.01);
-        }else{
-          const heavy=.004*Math.sin(personalityPhase*.55);ctx2.scale(1+heavy,1-heavy*.25);
-        }
+        // Keep antivirus bodies rigid in motion. Personality now comes from silhouette,
+        // optics and behavior only; no idle translation/rotation/scale oscillation.
         ctx2.shadowColor = alerted ? "rgba(248,113,113,0.95)" : "rgba(248,113,113,0.68)";
         ctx2.shadowBlur = cell * (alerted ? 0.9 : 0.62);
         const guardGradient = ctx2.createLinearGradient(-s*.35, -s*.5, s*.3, s*.5);
