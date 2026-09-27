@@ -29,6 +29,7 @@ import {
   fileNumber,
   ownerQuestionFromRow,
   topicForNumber,
+  topicsForDomain,
   type NumberedTopic,
   type OwnerDomain,
 } from "@/lib/owner-questions-shared";
@@ -342,6 +343,11 @@ export async function runSheetSync(
   }
   const unchanged = (file: SheetFile): boolean =>
     !options.force && Boolean(file.lastModified) && seenState.get(file.id) === file.lastModified;
+  const requestedWorkbookNumber =
+    options.domain === "auto-repair" && options.topicId
+      ? topicsForDomain("auto-repair").find((topic) => topic.topicId === options.topicId)?.number
+      : undefined;
+
   const remember = async (file: SheetFile, domain: string, folder: string): Promise<void> => {
     if (!file.lastModified) return;
     await supabaseAdmin.from("sheet_file_state").upsert(
@@ -387,7 +393,12 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/lessons`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
-        if (options.topicId && topic.topicId !== options.topicId) continue;
+        if (options.topicId) {
+          const matchesRequestedTopic =
+            topic.topicId === options.topicId ||
+            (domain === "auto-repair" && requestedWorkbookNumber !== undefined && number === requestedWorkbookNumber);
+          if (!matchesRequestedTopic) continue;
+        }
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
@@ -435,6 +446,14 @@ export async function runSheetSync(
         const notes = result.rejectReasons ?? [];
         if (notes.length) lessonIssues.push({ file: file.name, topic: topic.title, reasons: notes });
 
+        // A numbered workbook owns exactly one lesson in its domain. Remove
+        // any row previously written for the same source file under an older
+        // topic-id convention, then write it under the current canonical id.
+        await supabaseAdmin
+          .from("owner_lessons")
+          .delete()
+          .eq("domain", domain)
+          .eq("source_file", file.name);
         await supabaseAdmin
           .from("owner_lessons")
           .delete()
