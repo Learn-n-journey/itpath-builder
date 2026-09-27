@@ -17,6 +17,8 @@
   },
 
   "vars": {
+    "MICROSOFT_CLIENT_ID": "23165035-6911-45a7-a09e-576170949bfb",
+    "MICROSOFT_REDIRECT_URI": "https://it-path.net/api/auth/microsoft/callback",
     "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_XY5kIGCGQ-pFPtvE1gx6Iw_8IKIKDf5",
     "SUPABASE_URL": "https://qutxpxlbbwtgwkclikrn.supabase.co",
     "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_XY5kIGCGQ-pFPtvE1gx6Iw_8IKIKDf5",
