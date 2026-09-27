@@ -19,6 +19,23 @@ export interface GaylInsight {
   why?: string[];
 }
 
+/**
+ * Stable variation makes deterministic GAYL feel less canned without randomness,
+ * network calls or hidden state. The same evidence always selects the same line,
+ * and changed evidence can naturally change how she phrases the observation.
+ */
+function stableVariant(key: string, options: readonly string[]): string {
+  let hash = 0;
+  for (let index = 0; index < key.length; index += 1) {
+    hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
+  }
+  return options[hash % options.length] ?? options[0] ?? "";
+}
+
+function evidenceKey(concept: ConceptIntel): string {
+  return [concept.topicId, concept.diagnosis, concept.state, concept.attempts, concept.unresolvedMistakes, Math.round(concept.certainty * 10)].join(":");
+}
+
 /** Plain reason clause, written to follow the word "because". */
 function becauseClause(concept: ConceptIntel): string {
   switch (concept.diagnosis) {
@@ -349,37 +366,74 @@ function problemIssue(concept: ConceptIntel): string {
 function casualText(concept: ConceptIntel): string {
   const count = concept.unresolvedMistakes;
   const plural = count === 1 ? "" : "s";
+  const key = evidenceKey(concept);
 
   if (count > 0) {
-    return `${concept.title} has ${count} spot${plural} we haven't circled back to yet. ${concept.instruction}`;
+    return stableVariant(key, [
+      `${concept.title} has ${count} spot${plural} we haven't closed out yet. ${concept.instruction}`,
+      `There ${count === 1 ? "is" : "are"} still ${count} open spot${plural} in ${concept.title}. ${concept.instruction}`,
+      `I'm keeping ${concept.title} on the list because ${count} answer${plural} still need another look. ${concept.instruction}`,
+    ]);
   }
   if (concept.diagnosis === "retrieval_failure") {
-    return `You had ${concept.title} earlier, then a later answer slipped. A short pass should settle it.`;
+    return stableVariant(key, [
+      `You had ${concept.title} earlier, then a later answer slipped. A short pass should tell us whether it was a one-off.`,
+      `${concept.title} held before, but the latest check missed. Bring it back once and let's see whether it settles.`,
+      `A later check on ${concept.title} didn't hold. Review it briefly, then try it again without leaning on the notes.`,
+    ]);
   }
   if (concept.diagnosis === "fading") {
     return concept.daysOverdue >= 7
-      ? `${concept.title} has had a good rest, ${Math.round(concept.daysOverdue)} days since its review point, so recall will have softened. A short pass brings it straight back.`
-      : `Recall on ${concept.title} has softened a little since you last had it. A short pass brings it back.`;
+      ? stableVariant(key, [
+          `It's been a while since ${concept.title} came back up, and recall has softened. Give it a short pass before we ask more of it.`,
+          `${concept.title} is ${Math.round(concept.daysOverdue)} days past its review point. That's enough distance to make another recall check useful.`,
+          `We left ${concept.title} alone for a while. Some recall has faded, so bring it back once and see what survived.`,
+        ])
+      : stableVariant(key, [
+          `Recall on ${concept.title} has softened since the earlier work. A short pass is enough for now.`,
+          `${concept.title} isn't holding quite as cleanly as it did. Bring it back once before moving past it.`,
+        ]);
   }
   if (concept.misconceptions[0]) {
-    return `Something keeps catching you out in ${concept.title}: ${concept.misconceptions[0].toLowerCase()}. Worth clearing that one up before you build on it.`;
+    return stableVariant(key, [
+      `The same mix-up is showing up again in ${concept.title}: ${concept.misconceptions[0].toLowerCase()}. Clear that distinction before building on it.`,
+      `I'm seeing the same idea trip you up in ${concept.title}: ${concept.misconceptions[0].toLowerCase()}. Another blind retry probably won't help; straighten that part out first.`,
+    ]);
   }
   if (concept.diagnosis === "confident_but_wrong") {
-    return `A few answers in ${concept.title} came quickly and missed. Slow the next pass down and see whether the same pattern remains.`;
+    return stableVariant(key, [
+      `A few answers in ${concept.title} came quickly and missed. Slow the next pass down and see whether the same pattern remains.`,
+      `Your confidence ran ahead of the result on ${concept.title}. Check the reasoning before you answer the next set.`,
+      `${concept.title} felt settled on a few answers that didn't hold. That's worth checking before we treat it as secure.`,
+    ]);
   }
   if (concept.diagnosis === "prerequisite_gap") {
     const base = concept.prerequisiteGaps[0];
     return base
-      ? `Start with ${base.title} before you push on with ${concept.title}. It sits underneath it.`
-      : `Something underneath ${concept.title} isn't solid yet, so that's the bit I'd do first.`;
+      ? stableVariant(key, [
+          `Start with ${base.title} before you push on with ${concept.title}. It sits underneath it.`,
+          `${concept.title} is leaning on ${base.title}, and that foundation still needs work. Fix that first.`,
+        ])
+      : `Something underneath ${concept.title} isn't solid yet. Work one level down before pushing forward.`;
   }
   if (concept.diagnosis === "application_failure") {
-    return `You can explain ${concept.title} fine, it's using it in a task where it wobbles. Some hands-on work would tell us more than another quiz.`;
+    return stableVariant(key, [
+      `You can explain ${concept.title}; using it in a task is where the evidence drops. Do something hands-on next.`,
+      `The recall side of ${concept.title} is ahead of the application side. A lab or scenario will tell us more than another quiz.`,
+      `${concept.title} makes sense on paper. Now it needs to survive a real task. Go hands-on next.`,
+    ]);
   }
   if (concept.diagnosis === "troubleshooting_failure") {
-    return `The facts on ${concept.title} are there. It's the fault-finding order that needs work, so a scenario is the better next step.`;
+    return stableVariant(key, [
+      `The facts on ${concept.title} are there. The fault-finding order is the weaker part, so use a scenario next.`,
+      `You know more of ${concept.title} than the troubleshooting result shows. Work the diagnostic sequence next, not the definitions.`,
+      `This isn't pointing at a broad ${concept.title} knowledge gap. It's pointing at how you narrow a fault. Practice that process.`,
+    ]);
   }
-  return `Finish ${concept.title} before moving on. ${concept.instruction}`;
+  return stableVariant(key, [
+    `Finish ${concept.title} before moving on. ${concept.instruction}`,
+    `${concept.title} is already in motion. Close that loop before starting another one. ${concept.instruction}`,
+  ]);
 }
 
 /**
