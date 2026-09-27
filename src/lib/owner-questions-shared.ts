@@ -8,7 +8,7 @@
  * 7. Adding a new numbered file is all it takes for its questions to appear.
  */
 import { topics } from "@/data/static-content";
-import { autoRepairPackage } from "@/content/packs/auto-repair/3.7.0/package";
+import { AUTO_PATH_CURRICULUM, autoCurriculumTopicId } from "@/content/packs/auto-repair/curriculum";
 import { questionIssues } from "@/lib/question-quality";
 import type { Question } from "@/lib/app-data/types";
 
@@ -45,16 +45,14 @@ export const itTopicNumbers: NumberedTopic[] = topics.map((topic, index) => ({
   certificationId: topic.certificationId,
 }));
 
-/** AUTO PATH sections, numbered 1..N in curriculum order. */
-export const autoTopicNumbers: NumberedTopic[] = autoRepairPackage.sections.map(
-  (section, index) => ({
-    number: index + 1,
-    topicId: section.id,
-    title: section.title,
-    domain: "auto-repair",
-    certificationId: section.qualificationId,
-  }),
-);
+/** AUTO PATH topics use the authored curriculum as the workbook-number contract. */
+export const autoTopicNumbers: NumberedTopic[] = AUTO_PATH_CURRICULUM.map((lesson, index) => ({
+  number: index + 1,
+  topicId: autoCurriculumTopicId(index + 1),
+  title: lesson.title,
+  domain: "auto-repair",
+  certificationId: `auto-repair:curriculum-group:${lesson.group.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`,
+}));
 
 export function topicsForDomain(domain: OwnerDomain): NumberedTopic[] {
   if (domain === "auto-repair") return autoTopicNumbers;
