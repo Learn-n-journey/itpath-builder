@@ -226,6 +226,7 @@ interface Guard {
   stateTimer: number;
   lastKnownX: number;
   lastKnownY: number;
+  renderAim: number;
 }
 
 interface Player {
@@ -337,7 +338,7 @@ function buildLevel(level: number): RunState {
     const kind = unlocked[(i + level) % unlocked.length]!;
     const speedMod=kind==="interceptor"?1.08:kind==="warden"?.9:kind==="sentry"?.72:kind==="sweeper"?.94:kind==="stalker"?1.04:kind==="bulwark"?.78:1;
     const detectMod=kind==="hunter"?5:kind==="warden"?2:kind==="sentry"?7:kind==="stalker"?4:kind==="bulwark"?3:0;
-    guards.push({ kind, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * speedMod, detection: detection + detectMod, fromX: cell.x, fromY: cell.y, state: "patrol", stateTimer: 0, lastKnownX: cell.x, lastKnownY: cell.y });
+    guards.push({ kind, stunned: 0, x: cell.x, y: cell.y, tx: cell.x, ty: cell.y, speed: guardSpeed * speedMod, detection: detection + detectMod, fromX: cell.x, fromY: cell.y, state: "patrol", stateTimer: 0, lastKnownX: cell.x, lastKnownY: cell.y, renderAim: 0 });
   }
 
   const powerUps: PowerUp[] = [];
@@ -881,9 +882,12 @@ export function VirusRun() {
           g.kind === "interceptor" && g.state === "chase" ? 1.08 :
           g.kind === "warden" && g.state === "chase" ? 0.96 :
           g.kind === "scanner" && g.state === "chase" ? 0.98 : 1;
+        const prevGuardX=g.x,prevGuardY=g.y;
         const r = stepEntity(g.x, g.y, g.tx, g.ty, g.speed * systemGuardSpeed * roleSpeed, dt);
         g.x = r.x;
         g.y = r.y;
+        const actualDx=g.x-prevGuardX,actualDy=g.y-prevGuardY;
+        if(Math.abs(actualDx)+Math.abs(actualDy)>.0001)g.renderAim=Math.atan2(actualDy,actualDx);
 
         // Near misses reward risky escapes and trigger a warning burst.
         const nearDist=Math.hypot(g.x-p.x,g.y-p.y);
@@ -1615,8 +1619,9 @@ export function VirusRun() {
         const cy = offY + (g.y + 0.5) * cell;
         ctx2.save();
         const targetAim = Math.atan2(run.player.y - g.y, run.player.x - g.x);
-        const moveDx=g.tx-g.x, moveDy=g.ty-g.y;
-        const moveAim=Math.abs(moveDx)+Math.abs(moveDy)>.02?Math.atan2(moveDy,moveDx):targetAim;
+        // Render direction is committed by actual displacement in update(), not the next AI target.
+        // This prevents one-frame visual snaps when a junction decision changes.
+        const moveAim=g.renderAim;
         const distanceToRunner = renderField[Math.round(g.y)]?.[Math.round(g.x)] ?? -1;
         const alerted = g.stunned<=0 && g.state==="chase";
         ctx2.translate(cx, cy);
