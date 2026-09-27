@@ -523,3 +523,8 @@ export const AUTO_PATH_CURRICULUM: AutoCurriculumLesson[] = [
 export function autoCurriculumLesson(number: number): AutoCurriculumLesson | undefined {
   return AUTO_PATH_CURRICULUM[number - 1];
 }
+
+/** Stable topic id used by the app and spreadsheet sync for a workbook number. */
+export function autoCurriculumTopicId(number: number): string {
+  return `auto-repair:section:curriculum-${String(number).padStart(3, "0")}`;
+}
