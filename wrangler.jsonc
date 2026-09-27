@@ -2,25 +2,24 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "itpath-builder",
   "compatibility_date": "2026-09-24",
-  "compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "nodejs_compat_populate_process_env"
+  ],
   "main": ".output/server/index.mjs",
+
   "assets": {
     "directory": ".output/public"
   },
+
   "observability": {
     "enabled": true
   },
-  "vars": {},
-  "secrets": {
-    "required": ["GEMINI_API_KEY"]
-  }
-{
-  // ...
+
   "vars": {
     "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_XY5kIGCGQ-pFPtvE1gx6Iw_8IKIKDf5",
     "SUPABASE_URL": "https://qutxpxlbbwtgwkclikrn.supabase.co",
     "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_XY5kIGCGQ-pFPtvE1gx6Iw_8IKIKDf5",
     "VITE_SUPABASE_URL": "https://qutxpxlbbwtgwkclikrn.supabase.co"
-  },
-  // ...
+  }
 }
