@@ -241,7 +241,7 @@ export function GaylBubble() {
               </button>
             ) : (
               <img
-                src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_25_46%20AM.png"
+                src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
                 alt=""
                 width={816}
                 height={816}
@@ -339,7 +339,7 @@ export function GaylBubble() {
         )}
       >
         <img
-          src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_25_46%20AM.png"
+          src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
           alt=""
           width={816}
           height={816}
