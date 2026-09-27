@@ -8,6 +8,7 @@ import {
   certificationTitle,
   deepLessonForTopic,
   guidePath,
+  guideSearchReady,
   guideSlug,
   guideTopics,
   lessonForTopic,
@@ -28,10 +29,12 @@ export const Route = createFileRoute("/guides/$slug")({
     const subject = certificationTitle(topic.certificationId);
     const title = `${topic.title} Study Guide for Beginners`;
     const description = `${topic.summary} Free ${subject} study guide with key terms, examples and practical next steps.`;
+    const searchReady = guideSearchReady(topic.id);
     return {
       meta: [
         { title: `${title} | IT PATH` },
         { name: "description", content: description },
+        ...(!searchReady ? [{ name: "robots", content: "noindex,follow" }] : []),
         { property: "og:type", content: "article" },
         { property: "og:url", content: url },
         { property: "og:title", content: title },
