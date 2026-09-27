@@ -26,7 +26,11 @@ function evidence(pkg: DomainPackage, outcome: "strong" | "weak", count = 30): L
   });
 }
 
-function supportsStaticPackageQa(pkg: DomainPackage): boolean {\n  return pkg.questions.length > 0 && pkg.sources.length > 0 && pkg.qualifications.every((item) => item.objectives.length >= 3);\n}\n\nasync function packages(): Promise<DomainPackage[]> {
+function supportsStaticPackageQa(pkg: DomainPackage): boolean {
+  return pkg.questions.length > 0 && pkg.sources.length > 0 && pkg.qualifications.every((item) => item.objectives.length >= 3);
+}
+
+async function packages(): Promise<DomainPackage[]> {
   return Promise.all(Object.values(registry).map(async (entry) => {
     if (!entry.load) throw new Error(`${entry.manifest.key} has no loader.`);
     return entry.load();
@@ -50,8 +54,8 @@ describe("domain-neutral Autonomy Core", () => {
   }, 30_000);
 
   it("keeps stable finding and candidate ids for the same evidence", async () => {
-    const pkg = (await packages())[0];
-    if (!pkg) throw new Error("No domain package loaded.");
+    const pkg = (await packages()).find(supportsStaticPackageQa);
+    if (!pkg) throw new Error("No self-contained domain package loaded.");
     const first = runAutonomyCore({ pkg, evidence: evidence(pkg, "weak"), now: NOW });
     const second = runAutonomyCore({ pkg, evidence: evidence(pkg, "weak"), now: NOW });
     expect(second.snapshot.findings.map((item) => item.id)).toEqual(first.snapshot.findings.map((item) => item.id));
@@ -60,8 +64,8 @@ describe("domain-neutral Autonomy Core", () => {
 
   it("requires exact assessment sizes and passing QA/regressions for approval", async () => {
     for (const pkg of await packages()) expect(validateExactAssessmentSizes(pkg).passed).toBe(true);
-    const pkg = (await packages())[0];
-    if (!pkg) throw new Error("No domain package loaded.");
+    const pkg = (await packages()).find(supportsStaticPackageQa);
+    if (!pkg) throw new Error("No self-contained domain package loaded.");
     const run = runAutonomyCore({ pkg, evidence: evidence(pkg, "weak"), now: NOW });
     const candidate = run.candidates[0];
     if (!candidate) throw new Error("No improvement candidate was produced.");
@@ -70,8 +74,8 @@ describe("domain-neutral Autonomy Core", () => {
   }, 30_000);
 
   it("deploys only approved candidates and rolls back measurable degradation", async () => {
-    const pkg = (await packages())[0];
-    if (!pkg) throw new Error("No domain package loaded.");
+    const pkg = (await packages()).find(supportsStaticPackageQa);
+    if (!pkg) throw new Error("No self-contained domain package loaded.");
     const weak = runAutonomyCore({ pkg, evidence: evidence(pkg, "weak"), now: NOW });
     const strong = runAutonomyCore({ pkg, evidence: evidence(pkg, "strong"), now: new Date(NOW.getTime() - 86_400_000) });
     const candidate = weak.candidates[0];
