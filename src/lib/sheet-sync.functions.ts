@@ -21,7 +21,7 @@ export interface SyncRunSummary {
   workTopics: number;
   unchangedFiles?: number;
   lessonIssues: Array<{ file: string; topic: string; reasons: string[] }>;
-  report?: Record<string, unknown>[];
+  report?: Record<string, string | number | boolean | null | undefined | string[]>[];
 }
 
 /** Live counters written while a run is still going. */

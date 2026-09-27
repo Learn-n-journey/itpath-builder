@@ -244,7 +244,7 @@ export interface SheetSyncResult {
   topics?: number;
   approved?: number;
   rejected?: number;
-  report?: Record<string, unknown>[];
+  report?: Record<string, string | number | boolean | null | undefined | string[]>[];
   error?: string;
   /** True when the run used up its time slice and still has work left. */
   partial?: boolean;
@@ -303,7 +303,7 @@ export async function runSheetSync(
   let approvedTotal = 0;
   let rejectedTotal = 0;
   const topicsSynced = new Set<string>();
-  const report: Record<string, unknown>[] = [];
+  const report: Record<string, string | number | boolean | null | undefined | string[]>[] = [];
   let lessonsApproved = 0;
   let lessonsRejected = 0;
   const lessonIssues: Array<{ file: string; topic: string; reasons: string[] }> = [];

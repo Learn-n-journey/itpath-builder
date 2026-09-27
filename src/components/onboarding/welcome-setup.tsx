@@ -1,3 +1,4 @@
+import type { ExperienceLevel } from "@/lib/app-data/types";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Check, Moon, Sun } from "lucide-react";
