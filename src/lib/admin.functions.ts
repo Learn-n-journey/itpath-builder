@@ -188,6 +188,145 @@ export const factualQualityChallenge = createServerFn({ method: "POST" })
     return { owner: true, results };
   });
 
+
+export interface TopicFactualFinding {
+  claim: string;
+  problem: string;
+  correction: string;
+}
+
+export interface TopicFactualVerification {
+  owner: boolean;
+  topicId: string;
+  sourceFile: string | null;
+  ranAt: string;
+  state: "healthy" | "warning" | "failed";
+  findings: TopicFactualFinding[];
+  model: string | null;
+  error?: string;
+}
+
+/**
+ * Owner-only factual audit of the ACTUAL approved lesson imported from the
+ * spreadsheet. It reads owner_lessons directly so the verifier never audits a
+ * build-time fallback by mistake. Findings are advisory and never edit content.
+ */
+export const verifyImportedTopicFacts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { topicId: string }) => ({ topicId: input.topicId.trim() }))
+  .handler(async ({ context, data }): Promise<TopicFactualVerification> => {
+    const ranAt = new Date().toISOString();
+    if (!isOwnerEmail(emailOf(context))) {
+      return { owner: false, topicId: data.topicId, sourceFile: null, ranAt, state: "failed", findings: [], model: null, error: "Not allowed." };
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
+      .from("owner_lessons")
+      .select("topic_id, source_file, lesson, synced_at")
+      .eq("topic_id", data.topicId)
+      .eq("status", "approved")
+      .order("synced_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !row) {
+      return {
+        owner: true, topicId: data.topicId, sourceFile: null, ranAt, state: "failed", findings: [], model: null,
+        error: error?.message ?? "No approved imported spreadsheet lesson was found for this topic.",
+      };
+    }
+
+    const lesson = row.lesson as unknown as {
+      title?: string; intro?: string; whereYouMeetIt?: string;
+      sections?: Array<{ heading?: string; paragraphs?: string[]; bullets?: string[] }>;
+      keyTerms?: Array<{ term?: string; meaning?: string }>;
+    };
+    const text = [
+      lesson.title, lesson.intro, lesson.whereYouMeetIt,
+      ...(lesson.sections ?? []).flatMap((s) => [s.heading, ...(s.paragraphs ?? []), ...(s.bullets ?? [])]),
+      ...(lesson.keyTerms ?? []).map((k) => `${k.term ?? ""}: ${k.meaning ?? ""}`),
+    ].filter((v): v is string => typeof v === "string" && v.trim().length > 0).join("\n");
+
+    if (text.length < 40) {
+      return { owner: true, topicId: data.topicId, sourceFile: row.source_file, ranAt, state: "failed", findings: [], model: null, error: "The imported lesson has too little text to verify." };
+    }
+
+    const { checkTechnicalClaims } = await import("@/lib/technical-validation");
+    const deterministic = checkTechnicalClaims(text).map((issue) => ({
+      claim: issue.claim.trim(),
+      problem: issue.problem,
+      correction: "",
+    }));
+
+    const { runAi } = await import("@/lib/ai/run.server");
+    // Long lessons are reviewed in bounded chunks so no single request silently
+    // drops the back half of a workbook.
+    const chunks: string[] = [];
+    const max = 12000;
+    for (let start = 0; start < text.length; start += max) chunks.push(text.slice(start, start + max));
+
+    const aiFindings: TopicFactualFinding[] = [];
+    let model: string | null = null;
+    let verifierFailed = false;
+    for (let index = 0; index < chunks.length; index += 1) {
+      const reply = await runAi({
+        feature: "self_check",
+        system: [
+          "You are an independent senior technical fact checker reviewing educational material before publication.",
+          "Identify factual errors, obsolete technical claims presented as current, incorrect protocol/port/standard behavior, wrong commands or paths, and internally contradictory technical claims.",
+          "Do not rewrite for style. Do not flag preferences, simplifications that remain true, or claims you are merely uncertain about.",
+          "You are not told whether the lesson contains an error. Decide independently.",
+          "Return JSON only: {\"findings\":[{\"claim\":\"exact or concise offending claim\",\"problem\":\"why it is factually wrong\",\"correction\":\"concise corrected fact\"}]}. Return an empty findings array when no factual error is found.",
+        ].join("\n"),
+        prompt: `Topic: ${lesson.title ?? data.topicId}\nLesson chunk ${index + 1} of ${chunks.length}:\n\n${chunks[index]}`,
+        risk: "low",
+        priority: "interactive",
+        json: true,
+        requireCapable: true,
+        skipBudget: true,
+      });
+      if (!reply.ok) { verifierFailed = true; continue; }
+      model = reply.model;
+      try {
+        const start = reply.text.indexOf("{");
+        const end = reply.text.lastIndexOf("}");
+        const parsed = JSON.parse(reply.text.slice(start, end + 1)) as { findings?: unknown };
+        if (Array.isArray(parsed.findings)) {
+          for (const finding of parsed.findings) {
+            if (!finding || typeof finding !== "object") continue;
+            const f = finding as Record<string, unknown>;
+            if (typeof f.claim !== "string" || typeof f.problem !== "string") continue;
+            aiFindings.push({
+              claim: f.claim.trim(),
+              problem: f.problem.trim(),
+              correction: typeof f.correction === "string" ? f.correction.trim() : "",
+            });
+          }
+        }
+      } catch { verifierFailed = true; }
+    }
+
+    const findings = [...deterministic, ...aiFindings].filter((finding, index, all) =>
+      all.findIndex((other) => other.claim.toLowerCase() === finding.claim.toLowerCase() && other.problem.toLowerCase() === finding.problem.toLowerCase()) === index
+    );
+    const state = verifierFailed ? "warning" : findings.length > 0 ? "warning" : "healthy";
+
+    await writeActivity({
+      area: "content",
+      action: "topic_factual_verification",
+      subject: data.topicId,
+      result: state === "healthy" ? "passed" : "warning",
+      detail: { sourceFile: row.source_file, findings: findings.length, chunks: chunks.length, verifierFailed },
+      actor: emailOf(context),
+    });
+
+    return {
+      owner: true, topicId: data.topicId, sourceFile: row.source_file, ranAt, state, findings, model,
+      ...(verifierFailed ? { error: "One or more verification chunks could not be reviewed. Run the check again before treating this topic as verified." } : {}),
+    };
+  });
+
 /** Live checks against the services the app depends on. Reads only. */
 export const systemHealth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
