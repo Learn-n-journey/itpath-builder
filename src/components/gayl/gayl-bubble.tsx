@@ -11,7 +11,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, MessageSquare, X } from "lucide-react";
 
-import gaylAvatar from "@/assets/gayl-avatar.png";
 import { useAppState } from "@/state/app-state";
 import { useIntelligence } from "@/hooks/use-intelligence";
 import { checkInMessage, gaylMessages, lessonInsight, type GaylMessage } from "@/lib/gayl/insights";
@@ -242,7 +241,7 @@ export function GaylBubble() {
               </button>
             ) : (
               <img
-                src={gaylAvatar}
+                src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_25_46%20AM.png"
                 alt=""
                 width={816}
                 height={816}
@@ -340,7 +339,7 @@ export function GaylBubble() {
         )}
       >
         <img
-          src={gaylAvatar}
+          src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_25_46%20AM.png"
           alt=""
           width={816}
           height={816}
