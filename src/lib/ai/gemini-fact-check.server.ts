@@ -1,3 +1,5 @@
+import { env as cloudflareEnv } from "cloudflare:workers";
+
 export interface GeminiFactFinding {
   claim: string;
   problem: string;
@@ -11,7 +13,14 @@ export interface GeminiFactCheckResult {
   error?: string;
 }
 
-const MODEL = process.env.GEMINI_FACT_CHECK_MODEL?.trim() || "gemini-2.5-flash-lite";
+function runtimeValue(name: "GEMINI_API_KEY" | "GEMINI_FACT_CHECK_MODEL"): string | undefined {
+  const binding = (cloudflareEnv as Record<string, unknown>)[name];
+  if (typeof binding === "string" && binding.trim()) return binding.trim();
+  const processValue = typeof process !== "undefined" ? process.env?.[name] : undefined;
+  return typeof processValue === "string" && processValue.trim() ? processValue.trim() : undefined;
+}
+
+const MODEL = runtimeValue("GEMINI_FACT_CHECK_MODEL") || "gemini-2.5-flash-lite";
 
 function parseFindings(text: string): GeminiFactFinding[] {
   const start = text.indexOf("{");
@@ -37,7 +46,7 @@ export async function checkFactsWithGemini(input: {
   chunk: number;
   chunks: number;
 }): Promise<GeminiFactCheckResult> {
-  const apiKey = process.env.GEMINI_API_KEY?.trim();
+  const apiKey = runtimeValue("GEMINI_API_KEY");
   if (!apiKey) return { ok: false, findings: [], model: null, error: "GEMINI_API_KEY is not configured on the server." };
 
   const prompt = [
