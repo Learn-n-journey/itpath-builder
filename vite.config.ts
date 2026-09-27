@@ -73,5 +73,12 @@ export default defineConfig({
   },
   vite: {
     plugins: [flattenCssLayers()],
+    build: {
+      // cloudflare:workers is provided by the Cloudflare runtime. Keep it out
+      // of the GitHub/Vite bundle so CI can build without resolving it locally.
+      rolldownOptions: {
+        external: ["cloudflare:workers"],
+      },
+    },
   },
 });
