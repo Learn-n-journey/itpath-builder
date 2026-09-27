@@ -15,19 +15,21 @@ export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Choose Your Path | IT PATH & AUTO PATH" },
+      { title: "Learn IT & Automotive Skills Online | IT PATH & AUTO PATH" },
       {
         name: "description",
-        content: "Choose IT PATH for technology and cybersecurity or AUTO PATH for automotive diagnostics and repair.",
+        content: "Learn IT, cybersecurity, networking, computer hardware, automotive diagnostics and repair with structured lessons, hands-on practice and skill checks.",
       },
-      { property: "og:title", content: "Choose Your Path | IT PATH & AUTO PATH" },
+      { property: "og:title", content: "Learn Practical IT & Automotive Skills | PATH" },
       {
         property: "og:description",
-        content: "Two practical learning paths. Choose technology and cybersecurity or automotive diagnostics and repair.",
+        content: "Structured beginner-friendly learning for IT, cybersecurity and automotive repair with lessons, practice, troubleshooting and progress tracking.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://it-path.net/" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://it-path.net/" }],
   }),
   component: CourseChooser,
 });
@@ -86,10 +88,10 @@ function CourseChooser() {
         <header className="mx-auto mb-8 mt-3 max-w-4xl text-center sm:mb-10">
           <p className="text-xs font-semibold uppercase tracking-[0.38em] text-primary/75">Welcome to PATH</p>
           <h1 className="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            What do you want to <span className="text-primary">learn?</span>
+            Learn practical <span className="text-primary">IT and automotive skills</span>
           </h1>
-          <p className="mt-3 text-base text-foreground/90 sm:text-lg">Choose a learning path and start building real skills for your future.</p>
-          <p className="mt-1 text-sm text-muted-foreground sm:text-base">Practical knowledge. Hands-on practice. Real progress.</p>
+          <p className="mt-3 text-base text-foreground/90 sm:text-lg">Start from the basics and build real skills through structured lessons, hands-on practice, troubleshooting and mastery checks.</p>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">Study IT, networking, cybersecurity, computer hardware, automotive diagnostics and repair at your own pace.</p>
         </header>
 
         <div className="grid gap-5 lg:grid-cols-2 lg:gap-7">
@@ -151,6 +153,21 @@ function CourseChooser() {
             const BenefitIcon = Icon as typeof BookOpen;
             return <div key={title as string} className="flex gap-3 px-2"><BenefitIcon className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden /><div><h3 className="text-sm font-semibold">{title as string}</h3><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{detail as string}</p></div></div>;
           })}
+        </section>
+
+        <section className="mt-8 rounded-2xl border border-border/60 bg-card/60 p-5 sm:p-6" aria-labelledby="free-resources-title">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Free learning resources</p>
+            <h2 id="free-resources-title" className="mt-2 font-display text-2xl font-bold">Start learning before you create an account</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Read beginner-friendly IT study guides, follow complete CompTIA study tracks, or test yourself with free A+, Network+ and Security+ practice questions.
+            </p>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button asChild variant="outline"><Link to="/guides">Free IT study guides</Link></Button>
+            <Button asChild variant="outline"><Link to="/tracks">CompTIA study tracks</Link></Button>
+            <Button asChild variant="outline"><Link to="/practice-tests/$certId" params={{ certId: "cert-comptia-a-plus" }}>Free CompTIA A+ practice test</Link></Button>
+          </div>
         </section>
 
         <p className="py-8 text-center text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground sm:text-xs">
