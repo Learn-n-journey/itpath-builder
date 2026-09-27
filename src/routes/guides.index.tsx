@@ -51,9 +51,7 @@ function GuidesIndexPage() {
           <Link to="/auth">Create a free account</Link>
         </Button>
         <Button asChild variant="outline">
-          <Link to="/practice-tests/$certId" params={{ certId: "cert-comptia-a-plus" }}>
-            Free practice tests
-          </Link>
+          <Link to="/practice-tests">Free practice tests</Link>
         </Button>
       </div>
       <div className="space-y-6">
