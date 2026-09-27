@@ -939,6 +939,9 @@ export async function drainSyncQueue(): Promise<{ ran: boolean; id?: string; res
           skipped: result.skipped ?? null,
           ...tally,
           lessonIssues: result.lessonIssues ?? [],
+          // Keep discovery/import diagnostics so a zero-import sync explains
+          // which OneDrive folders were missing, empty, or skipped.
+          report: result.report ?? [],
         } as unknown as Json,
         finished_at: new Date().toISOString(),
       })
