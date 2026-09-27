@@ -19,7 +19,7 @@ function resolveTheme(preference: ThemePreference | null): ResolvedTheme {
  * the app is opening with onto <html> so the subject palette is already in
  * place. The subject key is stored as `id@version`; only the id is needed.
  */
-export const themeBootScript = `(function(){try{var e=document.documentElement;var t=localStorage.getItem("${STORAGE_KEY}");if(t==="light"){e.classList.remove("dark");e.classList.add("light")}else{e.classList.add("dark");e.classList.remove("light")}var s=localStorage.getItem("itpath.active-domain.v1");e.setAttribute("data-subject",s?String(s).split("@")[0]:"it-cybersecurity")}catch(_){}})();`;
+export const themeBootScript = `(function(){try{var e=document.documentElement;var t=localStorage.getItem("${STORAGE_KEY}");if(t==="light"){e.classList.remove("dark");e.classList.add("light")}else{e.classList.add("dark");e.classList.remove("light")}var s=localStorage.getItem("itpath.active-domain.v1");if(!s){var m=document.cookie.match(/(?:^|; )itpath\\.active-domain=([^;]*)/);if(m&&m[1])s=decodeURIComponent(m[1])}var id=s?String(s).split("@")[0]:"it-cybersecurity";e.setAttribute("data-subject",id);if(id!=="it-cybersecurity"){e.setAttribute("data-subject-hydrating","true");setTimeout(function(){e.removeAttribute("data-subject-hydrating")},4000)}}catch(_){}})();`;
 
 
 function applyTheme(theme: ResolvedTheme) {
