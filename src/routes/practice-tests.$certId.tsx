@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { practiceActivities } from "@/data/learning-content";
 import { topics } from "@/data/static-content";
 import { getCertification } from "@/lib/app-data/selectors";
+import { guidePath } from "@/lib/public-guides";
+import { trackSlug } from "@/lib/tracks";
 
 export const Route = createFileRoute("/practice-tests/$certId")({
   staticData: { sitemap: true },
@@ -257,15 +259,15 @@ function PracticeTestPage() {
             </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link to="/learn">
+            <Link to="/guides">
               <BookOpen aria-hidden />
-              Browse the lesson library
+              Browse free study guides
             </Link>
           </Button>
           <Button asChild variant="ghost">
-            <Link to="/certifications/$certId" params={{ certId: spec.certId }}>
+            <Link to="/tracks/$slug" params={{ slug: trackSlug(spec.certId) }}>
               <ExternalLink aria-hidden />
-              {certification ? `${certification.title} topics` : "All certifications"}
+              {certification ? `${certification.title} study track` : "Study track"}
             </Link>
           </Button>
         </div>
@@ -293,8 +295,8 @@ function PracticeTestPage() {
             {relatedTopics.map((topic) => (
               <li key={topic.id}>
                 <Link
-                  to="/topics/$topicId"
-                  params={{ topicId: topic.id }}
+                  to="/guides/$slug"
+                  params={{ slug: guidePath(topic.id).replace("/guides/", "") }}
                   className="font-medium text-primary hover:underline"
                 >
                   {topic.title}
