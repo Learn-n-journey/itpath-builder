@@ -30,10 +30,10 @@ export const Route = createFileRoute("/portfolio")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: `${domain.id === "auto-repair" ? "Work Evidence" : "IT Portfolio Evidence"} | ${domain.appName}` },
-      { name: "description", content: domain.id === "auto-repair" ? "Record the complaint, diagnosis, tools, repair result and evidence for automotive work you complete." : "Record the problem, approach, skills, tools, result and evidence for every piece of IT work you finish." },
-      { property: "og:title", content: `${domain.id === "auto-repair" ? "Work Evidence" : "IT Portfolio Evidence"} | ${domain.appName}` },
-      { property: "og:description", content: domain.id === "auto-repair" ? "Turn completed shop practice and real repairs into exportable work evidence." : "Turn completed labs and real projects into exportable IT work evidence." },
+      { title: `Portfolio | ${domain.appName}` },
+      { name: "description", content: "Record the problem, approach, skills, tools, result and evidence for work you complete." },
+      { property: "og:title", content: `Portfolio | ${domain.appName}` },
+      { property: "og:description", content: "Turn completed labs and real work into exportable portfolio evidence." },
     ],
   }),
   component: Portfolio,
@@ -137,8 +137,8 @@ function Portfolio() {
       <div className="space-y-5">
         {labEvidence.length > 0 ? (
           <Panel
-            title={domain.id === "auto-repair" ? "Completed shop practice ready for your work evidence" : "Completed labs ready for your portfolio"}
-            description={domain.id === "auto-repair" ? "Pre-populated from shop practice you actually completed. Review and edit before saving." : "Pre-populated from labs you actually completed. Review and edit before saving."}
+            title={"Completed labs ready for your portfolio"}
+            description={"Pre-populated from labs you actually completed. Review and edit before saving."}
           >
             <ul className="divide-y divide-border">
               {labEvidence.map(({ lab, attempt }) => (
@@ -215,7 +215,7 @@ function Portfolio() {
             <EmptyState
               icon={FolderOpen}
               title="No projects yet"
-              body={domain.id === "auto-repair" ? "Finish shop practice or record real repair work you have done, and it will appear here as evidence you can export." : "Finish a lab or record real work you have done, and it will appear here as evidence you can export."}
+              body={"Finish a lab or record real work you have done, and it will appear here as evidence you can export."}
             />
           ) : (
             <ul className="divide-y divide-border">
