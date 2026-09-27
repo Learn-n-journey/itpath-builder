@@ -91,6 +91,103 @@ async function writeActivity(input: {
   });
 }
 
+
+export interface FactualChallengeResult {
+  id: string;
+  label: string;
+  injected: string;
+  detected: boolean;
+  issues: string[];
+  corrected: string;
+  model: string | null;
+}
+
+/**
+ * Owner-only adversarial factual check. The verifier is told only to audit the
+ * supplied teaching text; it is NOT told what fact was changed or what the
+ * expected correction is. Test strings live here and never touch course data.
+ */
+export const factualQualityChallenge = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    if (!isOwnerEmail(emailOf(context))) return { owner: false, results: [] as FactualChallengeResult[] };
+
+    const { runAi } = await import("@/lib/ai/run.server");
+    const { checkTechnicalClaims } = await import("@/lib/technical-validation");
+
+    const cases = [
+      { id: "ssh-port", label: "Incorrect SSH port", text: "SSH commonly uses TCP port 23 for remote administration." },
+      { id: "cidr-hosts", label: "Incorrect CIDR host count", text: "A /24 IPv4 network provides 126 usable host addresses." },
+      { id: "bits-bytes", label: "Incorrect bits-to-bytes conversion", text: "Eight bits equals two bytes." },
+      { id: "https-port", label: "Incorrect HTTPS port", text: "HTTPS commonly uses TCP port 80." },
+    ];
+
+    const results: FactualChallengeResult[] = [];
+    for (const item of cases) {
+      // Deterministic technical validation is part of the real production
+      // factual safety layer. It provides an independent non-AI signal.
+      const deterministic = checkTechnicalClaims(item.text);
+
+      const reply = await runAi({
+        feature: "self_check",
+        system: [
+          "You are an independent senior technical fact checker reviewing educational material before publication.",
+          "Find factual errors only. Do not rewrite for style.",
+          "You are not told whether this text contains an error. Decide independently.",
+          "For every factual error, state the incorrect claim and a concise correction.",
+          "Return JSON only: {\"ok\": boolean, \"issues\": [\"...\"], \"corrected\": \"corrected text, or empty when already correct\"}.",
+        ].join("\n"),
+        prompt: `Audit this teaching text for factual accuracy:\n\n${item.text}`,
+        risk: "low",
+        priority: "interactive",
+        json: true,
+        requireCapable: true,
+        skipBudget: true,
+      });
+
+      let aiIssues: string[] = [];
+      let corrected = "";
+      let aiDetected = false;
+      let model: string | null = null;
+      if (reply.ok) {
+        model = reply.model;
+        try {
+          const start = reply.text.indexOf("{");
+          const end = reply.text.lastIndexOf("}");
+          const parsed = JSON.parse(reply.text.slice(start, end + 1)) as { ok?: unknown; issues?: unknown; corrected?: unknown };
+          aiIssues = Array.isArray(parsed.issues) ? parsed.issues.filter((v): v is string => typeof v === "string") : [];
+          corrected = typeof parsed.corrected === "string" ? parsed.corrected : "";
+          aiDetected = parsed.ok === false && aiIssues.length > 0;
+        } catch {
+          aiIssues = ["Verifier returned an unreadable result."];
+        }
+      } else {
+        aiIssues = [reply.error];
+      }
+
+      const deterministicIssues = deterministic.map((issue) => issue.problem);
+      results.push({
+        id: item.id,
+        label: item.label,
+        injected: item.text,
+        detected: aiDetected || deterministicIssues.length > 0,
+        issues: [...deterministicIssues, ...aiIssues],
+        corrected,
+        model,
+      });
+    }
+
+    await writeActivity({
+      area: "content",
+      action: "factual_quality_challenge",
+      result: results.every((item) => item.detected) ? "passed" : "warning",
+      detail: { cases: results.length, caught: results.filter((item) => item.detected).length },
+      actor: emailOf(context),
+    });
+
+    return { owner: true, results };
+  });
+
 /** Live checks against the services the app depends on. Reads only. */
 export const systemHealth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
