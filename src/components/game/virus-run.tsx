@@ -1591,38 +1591,38 @@ export function VirusRun() {
 
         // Body orientation follows travel, making movement feel physical rather than turret-like.
         ctx2.rotate(moveAim + Math.PI / 2);
-        const turnVector=(g.tx-g.x)*(g.y-g.fromY)-(g.ty-g.y)*(g.x-g.fromX);
-        const roleBank=g.kind==="interceptor"?.13:g.kind==="stalker"?.11:g.kind==="hunter"?.075:g.kind==="sweeper"?.035:g.kind==="scanner"?.045:g.kind==="sentry"?.018:.025;
-        ctx2.rotate(Math.max(-1,Math.min(1,turnVector))*roleBank);
-        if(g.kind==="hunter" && g.state==="chase")ctx2.translate(0,-cell*(.025+.025*Math.sin(time/85)));
-        if(g.stunned>0)ctx2.globalAlpha=.52+.12*Math.sin(time/75);
+        // Stable banking derives from actual progress through the current cell.
+        // Avoid high-frequency oscillation: it made guards visibly vibrate at large scale.
+        const segmentDx=g.tx-g.fromX,segmentDy=g.ty-g.fromY;
+        const segmentLen=Math.max(.001,Math.hypot(segmentDx,segmentDy));
+        const progress=Math.max(0,Math.min(1,Math.hypot(g.x-g.fromX,g.y-g.fromY)/segmentLen));
+        const turnEase=Math.sin(progress*Math.PI);
+        const roleBank=g.kind==="interceptor"?.055:g.kind==="stalker"?.045:g.kind==="hunter"?.035:g.kind==="sweeper"?.022:g.kind==="scanner"?.018:g.kind==="sentry"?.012:.016;
+        ctx2.rotate((segmentDx!==0?segmentDx:segmentDy)*roleBank*turnEase);
+        if(g.kind==="hunter" && g.state==="chase")ctx2.translate(0,-cell*.018);
+        if(g.stunned>0)ctx2.globalAlpha=.58+.06*Math.sin(time/240);
         // Directional floor shadow grounds the raised enemy model.
         ctx2.save();ctx2.fillStyle="rgba(0,0,0,.3)";ctx2.beginPath();ctx2.ellipse(cell*.08,cell*.17,cell*.32,cell*.13,0,0,Math.PI*2);ctx2.fill();ctx2.restore();
         const s = cell * 0.82;
-        // Personality motion: same mechanics, different attitude.
-        const personalityPhase=time/1000+g.x*.31+g.y*.17;
+        // Personality is now slow, low-amplitude posture rather than vibration.
+        const personalityPhase=time/2400+g.fromX*.29+g.fromY*.17;
         if(g.kind==="scanner"){
-          ctx2.translate(Math.sin(personalityPhase*2.2)*cell*.018,Math.cos(personalityPhase*1.7)*cell*.012);
-          ctx2.rotate(Math.sin(personalityPhase*1.35)*.035);
+          ctx2.translate(0,Math.sin(personalityPhase*1.15)*cell*.004);
+          ctx2.rotate(Math.sin(personalityPhase*.8)*.009);
         }else if(g.kind==="hunter"){
-          const prowl=g.state==="chase"?Math.sin(time/72)*.045:Math.sin(personalityPhase*2)*.018;
-          ctx2.scale(1-prowl,1+prowl);
+          const prowl=Math.sin(personalityPhase*1.1)*(g.state==="chase"?.008:.005);
+          ctx2.scale(1-prowl*.35,1+prowl);
         }else if(g.kind==="interceptor"){
-          ctx2.rotate(Math.sin(personalityPhase*4.1)*.028);
-          ctx2.translate(Math.sin(personalityPhase*5.3)*cell*.018,0);
+          ctx2.rotate(Math.sin(personalityPhase*1.3)*.007);
         }else if(g.kind==="sentry"){
-          ctx2.rotate(Math.sin(personalityPhase*.8)*.018);
-          ctx2.scale(1+Math.sin(personalityPhase*2.4)*.012,1-Math.sin(personalityPhase*2.4)*.012);
+          const breathe=Math.sin(personalityPhase*.8)*.004;ctx2.scale(1+breathe,1-breathe*.4);
         }else if(g.kind==="sweeper"){
-          ctx2.translate(Math.sin(personalityPhase*3.1)*cell*.012,0);
-          ctx2.rotate(Math.sin(personalityPhase*1.7)*.022);
+          ctx2.rotate(Math.sin(personalityPhase*.75)*.006);
         }else if(g.kind==="stalker"){
-          ctx2.translate(0,Math.sin(personalityPhase*1.15)*cell*.02);
-          ctx2.rotate(Math.sin(personalityPhase*.72)*.045);
+          ctx2.translate(0,Math.sin(personalityPhase*.62)*cell*.006);
+          ctx2.rotate(Math.sin(personalityPhase*.5)*.01);
         }else{
-          const heavy=.016*Math.sin(personalityPhase*.95);
-          ctx2.translate(0,Math.abs(Math.sin(personalityPhase*.95))*cell*.025);
-          ctx2.scale(1+heavy,1-heavy*.5);
+          const heavy=.004*Math.sin(personalityPhase*.55);ctx2.scale(1+heavy,1-heavy*.25);
         }
         ctx2.shadowColor = alerted ? "rgba(248,113,113,0.95)" : "rgba(248,113,113,0.68)";
         ctx2.shadowBlur = cell * (alerted ? 0.9 : 0.62);
