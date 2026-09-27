@@ -1,9 +1,9 @@
 /**
  * The mastery gate.
  *
- * A section opens the next one when the 20-question topic quiz is passed at
- * 80 or better. Recall, teach back, scenarios and labs are practice: they
- * build mastery but never stand between sections.
+ * A section opens the next one only when its required proof is complete:
+ * the topic quiz, recall, teach back, and real-world scenario when present.
+ * Labs and ordinary practice questions remain optional.
  */
 import type { EntityId, UserData } from "@/lib/app-data/types";
 import { topicEvidence, type EvidenceItem, type ScopeDimensionKey } from "@/lib/scope-progress";
@@ -60,11 +60,11 @@ const LABELS: Record<CompetencyKey, { label: string; requirement: string }> = {
   },
   recall: {
     label: "Recall practice",
-    requirement: "Practice only. Never needed to move on.",
+    requirement: "Pass every recall check in this section.",
   },
   application: {
     label: "Real-world scenario",
-    requirement: "Practice only. Never needed to move on.",
+    requirement: "Complete the real-world scenario successfully.",
   },
   practicalAbility: {
     label: "Lab (optional)",
@@ -76,7 +76,7 @@ const LABELS: Record<CompetencyKey, { label: string; requirement: string }> = {
   },
   understanding: {
     label: "Teach back",
-    requirement: "Practice only. Never needed to move on.",
+    requirement: "Explain the concept successfully in your own words.",
   },
 };
 
@@ -180,10 +180,10 @@ export function masteryGate(user: UserData, topicId: EntityId, _now: Date = new 
   const practice = { ...buildCompetency("application", practiceItems, false), label: "Practice questions", requirement: "Practice only. Never needed to move on." };
   const competencies: Competency[] = [
     quiz,
-    buildCompetency("recall", recallItems),
+    buildCompetency("recall", recallItems, true),
     practice,
-    buildCompetency("understanding", [pick(`teach-back-${topicId}`, "understanding")]),
-    ...(scenarioItems.length ? [buildCompetency("application", scenarioItems)] : []).map((item) => ({ ...item, label: LABELS.application.label, requirement: LABELS.application.requirement })),
+    buildCompetency("understanding", [pick(`teach-back-${topicId}`, "understanding")], true),
+    ...(scenarioItems.length ? [buildCompetency("application", scenarioItems, true)] : []).map((item) => ({ ...item, label: LABELS.application.label, requirement: LABELS.application.requirement })),
     buildCompetency("practicalAbility", practical),
   ];
 
@@ -204,6 +204,6 @@ export function masteryGate(user: UserData, topicId: EntityId, _now: Date = new 
     weakest,
     summary: met
       ? "Section proven. The next section is open."
-      : "Score 80 or better on the topic quiz to open the next section.",
+      : `Complete the required proof to move on: ${outstanding.map((item) => item.label).join(", ")}.`,
   };
 }
