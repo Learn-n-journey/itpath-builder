@@ -7,23 +7,13 @@
  * Settings are not in the registry: their definition is built from the saved
  * path, cached on the device so it is settled before first render.
  */
-import { activeEntry, ACTIVE_PACKAGE, findEntry } from "./registry";
+import { activeEntry, findEntry } from "./registry";
 import type { DomainDefinition } from "./types";
 import { learningPathForKey } from "@/lib/learning-path-store";
 import { pathDefinition, PATH_VERSION } from "@/lib/learning-paths-shared";
+import { activeDomainKey as resolveActiveDomainKey } from "@/lib/active-domain";
 
-function openedWith(): string {
-  if (typeof window === "undefined") return ACTIVE_PACKAGE;
-  try {
-    const stored = window.localStorage.getItem("itpath.active-domain.v1");
-    if (!stored) return ACTIVE_PACKAGE;
-    return findEntry(stored) || learningPathForKey(stored) ? stored : ACTIVE_PACKAGE;
-  } catch {
-    return ACTIVE_PACKAGE;
-  }
-}
-
-const key = openedWith();
+const key = resolveActiveDomainKey();
 const createdPath = findEntry(key) ? undefined : learningPathForKey(key);
 const entry = findEntry(key) ?? activeEntry();
 
