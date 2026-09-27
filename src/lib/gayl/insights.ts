@@ -5,8 +5,9 @@
  * into short, plain sentences. No scoring, no decisions and no state changes
  * happen here, the engine stays exactly as it is.
  *
- * Tone rule: describe what happened and what it may mean. Never describe the
- * learner. Grades aren't your legacy.
+ * Tone rule: observe what happened, say only what the evidence supports, then
+ * give the smallest useful next move. Never turn performance into identity.
+ * Warm without cheerleading, direct without judgement. Grades aren't your legacy.
  */
 import { DIAGNOSIS_LABEL } from "@/lib/intelligence/types";
 import { STATE_LABEL, STATE_MEANING } from "@/lib/intelligence/states";
@@ -160,14 +161,14 @@ export function quizResultInsight(input: {
   if (total === 0) {
     message = "No questions were scored in this attempt.";
   } else if (score > 80) {
-    message = "That is a strong run, really well done. I'll bring a few of these back later just to check they stick, but there is nothing to fix today.";
+    message = "That run held together. There is nothing to fix from this attempt. I'll bring some of it back later to see whether it still holds.";
   } else if (score >= 60) {
     message =
       spread <= 1
         ? `A mixed result, mostly sitting in one area. ${retake}`
         : `The misses are spread across ${spread} topics rather than sitting in one place. ${retake}`;
   } else {
-    message = `This score is information, not a verdict. It usually means the material hasn't had enough exposure yet. ${retake}`;
+    message = `This attempt shows the material is not holding consistently yet. ${retake}`;
   }
 
   return {
@@ -206,7 +207,7 @@ export function troubleshootingInsight(scores: {
   const message =
     best[1] - worst[1] < 15
       ? `Your work was even across the whole process, no single step is dragging the rest down.`
-      : `The strongest part of this was ${best[0]}. The step costing you most was ${worst[0]}. That's process rather than knowledge, and process is quick to change.`;
+      : `The strongest part of this was ${best[0]}. The step costing you most was ${worst[0]}. That points to process rather than a broad knowledge gap. Work on that step first.`;
 
   return {
     message,
@@ -364,12 +365,12 @@ function casualText(concept: ConceptIntel): string {
     return `Something keeps catching you out in ${concept.title}: ${concept.misconceptions[0].toLowerCase()}. Worth clearing that one up before you build on it.`;
   }
   if (concept.diagnosis === "confident_but_wrong") {
-    return `A few answers in ${concept.title} came quickly and didn't quite land. Nothing to worry about, it usually just means slowing down for a minute.`;
+    return `A few answers in ${concept.title} came quickly and missed. Slow the next pass down and see whether the same pattern remains.`;
   }
   if (concept.diagnosis === "prerequisite_gap") {
     const base = concept.prerequisiteGaps[0];
     return base
-      ? `It'll be beneficial to shore up ${base.title} before you push on with ${concept.title}. It sits underneath it.`
+      ? `Start with ${base.title} before you push on with ${concept.title}. It sits underneath it.`
       : `Something underneath ${concept.title} isn't solid yet, so that's the bit I'd do first.`;
   }
   if (concept.diagnosis === "application_failure") {
@@ -378,7 +379,7 @@ function casualText(concept: ConceptIntel): string {
   if (concept.diagnosis === "troubleshooting_failure") {
     return `The facts on ${concept.title} are there. It's the fault-finding order that needs work, so a scenario is the better next step.`;
   }
-  return `It'll be beneficial to finish ${concept.title} before moving on. ${concept.instruction}`;
+  return `Finish ${concept.title} before moving on. ${concept.instruction}`;
 }
 
 /**
@@ -496,8 +497,8 @@ export function checkInMessage(user: UserData, now: Date = new Date()): GaylMess
   ).length;
   const lastLabel = new Date(last).toLocaleDateString(undefined, { month: "short", day: "numeric" });
   const text = due > 0
-    ? `Hey, welcome back, good to see you. It's been ${days} days since your last session on ${lastLabel}. Nothing urgent is waiting, and ${due} review${due === 1 ? " is" : "s are"} there whenever you're ready.`
-    : `Hey, welcome back, good to see you. It's been ${days} days since your last session on ${lastLabel}. No pressure at all, just pick up where you left off and I'll keep track of the rest.`;
+    ? `Welcome back. It's been ${days} days since your last session on ${lastLabel}. Nothing urgent is waiting. ${due} review${due === 1 ? " is" : "s are"} ready when you are.`
+    : `Welcome back. It's been ${days} days since your last session on ${lastLabel}. Pick up where you left off and I'll keep track of the rest.`;
 
   return {
     id: `checkin:${days}:${lastLabel}`,
