@@ -219,7 +219,7 @@ export function GaylBubble() {
   };
 
   return (
-    <div className="pointer-events-none fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-3 z-50 flex max-w-[calc(100vw-1.5rem)] flex-col-reverse items-start gap-2 sm:left-4 lg:bottom-6 lg:left-[18rem]">
+    <div className="pointer-events-none fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-3 z-50 flex max-w-[calc(100vw-1.5rem)] flex-col-reverse items-start gap-2 sm:left-4 lg:bottom-6 lg:left-6">
       <div
         aria-hidden={!open}
         className={cn(
