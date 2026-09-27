@@ -172,7 +172,7 @@ function JourneyPage() {
           aria-current="page"
           className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-[background-color,color] motion-safe:duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <MapIcon className="size-4 shrink-0" aria-hidden />
+          <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-5 shrink-0 object-contain" aria-hidden />
           <span>Journey Map</span>
         </Link>
       </nav>
@@ -184,13 +184,13 @@ function JourneyPage() {
             onClick={restoreStartHere}
             className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <Target className="size-3.5 shrink-0" aria-hidden />
+            <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-5 shrink-0 object-contain" aria-hidden />
             <span>Show my starting point</span>
           </button>
         ) : startHere ? (
           <div className="flex flex-wrap items-center justify-end gap-2">
             <span className="inline-flex min-h-11 items-center gap-1.5 text-xs font-medium text-primary/80">
-              <Target className="size-3.5 shrink-0 text-primary" aria-hidden />
+              <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-5 shrink-0 object-contain" aria-hidden />
               <span>Starting point: {startHere.topic.title}</span>
             </span>
             <Button variant="ghost" size="sm" onClick={clearStartHere}>Hide</Button>
@@ -199,7 +199,7 @@ function JourneyPage() {
       </div>
 
       <div className="mb-6">
-        <h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Journey map</h2>
+        <div className="flex items-center gap-3"><img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-9 shrink-0 object-contain" aria-hidden /><h2 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Journey map</h2></div>
         <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">The complete learning route, stage by stage.</p>
       </div>
 
@@ -337,7 +337,7 @@ function JourneyPage() {
                                           : "border-border/30 bg-secondary/40 text-muted-foreground/60",
                                   )}
                                 >
-                                  {status === "locked" ? <Lock className="size-4" aria-hidden /> : <TopicIcon className="size-4 sm:size-5" aria-hidden />}
+                                  {status === "locked" ? <Lock className="size-4" aria-hidden /> : isCurrent ? <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-7 object-contain" aria-hidden /> : <TopicIcon className="size-4 sm:size-5" aria-hidden />}
                                 </div>
 
                                 {open ? (
