@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getRouterInstance } from "@tanstack/react-start";
 import { sitemapStaticPaths, sitemapXML, type SitemapEntry } from "@/lib/sitemap";
-import { guidePath, guideTopics } from "@/lib/public-guides";
+import { guidePath, guideSearchReady, guideTopics } from "@/lib/public-guides";
 import { publishedTracks, trackSlug } from "@/lib/tracks";
 
 const BASE_URL = "https://it-path.net";
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/sitemap.xml")({
           if (!entries.some((entry) => entry.path === path)) entries.push({ path });
         }
         // Public study guide pages, one per curriculum section.
-        for (const topic of guideTopics()) {
+        for (const topic of guideTopics().filter((candidate) => guideSearchReady(candidate.id))) {
           const path = guidePath(topic.id);
           if (!entries.some((entry) => entry.path === path)) entries.push({ path });
         }
