@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Public backend URL/publishable key have build-time fallbacks in vite.config.ts define — a missing .env must never ship a blank screen.
