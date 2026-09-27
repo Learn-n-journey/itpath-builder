@@ -108,16 +108,16 @@ function buildCalibration(items: QuestionDiagnostic[]): Calibration {
   const note = (() => {
     if (rated.length < 3) return "";
     if (sureWrong >= 2) {
-      return `Worth knowing: you marked ${sure.length} as sure and ${sureWrong} of those missed. That gap is the useful bit, because it shows where something feels settled before it is, and those are the ones I would check again rather than skip.`;
+      return `You marked ${sure.length} as sure and ${sureWrong} of those missed. That gap matters because those answers feel settled before the evidence supports it. I would check those again rather than skip them.`;
     }
     if (sureWrong === 0 && sure.length >= 2) {
-      return `One thing I noticed: everything you marked as sure came back correct. Your read on your own answers is accurate, which means I can trust it when you say you are unsure.`;
+      return `Everything you marked as sure came back correct in this attempt. Your confidence matched the result here. I'll keep checking that pattern rather than assume it always will.`;
     }
     if (guessRight >= 2) {
-      return `Nice instincts on the ${guessRight} you guessed and still got right. They count on the score, and I will bring them round again so you can prove them properly.`;
+      return `You guessed on ${guessRight} and got them right. They count on the score, but a guess is weak evidence. I'll bring them back later and see if they hold.`;
     }
     if (unsureRight >= 2) {
-      return `You got ${unsureRight} right that you were not sure about. The knowledge is further along than it feels, which is normal at this stage.`;
+      return `You got ${unsureRight} right that you were not sure about. The answers held up better than your confidence did in this attempt. I'll use both pieces of evidence.`;
     }
     return "";
   })();
@@ -173,7 +173,7 @@ function buildExplanation(input: {
       : "That all held together. One clean run is a snapshot though, so I'd rather check it again later than call it finished.";
   }
   if (missed.length === total && !strongest[0]) {
-    return "None of these landed, and I read that as not enough time with the material yet rather than anything about you. We start from the bottom of it and build up.";
+    return "None of these landed. This attempt does not support moving on yet. Start with the underlying material, then check it again.";
   }
 
   const weak = weakest[0];
@@ -198,9 +198,9 @@ function buildExplanation(input: {
     return `Here's what I can see: ${strongPhrase}, but ${weakPhrase}. Those are two different things, and only the second one needs work.`;
   }
   if (weak) {
-    return `Here's what I can see: ${correct} of ${total} landed, and ${weakPhrase}. That looks like one specific gap rather than the whole subject.`;
+    return `Here's what I can see: ${correct} of ${total} landed, and ${weakPhrase}. The misses are concentrated there, so work on that gap first.`;
   }
-  return `${correct} of ${total} landed, and the misses were spread around rather than sitting in one place. That usually points at recall slipping, not misunderstanding.`;
+  return `${correct} of ${total} landed, and the misses were spread around rather than sitting in one place. That spread does not give me enough evidence to call one specific misunderstanding. A recall pass is the better next check.`;
 }
 
 /** GAYL guiding the next move, from the same evidence. */
