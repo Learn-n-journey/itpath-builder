@@ -1652,12 +1652,13 @@ export function VirusRun() {
         ctx2.shadowColor = alerted ? "rgba(248,113,113,0.95)" : "rgba(248,113,113,0.68)";
         ctx2.shadowBlur = cell * (alerted ? 0.9 : 0.62);
         const guardGradient = ctx2.createLinearGradient(-s*.35, -s*.5, s*.3, s*.5);
-        guardGradient.addColorStop(0, g.stunned>0 ? "#bae6fd" : "#fecaca");
-        guardGradient.addColorStop(0.18, g.stunned>0 ? "#38bdf8" : "#dc2626");
-        guardGradient.addColorStop(0.58, g.stunned>0 ? "#075985" : "#991b1b");
-        guardGradient.addColorStop(1, "#260909");
+        const roleColor=g.kind==="scanner"?["#fde68a","#f59e0b","#92400e","#1c0d02"]:g.kind==="hunter"?["#fecaca","#ef4444","#991b1b","#260909"]:g.kind==="interceptor"?["#ffe4e6","#fb7185","#be123c","#2a0710"]:g.kind==="warden"?["#fed7aa","#f97316","#9a3412","#271006"]:g.kind==="sentry"?["#fef08a","#eab308","#854d0e","#211804"]:g.kind==="sweeper"?["#cffafe","#22d3ee","#0e7490","#031b22"]:g.kind==="stalker"?["#f3e8ff","#a855f7","#6b21a8","#1b0826"]:["#fde68a","#f59e0b","#78350f","#211204"];
+        guardGradient.addColorStop(0, g.stunned>0 ? "#bae6fd" : roleColor[0]);
+        guardGradient.addColorStop(0.18, g.stunned>0 ? "#38bdf8" : roleColor[1]);
+        guardGradient.addColorStop(0.58, g.stunned>0 ? "#075985" : roleColor[2]);
+        guardGradient.addColorStop(1, roleColor[3]);
         ctx2.fillStyle = guardGradient;
-        ctx2.strokeStyle = "rgba(254,202,202,0.82)";
+        ctx2.strokeStyle = g.stunned>0 ? "rgba(224,242,254,.82)" : roleColor[0];
         ctx2.lineWidth = Math.max(0.8, cell * 0.045);
 
         if (g.kind === "scanner") {
@@ -2352,6 +2353,32 @@ export function VirusRun() {
   );
 }
 
+const THREAT_PALETTE: Record<GuardKind,{hex:string;rgb:string;shape:"dart"|"orb"|"ring"|"block"|"spider"}> = {
+  scanner:{hex:"#f59e0b",rgb:"245,158,11",shape:"orb"},
+  hunter:{hex:"#ef4444",rgb:"239,68,68",shape:"dart"},
+  interceptor:{hex:"#fb7185",rgb:"251,113,133",shape:"dart"},
+  warden:{hex:"#f97316",rgb:"249,115,22",shape:"block"},
+  sentry:{hex:"#eab308",rgb:"234,179,8",shape:"spider"},
+  sweeper:{hex:"#22d3ee",rgb:"34,211,238",shape:"ring"},
+  stalker:{hex:"#a855f7",rgb:"168,85,247",shape:"ring"},
+  bulwark:{hex:"#f59e0b",rgb:"245,158,11",shape:"block"},
+};
+
+function ThreatPortrait({kind}:{kind:GuardKind}){
+  const p=THREAT_PALETTE[kind];
+  return <svg viewBox="0 0 64 64" className="size-full" aria-hidden>
+    <defs><radialGradient id={`core-${kind}`}><stop offset="0" stopColor="#fff"/><stop offset=".18" stopColor={p.hex}/><stop offset="1" stopColor="#05080d"/></radialGradient></defs>
+    <g fill="none" stroke={p.hex} strokeWidth="2" strokeLinejoin="round" style={{filter:`drop-shadow(0 0 5px ${p.hex})`}}>
+      {p.shape==="dart"&&<path fill="#16090d" d="M5 32 53 8 43 27 59 32 43 37 53 56z"/>}
+      {p.shape==="orb"&&<><circle cx="32" cy="32" r="21" fill="#15100a"/>{Array.from({length:8}).map((_,i)=>{const a=i*Math.PI/4;return <path key={i} d={`M${32+Math.cos(a)*21} ${32+Math.sin(a)*21} L${32+Math.cos(a)*29} ${32+Math.sin(a)*29}`}/>})}</>}
+      {p.shape==="ring"&&<><circle cx="32" cy="32" r="23" fill="#0b0b18"/><circle cx="32" cy="32" r="16" strokeWidth="4"/><path d="M8 26h8M48 38h8M26 8v8M38 48v8"/></>}
+      {p.shape==="block"&&<><rect x="11" y="12" width="42" height="40" rx="8" fill="#11151a"/><path d="M17 20h30M17 44h30M20 15v34M44 15v34"/></>}
+      {p.shape==="spider"&&<><circle cx="32" cy="30" r="15" fill="#12090b"/><path d="M20 38 9 51M26 43 21 58M44 38 55 51M38 43 43 58M20 22 8 14M44 22 56 14"/></>}
+    </g>
+    <circle cx="32" cy="31" r="8" fill={`url(#core-${kind})`} style={{filter:`drop-shadow(0 0 7px ${p.hex})`}}/>
+  </svg>;
+}
+
 const THREAT_INFO: Record<GuardKind,{name:string;role:string;glyph:string}> = {
   scanner:{name:"Scanner",role:"Wide detection",glyph:"◉"},
   hunter:{name:"Hunter",role:"Relentless pursuit",glyph:"◆"},
@@ -2364,18 +2391,18 @@ const THREAT_INFO: Record<GuardKind,{name:string;role:string;glyph:string}> = {
 };
 
 function ThreatCard({kind,count,chasing}:{kind:GuardKind;count:number;chasing:number}){
-  const info=THREAT_INFO[kind];
-  return <div className={cn("group relative overflow-hidden rounded-lg border px-2.5 py-2.5 transition-colors",chasing?"border-red-400/45 bg-red-950/35":"border-white/10 bg-white/[.035]")}>
-    <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-red-300/60 to-transparent"/>
-    <div className="flex items-center gap-2.5">
-      <div className={cn("relative flex size-10 shrink-0 items-center justify-center rounded-lg border font-mono text-xl shadow-[inset_0_0_16px_rgba(239,68,68,.08)]",chasing?"border-red-300/50 bg-red-500/15 text-red-100":"border-red-400/20 bg-slate-900 text-red-300")}>
-        <span className={cn(kind==="interceptor"&&"-rotate-12",kind==="hunter"&&"scale-y-75")}>{info.glyph}</span>
-        <span className="absolute right-1 top-1 size-1 rounded-full bg-red-300 shadow-[0_0_6px_rgba(252,165,165,.9)]"/>
+  const info=THREAT_INFO[kind],palette=THREAT_PALETTE[kind],active=chasing>0;
+  return <div className={cn("group relative overflow-hidden rounded-xl border px-2.5 py-2.5 transition-colors",active?"virus-threat-active":"border-white/10 bg-white/[.035]")}
+    style={{"--threat-rgb":palette.rgb,"--threat-color":palette.hex} as React.CSSProperties}>
+    {active&&<><div className="virus-threat-spill absolute -inset-8 pointer-events-none"/><div className="virus-threat-scan absolute inset-0 pointer-events-none"/></>}
+    <div className="relative flex items-center gap-2.5">
+      <div className="relative size-12 shrink-0 overflow-hidden rounded-lg border bg-slate-950/90 p-1" style={{borderColor:`rgba(${palette.rgb},.42)`,boxShadow:`inset 0 0 16px rgba(${palette.rgb},.12),0 0 10px rgba(${palette.rgb},.12)`}}>
+        <ThreatPortrait kind={kind}/>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-2"><p className="truncate text-xs font-bold uppercase tracking-wider text-slate-100">{info.name}</p><span className="font-mono text-[10px] text-red-200">×{count}</span></div>
+        <div className="flex items-center justify-between gap-2"><p className={cn("virus-threat-name truncate text-xs font-bold uppercase tracking-wider",active?"text-red-200":"text-slate-100")}>{info.name}</p><span className="font-mono text-[10px]" style={{color:palette.hex}}>×{count}</span></div>
         <p className="mt-0.5 truncate text-[9px] text-muted-foreground">{info.role}</p>
-        <p className={cn("mt-1 font-mono text-[8px] uppercase tracking-wider",chasing?"text-red-300":"text-slate-500")}>{chasing?chasing+" pursuing":"patrolling"}</p>
+        <p className={cn("mt-1 font-mono text-[8px] uppercase tracking-wider",active?"text-red-300":"text-slate-500")}>{active?chasing+" pursuing":"patrolling"}</p>
       </div>
     </div>
   </div>;
