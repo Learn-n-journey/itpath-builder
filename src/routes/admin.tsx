@@ -35,6 +35,7 @@ import type { ActivityEntry, ContentVersion, FlowCounter, HealthCheck, HealthSta
 import { canRollback, lifecycleLabel } from "@/lib/admin/release";
 import {
   advanceVersion,
+  factualQualityChallenge,
   flowHealth,
   importHealth,
   lastHealthRuns,
@@ -45,6 +46,7 @@ import {
   sourceHealth,
   systemHealth,
   type SourceHealthRow,
+  type FactualChallengeResult,
 } from "@/lib/admin.functions";
 import { runContentAudit } from "@/lib/quality/audit";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
@@ -229,6 +231,7 @@ function AdminPage() {
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
 
   const runSystem = useServerFn(systemHealth);
+  const runFactualChallenge = useServerFn(factualQualityChallenge);
   const readRuns = useServerFn(lastHealthRuns);
   const saveRun = useServerFn(recordHealthRun);
   const readSources = useServerFn(sourceHealth);
@@ -261,6 +264,7 @@ function AdminPage() {
   const [versions, setVersions] = useState<ContentVersion[]>([]);
   const [openTopic, setOpenTopic] = useState<string | null>(null);
   const [qualityChallenge, setQualityChallenge] = useState<QualityChallengeResult[] | null>(null);
+  const [factualChallenge, setFactualChallenge] = useState<FactualChallengeResult[] | null>(null);
 
   // What was checked before, so "not yet checked" stays honest across visits.
   useEffect(() => {
@@ -337,6 +341,19 @@ function AdminPage() {
     });
     return report;
   }, [saveRun]);
+
+  const challengeFactualAccuracy = useCallback(async () => {
+    const reply = await runFactualChallenge({});
+    if (!reply.owner) throw new Error("Only the owner can run this challenge.");
+    setFactualChallenge(reply.results);
+    const caught = reply.results.filter((item) => item.detected).length;
+    if (reply.results.length > 0 && caught === reply.results.length) {
+      toast.success(`Factual verifier caught all ${caught} injected errors. Live content was unchanged.`);
+    } else {
+      toast.error(`Factual verifier caught ${caught} of ${reply.results.length} injected errors.`);
+    }
+    return reply.results;
+  }, [runFactualChallenge]);
 
   const challengeQualityChecker = useCallback(async () => {
     const results = runQualityCheckerChallenge(coursePack);
@@ -677,7 +694,43 @@ function AdminPage() {
               <Button variant="outline" onClick={() => run("QA challenge", challengeQualityChecker)} disabled={busy !== null}>
                 {busy === "QA challenge" ? "Challenging…" : "Challenge quality checker"}
               </Button>
+              <Button variant="outline" onClick={() => run("Factual challenge", challengeFactualAccuracy)} disabled={busy !== null}>
+                {busy === "Factual challenge" ? "Fact-checking…" : "Challenge factual accuracy"}
+              </Button>
             </div>
+
+            {factualChallenge ? (
+              <div className="mt-4 rounded-lg border border-border/60 p-4">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-semibold">Blind factual accuracy challenge</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Known false statements are sent to the production factual-verification layer without revealing what was changed. Test data only; live content is unchanged.
+                    </p>
+                  </div>
+                  <span className="text-sm font-medium tabular-nums">
+                    {factualChallenge.filter((item) => item.detected).length} / {factualChallenge.length} caught
+                  </span>
+                </div>
+                <ul className="mt-3 divide-y divide-border/40">
+                  {factualChallenge.map((item) => (
+                    <li key={item.id} className="py-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="text-sm font-medium">{item.label}</p>
+                        <span className={`text-xs font-medium ${item.detected ? "text-success" : "text-destructive"}`}>
+                          {item.detected ? "CAUGHT" : "MISSED"}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">Injected: {item.injected}</p>
+                      {item.issues.length > 0 ? (
+                        <p className="mt-1 text-xs text-muted-foreground">Verifier: {item.issues.join(" ")}</p>
+                      ) : null}
+                      {item.corrected ? <p className="mt-1 text-xs text-muted-foreground">Correction: {item.corrected}</p> : null}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
 
             {qualityChallenge ? (
               <div className="mt-4 rounded-lg border border-border/60 p-4">
