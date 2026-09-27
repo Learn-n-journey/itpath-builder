@@ -303,7 +303,7 @@ export async function runSheetSync(
   let approvedTotal = 0;
   let rejectedTotal = 0;
   const topicsSynced = new Set<string>();
-  const report: Record<string, unknown>[] = [];
+  const report: Record<string, string | number | boolean | null | undefined | string[]>[] = [];
   let lessonsApproved = 0;
   let lessonsRejected = 0;
   const lessonIssues: Array<{ file: string; topic: string; reasons: string[] }> = [];
