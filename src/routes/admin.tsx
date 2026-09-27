@@ -28,6 +28,7 @@ import { coursePack } from "@/content/course-pack";
 import { contentHealth, type TopicHealth } from "@/lib/admin/content-health";
 import { courseCoverage, coverageCsv } from "@/lib/admin/concept-coverage";
 import { engineHealthChecks } from "@/lib/admin/engine-health";
+import { runQualityCheckerChallenge, type QualityChallengeResult } from "@/lib/admin/quality-challenge";
 import { checkTarget } from "@/lib/admin/check-link";
 import { areaHealth, buildOverview, filterChecks, stateLabel, type HealthFilter } from "@/lib/admin/health-state";
 import type { ActivityEntry, ContentVersion, FlowCounter, HealthCheck, HealthState } from "@/lib/admin/types";
@@ -259,6 +260,7 @@ function AdminPage() {
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [versions, setVersions] = useState<ContentVersion[]>([]);
   const [openTopic, setOpenTopic] = useState<string | null>(null);
+  const [qualityChallenge, setQualityChallenge] = useState<QualityChallengeResult[] | null>(null);
 
   // What was checked before, so "not yet checked" stays honest across visits.
   useEffect(() => {
@@ -335,6 +337,18 @@ function AdminPage() {
     });
     return report;
   }, [saveRun]);
+
+  const challengeQualityChecker = useCallback(async () => {
+    const results = runQualityCheckerChallenge(coursePack);
+    setQualityChallenge(results);
+    const caught = results.filter((item) => item.detected).length;
+    if (results.length > 0 && caught === results.length) {
+      toast.success(`Quality checker caught all ${caught} injected defects. Live content was unchanged.`);
+    } else {
+      toast.error(`Quality checker caught ${caught} of ${results.length} injected defects.`);
+    }
+    return results;
+  }, []);
 
   const downloadCoverageGaps = useCallback(() => {
     const report = courseCoverage(coursePack);
@@ -660,7 +674,39 @@ function AdminPage() {
               <Button variant="outline" onClick={downloadCoverageGaps}>
                 Download coverage report
               </Button>
+              <Button variant="outline" onClick={() => run("QA challenge", challengeQualityChecker)} disabled={busy !== null}>
+                {busy === "QA challenge" ? "Challenging…" : "Challenge quality checker"}
+              </Button>
             </div>
+
+            {qualityChallenge ? (
+              <div className="mt-4 rounded-lg border border-border/60 p-4">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <div>
+                    <p className="text-sm font-semibold">Controlled defect challenge</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Temporary in-memory mutations only. Live course content, spreadsheets, learner records and Supabase are unchanged.
+                    </p>
+                  </div>
+                  <span className="text-sm font-medium tabular-nums">
+                    {qualityChallenge.filter((item) => item.detected).length} / {qualityChallenge.length} caught
+                  </span>
+                </div>
+                <ul className="mt-3 divide-y divide-border/40">
+                  {qualityChallenge.map((item) => (
+                    <li key={item.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 py-2.5">
+                      <div className="min-w-0">
+                        <p className="text-sm">{item.label}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{item.detail}</p>
+                      </div>
+                      <span className={`text-xs font-medium ${item.detected ? "text-success" : "text-destructive"}`}>
+                        {item.detected ? "CAUGHT" : "MISSED"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
 
             {contentReport === null ? (
               <p className="mt-3 text-sm text-muted-foreground">Not yet checked.</p>
