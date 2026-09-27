@@ -1,9 +1,9 @@
 /**
  * GAYL's floating presence.
  *
- * A small mark in the top right corner. It only carries a message when the
- * engine already has evidence that something is slipping, is still open, or is
- * worth finishing, and it stays quiet the rest of the time. Once the latest
+ * A persistent bottom-left companion. Her visual state reflects whether the
+ * engine has nothing to add, noticed a useful change, or needs attention. She
+ * stays visually quiet when there is nothing worth interrupting. Once the latest
  * message is dismissed, it does not come back until the evidence changes, but
  * the full thread can still be opened at any time.
  */
@@ -126,7 +126,6 @@ export function GaylBubble() {
   }, [intel, openDetail, continuity, checkIn, clearedIds]);
   const latest = messages[0] ?? null;
   const threadId = messages.map((message) => message.id).join("|");
-  const unreadCount = messages.length;
 
   const [dismissed, setDismissed] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -169,6 +168,8 @@ export function GaylBubble() {
   // Once dismissed, the mark goes quiet until the evidence changes, but the
   // thread itself stays reachable from the corner.
   const quiet = !latest || dismissed === threadId;
+  const urgent = Boolean(latest?.urgent) && !quiet;
+  const noticed = Boolean(latest) && !quiet && !urgent;
 
   const dismiss = () => {
     setOpen(false);
@@ -293,9 +294,13 @@ export function GaylBubble() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-label={open ? "Hide GAYL messages" : "Show GAYL messages"}
+        data-gayl-state={urgent ? "attention" : noticed ? "noticed" : "quiet"}
         className={cn(
-          "pointer-events-auto relative flex size-16 items-center justify-center rounded-full border border-border bg-card shadow-lg transition-all duration-200 ease-out hover:scale-105 hover:border-primary/60 active:scale-90 sm:size-14",
-          open && "scale-95 border-primary/60",
+          "pointer-events-auto relative flex size-16 items-center justify-center rounded-full border bg-card shadow-lg transition-[transform,border-color,box-shadow] duration-300 ease-out hover:scale-105 active:scale-95 sm:size-14",
+          quiet && "border-border opacity-90",
+          noticed && "border-primary/60 shadow-[0_0_0_4px_hsl(var(--primary)/0.08),0_8px_24px_hsl(var(--primary)/0.16)]",
+          urgent && "border-destructive/65 shadow-[0_0_0_4px_hsl(var(--destructive)/0.08),0_8px_28px_hsl(var(--destructive)/0.2)]",
+          open && "scale-95 border-primary/70",
         )}
       >
         <img
@@ -309,13 +314,17 @@ export function GaylBubble() {
             open && "scale-90",
           )}
         />
-        {!open && !quiet && unreadCount > 0 ? (
+        {!open && noticed ? (
           <span
-            className="absolute -right-1 -top-1 flex size-6 items-center justify-center rounded-full border-2 border-card bg-destructive text-xs font-semibold text-destructive-foreground animate-pulse sm:size-5 sm:text-[10px]"
+            className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-card bg-primary motion-safe:animate-[pulse_2.8s_ease-in-out_2]"
             aria-hidden
-          >
-            {unreadCount}
-          </span>
+          />
+        ) : null}
+        {!open && urgent ? (
+          <span
+            className="absolute -right-0.5 -top-0.5 size-3.5 rounded-full border-2 border-card bg-destructive motion-safe:animate-[pulse_3.2s_ease-in-out_infinite]"
+            aria-hidden
+          />
         ) : null}
       </button>
     </div>
