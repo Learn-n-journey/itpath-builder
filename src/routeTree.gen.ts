@@ -83,9 +83,11 @@ import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
 import { Route as TracksIndexRouteImport } from './routes/tracks.index'
 import { Route as TracksSlugRouteImport } from './routes/tracks.$slug'
+import { Route as ApiAuthMicrosoftRouteImport } from './routes/api/auth/microsoft'
 import { Route as ApiPublicContentAuditRouteImport } from './routes/api/public/content-audit'
 import { Route as ApiPublicLinkCheckRouteImport } from './routes/api/public/link-check'
 import { Route as ApiPublicSheetSyncRouteImport } from './routes/api/public/sheet-sync'
+import { Route as ApiAuthMicrosoftCallbackRouteImport } from './routes/api/auth/microsoft/callback'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -458,6 +460,11 @@ const TracksSlugRoute = TracksSlugRouteImport.update({
   path: '/tracks/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthMicrosoftRoute = ApiAuthMicrosoftRouteImport.update({
+  id: '/api/auth/microsoft',
+  path: '/api/auth/microsoft',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicContentAuditRoute = ApiPublicContentAuditRouteImport.update({
   id: '/api/public/content-audit',
   path: '/api/public/content-audit',
@@ -473,6 +480,12 @@ const ApiPublicSheetSyncRoute = ApiPublicSheetSyncRouteImport.update({
   path: '/api/public/sheet-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthMicrosoftCallbackRoute =
+  ApiAuthMicrosoftCallbackRouteImport.update({
+    id: '/callback',
+    path: '/callback',
+    getParentRoute: () => ApiAuthMicrosoftRoute,
+  } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
     id: '/api/public/payments/webhook',
@@ -555,9 +568,11 @@ export interface FileRoutesByFullPath {
   '/practice-tests/': typeof PracticeTestsIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/tracks/': typeof TracksIndexRoute
+  '/api/auth/microsoft': typeof ApiAuthMicrosoftRouteWithChildren
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/sheet-sync': typeof ApiPublicSheetSyncRoute
+  '/api/auth/microsoft/callback': typeof ApiAuthMicrosoftCallbackRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -635,9 +650,11 @@ export interface FileRoutesByTo {
   '/practice-tests': typeof PracticeTestsIndexRoute
   '/topics': typeof TopicsIndexRoute
   '/tracks': typeof TracksIndexRoute
+  '/api/auth/microsoft': typeof ApiAuthMicrosoftRouteWithChildren
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/sheet-sync': typeof ApiPublicSheetSyncRoute
+  '/api/auth/microsoft/callback': typeof ApiAuthMicrosoftCallbackRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
@@ -716,9 +733,11 @@ export interface FileRoutesById {
   '/practice-tests/': typeof PracticeTestsIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/tracks/': typeof TracksIndexRoute
+  '/api/auth/microsoft': typeof ApiAuthMicrosoftRouteWithChildren
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/sheet-sync': typeof ApiPublicSheetSyncRoute
+  '/api/auth/microsoft/callback': typeof ApiAuthMicrosoftCallbackRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -798,9 +817,11 @@ export interface FileRouteTypes {
     | '/practice-tests/'
     | '/topics/'
     | '/tracks/'
+    | '/api/auth/microsoft'
     | '/api/public/content-audit'
     | '/api/public/link-check'
     | '/api/public/sheet-sync'
+    | '/api/auth/microsoft/callback'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -878,9 +899,11 @@ export interface FileRouteTypes {
     | '/practice-tests'
     | '/topics'
     | '/tracks'
+    | '/api/auth/microsoft'
     | '/api/public/content-audit'
     | '/api/public/link-check'
     | '/api/public/sheet-sync'
+    | '/api/auth/microsoft/callback'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
@@ -958,9 +981,11 @@ export interface FileRouteTypes {
     | '/practice-tests/'
     | '/topics/'
     | '/tracks/'
+    | '/api/auth/microsoft'
     | '/api/public/content-audit'
     | '/api/public/link-check'
     | '/api/public/sheet-sync'
+    | '/api/auth/microsoft/callback'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -1038,6 +1063,7 @@ export interface RootRouteChildren {
   PracticeTestsIndexRoute: typeof PracticeTestsIndexRoute
   TopicsIndexRoute: typeof TopicsIndexRoute
   TracksIndexRoute: typeof TracksIndexRoute
+  ApiAuthMicrosoftRoute: typeof ApiAuthMicrosoftRouteWithChildren
   ApiPublicContentAuditRoute: typeof ApiPublicContentAuditRoute
   ApiPublicLinkCheckRoute: typeof ApiPublicLinkCheckRoute
   ApiPublicSheetSyncRoute: typeof ApiPublicSheetSyncRoute
@@ -1564,6 +1590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TracksSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/microsoft': {
+      id: '/api/auth/microsoft'
+      path: '/api/auth/microsoft'
+      fullPath: '/api/auth/microsoft'
+      preLoaderRoute: typeof ApiAuthMicrosoftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/content-audit': {
       id: '/api/public/content-audit'
       path: '/api/public/content-audit'
@@ -1585,6 +1618,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSheetSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/microsoft/callback': {
+      id: '/api/auth/microsoft/callback'
+      path: '/callback'
+      fullPath: '/api/auth/microsoft/callback'
+      preLoaderRoute: typeof ApiAuthMicrosoftCallbackRouteImport
+      parentRoute: typeof ApiAuthMicrosoftRoute
+    }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
       path: '/api/public/payments/webhook'
@@ -1604,6 +1644,17 @@ const LearnRouteChildren: LearnRouteChildren = {
 }
 
 const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
+
+interface ApiAuthMicrosoftRouteChildren {
+  ApiAuthMicrosoftCallbackRoute: typeof ApiAuthMicrosoftCallbackRoute
+}
+
+const ApiAuthMicrosoftRouteChildren: ApiAuthMicrosoftRouteChildren = {
+  ApiAuthMicrosoftCallbackRoute: ApiAuthMicrosoftCallbackRoute,
+}
+
+const ApiAuthMicrosoftRouteWithChildren =
+  ApiAuthMicrosoftRoute._addFileChildren(ApiAuthMicrosoftRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -1679,6 +1730,7 @@ const rootRouteChildren: RootRouteChildren = {
   PracticeTestsIndexRoute: PracticeTestsIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
   TracksIndexRoute: TracksIndexRoute,
+  ApiAuthMicrosoftRoute: ApiAuthMicrosoftRouteWithChildren,
   ApiPublicContentAuditRoute: ApiPublicContentAuditRoute,
   ApiPublicLinkCheckRoute: ApiPublicLinkCheckRoute,
   ApiPublicSheetSyncRoute: ApiPublicSheetSyncRoute,

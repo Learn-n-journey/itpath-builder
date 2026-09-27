@@ -73,6 +73,20 @@ export default defineConfig({
   },
   vite: {
     plugins: [flattenCssLayers()],
+    // Public (publishable) backend values baked in as a fallback so a build
+    // without a .env file (e.g. after it was removed from Git) never ships a
+    // blank screen. These are safe to expose; they are not secrets.
+    define: {
+      "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(
+        process.env.VITE_SUPABASE_URL || "https://qutxpxlbbwtgwkclikrn.supabase.co",
+      ),
+      "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
+        process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_XY5kIGCGQ-pFPtvE1gx6Iw_8IKIKDf5",
+      ),
+      "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(
+        process.env.VITE_SUPABASE_PROJECT_ID || "qutxpxlbbwtgwkclikrn",
+      ),
+    },
     build: {
       // cloudflare:workers is provided by the Cloudflare runtime. Keep it out
       // of the GitHub/Vite bundle so CI can build without resolving it locally.

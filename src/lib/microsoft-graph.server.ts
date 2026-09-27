@@ -31,7 +31,7 @@ async function tokenRequest(params: URLSearchParams): Promise<Record<string, unk
   });
   const body = (await response.json().catch(() => ({}))) as Record<string, unknown>;
   if (!response.ok) {
-    throw new Error(`Microsoft token request failed [${response.status}]: ${String(body.error_description ?? body.error ?? "unknown error").slice(0, 300)}`);
+    throw new Error(`Microsoft token request failed [${response.status}]: ${String(body['error_description'] ?? body['error'] ?? "unknown error").slice(0, 300)}`);
   }
   return body;
 }
@@ -45,7 +45,7 @@ export async function exchangeMicrosoftCode(code: string): Promise<{ refreshToke
     grant_type: "authorization_code",
     scope: GRAPH_SCOPE,
   }));
-  const refreshToken = String(body.refresh_token ?? "");
+  const refreshToken = String(body['refresh_token'] ?? "");
   if (!refreshToken) throw new Error("Microsoft did not return a refresh token.");
   return { refreshToken };
 }
@@ -59,7 +59,7 @@ export async function microsoftAccessToken(): Promise<string> {
     grant_type: "refresh_token",
     scope: GRAPH_SCOPE,
   }));
-  const accessToken = String(body.access_token ?? "");
+  const accessToken = String(body['access_token'] ?? "");
   if (!accessToken) throw new Error("Microsoft did not return an access token.");
   return accessToken;
 }
