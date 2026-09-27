@@ -6,7 +6,6 @@ import { Flame, ShieldCheck } from "lucide-react";
 import { STREAK_SNAPSHOT_KEY } from "@/lib/streak-freeze";
 
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
 import { useAuth } from "@/state/auth-state";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,17 +120,20 @@ function AuthPage() {
   async function handleGoogle() {
     setBusy(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-        extraParams: {
-          prompt: "select_account",
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin,
+          queryParams: {
+            prompt: "select_account",
+          },
         },
       });
-      if (result.error) {
-        toast.error("Google sign-in did not complete.");
+      if (error) {
+        toast.error(error.message || "Google sign-in did not complete.");
         return;
       }
-      if (result.redirected) return; // browser is navigating to Google; session lands on return
+      if (data.url) window.location.assign(data.url);
     } catch {
       toast.error("Google sign-in did not complete.");
     } finally {
