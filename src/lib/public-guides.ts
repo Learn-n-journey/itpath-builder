@@ -1,4 +1,5 @@
 import { certifications, lessons, topics } from "@/data/static-content";
+import { getDeepLesson } from "@/data/deep-lessons";
 import type { Lesson, Topic } from "@/lib/app-data/types";
 
 /** Public, crawlable overview pages built from the static curriculum. */
@@ -18,6 +19,11 @@ export function topicForSlug(slug: string): Topic | undefined {
 
 export function lessonForTopic(topicId: string): Lesson | undefined {
   return lessons.find((lesson) => lesson.topicId === topicId);
+}
+
+/** Rich, topic-specific teaching already used by the learner experience. */
+export function deepLessonForTopic(topicId: string) {
+  return getDeepLesson(topicId);
 }
 
 export function certificationTitle(certificationId: string): string {
