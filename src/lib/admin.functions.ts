@@ -259,7 +259,7 @@ export const verifyImportedTopicFacts = createServerFn({ method: "POST" })
       correction: "",
     }));
 
-    const { runAi } = await import("@/lib/ai/run.server");
+    const { checkFactsWithGemini } = await import("@/lib/ai/gemini-fact-check.server");
     // Long lessons are reviewed in bounded chunks so no single request silently
     // drops the back half of a workbook.
     const chunks: string[] = [];
@@ -268,44 +268,22 @@ export const verifyImportedTopicFacts = createServerFn({ method: "POST" })
 
     const aiFindings: TopicFactualFinding[] = [];
     let model: string | null = null;
-    let verifierFailed = false;
+    const verifierErrors: string[] = [];
     for (let index = 0; index < chunks.length; index += 1) {
-      const reply = await runAi({
-        feature: "self_check",
-        system: [
-          "You are an independent senior technical fact checker reviewing educational material before publication.",
-          "Identify factual errors, obsolete technical claims presented as current, incorrect protocol/port/standard behavior, wrong commands or paths, and internally contradictory technical claims.",
-          "Do not rewrite for style. Do not flag preferences, simplifications that remain true, or claims you are merely uncertain about.",
-          "You are not told whether the lesson contains an error. Decide independently.",
-          "Return JSON only: {\"findings\":[{\"claim\":\"exact or concise offending claim\",\"problem\":\"why it is factually wrong\",\"correction\":\"concise corrected fact\"}]}. Return an empty findings array when no factual error is found.",
-        ].join("\n"),
-        prompt: `Topic: ${lesson.title ?? data.topicId}\nLesson chunk ${index + 1} of ${chunks.length}:\n\n${chunks[index]}`,
-        risk: "low",
-        priority: "interactive",
-        json: true,
-        requireCapable: true,
-        skipBudget: true,
+      const reply = await checkFactsWithGemini({
+        topic: lesson.title ?? data.topicId,
+        text: chunks[index] ?? "",
+        chunk: index + 1,
+        chunks: chunks.length,
       });
-      if (!reply.ok) { verifierFailed = true; continue; }
+      if (!reply.ok) {
+        verifierErrors.push(`Chunk ${index + 1}/${chunks.length}: ${reply.error ?? "Gemini did not return a usable result."}`);
+        continue;
+      }
       model = reply.model;
-      try {
-        const start = reply.text.indexOf("{");
-        const end = reply.text.lastIndexOf("}");
-        const parsed = JSON.parse(reply.text.slice(start, end + 1)) as { findings?: unknown };
-        if (Array.isArray(parsed.findings)) {
-          for (const finding of parsed.findings) {
-            if (!finding || typeof finding !== "object") continue;
-            const f = finding as Record<string, unknown>;
-            if (typeof f.claim !== "string" || typeof f.problem !== "string") continue;
-            aiFindings.push({
-              claim: f.claim.trim(),
-              problem: f.problem.trim(),
-              correction: typeof f.correction === "string" ? f.correction.trim() : "",
-            });
-          }
-        }
-      } catch { verifierFailed = true; }
+      aiFindings.push(...reply.findings);
     }
+    const verifierFailed = verifierErrors.length > 0;
 
     const findings = [...deterministic, ...aiFindings].filter((finding, index, all) =>
       all.findIndex((other) => other.claim.toLowerCase() === finding.claim.toLowerCase() && other.problem.toLowerCase() === finding.problem.toLowerCase()) === index
@@ -323,7 +301,7 @@ export const verifyImportedTopicFacts = createServerFn({ method: "POST" })
 
     return {
       owner: true, topicId: data.topicId, sourceFile: row.source_file, ranAt, state, findings, model,
-      ...(verifierFailed ? { error: "One or more verification chunks could not be reviewed. Run the check again before treating this topic as verified." } : {}),
+      ...(verifierFailed ? { error: verifierErrors.join(" ") } : {}),
     };
   });
 
