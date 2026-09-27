@@ -8,7 +8,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Trophy, X } from "lucide-react";
 
-import gaylAvatar from "@/assets/gayl-avatar.png";
 import { Button } from "@/components/ui/button";
 import { achievedMilestones, type Milestone } from "@/lib/celebrations";
 import { useAppState } from "@/state/app-state";
@@ -86,7 +85,7 @@ export function MilestoneOverlay() {
           <X className="size-4" />
         </button>
         <img
-          src={gaylAvatar}
+          src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_25_46%20AM.png"
           alt=""
           width={816}
           height={816}
