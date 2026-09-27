@@ -24,7 +24,6 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { GPU_MEMORY_TEXTURE } from "./gpu-memory-texture";
 
 const COLS = 31;
 const ROWS = 21;
@@ -392,7 +391,7 @@ export function VirusRun() {
   const playerVisualRef = useRef({ heading:0, stretch:0, squish:0, spikePhase:[0,1.1,2.2,3.3,4.4,5.5] });
   const cameraRef = useRef({ power:0, angle:0 });
   const trailRef = useRef<{x:number;y:number;born:number}[]>([]);
-  const materialRef = useRef<{boot?: HTMLCanvasElement;gpu?: HTMLImageElement}>({});
+  const materialRef = useRef<{boot?: HTMLCanvasElement}>({});
   const rafRef = useRef(0);
   const lastRef = useRef(0);
   const levelClearTimerRef = useRef(0);
@@ -981,7 +980,7 @@ export function VirusRun() {
       const canvasEl = canvasRef.current;
       if (!canvasEl) return;
       const rect = canvasEl.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 3);
       if (canvasEl.width !== Math.round(rect.width * dpr)) {
         canvasEl.width = Math.round(rect.width * dpr);
         canvasEl.height = Math.round(rect.height * dpr);
@@ -999,9 +998,6 @@ export function VirusRun() {
       const offX = (rect.width - cell * COLS) / 2;
       const offY = (rect.height - cell * ROWS) / 2;
       const t = run.theme;
-
-      // Load the approved Level 4 GPU Memory texture as a browser-native image.
-      if(run.theme.system==="GPU Memory"&&!materialRef.current.gpu){const gpu=new Image();gpu.decoding="async";gpu.onload=()=>{materialRef.current.gpu=gpu;};gpu.src=GPU_MEMORY_TEXTURE;}
 
       // Build the Boot Sector material once. CanvasPattern supports an offscreen
       // canvas source, so this becomes a continuous material rather than per-tile marks.
@@ -1287,8 +1283,6 @@ export function VirusRun() {
           const top=ctx2.createLinearGradient(bx,by,bx+cell*.8,by+cell);
           if(run.theme.system==="Boot Sector"){
             top.addColorStop(0,"#303733");top.addColorStop(.48,"#202925");top.addColorStop(1,"#111815");
-          }else if(run.theme.system==="GPU Memory"){
-            top.addColorStop(0,"#252b2b");top.addColorStop(.5,"#151c1d");top.addColorStop(1,"#080d0e");
           }else{
             top.addColorStop(0,t.wall);top.addColorStop(.55,t.wall);top.addColorStop(1,t.bg);
           }
@@ -1328,23 +1322,6 @@ export function VirusRun() {
             if(leftOpen){ctx2.moveTo(bx+cell*.04,by+cell*.16);ctx2.lineTo(bx+cell*.04,by+cell*.84);}
             ctx2.stroke();
           }
-        }
-      }
-
-      // GPU Memory texture: one pattern creation + one clipped fill per frame.
-      // The collision grid remains cell-based, but the expensive image material is batched.
-      if(run.theme.system==="GPU Memory"&&materialRef.current.gpu){
-        const pattern=ctx2.createPattern(materialRef.current.gpu,"repeat");
-        if(pattern){
-          const scale=Math.max(.32,cell/46);
-          pattern.setTransform(new DOMMatrix().translate(offX,offY).scale(scale));
-          ctx2.save();
-          ctx2.beginPath();
-          for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(run.grid[y]![x]===1)ctx2.rect(offX+x*cell,offY+y*cell,cell+.7,cell+.7);
-          ctx2.clip();
-          ctx2.globalAlpha=.96;ctx2.fillStyle=pattern;
-          ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
-          ctx2.restore();
         }
       }
 
