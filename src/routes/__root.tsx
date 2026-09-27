@@ -167,6 +167,10 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    // Client domain modules have now resolved the saved subject. Reveal the app
+    // only after hydration so a server-default IT render can never flash first.
+    document.documentElement.removeAttribute("data-subject-hydrating");
+
     // Keep the cookie in step with a choice made before the cookie existed.
     const stored = domainOverride();
     const cookie = readSubjectCookie();
