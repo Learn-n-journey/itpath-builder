@@ -1249,6 +1249,51 @@ export function VirusRun() {
       for(let sy=offY+cell*.25;sy<offY+cell*ROWS;sy+=cell*.48){ctx2.beginPath();ctx2.moveTo(offX,sy);ctx2.lineTo(offX+cell*COLS,sy);ctx2.stroke();}
       ctx2.restore();
 
+      // GPU Memory: lightweight environmental identity using only cheap Canvas primitives.
+      // Corridors become a recessed graphics-board substrate without image textures.
+      if(run.theme.system==="GPU Memory"){
+        ctx2.save();
+        // Dark PCB/graphite floor tint. One fill for the whole board.
+        ctx2.fillStyle="rgba(2,10,13,.38)";
+        ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+
+        // Broad fixed light pools: cool compute lanes plus sparse warm VRAM heat zones.
+        const gpuLights=[
+          [COLS*.24,ROWS*.28,"34,211,238",.105,5.8],
+          [COLS*.72,ROWS*.62,"20,184,166",.09,6.5],
+          [COLS*.53,ROWS*.42,"245,158,11",.075,4.2],
+          [COLS*.84,ROWS*.2,"249,115,22",.055,3.4],
+        ] as const;
+        for(const [gx,gy,rgb,alpha,radius] of gpuLights){
+          const px=offX+gx*cell,py=offY+gy*cell,rr=radius*cell;
+          const glow=ctx2.createRadialGradient(px,py,0,px,py,rr);
+          glow.addColorStop(0,`rgba(${rgb},${alpha})`);glow.addColorStop(1,`rgba(${rgb},0)`);
+          ctx2.fillStyle=glow;ctx2.fillRect(px-rr,py-rr,rr*2,rr*2);
+        }
+
+        // Parallel memory/data lanes. Sparse and broad so they read as architecture, not a grid.
+        ctx2.lineCap="round";
+        for(let lane=0;lane<5;lane++){
+          const yy=offY+cell*(2.7+lane*4.05);
+          ctx2.strokeStyle=lane===2?"rgba(245,158,11,.105)":"rgba(34,211,238,.085)";
+          ctx2.lineWidth=Math.max(1,cell*.045);
+          ctx2.beginPath();ctx2.moveTo(offX+cell*.8,yy);ctx2.lineTo(offX+cell*(COLS-.8),yy);ctx2.stroke();
+          // A small moving data pulse, one segment per lane.
+          const span=COLS-3;const px=offX+cell*(1.5+((time/950+lane*5.7)%span));
+          ctx2.strokeStyle=lane===2?"rgba(251,191,36,.45)":"rgba(103,232,249,.42)";
+          ctx2.lineWidth=Math.max(1.2,cell*.075);ctx2.beginPath();ctx2.moveTo(px,yy);ctx2.lineTo(px+cell*.72,yy);ctx2.stroke();
+        }
+
+        // Memory-bank markers live on the floor and stay intentionally understated.
+        for(let bank=0;bank<6;bank++){
+          const bx=offX+cell*(2.2+(bank%3)*10.1),by=offY+cell*(5.25+Math.floor(bank/3)*8.1);
+          ctx2.fillStyle="rgba(6,18,20,.34)";ctx2.fillRect(bx,by,cell*3.2,cell*.48);
+          ctx2.strokeStyle="rgba(45,212,191,.12)";ctx2.lineWidth=Math.max(.7,cell*.02);ctx2.strokeRect(bx,by,cell*3.2,cell*.48);
+          ctx2.fillStyle="rgba(153,246,228,.2)";ctx2.font=`${Math.max(6,cell*.13)}px monospace`;ctx2.fillText(`VRAM ${bank+1}`,bx+cell*.12,by+cell*.32);
+        }
+        ctx2.restore();
+      }
+
       // Raised maze architecture. Connected wall cells share one material; depth is
       // communicated with broad exposed faces and shadow, never an outline around each tile.
       const depth=cell*.13;
@@ -1270,12 +1315,12 @@ export function VirusRun() {
           // Actual visible vertical faces. These are filled planes, not bevel strokes.
           if(rightOpen){
             const side=ctx2.createLinearGradient(bx+cell,by,bx+cell+depth,by);
-            side.addColorStop(0,"rgba(49,46,80,.9)");side.addColorStop(1,"rgba(8,10,24,.98)");
+            side.addColorStop(0,run.theme.system==="GPU Memory"?"rgba(38,52,54,.92)":"rgba(49,46,80,.9)");side.addColorStop(1,run.theme.system==="GPU Memory"?"rgba(4,11,13,.99)":"rgba(8,10,24,.98)");
             ctx2.fillStyle=side;ctx2.beginPath();ctx2.moveTo(bx+cell,by);ctx2.lineTo(bx+cell+depth,by+depth);ctx2.lineTo(bx+cell+depth,by+cell+depth);ctx2.lineTo(bx+cell,by+cell);ctx2.closePath();ctx2.fill();
           }
           if(bottomOpen){
             const front=ctx2.createLinearGradient(bx,by+cell,bx,by+cell+depth);
-            front.addColorStop(0,"rgba(35,30,60,.94)");front.addColorStop(1,"rgba(6,8,20,.99)");
+            front.addColorStop(0,run.theme.system==="GPU Memory"?"rgba(25,40,42,.95)":"rgba(35,30,60,.94)");front.addColorStop(1,run.theme.system==="GPU Memory"?"rgba(3,9,11,.99)":"rgba(6,8,20,.99)");
             ctx2.fillStyle=front;ctx2.beginPath();ctx2.moveTo(bx,by+cell);ctx2.lineTo(bx+cell,by+cell);ctx2.lineTo(bx+cell+depth,by+cell+depth);ctx2.lineTo(bx+depth,by+cell+depth);ctx2.closePath();ctx2.fill();
           }
 
