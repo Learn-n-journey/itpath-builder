@@ -25,7 +25,9 @@ import { autoRepairManifest as autoRepair3_6_0Manifest } from "@/content/packs/a
 import { autoRepairDomain as autoRepair3_6_0Domain } from "@/content/packs/auto-repair/3.6.0/domain";
 import { autoRepairManifest as autoRepair3_7_0Manifest } from "@/content/packs/auto-repair/3.7.0/manifest";
 import { autoRepairDomain as autoRepair3_7_0Domain } from "@/content/packs/auto-repair/3.7.0/domain";
-import { autoRepairPackage as autoRepair3_7_0Package } from "@/content/packs/auto-repair/3.7.0/package";
+import { autoPathCurriculumPackage } from "@/content/packs/auto-repair/auto-path-pack";
+
+const autoRepair3_7_0Package = autoPathCurriculumPackage();
 
 export interface RegistryEntry {
   manifest: DomainManifest;
