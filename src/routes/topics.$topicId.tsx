@@ -163,9 +163,23 @@ function TopicPage() {
       }
       await Promise.all([loadOwnerQuestions(), loadOwnerLessons(), loadOwnerWork()]);
       const summary = result.summary;
-      toast.success(
-        `Refreshed ${refreshTopicTitle}: ${summary.lessonsApproved} lesson, ${summary.approved} questions, and ${summary.workTopics} try-it/lab update${summary.workTopics === 1 ? "" : "s"}.`,
-      );
+      const lessonReport = summary.report?.find((entry) => entry["lesson"] === "published");
+      if (summary.lessonsApproved < 1) {
+        const lessonIssue = summary.lessonIssues[0];
+        const detail = lessonIssue
+          ? `${lessonIssue.file}: ${lessonIssue.reasons.join("; ")}`
+          : "No matching lesson workbook was published. Check the numbered workbook in this Path's Lessons folder.";
+        toast.error(`Workbook lesson not loaded: ${detail}`, { duration: 10000 });
+      } else {
+        const file = String(lessonReport?.["file"] ?? "workbook");
+        const storedTopicId = String(lessonReport?.["storedTopicId"] ?? refreshTopicId);
+        const keyTerms = Number(lessonReport?.["keyTerms"] ?? 0);
+        const sources = Number(lessonReport?.["sources"] ?? 0);
+        toast.success(
+          `Loaded ${file} → ${storedTopicId}: ${keyTerms} key terms, ${sources} sources, ${summary.approved} questions, ${summary.workTopics} try-it/lab update${summary.workTopics === 1 ? "" : "s"}.`,
+          { duration: 10000 },
+        );
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "This topic could not be refreshed.");
     } finally {
