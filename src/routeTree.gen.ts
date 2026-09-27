@@ -74,6 +74,7 @@ import { Route as FlashcardsTopicIdRouteImport } from './routes/flashcards.$topi
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as LearnVideosRouteImport } from './routes/learn.videos'
+import { Route as PracticeTestsIndexRouteImport } from './routes/practice-tests.index'
 import { Route as PracticeTestsCertIdRouteImport } from './routes/practice-tests.$certId'
 import { Route as ProfileUserIdRouteImport } from './routes/profile.$userId'
 import { Route as SectionQuizTopicIdRouteImport } from './routes/section-quiz.$topicId'
@@ -412,6 +413,11 @@ const LearnVideosRoute = LearnVideosRouteImport.update({
   path: '/videos',
   getParentRoute: () => LearnRoute,
 } as any)
+const PracticeTestsIndexRoute = PracticeTestsIndexRouteImport.update({
+  id: '/practice-tests/',
+  path: '/practice-tests/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PracticeTestsCertIdRoute = PracticeTestsCertIdRouteImport.update({
   id: '/practice-tests/$certId',
   path: '/practice-tests/$certId',
@@ -546,6 +552,7 @@ export interface FileRoutesByFullPath {
   '/certifications/': typeof CertificationsIndexRoute
   '/flashcards/': typeof FlashcardsIndexRoute
   '/guides/': typeof GuidesIndexRoute
+  '/practice-tests/': typeof PracticeTestsIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/tracks/': typeof TracksIndexRoute
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
@@ -625,6 +632,7 @@ export interface FileRoutesByTo {
   '/certifications': typeof CertificationsIndexRoute
   '/flashcards': typeof FlashcardsIndexRoute
   '/guides': typeof GuidesIndexRoute
+  '/practice-tests': typeof PracticeTestsIndexRoute
   '/topics': typeof TopicsIndexRoute
   '/tracks': typeof TracksIndexRoute
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
@@ -705,6 +713,7 @@ export interface FileRoutesById {
   '/certifications/': typeof CertificationsIndexRoute
   '/flashcards/': typeof FlashcardsIndexRoute
   '/guides/': typeof GuidesIndexRoute
+  '/practice-tests/': typeof PracticeTestsIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/tracks/': typeof TracksIndexRoute
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
@@ -786,6 +795,7 @@ export interface FileRouteTypes {
     | '/certifications/'
     | '/flashcards/'
     | '/guides/'
+    | '/practice-tests/'
     | '/topics/'
     | '/tracks/'
     | '/api/public/content-audit'
@@ -865,6 +875,7 @@ export interface FileRouteTypes {
     | '/certifications'
     | '/flashcards'
     | '/guides'
+    | '/practice-tests'
     | '/topics'
     | '/tracks'
     | '/api/public/content-audit'
@@ -944,6 +955,7 @@ export interface FileRouteTypes {
     | '/certifications/'
     | '/flashcards/'
     | '/guides/'
+    | '/practice-tests/'
     | '/topics/'
     | '/tracks/'
     | '/api/public/content-audit'
@@ -1023,6 +1035,7 @@ export interface RootRouteChildren {
   CertificationsIndexRoute: typeof CertificationsIndexRoute
   FlashcardsIndexRoute: typeof FlashcardsIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
+  PracticeTestsIndexRoute: typeof PracticeTestsIndexRoute
   TopicsIndexRoute: typeof TopicsIndexRoute
   TracksIndexRoute: typeof TracksIndexRoute
   ApiPublicContentAuditRoute: typeof ApiPublicContentAuditRoute
@@ -1488,6 +1501,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LearnVideosRouteImport
       parentRoute: typeof LearnRoute
     }
+    '/practice-tests/': {
+      id: '/practice-tests/'
+      path: '/practice-tests'
+      fullPath: '/practice-tests/'
+      preLoaderRoute: typeof PracticeTestsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/practice-tests/$certId': {
       id: '/practice-tests/$certId'
       path: '/practice-tests/$certId'
@@ -1656,6 +1676,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertificationsIndexRoute: CertificationsIndexRoute,
   FlashcardsIndexRoute: FlashcardsIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
+  PracticeTestsIndexRoute: PracticeTestsIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
   TracksIndexRoute: TracksIndexRoute,
   ApiPublicContentAuditRoute: ApiPublicContentAuditRoute,
