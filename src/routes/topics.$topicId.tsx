@@ -27,6 +27,7 @@ import { trackFlow } from "@/lib/flow-events.functions";
 import { LearningBreadcrumbs } from "@/components/learning-breadcrumbs";
 import { learnerContinuity } from "@/lib/learner-continuity";
 import { domain } from "@/domain/active";
+import { useOwnerContentVersion } from "@/hooks/use-owner-content";
 
 export const Route = createFileRoute("/topics/$topicId")({
   staticData: { sitemap: false },
@@ -102,6 +103,10 @@ function TopicPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TopicTab>("overview");
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
+  // Workbook-backed media can arrive after the route first renders. Subscribe
+  // here as well as inside the lesson experience so Read It / Watch It quick
+  // links appear immediately when owner content finishes loading.
+  useOwnerContentVersion();
 
   // Count that a lesson opened, and whether it had teaching to show.
   const lessonFound = Boolean(topic);

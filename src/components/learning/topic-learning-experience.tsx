@@ -498,13 +498,19 @@ function LearningStage({ id, number, title, help, icon, tone, children }: { id: 
 const kindLabels: Record<Resource["kind"], string> = { course: "Course", article: "Article", docs: "Documentation", "learning-path": "Learning path", video: "Video" };
 
 export function mediaFor(topic: Topic): Resource[] {
-  {
-    const direct = resources.filter((resource) => resource.topicIds.includes(topic.id));
-    const related = resources.filter(
-      (resource) => !direct.includes(resource) && resource.certificationId === topic.certificationId,
+  const owner = ownerLessonSourcesFor(topic.id);
+  const direct = resources.filter((resource) => resource.topicIds.includes(topic.id));
+  const related = resources.filter(
+    (resource) => !direct.includes(resource) && resource.certificationId === topic.certificationId,
+  );
+  // Workbook Sources / Read & Watch entries are first-class topic media.
+  // Keep built-in resources as a fallback/supplement, but never hide an
+  // owner-provided reading or video just because this domain has no static
+  // resource catalogue entry.
+  return [...owner, ...direct, ...related.slice(0, Math.max(0, 4 - direct.length))]
+    .filter((resource, index, all) =>
+      all.findIndex((candidate) => candidate.url === resource.url && candidate.kind === resource.kind) === index,
     );
-    return [...direct, ...related.slice(0, Math.max(0, 4 - direct.length))];
-  }
 }
 
 function MediaGroup({ title, items, video = false }: { title: string; items: Resource[]; video?: boolean }) {
