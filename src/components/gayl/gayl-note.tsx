@@ -9,20 +9,24 @@
  */
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronDown, ChevronRight, Compass, X } from "lucide-react";
+import { ChevronDown, ChevronRight, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 export function GaylMark({ className }: { className?: string }) {
   return (
     <span
-      className={cn(
-        "flex size-6 shrink-0 items-center justify-center rounded-full bg-secondary text-primary",
-        className,
-      )}
+      className={cn("flex size-6 shrink-0 items-center justify-center", className)}
       aria-hidden
     >
-      <Compass className="size-3.5" />
+      <img
+        src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
+        alt=""
+        width={1024}
+        height={1024}
+        loading="lazy"
+        className="size-full object-contain"
+      />
     </span>
   );
 }
