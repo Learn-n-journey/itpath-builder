@@ -108,16 +108,16 @@ function buildCalibration(items: QuestionDiagnostic[]): Calibration {
   const note = (() => {
     if (rated.length < 3) return "";
     if (sureWrong >= 2) {
-      return `You marked ${sure.length} as sure and ${sureWrong} of those missed. That gap matters because those answers feel settled before the evidence supports it. I would check those again rather than skip them.`;
+      return `You marked ${sure.length} as sure and ${sureWrong} of those missed. You felt good about those, but they didn't hold up. I'd check them again instead of skipping past them.`;
     }
     if (sureWrong === 0 && sure.length >= 2) {
-      return `Everything you marked as sure came back correct in this attempt. Your confidence matched the result here. I'll keep checking that pattern rather than assume it always will.`;
+      return `Everything you marked as sure came back right this time. Good read. I'll keep an eye on whether that keeps holding.`;
     }
     if (guessRight >= 2) {
-      return `You guessed on ${guessRight} and got them right. They count on the score, but a guess is weak evidence. I'll bring them back later and see if they hold.`;
+      return `You guessed on ${guessRight} and got them right. They count, but I'm not sold on them yet. I'll bring them back later and see if you still have them.`;
     }
     if (unsureRight >= 2) {
-      return `You got ${unsureRight} right that you were not sure about. The answers held up better than your confidence did in this attempt. I'll use both pieces of evidence.`;
+      return `You got ${unsureRight} right that you were not sure about. You knew more than you thought you did on those. I'll keep that in mind, but we'll check them again.`;
     }
     return "";
   })();
@@ -173,7 +173,7 @@ function buildExplanation(input: {
       : "That all held together. One clean run is a snapshot though, so I'd rather check it again later than call it finished.";
   }
   if (missed.length === total && !strongest[0]) {
-    return "None of these landed. This attempt does not support moving on yet. Start with the underlying material, then check it again.";
+    return "None of these landed. I wouldn't move on yet. Go back to the basics underneath this, then we'll check it again.";
   }
 
   const weak = weakest[0];
@@ -184,10 +184,10 @@ function buildExplanation(input: {
     const appliedGap = weak.appliedTotal > 0 && weak.appliedCorrect / weak.appliedTotal < 0.6;
     const recallOk = weak.recallTotal > 0 && weak.recallCorrect / weak.recallTotal >= 0.6;
     if (appliedGap && recallOk) {
-      return `you're struggling to apply ${weak.title.toLowerCase()} in scenarios`;
+      return `you know ${weak.title.toLowerCase()}, but you're getting hung up when you have to use it in a scenario`;
     }
-    if (appliedGap) return `using ${weak.title.toLowerCase()} in a scenario is the part that needs work`;
-    return `${weak.title.toLowerCase()} is where the misses sat`;
+    if (appliedGap) return `using ${weak.title.toLowerCase()} in a real situation is where you're getting stuck`;
+    return `most of the trouble came from ${weak.title.toLowerCase()}`;
   })();
 
   if (strong && weak) {
@@ -195,12 +195,12 @@ function buildExplanation(input: {
       strong.appliedTotal > 0 && strong.appliedCorrect === strong.appliedTotal
         ? `you can use ${strong.title.toLowerCase()} in context`
         : `you understand ${strong.title.toLowerCase()}`;
-    return `Here's what I can see: ${strongPhrase}, but ${weakPhrase}. Those are two different things, and only the second one needs work.`;
+    return `Here's what I'm seeing: ${strongPhrase}, but ${weakPhrase}. So that's where I'd spend the time.`;
   }
   if (weak) {
-    return `Here's what I can see: ${correct} of ${total} landed, and ${weakPhrase}. The misses are concentrated there, so work on that gap first.`;
+    return `Here's what I'm seeing: ${correct} of ${total} landed, and ${weakPhrase}. I'd work there first.`;
   }
-  return `${correct} of ${total} landed, and the misses were spread around rather than sitting in one place. That spread does not give me enough evidence to call one specific misunderstanding. A recall pass is the better next check.`;
+  return `${correct} of ${total} landed, and the misses were spread around rather than sitting in one place. They're scattered enough that I can't pin this on one specific mix-up. Give it a recall pass and let's see what happens next.`;
 }
 
 /** GAYL guiding the next move, from the same evidence. */
@@ -212,7 +212,7 @@ function buildGuidance(input: {
 }): string {
   const { weakest, missed, recommendedTitles, topCause } = input;
   if (missed.length === 0) {
-    return "Nothing needs fixing right now, so keep moving forward and I'll bring this back later to check it stuck.";
+    return "Nothing I'd stop you for here. Keep moving and I'll bring this back later to make sure it sticks.";
   }
 
   const focus = recommendedTitles[0] ?? weakest[0]?.title;
@@ -220,16 +220,16 @@ function buildGuidance(input: {
   const appliedGap = weak ? weak.appliedTotal > 0 && weak.appliedCorrect / weak.appliedTotal < 0.6 : false;
 
   const how = (() => {
-    if (appliedGap) return "work through a scenario or a lab on it rather than more recall questions, since the facts are already there";
-    if (topCause === "didnt_know_fact") return "a short read and a recall pass should be enough, this is information that hasn't settled yet";
-    if (topCause === "rushed" || topCause === "misread_question") return "slow the reading down on the next set, the knowledge looked fine where you took your time";
-    if (topCause === "prerequisite_gap") return "go one step underneath it first, that's usually what makes the rest click";
-    if (topCause === "command_knowledge_gap") return "practise the commands in the simulator, typing them beats reading them";
-    return "reread the explanation before retrying the questions, repeating them cold tends to lock the same idea in";
+    if (appliedGap) return "try a scenario or lab instead of more recall questions. You already know the facts";
+    if (topCause === "didnt_know_fact") return "give it a short read and one recall pass. It just hasn't settled yet";
+    if (topCause === "rushed" || topCause === "misread_question") return "slow down on the next set. You did fine when you took your time";
+    if (topCause === "prerequisite_gap") return "go one step underneath it first. There's something there we need to clear up";
+    if (topCause === "command_knowledge_gap") return "practice the commands in the simulator. Typing them will do more for you than reading them again";
+    return "reread the explanation before you retry. Another blind run is likely to give you the same misses";
   })();
 
   if (!focus) return `For the next step, ${how}.`;
-  return `So here's what I'd do next: start with ${focus}, and ${how}.`;
+  return `I'd start with ${focus}. Then ${how}.`;
 }
 
 export function buildQuizDiagnostic(
