@@ -134,7 +134,7 @@ function MyPath() {
           to="/journey"
           className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors motion-safe:duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <MapIcon className="size-4 shrink-0" aria-hidden />
+          <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-5 shrink-0 object-contain" aria-hidden />
           <span>Journey Map</span>
         </Link>
       </nav>
@@ -146,7 +146,8 @@ function MyPath() {
         <div className="relative">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+              <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+                <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-5 shrink-0 object-contain" aria-hidden />
                 {continuity.kind === "study_plan" ? "Continue your session" : continuity.kind === "resume" ? "Pick up where you left off" : "Recommended next"}
               </p>
               <h2 id="path-next-action" className="mt-1 line-clamp-2 font-display text-lg font-semibold text-foreground">
@@ -227,6 +228,7 @@ function MyPath() {
                     <div className="relative overflow-hidden rounded-2xl border border-primary/45 bg-card/95 p-4 shadow-md sm:p-5">
                       <div className="mb-2 flex items-center gap-1.5 text-[0.625rem] font-bold uppercase tracking-[0.18em] text-primary">
                         <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" aria-hidden />
+                        <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-5 shrink-0 object-contain" aria-hidden />
                         <span>Next up</span>
                       </div>
                       <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-4">
