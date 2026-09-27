@@ -1,5 +1,5 @@
 {
-  // Deployment trigger: Microsoft Graph worksheet sync
+  // Deployment trigger: Microsoft Graph worksheet sync (retry)
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "itpath-builder",
   "compatibility_date": "2026-09-24",
