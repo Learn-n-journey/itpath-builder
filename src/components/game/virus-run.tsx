@@ -14,6 +14,7 @@ import {
   ChevronRight,
   ChevronUp,
   Heart,
+  LogOut,
   Pause,
   Play,
   Package,
@@ -2283,11 +2284,16 @@ export function VirusRun() {
             <p className="font-display text-lg font-bold uppercase tracking-[0.12em] text-primary">Virus Run</p>
             <p className="truncate text-xs text-muted-foreground">Collect data · Avoid detection · Space pauses</p>
           </div>
-          {(phase === "playing" || phase === "paused") && (
-            <Button onClick={phase === "playing" ? pause : resume} aria-label={phase === "playing" ? "Pause" : "Resume"} variant="outline" size="icon" className="shrink-0">
-              {phase === "playing" ? <Pause className="size-4" aria-hidden /> : <Play className="size-4" aria-hidden />}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {(phase === "playing" || phase === "paused") && (
+              <Button onClick={phase === "playing" ? pause : resume} aria-label={phase === "playing" ? "Pause" : "Resume"} variant="outline" size="icon" className="shrink-0">
+                {phase === "playing" ? <Pause className="size-4" aria-hidden /> : <Play className="size-4" aria-hidden />}
+              </Button>
+            )}
+            <Button onClick={()=>{window.location.assign("/dashboard");}} aria-label="Exit Virus Run and return to dashboard" variant="outline" size="sm" className="shrink-0 border-red-400/30 px-2 text-red-200 hover:bg-red-950/50 hover:text-red-100">
+              <LogOut className="size-4" aria-hidden /><span className={cn("ml-1",gameLandscape&&"hidden xl:inline")}>Exit</span>
             </Button>
-          )}
+          </div>
         </div>
         <div className={cn("grid grid-cols-5 divide-x divide-white/10 overflow-hidden rounded-xl border border-white/10 bg-slate-950/80 shadow-[0_12px_40px_rgba(0,0,0,.35)] backdrop-blur-xl", gameLandscape && "pointer-events-auto static flex flex-1 flex-col divide-x-0 divide-y divide-white/10 overflow-hidden rounded-none border-0 bg-transparent shadow-none backdrop-blur-none")}>
           <GameStat label="Level" value={hud.level} />
