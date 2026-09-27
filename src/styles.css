@@ -1017,10 +1017,10 @@ html.light .sidebar-glass {
 
 /* BYTE//BREAK piece physics — movement stays isolated to tiles, never the board. */
 @keyframes byteSwap {
-  0% { transform: translate(0, 0) scale(1); }
-  62% { transform: translate(var(--swap-x), var(--swap-y)) scale(1.055); }
-  82% { transform: translate(var(--swap-x), var(--swap-y)) scale(.985); }
-  100% { transform: translate(var(--swap-x), var(--swap-y)) scale(1); }
+  0% { transform: translate3d(var(--swap-x), var(--swap-y), 0) scale(1); z-index: 30; filter: brightness(1); }
+  45% { transform: translate3d(calc(var(--swap-x) * .48), calc(var(--swap-y) * .48), 0) scale(1.09); z-index: 30; filter: brightness(1.18); }
+  78% { transform: translate3d(calc(var(--swap-x) * .08), calc(var(--swap-y) * .08), 0) scale(.985); z-index: 30; filter: brightness(1.08); }
+  100% { transform: translate3d(0, 0, 0) scale(1); z-index: 1; filter: brightness(1); }
 }
 @keyframes byteDrop {
   0% { transform: translateY(calc(var(--drop-rows) * -100%)) scaleY(1.035); opacity: .35; }
