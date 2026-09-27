@@ -394,11 +394,11 @@ export function TopicLearningExperience({ topic, view = "learning" }: { topic: T
         {deepLesson?.depth ? <div id={lessonConceptAnchor(lessonSectionId(topic.id, "key-ideas"))} className="scroll-mt-24"><LessonKeyIdeas depth={deepLesson.depth} /></div> : null}
         <div id={lessonConceptAnchor(lessonSectionId(topic.id, "core"))} className="scroll-mt-24"><Panel title={deepLesson ? "Core lesson summary" : lesson.title}>
           <div className="space-y-7 text-sm leading-7 text-muted-foreground">
-            <ContentSection title="What It Is" text={lesson.definition} />
-            <ContentSection title="Why It Matters" text={lesson.whyItMatters} />
-            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "where-you-see-it"))} className="scroll-mt-24"><ListSection title="Where You See It" items={module.whereYouSeeIt} /></div>
-            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "how-it-works"))} className="scroll-mt-24"><ListSection title="How It Works" items={module.howItWorks} /></div>
-            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "practical-knowledge"))} className="scroll-mt-24"><ListSection title="Practical Knowledge" items={module.practicalKnowledge} /></div>
+            <ContentSection title="What It Is" text={deepLesson?.intro || lesson.definition} />
+            <ContentSection title="Why It Matters" text={deepLesson?.sections.find((section) => section.heading.toLowerCase().includes("why") && section.heading.toLowerCase().includes("matter"))?.paragraphs.join("\n\n") || lesson.whyItMatters} />
+            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "where-you-see-it"))} className="scroll-mt-24"><ListSection title="Where You See It" items={deepLesson?.whereYouMeetIt ? [deepLesson.whereYouMeetIt] : module.whereYouSeeIt} /></div>
+            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "how-it-works"))} className="scroll-mt-24"><ListSection title="How It Works" items={deepLesson?.sections.flatMap((section) => [...section.paragraphs, ...(section.bullets ?? [])]).slice(0, 8) ?? module.howItWorks} /></div>
+            <div id={lessonConceptAnchor(lessonSectionId(topic.id, "practical-knowledge"))} className="scroll-mt-24"><ListSection title="Practical Knowledge" items={deepLesson?.sections.flatMap((section) => section.bullets ?? []).slice(0, 8) ?? module.practicalKnowledge} /></div>
           </div>
         </Panel></div>
       </div>
