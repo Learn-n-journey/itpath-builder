@@ -21,14 +21,9 @@ import { cn } from "@/lib/utils";
 import { useAppState } from "@/state/app-state";
 import { useAuth } from "@/state/auth-state";
 import { useTheme } from "@/state/theme";
-import type { ExperienceLevel } from "@/lib/app-data/types";
+import { domain } from "@/domain/active";
+import { experienceOptions } from "@/lib/experience-options";
 
-const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
-  { id: "none", label: "Complete beginner" },
-  { id: "beginner", label: "Some basics" },
-  { id: "some", label: "Home lab experience" },
-  { id: "intermediate", label: "Working in IT already" },
-];
 
 /**
  * Quick setup shown once, straight after the welcome tour: colour mode, name
@@ -56,6 +51,7 @@ export function WelcomeSetup({ onFinished }: { onFinished?: () => void }) {
   if (!show) return null;
 
   const s = user.settings;
+  const EXPERIENCE = experienceOptions(domain.id);
   const signedIn = ready && Boolean(userId);
 
   async function finish() {
