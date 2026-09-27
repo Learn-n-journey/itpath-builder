@@ -20,7 +20,7 @@ import {
 
 export const Route = createFileRoute("/tech-videos")({
   validateSearch: (search: Record<string, unknown>): { q?: string } => ({ q: typeof search["q"] === "string" ? search["q"].slice(0, 100) : "" }),
-  staticData: { sitemap: true },
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Tech Videos | IT PATH" },
