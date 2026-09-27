@@ -203,7 +203,7 @@ function Dashboard() {
     <div className="relative -mx-3 -my-4 min-h-screen overflow-hidden pb-12 sm:-mx-5 sm:-my-6 lg:-mx-8 lg:-my-8">
       <div className="relative mx-auto max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
       <header className="mb-5 flex items-center justify-between gap-3 border-b border-border/60 pb-4">
-        <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">{isAutoPath ? "Your training shop" : "Your learning home"}</p><h1 className="font-display text-xl font-semibold leading-tight tracking-tight sm:text-2xl">{isAutoPath ? "Learn. Diagnose. Repair." : "Learn. Connect."}</h1></div>
+        <div className="min-w-0"><p className="text-xs font-medium text-muted-foreground">Your learning home</p><h1 className="font-display text-xl font-semibold leading-tight tracking-tight sm:text-2xl">Learn. Connect.</h1></div>
         <div className="flex items-center gap-1">{userId?<Link to="/profile/$userId" params={{userId}} aria-label="Your profile" className="mr-1 flex size-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary">{profile.avatarUrl?<img src={profile.avatarUrl} alt="" className="h-full w-full object-cover"/>:(profile.displayName||profile.firstName||"?")[0]?.toUpperCase()}</Link>:null}<Link to="/learn" aria-label="Explore learning" className="rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Search className="size-5"/></Link><div className="relative"><button type="button" aria-label={unreadCount ? `${unreadCount} unread community notifications` : "Community notifications"} aria-expanded={notificationsOpen} onClick={()=>setNotificationsOpen(v=>!v)} className="relative rounded-full p-2.5 text-muted-foreground hover:bg-secondary hover:text-foreground"><Bell className="size-5"/>{unreadCount>0?<span className="absolute right-2 top-2 size-2 rounded-full bg-primary"/>:null}</button>{notificationsOpen?<div className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-xl border border-border bg-popover shadow-xl"><div className="flex items-center justify-between border-b border-border/60 px-4 py-3"><p className="text-sm font-semibold">Notifications</p><div className="flex items-center gap-3"><button type="button" onClick={()=>void markAllEventNotificationsRead()} className="text-xs font-medium text-muted-foreground hover:text-foreground">Mark read</button><Link to="/notifications" onClick={()=>setNotificationsOpen(false)} className="text-xs font-medium text-primary hover:underline">View all</Link></div></div>{notifications.length?<div className="divide-y divide-border/50">{notifications.map(item=><Link key={item.kind+"-"+item.id} to={item.kind==="message"||item.kind==="friend-request"?"/messages":"/community"} {...(item.kind==="message"?{search:{user:item.userId}}:{})} onClick={()=>{if(item.readAt===null&&item.kind!=="message"&&item.kind!=="friend-request")void markNotificationRead(item.id);setNotificationsOpen(false)}} className="flex gap-3 px-4 py-3 hover:bg-secondary/50"><div className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary">{item.displayName[0]?.toUpperCase()||"?"}</div><div className="min-w-0"><p className="truncate text-sm font-medium">{item.displayName}</p><p className="truncate text-xs text-muted-foreground">{item.preview}</p></div></Link>)}</div>:<div className="px-4 py-6 text-center"><p className="text-sm font-medium">You’re caught up</p><p className="mt-1 text-xs text-muted-foreground">New messages and friend requests will appear here.</p></div>}</div>:null}</div></div>
       </header>
 
@@ -234,7 +234,7 @@ function Dashboard() {
             <div className="relative z-10 min-w-0 max-w-xl">
               <div className="flex items-center gap-2">
                 <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-primary">
-                  {primary.kind === "study_plan" ? (isAutoPath ? "Continue Shop Session" : "Continue Your Session") : d.hasAnyActivity ? (isAutoPath ? "Continue Training" : "Continue Learning") : (isAutoPath ? "Start Training" : "Start Learning")}
+                  {primary.kind === "study_plan" ? "Continue Your Session" : d.hasAnyActivity ? "Continue Learning" : "Start Learning"}
                 </span>
               </div>
 
@@ -286,7 +286,7 @@ function Dashboard() {
                     {...(primary.search ? { search: primary.search as never } : {})}
                   >
                     <Play className="size-4 fill-current stroke-none" aria-hidden="true" />
-                    <span>{d.hasAnyActivity ? (isAutoPath ? "Continue Training" : "Continue Learning") : (isAutoPath ? "Start Training" : "Start Learning")}</span>
+                    <span>{d.hasAnyActivity ? "Continue Learning" : "Start Learning"}</span>
                   </Link>
                 </Button>
 
@@ -297,13 +297,13 @@ function Dashboard() {
         ) : (
           <div className="relative z-10 max-w-md">
             <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-primary">
-              {isAutoPath ? "Start Training" : "Start Learning"}
+              Start Learning
             </span>
             <h1 id="continue-heading" className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
               Choose a topic
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
-              {isAutoPath ? "Choose the first system you want to train on and begin building diagnostic skill." : "Select your first topic from the curriculum to begin your path."}
+              Select your first topic from the curriculum to begin your path.
             </p>
             <Button asChild className="mt-5 h-12 rounded-xl px-6 font-semibold">
               <Link to="/learn">Choose a topic</Link>
@@ -333,7 +333,7 @@ function Dashboard() {
               Check my goal
             </Link>
             <Link to="/guide" className="rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-              {isAutoPath ? "How AUTO PATH works" : "How IT PATH works"}
+              How it works
             </Link>
           </div>
         ) : null}
@@ -343,7 +343,7 @@ function Dashboard() {
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Today</p>
-            <h2 id="today-heading" className="font-display text-xl font-semibold">{isAutoPath ? "Your shop plan" : "Your learning plan"}</h2>
+            <h2 id="today-heading" className="font-display text-xl font-semibold">Your learning plan</h2>
           </div>
           <Link to="/study-plan" className="text-xs font-semibold text-primary hover:underline">Study plan</Link>
         </div>
@@ -381,13 +381,13 @@ function Dashboard() {
           <div className="mb-3 flex items-end justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Progress</p>
-              <h2 id="progress-heading" className="font-display text-xl font-semibold">{isAutoPath ? "Your training progress" : "Your learning progress"}</h2>
+              <h2 id="progress-heading" className="font-display text-xl font-semibold">Your learning progress</h2>
             </div>
             <Link to="/progress" className="text-xs font-semibold text-primary hover:underline">View full progress</Link>
           </div>
           <div className="grid grid-cols-3 divide-x divide-border/50 rounded-xl border border-border/50 bg-card/40 py-4">
-            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{d.masteredTopics}</p><p className="mt-0.5 text-[10px] text-muted-foreground">{isAutoPath ? "Systems mastered" : "Topics mastered"}</p></div>
-            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{reviewTopics.length}</p><p className="mt-0.5 text-[10px] text-muted-foreground">{isAutoPath ? "Due checks" : "Due review"}</p></div>
+            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{d.masteredTopics}</p><p className="mt-0.5 text-[10px] text-muted-foreground">Topics mastered</p></div>
+            <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{reviewTopics.length}</p><p className="mt-0.5 text-[10px] text-muted-foreground">Due review</p></div>
             <div className="px-3 text-center"><p className="text-xl font-bold tabular-nums">{d.streakDays > 0 ? d.streakDays + "d" : "—"}</p><p className="mt-0.5 text-[10px] text-muted-foreground">Streak</p></div>
           </div>
         </section>
@@ -395,19 +395,19 @@ function Dashboard() {
 
       <section className="mb-8" aria-labelledby="practice-heading">
         <div className="mb-3">
-          <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">{isAutoPath ? "Train" : "Practice"}</p>
+          <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Practice</p>
           <h2 id="practice-heading" className="font-display text-xl font-semibold">Choose another way to learn</h2>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Link to="/practice" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><BookOpen className="size-5 text-feature-blue"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Skill practice" : "Practice"}</p><p className="mt-1 text-xs text-muted-foreground">Apply what you know.</p></Link>
-          <Link to="/labs" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Wrench className="size-5 text-feature-orange"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Shop practice" : "Labs"}</p><p className="mt-1 text-xs text-muted-foreground">Learn by doing.</p></Link>
-          <Link to="/review" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Sparkles className="size-5 text-feature-cyan"/><p className="mt-3 text-sm font-semibold">{isAutoPath ? "Recheck" : "Review"}</p><p className="mt-1 text-xs text-muted-foreground">{reviewTopics.length ? reviewTopics.length + " ready now." : "Keep knowledge fresh."}</p></Link>
+          <Link to="/practice" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><BookOpen className="size-5 text-feature-blue"/><p className="mt-3 text-sm font-semibold">Practice</p><p className="mt-1 text-xs text-muted-foreground">Apply what you know.</p></Link>
+          <Link to="/labs" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Wrench className="size-5 text-feature-orange"/><p className="mt-3 text-sm font-semibold">Labs</p><p className="mt-1 text-xs text-muted-foreground">Learn by doing.</p></Link>
+          <Link to="/review" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Sparkles className="size-5 text-feature-cyan"/><p className="mt-3 text-sm font-semibold">Review</p><p className="mt-1 text-xs text-muted-foreground">{reviewTopics.length ? reviewTopics.length + " ready now." : "Keep knowledge fresh."}</p></Link>
           <Link to="/quiz-me" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Compass className="size-5 text-feature-violet"/><p className="mt-3 text-sm font-semibold">Quiz Me</p><p className="mt-1 text-xs text-muted-foreground">Challenge yourself.</p></Link>
         </div>
       </section>
 
       <section className="mb-8" aria-labelledby="community-heading">
-        <div className="mb-2 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Community</p><h2 id="community-heading" className="font-display text-xl font-semibold">{isAutoPath ? "Talk shop" : "Learning together"}</h2></div><Link to="/community" className="text-xs font-semibold text-primary hover:underline">Open community</Link></div>
+        <div className="mb-2 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Community</p><h2 id="community-heading" className="font-display text-xl font-semibold">Learning together</h2></div><Link to="/community" className="text-xs font-semibold text-primary hover:underline">Open community</Link></div>
         <div className="divide-y divide-border/60 border-y border-border/60">
           {communityPosts.length===0?<Link to="/community" className="flex items-center gap-3 py-5 text-sm text-muted-foreground"><Users className="size-5"/>Be the first to start a conversation.</Link>:communityPosts.slice(0,2).map(post=><Link key={post.id} to="/community" search={{room:post.room}} className="block py-4 hover:bg-secondary/20"><div className="flex gap-3"><div className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-bold">{post.displayName.charAt(0).toUpperCase()}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="truncate text-sm font-semibold">{post.displayName}</span><span className="truncate text-[11px] text-muted-foreground">{post.room==="general"?"General":post.room}</span></div>{post.body.trim()?<p className="mt-1 line-clamp-2 text-sm leading-relaxed text-foreground/90">{post.body}</p>:null}<div className="mt-2 flex gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1"><Heart className="size-3.5"/>{post.likeCount}</span><span className="inline-flex items-center gap-1"><MessageCircle className="size-3.5"/>{post.commentCount}</span></div></div></div></Link>)}
         </div>
