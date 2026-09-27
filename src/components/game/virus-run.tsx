@@ -981,7 +981,7 @@ export function VirusRun() {
       const canvasEl = canvasRef.current;
       if (!canvasEl) return;
       const rect = canvasEl.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 3);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       if (canvasEl.width !== Math.round(rect.width * dpr)) {
         canvasEl.width = Math.round(rect.width * dpr);
         canvasEl.height = Math.round(rect.height * dpr);
@@ -1302,11 +1302,6 @@ export function VirusRun() {
             }
           }
 
-          if(run.theme.system==="GPU Memory"&&materialRef.current.gpu){
-            const pattern=ctx2.createPattern(materialRef.current.gpu,"repeat");
-            if(pattern){const scale=Math.max(.32,cell/46);pattern.setTransform(new DOMMatrix().translate(offX,offY).scale(scale));ctx2.save();ctx2.globalAlpha=.96;ctx2.fillStyle=pattern;ctx2.fillRect(bx,by,cell+.75,cell+.75);ctx2.restore();const heat=((x*17+y*29)%11===0);ctx2.fillStyle=heat?"rgba(245,158,11,.055)":"rgba(34,211,238,.025)";ctx2.fillRect(bx,by,cell+.5,cell+.5);}
-          }
-
           // Broad light falloff replaces the old line-drawn bevel.
           const faceLight=ctx2.createLinearGradient(bx,by,bx+cell*.55,by+cell*.55);
           faceLight.addColorStop(0,"rgba(255,255,255,.075)");
@@ -1333,6 +1328,23 @@ export function VirusRun() {
             if(leftOpen){ctx2.moveTo(bx+cell*.04,by+cell*.16);ctx2.lineTo(bx+cell*.04,by+cell*.84);}
             ctx2.stroke();
           }
+        }
+      }
+
+      // GPU Memory texture: one pattern creation + one clipped fill per frame.
+      // The collision grid remains cell-based, but the expensive image material is batched.
+      if(run.theme.system==="GPU Memory"&&materialRef.current.gpu){
+        const pattern=ctx2.createPattern(materialRef.current.gpu,"repeat");
+        if(pattern){
+          const scale=Math.max(.32,cell/46);
+          pattern.setTransform(new DOMMatrix().translate(offX,offY).scale(scale));
+          ctx2.save();
+          ctx2.beginPath();
+          for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(run.grid[y]![x]===1)ctx2.rect(offX+x*cell,offY+y*cell,cell+.7,cell+.7);
+          ctx2.clip();
+          ctx2.globalAlpha=.96;ctx2.fillStyle=pattern;
+          ctx2.fillRect(offX,offY,cell*COLS,cell*ROWS);
+          ctx2.restore();
         }
       }
 
