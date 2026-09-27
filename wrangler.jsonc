@@ -20,9 +20,9 @@
   "vars": {
     "MICROSOFT_CLIENT_ID": "23165035-6911-45a7-a09e-576170949bfb",
     "MICROSOFT_REDIRECT_URI": "https://it-path.net/api/auth/microsoft/callback",
-    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_XY5kIGCGQ-pFPtvE1gx6Iw_8IKIKDf5",
-    "SUPABASE_URL": "https://qutxpxlbbwtgwkclikrn.supabase.co",
-    "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_XY5kIGCGQ-pFPtvE1gx6Iw_8IKIKDf5",
-    "VITE_SUPABASE_URL": "https://qutxpxlbbwtgwkclikrn.supabase.co"
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_RtxD2GcILF5yeaKz5cAfLA_BSP3gxbn",
+    "SUPABASE_URL": "https://ioejabwtcfkbyhejklqe.supabase.co",
+    "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_RtxD2GcILF5yeaKz5cAfLA_BSP3gxbn",
+    "VITE_SUPABASE_URL": "https://ioejabwtcfkbyhejklqe.supabase.co"
   }
 }
