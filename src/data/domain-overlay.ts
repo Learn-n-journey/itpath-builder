@@ -50,13 +50,14 @@ export interface DomainOverlay {
 
 const SECTIONS_PER_MONTH = 4;
 
-function topicIdOf(slug: string): string {
-  return `topic-${slug}`;
-}
-
 function build(pkg: DomainPackage): DomainOverlay {
   const bySection = new Map(pkg.sections.map((section) => [section.id, section]));
+  const bySlug = new Map(pkg.sections.map((section) => [section.slug, section]));
   const slugOf = (sectionId: string) => bySection.get(sectionId)?.slug ?? sectionId;
+  // Preserve the package section id as the app topic id. The course-pack
+  // adapter and spreadsheet sync already use this identity; inventing a
+  // separate "topic-<slug>" id here splits one curriculum topic into two.
+  const topicIdOf = (slug: string) => bySlug.get(slug)?.id ?? slug;
 
   const topics: Topic[] = pkg.sections.map((section, index) => {
     const month = Math.floor(index / SECTIONS_PER_MONTH) + 1;
