@@ -11,9 +11,7 @@ import { TopicQuickLinks } from "@/components/learning/topic-quick-links";
 import { TopicSubnav, type TopicTab } from "@/components/learning/topic-subnav";
 import { EmptyState, LearnerPageSkeleton, PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
-import { certifications, incidents, labs, lessons, topics, type Topic } from "@/data/static-content";
-import { obdScenarios } from "@/data/auto/obd";
-import { autoAssemblies } from "@/data/engine-explorer";
+import { lessons, topics, type Topic } from "@/data/static-content";
 import { getCertification, getTopic } from "@/lib/app-data/selectors";
 import { activeDomainKey } from "@/lib/active-domain";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
@@ -58,27 +56,6 @@ const TOPIC_SHORTCUTS = [
   { label: "Prove It", target: "#prove-it", when: () => true },
 ] as const;
 
-
-function automotiveFocusFor(title: string): string {
-  const text = title.toLowerCase();
-  const matches: Array<[string, string[]]> = [
-    ["brakes", ["brake", "hydraulic"]],
-    ["battery", ["battery", "charging", "electrical", "starting"]],
-    ["starter", ["starter", "crank", "starting"]],
-    ["alternator", ["alternator", "charging"]],
-    ["radiator", ["cooling", "coolant", "radiator", "overheat"]],
-    ["spark-plug", ["ignition", "spark", "misfire"]],
-    ["engine-cutaway", ["engine", "compression", "cylinder", "valve", "piston", "timing", "lubrication", "oil"]],
-  ];
-  return matches.find(([, words]) => words.some((word) => text.includes(word)))?.[0] ?? "engine-bay";
-}
-
-function wordOverlapScore(topicTitle: string, text: string): number {
-  const stop = new Set(["and", "the", "with", "from", "system", "systems", "service", "repair", "diagnosis", "general"]);
-  const words = topicTitle.toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length > 3 && !stop.has(word));
-  const haystack = text.toLowerCase();
-  return words.reduce((score, word) => score + (haystack.includes(word) ? 1 : 0), 0);
-}
 
 function getTopicIcon(topic: { id: string; title: string }) {
   const text = `${topic.id} ${topic.title}`.toLowerCase();
@@ -196,24 +173,15 @@ function TopicPage() {
     }
   }
 
-  const isAutoPath = domain.id === "auto-repair";
   const TopicIcon = getTopicIcon(topic);
   const status = mastered ? "Passed" : progress ? "In progress" : "Not started";
-  const topicLab = labs.find((item) => item.topicId === topic.id && item.id.endsWith("-a1-test-diagnose-verify"))
-    ?? labs.find((item) => item.topicId === topic.id);
-  const topicIncident = incidents.find((item) => item.topicId === topic.id);
-  const explorerFocus = autoAssemblies.some((item) => item.id === automotiveFocusFor(topic.title)) ? automotiveFocusFor(topic.title) : "engine-bay";
-  const obdScenario = [...obdScenarios].sort((a, b) => {
-    const textOf = (item: (typeof obdScenarios)[number]) => `${item.complaint} ${item.rootCause} ${item.teaching} ${item.codes.map((code) => `${code.code} ${code.title} ${code.meaning}`).join(" ")}`;
-    return wordOverlapScore(topic.title, textOf(b)) - wordOverlapScore(topic.title, textOf(a));
-  })[0];
   const availableTargets = new Set(
     TOPIC_SHORTCUTS.filter((shortcut) => shortcut.when(topic)).map((shortcut) => shortcut.target),
   );
 
   return (
     <article className="mx-auto w-full max-w-4xl">
-      <LearningBreadcrumbs items={[{ label: isAutoPath ? "Training Plan" : "My Path", to: "/my-path" }, ...(certification ? [{ label: certification.title, to: "/certifications/$certId", params: { certId: certification.id } }] : []), { label: topic.title }]} />
+      <LearningBreadcrumbs items={[{ label: "My Path", to: "/my-path" }, ...(certification ? [{ label: certification.title, to: "/certifications/$certId", params: { certId: certification.id } }] : []), { label: topic.title }]} />
 
       <section className="mb-4 rounded-xl border border-border/70 bg-card p-4 sm:p-5">
         <div className="flex items-start gap-3">
@@ -249,7 +217,7 @@ function TopicPage() {
         <dl className="mt-3 grid grid-cols-2 gap-2">
           <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5">
             <Shield className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-            <div className="min-w-0"><dt className="font-mono text-[10px] uppercase text-muted-foreground">Certification</dt><dd className="truncate text-xs font-semibold text-foreground">{certification?.title ?? (isAutoPath ? "Automotive foundations" : "General IT")}</dd></div>
+            <div className="min-w-0"><dt className="font-mono text-[10px] uppercase text-muted-foreground">Certification</dt><dd className="truncate text-xs font-semibold text-foreground">{certification?.title ?? "General"}</dd></div>
           </div>
           <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border/50 bg-muted/20 p-2.5">
             {mastered ? <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden /> : <Clock className="size-4 shrink-0 text-primary" aria-hidden />}
@@ -259,28 +227,6 @@ function TopicPage() {
       </section>
 
       <TopicSubnav activeTab={activeTab} onTabChange={setActiveTab} />
-
-      {isAutoPath && activeTab === "overview" ? (
-        <section className="mb-5 rounded-xl border border-primary/30 bg-primary/[0.04] p-4 sm:p-5" aria-label="AUTO PATH technician workflow">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-primary">Technician workflow</p>
-          <h2 className="mt-1 font-display text-lg font-semibold">Take this system from knowledge to verified diagnosis.</h2>
-          <p className="mt-1 text-sm leading-relaxed text-muted-foreground">AUTO PATH keeps the same mastery rules underneath, but your work follows the way a technician builds evidence in the shop.</p>
-          <ol className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-            {["Learn", "See", "Identify", "Test", "Diagnose", "Fix", "Verify"].map((step, index) => (
-              <li key={step} className="rounded-lg border border-border/70 bg-background/70 px-3 py-2">
-                <span className="block font-mono text-[10px] text-primary">{String(index + 1).padStart(2, "0")}</span>
-                <span className="mt-0.5 block text-xs font-semibold">{step}</span>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button asChild size="sm" variant="secondary"><Link to="/explore-engine" search={{ focus: explorerFocus, topic: topic.title, topicId: topic.id }}>See & identify related components</Link></Button>
-            <Button asChild size="sm" variant="secondary"><Link to="/obd-scanner" search={{ ...(obdScenario ? { scenario: obdScenario.id } : {}), topic: topic.title }}>Test with related OBD evidence</Link></Button>
-            <Button asChild size="sm" variant="secondary"><Link to="/troubleshoot" search={topicIncident ? { incident: topicIncident.id } : {}}>Diagnose {topicIncident ? "this system" : "a repair order"}</Link></Button>
-            <Button asChild size="sm" variant="secondary"><Link to="/labs" search={topicLab ? { lab: topicLab.id } : {}}>Fix & verify {topicLab ? "this system" : "in Shop Practice"}</Link></Button>
-          </div>
-        </section>
-      ) : null}
 
 
       {activeTab === "overview" ? (
