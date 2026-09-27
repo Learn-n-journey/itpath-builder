@@ -12,6 +12,8 @@ import { useAppState } from "@/state/app-state";
 import { useTheme } from "@/state/theme";
 import type { ExperienceLevel, WeekDay } from "@/lib/app-data/types";
 import { certifications } from "@/data/static-content";
+import { domain } from "@/domain/active";
+import { experienceOptions } from "@/lib/experience-options";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,12 +43,6 @@ const DAYS: { id: WeekDay; label: string }[] = [
   { id: "sun", label: "Sun" },
 ];
 
-const EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
-  { id: "none", label: "Complete beginner" },
-  { id: "beginner", label: "Some basics" },
-  { id: "some", label: "Home lab experience" },
-  { id: "intermediate", label: "Working in IT already" },
-];
 
 const LEARNING_FOCUS_NAMES: Record<string, string> = {
   "cert-comptia-tech-plus": "Technology Foundations",
@@ -75,6 +71,7 @@ function SettingsPage() {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const { profile, uploadAvatar, uploading, isOwn } = useProfile();
   const s = user.settings;
+  const EXPERIENCE = experienceOptions(domain.id);
   const [setupOnly, setSetupOnly] = useState(false);
 
   useEffect(() => setSetupOnly(setupPending()), []);
