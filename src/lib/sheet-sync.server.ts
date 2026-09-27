@@ -34,7 +34,7 @@ import {
   type OwnerDomain,
 } from "@/lib/owner-questions-shared";
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/microsoft_excel";
+const GRAPH_URL = "https://graph.microsoft.com/v1.0";
 const JOB = "sheet-sync";
 const LOCK_MINUTES = 15;
 /**
@@ -131,15 +131,12 @@ function retryDelay(response: Response, attempt: number): number {
 }
 
 async function graph(path: string): Promise<any> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  const connectionKey = process.env["MICROSOFT_EXCEL_API_KEY"];
-  if (!apiKey || !connectionKey) {
-    throw new Error("the Excel connection is not configured in this environment");
-  }
+  const { microsoftAccessToken } = await import("@/lib/microsoft-graph.server");
 
   for (let attempt = 0; attempt < MAX_GRAPH_ATTEMPTS; attempt += 1) {
-    const response = await fetch(`${GATEWAY_URL}${path}`, {
-      headers: { Authorization: `Bearer ${apiKey}`, "X-Connection-Api-Key": connectionKey },
+    const accessToken = await microsoftAccessToken();
+    const response = await fetch(`${GRAPH_URL}${path}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (response.ok) return response.json();
 
@@ -149,12 +146,12 @@ async function graph(path: string): Promise<any> {
       const suffix = RETRYABLE_GRAPH_STATUSES.has(response.status)
         ? ` after ${MAX_GRAPH_ATTEMPTS} attempts`
         : "";
-      throw new Error(`Excel request failed [${response.status}]${suffix}: ${message}`);
+      throw new Error(`Microsoft Graph request failed [${response.status}]${suffix}: ${message}`);
     }
     await new Promise((resolve) => setTimeout(resolve, retryDelay(response, attempt)));
   }
 
-  throw new Error("Excel request failed after all retry attempts");
+  throw new Error("Microsoft Graph request failed after all retry attempts");
 }
 
 interface SheetFile {
@@ -185,16 +182,13 @@ async function listWorkbooks(root: string, sub: string): Promise<SheetFile[]> {
  * worksheet/range requests with one OneDrive file download.
  */
 async function readTabs(fileId: string): Promise<SheetTab[]> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  const connectionKey = process.env["MICROSOFT_EXCEL_API_KEY"];
-  if (!apiKey || !connectionKey) {
-    throw new Error("the Excel connection is not configured in this environment");
-  }
+  const { microsoftAccessToken } = await import("@/lib/microsoft-graph.server");
 
   let lastError = "Workbook download failed";
   for (let attempt = 0; attempt < MAX_GRAPH_ATTEMPTS; attempt += 1) {
-    const response = await fetch(`${GATEWAY_URL}/me/drive/items/${encodeURIComponent(fileId)}/content`, {
-      headers: { Authorization: `Bearer ${apiKey}`, "X-Connection-Api-Key": connectionKey },
+    const accessToken = await microsoftAccessToken();
+    const response = await fetch(`${GRAPH_URL}/me/drive/items/${encodeURIComponent(fileId)}/content`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
       redirect: "manual",
     });
 
