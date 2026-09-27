@@ -8,13 +8,13 @@
  * the full thread can still be opened at any time.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { AlertCircle, ChevronDown, ChevronLeft, ChevronRight, MessageSquare, X } from "lucide-react";
 
 import gaylAvatar from "@/assets/gayl-avatar.png";
 import { useAppState } from "@/state/app-state";
 import { useIntelligence } from "@/hooks/use-intelligence";
-import { checkInMessage, gaylMessages, type GaylMessage } from "@/lib/gayl/insights";
+import { checkInMessage, gaylMessages, lessonInsight, type GaylMessage } from "@/lib/gayl/insights";
 import { gaylContinuityEvent } from "@/lib/gayl/continuity-events";
 import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
 import { cn } from "@/lib/utils";
@@ -101,6 +101,11 @@ function MessageCard({
 
 export function GaylBubble() {
   const intel = useIntelligence();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const contextTopicId = useMemo(() => {
+    const match = pathname.match(/^\/(?:topics|section-quiz|flashcards)\/([^/]+)/);
+    return match?.[1] ? decodeURIComponent(match[1]) : null;
+  }, [pathname]);
   const { user } = useAppState();
   const openDetail = useCallback(
     (topicId: string) => {
@@ -111,6 +116,29 @@ export function GaylBubble() {
   );
   const checkIn = useMemo(() => checkInMessage(user), [user]);
   const continuity = useMemo(() => gaylContinuityEvent(user, intel), [user, intel]);
+  const contextual = useMemo<GaylMessage | null>(() => {
+    if (!contextTopicId) return null;
+    const insight = lessonInsight(intel, contextTopicId);
+    const concept = intel.byTopic[contextTopicId];
+    if (!insight || !concept) return null;
+    return {
+      id: `gayl:context:${pathname}:${contextTopicId}:${concept.diagnosis}:${concept.attempts}:${concept.unresolvedMistakes}`,
+      topicId: contextTopicId,
+      title: concept.title,
+      text: insight.message,
+      detail: openDetail(contextTopicId),
+      route: pathname,
+      urgent:
+        concept.unresolvedMistakes > 0 ||
+        concept.diagnosis === "misconception" ||
+        concept.diagnosis === "confident_but_wrong" ||
+        concept.diagnosis === "prerequisite_gap",
+      why: [
+        `You're working on ${concept.title} right now.`,
+        ...(insight.why ?? []),
+      ],
+    };
+  }, [contextTopicId, intel, openDetail, pathname]);
   const [clearedIds, setClearedIds] = useState<string[]>([]);
   // Problems come first. A welcome back only speaks up when nothing else is
   // asking for attention, so the corner stays a vital-only space. Cleared
@@ -118,12 +146,20 @@ export function GaylBubble() {
   // and the message id changes with it.
   const messages = useMemo(() => {
     const base = gaylMessages(intel, openDetail);
-    // A meaningful change gets one chance to speak first. Ordinary problems
-    // follow it; a return greeting only appears when there is nothing else.
-    const active = continuity ? [continuity, ...base] : base;
+    // Current-page context speaks first when GAYL has evidence about the topic
+    // the learner is actually working on. Continuity and ordinary concerns
+    // follow; a return greeting only appears when there is nothing else.
+    const withoutContextDuplicate = contextual
+      ? base.filter((message) => message.topicId !== contextual.topicId)
+      : base;
+    const active = [
+      ...(contextual ? [contextual] : []),
+      ...(continuity && continuity.topicId !== contextual?.topicId ? [continuity] : []),
+      ...withoutContextDuplicate,
+    ];
     const all = active.length === 0 && checkIn ? [checkIn] : active;
     return all.filter((message) => !clearedIds.includes(message.id));
-  }, [intel, openDetail, continuity, checkIn, clearedIds]);
+  }, [intel, openDetail, contextual, continuity, checkIn, clearedIds]);
   const latest = messages[0] ?? null;
   const threadId = messages.map((message) => message.id).join("|");
 
