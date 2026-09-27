@@ -21,6 +21,7 @@ export interface SyncRunSummary {
   workTopics: number;
   unchangedFiles?: number;
   lessonIssues: Array<{ file: string; topic: string; reasons: string[] }>;
+  report?: Record<string, unknown>[];
 }
 
 /** Live counters written while a run is still going. */
@@ -150,6 +151,7 @@ export const refreshTopic = createServerFn({ method: "POST" })
         workTopics: result.workTopics ?? 0,
         unchangedFiles: result.unchangedFiles ?? 0,
         lessonIssues: result.lessonIssues ?? [],
+        report: result.report ?? [],
       },
     };
   });

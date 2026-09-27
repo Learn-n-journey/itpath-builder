@@ -343,10 +343,15 @@ export async function runSheetSync(
   }
   const unchanged = (file: SheetFile): boolean =>
     !options.force && Boolean(file.lastModified) && seenState.get(file.id) === file.lastModified;
+  // Workbook number is the stable identity across every content folder.
   const requestedWorkbookNumber =
-    options.domain === "auto-repair" && options.topicId
-      ? topicsForDomain("auto-repair").find((topic) => topic.topicId === options.topicId)?.number
+    options.domain && options.topicId
+      ? topicsForDomain(options.domain).find((topic) => topic.topicId === options.topicId)?.number
       : undefined;
+  const matchesRequestedTopic = (topic: NumberedTopic, number: number | undefined): boolean =>
+    !options.topicId ||
+    topic.topicId === options.topicId ||
+    (requestedWorkbookNumber !== undefined && number === requestedWorkbookNumber);
 
   const remember = async (file: SheetFile, domain: string, folder: string): Promise<void> => {
     if (!file.lastModified) return;
@@ -393,12 +398,7 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/lessons`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
-        if (options.topicId) {
-          const matchesRequestedTopic =
-            topic.topicId === options.topicId ||
-            (domain === "auto-repair" && requestedWorkbookNumber !== undefined && number === requestedWorkbookNumber);
-          if (!matchesRequestedTopic) continue;
-        }
+        if (!matchesRequestedTopic(topic, number)) continue;
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
@@ -475,7 +475,7 @@ export async function runSheetSync(
         await remember(file, domain, `${root}/lessons`);
         lessonsApproved += 1;
         topicsSynced.add(topic.topicId);
-        report.push({ domain, folder: `${root}/lessons`, file: file.name, topic: topic.title, lesson: "published", notes });
+        report.push({ domain, folder: `${root}/lessons`, file: file.name, workbookNumber: fileNumber(file.name), requestedTopicId: options.topicId, storedTopicId: topic.topicId, topic: topic.title, lesson: "published", sources: result.sources.length, keyTerms: result.extras.keyTerms?.length ?? 0, notes });
         }
       }
 
@@ -503,7 +503,11 @@ export async function runSheetSync(
       }
       const allWorkFiles = workFolders.flatMap((entry) => entry.files);
       const selectedWorkFiles = options.topicId
-        ? allWorkFiles.filter((file) => pickTopic(fileNumber(file.name))?.topicId === options.topicId)
+        ? allWorkFiles.filter((file) => {
+            const number = fileNumber(file.name);
+            const topic = pickTopic(number);
+            return Boolean(topic && matchesRequestedTopic(topic, number));
+          })
         : allWorkFiles;
       // Try-it and labs merge into one row per topic, so they are re-read
       // together as soon as any one of their workbooks changed.
@@ -526,7 +530,7 @@ export async function runSheetSync(
             report.push({ domain, folder: `${root}/${sub}`, file: file.name, skipped: "filename number has no matching topic" });
             continue;
           }
-          if (options.topicId && topic.topicId !== options.topicId) continue;
+          if (!matchesRequestedTopic(topic, number)) continue;
           pendingWork.push({ sub, file, topic });
         }
       }
@@ -645,7 +649,7 @@ export async function runSheetSync(
           report.push({ domain, folder: `${root}/quiz`, file: file.name, skipped: "filename number has no matching topic" });
           continue;
         }
-        if (options.topicId && topic.topicId !== options.topicId) continue;
+        if (!matchesRequestedTopic(topic, number)) continue;
         if (unchanged(file)) {
           unchangedFiles += 1;
           continue;
