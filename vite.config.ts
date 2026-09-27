@@ -78,13 +78,13 @@ export default defineConfig({
     // blank screen. These are safe to expose; they are not secrets.
     define: {
       "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(
-        process.env.VITE_SUPABASE_URL || "https://qutxpxlbbwtgwkclikrn.supabase.co",
+        process.env.VITE_SUPABASE_URL || "https://ioejabwtcfkbyhejklqe.supabase.co",
       ),
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
-        process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_XY5kIGCGQ-pFPtvE1gx6Iw_8IKIKDf5",
+        process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_RtxD2GcILF5yeaKz5cAfLA_BSP3gxbn",
       ),
       "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(
-        process.env.VITE_SUPABASE_PROJECT_ID || "qutxpxlbbwtgwkclikrn",
+        process.env.VITE_SUPABASE_PROJECT_ID || "ioejabwtcfkbyhejklqe",
       ),
     },
     build: {
