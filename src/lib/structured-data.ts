@@ -43,7 +43,7 @@ export function courseJsonLd(certificationId: string, topics: Topic[]): Record<s
 /** One section guide, described as an article and a learning resource. */
 export function guideJsonLd(topic: Topic, keyTerms: string[]): Array<Record<string, unknown>> {
   const url = guideUrl(topic.id);
-  const title = `${topic.title}: a beginner's guide`;
+  const title = `${topic.title} Study Guide for Beginners`;
   const subject = certificationTitle(topic.certificationId);
 
   return [
