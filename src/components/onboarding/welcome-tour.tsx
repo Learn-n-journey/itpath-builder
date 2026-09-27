@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 type Step = {
   id: string;
   icon: LucideIcon;
+  image?: string;
   eyebrow: string;
   title: string;
   body: string;
@@ -233,7 +234,11 @@ export function WelcomeTour() {
           >
             <div className="tour-content-enter flex items-center gap-3 [--tour-delay:40ms]">
               <span className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                <Icon className="size-5" aria-hidden />
+                {step.image ? (
+                  <img src={step.image} alt="" className="size-8 object-contain" aria-hidden />
+                ) : (
+                  <Icon className="size-5" aria-hidden />
+                )}
               </span>
               <div className="min-w-0">
                 <p className="tour-word-fade text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground [--tour-delay:60ms]">
