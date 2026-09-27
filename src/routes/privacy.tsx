@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader, Panel } from "@/components/page-kit";
 
 export const Route = createFileRoute("/privacy")({
-  staticData: { sitemap: true },
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Privacy Notice | IT PATH" },
