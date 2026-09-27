@@ -16,7 +16,7 @@ import {
 } from "@/lib/tech-jobs.functions";
 
 export const Route = createFileRoute("/tech-jobs")({
-  staticData: { sitemap: true },
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Tech Jobs | IT PATH" },
