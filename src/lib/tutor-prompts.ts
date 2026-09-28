@@ -113,11 +113,16 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
   }
 
   const intelligence = buildIntelligence(user);
+  const diagnosisQueue = topic
+    ? intelligence.queue.filter((concept) => concept.topicId === topic.id)
+    : intelligence.queue;
   sections.push(
     [
-      "LEARNING DIAGNOSIS (what my recorded work says about how I am struggling)",
+      topic
+        ? "LEARNING DIAGNOSIS FOR THE SELECTED TOPIC"
+        : "LEARNING DIAGNOSIS (what my recorded work says about how I am struggling)",
       list(
-        intelligence.queue
+        diagnosisQueue
           .slice(0, 5)
           .map(
             (concept) =>
@@ -128,14 +133,14 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
   );
 
   const weak = scoreAllSkills(user)
-    .filter((s) => s.weak)
+    .filter((s) => s.weak && (!topic || s.skill.topicId === topic.id))
     .sort((a, b) => b.score - a.score)
     .slice(0, 6)
     .map((s) => `${s.skill.title} (${s.openMistakes} open mistake${s.openMistakes === 1 ? "" : "s"})`);
   sections.push(["WEAK AREAS", list(weak)].join("\n"));
 
   const mistakes = [...user.mistakes]
-    .filter((m) => !m.resolved)
+    .filter((m) => !m.resolved && (!topic || m.topicId === topic.id))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, 6)
     .map((m) => {
@@ -145,6 +150,7 @@ export function buildContextBlock(user: UserData, ctx: TutorContext): string {
   sections.push(["RECENT UNRESOLVED MISTAKES", list(mistakes)].join("\n"));
 
   const reviews = [...user.reviews]
+    .filter((r) => !topic || r.topicId === topic.id)
     .sort((a, b) => a.dueAt.localeCompare(b.dueAt))
     .slice(0, 6)
     .map((r) => {
@@ -204,6 +210,16 @@ export function generateTutorPrompt(user: UserData, mode: TutorMode, ctx: TutorC
   const topic = ctx.topicId ? getTopic(ctx.topicId) : undefined;
   const topicTitle = topic ? topic.title : "the topics I am weakest in";
   const modeLabel = tutorModes.find((m) => m.id === mode)?.label ?? mode;
+  const topicScopeRules = topic
+    ? [
+        `The learner explicitly selected the topic "${topic.title}". Treat that selection as an active tutoring scope, not display metadata.`,
+        `Ground examples, practice, explanations, troubleshooting and follow-up questions in "${topic.title}" and its listed objectives.`,
+        "Use the selected topic's measured progress, mistakes, reviews and prerequisites to decide what to emphasize.",
+        "If the learner asks an unrelated question, answer it briefly if useful, but point out that it is outside the selected topic rather than silently changing scope.",
+      ]
+    : [
+        "No specific topic is selected. Prioritize the learner's measured weak areas, unresolved mistakes and due reviews.",
+      ];
 
   return [
     `You are my ${domain.field} tutor. Mode: ${modeLabel}.`,
@@ -213,6 +229,9 @@ export function generateTutorPrompt(user: UserData, mode: TutorMode, ctx: TutorC
     "",
     "CONTEXT ABOUT ME (generated from my own study records)",
     buildContextBlock(user, ctx),
+    "",
+    "TOPIC SCOPE",
+    list(topicScopeRules),
     "",
     "RULES",
     list([
