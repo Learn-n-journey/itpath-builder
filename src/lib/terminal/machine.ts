@@ -362,10 +362,14 @@ export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind
     state.eventLog.unshift(`${new Date().toISOString()} storage capacity warning: disk is 99% full`);
     return { id: `disk-${stamp}`, kind, title: "Disk almost full", symptom: "The system volume has almost no free space." };
   }
-  const account = state.users.find((item) => item.name === state.currentUser);
-  if (account) account.locked = true;
-  state.eventLog.unshift(`${new Date().toISOString()} account ${state.currentUser} locked`);
-  return { id: `account-${stamp}`, kind, title: "Account locked", symptom: "The current local account is locked.", target: state.currentUser };
+  const recoveryName = state.platform === "windows" ? "helpdesk2" : state.platform === "macos" ? "support" : "helpdesk";
+  let account = state.users.find((item) => item.name.toLowerCase() === recoveryName.toLowerCase());
+  if (!account) {
+    account = { name: recoveryName, fullName: "Help Desk Support", groups: state.platform === "windows" ? ["Users"] : ["staff"], admin: false, locked: true, passwordExpired: false };
+    state.users.push(account);
+  } else account.locked = true;
+  state.eventLog.unshift(`${new Date().toISOString()} sign-in rejected for local account ${account.name}: account disabled or locked`);
+  return { id: `account-${stamp}`, kind, title: "User cannot sign in", symptom: "A local user reports that sign-in is being rejected.", target: account.name };
 }
 
 export function reclaimTrainingDiskSpace(state: MachineState, amount = 12): number {
