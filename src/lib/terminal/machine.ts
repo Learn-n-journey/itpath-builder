@@ -6,7 +6,7 @@
  * object, so a session can be saved, restored and resumed later.
  */
 
-export type ShellKind = "cmd" | "powershell" | "bash" | "android" | "ios";
+export type ShellKind = "cmd" | "powershell" | "bash" | "mac" | "android" | "ios";
 
 export interface VfsNode {
   type: "dir" | "file";
@@ -155,6 +155,7 @@ export function promptPath(state: MachineState): string {
 export function prompt(state: MachineState): string {
   if (state.shell === "cmd") return `${promptPath(state)}>`;
   if (state.shell === "powershell") return `PS ${promptPath(state)}>`;
+  if (state.shell === "mac") return `${state.hostname}:${promptPath(state)} ${state.currentUser}$ `;
   if (state.shell === "ios") return `${state.hostname} support>`;
   if (state.shell === "android") return `${state.hostname}:${promptPath(state)}${state.elevated ? "#" : "$"} `;
   return `${state.currentUser}@${state.hostname}:${promptPath(state)}${state.elevated ? "#" : "$"} `;
