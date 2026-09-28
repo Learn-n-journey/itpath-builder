@@ -1274,11 +1274,36 @@ function runCmd(state: MachineState, input: string): ExecResult {
         if (!account) {
           return ok(state, ["User accounts for \\\\" + state.hostname, "", ...state.users.map((user) => user.name)]);
         }
-        const found = state.users.find((user) => user.name.toLowerCase() === account.toLowerCase());
+        let found = state.users.find((user) => user.name.toLowerCase() === account.toLowerCase());
+        const wantsDelete = args.some((arg) => arg.toLowerCase() === "/delete");
+        const wantsAdd = args.some((arg) => arg.toLowerCase() === "/add");
+        if (wantsDelete) {
+          if (!isAdmin(state)) return fail(state, "System error 5 has occurred. Access is denied.");
+          if (!found) return fail(state, "The user name could not be found.");
+          if (found.name === state.currentUser) return fail(state, "The current user cannot be deleted.");
+          state.users = state.users.filter((user) => user.name !== found!.name);
+          state.eventLog.push(`User account ${found.name} deleted.`);
+          return ok(state, "The command completed successfully.");
+        }
+        if (wantsAdd && !found) {
+          if (!isAdmin(state)) return fail(state, "System error 5 has occurred. Access is denied.");
+          found = { name: account, fullName: account, groups: ["Users"], admin: false, locked: false, passwordExpired: true };
+          state.users.push(found);
+          makeDir(state, `C:\\Users\\${account}`);
+          state.eventLog.push(`User account ${account} created.`);
+          return ok(state, "The command completed successfully.");
+        }
         if (!found) return fail(state, "The user name could not be found.");
+        if (args.some((arg) => arg.toLowerCase() === "/active:no")) {
+          if (!isAdmin(state)) return fail(state, "System error 5 has occurred. Access is denied.");
+          found.locked = true;
+          state.eventLog.push(`User account ${found.name} disabled.`);
+          return ok(state, "The command completed successfully.");
+        }
         if (args.some((arg) => arg.toLowerCase() === "/active:yes")) {
-          if (!isAdmin(state)) return fail(state, "System error 5 has occurred. Access is denied.\nThis command needs an elevated prompt. Run: runas /user:Administrator cmd");
+          if (!isAdmin(state)) return fail(state, "System error 5 has occurred. Access is denied.");
           found.locked = false;
+          state.eventLog.push(`User account ${found.name} enabled.`);
           return ok(state, "The command completed successfully.");
         }
         return ok(state, [
@@ -1302,7 +1327,29 @@ function runCmd(state: MachineState, input: string): ExecResult {
         return ok(state, `The ${serviceName} service was ${action === "start" ? "started" : "stopped"} successfully.`);
       }
       if (action === "localgroup") {
-        return ok(state, ["Aliases for \\\\" + state.hostname, "", "*Administrators", "*Users"]);
+        const group = operands[1];
+        const member = operands[2];
+        if (!group) return ok(state, ["Aliases for \\\\" + state.hostname, "", "*Administrators", "*Users"]);
+        if (!member) {
+          const members = state.users.filter((user) => user.groups.some((g) => g.toLowerCase() === group.toLowerCase()));
+          return ok(state, [`Alias name     ${group}`, "", "Members", "-------------------------------", ...members.map((user) => user.name), "The command completed successfully."]);
+        }
+        if (!isAdmin(state)) return fail(state, "System error 5 has occurred. Access is denied.");
+        const found = state.users.find((user) => user.name.toLowerCase() === member.toLowerCase());
+        if (!found) return fail(state, "There is no such global user or group.");
+        if (args.some((arg) => arg.toLowerCase() === "/add")) {
+          found.groups = [...new Set([...found.groups, group])];
+          if (group.toLowerCase() === "administrators") found.admin = true;
+          state.eventLog.push(`${found.name} added to local group ${group}.`);
+          return ok(state, "The command completed successfully.");
+        }
+        if (args.some((arg) => arg.toLowerCase() === "/delete")) {
+          found.groups = found.groups.filter((g) => g.toLowerCase() !== group.toLowerCase());
+          if (group.toLowerCase() === "administrators") found.admin = false;
+          state.eventLog.push(`${found.name} removed from local group ${group}.`);
+          return ok(state, "The command completed successfully.");
+        }
+        return fail(state, "The syntax of this command is: NET LOCALGROUP group user /ADD|/DELETE");
       }
       return fail(state, "The syntax of this command is: NET USER | NET START | NET STOP | NET LOCALGROUP");
     }
