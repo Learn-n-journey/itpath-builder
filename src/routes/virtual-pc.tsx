@@ -284,6 +284,14 @@ function VirtualPcPage() {
     const next = clone(sourceMachine);
     ticketBaseline.current = { os: targetOs, machine: clone(sourceMachine) };
     const fault = injectTrainingFault(next, ticket.fault);
+    if (ticket.faultProfile === "service-startup-disabled" && fault.target) {
+      const svc = next.services.find((item) => item.name === fault.target);
+      if (svc) {
+        svc.startType = "disabled";
+        svc.status = "stopped";
+        addEvent(next, `Service ${svc.name} startup configuration is disabled; it will not start at boot.`);
+      }
+    }
     if (targetOs === pcOs) saveMachine(next);
     else setOsMachines((current) => syncVirtualEnvironment({ ...current, [targetOs]: next }, virtualEnvironment));
     setActiveTicketId(ticket.id); setActiveFault(fault); setTicketVerified(false); setTicketEvidence([ticket.scope === "cross-machine" ? "Cross-machine incident opened from reporting workstation" : "Ticket opened"]); setGaylHelpLevel(0); setGaylWalkthrough(false); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); setTicketOpen(true); setTerminalLines([]);
@@ -291,7 +299,9 @@ function VirtualPcPage() {
   const verifyTicket = () => {
     if (!activeFault) return;
     const host = activeTicket?.faultHostOs ? osMachines[activeTicket.faultHostOs] : machine;
-    const faultFixed = trainingFaultResolved(host, activeFault);
+    const baseFaultFixed = trainingFaultResolved(host, activeFault);
+    const startupFixed = activeTicket?.faultProfile === "service-startup-disabled" && activeFault.target ? host.services.find((svc)=>svc.name===activeFault.target)?.startType === "auto" && host.services.find((svc)=>svc.name===activeFault.target)?.status === "running" : true;
+    const faultFixed = baseFaultFixed && startupFixed;
     const resourceFixed = activeTicket?.verifyResourceId ? sharedResourceAvailable(activeTicket.verifyResourceId, osMachines, virtualEnvironment) : true;
     const reporterHealthy = activeTicket?.reporterOs ? Boolean(primaryInterface(osMachines[activeTicket.reporterOs])?.up) : true;
     const passed = faultFixed && resourceFixed && reporterHealthy;
