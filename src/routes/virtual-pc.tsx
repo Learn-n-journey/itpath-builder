@@ -25,7 +25,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { injectTrainingFault, prompt, reclaimTrainingDiskSpace, trainingFaultResolved, type TrainingFault } from "@/lib/terminal/machine";
 import { ticketDifficulty, ticketScope, trainingTickets } from "@/lib/training/tickets";
-import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
+import { createVirtualEnvironment, sharedResourceAvailable, syncVirtualEnvironment } from "@/lib/training/environment";
 import { execute } from "@/lib/terminal/shells";
 import { clone, copyPath, createMachine, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setServiceStatus, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
@@ -71,7 +71,7 @@ function VirtualPcPage() {
   const [pcOs, setPcOs] = useState<PcOs>("windows");
   const [virtualEnvironment] = useState(() => createVirtualEnvironment());
   const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => syncVirtualEnvironment({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "mac", hostname: "itpath-mac" }) }, createVirtualEnvironment()));
-  const machine = pcOs === "windows" ? (sharedAttempt?.machine ?? osMachines.windows ?? fallbackMachine) : osMachines[pcOs];
+  const machine = osMachines[pcOs] ?? (pcOs === "windows" ? sharedAttempt?.machine ?? fallbackMachine : fallbackMachine);
   const [folder, setFolder] = useState<string[]>(["Users", "student"]);
   const [openApp, setOpenApp] = useState<AppId | null>("files");
   const [startOpen, setStartOpen] = useState(false);
@@ -178,7 +178,8 @@ function VirtualPcPage() {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem(`itpath-virtualpc-ticket-${pcOs}`);
+      const sharedSaved = localStorage.getItem("itpath-virtualpc-ticket-shared");
+      const saved = sharedSaved ?? localStorage.getItem(`itpath-virtualpc-ticket-${pcOs}`);
       if (!saved) { setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); return; }
       const parsed = JSON.parse(saved) as { ticketId: string; fault: TrainingFault; verified?: boolean };
       setActiveTicketId(parsed.ticketId); setActiveFault(parsed.fault); setTicketVerified(Boolean(parsed.verified)); setTicketEvidence((parsed as any).evidence ?? []); setGaylHelpLevel((parsed as any).helpLevel ?? 0);
@@ -187,16 +188,19 @@ function VirtualPcPage() {
 
   useEffect(() => {
     if (!activeTicketId || !activeFault) return;
-    localStorage.setItem(`itpath-virtualpc-ticket-${pcOs}`, JSON.stringify({ ticketId: activeTicketId, fault: activeFault, verified: ticketVerified, evidence: ticketEvidence, helpLevel: gaylHelpLevel }));
+    const ticket = trainingTickets.find((item) => item.id === activeTicketId);
+    const key = ticket?.scope === "cross-machine" ? "itpath-virtualpc-ticket-shared" : `itpath-virtualpc-ticket-${pcOs}`;
+    localStorage.setItem(key, JSON.stringify({ ticketId: activeTicketId, fault: activeFault, verified: ticketVerified, evidence: ticketEvidence, helpLevel: gaylHelpLevel }));
   }, [activeTicketId, activeFault, ticketVerified, ticketEvidence, gaylHelpLevel, pcOs]);
 
   const activeTicket = trainingTickets.find((ticket) => ticket.id === activeTicketId);
-  const repairReady = Boolean(activeFault && trainingFaultResolved(machine, activeFault));
+  const faultMachine = activeTicket?.faultHostOs ? osMachines[activeTicket.faultHostOs] : machine;
+  const repairReady = Boolean(activeFault && trainingFaultResolved(faultMachine, activeFault));
   const ticketResolved = repairReady && ticketVerified;
   const startTicket = (ticketId: string) => {
     const ticket = trainingTickets.find((item) => item.id === ticketId);
     if (!ticket || activeTicketId) return;
-    const targetOs: PcOs = ticket.scope === "cross-machine" && ticket.id === "ticket-1849" ? "linux" : pcOs;
+    const targetOs: PcOs = ticket.faultHostOs ?? pcOs;
     const sourceMachine = targetOs === pcOs ? machine : osMachines[targetOs];
     const next = clone(sourceMachine);
     const fault = injectTrainingFault(next, ticket.fault);
@@ -206,13 +210,18 @@ function VirtualPcPage() {
   };
   const verifyTicket = () => {
     if (!activeFault) return;
-    const passed = trainingFaultResolved(machine, activeFault);
+    const host = activeTicket?.faultHostOs ? osMachines[activeTicket.faultHostOs] : machine;
+    const faultFixed = trainingFaultResolved(host, activeFault);
+    const resourceFixed = activeTicket?.verifyResourceId ? sharedResourceAvailable(activeTicket.verifyResourceId, osMachines, virtualEnvironment) : true;
+    const reporterHealthy = activeTicket?.reporterOs ? Boolean(primaryInterface(osMachines[activeTicket.reporterOs])?.up) : true;
+    const passed = faultFixed && resourceFixed && reporterHealthy;
     setTicketVerified(passed); setTicketEvidence((items) => [...items, passed ? "Fix verified successfully" : "Verification attempted; issue remains"].slice(-40));
     if (passed) mutate((next) => { addEvent(next, `Help desk ticket ${activeTicketId?.replace("ticket-","") ?? ""} verified resolved.`); });
   };
   const closeTicket = () => {
     if (!ticketResolved) return;
     localStorage.removeItem(`itpath-virtualpc-ticket-${pcOs}`);
+    localStorage.removeItem("itpath-virtualpc-ticket-shared");
     setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0); setTicketOpen(false);
   };
   const cleanupStorage = () => {
