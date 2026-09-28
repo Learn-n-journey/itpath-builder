@@ -278,7 +278,7 @@ export function permissionString(node: VfsNode): string {
 /* ------------------------------------------------------------------ */
 
 export function primaryInterface(state: MachineState): NetInterface | undefined {
-  return state.interfaces.find((iface) => iface.name !== "lo" && iface.name !== "Loopback");
+  return state.interfaces.find((iface) => !["lo", "lo0", "loopback"].includes(iface.name.toLowerCase()));
 }
 
 export function resolveHost(state: MachineState, host: string): string | null {
@@ -299,6 +299,9 @@ export function resolveHost(state: MachineState, host: string): string | null {
   }
   if (state.dnsCache[key]) return state.dnsCache[key] as string;
   if (state.dnsServers.length === 0) return null;
+  // TEST-NET-3 (203.0.113.0/24) is deliberately unreachable in training faults.
+  // A bad configured resolver must fail instead of silently consulting our record table.
+  if (state.dnsServers.every((server) => server.startsWith("203.0.113."))) return null;
   return state.dnsRecords[key] ?? null;
 }
 
