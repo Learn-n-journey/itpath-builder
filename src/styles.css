@@ -228,6 +228,46 @@ html.light {
   .path-choice { animation: none; }
 }
 
+/* IT PATH signature visual language. Keep this restrained: it is a brand cue, not a card redesign. */
+:root {
+  --it-path-blue: #00c8ff;
+  --it-path-cobalt: #2787ff;
+  --it-path-violet: #9a45ff;
+  --it-path-red: #ff4565;
+  --it-path-gradient: linear-gradient(90deg, var(--it-path-blue), var(--it-path-cobalt) 38%, var(--it-path-violet) 68%, var(--it-path-red));
+}
+
+.it-path-line {
+  height: 3px;
+  border-radius: 999px;
+  background: var(--it-path-gradient);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--it-path-violet) 24%, transparent);
+}
+
+.it-path-text {
+  background: var(--it-path-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.it-path-node {
+  position: relative;
+}
+
+.it-path-node::after {
+  content: "";
+  position: absolute;
+  width: 0.42rem;
+  height: 0.42rem;
+  right: -0.12rem;
+  top: 50%;
+  translate: 0 -50%;
+  border-radius: 999px;
+  background: var(--it-path-red);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--it-path-red) 60%, transparent);
+}
+
 /* Shared progressive disclosure: quick enough to support, never delay, a task. */
 details > :not(summary) {
   animation: disclosure-enter 180ms ease-out;
