@@ -7,7 +7,9 @@ import {
   type MachineState,
   type MachineSpec,
   type ShellKind,
+  injectTrainingFault,
 } from "./machine";
+import { trainingTickets, type TrainingTicket } from "@/lib/training/tickets";
 
 export type TerminalGoal =
   | { id: string; description: string; kind: "dns_cache_empty" }
@@ -17,7 +19,11 @@ export type TerminalGoal =
   | { id: string; description: string; kind: "file_mode"; target: string; expected: string }
   | { id: string; description: string; kind: "path_exists"; target: string }
   | { id: string; description: string; kind: "path_absent"; target: string }
-  | { id: string; description: string; kind: "port_unblocked"; target: string };
+  | { id: string; description: string; kind: "port_unblocked"; target: string }
+  | { id: string; description: string; kind: "dns_config_valid" }
+  | { id: string; description: string; kind: "interface_up" }
+  | { id: string; description: string; kind: "gateway_present" }
+  | { id: string; description: string; kind: "disk_below"; expected: string };
 
 export interface TerminalScenario {
   id: string;
@@ -601,7 +607,28 @@ export const terminalScenarios: TerminalScenario[] = [
   }
 ];
 
+export function ticketTerminalScenario(ticket: TrainingTicket, shell: ShellKind): TerminalScenario {
+  const goals: TerminalGoal[] = ticket.fault === "dns" ? [{ id:"repair", description:"Restore valid DNS configuration", kind:"dns_config_valid" }]
+    : ticket.fault === "adapter" ? [{ id:"repair", description:"Restore the primary network interface", kind:"interface_up" }]
+    : ticket.fault === "gateway" ? [{ id:"repair", description:"Restore a default gateway", kind:"gateway_present" }]
+    : ticket.fault === "disk" ? [{ id:"repair", description:"Restore safe free disk capacity", kind:"disk_below", expected:"95" }]
+    : ticket.fault === "account" ? [{ id:"repair", description:"Unlock the affected local account", kind:"user_unlocked", target:"student" }]
+    : [{ id:"repair", description:"Restore the affected background service", kind:"service_running", target:"__fault_service__" }];
+  return { id:`ticket-terminal-${ticket.id}-${shell}`, topicId:ticket.topicId, shell, title:`#${ticket.id.replace("ticket-","")} · ${ticket.title}`, brief:ticket.brief, environment:ticket.environment, difficulty:"standard", estimatedMinutes:15, goals, diagnosticGroups: shell==="cmd" ? [["ipconfig /all","sc query"],["ping 10.0.0.1","nslookup example.com"]] : shell==="powershell" ? [["get-netipconfiguration","get-service"],["test-connection 10.0.0.1","resolve-dnsname example.com"]] : shell==="mac" ? [["ifconfig","networksetup -getdnsservers Ethernet"],["ping 10.0.0.1","scutil --dns"]] : [["ip addr","ip route","systemctl list-units"],["ping 10.0.0.1","dig example.com"]], efficientCommandCount:6, hints:["Start by observing the current state before changing anything.","Separate local connectivity from the affected feature.","Make the smallest repair, then verify the symptom is gone."], explanation:"The ticket is resolved when the underlying machine state is repaired and verified.", reasoningKeywords:ticket.tags, misconceptionRules:[], source:"curated" };
+}
+
+export const ticketTerminalScenarios: TerminalScenario[] = trainingTickets.flatMap(ticket => ticket.shells.filter(shell => ["cmd","powershell","bash","mac"].includes(shell)).map(shell => ticketTerminalScenario(ticket, shell)));
+
 export function buildScenarioMachine(scenario: TerminalScenario): MachineState {
+  if (scenario.id.startsWith("ticket-terminal-")) {
+    const ticket = trainingTickets.find(item => scenario.id.includes(item.id));
+    const machine = createMachine({ shell: scenario.shell, elevated: scenario.shell === "cmd" });
+    if (ticket) {
+      const fault = injectTrainingFault(machine, ticket.fault);
+      if (ticket.fault === "service" && fault.target) scenario.goals = [{ id:"repair", description:"Restore the affected background service", kind:"service_running", target:fault.target }];
+    }
+    return machine;
+  }
   if (scenario.machineSpec) return createMachine(scenario.machineSpec);
   if (scenario.id === "terminal-cmd-stale-dns") {
     return createMachine({ shell: "cmd", dnsCache: { "intranet.corp.local": "10.0.0.99" } });
@@ -649,6 +676,10 @@ export function buildScenarioMachine(scenario: TerminalScenario): MachineState {
 }
 
 export function goalMet(state: MachineState, goal: TerminalGoal): boolean {
+  if (goal.kind === "dns_config_valid") return state.dnsServers.length > 0 && !state.dnsServers.includes("203.0.113.53");
+  if (goal.kind === "interface_up") return Boolean(state.interfaces.find(iface => iface.up && iface.ip !== "127.0.0.1"));
+  if (goal.kind === "gateway_present") return Boolean(state.interfaces.find(iface => iface.up && iface.gateway));
+  if (goal.kind === "disk_below") return state.diskUsedPercent < Number(goal.expected);
   if (goal.kind === "dns_cache_empty") return Object.keys(state.dnsCache).length === 0;
   if (goal.kind === "service_running") return findService(state, goal.target)?.status === "running";
   if (goal.kind === "process_absent") {
@@ -665,7 +696,7 @@ export function goalMet(state: MachineState, goal: TerminalGoal): boolean {
 }
 
 export function scenariosForShell(shell: ShellKind): TerminalScenario[] {
-  return terminalScenarios.filter((scenario) => scenario.shell === shell);
+  return [...terminalScenarios, ...ticketTerminalScenarios].filter((scenario) => scenario.shell === shell);
 }
 
 /**
