@@ -44,7 +44,7 @@ function serviceRunning(machine: MachineState, names: string[]): boolean {
   return names.some((name) => machine.services.some((svc) => svc.name.toLowerCase() === name.toLowerCase() && svc.status === "running"));
 }
 
-function resourceAvailable(resource: SharedResource, machines: Record<VirtualOsKey, MachineState>): boolean {
+export function resourceAvailable(resource: SharedResource, machines: Record<VirtualOsKey, MachineState>): boolean {
   const host = machines[resource.host];
   const iface = host.interfaces.find((item) => item.name !== "lo" && item.name !== "lo0") ?? host.interfaces[0];
   if (!iface?.up) return false;
@@ -85,4 +85,10 @@ export function syncVirtualEnvironment(
     linux: connectMachineToEnvironment(machines.linux, liveEnv),
     mac: connectMachineToEnvironment(machines.mac, liveEnv),
   };
+}
+
+/** Resolve a shared resource against live host state. Used by ticket verification as well as LAN sync. */
+export function sharedResourceAvailable(resourceId: string, machines: Record<VirtualOsKey, MachineState>, env: VirtualEnvironmentState): boolean {
+  const resource = env.resources.find((item) => item.id === resourceId);
+  return Boolean(resource && resourceAvailable(resource, machines));
 }
