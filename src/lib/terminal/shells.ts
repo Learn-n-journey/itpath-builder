@@ -184,7 +184,15 @@ function runMac(state: MachineState, input: string): ExecResult {
   if (name === "diskutil") return ok(state, ["/dev/disk0 (internal, physical):", "   0: GUID_partition_scheme", "   1: APFS Container Macintosh HD"]);
   if (name === "log") return ok(state, state.eventLog.slice(-50));
   if (name === "launchctl") return ok(state, state.services.map((svc) => `${svc.status === "running" ? "0" : "-"}\t${svc.name}`));
-  if (!MAC_COMMANDS.includes(name)) return fail(state, `zsh: command not found: ${name}`);
+  const macCommon = ["", "clear", "pwd", "whoami", "hostname", "id", "groups", "echo", "env", "history", "cd", "ls", "cat", "head", "tail", "grep", "touch", "mkdir", "rm", "rmdir", "cp", "mv", "chmod", "chown", "find", "ps", "top", "kill", "pkill", "df", "ifconfig", "ping", "traceroute", "nslookup", "dig"];
+  if (name === "uname") return ok(state, args.includes("-a") ? `Darwin ${state.hostname} 24.0.0 Darwin Kernel Version 24.0.0: RELEASE_ARM64_T8103 arm64` : "Darwin");
+  if (name === "sw_vers") return ok(state, ["ProductName:\t\tmacOS", "ProductVersion:\t\t15.0", "BuildVersion:\t\t24A335"]);
+  if (name === "whoami") return ok(state, state.currentUser);
+  if (name === "dscl" && args[0] === "." && args[1] === "-list" && args[2] === "/Users") return ok(state, state.users.map((user) => user.name));
+  if (name === "dscacheutil" && args.includes("-flushcache")) { state.dnsCache = {}; return ok(state, ""); }
+  if (name === "killall" && args.some((arg) => arg.toLowerCase() === "-hup") && args.some((arg) => arg.toLowerCase() === "mdnsresponder")) { state.dnsCache = {}; return ok(state, ""); }
+  if (name === "defaults") return ok(state, "");
+  if (!macCommon.includes(name)) return fail(state, `zsh: command not found: ${name}`);
   return runBashCommand(state, name, args, input);
 }
 
@@ -243,9 +251,11 @@ function runBashCommand(
     case "uname":
       return ok(
         state,
-        hasFlag("a")
-          ? `Linux ${state.hostname} 5.15.0-105-generic #115-Ubuntu SMP x86_64 GNU/Linux`
-          : "Linux",
+        state.platform === "macos"
+          ? (hasFlag("a") ? `Darwin ${state.hostname} 24.0.0 Darwin Kernel Version 24.0.0: RELEASE_ARM64_T8103 arm64` : "Darwin")
+          : hasFlag("a")
+            ? `Linux ${state.hostname} 5.15.0-105-generic #115-Ubuntu SMP x86_64 GNU/Linux`
+            : "Linux",
       );
     case "id": {
       const account = state.users.find((user) => user.name === state.currentUser);
@@ -267,7 +277,7 @@ function runBashCommand(
     case "history":
       return ok(state, state.history.map((entry, index) => `${padStart(index + 1, 5)}  ${entry}`));
     case "cd": {
-      const target = operands[0] ?? `/home/${state.currentUser}`;
+      const target = operands[0] ?? (state.platform === "macos" ? `/Users/${state.currentUser}` : `/home/${state.currentUser}`);
       const segments = resolvePath(state, target);
       const node = getNode(state, segments);
       if (!node) return fail(state, `bash: cd: ${target}: No such file or directory`);
@@ -402,13 +412,12 @@ function runBashCommand(
       return ok(state, results);
     }
     case "df":
-      return ok(state, [
-        "Filesystem     1K-blocks      Used Available Use% Mounted on",
-        `/dev/sda1       51474912  ${padStart(Math.round(514749 * state.diskUsedPercent), 8)}  ${padStart(
-          Math.round(514749 * (100 - state.diskUsedPercent)),
-          8,
-        )}  ${state.diskUsedPercent}% /`,
-      ]);
+      return state.platform === "macos"
+        ? ok(state, ["Filesystem       512-blocks      Used Available Capacity Mounted on", `/dev/disk3s1s1    976490576  ${padStart(Math.round(9764905 * state.diskUsedPercent), 8)}  ${padStart(Math.round(9764905 * (100 - state.diskUsedPercent)), 8)}  ${state.diskUsedPercent}% /`])
+        : ok(state, [
+            "Filesystem     1K-blocks      Used Available Use% Mounted on",
+            `/dev/sda1       51474912  ${padStart(Math.round(514749 * state.diskUsedPercent), 8)}  ${padStart(Math.round(514749 * (100 - state.diskUsedPercent)), 8)}  ${state.diskUsedPercent}% /`,
+          ]);
     case "free":
       return ok(state, [
         "               total        used        free",
