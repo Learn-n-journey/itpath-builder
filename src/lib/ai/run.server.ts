@@ -280,8 +280,19 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
         reply = directGeminiTutor
           ? await callGeminiTutor(system, turns, input.json ?? false, apiKey)
           : await callGateway(model, system, turns, input.json ?? false, apiKey);
-      } catch {
-        return { failed: "Could not reach the AI service. Check your connection and try again.", status: 0 } as const;
+      } catch (cause) {
+        const detail = cause instanceof Error ? cause.message : String(cause);
+        console.error("[AI] provider request failed", {
+          feature: input.feature,
+          provider: directGeminiTutor ? "gemini-direct" : "lovable-gateway",
+          detail,
+        });
+        return {
+          failed: directGeminiTutor
+            ? `Gemini request failed: ${detail}`
+            : "Could not reach the AI service. Check your connection and try again.",
+          status: 0,
+        } as const;
       }
       if ("error" in reply) {
         return {
