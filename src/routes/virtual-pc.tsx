@@ -11,6 +11,8 @@ import {
   SquareTerminal,
   Wifi,
   Activity,
+  Cpu,
+  MemoryStick,
   Network,
   ServerCog,
   X,
@@ -33,7 +35,7 @@ export const Route = createFileRoute("/virtual-pc")({
   component: VirtualPcPage,
 });
 
-type AppId = "files" | "settings" | "terminal" | "processes" | "network" | "services";
+type AppId = "files" | "settings" | "terminal" | "processes" | "network" | "services" | "hardware";
 type PcOs = "windows" | "linux" | "mac";
 type VirtualFile = { name: string; kind: "folder" | "file"; detail: string };
 
@@ -157,6 +159,27 @@ function VirtualPcPage() {
   const toggleService = (name: string, running: boolean) => mutate((next) => { setServiceStatus(next, name, running ? "stopped" : "running"); });
   const toggleNetwork = () => mutate((next) => { const iface = primaryInterface(next); if (iface) iface.up = !iface.up; });
 
+  const hardwareGroups = useMemo(() => {
+    const iface = primaryInterface(machine);
+    if (pcOs === "windows") return [
+      { group: "Processors", items: [{ name: "IT PATH Virtual CPU", detail: "4 cores · 8 logical processors", status: "Working properly" }] },
+      { group: "Disk drives", items: [{ name: "Virtual NVMe SSD", detail: `${machine.diskUsedPercent}% used`, status: "Working properly" }] },
+      { group: "Network adapters", items: [{ name: iface?.name ?? "Ethernet Adapter", detail: iface?.up ? iface.ip : "Disabled", status: iface?.up ? "Working properly" : "Device disabled" }] },
+      { group: "Memory", items: [{ name: "System memory", detail: `${machine.memoryTotalMb} MB installed`, status: "Working properly" }] },
+    ];
+    if (pcOs === "linux") return [
+      { group: "CPU", items: [{ name: "Virtual x86_64 Processor", detail: "4 cores · 8 threads", status: "online" }] },
+      { group: "Block Devices", items: [{ name: "/dev/nvme0n1", detail: `${machine.diskUsedPercent}% filesystem used`, status: "mounted" }] },
+      { group: "Network", items: [{ name: iface?.name ?? "ens33", detail: iface?.up ? iface.ip : "link down", status: iface?.up ? "UP" : "DOWN" }] },
+      { group: "Memory", items: [{ name: "RAM", detail: `${machine.memoryUsedMb} / ${machine.memoryTotalMb} MB used`, status: "available" }] },
+    ];
+    return [
+      { group: "Hardware Overview", items: [{ name: "Processor", detail: "Virtual Apple-compatible training CPU", status: "Normal" }, { name: "Memory", detail: `${machine.memoryTotalMb} MB`, status: "Normal" }] },
+      { group: "Storage", items: [{ name: "Virtual SSD", detail: `${machine.diskUsedPercent}% used`, status: "S.M.A.R.T. status: Verified" }] },
+      { group: "Network", items: [{ name: iface?.name ?? "en0", detail: iface?.up ? iface.ip : "Inactive", status: iface?.up ? "Active" : "Inactive" }] },
+    ];
+  }, [machine, pcOs]);
+
   const launch = (app: AppId) => {
     setOpenApp(app);
     setStartOpen(false);
@@ -176,14 +199,15 @@ function VirtualPcPage() {
           <button onClick={() => launch("settings")} className="rounded-xl p-2 hover:bg-white/10"><Settings className="mx-auto mb-1 size-8 text-slate-200" /> {pcOs === "linux" ? "System" : "Settings"}</button>
           <button onClick={() => launch("terminal")} className="rounded-xl p-2 hover:bg-white/10"><SquareTerminal className="mx-auto mb-1 size-8 text-cyan-300" />Terminal</button>
           <button onClick={() => launch("processes")} className="rounded-xl p-2 hover:bg-white/10"><Activity className="mx-auto mb-1 size-8 text-emerald-300" />{pcOs === "windows" ? "Task Manager" : "Activity"}</button>
+          <button onClick={() => launch("hardware")} className="rounded-xl p-2 hover:bg-white/10"><Cpu className="mx-auto mb-1 size-8 text-violet-300" />{pcOs === "windows" ? "Device Manager" : pcOs === "linux" ? "Hardware" : "System Info"}</button>
         </div>
 
         {openApp ? (
           <section className="absolute inset-2 top-2 overflow-hidden rounded-2xl border border-white/15 bg-[#f7f9fc] text-slate-900 shadow-2xl sm:inset-x-[8%] sm:inset-y-[5%] lg:inset-x-[16%]">
             <div className="flex h-11 items-center justify-between border-b border-slate-200 bg-white px-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                {openApp === "files" ? <FolderOpen className="size-4 text-blue-600" /> : openApp === "terminal" ? <SquareTerminal className="size-4 text-slate-700" /> : openApp === "processes" ? <Activity className="size-4 text-emerald-600" /> : openApp === "network" ? <Network className="size-4 text-blue-600" /> : openApp === "services" ? <ServerCog className="size-4 text-violet-600" /> : <Settings className="size-4 text-blue-600" />}
-                {openApp === "files" ? (pcOs === "mac" ? "Finder" : pcOs === "linux" ? "Files" : "File Explorer") : openApp === "terminal" ? "Terminal" : openApp === "processes" ? (pcOs === "windows" ? "Task Manager" : "Activity Monitor") : openApp === "network" ? "Network" : openApp === "services" ? "Services" : "Settings"}
+                {openApp === "files" ? <FolderOpen className="size-4 text-blue-600" /> : openApp === "terminal" ? <SquareTerminal className="size-4 text-slate-700" /> : openApp === "processes" ? <Activity className="size-4 text-emerald-600" /> : openApp === "network" ? <Network className="size-4 text-blue-600" /> : openApp === "services" ? <ServerCog className="size-4 text-violet-600" /> : openApp === "hardware" ? <Cpu className="size-4 text-violet-600" /> : <Settings className="size-4 text-blue-600" />}
+                {openApp === "files" ? (pcOs === "mac" ? "Finder" : pcOs === "linux" ? "Files" : "File Explorer") : openApp === "terminal" ? "Terminal" : openApp === "processes" ? (pcOs === "windows" ? "Task Manager" : "Activity Monitor") : openApp === "network" ? "Network" : openApp === "services" ? "Services" : openApp === "hardware" ? (pcOs === "windows" ? "Device Manager" : pcOs === "linux" ? "Hardware Information" : "System Information") : "Settings"}
               </div>
               <button onClick={() => setOpenApp(null)} className="grid size-8 place-items-center rounded-lg hover:bg-slate-100" aria-label="Close"><X className="size-4" /></button>
             </div>
@@ -218,6 +242,8 @@ function VirtualPcPage() {
               <div className="h-[calc(100%-2.75rem)] overflow-y-auto p-4"><div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3"><div className="rounded-xl bg-slate-100 p-3"><p className="text-xs text-slate-500">Memory</p><strong>{machine.memoryUsedMb} / {machine.memoryTotalMb} MB</strong></div><div className="rounded-xl bg-slate-100 p-3"><p className="text-xs text-slate-500">Disk used</p><strong>{machine.diskUsedPercent}%</strong></div><div className="rounded-xl bg-slate-100 p-3"><p className="text-xs text-slate-500">Processes</p><strong>{machine.processes.length}</strong></div></div><div className="space-y-2">{machine.processes.map((proc) => <div key={proc.pid} className="flex items-center gap-3 rounded-xl border bg-white p-3"><Activity className="size-5 text-emerald-600" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{proc.name}</p><p className="text-xs text-slate-500">PID {proc.pid} · {proc.user} · {proc.memoryMb} MB</p></div><button onClick={() => endProcess(proc.pid)} className="rounded-lg border px-2 py-1 text-xs hover:bg-red-50 hover:text-red-600">End</button></div>)}</div></div>
             ) : openApp === "network" ? (
               <div className="p-5">{(() => { const iface = primaryInterface(machine); return <><div className="flex items-center justify-between rounded-xl border bg-white p-4"><div><h2 className="font-semibold">{iface?.name ?? "Network adapter"}</h2><p className="text-sm text-slate-500">{iface?.up ? "Connected" : "Disconnected"}</p></div><button onClick={toggleNetwork} className="rounded-lg border px-3 py-2 text-sm">{iface?.up ? "Disable" : "Enable"}</button></div><div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">{[["IP address", iface?.ip],["Subnet mask",iface?.mask],["Gateway",iface?.gateway],["DNS",machine.dnsServers.join(", ")]].map(([k,v]) => <div key={k} className="rounded-xl bg-slate-100 p-3"><p className="text-xs text-slate-500">{k}</p><p className="font-mono">{v || "—"}</p></div>)}</div></>; })()}</div>
+            ) : openApp === "hardware" ? (
+              <div className="h-[calc(100%-2.75rem)] overflow-y-auto p-4"><div className="mb-4 rounded-xl bg-slate-100 p-4"><div className="flex items-center gap-3"><Monitor className="size-8 text-violet-600" /><div><h2 className="font-semibold">{machine.hostname}</h2><p className="text-xs text-slate-500">{pcOs === "windows" ? "Device Manager · simulated workstation hardware" : pcOs === "linux" ? "Hardware probe · simulated Linux workstation" : "System Information · simulated Mac workstation"}</p></div></div></div><div className="space-y-4">{hardwareGroups.map((section) => <section key={section.group}><h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{section.group}</h3><div className="space-y-2">{section.items.map((item) => <div key={item.name} className="flex items-center gap-3 rounded-xl border bg-white p-3"><div className="grid size-9 place-items-center rounded-lg bg-violet-50">{section.group.toLowerCase().includes("memory") ? <MemoryStick className="size-5 text-violet-600" /> : <Cpu className="size-5 text-violet-600" />}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{item.name}</p><p className="text-xs text-slate-500">{item.detail}</p></div><span className={cn("rounded-full px-2 py-1 text-[10px] font-medium", /disabled|down|inactive/i.test(item.status) ? "bg-amber-100 text-amber-700" : "bg-emerald-50 text-emerald-700")}>{item.status}</span></div>)}</div></section>)}</div></div>
             ) : openApp === "services" ? (
               <div className="h-[calc(100%-2.75rem)] overflow-y-auto p-4"><div className="space-y-2">{machine.services.map((svc) => <div key={svc.name} className="flex items-center gap-3 rounded-xl border bg-white p-3"><ServerCog className="size-5 text-violet-600" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{svc.display}</p><p className="text-xs text-slate-500">{svc.name} · {svc.startType} · {svc.status}</p></div><button onClick={() => toggleService(svc.name, svc.status === "running")} className="rounded-lg border px-2 py-1 text-xs">{svc.status === "running" ? "Stop" : "Start"}</button></div>)}</div></div>
             ) : (
@@ -241,7 +267,7 @@ function VirtualPcPage() {
           <div className="grid grid-cols-3 gap-2 text-center text-xs sm:grid-cols-5">
             <button onClick={() => launch("files")} className="rounded-xl p-3 hover:bg-white/10"><FolderOpen className="mx-auto mb-2 size-7 text-amber-300" />Explorer</button>
             <button onClick={() => launch("settings")} className="rounded-xl p-3 hover:bg-white/10"><Settings className="mx-auto mb-2 size-7" />Settings</button>
-            <button onClick={() => launch("terminal")} className="rounded-xl p-3 hover:bg-white/10"><SquareTerminal className="mx-auto mb-2 size-7 text-cyan-300" />Terminal</button><button onClick={() => launch("processes")} className="rounded-xl p-3 hover:bg-white/10"><Activity className="mx-auto mb-2 size-7 text-emerald-300" />Processes</button><button onClick={() => launch("network")} className="rounded-xl p-3 hover:bg-white/10"><Network className="mx-auto mb-2 size-7 text-blue-300" />Network</button>
+            <button onClick={() => launch("terminal")} className="rounded-xl p-3 hover:bg-white/10"><SquareTerminal className="mx-auto mb-2 size-7 text-cyan-300" />Terminal</button><button onClick={() => launch("processes")} className="rounded-xl p-3 hover:bg-white/10"><Activity className="mx-auto mb-2 size-7 text-emerald-300" />Processes</button><button onClick={() => launch("network")} className="rounded-xl p-3 hover:bg-white/10"><Network className="mx-auto mb-2 size-7 text-blue-300" />Network</button><button onClick={() => launch("hardware")} className="rounded-xl p-3 hover:bg-white/10"><Cpu className="mx-auto mb-2 size-7 text-violet-300" />Hardware</button>
           </div>
         </div>
       ) : null}
