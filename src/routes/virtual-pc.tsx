@@ -10,13 +10,16 @@ import {
   Settings,
   SquareTerminal,
   Wifi,
+  Activity,
+  Network,
+  ServerCog,
   X,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { prompt } from "@/lib/terminal/machine";
 import { execute } from "@/lib/terminal/shells";
-import { clone, createMachine, getNode, makeDir, removePath, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
+import { clone, createMachine, getNode, killProcess, makeDir, primaryInterface, removePath, setServiceStatus, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/virtual-pc")({
@@ -30,7 +33,7 @@ export const Route = createFileRoute("/virtual-pc")({
   component: VirtualPcPage,
 });
 
-type AppId = "files" | "settings" | "terminal";
+type AppId = "files" | "settings" | "terminal" | "processes" | "network" | "services";
 type PcOs = "windows" | "linux" | "mac";
 type VirtualFile = { name: string; kind: "folder" | "file"; detail: string };
 
@@ -67,7 +70,6 @@ function VirtualPcPage() {
   const [draftName, setDraftName] = useState("");
   const [editing, setEditing] = useState<VirtualFile | null>(null);
   const [fileText, setFileText] = useState("");
-  const [pcOs, setPcOs] = useState<PcOs>("windows");
   const [terminalInput, setTerminalInput] = useState("");
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const currentNode = getNode(machine, folder);
@@ -133,6 +135,10 @@ function VirtualPcPage() {
     setStartOpen(false);
   };
 
+  const endProcess = (pid: number) => mutate((next) => { killProcess(next, String(pid)); });
+  const toggleService = (name: string, running: boolean) => mutate((next) => { setServiceStatus(next, name, running ? "stopped" : "running"); });
+  const toggleNetwork = () => mutate((next) => { const iface = primaryInterface(next); if (iface) iface.up = !iface.up; });
+
   const launch = (app: AppId) => {
     setOpenApp(app);
     setStartOpen(false);
@@ -151,14 +157,15 @@ function VirtualPcPage() {
           <button onClick={() => launch("files")} className="rounded-xl p-2 hover:bg-white/10"><FolderOpen className="mx-auto mb-1 size-8 text-amber-300" /> {pcOs === "windows" ? "File Explorer" : pcOs === "linux" ? "Files" : "Finder"}</button>
           <button onClick={() => launch("settings")} className="rounded-xl p-2 hover:bg-white/10"><Settings className="mx-auto mb-1 size-8 text-slate-200" /> {pcOs === "linux" ? "System" : "Settings"}</button>
           <button onClick={() => launch("terminal")} className="rounded-xl p-2 hover:bg-white/10"><SquareTerminal className="mx-auto mb-1 size-8 text-cyan-300" />Terminal</button>
+          <button onClick={() => launch("processes")} className="rounded-xl p-2 hover:bg-white/10"><Activity className="mx-auto mb-1 size-8 text-emerald-300" />{pcOs === "windows" ? "Task Manager" : "Activity"}</button>
         </div>
 
         {openApp ? (
           <section className="absolute inset-2 top-2 overflow-hidden rounded-2xl border border-white/15 bg-[#f7f9fc] text-slate-900 shadow-2xl sm:inset-x-[8%] sm:inset-y-[5%] lg:inset-x-[16%]">
             <div className="flex h-11 items-center justify-between border-b border-slate-200 bg-white px-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                {openApp === "files" ? <FolderOpen className="size-4 text-blue-600" /> : openApp === "terminal" ? <SquareTerminal className="size-4 text-slate-700" /> : <Settings className="size-4 text-blue-600" />}
-                {openApp === "files" ? (pcOs === "mac" ? "Files" : "File Explorer") : openApp === "terminal" ? "Terminal" : "Settings"}
+                {openApp === "files" ? <FolderOpen className="size-4 text-blue-600" /> : openApp === "terminal" ? <SquareTerminal className="size-4 text-slate-700" /> : openApp === "processes" ? <Activity className="size-4 text-emerald-600" /> : openApp === "network" ? <Network className="size-4 text-blue-600" /> : openApp === "services" ? <ServerCog className="size-4 text-violet-600" /> : <Settings className="size-4 text-blue-600" />}
+                {openApp === "files" ? (pcOs === "mac" ? "Finder" : pcOs === "linux" ? "Files" : "File Explorer") : openApp === "terminal" ? "Terminal" : openApp === "processes" ? (pcOs === "windows" ? "Task Manager" : "Activity Monitor") : openApp === "network" ? "Network" : openApp === "services" ? "Services" : "Settings"}
               </div>
               <button onClick={() => setOpenApp(null)} className="grid size-8 place-items-center rounded-lg hover:bg-slate-100" aria-label="Close"><X className="size-4" /></button>
             </div>
@@ -189,12 +196,18 @@ function VirtualPcPage() {
               </div>
             ) : openApp === "terminal" ? (
               <div className="flex h-[calc(100%-2.75rem)] flex-col bg-[#0b1020] text-slate-100"><div className="min-h-0 flex-1 overflow-y-auto p-4 font-mono text-xs sm:text-sm">{terminalLines.length === 0 ? <p className="text-slate-400">IT PATH {pcOs === "windows" ? "Windows" : pcOs === "linux" ? "Linux" : "macOS"} training terminal. Type help to begin.</p> : terminalLines.map((line, i) => <pre key={i} className="whitespace-pre-wrap break-words">{line}</pre>)}</div><form onSubmit={(e) => { e.preventDefault(); runEmbeddedTerminal(); }} className="flex items-center gap-2 border-t border-white/10 bg-black/20 p-3"><span className="shrink-0 font-mono text-xs text-cyan-300">{prompt(machine)}</span><input autoCapitalize="none" autoCorrect="off" spellCheck={false} value={terminalInput} onChange={(e) => setTerminalInput(e.target.value)} className="min-w-0 flex-1 bg-transparent font-mono text-sm text-white outline-none" placeholder="Enter command" /><button className="rounded-lg bg-cyan-500 px-3 py-2 text-xs font-semibold text-slate-950">Run</button></form></div>
+            ) : openApp === "processes" ? (
+              <div className="h-[calc(100%-2.75rem)] overflow-y-auto p-4"><div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3"><div className="rounded-xl bg-slate-100 p-3"><p className="text-xs text-slate-500">Memory</p><strong>{machine.memoryUsedMb} / {machine.memoryTotalMb} MB</strong></div><div className="rounded-xl bg-slate-100 p-3"><p className="text-xs text-slate-500">Disk used</p><strong>{machine.diskUsedPercent}%</strong></div><div className="rounded-xl bg-slate-100 p-3"><p className="text-xs text-slate-500">Processes</p><strong>{machine.processes.length}</strong></div></div><div className="space-y-2">{machine.processes.map((proc) => <div key={proc.pid} className="flex items-center gap-3 rounded-xl border bg-white p-3"><Activity className="size-5 text-emerald-600" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{proc.name}</p><p className="text-xs text-slate-500">PID {proc.pid} · {proc.user} · {proc.memoryMb} MB</p></div><button onClick={() => endProcess(proc.pid)} className="rounded-lg border px-2 py-1 text-xs hover:bg-red-50 hover:text-red-600">End</button></div>)}</div></div>
+            ) : openApp === "network" ? (
+              <div className="p-5">{(() => { const iface = primaryInterface(machine); return <><div className="flex items-center justify-between rounded-xl border bg-white p-4"><div><h2 className="font-semibold">{iface?.name ?? "Network adapter"}</h2><p className="text-sm text-slate-500">{iface?.up ? "Connected" : "Disconnected"}</p></div><button onClick={toggleNetwork} className="rounded-lg border px-3 py-2 text-sm">{iface?.up ? "Disable" : "Enable"}</button></div><div className="mt-4 grid gap-2 text-sm sm:grid-cols-2">{[["IP address", iface?.ip],["Subnet mask",iface?.mask],["Gateway",iface?.gateway],["DNS",machine.dnsServers.join(", ")]].map(([k,v]) => <div key={k} className="rounded-xl bg-slate-100 p-3"><p className="text-xs text-slate-500">{k}</p><p className="font-mono">{v || "—"}</p></div>)}</div></>; })()}</div>
+            ) : openApp === "services" ? (
+              <div className="h-[calc(100%-2.75rem)] overflow-y-auto p-4"><div className="space-y-2">{machine.services.map((svc) => <div key={svc.name} className="flex items-center gap-3 rounded-xl border bg-white p-3"><ServerCog className="size-5 text-violet-600" /><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium">{svc.display}</p><p className="text-xs text-slate-500">{svc.name} · {svc.startType} · {svc.status}</p></div><button onClick={() => toggleService(svc.name, svc.status === "running")} className="rounded-lg border px-2 py-1 text-xs">{svc.status === "running" ? "Stop" : "Start"}</button></div>)}</div></div>
             ) : (
               <div className="p-5">
                 <h2 className="text-xl font-semibold">System</h2>
                 <p className="mt-1 text-sm text-slate-500">Safe simulated settings. Changes will eventually affect the same virtual machine used by labs and the terminal.</p>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {["Network & internet", "System", "Accounts", "Storage"].map((item) => <button key={item} className="rounded-xl border border-slate-200 bg-white p-4 text-left text-sm font-medium hover:bg-blue-50">{item}</button>)}
+                  {["Network & internet", "Services", "System", "Accounts", "Storage"].map((item) => <button key={item} onClick={() => item === "Network & internet" ? launch("network") : item === "Services" ? launch("services") : undefined} className="rounded-xl border border-slate-200 bg-white p-4 text-left text-sm font-medium hover:bg-blue-50">{item}</button>)}
                 </div>
               </div>
             )}
@@ -209,7 +222,7 @@ function VirtualPcPage() {
           <div className="grid grid-cols-3 gap-2 text-center text-xs sm:grid-cols-5">
             <button onClick={() => launch("files")} className="rounded-xl p-3 hover:bg-white/10"><FolderOpen className="mx-auto mb-2 size-7 text-amber-300" />Explorer</button>
             <button onClick={() => launch("settings")} className="rounded-xl p-3 hover:bg-white/10"><Settings className="mx-auto mb-2 size-7" />Settings</button>
-            <button onClick={() => launch("terminal")} className="rounded-xl p-3 hover:bg-white/10"><SquareTerminal className="mx-auto mb-2 size-7 text-cyan-300" />Terminal</button>
+            <button onClick={() => launch("terminal")} className="rounded-xl p-3 hover:bg-white/10"><SquareTerminal className="mx-auto mb-2 size-7 text-cyan-300" />Terminal</button><button onClick={() => launch("processes")} className="rounded-xl p-3 hover:bg-white/10"><Activity className="mx-auto mb-2 size-7 text-emerald-300" />Processes</button><button onClick={() => launch("network")} className="rounded-xl p-3 hover:bg-white/10"><Network className="mx-auto mb-2 size-7 text-blue-300" />Network</button>
           </div>
         </div>
       ) : null}
