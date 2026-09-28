@@ -76,8 +76,18 @@ export const askTutor = createServerFn({ method: "POST" })
     if (!result.ok) return { ok: false, error: result.error };
     const answer = result.text;
 
-    // Selective self-check: a second pass only where being wrong would matter.
-    if (!result.cached && shouldSelfCheck("medium", answer)) {
+    // Keep ordinary tutoring fast. A second AI review is reserved for answers
+    // that contain actionable technical commands/steps or use the learner's
+    // saved material, where a mistake has a higher cost. General explanatory
+    // answers rely on the primary Gemini response plus deterministic checks.
+    const actionableTechnicalAnswer =
+      /\b(sudo|ipconfig|ifconfig|netstat|systemctl|service|adb|nslookup|dig|chmod|chown|sfc|regedit|taskkill|Get-[A-Za-z]+|Set-[A-Za-z]+)\b|(^|\n)\s*\d+[.)]\s/im.test(answer);
+    const needsTutorReview =
+      !result.cached &&
+      shouldSelfCheck("medium", answer) &&
+      (Boolean(knowledge) || actionableTechnicalAnswer);
+
+    if (needsTutorReview) {
       const checked = await reviewTutorAnswer({
         question,
         answer,
