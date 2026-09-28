@@ -305,6 +305,49 @@ export const verifyImportedTopicFacts = createServerFn({ method: "POST" })
     };
   });
 
+export const applyTopicFactCorrection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { topicId: string; claim: string; correction: string }) => ({
+    topicId: input.topicId.trim(),
+    claim: input.claim.trim(),
+    correction: input.correction.trim(),
+  }))
+  .handler(async ({ context, data }) => {
+    if (!isOwnerEmail(emailOf(context))) return { ok: false, owner: false, error: "Not allowed." };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
+      .from("owner_lessons")
+      .select("domain, source_file")
+      .eq("topic_id", data.topicId)
+      .eq("status", "approved")
+      .order("synced_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error || !row) return { ok: false, owner: true, error: error?.message ?? "No imported lesson was found." };
+
+    try {
+      const { applyWorkbookFactCorrection } = await import("@/lib/workbook-fix.server");
+      const target = await applyWorkbookFactCorrection({
+        domain: row.domain,
+        sourceFile: row.source_file,
+        claim: data.claim,
+        correction: data.correction,
+      });
+      await writeActivity({
+        area: "content",
+        action: "workbook_fact_correction",
+        subject: data.topicId,
+        result: "pass",
+        detail: { sourceFile: row.source_file, sheet: target.sheet, cell: target.cell },
+        actor: emailOf(context),
+      });
+      return { ok: true, owner: true, sourceFile: row.source_file, ...target };
+    } catch (cause) {
+      return { ok: false, owner: true, error: cause instanceof Error ? cause.message : "The workbook could not be updated." };
+    }
+  });
+
 /** Live checks against the services the app depends on. Reads only. */
 export const systemHealth = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
