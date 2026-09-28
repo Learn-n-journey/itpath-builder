@@ -107,7 +107,7 @@ async function callGeminiTutor(
           temperature: 0.35,
         },
       }),
-      signal: AbortSignal.timeout(45_000),
+      signal: AbortSignal.timeout(90_000),
     },
   );
   if (!response.ok) return { error: response.status };
