@@ -22,6 +22,7 @@ import { MaintenanceGate } from "@/components/maintenance-screen";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { accentSurface, featureAccent } from "@/lib/visual-accents";
 import { PathLogo } from "@/components/layout/path-logo";
+import { useAppState } from "@/state/app-state";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const attention = useSidebarAttention();
@@ -135,6 +136,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const palette = useCommandPalette();
+  const { user } = useAppState();
 
   
 
@@ -246,8 +248,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
         <MilestoneOverlay />
-        <GaylBubble />
-        <SidePanel />
+        {user.settings.showGaylBubble !== false ? <GaylBubble /> : null}
+        {user.settings.showBrainBubble !== false ? <SidePanel /> : null}
         <SyncLiveBadge />
         <footer className="mx-auto w-full max-w-7xl px-4 pb-10 sm:px-6 lg:px-10">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
