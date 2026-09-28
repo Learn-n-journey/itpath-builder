@@ -554,6 +554,17 @@ function runBashCommand(
       }
       return fail(state, 'Usage: ip [ OPTIONS ] OBJECT { addr | route | link }');
     }
+    case "nmcli": {
+      const iface = primaryInterface(state);
+      if ((operands[0] ?? "") === "device" && (operands[1] ?? "") === "status") return ok(state, ["DEVICE  TYPE      STATE         CONNECTION", `${iface?.name ?? "ens33"}   ethernet  ${iface?.up ? "connected" : "disconnected"}     Wired connection 1`]);
+      if (operands.includes("up") && iface) { iface.up = true; return ok(state, `Connection successfully activated on ${iface.name}`); }
+      if (operands.includes("down") && iface) { iface.up = false; return ok(state, `Connection '${iface.name}' successfully deactivated`); }
+      const dnsIndex = operands.findIndex((v) => v === "ipv4.dns");
+      if (dnsIndex >= 0) { state.dnsServers = (operands[dnsIndex + 1] ?? "").split(",").filter(Boolean); return ok(state, ""); }
+      const gwIndex = operands.findIndex((v) => v === "ipv4.gateway");
+      if (gwIndex >= 0 && iface) { iface.gateway = operands[gwIndex + 1] ?? ""; return ok(state, ""); }
+      return ok(state, iface ? [`GENERAL.DEVICE: ${iface.name}`, `GENERAL.STATE: ${iface.up ? "100 (connected)" : "30 (disconnected)"}`, `IP4.ADDRESS[1]: ${iface.ip}/24`, `IP4.GATEWAY: ${iface.gateway || "--"}`, `IP4.DNS[1]: ${state.dnsServers[0] ?? "--"}`] : []);
+    }
     case "ifconfig":
       return ok(state, ipAddrOutput(state));
     case "ping": {
@@ -607,6 +618,13 @@ function runBashCommand(
       return ok(state, [`traceroute to ${host} (${ip}), 30 hops max`, ...hops]);
     }
     case "ss":
+    case "netsh": {
+      const iface = primaryInterface(state);
+      const joined = args.join(" ").toLowerCase();
+      if (joined.includes("set dns") && iface) { const addr = args.find(v => /^\d+\.\d+\.\d+\.\d+$/.test(v)); if (addr) state.dnsServers = [addr]; return ok(state, "Ok."); }
+      if (joined.includes("set interface") && iface) { iface.up = !joined.includes("disable"); return ok(state, "Ok."); }
+      return fail(state, "The following command was not found or is not supported in this training environment.");
+    }
     case "netstat":
       return ok(state, [
         "Proto Local Address          Foreign Address        State",
@@ -1774,6 +1792,17 @@ function runPowerShell(state: MachineState, input: string): ExecResult {
     case "clear-dnsclientcache":
       state.dnsCache = {};
       return ok(state, "");
+    case "set-dnsclientserveraddress": {
+      if (!isAdmin(state)) return fail(state, "Set-DnsClientServerAddress : Access denied. Run PowerShell as administrator.");
+      const servers = (paramValue("serveraddresses") ?? operands.at(-1) ?? "").replace(/[()]/g, "").split(",").map(v=>v.trim()).filter(v=>/^\d+\.\d+\.\d+\.\d+$/.test(v));
+      if (servers.length) state.dnsServers = servers;
+      return ok(state, "");
+    }
+    case "enable-netadapter":
+    case "disable-netadapter": {
+      if (!isAdmin(state)) return fail(state, `${name} : Access denied. Run PowerShell as administrator.`);
+      const iface = primaryInterface(state); if (iface) iface.up = name === "enable-netadapter"; return ok(state, "");
+    }
     case "get-localuser": {
       const filter = (paramValue("name") ?? operands[0] ?? "").toLowerCase();
       const rows = state.users.filter((user) => !filter || user.name.toLowerCase() === filter);
@@ -1856,7 +1885,7 @@ function runPowerShell(state: MachineState, input: string): ExecResult {
       return ok(state, [
         "Supported here: Get-ChildItem Set-Location Get-Content Set-Content Add-Content New-Item Remove-Item",
         "                Copy-Item Move-Item Select-String Get-Process Stop-Process Get-Service Start-Service",
-        "                Stop-Service Restart-Service Set-Service Get-NetIPConfiguration Test-Connection",
+        "                Stop-Service Restart-Service Set-Service Get-NetIPConfiguration Set-DnsClientServerAddress Enable-NetAdapter Disable-NetAdapter Test-Connection",
         "                Test-NetConnection Resolve-DnsName Clear-DnsClientCache Get-LocalUser Enable-LocalUser",
         "                Get-ComputerInfo Get-EventLog Get-Volume Start-Process",
       ]);
