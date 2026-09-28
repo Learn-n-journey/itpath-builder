@@ -246,6 +246,10 @@ export interface UserSettings {
   dailyGoalMinutes?: number;
   /** Show one daily reminder when the goal is not met. */
   reminderEnabled?: boolean;
+  /** Show GAYL's floating companion button. Defaults to on. */
+  showGaylBubble?: boolean;
+  /** Show the floating Second Brain shortcut. Defaults to on. */
+  showBrainBubble?: boolean;
   /** 24-hour local time for the reminder, e.g. "18:30". */
   reminderTime?: string;
   /** Local date keys (YYYY-MM-DD) protected by a spent streak freeze. */
