@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Bot, Copy, History, Loader2, Plus, Send, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
@@ -110,6 +110,7 @@ function AiTutor() {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [threads, setThreads] = useState<TutorThreadSummary[]>([]);
   const [historyBusy, setHistoryBusy] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const { items: knowledgeItems } = useKnowledge();
   const listThreads = useServerFn(listTutorThreads);
@@ -129,6 +130,11 @@ function AiTutor() {
   useEffect(() => {
     void refreshHistory();
   }, [refreshHistory]);
+
+  useEffect(() => {
+    if (!started && !busy) return;
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [messages, busy, started]);
 
   async function persist(next: ChatMessage[]) {
     const topicTitle =
@@ -459,6 +465,7 @@ function AiTutor() {
                     GAYL is thinking…
                   </div>
                 ) : null}
+                <div ref={chatEndRef} aria-hidden />
               </div>
 
               <div className="grid gap-2">
