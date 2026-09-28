@@ -369,7 +369,7 @@ function AdminPage() {
   }, [runTopicFactCheck]);
 
   const verifyAllWorkbookFacts = useCallback(async () => {
-    const ids = (contentReport ?? contentHealth(coursePack)).map((topic) => topic.topicId);
+    const ids = coursePack.sections.map((topic) => topic.id);
     setCheckingAllFacts(true);
     let findings = 0;
     try {
@@ -384,7 +384,7 @@ function AdminPage() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Workbook verification could not finish.");
     } finally { setCheckingTopicFacts(null); setCheckingAllFacts(false); }
-  }, [contentReport, runTopicFactCheck]);
+  }, [runTopicFactCheck]);
 
   const fixAdminFact = useCallback(async (topicId: string, index: number) => {
     const finding = topicFactChecks[topicId]?.findings[index];
@@ -747,12 +747,12 @@ function AdminPage() {
             <div className="mt-3 flex flex-wrap gap-2">
               <select value={workbookTopic} onChange={(e)=>setWorkbookTopic(e.target.value)} className="h-10 min-w-[16rem] rounded-md border border-input bg-background px-3 text-sm">
                 <option value="">Select a workbook…</option>
-                {(contentReport ?? contentHealth(coursePack)).map((topic)=><option key={topic.topicId} value={topic.topicId}>{topic.title}</option>)}
+                {coursePack.sections.map((topic)=><option key={topic.id} value={topic.id}>{topic.title}</option>)}
               </select>
               <Button variant="outline" disabled={!workbookTopic || checkingTopicFacts!==null || checkingAllFacts} onClick={()=>void verifyTopicFacts(workbookTopic)}>Check selected workbook</Button>
               <Button disabled={checkingAllFacts || checkingTopicFacts!==null} onClick={()=>void verifyAllWorkbookFacts()}>{checkingAllFacts ? `Checking… ${checkingTopicFacts ?? ""}` : "Check all workbooks"}</Button>
             </div>
-            {Object.keys(topicFactChecks).length ? <div className="mt-4 space-y-3">{Object.entries(topicFactChecks).filter(([id])=>!workbookTopic || id===workbookTopic).map(([topicId,result])=><div key={topicId} className="rounded-lg border border-border/60 p-3"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold">{(contentReport ?? contentHealth(coursePack)).find(t=>t.topicId===topicId)?.title ?? topicId}</p><span className={`text-xs font-medium ${result.findings.length ? "text-warning" : "text-success"}`}>{result.findings.length ? `${result.findings.length} TO REVIEW` : result.error ? "INCOMPLETE" : "NO ERRORS FOUND"}</span></div>{result.sourceFile?<p className="mt-1 text-[11px] text-muted-foreground">{result.sourceFile}</p>:null}{result.error?<p className="mt-2 text-xs text-warning">{result.error}</p>:null}{result.findings.map((finding,index)=><div key={index} className="mt-3 border-t border-border/40 pt-3 text-xs"><p className="font-medium">Flagged: {finding.claim}</p><p className="mt-1 text-muted-foreground">Why: {finding.problem}</p>{finding.correction?<><p className="mt-1 text-muted-foreground">Correction: {finding.correction}</p><Button size="sm" variant="outline" className="mt-2" disabled={fixingFact!==null || checkingAllFacts} onClick={()=>void fixAdminFact(topicId,index)}>{fixingFact===`${topicId}:${index}`?"Fixing…":"Fix it"}</Button></>:null}</div>)}</div>)}</div>:null}
+            {Object.keys(topicFactChecks).length ? <div className="mt-4 space-y-3">{Object.entries(topicFactChecks).filter(([id])=>!workbookTopic || id===workbookTopic).map(([topicId,result])=><div key={topicId} className="rounded-lg border border-border/60 p-3"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold">{coursePack.sections.find((topic)=>topic.id===topicId)?.title ?? topicId}</p><span className={`text-xs font-medium ${result.findings.length ? "text-warning" : "text-success"}`}>{result.findings.length ? `${result.findings.length} TO REVIEW` : result.error ? "INCOMPLETE" : "NO ERRORS FOUND"}</span></div>{result.sourceFile?<p className="mt-1 text-[11px] text-muted-foreground">{result.sourceFile}</p>:null}{result.error?<p className="mt-2 text-xs text-warning">{result.error}</p>:null}{result.findings.map((finding,index)=><div key={index} className="mt-3 border-t border-border/40 pt-3 text-xs"><p className="font-medium">Flagged: {finding.claim}</p><p className="mt-1 text-muted-foreground">Why: {finding.problem}</p>{finding.correction?<><p className="mt-1 text-muted-foreground">Correction: {finding.correction}</p><Button size="sm" variant="outline" className="mt-2" disabled={fixingFact!==null || checkingAllFacts} onClick={()=>void fixAdminFact(topicId,index)}>{fixingFact===`${topicId}:${index}`?"Fixing…":"Fix it"}</Button></>:null}</div>)}</div>)}</div>:null}
           </Panel>
           <Panel className="mt-6" title="Topic health">
             <div className="flex flex-wrap gap-2">
