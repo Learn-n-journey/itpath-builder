@@ -113,6 +113,9 @@ export interface MachineState {
   startupApps?: { name: string; enabled: boolean; impact: "Low" | "Medium" | "High" }[];
   pendingUpdates?: { title: string; kind: "quality" | "driver" | "security"; requiresRestart?: boolean }[];
   restartRequired?: boolean;
+  /** Restart metadata used by the Virtual PC lifecycle and troubleshooting tickets. */
+  bootCount?: number;
+  lastBootAt?: string;
   security?: { antivirusEnabled: boolean; realtimeProtection: boolean; firewallProfile: "Domain" | "Private" | "Public" };
   history: string[];
   nextPid: number;
@@ -152,6 +155,8 @@ export function ensureWorkstationState(state: MachineState): MachineState {
     ];
     state.pendingUpdates ??= [];
     state.restartRequired ??= false;
+    state.bootCount ??= 1;
+    state.lastBootAt ??= new Date().toISOString();
     state.security ??= { antivirusEnabled: true, realtimeProtection: true, firewallProfile: "Private" };
   }
   return state;
