@@ -154,7 +154,7 @@ export function SpreadsheetSyncPanel() {
     const key = `${runId}:${issue.topicId}:${reason}`;
     setFixingAdvice(key);
     try {
-      const proposal = await proposeAdviceFix({ data: { topicId: issue.topicId, reason } });
+      const proposal = await proposeAdviceFix({ data: { domain: issue.domain, topicId: issue.topicId, reason } });
       if (!proposal.ok || !proposal.claim || !proposal.correction) {
         toast.error(proposal.error ?? "This advice needs manual review.");
         return;
@@ -165,7 +165,7 @@ export function SpreadsheetSyncPanel() {
       if (!approved) return;
 
       const applied = await applyAdviceFix({
-        data: { topicId: issue.topicId, claim: proposal.claim, correction: proposal.correction },
+        data: { domain: issue.domain, topicId: issue.topicId, claim: proposal.claim, correction: proposal.correction },
       });
       if (!applied.ok) {
         toast.error(applied.error ?? "The workbook could not be updated.", { duration: 10000 });
@@ -278,7 +278,7 @@ export function SpreadsheetSyncPanel() {
                               disabled={fixingAdvice !== null || !issue.domain || !issue.topicId}
                               onClick={() => void handleFixAdvice(run.id, issue, reason)}
                             >
-                              {fixingAdvice === key ? "Preparing fix…" : issue.domain && issue.topicId ? "Fix" : "Run sync again to enable Fix"}
+                              {fixingAdvice === key ? "Preparing fix…" : issue.domain && issue.topicId ? "Fix" : "Manual review required"}
                             </Button>
                           </div>
                         );
