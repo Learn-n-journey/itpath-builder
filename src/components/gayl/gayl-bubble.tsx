@@ -339,13 +339,13 @@ export function GaylBubble() {
         )}
       >
         <img
-          src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_08_55%20PM.png"
+          src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
           alt=""
-          width={1536}
-          height={1536}
+          width={816}
+          height={816}
           loading="lazy"
           className={cn(
-            "size-14 object-contain transition-transform duration-200 ease-out sm:size-12",
+            "size-14 rounded-full transition-transform duration-200 ease-out sm:size-12",
             open && "scale-90",
           )}
         />
