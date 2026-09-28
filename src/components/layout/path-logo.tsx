@@ -7,7 +7,7 @@ export function PathLogo({ className }: { className?: string }) {
     <span
       className={cn(
         "relative inline-grid shrink-0 place-items-center overflow-hidden rounded-[28%] border bg-[#06111d] shadow-sm",
-        auto ? "border-path-auto/80 shadow-path-auto/20" : "border-path-it/80 shadow-path-it/20",
+        auto ? "border-path-auto/80 shadow-path-auto/20" : "border-white/10 shadow-path-it/20",
         className,
       )}
       aria-hidden
@@ -22,11 +22,17 @@ export function PathLogo({ className }: { className?: string }) {
           <circle cx="17" cy="50" r="3" fill="currentColor" className="text-path-auto"/><circle cx="47" cy="50" r="3" fill="currentColor" className="text-path-auto"/>
         </svg>
       ) : (
-        <svg viewBox="0 0 64 64" className="h-full w-full p-[9%]" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round">
-          <g className="text-path-it">
-            <path d="M32 52V14M24 52V32l-9-9M40 52V32l9-9M28 35l-8-8v-9M36 35l8-8v-9"/>
-            <circle cx="32" cy="10" r="4"/><circle cx="15" cy="19" r="4"/><circle cx="49" cy="19" r="4"/><circle cx="20" cy="14" r="3"/><circle cx="44" cy="14" r="3"/>
-          </g>
+        <svg viewBox="0 0 64 64" className="h-full w-full p-[8%]" fill="none">
+          <defs>
+            <linearGradient id="itPathBrandGradient" x1="9" y1="52" x2="55" y2="12" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="#00c8ff"/>
+              <stop offset=".38" stopColor="#2787ff"/>
+              <stop offset=".68" stopColor="#9a45ff"/>
+              <stop offset="1" stopColor="#ff4565"/>
+            </linearGradient>
+          </defs>
+          <path d="M14 49 31 39 22 32 39 22 31 15 48 7" stroke="url(#itPathBrandGradient)" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M14 49 31 39 22 32 39 22 31 15 48 7" stroke="white" strokeOpacity=".16" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       )}
     </span>
