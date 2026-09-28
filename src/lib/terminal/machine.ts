@@ -368,6 +368,13 @@ export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind
   return { id: `account-${stamp}`, kind, title: "Account locked", symptom: "The current local account is locked.", target: state.currentUser };
 }
 
+export function reclaimTrainingDiskSpace(state: MachineState, amount = 12): number {
+  const before = state.diskUsedPercent;
+  state.diskUsedPercent = Math.max(20, state.diskUsedPercent - Math.max(1, amount));
+  state.eventLog.unshift(`${new Date().toISOString()} storage cleanup reclaimed ${before - state.diskUsedPercent}% of simulated disk capacity`);
+  return before - state.diskUsedPercent;
+}
+
 export function trainingFaultResolved(state: MachineState, fault: TrainingFault): boolean {
   const iface = primaryInterface(state);
   if (fault.kind === "dns") return state.dnsServers.length > 0 && !state.dnsServers.includes("203.0.113.53");
