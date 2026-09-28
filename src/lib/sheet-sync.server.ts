@@ -232,7 +232,7 @@ export interface SheetSyncResult {
   unchangedFiles?: number;
   lessonsRejected?: number;
   /** Why each lesson carried a note, so it can be fixed in the sheet. */
-  lessonIssues?: Array<{ file: string; topic: string; reasons: string[] }>;
+  lessonIssues?: Array<{ file: string; topic: string; domain?: string; topicId?: string; reasons: string[] }>;
   skipped?: string;
   syncedAt?: string;
   topics?: number;
@@ -300,7 +300,7 @@ export async function runSheetSync(
   const report: Record<string, string | number | boolean | null | undefined | string[]>[] = [];
   let lessonsApproved = 0;
   let lessonsRejected = 0;
-  const lessonIssues: Array<{ file: string; topic: string; reasons: string[] }> = [];
+  const lessonIssues: Array<{ file: string; topic: string; domain?: string; topicId?: string; reasons: string[] }> = [];
   let workTopics = 0;
   let unchangedFiles = 0;
   let filesDone = 0;
@@ -438,7 +438,7 @@ export async function runSheetSync(
         // The owner verifies their own lessons, so a readable lesson always
         // goes live. Anything the automatic checks flag is kept as a note.
         const notes = result.rejectReasons ?? [];
-        if (notes.length) lessonIssues.push({ file: file.name, topic: topic.title, reasons: notes });
+        if (notes.length) lessonIssues.push({ file: file.name, topic: topic.title, domain, topicId: topic.topicId, reasons: notes });
 
         // A numbered workbook owns exactly one lesson in its domain. Remove
         // any row previously written for the same source file under an older
