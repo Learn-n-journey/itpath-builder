@@ -109,6 +109,11 @@ export interface MachineState {
   osName: string;
   /** Simulated hardware/driver health used by Virtual PC training. */
   networkDriverHealthy?: boolean;
+  /** Windows workstation state used across Settings, Task Manager and ticket faults. */
+  startupApps?: { name: string; enabled: boolean; impact: "Low" | "Medium" | "High" }[];
+  pendingUpdates?: { title: string; kind: "quality" | "driver" | "security"; requiresRestart?: boolean }[];
+  restartRequired?: boolean;
+  security?: { antivirusEnabled: boolean; realtimeProtection: boolean; firewallProfile: "Domain" | "Private" | "Public" };
   history: string[];
   nextPid: number;
   /** Lines appended by services, for journalctl / Get-EventLog style reads. */
@@ -136,6 +141,20 @@ export function dir(name: string, owner = "root", mode = "755"): VfsNode {
 
 export function file(name: string, content: string, owner = "root", mode = "644"): VfsNode {
   return { type: "file", name, content, owner, group: owner, mode };
+}
+
+export function ensureWorkstationState(state: MachineState): MachineState {
+  if (state.platform === "windows") {
+    state.startupApps ??= [
+      { name: "OneDrive", enabled: true, impact: "Medium" },
+      { name: "Teams", enabled: true, impact: "High" },
+      { name: "Windows Security notification icon", enabled: true, impact: "Low" },
+    ];
+    state.pendingUpdates ??= [];
+    state.restartRequired ??= false;
+    state.security ??= { antivirusEnabled: true, realtimeProtection: true, firewallProfile: "Private" };
+  }
+  return state;
 }
 
 export function clone(state: MachineState): MachineState {
