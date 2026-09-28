@@ -86,7 +86,7 @@ const shellLabels = {
   android: "Android",
   ios: "iPhone / iPad",
 } as const;
-type TerminalEnvironment = "unix" | "windows" | "android" | "ios";
+type TerminalEnvironment = "android" | "ios";
 
 const FREE_PREFIX = "terminal-free-";
 
@@ -129,15 +129,11 @@ function CommandLinePage() {
     for (const attempt of submitted) {
       counts.set(attempt.shell, (counts.get(attempt.shell) ?? 0) + 1);
     }
-    const shells: TerminalAttempt["shell"][] = ["cmd", "powershell", "bash", "android", "ios"];
+    const shells: TerminalAttempt["shell"][] = ["android", "ios"];
     return shells.sort((a, b) => (counts.get(a) ?? 0) - (counts.get(b) ?? 0))[0] ?? recommended.shell;
   }, [user.terminalAttempts, recommended.shell]);
   const [shell, setShell] = useState<TerminalAttempt["shell"]>(recommendedShell);
-  const [windowsShell, setWindowsShell] = useState<Extract<TerminalAttempt["shell"], "cmd" | "powershell">>(
-    recommendedShell === "powershell" ? "powershell" : "cmd",
-  );
-  const environment: TerminalEnvironment =
-    shell === "bash" ? "unix" : shell === "android" ? "android" : shell === "ios" ? "ios" : "windows";
+  const environment: TerminalEnvironment = shell === "ios" ? "ios" : "android";
   const shellScenarios = useMemo(() => scenariosForShell(shell), [shell]);
   const [scenarioId, setScenarioId] = useState(recommended.id);
   const [mode, setMode] = useState<TerminalMode>("guided");
@@ -223,15 +219,7 @@ function CommandLinePage() {
   }
 
   function changeEnvironment(value: TerminalEnvironment) {
-    if (value === "unix") return changeShell("bash");
-    if (value === "android") return changeShell("android");
-    if (value === "ios") return changeShell("ios");
-    return changeShell(windowsShell);
-  }
-
-  function changeWindowsShell(value: "cmd" | "powershell") {
-    setWindowsShell(value);
-    changeShell(value);
+    return changeShell(value === "ios" ? "ios" : "android");
   }
 
   function changeScenario(id: string) {
@@ -385,7 +373,7 @@ function CommandLinePage() {
     <>
       <PageHeader
         title="Command-line simulator"
-        description="Use a real terminal, or switch to guided scenarios and challenges to build your skills."
+        description="Mobile command-line practice remains here while desktop terminal training now lives inside Virtual Desktop."
         actions={<Badge variant="outline"><ShieldCheck className="mr-1 size-3" aria-hidden /> Isolated</Badge>}
       />
 
@@ -419,25 +407,12 @@ function CommandLinePage() {
             <Select value={environment} onValueChange={(value) => changeEnvironment(value as TerminalEnvironment)}>
               <SelectTrigger className="w-full sm:w-44" aria-label="Environment"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="windows">Windows</SelectItem>
-                <SelectItem value="unix">Mac/Linux</SelectItem>
                 <SelectItem value="android">Android</SelectItem>
                 <SelectItem value="ios">iPhone</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          {environment === "windows" ? (
-            <div className="min-w-0 space-y-1.5">
-              <Label>Shell</Label>
-              <Select value={shell} onValueChange={(value) => changeWindowsShell(value as "cmd" | "powershell")}>
-                <SelectTrigger className="w-full sm:w-44" aria-label="Windows shell"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cmd">CMD</SelectItem>
-                  <SelectItem value="powershell">PowerShell</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          ) : null}
+
           <Button type="button" variant="outline" onClick={() => start(true)} disabled={!attempt || attempt.status === "submitted"}>
             <RefreshCw aria-hidden /> Reset
           </Button>
