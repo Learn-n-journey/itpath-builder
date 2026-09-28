@@ -2,6 +2,7 @@ import {
   Car,
   Brain,
   LayoutDashboard,
+  Monitor,
   Route as RouteIcon,
   CalendarDays,
   CalendarCheck2,
@@ -170,6 +171,15 @@ const allNavItems: NavItem[] = [
     group: "Practice",
     description: "A full-length timed knowledge challenge with a detailed performance report.",
     pro: true,
+  },
+  {
+    label: "Virtual PC",
+    to: "/virtual-pc",
+    icon: Monitor,
+    group: "Tools",
+    description: "Practice inside a safe Windows-style virtual computer with files, settings and your existing terminal.",
+    pro: true,
+    subjects: ["it-cybersecurity"],
   },
   {
     label: "Command Line",
