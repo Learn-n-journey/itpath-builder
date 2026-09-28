@@ -183,7 +183,27 @@ function runMac(state: MachineState, input: string): ExecResult {
   if (name === "system_profiler") return ok(state, [`Hardware Overview:`, `  Model Name: IT PATH Virtual Mac`, `  Memory: ${state.memoryTotalMb} MB`, `  Computer Name: ${state.hostname}`]);
   if (name === "diskutil") return ok(state, ["/dev/disk0 (internal, physical):", "   0: GUID_partition_scheme", "   1: APFS Container Macintosh HD"]);
   if (name === "log") return ok(state, state.eventLog.slice(-50));
-  if (name === "launchctl") return ok(state, state.services.map((svc) => `${svc.status === "running" ? "0" : "-"}\t${svc.name}`));
+  if (name === "launchctl") {
+    const action = (args[0] ?? "list").toLowerCase();
+    if (action === "list") return ok(state, state.services.map((svc) => `${svc.status === "running" ? "0" : "-"}\t0\tcom.itpath.${svc.name}`));
+    const label = args[1] ?? "";
+    const serviceName = label.replace(/^com\\.itpath\\./i, "");
+    const svc = findService(state, serviceName);
+    if (!svc) return fail(state, `Could not find service "${label}" in domain for user`);
+    if (["start", "kickstart"].includes(action)) {
+      const outcome = setServiceStatus(state, svc.name, "running");
+      if (outcome.error) return fail(state, outcome.reason ?? `Could not start service "${label}"`);
+      state.eventLog.unshift(`${new Date().toISOString()} launchd started com.itpath.${svc.name}`);
+      return ok(state, "");
+    }
+    if (["stop", "bootout"].includes(action)) {
+      const outcome = setServiceStatus(state, svc.name, "stopped");
+      if (outcome.error) return fail(state, outcome.reason ?? `Could not stop service "${label}"`);
+      state.eventLog.unshift(`${new Date().toISOString()} launchd stopped com.itpath.${svc.name}`);
+      return ok(state, "");
+    }
+    return fail(state, "usage: launchctl list | start|stop|kickstart|bootout <service>");
+  }
   const macCommon = ["", "clear", "pwd", "whoami", "hostname", "id", "groups", "echo", "env", "history", "cd", "ls", "cat", "head", "tail", "grep", "touch", "mkdir", "rm", "rmdir", "cp", "mv", "chmod", "chown", "find", "ps", "top", "kill", "pkill", "df", "ifconfig", "ping", "traceroute", "nslookup", "dig"];
   if (name === "uname") return ok(state, args.includes("-a") ? `Darwin ${state.hostname} 24.0.0 Darwin Kernel Version 24.0.0: RELEASE_ARM64_T8103 arm64` : "Darwin");
   if (name === "sw_vers") return ok(state, ["ProductName:\t\tmacOS", "ProductVersion:\t\t15.0", "BuildVersion:\t\t24A335"]);
@@ -443,6 +463,7 @@ function runBashCommand(
       const target = operands[0];
       if (!target) return fail(state, `${name}: usage: ${name} pid | name`);
       const error = killProcess(state, target);
+      if (!error) state.eventLog.unshift(`${new Date().toISOString()} process ${target} terminated from ${state.platform === "macos" ? "Terminal" : "shell"}`);
       if (error === "not_found") return fail(state, `${name}: (${target}) - No such process`);
       if (error === "denied") return fail(state, `${name}: (${target}) - Operation not permitted`);
       return ok(state, "");
@@ -503,6 +524,7 @@ function runBashCommand(
             outcome.reason ?? "",
           ].filter(Boolean));
         }
+        state.eventLog.unshift(`${new Date().toISOString()} systemd ${action}ed ${found.name}.service`);
         return ok(state, "");
       }
       if (action === "enable" || action === "disable") {
@@ -1260,6 +1282,7 @@ function runCmd(state: MachineState, input: string): ExecResult {
       const target = pidIndex >= 0 ? args[pidIndex + 1] : imIndex >= 0 ? args[imIndex + 1] : undefined;
       if (!target) return fail(state, "ERROR: Invalid syntax. Use taskkill /IM name /F or /PID number /F");
       const error = killProcess(state, target);
+      if (!error) state.eventLog.unshift(`${new Date().toISOString()} process ${target} terminated with taskkill`);
       if (error === "denied") return fail(state, `ERROR: The process "${target}" could not be terminated. Access is denied.`);
       if (error) return fail(state, `ERROR: The process "${target}" not found.`);
       return ok(state, `SUCCESS: Sent termination signal to the process "${target}".`);
@@ -1292,6 +1315,7 @@ function runCmd(state: MachineState, input: string): ExecResult {
         if (outcome.error === "denied") return fail(state, "[SC] OpenService FAILED 5: Access is denied.\nRun: runas /user:Administrator cmd");
         if (outcome.error === "disabled") return fail(state, "[SC] StartService FAILED 1058: The service cannot be started because it is disabled.");
         if (outcome.error === "failed") return fail(state, `[SC] StartService FAILED 1053: ${outcome.reason ?? "The service did not respond in a timely fashion."}`);
+        state.eventLog.unshift(`${new Date().toISOString()} Windows Service Control ${action}ed ${svc.name}`);
         return ok(state, `SERVICE_NAME: ${svc.name}\n        STATE              : ${action === "start" ? "4  RUNNING" : "1  STOPPED"}`);
       }
       if (action === "config") {
