@@ -211,6 +211,7 @@ function VirtualPcPage() {
     setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0); setTicketOpen(false);
   };
   const cleanupStorage = () => {
+    recordEvidence("GUI: storage cleanup performed");
     mutate((next) => { reclaimTrainingDiskSpace(next, 12); });
   };
 
@@ -238,11 +239,11 @@ function VirtualPcPage() {
   };
 
   const addEvent = (next: MachineState, message: string) => { next.eventLog = [...(next.eventLog ?? []), message].slice(-250); };
-  const endProcess = (pid: number) => mutate((next) => { killProcess(next, String(pid)); addEvent(next, `Process PID ${pid} ended by ${next.currentUser}.`); });
-  const toggleService = (name: string, running: boolean) => mutate((next) => { setServiceStatus(next, name, running ? "stopped" : "running"); addEvent(next, `Service ${name} ${running ? "stopped" : "started"} by ${next.currentUser}.`); });
-  const toggleNetwork = () => mutate((next) => { const iface = primaryInterface(next); if (iface) { iface.up = !iface.up; addEvent(next, `Network interface ${iface.name} changed to ${iface.up ? "up" : "down"}.`); } });
-  const beginNetworkEdit = () => { const iface = primaryInterface(machine); setNetIp(iface?.ip ?? ""); setNetMask(iface?.mask ?? ""); setNetGateway(iface?.gateway ?? ""); setNetDns(machine.dnsServers.join(", ")); };
-  const saveNetwork = (dhcp: boolean) => mutate((next) => { const iface = primaryInterface(next); if (!iface) return; iface.dhcp = dhcp; if (dhcp) { iface.ip = "10.0.0.54"; iface.mask = "255.255.255.0"; iface.gateway = "10.0.0.1"; next.dnsServers = ["10.0.0.10"]; } else { if (netIp.trim()) iface.ip = netIp.trim(); if (netMask.trim()) iface.mask = netMask.trim(); iface.gateway = netGateway.trim(); next.dnsServers = netDns.split(",").map((v) => v.trim()).filter(Boolean); } addEvent(next, `${pcOs === "windows" ? "TCP/IP" : pcOs === "linux" ? "Network interface" : "Network service"} configuration updated (${dhcp ? "DHCP" : "manual"}).`); });
+  const endProcess = (pid: number) => { recordEvidence(`GUI: ended process PID ${pid}`); mutate((next) => { killProcess(next, String(pid)); addEvent(next, `Process PID ${pid} ended by ${next.currentUser}.`); }); };
+  const toggleService = (name: string, running: boolean) => { recordEvidence(`GUI: ${running ? "stopped" : "started"} service ${name}`); mutate((next) => { setServiceStatus(next, name, running ? "stopped" : "running"); addEvent(next, `Service ${name} ${running ? "stopped" : "started"} by ${next.currentUser}.`); }); };
+  const toggleNetwork = () => { const iface = primaryInterface(machine); recordEvidence(`GUI: ${iface?.up ? "disabled" : "enabled"} network interface ${iface?.name ?? ""}`); mutate((next) => { const target = primaryInterface(next); if (target) { target.up = !target.up; addEvent(next, `Network interface ${target.name} changed to ${target.up ? "up" : "down"}.`); } }); };
+  const beginNetworkEdit = () => { const iface = primaryInterface(machine); recordEvidence("GUI: inspected network configuration"); setNetIp(iface?.ip ?? ""); setNetMask(iface?.mask ?? ""); setNetGateway(iface?.gateway ?? ""); setNetDns(machine.dnsServers.join(", ")); };
+  const saveNetwork = (dhcp: boolean) => { recordEvidence(`GUI: saved network configuration (${dhcp ? "DHCP" : "manual"})`); mutate((next) => { const iface = primaryInterface(next); if (!iface) return; iface.dhcp = dhcp; if (dhcp) { iface.ip = "10.0.0.54"; iface.mask = "255.255.255.0"; iface.gateway = "10.0.0.1"; next.dnsServers = ["10.0.0.10"]; } else { if (netIp.trim()) iface.ip = netIp.trim(); if (netMask.trim()) iface.mask = netMask.trim(); iface.gateway = netGateway.trim(); next.dnsServers = netDns.split(",").map((v) => v.trim()).filter(Boolean); } addEvent(next, `${pcOs === "windows" ? "TCP/IP" : pcOs === "linux" ? "Network interface" : "Network service"} configuration updated (${dhcp ? "DHCP" : "manual"}).`); }); };
 
   const addAccount = () => {
     const name = accountName.trim().replace(/\s+/g, "").toLowerCase();
@@ -254,8 +255,8 @@ function VirtualPcPage() {
     });
     setAccountName("");
   };
-  const toggleAdmin = (name: string) => mutate((next) => { const u = next.users.find((item) => item.name === name); if (u) { u.admin = !u.admin; u.groups = u.admin ? Array.from(new Set([...u.groups, pcOs === "windows" ? "Administrators" : pcOs === "mac" ? "admin" : "sudo"])) : u.groups.filter((g) => !["Administrators","admin","sudo"].includes(g)); addEvent(next, `Account ${name} administrator access ${u.admin ? "enabled" : "removed"}.`); } });
-  const toggleLock = (name: string) => mutate((next) => { const u = next.users.find((item) => item.name === name); if (u) { u.locked = !u.locked; addEvent(next, `Account ${name} ${u.locked ? "locked" : "unlocked"}.`); } });
+  const toggleAdmin = (name: string) => { recordEvidence(`GUI: changed administrator access for ${name}`); mutate((next) => { const u = next.users.find((item) => item.name === name); if (u) { u.admin = !u.admin; u.groups = u.admin ? Array.from(new Set([...u.groups, pcOs === "windows" ? "Administrators" : pcOs === "mac" ? "admin" : "sudo"])) : u.groups.filter((g) => !["Administrators","admin","sudo"].includes(g)); addEvent(next, `Account ${name} administrator access ${u.admin ? "enabled" : "removed"}.`); } }); };
+  const toggleLock = (name: string) => { const current=machine.users.find((u)=>u.name===name); recordEvidence(`GUI: ${current?.locked ? "unlocked" : "locked"} account ${name}`); mutate((next) => { const u = next.users.find((item) => item.name === name); if (u) { u.locked = !u.locked; addEvent(next, `Account ${name} ${u.locked ? "locked" : "unlocked"}.`); } }); };
 
   const hardwareGroups = useMemo(() => {
     const iface = primaryInterface(machine);
