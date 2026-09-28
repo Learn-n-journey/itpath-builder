@@ -570,6 +570,18 @@ function defaultProcesses(shell: ShellKind, user: string): ProcessInfo[] {
       { pid: 402, name: "Maps", user, cpu: 2.4, memoryMb: 260 },
     ];
   }
+  if (shell === "mac") {
+    return [
+      { pid: 1, name: "launchd", user: "root", cpu: 0.1, memoryMb: 18 },
+      { pid: 145, name: "WindowServer", user: "_windowserver", cpu: 2.1, memoryMb: 310 },
+      { pid: 238, name: "Finder", user, cpu: 0.5, memoryMb: 165 },
+      { pid: 301, name: "Dock", user, cpu: 0.3, memoryMb: 92 },
+      { pid: 344, name: "ControlCenter", user, cpu: 0.4, memoryMb: 118 },
+      { pid: 410, name: "SystemUIServer", user, cpu: 0.2, memoryMb: 74 },
+      { pid: 522, name: "Safari", user, cpu: 1.8, memoryMb: 420 },
+      { pid: 604, name: "mds", user: "root", cpu: 0.3, memoryMb: 86 },
+    ];
+  }
   if (shell === "bash") {
     return [
       { pid: 1, name: "systemd", user: "root", cpu: 0.1, memoryMb: 12 },
@@ -608,6 +620,15 @@ function defaultServices(shell: ShellKind): ServiceInfo[] {
       { name: "mail", display: "Mail account", status: "running", startType: "auto" },
       { name: "mdm", display: "Mobile device management", status: "running", startType: "auto" },
       { name: "findmy", display: "Find My iPhone", status: "running", startType: "auto" },
+    ];
+  }
+  if (shell === "mac") {
+    return [
+      { name: "mDNSResponder", display: "Multicast DNS Responder", status: "running", startType: "auto" },
+      { name: "configd", display: "System Configuration", status: "running", startType: "auto" },
+      { name: "locationd", display: "Location Services", status: "running", startType: "auto" },
+      { name: "softwareupdated", display: "Software Update", status: "running", startType: "auto" },
+      { name: "cupsd", display: "Printing Service", status: "running", startType: "auto" },
     ];
   }
   if (shell === "bash") {
