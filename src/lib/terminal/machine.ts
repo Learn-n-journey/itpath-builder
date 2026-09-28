@@ -349,9 +349,12 @@ export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind
     return { id: `gateway-${stamp}`, kind, title: "Local network only", symptom: "Local resources may work, but remote networks are unreachable.", target: iface?.name };
   }
   if (kind === "service") {
-    const svc = state.services.find((item) => item.status === "running");
+    const preferred = state.platform === "windows" ? "Spooler" : state.platform === "linux" ? "nginx" : state.platform === "macos" ? "cupsd" : undefined;
+    const svc = (preferred ? findService(state, preferred) : undefined) ?? state.services.find((item) => item.status === "running");
     if (svc) svc.status = "stopped";
-    state.eventLog.unshift(`${new Date().toISOString()} ${svc?.name ?? "background service"} stopped unexpectedly`);
+    const now = new Date().toISOString();
+    state.eventLog.unshift(`${now} ${svc?.name ?? "background service"} stopped unexpectedly`);
+    state.eventLog.unshift(`${now} user reported the related feature is unavailable`);
     return { id: `service-${stamp}`, kind, title: "Background service failure", symptom: "A required background service has stopped.", target: svc?.name };
   }
   if (kind === "disk") {
