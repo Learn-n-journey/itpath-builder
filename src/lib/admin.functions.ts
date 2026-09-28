@@ -307,7 +307,8 @@ export const verifyImportedTopicFacts = createServerFn({ method: "POST" })
 
 export const applyTopicFactCorrection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { topicId: string; claim: string; correction: string }) => ({
+  .inputValidator((input: { domain?: string; topicId: string; claim: string; correction: string }) => ({
+    domain: input.domain?.trim() || undefined,
     topicId: input.topicId.trim(),
     claim: input.claim.trim(),
     correction: input.correction.trim(),
@@ -316,11 +317,13 @@ export const applyTopicFactCorrection = createServerFn({ method: "POST" })
     if (!isOwnerEmail(emailOf(context))) return { ok: false, owner: false, error: "Not allowed." };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: row, error } = await supabaseAdmin
+    let lessonQuery = supabaseAdmin
       .from("owner_lessons")
       .select("domain, source_file")
       .eq("topic_id", data.topicId)
-      .eq("status", "approved")
+      .eq("status", "approved");
+    if (data.domain) lessonQuery = lessonQuery.eq("domain", data.domain);
+    const { data: row, error } = await lessonQuery
       .order("synced_at", { ascending: false })
       .limit(1)
       .maybeSingle();
