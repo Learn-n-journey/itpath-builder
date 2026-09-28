@@ -282,6 +282,33 @@ function SettingsPage() {
           </div>
         </Panel>
 
+        <Panel title="Floating shortcuts">
+          <div className="divide-y divide-border/60">
+            <div className="flex items-center justify-between gap-4 pb-4">
+              <div>
+                <Label htmlFor="gayl-bubble-toggle">GAYL bubble</Label>
+                <p className="mt-1 text-xs text-muted-foreground">Show GAYL's floating companion button while you use the app.</p>
+              </div>
+              <Switch
+                id="gayl-bubble-toggle"
+                checked={s.showGaylBubble !== false}
+                onCheckedChange={(checked) => updateSettings({ showGaylBubble: checked })}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-4 pt-4">
+              <div>
+                <Label htmlFor="brain-bubble-toggle">Second Brain bubble</Label>
+                <p className="mt-1 text-xs text-muted-foreground">Show the floating shortcut to your saved notes and material.</p>
+              </div>
+              <Switch
+                id="brain-bubble-toggle"
+                checked={s.showBrainBubble !== false}
+                onCheckedChange={(checked) => updateSettings({ showBrainBubble: checked })}
+              />
+            </div>
+          </div>
+        </Panel>
+
         <Panel title="Help">
           <div className="flex flex-wrap gap-2">
             <Button
