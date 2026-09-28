@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { createMachine, getNode, type MachineState, type VfsNode } from "@/lib/terminal/machine";
+import { clone, createMachine, getNode, makeDir, removePath, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/virtual-pc")({
@@ -51,7 +51,7 @@ function freshWindowsMachine(): MachineState {
 }
 
 function VirtualPcPage() {
-  const { user } = useAppState();
+  const { user, actions } = useAppState();
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
   const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
   const machine = sharedAttempt?.machine ?? fallbackMachine;
@@ -59,14 +59,48 @@ function VirtualPcPage() {
   const [openApp, setOpenApp] = useState<AppId | null>("files");
   const [startOpen, setStartOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [draftName, setDraftName] = useState("");
+  const [editing, setEditing] = useState<VirtualFile | null>(null);
+  const [fileText, setFileText] = useState("");
   const currentNode = getNode(machine, folder);
   const visibleFiles = useMemo(
     () => entries(currentNode).filter((file) => file.name.toLowerCase().includes(query.toLowerCase())),
     [currentNode, query],
   );
 
+  const pathFor = (name?: string) => `C:\\\\${[...folder, ...(name ? [name] : [])].join("\\\\")}`;
+  const saveMachine = (next: MachineState) => {
+    if (sharedAttempt) actions.updateTerminalAttempt({ ...sharedAttempt, machine: next, updatedAt: new Date().toISOString() });
+  };
+  const mutate = (fn: (next: MachineState) => void) => {
+    const next = clone(machine);
+    fn(next);
+    saveMachine(next);
+  };
   const openFile = (item: VirtualFile) => {
-    if (item.kind === "folder") setFolder((current) => [...current, item.name]);
+    if (item.kind === "folder") return setFolder((current) => [...current, item.name]);
+    const node = getNode(machine, [...folder, item.name]);
+    setEditing(item);
+    setFileText(node?.type === "file" ? node.content ?? "" : "");
+  };
+  const createFolder = () => {
+    const name = draftName.trim();
+    if (!name) return;
+    mutate((next) => { makeDir(next, pathFor(name)); });
+    setDraftName("");
+  };
+  const createTextFile = () => {
+    const raw = draftName.trim();
+    if (!raw) return;
+    const name = raw.toLowerCase().endsWith(".txt") ? raw : `${raw}.txt`;
+    mutate((next) => { writeFile(next, pathFor(name), "", false); });
+    setDraftName("");
+  };
+  const deleteItem = (item: VirtualFile) => mutate((next) => { removePath(next, pathFor(item.name), true); });
+  const saveText = () => {
+    if (!editing) return;
+    mutate((next) => { writeFile(next, pathFor(editing.name), fileText, false); });
+    setEditing(null);
   };
 
   const launch = (app: AppId) => {
@@ -106,16 +140,18 @@ function VirtualPcPage() {
                   {["Desktop", "Documents", "Downloads", "Pictures"].map((item) => <div key={item} className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-slate-200/70"><Folder className="size-4 text-blue-500" />{item}</div>)}
                 </aside>
                 <div className="min-w-0 flex-1 p-3 sm:p-5">
-                  <div className="mb-4 flex items-center gap-2">
+                  <div className="mb-3 flex items-center gap-2">
                     <button className="grid size-9 place-items-center rounded-lg border border-slate-200 sm:hidden"><Menu className="size-4" /></button>
                     <div className="flex h-9 flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3"><Search className="size-4 text-slate-400" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search This PC" className="min-w-0 flex-1 bg-transparent text-sm outline-none" /></div>
                   </div>
+                  <div className="mb-3 flex gap-2"><input value={draftName} onChange={(e) => setDraftName(e.target.value)} placeholder="New item name" className="h-9 min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none" /><button onClick={createFolder} className="rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium">Folder</button><button onClick={createTextFile} className="rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium">Text file</button></div>
                   <div className="mb-3 flex items-center gap-2"><button disabled={folder.length === 0} onClick={() => setFolder((current) => current.slice(0, -1))} className="grid size-8 place-items-center rounded-lg border border-slate-200 disabled:opacity-30" aria-label="Back"><ChevronLeft className="size-4" /></button><div><h2 className="text-lg font-semibold">This PC</h2><p className="text-xs text-slate-500">C:\\{folder.join("\\")}</p></div></div>
                   <div className="grid gap-2">
                     {visibleFiles.map((file) => (
                       <button key={file.name} onClick={() => openFile(file)} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:bg-blue-50">
                         {file.kind === "folder" ? <Folder className="size-7 shrink-0 text-amber-500" /> : <HardDrive className="size-7 shrink-0 text-blue-600" />}
-                        <span className="min-w-0"><span className="block truncate text-sm font-medium">{file.name}</span><span className="block text-xs text-slate-500">{file.detail}</span></span>
+                        <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{file.name}</span><span className="block text-xs text-slate-500">{file.detail}</span></span>
+                        <span onClick={(e) => { e.stopPropagation(); deleteItem(file); }} className="rounded-md px-2 py-1 text-xs text-slate-400 hover:bg-red-50 hover:text-red-600">Delete</span>
                       </button>
                     ))}
                   </div>
@@ -130,6 +166,7 @@ function VirtualPcPage() {
                 </div>
               </div>
             )}
+            {editing ? <div className="absolute inset-0 z-20 flex flex-col bg-white"><div className="flex h-11 items-center justify-between border-b px-3"><strong className="truncate text-sm">{editing.name}</strong><button onClick={() => setEditing(null)}><X className="size-4" /></button></div><textarea value={fileText} onChange={(e) => setFileText(e.target.value)} className="min-h-0 flex-1 resize-none p-4 font-mono text-sm outline-none" /><div className="border-t p-3"><button onClick={saveText} className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Save file</button></div></div> : null}
           </section>
         ) : null}
       </main>
