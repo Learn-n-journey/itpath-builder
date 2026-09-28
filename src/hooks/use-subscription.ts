@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getPaddleEnvironment } from "@/lib/paddle";
 import { useAuth } from "@/state/auth-state";
+import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 
 export interface SubscriptionRow {
   id: string;
@@ -122,7 +123,8 @@ export function useSubscription() {
   }, [userId, ready]);
 
   const paid = subscription ? rowGrantsAccess(subscription) : false;
-  const tier: PlanTier = betaAccess
+  const ownerAccess = Boolean(email && OWNER_EMAILS.includes(email.trim().toLowerCase()));
+  const tier: PlanTier = ownerAccess || betaAccess
     ? "pro"
     : paid && subscription
       ? tierForRow(subscription)
