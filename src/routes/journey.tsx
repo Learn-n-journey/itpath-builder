@@ -172,7 +172,6 @@ function JourneyPage() {
           aria-current="page"
           className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-[background-color,color] motion-safe:duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-5 shrink-0 object-contain" aria-hidden />
           <span>Journey Map</span>
         </Link>
       </nav>
@@ -184,13 +183,11 @@ function JourneyPage() {
             onClick={restoreStartHere}
             className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-5 shrink-0 object-contain" aria-hidden />
             <span>Show my starting point</span>
           </button>
         ) : startHere ? (
           <div className="flex flex-wrap items-center justify-end gap-2">
             <span className="inline-flex min-h-11 items-center gap-1.5 text-xs font-medium text-primary/80">
-              <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_33_20%20AM.png" alt="" className="size-5 shrink-0 object-contain" aria-hidden />
               <span>Starting point: {startHere.topic.title}</span>
             </span>
             <Button variant="ghost" size="sm" onClick={clearStartHere}>Hide</Button>
