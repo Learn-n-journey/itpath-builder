@@ -286,6 +286,8 @@ export function resolveHost(state: MachineState, host: string): string | null {
   if (/^\d+\.\d+\.\d+\.\d+$/.test(host)) return host;
   const hostsFile = getNode(state, isWindows(state)
     ? ["Windows", "System32", "drivers", "etc", "hosts"]
+    : isMac(state)
+      ? ["private", "etc", "hosts"]
     : ["etc", "hosts"]);
   if (hostsFile?.content) {
     for (const line of hostsFile.content.split("\n")) {
@@ -478,15 +480,15 @@ export function createMachine(spec: MachineSpec): MachineState {
       {
         name: user,
         fullName: "Standard user",
-        groups: windows ? ["Users"] : [user, "sudo"],
+        groups: windows ? ["Users"] : mac ? ["staff"] : [user, "sudo"],
         admin: false,
         locked: false,
         passwordExpired: false,
       },
       {
         name: windows ? "Administrator" : "root",
-        fullName: "Built-in administrator",
-        groups: windows ? ["Administrators"] : ["root"],
+        fullName: windows ? "Built-in administrator" : mac ? "System Administrator" : "root",
+        groups: windows ? ["Administrators"] : mac ? ["wheel"] : ["root"],
         admin: true,
         locked: false,
         passwordExpired: false,
@@ -662,6 +664,12 @@ function defaultInterfaces(shell: ShellKind): NetInterface[] {
     return [
       { name: "lo", mac: "00:00:00:00:00:00", ip: "127.0.0.1", mask: "255.0.0.0", gateway: "", dhcp: false, up: true },
       { name: "ens33", mac: "00:0c:29:4b:11:07", ip: "10.0.0.54", mask: "255.255.255.0", gateway: "10.0.0.1", dhcp: true, up: true },
+    ];
+  }
+  if (shell === "mac") {
+    return [
+      { name: "lo0", mac: "00:00:00:00:00:00", ip: "127.0.0.1", mask: "255.0.0.0", gateway: "", dhcp: false, up: true },
+      { name: "en0", mac: "f0:18:98:42:7c:21", ip: "10.0.0.54", mask: "255.255.255.0", gateway: "10.0.0.1", dhcp: true, up: true },
     ];
   }
   return [
