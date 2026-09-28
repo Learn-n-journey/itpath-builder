@@ -69,6 +69,15 @@ export interface NetworkTarget {
   openPorts?: number[];
 }
 
+export interface SystemEvent {
+  at: string;
+  level: "information" | "warning" | "error" | "audit";
+  source: string;
+  eventId: number;
+  channel: "system" | "application" | "security";
+  message: string;
+}
+
 export interface MachineState {
   shell: ShellKind;
   /** Operating-system identity is separate from the active shell. */
@@ -104,6 +113,8 @@ export interface MachineState {
   nextPid: number;
   /** Lines appended by services, for journalctl / Get-EventLog style reads. */
   eventLog: string[];
+  /** Structured records shared by Event Viewer, journal/Console-style UI, and tickets. */
+  systemEvents?: SystemEvent[];
 }
 
 export interface ExecResult {
@@ -331,6 +342,12 @@ export interface TrainingFault {
   target?: string;
 }
 
+export function addSystemEvent(state: MachineState, event: Omit<SystemEvent, "at"> & { at?: string }): void {
+  state.systemEvents ??= [];
+  state.systemEvents.unshift({ ...event, at: event.at ?? new Date().toISOString() });
+  state.systemEvents = state.systemEvents.slice(0, 250);
+}
+
 export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind): TrainingFault {
   const iface = primaryInterface(state);
   const stamp = Date.now().toString(36);
@@ -344,6 +361,7 @@ export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind
     state.networkDriverHealthy = false;
     if (iface) iface.up = false;
     state.eventLog.unshift(`${new Date().toISOString()} network adapter driver failed to start (Code 10)`);
+    addSystemEvent(state, { level:"error", source: state.platform === "windows" ? "Kernel-PnP" : "kernel", eventId: 411, channel:"system", message:`Network adapter ${iface?.name ?? "device"} failed to start. Device status: Code 10.` });
     return { id: `driver-${stamp}`, kind, title: "Network adapter driver failure", symptom: "The workstation lost network access after a driver update.", target: iface?.name };
   }
   if (kind === "adapter") {
@@ -362,12 +380,14 @@ export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind
     if (svc) svc.status = "stopped";
     const now = new Date().toISOString();
     state.eventLog.unshift(`${now} ${svc?.name ?? "background service"} stopped unexpectedly`);
+    addSystemEvent(state, { level:"error", source: state.platform === "linux" ? "systemd" : state.platform === "macos" ? "launchd" : "Service Control Manager", eventId: state.platform === "windows" ? 7031 : 1001, channel:"system", message:`${svc?.name ?? "Background service"} terminated unexpectedly.` });
     state.eventLog.unshift(`${now} user reported the related feature is unavailable`);
     return { id: `service-${stamp}`, kind, title: "Background service failure", symptom: "A required background service has stopped.", target: svc?.name };
   }
   if (kind === "disk") {
     state.diskUsedPercent = 99;
     state.eventLog.unshift(`${new Date().toISOString()} storage capacity warning: disk is 99% full`);
+    addSystemEvent(state, { level:"warning", source: state.platform === "windows" ? "Disk" : "storage", eventId: 2013, channel:"system", message:"System volume is critically low on free space." });
     return { id: `disk-${stamp}`, kind, title: "Disk almost full", symptom: "The system volume has almost no free space." };
   }
   const recoveryName = state.platform === "windows" ? "helpdesk2" : state.platform === "macos" ? "support" : "helpdesk";
