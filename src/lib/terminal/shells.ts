@@ -215,6 +215,18 @@ function runMac(state: MachineState, input: string): ExecResult {
   if (name === "sw_vers") return ok(state, ["ProductName:\t\tmacOS", "ProductVersion:\t\t15.0", "BuildVersion:\t\t24A335"]);
   if (name === "whoami") return ok(state, state.currentUser);
   if (name === "dscl" && args[0] === "." && args[1] === "-list" && args[2] === "/Users") return ok(state, state.users.map((user) => user.name));
+  if (name === "pwpolicy") {
+    const userIndex = args.findIndex((arg) => arg === "-u");
+    const userName = userIndex >= 0 ? args[userIndex + 1] : undefined;
+    const account = state.users.find((user) => user.name.toLowerCase() === (userName ?? "").toLowerCase());
+    if (!account) return fail(state, `Error: user '${userName ?? ""}' not found`);
+    if (args.includes("-getaccountpolicies") || args.includes("-getpolicy")) return ok(state, `isDisabled=${account.locked ? "1" : "0"} passwordExpired=${account.passwordExpired ? "1" : "0"}`);
+    if (args.includes("-enableuser")) {
+      if (!isAdmin(state)) return fail(state, "Error: administrator privileges are required.");
+      account.locked = false; state.eventLog.unshift(`${new Date().toISOString()} local account ${account.name} enabled by administrator`); return ok(state, "");
+    }
+    return fail(state, "usage: pwpolicy -u user -getpolicy | -enableuser");
+  }
   if (name === "dscacheutil" && args.includes("-flushcache")) { state.dnsCache = {}; return ok(state, ""); }
   if (name === "killall" && args.some((arg) => arg.toLowerCase() === "-hup") && args.some((arg) => arg.toLowerCase() === "mdnsresponder")) { state.dnsCache = {}; return ok(state, ""); }
   if (name === "defaults") return ok(state, "");
