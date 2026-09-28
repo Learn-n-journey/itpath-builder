@@ -98,6 +98,8 @@ export interface MachineState {
   memoryTotalMb: number;
   memoryUsedMb: number;
   osName: string;
+  /** Simulated hardware/driver health used by Virtual PC training. */
+  networkDriverHealthy?: boolean;
   history: string[];
   nextPid: number;
   /** Lines appended by services, for journalctl / Get-EventLog style reads. */
@@ -319,7 +321,7 @@ export function hasLink(state: MachineState): boolean {
   return Boolean(iface && iface.up && iface.ip && !iface.ip.startsWith("169.254."));
 }
 
-export type TrainingFaultKind = "dns" | "adapter" | "gateway" | "service" | "disk" | "account";
+export type TrainingFaultKind = "dns" | "adapter" | "gateway" | "service" | "disk" | "account" | "driver";
 
 export interface TrainingFault {
   id: string;
@@ -337,6 +339,12 @@ export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind
     state.dnsCache = {};
     state.eventLog.unshift(`${new Date().toISOString()} name resolution configuration changed`);
     return { id: `dns-${stamp}`, kind, title: "Websites will not resolve", symptom: "The network link is up, but hostnames fail to resolve." };
+  }
+  if (kind === "driver") {
+    state.networkDriverHealthy = false;
+    if (iface) iface.up = false;
+    state.eventLog.unshift(`${new Date().toISOString()} network adapter driver failed to start (Code 10)`);
+    return { id: `driver-${stamp}`, kind, title: "Network adapter driver failure", symptom: "The workstation lost network access after a driver update.", target: iface?.name };
   }
   if (kind === "adapter") {
     if (iface) iface.up = false;
@@ -382,6 +390,7 @@ export function reclaimTrainingDiskSpace(state: MachineState, amount = 12): numb
 export function trainingFaultResolved(state: MachineState, fault: TrainingFault): boolean {
   const iface = primaryInterface(state);
   if (fault.kind === "dns") return state.dnsServers.length > 0 && !state.dnsServers.includes("203.0.113.53");
+  if (fault.kind === "driver") return state.networkDriverHealthy !== false && Boolean(iface?.up);
   if (fault.kind === "adapter") return Boolean(iface?.up);
   if (fault.kind === "gateway") return Boolean(iface?.gateway);
   if (fault.kind === "service") return state.services.find((svc) => svc.name === fault.target)?.status === "running";
