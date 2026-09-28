@@ -15,11 +15,11 @@ import {
   ServerCog,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { prompt } from "@/lib/terminal/machine";
 import { execute } from "@/lib/terminal/shells";
-import { clone, createMachine, getNode, killProcess, makeDir, primaryInterface, removePath, setServiceStatus, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
+import { clone, copyPath, createMachine, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setServiceStatus, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/virtual-pc")({
@@ -72,6 +72,10 @@ function VirtualPcPage() {
   const [fileText, setFileText] = useState("");
   const [terminalInput, setTerminalInput] = useState("");
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
+  const [contextItem, setContextItem] = useState<VirtualFile | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [clipboard, setClipboard] = useState<{ item: VirtualFile; from: string; cut: boolean } | null>(null);
+  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentNode = getNode(machine, folder);
   const visibleFiles = useMemo(
     () => entries(currentNode).filter((file) => file.name.toLowerCase().includes(query.toLowerCase())),
@@ -110,7 +114,21 @@ function VirtualPcPage() {
     mutate((next) => { writeFile(next, pathFor(name), "", false); });
     setDraftName("");
   };
-  const deleteItem = (item: VirtualFile) => mutate((next) => { removePath(next, pathFor(item.name), true); });
+  const deleteItem = (item: VirtualFile) => { mutate((next) => { removePath(next, pathFor(item.name), true); }); setContextItem(null); };
+  const showContext = (item: VirtualFile) => { setContextItem(item); setRenameValue(item.name); };
+  const beginPress = (item: VirtualFile) => { if (pressTimer.current) clearTimeout(pressTimer.current); pressTimer.current = setTimeout(() => showContext(item), 480); };
+  const cancelPress = () => { if (pressTimer.current) clearTimeout(pressTimer.current); pressTimer.current = null; };
+  const renameItem = () => {
+    if (!contextItem || !renameValue.trim() || renameValue.trim() === contextItem.name) return setContextItem(null);
+    mutate((next) => { movePath(next, pathFor(contextItem.name), pathFor(renameValue.trim())); });
+    setContextItem(null);
+  };
+  const copyItem = (cut: boolean) => { if (contextItem) setClipboard({ item: contextItem, from: pathFor(contextItem.name), cut }); setContextItem(null); };
+  const pasteItem = () => {
+    if (!clipboard) return;
+    mutate((next) => { const target = pathFor(clipboard.item.name); clipboard.cut ? movePath(next, clipboard.from, target) : copyPath(next, clipboard.from, target); });
+    if (clipboard.cut) setClipboard(null);
+  };
   const saveText = () => {
     if (!editing) return;
     mutate((next) => { writeFile(next, pathFor(editing.name), fileText, false); });
@@ -181,11 +199,11 @@ function VirtualPcPage() {
                     <button className="grid size-9 place-items-center rounded-lg border border-slate-200 sm:hidden"><Menu className="size-4" /></button>
                     <div className="flex h-9 flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3"><Search className="size-4 text-slate-400" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search This PC" className="min-w-0 flex-1 select-text bg-transparent text-sm outline-none [-webkit-touch-callout:default]" /></div>
                   </div>
-                  <div className="mb-3 flex gap-2"><input value={draftName} onChange={(e) => setDraftName(e.target.value)} placeholder="New item name" className="h-9 min-w-0 flex-1 select-text rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none" /><button onClick={createFolder} className="rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium">Folder</button><button onClick={createTextFile} className="rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium">Text file</button></div>
+                  <div className="mb-3 flex gap-2"><input value={draftName} onChange={(e) => setDraftName(e.target.value)} placeholder="New item name" className="h-9 min-w-0 flex-1 select-text rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none" /><button onClick={createFolder} className="rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium">Folder</button><button onClick={createTextFile} className="rounded-lg border border-slate-200 bg-white px-3 text-xs font-medium">Text file</button>{clipboard ? <button onClick={pasteItem} className="rounded-lg border border-blue-200 bg-blue-50 px-3 text-xs font-medium text-blue-700">Paste</button> : null}</div>
                   <div className="mb-3 flex items-center gap-2"><button disabled={folder.length === 0} onClick={() => setFolder((current) => current.slice(0, -1))} className="grid size-8 place-items-center rounded-lg border border-slate-200 disabled:opacity-30" aria-label="Back"><ChevronLeft className="size-4" /></button><div><h2 className="text-lg font-semibold">This PC</h2><p className="text-xs text-slate-500">C:\\{folder.join("\\")}</p></div></div>
                   <div className="grid gap-2">
                     {visibleFiles.map((file) => (
-                      <button key={file.name} onClick={() => openFile(file)} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:bg-blue-50">
+                      <button key={file.name} onClick={() => openFile(file)} onContextMenu={(e) => { e.preventDefault(); showContext(file); }} onPointerDown={() => beginPress(file)} onPointerUp={cancelPress} onPointerCancel={cancelPress} onPointerMove={cancelPress} className="flex touch-manipulation items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:bg-blue-50">
                         {file.kind === "folder" ? <Folder className="size-7 shrink-0 text-amber-500" /> : <HardDrive className="size-7 shrink-0 text-blue-600" />}
                         <span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{file.name}</span><span className="block text-xs text-slate-500">{file.detail}</span></span>
                         <span onClick={(e) => { e.stopPropagation(); deleteItem(file); }} className="rounded-md px-2 py-1 text-xs text-slate-400 hover:bg-red-50 hover:text-red-600">Delete</span>
@@ -211,6 +229,7 @@ function VirtualPcPage() {
                 </div>
               </div>
             )}
+            {contextItem ? <div className="absolute inset-0 z-30 flex items-end bg-black/20 sm:items-center sm:justify-center" onClick={() => setContextItem(null)}><div className="w-full rounded-t-2xl bg-white p-4 shadow-2xl sm:w-80 sm:rounded-2xl" onClick={(e) => e.stopPropagation()}><div className="mb-3"><p className="truncate text-sm font-semibold">{contextItem.name}</p><p className="text-xs text-slate-500">{contextItem.kind === "folder" ? "Folder" : contextItem.detail}</p></div><div className="mb-3 flex gap-2"><input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} className="min-w-0 flex-1 select-text rounded-lg border px-3 py-2 text-sm" /><button onClick={renameItem} className="rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white">Rename</button></div><div className="grid grid-cols-2 gap-2 text-sm"><button onClick={() => { openFile(contextItem); setContextItem(null); }} className="rounded-lg bg-slate-100 p-3">Open</button><button onClick={() => copyItem(false)} className="rounded-lg bg-slate-100 p-3">Copy</button><button onClick={() => copyItem(true)} className="rounded-lg bg-slate-100 p-3">Cut</button><button onClick={() => deleteItem(contextItem)} className="rounded-lg bg-red-50 p-3 text-red-600">Delete</button></div><div className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-500"><p>Owner: {machine.currentUser}</p><p>Location: {pathFor(contextItem.name)}</p></div></div></div> : null}
             {editing ? <div className="absolute inset-0 z-20 flex flex-col bg-white"><div className="flex h-11 items-center justify-between border-b px-3"><strong className="truncate text-sm">{editing.name}</strong><button onClick={() => setEditing(null)}><X className="size-4" /></button></div><textarea value={fileText} onChange={(e) => setFileText(e.target.value)} className="min-h-0 flex-1 select-text resize-none p-4 font-mono text-sm outline-none [-webkit-touch-callout:default]" /><div className="border-t p-3"><button onClick={saveText} className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Save file</button></div></div> : null}
           </section>
         ) : null}
