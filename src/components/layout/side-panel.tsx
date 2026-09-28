@@ -62,7 +62,7 @@ export function SidePanel({ className }: { className?: string }) {
           <img
             src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_08_55%20PM.png"
             alt=""
-            className="size-8 object-contain"
+            className="size-9 object-contain"
             aria-hidden
           />
         </button>
