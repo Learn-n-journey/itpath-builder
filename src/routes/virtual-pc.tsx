@@ -12,8 +12,10 @@ import {
   Wifi,
   X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { createMachine, getNode, type MachineState, type VfsNode } from "@/lib/terminal/machine";
+import { useAppState } from "@/state/app-state";
 
 export const Route = createFileRoute("/virtual-pc")({
   staticData: { sitemap: false },
@@ -29,22 +31,47 @@ export const Route = createFileRoute("/virtual-pc")({
 type AppId = "files" | "settings";
 type VirtualFile = { name: string; kind: "folder" | "file"; detail: string };
 
-const files: VirtualFile[] = [
-  { name: "Desktop", kind: "folder", detail: "System folder" },
-  { name: "Documents", kind: "folder", detail: "3 items" },
-  { name: "Downloads", kind: "folder", detail: "1 item" },
-  { name: "Pictures", kind: "folder", detail: "2 items" },
-  { name: "IT PATH Lab Notes.txt", kind: "file", detail: "Text document · 2 KB" },
-];
+const SHARED_WINDOWS_SCENARIO = "terminal-free-cmd";
+
+function entries(node: VfsNode | null): VirtualFile[] {
+  if (!node || node.type !== "dir") return [];
+  return Object.values(node.children ?? {}).map((child) => ({
+    name: child.name,
+    kind: child.type === "dir" ? "folder" : "file",
+    detail: child.type === "dir" ? `${Object.keys(child.children ?? {}).length} items` : `Text document · ${(child.content ?? "").length} bytes`,
+  }));
+}
+
+function freshWindowsMachine(): MachineState {
+  return createMachine({
+    shell: "cmd",
+    files: { "C:\\Users\\student\\Desktop\\IT PATH Lab Notes.txt": "Virtual PC training machine. Changes here are visible from CMD.\\r\\n" },
+    dirs: ["C:\\Users\\student\\Downloads", "C:\\Users\\student\\Pictures"],
+  });
+}
 
 function VirtualPcPage() {
+  const { user, actions } = useAppState();
+  const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
+  const [machine, setMachine] = useState<MachineState>(() => sharedAttempt?.machine ?? freshWindowsMachine());
+  const [folder, setFolder] = useState<string[]>(["Users", machine.currentUser]);
   const [openApp, setOpenApp] = useState<AppId | null>("files");
   const [startOpen, setStartOpen] = useState(false);
   const [query, setQuery] = useState("");
+  useEffect(() => {
+    if (!sharedAttempt) return;
+    setMachine(sharedAttempt.machine);
+  }, [sharedAttempt?.updatedAt]);
+
+  const currentNode = getNode(machine, folder);
   const visibleFiles = useMemo(
-    () => files.filter((file) => file.name.toLowerCase().includes(query.toLowerCase())),
-    [query],
+    () => entries(currentNode).filter((file) => file.name.toLowerCase().includes(query.toLowerCase())),
+    [currentNode, query],
   );
+
+  const openFile = (item: VirtualFile) => {
+    if (item.kind === "folder") setFolder((current) => [...current, item.name]);
+  };
 
   const launch = (app: AppId) => {
     setOpenApp(app);
@@ -87,10 +114,10 @@ function VirtualPcPage() {
                     <button className="grid size-9 place-items-center rounded-lg border border-slate-200 sm:hidden"><Menu className="size-4" /></button>
                     <div className="flex h-9 flex-1 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3"><Search className="size-4 text-slate-400" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search This PC" className="min-w-0 flex-1 bg-transparent text-sm outline-none" /></div>
                   </div>
-                  <h2 className="mb-3 text-lg font-semibold">This PC</h2>
+                  <div className="mb-3 flex items-center gap-2"><button disabled={folder.length === 0} onClick={() => setFolder((current) => current.slice(0, -1))} className="grid size-8 place-items-center rounded-lg border border-slate-200 disabled:opacity-30" aria-label="Back"><ChevronLeft className="size-4" /></button><div><h2 className="text-lg font-semibold">This PC</h2><p className="text-xs text-slate-500">C:\\{folder.join("\\")}</p></div></div>
                   <div className="grid gap-2">
                     {visibleFiles.map((file) => (
-                      <button key={file.name} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:bg-blue-50">
+                      <button key={file.name} onClick={() => openFile(file)} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left hover:bg-blue-50">
                         {file.kind === "folder" ? <Folder className="size-7 shrink-0 text-amber-500" /> : <HardDrive className="size-7 shrink-0 text-blue-600" />}
                         <span className="min-w-0"><span className="block truncate text-sm font-medium">{file.name}</span><span className="block text-xs text-slate-500">{file.detail}</span></span>
                       </button>
