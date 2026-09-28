@@ -25,6 +25,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { injectTrainingFault, prompt, reclaimTrainingDiskSpace, trainingFaultResolved, type TrainingFault } from "@/lib/terminal/machine";
 import { trainingTickets } from "@/lib/training/tickets";
+import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
 import { execute } from "@/lib/terminal/shells";
 import { clone, copyPath, createMachine, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setServiceStatus, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
@@ -68,7 +69,8 @@ function VirtualPcPage() {
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
   const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
   const [pcOs, setPcOs] = useState<PcOs>("windows");
-  const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => ({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "mac", hostname: "itpath-mac" }) }));
+  const [virtualEnvironment] = useState(() => createVirtualEnvironment());
+  const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => syncVirtualEnvironment({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "mac", hostname: "itpath-mac" }) }, createVirtualEnvironment()));
   const machine = pcOs === "windows" ? (sharedAttempt?.machine ?? osMachines.windows ?? fallbackMachine) : osMachines[pcOs];
   const [folder, setFolder] = useState<string[]>(["Users", "student"]);
   const [openApp, setOpenApp] = useState<AppId | null>("files");
@@ -109,7 +111,7 @@ function VirtualPcPage() {
     return pcOs === "windows" ? `C:\\${parts.join("\\")}` : `/${parts.join("/")}`;
   };
   const saveMachine = (next: MachineState) => {
-    setOsMachines((current) => ({ ...current, [pcOs]: next }));
+    setOsMachines((current) => syncVirtualEnvironment({ ...current, [pcOs]: next }, virtualEnvironment));
     if (pcOs === "windows" && sharedAttempt) actions.updateTerminalAttempt({ ...sharedAttempt, machine: next, updatedAt: new Date().toISOString() });
   };
   const mutate = (fn: (next: MachineState) => void) => {
