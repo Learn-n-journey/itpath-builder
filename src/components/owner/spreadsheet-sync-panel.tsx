@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { clearSyncLock, syncNow, syncStatus, type SyncRunStatus } from "@/lib/sheet-sync.functions";
+import { clearSyncLock, proposeSyncAdviceFix, refreshTopic, syncNow, syncStatus, type SyncRunStatus } from "@/lib/sheet-sync.functions";
+import { applyTopicFactCorrection } from "@/lib/admin.functions";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { loadOwnerLessons } from "@/lib/owner-lesson-store";
 import { loadOwnerWork } from "@/lib/owner-work-store";
@@ -12,11 +13,15 @@ import { loadOwnerWork } from "@/lib/owner-work-store";
 export function SpreadsheetSyncPanel() {
   const runSyncNow = useServerFn(syncNow);
   const runClearLock = useServerFn(clearSyncLock);
+  const proposeAdviceFix = useServerFn(proposeSyncAdviceFix);
+  const applyAdviceFix = useServerFn(applyTopicFactCorrection);
+  const refreshOneTopic = useServerFn(refreshTopic);
   const readStatus = useServerFn(syncStatus);
   const [busy, setBusy] = useState<string | null>(null);
   const [lastRun, setLastRun] = useState<string | null>(null);
   const [live, setLive] = useState<SyncRunStatus | null>(null);
   const [history, setHistory] = useState<SyncRunStatus[]>([]);
+  const [fixingAdvice, setFixingAdvice] = useState<string | null>(null);
   const finishedRef = useRef<string | null>(null);
 
   const scopeLabel = (scope: string) =>
@@ -137,6 +142,75 @@ export function SpreadsheetSyncPanel() {
     }
   }
 
+  async function handleFixAdvice(
+    runId: string,
+    issue: { file: string; topic: string; domain?: string; topicId?: string; reasons: string[] },
+    reason: string,
+  ) {
+    if (!issue.domain || !issue.topicId) {
+      toast.error("Run a new sync first so this advice has the workbook identity needed for a safe fix.");
+      return;
+    }
+    const key = `${runId}:${issue.topicId}:${reason}`;
+    setFixingAdvice(key);
+    try {
+      const proposal = await proposeAdviceFix({ data: { topicId: issue.topicId, reason } });
+      if (!proposal.ok || !proposal.claim || !proposal.correction) {
+        toast.error(proposal.error ?? "This advice needs manual review.");
+        return;
+      }
+      const approved = window.confirm(
+        `Apply this targeted workbook fix?\n\nADVICE:\n${reason}\n\nCURRENT:\n${proposal.claim}\n\nREPLACEMENT:\n${proposal.correction}`,
+      );
+      if (!approved) return;
+
+      const applied = await applyAdviceFix({
+        data: { topicId: issue.topicId, claim: proposal.claim, correction: proposal.correction },
+      });
+      if (!applied.ok) {
+        toast.error(applied.error ?? "The workbook could not be updated.", { duration: 10000 });
+        return;
+      }
+
+      const checked = await refreshOneTopic({ data: { domain: issue.domain, topicId: issue.topicId } });
+      if (!checked.ok || !checked.summary) {
+        toast.warning(`Workbook updated, but the topic recheck could not finish: ${checked.error ?? "unknown error"}`, { duration: 10000 });
+        return;
+      }
+      const remaining = checked.summary.lessonIssues.flatMap((item) => item.reasons);
+      if (remaining.includes(reason)) {
+        toast.warning("The workbook was updated, but this advice still appears after rechecking.", { duration: 10000 });
+        return;
+      }
+
+      setHistory((current) =>
+        current.map((run) =>
+          run.id !== runId || !run.result
+            ? run
+            : {
+                ...run,
+                result: {
+                  ...run.result,
+                  lessonIssues: run.result.lessonIssues
+                    .map((item) =>
+                      item.file === issue.file && item.topic === issue.topic
+                        ? { ...item, reasons: item.reasons.filter((itemReason) => itemReason !== reason) }
+                        : item,
+                    )
+                    .filter((item) => item.reasons.length > 0),
+                },
+              },
+        ),
+      );
+      toast.success(`Fixed ${issue.file} and rechecked the topic.`);
+      await Promise.all([loadOwnerQuestions(), loadOwnerLessons(), loadOwnerWork()]);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "The advice could not be fixed.");
+    } finally {
+      setFixingAdvice(null);
+    }
+  }
+
   const inFlight = live?.status === "queued" || live?.status === "running";
 
   return (
@@ -188,6 +262,30 @@ export function SpreadsheetSyncPanel() {
                   {new Date(run.finishedAt ?? run.createdAt).toLocaleString()}
                 </span>
                 <span className="mt-1 block whitespace-pre-line">{describe(run)}</span>
+                {(run.result?.lessonIssues ?? []).length > 0 ? (
+                  <div className="mt-2 space-y-2">
+                    {run.result!.lessonIssues.map((issue) =>
+                      issue.reasons.map((reason) => {
+                        const key = `${run.id}:${issue.topicId ?? issue.file}:${reason}`;
+                        return (
+                          <div key={key} className="rounded-md border border-border/60 bg-background/60 p-2">
+                            <p className="font-medium text-foreground">{issue.file} · {issue.topic}</p>
+                            <p className="mt-1">{reason}</p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="mt-2"
+                              disabled={fixingAdvice !== null || !issue.domain || !issue.topicId}
+                              onClick={() => void handleFixAdvice(run.id, issue, reason)}
+                            >
+                              {fixingAdvice === key ? "Preparing fix…" : issue.domain && issue.topicId ? "Fix" : "Run sync again to enable Fix"}
+                            </Button>
+                          </div>
+                        );
+                      }),
+                    )}
+                  </div>
+                ) : null}
               </li>
             ))}
           </ul>
