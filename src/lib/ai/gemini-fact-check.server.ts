@@ -17,7 +17,7 @@ function runtimeValue(name: "GEMINI_API_KEY" | "GEMINI_FACT_CHECK_MODEL"): strin
   return typeof processValue === "string" && processValue.trim() ? processValue.trim() : undefined;
 }
 
-function model(): string { return runtimeValue("GEMINI_FACT_CHECK_MODEL") || "gemini-2.5-flash-lite"; }
+function model(): string { return runtimeValue("GEMINI_FACT_CHECK_MODEL") || "gemini-3.5-flash-lite"; }
 
 function parseFindings(text: string): GeminiFactFinding[] {
   const start = text.indexOf("{");
