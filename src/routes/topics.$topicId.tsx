@@ -325,7 +325,6 @@ function TopicPage() {
                 ))}
               </ul>
             ) : null}
-            <p className="mt-2 text-[11px] text-muted-foreground">Owner-only advisory check. It never edits the lesson.</p>
           </div>
         ) : null}
 
