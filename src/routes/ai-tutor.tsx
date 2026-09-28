@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Bot, Copy, History, Loader2, Plus, Send, Sparkles, Trash2 } from "lucide-react";
+import { Bot, Copy, History, Loader2, Plus, Send, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -181,7 +181,9 @@ function AiTutor() {
       learnerAnswer: answer,
       question,
     });
-    await send([{ role: "user", content: prompt }]);
+    const initial = [{ role: "user" as const, content: prompt }];
+    setMessages(initial);
+    await send(initial);
   }
 
   async function reply() {
@@ -322,30 +324,6 @@ function AiTutor() {
               </Select>
             </div>
 
-            {mode === "ask_anything" && !started ? (
-              <div className="grid gap-2">
-                <Label htmlFor="tutor-question">Your question</Label>
-                <Textarea
-                  id="tutor-question"
-                  rows={5}
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="Ask anything, for example: why does DNS still resolve after I change the record?"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      if (!busy && question.trim()) void start();
-                    }
-                  }}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Answers use the course material, your saved notes and Second Brain material, and
-                  general knowledge, and say which one each part came from. Picking a topic above is
-                  optional.
-                </p>
-              </div>
-            ) : null}
-
             {mode === "review_answer" && !started ? (
               <div className="grid gap-2">
                 <Label htmlFor="tutor-answer">Your answer</Label>
@@ -359,23 +337,14 @@ function AiTutor() {
               </div>
             ) : null}
 
-            <div className="flex flex-wrap gap-2">
-              {!started ? (
-                <Button onClick={start} disabled={busy}>
-                  {busy ? (
-                    <Loader2 className="size-4 animate-spin" aria-hidden />
-                  ) : (
-                    <Sparkles className="size-4" aria-hidden />
-                  )}
-                  Ask GAYL
-                </Button>
-              ) : (
+            {started ? (
+              <div className="flex flex-wrap gap-2">
                 <Button variant="secondary" onClick={newChat} disabled={busy}>
                   <Plus className="size-4" aria-hidden />
                   New chat
                 </Button>
-              )}
-            </div>
+              </div>
+            ) : null}
 
             <p className="text-xs text-muted-foreground">
               Prefer your own assistant? Start a session, then copy the generated prompt, it
@@ -456,9 +425,15 @@ function AiTutor() {
               <div className="grid min-h-[28rem] max-h-[56vh] gap-3 overflow-y-auto pr-1">
                 {messages.slice(1).map((m, i) =>
                   m.role === "assistant" ? (
-                    <div key={i} className="max-w-[92%] rounded-xl border border-border/70 bg-secondary/30 p-4">
+                    <div key={i} className="flex max-w-[94%] items-start gap-3">
+                      <img
+                        src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
+                        alt="GAYL"
+                        className="size-11 shrink-0 rounded-full border border-primary/30 object-cover"
+                      />
+                      <div className="min-w-0 flex-1 rounded-xl border border-border/70 bg-secondary/30 p-4">
                       <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        Tutor
+                        GAYL
                       </p>
                       <p className="whitespace-pre-wrap text-sm leading-relaxed">{m.content}</p>
                       <ContentReportButton
@@ -467,6 +442,7 @@ function AiTutor() {
                         label={m.content.slice(0, 200)}
                         className="mt-2"
                       />
+                      </div>
                     </div>
                   ) : (
                     <div key={i} className="ml-auto max-w-[85%] rounded-xl border border-primary/30 bg-primary px-4 py-3 text-primary-foreground">
@@ -492,8 +468,14 @@ function AiTutor() {
                   rows={4}
                   value={followUp}
                   onChange={(e) => setFollowUp(e.target.value)}
-                  placeholder="Answer the tutor's question, or ask for clarification…"
+                  placeholder="Answer GAYL's question, or ask for clarification…"
                   disabled={busy}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (!busy && followUp.trim()) void reply();
+                    }
+                  }}
                 />
                 <div className="flex flex-wrap gap-2">
                   <Button onClick={reply} disabled={busy || !followUp.trim()}>
@@ -508,11 +490,45 @@ function AiTutor() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              Choose a mode and a topic, then press “Ask GAYL”. The session opens with your
-              objectives, measured progress, weak areas, unresolved mistakes and review history
-              already included, so answers are about what you actually need, not a generic lesson.
-            </p>
+            <div className="grid gap-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
+                  alt="GAYL"
+                  className="size-12 rounded-full border border-primary/30 object-cover"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Choose how you want help and an optional topic, then ask GAYL below.
+                </p>
+              </div>
+              <Textarea
+                id="gayl-message"
+                rows={4}
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="Ask GAYL anything…"
+                disabled={busy}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!busy && question.trim()) void start();
+                  }
+                }}
+              />
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs text-muted-foreground">Enter to send · Shift + Enter for a new line</p>
+                <Button onClick={start} disabled={busy || (mode === "ask_anything" && !question.trim())}>
+                  {busy ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Send className="size-4" aria-hidden />}
+                  Send
+                </Button>
+              </div>
+              {busy ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                  GAYL is thinking…
+                </div>
+              ) : null}
+            </div>
           )}
         </Panel>
       </div>
