@@ -196,10 +196,13 @@ function VirtualPcPage() {
   const startTicket = (ticketId: string) => {
     const ticket = trainingTickets.find((item) => item.id === ticketId);
     if (!ticket || activeTicketId) return;
-    const next = clone(machine);
+    const targetOs: PcOs = ticket.scope === "cross-machine" && ticket.id === "ticket-1849" ? "linux" : pcOs;
+    const sourceMachine = targetOs === pcOs ? machine : osMachines[targetOs];
+    const next = clone(sourceMachine);
     const fault = injectTrainingFault(next, ticket.fault);
-    saveMachine(next);
-    setActiveTicketId(ticket.id); setActiveFault(fault); setTicketVerified(false); setTicketEvidence(["Ticket opened"]); setGaylHelpLevel(0); setTicketOpen(true); setTerminalLines([]);
+    if (targetOs === pcOs) saveMachine(next);
+    else setOsMachines((current) => syncVirtualEnvironment({ ...current, [targetOs]: next }, virtualEnvironment));
+    setActiveTicketId(ticket.id); setActiveFault(fault); setTicketVerified(false); setTicketEvidence([ticket.scope === "cross-machine" ? "Cross-machine incident opened from reporting workstation" : "Ticket opened"]); setGaylHelpLevel(0); setTicketOpen(true); setTerminalLines([]);
   };
   const verifyTicket = () => {
     if (!activeFault) return;
