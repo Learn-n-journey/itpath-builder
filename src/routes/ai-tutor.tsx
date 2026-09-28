@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Bot, Brain, Copy, History, Lightbulb, Loader2, MessageSquare, Plus, Send, Sparkles, Target, Trash2 } from "lucide-react";
+import { Bot, Copy, History, Loader2, Plus, Send, Sparkles, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -42,13 +42,13 @@ export const Route = createFileRoute("/ai-tutor")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { title: "AI Tutor | IT PATH" },
+      { title: "Ask GAYL | IT PATH" },
       {
         name: "description",
         content:
           "A built-in AI tutor that teaches, quizzes and drills you using your real progress, mistakes and reviews as context.",
       },
-      { property: "og:title", content: "AI Tutor | IT PATH" },
+      { property: "og:title", content: "Ask GAYL | IT PATH" },
       {
         property: "og:description",
         content: "Get tutoring built on your actual study records, weak areas, mistakes and review history included.",
@@ -252,18 +252,36 @@ function AiTutor() {
         <div className="absolute inset-x-0 top-0 h-px bg-primary/70" />
         <div className="relative flex items-start gap-4">
           <div className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><Bot className="size-6" aria-hidden /></div>
-          <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Learning workspace</p><h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">AI Tutor</h1><p className="mt-1 max-w-2xl text-sm text-muted-foreground">Ask questions, practice ideas, and work through problems with your progress and saved material in context.</p></div>
+          <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Learning workspace</p><h1 className="mt-1 font-display text-3xl font-semibold tracking-tight">Ask GAYL</h1><p className="mt-1 max-w-2xl text-sm text-muted-foreground">Ask questions, practice ideas, and work through problems with your progress and saved material in context.</p></div>
         </div>
       </header>
 
       <div className="grid gap-4 xl:grid-cols-[16rem_minmax(0,1fr)]">
         <div className="grid content-start gap-4">
-        <Panel title="Tutor controls" description="Choose how you want to work, then start the conversation.">
-          <div className="mb-4 grid grid-cols-2 gap-2">
-            <button type="button" onClick={() => setMode("ask_anything")} disabled={started} className="rounded-xl border border-border/70 bg-card/30 p-3 text-left hover:border-primary/30 disabled:opacity-60"><Lightbulb className="mb-2 size-4 text-primary" aria-hidden /><span className="block text-sm font-semibold">Explain</span><span className="text-[11px] text-muted-foreground">Clear explanations</span></button>
-            <button type="button" onClick={() => { setMode("ask_anything"); setQuestion("Give me practice on this topic and explain my mistakes."); }} disabled={started} className="rounded-xl border border-border/70 bg-card/30 p-3 text-left hover:border-primary/30 disabled:opacity-60"><Brain className="mb-2 size-4 text-primary" aria-hidden /><span className="block text-sm font-semibold">Practice</span><span className="text-[11px] text-muted-foreground">Work through it</span></button>
-            <button type="button" onClick={() => { setMode("ask_anything"); setQuestion("Show me how this appears in a real IT job or troubleshooting situation."); }} disabled={started} className="rounded-xl border border-border/70 bg-card/30 p-3 text-left hover:border-primary/30 disabled:opacity-60"><Target className="mb-2 size-4 text-primary" aria-hidden /><span className="block text-sm font-semibold">Apply</span><span className="text-[11px] text-muted-foreground">Real-world scenario</span></button>
-            <button type="button" onClick={() => { setMode("ask_anything"); setQuestion("Help me review this topic and find what I do not understand yet."); }} disabled={started} className="rounded-xl border border-border/70 bg-card/30 p-3 text-left hover:border-primary/30 disabled:opacity-60"><MessageSquare className="mb-2 size-4 text-primary" aria-hidden /><span className="block text-sm font-semibold">Review</span><span className="text-[11px] text-muted-foreground">Check understanding</span></button>
+        <Panel title="GAYL controls" description="Choose how you want GAYL to help, then start the conversation.">
+          <div className="mb-4 grid gap-2">
+            <Label htmlFor="gayl-action">How should GAYL help?</Label>
+            <Select
+              defaultValue="explain"
+              disabled={started}
+              onValueChange={(value) => {
+                setMode("ask_anything");
+                if (value === "explain") setQuestion("");
+                if (value === "practice") setQuestion("Give me practice on this topic and explain my mistakes.");
+                if (value === "apply") setQuestion("Show me how this appears in a real IT job or troubleshooting situation.");
+                if (value === "review") setQuestion("Help me review this topic and find what I do not understand yet.");
+              }}
+            >
+              <SelectTrigger id="gayl-action">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="explain">Explain — Clear explanations</SelectItem>
+                <SelectItem value="practice">Practice — Work through it</SelectItem>
+                <SelectItem value="apply">Apply — Real-world scenario</SelectItem>
+                <SelectItem value="review">Review — Check understanding</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -313,6 +331,12 @@ function AiTutor() {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="Ask anything, for example: why does DNS still resolve after I change the record?"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (!busy && question.trim()) void start();
+                    }
+                  }}
                 />
                 <p className="text-xs text-muted-foreground">
                   Answers use the course material, your saved notes and Second Brain material, and
@@ -343,7 +367,7 @@ function AiTutor() {
                   ) : (
                     <Sparkles className="size-4" aria-hidden />
                   )}
-                  Ask the tutor
+                  Ask GAYL
                 </Button>
               ) : (
                 <Button variant="secondary" onClick={newChat} disabled={busy}>
@@ -366,7 +390,7 @@ function AiTutor() {
         >
           {threads.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Nothing saved yet. Your tutor chats will appear here as you have them.
+              Nothing saved yet. Your GAYL chats will appear here as you have them.
             </p>
           ) : (
             <>
@@ -424,7 +448,7 @@ function AiTutor() {
           description={
             started
               ? "Reply below to keep going, quiz answers, diagnoses and interview responses all go in the same box."
-              : "The tutor's reply will appear here, built on your recorded progress and weak areas."
+              : "GAYL's reply will appear here, built on your recorded progress and weak areas."
           }
         >
           {started ? (
@@ -456,7 +480,7 @@ function AiTutor() {
                 {busy ? (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="size-4 animate-spin" aria-hidden />
-                    The tutor is thinking…
+                    GAYL is thinking…
                   </div>
                 ) : null}
               </div>
@@ -485,7 +509,7 @@ function AiTutor() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Choose a mode and a topic, then press “Ask the tutor”. The session opens with your
+              Choose a mode and a topic, then press “Ask GAYL”. The session opens with your
               objectives, measured progress, weak areas, unresolved mistakes and review history
               already included, so answers are about what you actually need, not a generic lesson.
             </p>
