@@ -433,7 +433,7 @@ function AiTutor() {
                   m.role === "assistant" ? (
                     <div key={i} className="flex max-w-[94%] items-start gap-3">
                       <img
-                        src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
+                        src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2011_22_22%20PM.png"
                         alt="GAYL"
                         className="size-11 shrink-0 rounded-full border border-primary/30 object-cover"
                       />
@@ -500,7 +500,7 @@ function AiTutor() {
             <div className="grid gap-3">
               <div className="flex items-center gap-3">
                 <img
-                  src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
+                  src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2011_22_22%20PM.png"
                   alt="GAYL"
                   className="size-12 rounded-full border border-primary/30 object-cover"
                 />
