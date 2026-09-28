@@ -176,6 +176,7 @@ function runMac(state: MachineState, input: string): ExecResult {
     if (args[0] === "-getdnsservers") return ok(state, state.dnsServers.length ? state.dnsServers : `There aren't any DNS Servers set on ${service}.`);
     if (args[0] === "-setdhcp" && iface) { iface.dhcp = true; iface.ip = "10.0.0.54"; iface.mask = "255.255.255.0"; iface.gateway = "10.0.0.1"; return ok(state, ""); }
     if (args[0] === "-setmanual" && iface) { iface.dhcp = false; iface.ip = args[2] ?? iface.ip; iface.mask = args[3] ?? iface.mask; iface.gateway = args[4] ?? iface.gateway; return ok(state, ""); }
+    if (args[0] === "-setmanualwithdhcprouter" && iface) { iface.dhcp = true; iface.ip = args[2] ?? iface.ip; iface.gateway = args[3] ?? "10.0.0.1"; return ok(state, ""); }
     if (args[0] === "-setdnsservers") { state.dnsServers = args.slice(2).filter((v) => v.toLowerCase() !== "empty"); return ok(state, ""); }
     return fail(state, "networksetup: invalid arguments");
   }
@@ -545,6 +546,8 @@ function runBashCommand(
       if ((operands[0] ?? "").startsWith("a")) return ok(state, ipAddrOutput(state));
       if ((operands[0] ?? "").startsWith("r")) {
         const iface = primaryInterface(state);
+        if (operands[1] === "add" && operands.includes("default") && iface) { const via = operands.indexOf("via"); const gateway = via >= 0 ? operands[via + 1] : undefined; if (gateway) { iface.gateway = gateway; state.eventLog.unshift(`${new Date().toISOString()} default route added via ${gateway}`); return ok(state, ""); } }
+        if (operands[1] === "del" && operands.includes("default") && iface) { iface.gateway = ""; return ok(state, ""); }
         return ok(
           state,
           iface?.gateway
@@ -1280,12 +1283,22 @@ function runCmd(state: MachineState, input: string): ExecResult {
         "  Internet Address      Physical Address      Type",
         "  10.0.0.1              aa-bb-cc-11-22-33     dynamic",
       ]);
-    case "route":
+    case "route": {
+      const iface = primaryInterface(state);
+      const action = (operands[0] ?? "").toLowerCase();
+      if ((action === "add" || action === "change") && operands.includes("0.0.0.0") && iface) {
+        const gateway = operands.find((v, i) => i > operands.indexOf("0.0.0.0") && /^\d+\.\d+\.\d+\.\d+$/.test(v) && v !== "0.0.0.0");
+        if (!gateway) return fail(state, "The route addition failed: The parameter is incorrect.");
+        iface.gateway = gateway; state.eventLog.unshift(`${new Date().toISOString()} default gateway changed to ${gateway}`);
+        return ok(state, " OK!");
+      }
+      if (action === "delete" && operands.includes("0.0.0.0") && iface) { iface.gateway = ""; return ok(state, " OK!"); }
       return ok(state, [
         "IPv4 Route Table",
         "Network Destination        Netmask          Gateway       Interface",
         `          0.0.0.0          0.0.0.0     ${pad(primaryInterface(state)?.gateway || "On-link", 14)}${primaryInterface(state)?.ip ?? ""}`,
       ]);
+    }
     case "tasklist":
       return ok(state, [
         "Image Name                     PID Mem Usage",
