@@ -81,6 +81,10 @@ function VirtualPcPage() {
   const [accountName, setAccountName] = useState("");
   const [contextItem, setContextItem] = useState<VirtualFile | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [propertiesItem, setPropertiesItem] = useState<VirtualFile | null>(null);
+  const [propertyOwner, setPropertyOwner] = useState("");
+  const [propertyGroup, setPropertyGroup] = useState("");
+  const [propertyMode, setPropertyMode] = useState("");
   const [clipboard, setClipboard] = useState<{ item: VirtualFile; from: string; cut: boolean } | null>(null);
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentNode = getNode(machine, folder);
@@ -123,6 +127,23 @@ function VirtualPcPage() {
   };
   const deleteItem = (item: VirtualFile) => { mutate((next) => { removePath(next, pathFor(item.name), true); }); setContextItem(null); };
   const showContext = (item: VirtualFile) => { setContextItem(item); setRenameValue(item.name); };
+  const showProperties = (item: VirtualFile) => {
+    const node = getNode(machine, [...folder, item.name]);
+    if (!node) return;
+    setPropertiesItem(item); setPropertyOwner(node.owner); setPropertyGroup(node.group); setPropertyMode(node.mode); setContextItem(null);
+  };
+  const saveProperties = () => {
+    if (!propertiesItem) return;
+    mutate((next) => {
+      const node = getNode(next, [...folder, propertiesItem.name]);
+      if (!node) return;
+      node.owner = propertyOwner.trim() || node.owner;
+      node.group = propertyGroup.trim() || node.group;
+      if (/^[0-7]{3}$/.test(propertyMode)) node.mode = propertyMode;
+      addEvent(next, `Permissions updated for ${pathFor(propertiesItem.name)}.`);
+    });
+    setPropertiesItem(null);
+  };
   const beginPress = (item: VirtualFile) => { if (pressTimer.current) clearTimeout(pressTimer.current); pressTimer.current = setTimeout(() => showContext(item), 480); };
   const cancelPress = () => { if (pressTimer.current) clearTimeout(pressTimer.current); pressTimer.current = null; };
   const renameItem = () => {
@@ -283,7 +304,8 @@ function VirtualPcPage() {
                 </div>
               </div>
             )}
-            {contextItem ? <div className="absolute inset-0 z-30 flex items-end bg-black/20 sm:items-center sm:justify-center" onClick={() => setContextItem(null)}><div className="w-full rounded-t-2xl bg-white p-4 shadow-2xl sm:w-80 sm:rounded-2xl" onClick={(e) => e.stopPropagation()}><div className="mb-3"><p className="truncate text-sm font-semibold">{contextItem.name}</p><p className="text-xs text-slate-500">{contextItem.kind === "folder" ? "Folder" : contextItem.detail}</p></div><div className="mb-3 flex gap-2"><input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} className="min-w-0 flex-1 select-text rounded-lg border px-3 py-2 text-sm" /><button onClick={renameItem} className="rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white">Rename</button></div><div className="grid grid-cols-2 gap-2 text-sm"><button onClick={() => { openFile(contextItem); setContextItem(null); }} className="rounded-lg bg-slate-100 p-3">Open</button><button onClick={() => copyItem(false)} className="rounded-lg bg-slate-100 p-3">Copy</button><button onClick={() => copyItem(true)} className="rounded-lg bg-slate-100 p-3">Cut</button><button onClick={() => deleteItem(contextItem)} className="rounded-lg bg-red-50 p-3 text-red-600">Delete</button></div><div className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-500"><p>Owner: {machine.currentUser}</p><p>Location: {pathFor(contextItem.name)}</p></div></div></div> : null}
+            {propertiesItem ? <div className="absolute inset-0 z-40 flex items-end bg-black/25 sm:items-center sm:justify-center" onClick={() => setPropertiesItem(null)}><div className="w-full rounded-t-2xl bg-white p-4 shadow-2xl sm:w-[28rem] sm:rounded-2xl" onClick={(e) => e.stopPropagation()}><h3 className="font-semibold">{pcOs === "windows" ? "Properties · Security" : pcOs === "linux" ? "Properties · Permissions" : "Get Info · Sharing & Permissions"}</h3><p className="mb-4 truncate text-xs text-slate-500">{propertiesItem.name}</p><div className="grid gap-3 sm:grid-cols-2"><label className="text-xs text-slate-600">Owner<input value={propertyOwner} onChange={(e) => setPropertyOwner(e.target.value)} className="mt-1 w-full select-text rounded-lg border px-3 py-2 text-sm" /></label><label className="text-xs text-slate-600">Group<input value={propertyGroup} onChange={(e) => setPropertyGroup(e.target.value)} className="mt-1 w-full select-text rounded-lg border px-3 py-2 text-sm" /></label></div><div className="mt-3"><p className="mb-2 text-xs font-medium text-slate-600">{pcOs === "windows" ? "Permission level (training representation)" : "Unix mode"}</p><div className="flex flex-wrap gap-2">{["644","600","755","700"].map((mode) => <button key={mode} onClick={() => setPropertyMode(mode)} className={cn("rounded-lg border px-3 py-2 text-xs", propertyMode === mode && "border-blue-500 bg-blue-50 text-blue-700")}>{mode} · {mode === "644" ? "owner write / others read" : mode === "600" ? "owner only" : mode === "755" ? "owner write / all execute" : "owner only execute"}</button>)}</div><input value={propertyMode} onChange={(e) => setPropertyMode(e.target.value.replace(/[^0-7]/g, "").slice(0,3))} inputMode="numeric" className="mt-2 w-24 select-text rounded-lg border px-3 py-2 font-mono text-sm" /></div><div className="mt-4 rounded-lg bg-slate-50 p-3 text-xs text-slate-500"><p>{pcOs === "windows" ? "Security principal" : "Owner"}: {propertyOwner || "—"}</p><p>Group: {propertyGroup || "—"}</p><p>Path: {pathFor(propertiesItem.name)}</p></div><div className="mt-4 flex justify-end gap-2"><button onClick={() => setPropertiesItem(null)} className="rounded-lg border px-4 py-2 text-sm">Cancel</button><button onClick={saveProperties} disabled={!/^[0-7]{3}$/.test(propertyMode)} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40">Apply</button></div></div></div> : null}
+            {contextItem ? <div className="absolute inset-0 z-30 flex items-end bg-black/20 sm:items-center sm:justify-center" onClick={() => setContextItem(null)}><div className="w-full rounded-t-2xl bg-white p-4 shadow-2xl sm:w-80 sm:rounded-2xl" onClick={(e) => e.stopPropagation()}><div className="mb-3"><p className="truncate text-sm font-semibold">{contextItem.name}</p><p className="text-xs text-slate-500">{contextItem.kind === "folder" ? "Folder" : contextItem.detail}</p></div><div className="mb-3 flex gap-2"><input value={renameValue} onChange={(e) => setRenameValue(e.target.value)} className="min-w-0 flex-1 select-text rounded-lg border px-3 py-2 text-sm" /><button onClick={renameItem} className="rounded-lg bg-blue-600 px-3 text-xs font-semibold text-white">Rename</button></div><div className="grid grid-cols-2 gap-2 text-sm"><button onClick={() => { openFile(contextItem); setContextItem(null); }} className="rounded-lg bg-slate-100 p-3">Open</button><button onClick={() => copyItem(false)} className="rounded-lg bg-slate-100 p-3">Copy</button><button onClick={() => copyItem(true)} className="rounded-lg bg-slate-100 p-3">Cut</button><button onClick={() => deleteItem(contextItem)} className="rounded-lg bg-red-50 p-3 text-red-600">Delete</button><button onClick={() => showProperties(contextItem)} className="col-span-2 rounded-lg bg-slate-100 p-3">Properties / Permissions</button></div><div className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-500"><p>Location: {pathFor(contextItem.name)}</p></div></div></div> : null}
             {editing ? <div className="absolute inset-0 z-20 flex flex-col bg-white"><div className="flex h-11 items-center justify-between border-b px-3"><strong className="truncate text-sm">{editing.name}</strong><button onClick={() => setEditing(null)}><X className="size-4" /></button></div><textarea value={fileText} onChange={(e) => setFileText(e.target.value)} className="min-h-0 flex-1 select-text resize-none p-4 font-mono text-sm outline-none [-webkit-touch-callout:default]" /><div className="border-t p-3"><button onClick={saveText} className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">Save file</button></div></div> : null}
           </section>
         ) : null}
