@@ -40,6 +40,20 @@ export function createVirtualEnvironment(): VirtualEnvironmentState {
   };
 }
 
+function serviceRunning(machine: MachineState, names: string[]): boolean {
+  return names.some((name) => machine.services.some((svc) => svc.name.toLowerCase() === name.toLowerCase() && svc.status === "running"));
+}
+
+function resourceAvailable(resource: SharedResource, machines: Record<VirtualOsKey, MachineState>): boolean {
+  const host = machines[resource.host];
+  const iface = host.interfaces.find((item) => item.name !== "lo" && item.name !== "lo0") ?? host.interfaces[0];
+  if (!iface?.up) return false;
+  if (resource.kind === "web") return serviceRunning(host, ["nginx", "apache2", "httpd"]);
+  if (resource.kind === "printer") return serviceRunning(host, ["cupsd", "cups"]);
+  if (resource.kind === "share") return serviceRunning(host, ["LanmanServer", "Server", "smbd"]) || host.platform === "windows";
+  return resource.available;
+}
+
 export function connectMachineToEnvironment(machine: MachineState, env: VirtualEnvironmentState): MachineState {
   const next = JSON.parse(JSON.stringify(machine)) as MachineState;
   next.dnsRecords = { ...next.dnsRecords, ...env.dnsRecords };
@@ -62,9 +76,13 @@ export function syncVirtualEnvironment(
   machines: Record<VirtualOsKey, MachineState>,
   env: VirtualEnvironmentState,
 ): Record<VirtualOsKey, MachineState> {
+  const liveEnv: VirtualEnvironmentState = {
+    ...env,
+    resources: env.resources.map((resource) => ({ ...resource, available: resourceAvailable(resource, machines) })),
+  };
   return {
-    windows: connectMachineToEnvironment(machines.windows, env),
-    linux: connectMachineToEnvironment(machines.linux, env),
-    mac: connectMachineToEnvironment(machines.mac, env),
+    windows: connectMachineToEnvironment(machines.windows, liveEnv),
+    linux: connectMachineToEnvironment(machines.linux, liveEnv),
+    mac: connectMachineToEnvironment(machines.mac, liveEnv),
   };
 }
