@@ -265,7 +265,7 @@ function VirtualPcPage() {
   const beginGaylWalkthrough = () => { if(!activeFault) return; setGaylWalkthrough(true); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); setGaylHelpLevel(3); recordEvidence("GAYL guided walkthrough started"); };
   const gaylOpenStep = () => { const step=gaylGuide[gaylStep]; if(step?.[2]) launch(step[2]); recordEvidence(`GAYL guided learner to ${step?.[2] ?? "diagnostic surface"}`); };
   const gaylStepSatisfied = () => { if(!activeFault) return false; const iface=primaryInterface(machine); if(gaylStep===0) return ticketEvidence.length>1 || openApp===gaylGuide[gaylStep]?.[2]; if(gaylStep===1) return openApp===gaylGuide[gaylStep]?.[2] || ticketEvidence.some(e=>e.includes("inspected")); if(gaylStep===2) return trainingFaultResolved(faultMachine,activeFault); return trainingFaultResolved(faultMachine,activeFault); };
-  const checkGaylStep = () => { const ok=gaylStepSatisfied(); setGaylStepChecked(true); recordEvidence(\`GAYL checked guided step \${gaylStep+1}: \${ok?"complete":"not complete"}\`); };
+  const checkGaylStep = () => { const ok=gaylStepSatisfied(); setGaylStepChecked(true); recordEvidence(`GAYL checked guided step ${gaylStep+1}: ${ok?"complete":"not complete"}`); };
   const advanceGaylStep = () => { if(gaylStep < gaylGuide.length-1) { setGaylStep(s=>s+1); setGaylStepChecked(false); } };
   const restartAfterGayl = () => {
     if(!activeTicket || !ticketBaseline.current) return;
