@@ -6,7 +6,7 @@
  */
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Brain, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -59,7 +59,12 @@ export function SidePanel({ className }: { className?: string }) {
             className,
           )}
         >
-          <Brain className="size-5" aria-hidden />
+          <img
+            src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_08_55%20PM.png"
+            alt=""
+            className="size-8 object-contain"
+            aria-hidden
+          />
         </button>
       </SheetTrigger>
       <SheetContent side="right" className="flex w-full flex-col gap-4 overflow-y-auto sm:max-w-md">
