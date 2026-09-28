@@ -206,13 +206,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const immersiveBackground = pathname === "/pomodoro" || pathname === "/meditation";
   const virusRun = pathname === "/virus";
   const byteRun = pathname === "/byte-break";
+  const virtualPc = pathname === "/virtual-pc";
 
   // The course chooser is the neutral front door, before either subject loads.
   if (pathname === "/") return <>{children}</>;
 
   // BYTE//BREAK is a true game surface: no site chrome, page scrolling, tabs,
   // footer, sidebar, or bottom navigation. The game owns the whole viewport.
-  if (byteRun) return <MaintenanceGate pathname={pathname}><>{children}</></MaintenanceGate>;
+  if (byteRun || virtualPc) return <MaintenanceGate pathname={pathname}><>{children}</></MaintenanceGate>;
 
   // Public study guides sit outside the app chrome so search engines and
   // signed-out visitors get a plain, readable page.
