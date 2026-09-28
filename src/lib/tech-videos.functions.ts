@@ -196,7 +196,7 @@ function parseChannelFeed(xml: string, channel: Channel): TechVideo[] {
   return out;
 }
 
-async function loadChannel(channel: Channel): Promise<TechVideo[]> {
+async function loadChannelFeed(channel: Channel): Promise<TechVideo[]> {
   try {
     const response = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${channel.id}`, {
       headers: {
@@ -212,12 +212,79 @@ async function loadChannel(channel: Channel): Promise<TechVideo[]> {
   }
 }
 
+async function loadChannelApi(channel: Channel, apiKey: string): Promise<TechVideo[]> {
+  const params = new URLSearchParams({
+    part: "snippet,contentDetails",
+    playlistId: `UU${channel.id.slice(2)}`,
+    maxResults: "12",
+    key: apiKey,
+  });
+  try {
+    const response = await fetch(`https://www.googleapis.com/youtube/v3/playlistItems?${params.toString()}`, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(9000),
+    });
+    if (!response.ok) {
+      console.error("[tech-videos]", `${channel.name}: YouTube API HTTP ${response.status}: ${(await response.text()).slice(0, 300)}`);
+      return [];
+    }
+    const body = (await response.json()) as {
+      items?: Array<{
+        contentDetails?: { videoId?: string; videoPublishedAt?: string };
+        snippet?: {
+          title?: string;
+          description?: string;
+          channelId?: string;
+          channelTitle?: string;
+          publishedAt?: string;
+          resourceId?: { videoId?: string };
+          thumbnails?: { high?: { url?: string }; medium?: { url?: string }; default?: { url?: string } };
+        };
+      }>;
+    };
+    return (body.items ?? []).flatMap((item): TechVideo[] => {
+      const snippet = item.snippet;
+      const videoId = item.contentDetails?.videoId ?? snippet?.resourceId?.videoId;
+      const title = snippet?.title ? entities(snippet.title) : "";
+      const publishedAt = item.contentDetails?.videoPublishedAt ?? snippet?.publishedAt ?? "";
+      if (!videoId || !title || !publishedAt || title === "Private video" || title === "Deleted video") return [];
+      const summary = entities(snippet?.description ?? "").slice(0, 280);
+      return [{
+        id: `youtube:${videoId}`,
+        videoId,
+        platform: "YouTube",
+        embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1`,
+        title,
+        summary,
+        url: `https://www.youtube.com/watch?v=${videoId}`,
+        channelUrl: `https://www.youtube.com/channel/${channel.id}`,
+        channel: snippet?.channelTitle ? entities(snippet.channelTitle) : channel.name,
+        thumbnail: snippet?.thumbnails?.high?.url ?? snippet?.thumbnails?.medium?.url ?? snippet?.thumbnails?.default?.url ?? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+        category: channel.fallback === "Automotive" ? "Automotive" : categorise(`${title} ${summary}`, channel.fallback),
+        publishedAt,
+      }];
+    });
+  } catch (error) {
+    console.error("[tech-videos]", `${channel.name}: YouTube API request failed`, error);
+    return [];
+  }
+}
+
+async function loadChannel(channel: Channel, apiKey?: string): Promise<TechVideo[]> {
+  if (apiKey) {
+    const apiVideos = await loadChannelApi(channel, apiKey);
+    if (apiVideos.length > 0) return apiVideos;
+  }
+  return loadChannelFeed(channel);
+}
+
 let cache: { at: number; videos: TechVideo[] } | null = null;
 const CACHE_MS = 15 * 60 * 1000;
 
 export const getTechVideos = createServerFn({ method: "GET" }).handler(async () => {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache.videos;
-  const results = await Promise.all(CHANNELS.map(loadChannel));
+  const apiKey = process.env["YOUTUBE_API_KEY"]?.trim();
+  const results = await Promise.all(CHANNELS.map((channel) => loadChannel(channel, apiKey)));
   const seen = new Set<string>();
   const videos = results
     .flat()
