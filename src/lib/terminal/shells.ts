@@ -30,6 +30,7 @@ import {
   resolvePath,
   setServiceStatus,
   writeFile,
+  reclaimTrainingDiskSpace,
   type ExecResult,
   type MachineState,
   type VfsNode,
@@ -182,7 +183,11 @@ function runMac(state: MachineState, input: string): ExecResult {
   }
   if (name === "scutil" && args.includes("--dns")) return ok(state, state.dnsServers.map((dns, i) => `nameserver[${i}] : ${dns}`));
   if (name === "system_profiler") return ok(state, [`Hardware Overview:`, `  Model Name: IT PATH Virtual Mac`, `  Memory: ${state.memoryTotalMb} MB`, `  Computer Name: ${state.hostname}`]);
-  if (name === "diskutil") return ok(state, ["/dev/disk0 (internal, physical):", "   0: GUID_partition_scheme", "   1: APFS Container Macintosh HD"]);
+  if (name === "diskutil") {
+    if (args[0] === "info") return ok(state, ["Device Identifier: disk3s1", "Volume Name: Macintosh HD", `Volume Used Space: ${state.diskUsedPercent}%`, `Volume Free Space: ${100-state.diskUsedPercent}%`]);
+    return ok(state, ["/dev/disk0 (internal, physical):", "   0: GUID_partition_scheme", "   1: APFS Container Macintosh HD"]);
+  }
+  if (name === "periodic" && args.includes("daily")) { const freed=reclaimTrainingDiskSpace(state,12); return ok(state, `Periodic maintenance completed. Reclaimed ${freed}% of simulated disk capacity.`); }
   if (name === "log") return ok(state, state.eventLog.slice(-50));
   if (name === "launchctl") {
     const action = (args[0] ?? "list").toLowerCase();
@@ -432,6 +437,10 @@ function runBashCommand(
       });
       return ok(state, results);
     }
+    case "cleanup": {
+      const freed = reclaimTrainingDiskSpace(state, 12);
+      return ok(state, `Cleanup complete. Reclaimed ${freed}% of simulated disk capacity.`);
+    }
     case "df":
       return state.platform === "macos"
         ? ok(state, ["Filesystem       512-blocks      Used Available Capacity Mounted on", `/dev/disk3s1s1    976490576  ${padStart(Math.round(9764905 * state.diskUsedPercent), 8)}  ${padStart(Math.round(9764905 * (100 - state.diskUsedPercent)), 8)}  ${state.diskUsedPercent}% /`])
@@ -627,6 +636,10 @@ function runBashCommand(
       if (joined.includes("set dns") && iface) { const addr = args.find(v => /^\d+\.\d+\.\d+\.\d+$/.test(v)); if (addr) state.dnsServers = [addr]; return ok(state, "Ok."); }
       if (joined.includes("set interface") && iface) { iface.up = !joined.includes("disable"); return ok(state, "Ok."); }
       return fail(state, "The following command was not found or is not supported in this training environment.");
+    }
+    case "cleanmgr": {
+      const freed = reclaimTrainingDiskSpace(state, 12);
+      return ok(state, [`Disk Cleanup completed successfully.`, `Reclaimed ${freed}% of simulated disk capacity.`]);
     }
     case "netstat":
       return ok(state, [
@@ -1872,6 +1885,10 @@ function runPowerShell(state: MachineState, input: string): ExecResult {
         "------        -----------      --------      -----------",
         `${pad(state.hostname, 14)}Security Update  KB5034441     ${new Date().toLocaleDateString()}`,
       ]);
+    case "clear-trainingtemp": {
+      if (!isAdmin(state)) return fail(state, "Clear-TrainingTemp : Access denied. Run PowerShell as administrator.");
+      const freed = reclaimTrainingDiskSpace(state, 12); return ok(state, `Reclaimed ${freed}% of simulated disk capacity.`);
+    }
     case "get-volume":
       return ok(state, [
         "DriveLetter FileSystem SizeRemaining      Size",
