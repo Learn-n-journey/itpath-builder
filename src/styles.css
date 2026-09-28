@@ -230,11 +230,16 @@ html.light {
 
 /* IT PATH signature visual language. Keep this restrained: it is a brand cue, not a card redesign. */
 :root {
-  --it-path-blue: #00c8ff;
-  --it-path-cobalt: #2787ff;
-  --it-path-violet: #9a45ff;
-  --it-path-red: #ff4565;
-  --it-path-gradient: linear-gradient(90deg, var(--it-path-blue), var(--it-path-cobalt) 38%, var(--it-path-violet) 68%, var(--it-path-red));
+  --it-path-cyan: #18d9ff;
+  --it-path-blue: #268cff;
+  --it-path-violet: #7448ff;
+  --it-path-magenta: #c83cff;
+  --it-path-coral: #ff4b58;
+  --it-path-interface-1: #24344a;
+  --it-path-interface-2: #31445d;
+  --it-path-interface-3: #435a73;
+  --it-path-accent: var(--it-path-cyan);
+  --it-path-gradient: linear-gradient(90deg, var(--it-path-cyan) 0%, var(--it-path-blue) 25%, var(--it-path-violet) 50%, var(--it-path-magenta) 74%, var(--it-path-coral) 100%);
 }
 
 .it-path-line {
@@ -251,6 +256,19 @@ html.light {
   color: transparent;
 }
 
+.it-path-header-mark {
+  width: 3.5rem;
+  height: 0.2rem;
+  border-radius: 999px;
+  background: var(--it-path-gradient);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--it-path-violet) 20%, transparent);
+}
+
+html[data-subject="auto-repair"] .it-path-header-mark {
+  background: var(--path-auto);
+  box-shadow: none;
+}
+
 .it-path-node {
   position: relative;
 }
@@ -264,8 +282,8 @@ html.light {
   top: 50%;
   translate: 0 -50%;
   border-radius: 999px;
-  background: var(--it-path-red);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--it-path-red) 60%, transparent);
+  background: var(--it-path-coral);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--it-path-coral) 60%, transparent);
 }
 
 /* Shared progressive disclosure: quick enough to support, never delay, a task. */
