@@ -35,6 +35,7 @@ import type { ActivityEntry, ContentVersion, FlowCounter, HealthCheck, HealthSta
 import { canRollback, lifecycleLabel } from "@/lib/admin/release";
 import {
   advanceVersion,
+  applyTopicFactCorrection,
   factualQualityChallenge,
   verifyImportedTopicFacts,
   flowHealth,
@@ -235,6 +236,7 @@ function AdminPage() {
   const runSystem = useServerFn(systemHealth);
   const runFactualChallenge = useServerFn(factualQualityChallenge);
   const runTopicFactCheck = useServerFn(verifyImportedTopicFacts);
+  const applyFactCorrection = useServerFn(applyTopicFactCorrection);
   const readRuns = useServerFn(lastHealthRuns);
   const saveRun = useServerFn(recordHealthRun);
   const readSources = useServerFn(sourceHealth);
@@ -270,6 +272,9 @@ function AdminPage() {
   const [factualChallenge, setFactualChallenge] = useState<FactualChallengeResult[] | null>(null);
   const [topicFactChecks, setTopicFactChecks] = useState<Record<string, TopicFactualVerification>>({});
   const [checkingTopicFacts, setCheckingTopicFacts] = useState<string | null>(null);
+  const [checkingAllFacts, setCheckingAllFacts] = useState(false);
+  const [fixingFact, setFixingFact] = useState<string | null>(null);
+  const [workbookTopic, setWorkbookTopic] = useState("");
 
   // What was checked before, so "not yet checked" stays honest across visits.
   useEffect(() => {
@@ -362,6 +367,39 @@ function AdminPage() {
       setCheckingTopicFacts(null);
     }
   }, [runTopicFactCheck]);
+
+  const verifyAllWorkbookFacts = useCallback(async () => {
+    const ids = (contentReport ?? contentHealth(coursePack)).map((topic) => topic.topicId);
+    setCheckingAllFacts(true);
+    let findings = 0;
+    try {
+      for (const topicId of ids) {
+        setCheckingTopicFacts(topicId);
+        const reply = await runTopicFactCheck({ data: { topicId } });
+        if (!reply.owner) throw new Error("Only the owner can run factual verification.");
+        setTopicFactChecks((current) => ({ ...current, [topicId]: reply }));
+        findings += reply.findings.length;
+      }
+      toast[findings ? "warning" : "success"](findings ? `Checked ${ids.length} workbooks · ${findings} factual finding${findings === 1 ? "" : "s"} need review.` : `Checked ${ids.length} workbooks · no factual errors found.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Workbook verification could not finish.");
+    } finally { setCheckingTopicFacts(null); setCheckingAllFacts(false); }
+  }, [contentReport, runTopicFactCheck]);
+
+  const fixAdminFact = useCallback(async (topicId: string, index: number) => {
+    const finding = topicFactChecks[topicId]?.findings[index];
+    if (!finding?.correction) return;
+    if (!window.confirm(`Apply this correction to the source workbook?\n\nFLAGGED:\n${finding.claim}\n\nREPLACEMENT:\n${finding.correction}`)) return;
+    const key = `${topicId}:${index}`; setFixingFact(key);
+    try {
+      const result = await applyFactCorrection({ data: { topicId, claim: finding.claim, correction: finding.correction } });
+      if (!result.ok) throw new Error(result.error ?? "The workbook could not be updated.");
+      const checked = await runTopicFactCheck({ data: { topicId } });
+      setTopicFactChecks((current) => ({ ...current, [topicId]: checked }));
+      toast.success(`Fixed in ${result.sourceFile} → ${result.sheet} ${result.cell} and rechecked.`);
+    } catch (error) { toast.error(error instanceof Error ? error.message : "The workbook could not be updated."); }
+    finally { setFixingFact(null); }
+  }, [applyFactCorrection, runTopicFactCheck, topicFactChecks]);
 
   const challengeFactualAccuracy = useCallback(async () => {
     const reply = await runFactualChallenge({});
@@ -704,6 +742,18 @@ function AdminPage() {
         </TabsContent>
 
         <TabsContent value="content">
+          <Panel className="mt-6" title="Spreadsheet factual checker">
+            <p className="text-sm text-muted-foreground">Check any imported lesson workbook here, or run the same factual verifier across every topic without opening them one by one.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <select value={workbookTopic} onChange={(e)=>setWorkbookTopic(e.target.value)} className="h-10 min-w-[16rem] rounded-md border border-input bg-background px-3 text-sm">
+                <option value="">Select a workbook…</option>
+                {(contentReport ?? contentHealth(coursePack)).map((topic)=><option key={topic.topicId} value={topic.topicId}>{topic.title}</option>)}
+              </select>
+              <Button variant="outline" disabled={!workbookTopic || checkingTopicFacts!==null || checkingAllFacts} onClick={()=>void verifyTopicFacts(workbookTopic)}>Check selected workbook</Button>
+              <Button disabled={checkingAllFacts || checkingTopicFacts!==null} onClick={()=>void verifyAllWorkbookFacts()}>{checkingAllFacts ? `Checking… ${checkingTopicFacts ?? ""}` : "Check all workbooks"}</Button>
+            </div>
+            {Object.keys(topicFactChecks).length ? <div className="mt-4 space-y-3">{Object.entries(topicFactChecks).filter(([id])=>!workbookTopic || id===workbookTopic).map(([topicId,result])=><div key={topicId} className="rounded-lg border border-border/60 p-3"><div className="flex items-center justify-between gap-2"><p className="text-sm font-semibold">{(contentReport ?? contentHealth(coursePack)).find(t=>t.topicId===topicId)?.title ?? topicId}</p><span className={`text-xs font-medium ${result.findings.length ? "text-warning" : "text-success"}`}>{result.findings.length ? `${result.findings.length} TO REVIEW` : result.error ? "INCOMPLETE" : "NO ERRORS FOUND"}</span></div>{result.sourceFile?<p className="mt-1 text-[11px] text-muted-foreground">{result.sourceFile}</p>:null}{result.error?<p className="mt-2 text-xs text-warning">{result.error}</p>:null}{result.findings.map((finding,index)=><div key={index} className="mt-3 border-t border-border/40 pt-3 text-xs"><p className="font-medium">Flagged: {finding.claim}</p><p className="mt-1 text-muted-foreground">Why: {finding.problem}</p>{finding.correction?<><p className="mt-1 text-muted-foreground">Correction: {finding.correction}</p><Button size="sm" variant="outline" className="mt-2" disabled={fixingFact!==null || checkingAllFacts} onClick={()=>void fixAdminFact(topicId,index)}>{fixingFact===`${topicId}:${index}`?"Fixing…":"Fix it"}</Button></>:null}</div>)}</div>)}</div>:null}
+          </Panel>
           <Panel className="mt-6" title="Topic health">
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => run("Content check", checkContent)} disabled={busy !== null}>
