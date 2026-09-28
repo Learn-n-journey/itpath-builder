@@ -196,6 +196,7 @@ export const syncStatus = createServerFn({ method: "GET" })
 export interface SyncAdviceFixProposal {
   ok: boolean;
   owner: boolean;
+  domain: string;
   topicId: string;
   reason: string;
   claim?: string;
@@ -210,25 +211,27 @@ export interface SyncAdviceFixProposal {
  */
 export const proposeSyncAdviceFix = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { topicId: string; reason: string }) => ({
+  .inputValidator((input: { domain: string; topicId: string; reason: string }) => ({
+    domain: input.domain.trim(),
     topicId: input.topicId.trim(),
     reason: input.reason.trim(),
   }))
   .handler(async ({ context, data }): Promise<SyncAdviceFixProposal> => {
-    if (!isOwner(context)) return { ok: false, owner: false, topicId: data.topicId, reason: data.reason, error: "Not allowed." };
+    if (!isOwner(context)) return { ok: false, owner: false, domain: data.domain, topicId: data.topicId, reason: data.reason, error: "Not allowed." };
     const supabaseAdmin = await adminClient();
-    if (!supabaseAdmin) return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: UNAVAILABLE };
+    if (!supabaseAdmin) return { ok: false, owner: true, domain: data.domain, topicId: data.topicId, reason: data.reason, error: UNAVAILABLE };
 
     const { data: row, error } = await supabaseAdmin
       .from("owner_lessons")
       .select("lesson")
+      .eq("domain", data.domain)
       .eq("topic_id", data.topicId)
       .eq("status", "approved")
       .order("synced_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     if (error || !row?.lesson) {
-      return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: error?.message ?? "The imported lesson could not be found." };
+      return { ok: false, owner: true, domain: data.domain, topicId: data.topicId, reason: data.reason, error: error?.message ?? "The imported lesson could not be found." };
     }
 
     const lessonJson = JSON.stringify(row.lesson);
@@ -252,7 +255,7 @@ export const proposeSyncAdviceFix = createServerFn({ method: "POST" })
       skipBudget: true,
     });
     if (!reply.ok) {
-      return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: reply.error };
+      return { ok: false, owner: true, domain: data.domain, topicId: data.topicId, reason: data.reason, error: reply.error };
     }
     try {
       const start = reply.text.indexOf("{");
@@ -261,17 +264,17 @@ export const proposeSyncAdviceFix = createServerFn({ method: "POST" })
       const claim = parsed.claim?.trim() ?? "";
       const correction = parsed.correction?.trim() ?? "";
       if (!parsed.ok || !claim || !correction) {
-        return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: parsed.error ?? "This advice needs manual review." };
+        return { ok: false, owner: true, domain: data.domain, topicId: data.topicId, reason: data.reason, error: parsed.error ?? "This advice needs manual review." };
       }
       if (!lessonJson.includes(claim)) {
-        return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: "The proposed repair did not identify exact existing workbook text, so nothing was changed." };
+        return { ok: false, owner: true, domain: data.domain, topicId: data.topicId, reason: data.reason, error: "The proposed repair did not identify exact existing workbook text, so nothing was changed." };
       }
       if (claim === correction) {
-        return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: "The proposed repair would not change the lesson." };
+        return { ok: false, owner: true, domain: data.domain, topicId: data.topicId, reason: data.reason, error: "The proposed repair would not change the lesson." };
       }
-      return { ok: true, owner: true, topicId: data.topicId, reason: data.reason, claim, correction };
+      return { ok: true, owner: true, domain: data.domain, topicId: data.topicId, reason: data.reason, claim, correction };
     } catch {
-      return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: "The repair proposal could not be read." };
+      return { ok: false, owner: true, domain: data.domain, topicId: data.topicId, reason: data.reason, error: "The repair proposal could not be read." };
     }
   });
 
