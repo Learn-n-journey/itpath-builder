@@ -135,7 +135,9 @@ function runSingle(state: MachineState, input: string): ExecResult {
   if (redirect) command = input.slice(0, redirect.index);
 
   const result =
-    state.shell === "bash"
+    state.shell === "mac"
+      ? runMac(state, command)
+      : state.shell === "bash"
       ? runBash(state, command)
       : state.shell === "android"
         ? runAndroid(state, command)
@@ -157,6 +159,33 @@ function runSingle(state: MachineState, input: string): ExecResult {
     return ok(result.state, "");
   }
   return result;
+}
+
+/* ------------------------------------------------------------------ */
+/* macOS / zsh-like training shell                                    */
+/* ------------------------------------------------------------------ */
+
+function runMac(state: MachineState, input: string): ExecResult {
+  const tokens = tokenize(input);
+  const name = (tokens[0] ?? "").toLowerCase();
+  const args = tokens.slice(1);
+  const iface = primaryInterface(state);
+  if (name === "networksetup") {
+    const service = args[1] ?? "Ethernet";
+    if (args[0] === "-getinfo") return ok(state, [`DHCP Configuration`, `IP address: ${iface?.ip ?? "none"}`, `Subnet mask: ${iface?.mask ?? "none"}`, `Router: ${iface?.gateway ?? "none"}`]);
+    if (args[0] === "-getdnsservers") return ok(state, state.dnsServers.length ? state.dnsServers : `There aren't any DNS Servers set on ${service}.`);
+    if (args[0] === "-setdhcp" && iface) { iface.dhcp = true; iface.ip = "10.0.0.54"; iface.mask = "255.255.255.0"; iface.gateway = "10.0.0.1"; return ok(state, ""); }
+    if (args[0] === "-setmanual" && iface) { iface.dhcp = false; iface.ip = args[2] ?? iface.ip; iface.mask = args[3] ?? iface.mask; iface.gateway = args[4] ?? iface.gateway; return ok(state, ""); }
+    if (args[0] === "-setdnsservers") { state.dnsServers = args.slice(2).filter((v) => v.toLowerCase() !== "empty"); return ok(state, ""); }
+    return fail(state, "networksetup: invalid arguments");
+  }
+  if (name === "scutil" && args.includes("--dns")) return ok(state, state.dnsServers.map((dns, i) => `nameserver[${i}] : ${dns}`));
+  if (name === "system_profiler") return ok(state, [`Hardware Overview:`, `  Model Name: IT PATH Virtual Mac`, `  Memory: ${state.memoryTotalMb} MB`, `  Computer Name: ${state.hostname}`]);
+  if (name === "diskutil") return ok(state, ["/dev/disk0 (internal, physical):", "   0: GUID_partition_scheme", "   1: APFS Container Macintosh HD"]);
+  if (name === "log") return ok(state, state.eventLog.slice(-50));
+  if (name === "launchctl") return ok(state, state.services.map((svc) => `${svc.status === "running" ? "0" : "-"}\t${svc.name}`));
+  if (!MAC_COMMANDS.includes(name)) return fail(state, `zsh: command not found: ${name}`);
+  return runBashCommand(state, name, args, input);
 }
 
 /* ------------------------------------------------------------------ */
