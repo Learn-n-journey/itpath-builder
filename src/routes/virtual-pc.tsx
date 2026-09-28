@@ -12,7 +12,7 @@ import {
   Wifi,
   X,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { createMachine, getNode, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
@@ -51,18 +51,14 @@ function freshWindowsMachine(): MachineState {
 }
 
 function VirtualPcPage() {
-  const { user, actions } = useAppState();
+  const { user } = useAppState();
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
-  const [machine, setMachine] = useState<MachineState>(() => sharedAttempt?.machine ?? freshWindowsMachine());
+  const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
+  const machine = sharedAttempt?.machine ?? fallbackMachine;
   const [folder, setFolder] = useState<string[]>(["Users", machine.currentUser]);
   const [openApp, setOpenApp] = useState<AppId | null>("files");
   const [startOpen, setStartOpen] = useState(false);
   const [query, setQuery] = useState("");
-  useEffect(() => {
-    if (!sharedAttempt) return;
-    setMachine(sharedAttempt.machine);
-  }, [sharedAttempt?.updatedAt]);
-
   const currentNode = getNode(machine, folder);
   const visibleFiles = useMemo(
     () => entries(currentNode).filter((file) => file.name.toLowerCase().includes(query.toLowerCase())),
