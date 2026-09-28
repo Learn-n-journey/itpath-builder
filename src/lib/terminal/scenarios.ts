@@ -612,7 +612,7 @@ export function ticketTerminalScenario(ticket: TrainingTicket, shell: ShellKind)
     : ticket.fault === "adapter" ? [{ id:"repair", description:"Restore the primary network interface", kind:"interface_up" }]
     : ticket.fault === "gateway" ? [{ id:"repair", description:"Restore a default gateway", kind:"gateway_present" }]
     : ticket.fault === "disk" ? [{ id:"repair", description:"Restore safe free disk capacity", kind:"disk_below", expected:"95" }]
-    : ticket.fault === "account" ? [{ id:"repair", description:"Unlock the affected local account", kind:"user_unlocked", target:"student" }]
+    : ticket.fault === "account" ? [{ id:"repair", description:"Unlock the affected local account", kind:"user_unlocked", target:"__fault_target__" }]
     : [{ id:"repair", description:"Restore the affected background service", kind:"service_running", target:"__fault_service__" }];
   return { id:`ticket-terminal-${ticket.id}-${shell}`, topicId:ticket.topicId, shell, title:`#${ticket.id.replace("ticket-","")} · ${ticket.title}`, brief:ticket.brief, environment:ticket.environment, difficulty:"standard", estimatedMinutes:15, goals, diagnosticGroups: shell==="cmd" ? [["ipconfig /all","sc query"],["ping 10.0.0.1","nslookup example.com"]] : shell==="powershell" ? [["get-netipconfiguration","get-service"],["test-connection 10.0.0.1","resolve-dnsname example.com"]] : shell==="mac" ? [["ifconfig","networksetup -getdnsservers Ethernet"],["ping 10.0.0.1","scutil --dns"]] : [["ip addr","ip route","systemctl list-units"],["ping 10.0.0.1","dig example.com"]], efficientCommandCount:6, hints:["Start by observing the current state before changing anything.","Separate local connectivity from the affected feature.","Make the smallest repair, then verify the symptom is gone."], explanation:"The ticket is resolved when the underlying machine state is repaired and verified.", reasoningKeywords:ticket.tags, misconceptionRules:[], source:"curated" };
 }
@@ -625,6 +625,9 @@ export function buildScenarioMachine(scenario: TerminalScenario): MachineState {
     const machine = createMachine({ shell: scenario.shell, elevated: scenario.shell === "cmd" });
     if (ticket) {
       const fault = injectTrainingFault(machine, ticket.fault);
+    if (ticket.fault === "account" && fault.target) {
+      scenario.goals.forEach((goal) => { if (goal.kind === "user_unlocked") goal.target = fault.target!; });
+    }
       if (ticket.fault === "service" && fault.target) scenario.goals = [{ id:"repair", description:"Restore the affected background service", kind:"service_running", target:fault.target }];
     }
     return machine;
