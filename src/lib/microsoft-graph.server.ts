@@ -2,7 +2,7 @@
  * Microsoft Graph OAuth helpers for the owner's OneDrive worksheet sync.
  * Server-only. Tokens are never exposed to browser code.
  */
-const GRAPH_SCOPE = "offline_access Files.Read User.Read";
+const GRAPH_SCOPE = "offline_access Files.ReadWrite User.Read";
 const TOKEN_ENDPOINT = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
 const AUTHORIZE_ENDPOINT = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
 
