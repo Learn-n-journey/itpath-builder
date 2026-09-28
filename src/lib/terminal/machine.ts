@@ -7,6 +7,7 @@
  */
 
 export type ShellKind = "cmd" | "powershell" | "bash" | "mac" | "android" | "ios";
+export type PlatformKind = "windows" | "linux" | "macos" | "android" | "ios";
 
 export interface VfsNode {
   type: "dir" | "file";
@@ -70,6 +71,8 @@ export interface NetworkTarget {
 
 export interface MachineState {
   shell: ShellKind;
+  /** Operating-system identity is separate from the active shell. */
+  platform: PlatformKind;
   hostname: string;
   currentUser: string;
   /** True when the shell is running elevated (sudo -i, Run as administrator). */
@@ -127,7 +130,11 @@ export function clone(state: MachineState): MachineState {
 }
 
 export function isWindows(state: MachineState): boolean {
-  return state.shell === "cmd" || state.shell === "powershell";
+  return state.platform ? state.platform === "windows" : state.shell === "cmd" || state.shell === "powershell";
+}
+
+export function isMac(state: MachineState): boolean {
+  return state.platform ? state.platform === "macos" : state.shell === "mac";
 }
 
 /** Android and iOS build on the same Unix-style tree as Linux. */
@@ -165,6 +172,7 @@ export function homeDir(state: MachineState): string[] {
   if (isWindows(state)) return ["Users", state.currentUser];
   if (state.shell === "android") return ["sdcard"];
   if (state.shell === "ios") return ["device"];
+  if (isMac(state)) return state.currentUser === "root" ? ["var", "root"] : ["Users", state.currentUser];
   return state.currentUser === "root" ? ["root"] : ["home", state.currentUser];
 }
 
@@ -369,6 +377,18 @@ function baseLinuxRoot(user: string): VfsNode {
   return root;
 }
 
+function baseMacRoot(user: string): VfsNode {
+  const root = dir("/");
+  const add = (path: string, node: VfsNode) => insert(root, path.split("/").filter(Boolean), node);
+  for (const folder of ["Applications", "Library", "System", "Users", `Users/${user}`, `Users/${user}/Desktop`, `Users/${user}/Documents`, `Users/${user}/Downloads`, "Volumes", "private", "private/etc", "private/var", "usr", "usr/bin", "usr/local", "bin", "sbin", "var"]) {
+    add(folder, dir(folder.split("/").pop() as string, folder.startsWith("Users/") ? user : "root", "755"));
+  }
+  add(`Users/${user}/Documents/IT PATH Lab Notes.txt`, file("IT PATH Lab Notes.txt", "macOS training workstation notes.\\n", user, "644"));
+  add("private/etc/hosts", file("hosts", "127.0.0.1 localhost\\n::1 localhost\\n", "root", "644"));
+  add("private/etc/passwd", file("passwd", `root:*:0:0:System Administrator:/var/root:/bin/sh\\n${user}:*:501:20:Standard User:/Users/${user}:/bin/zsh\\n`, "root", "644"));
+  return root;
+}
+
 function baseWindowsRoot(user: string): VfsNode {
   const root = dir("C:");
   const add = (path: string, node: VfsNode) => insert(root, path.split("\\").filter(Boolean), node);
@@ -427,15 +447,18 @@ function baseIosRoot(user: string): VfsNode {
 
 export function createMachine(spec: MachineSpec): MachineState {
   const windows = spec.shell === "cmd" || spec.shell === "powershell";
+  const mac = spec.shell === "mac";
   const android = spec.shell === "android";
   const ios = spec.shell === "ios";
   const user = spec.user ?? (android ? "shell" : ios ? "support" : "student");
   const hostname =
     spec.hostname ??
-    (windows ? "WS-041" : android ? "pixel-8" : ios ? "iPhone-Sales-04" : "lab-linux-01");
+    (windows ? "WS-041" : mac ? "itpath-mac" : android ? "pixel-8" : ios ? "iPhone-Sales-04" : "lab-linux-01");
   const root = windows
     ? baseWindowsRoot(user)
-    : android
+    : mac
+      ? baseMacRoot(user)
+      : android
       ? baseAndroidRoot(user)
       : ios
         ? baseIosRoot(user)
@@ -443,12 +466,13 @@ export function createMachine(spec: MachineSpec): MachineState {
 
   const state: MachineState = {
     shell: spec.shell,
+    platform: windows ? "windows" : mac ? "macos" : android ? "android" : ios ? "ios" : "linux",
     hostname,
     currentUser: user,
     // CMD scenarios are written as elevated support sessions; PowerShell scenarios
     // teach elevation explicitly with Start-Process -Verb RunAs.
     elevated: spec.elevated ?? spec.shell === "cmd",
-    cwd: windows ? ["Users", user] : android ? ["sdcard"] : ios ? ["device"] : ["home", user],
+    cwd: windows ? ["Users", user] : mac ? ["Users", user] : android ? ["sdcard"] : ios ? ["device"] : ["home", user],
     drive: "C:",
     users: spec.users ?? [
       {
@@ -488,14 +512,16 @@ export function createMachine(spec: MachineSpec): MachineState {
           USER: user,
           HOSTNAME: hostname,
           PATH: android ? "/system/bin:/system/xbin" : "/usr/local/bin:/usr/bin:/bin",
-          HOME: android ? "/sdcard" : ios ? "/device" : `/home/${user}`,
+          HOME: android ? "/sdcard" : ios ? "/device" : mac ? `/Users/${user}` : `/home/${user}`,
         },
     diskUsedPercent: spec.diskUsedPercent ?? 46,
     memoryTotalMb: 8192,
     memoryUsedMb: spec.memoryUsedMb ?? 3100,
     osName: windows
       ? "Microsoft Windows 11 Pro 10.0.22631"
-      : android
+      : mac
+        ? "macOS 15 Sequoia"
+        : android
         ? "Android 14 (Pixel 8)"
         : ios
           ? "iOS 17.5 (iPhone 15)"
