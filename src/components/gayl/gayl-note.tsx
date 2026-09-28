@@ -20,7 +20,7 @@ export function GaylMark({ className }: { className?: string }) {
       aria-hidden
     >
       <img
-        src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
+        src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2011_22_22%20PM.png"
         alt=""
         width={1024}
         height={1024}
