@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronDown, Crown, Menu, Search } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Crown, Menu, Search } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { navGroups, navItems } from "@/config/navigation";
@@ -24,7 +24,7 @@ import { accentSurface, featureAccent } from "@/lib/visual-accents";
 import { PathLogo } from "@/components/layout/path-logo";
 import { useAppState } from "@/state/app-state";
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+function NavList({ onNavigate, compact = false }: { onNavigate?: () => void; compact?: boolean }) {
   const attention = useSidebarAttention();
   const auth = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -45,12 +45,41 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   }, [activeGroup]);
 
   return (
-    <nav className="flex flex-col gap-2 px-3 py-4">
+    <nav className={cn("flex flex-col gap-2 py-4", compact ? "px-2" : "px-3")}>
       {navGroups.map((group) => {
         const items = navItems.filter((item) => item.group === group && (!item.ownerOnly || owner));
         if (!items.length) return null;
         const isOpen = openGroups.has(group);
         const groupAttention = items.reduce((sum, item) => sum + (attention.get(item.to)?.count ?? 0), 0);
+
+        if (compact) {
+          return (
+            <div key={group}>
+              <ul className="space-y-1">
+                {items.map((item) => {
+                  const needsAttention = attention.get(item.to);
+                  return (
+                    <li key={item.to}>
+                      <Link
+                        to={item.to}
+                        onClick={onNavigate}
+                        title={item.label}
+                        aria-label={item.label}
+                        activeOptions={{ exact: item.to === "/" }}
+                        className="group relative grid size-11 place-items-center rounded-lg border border-transparent text-sidebar-foreground/72 transition hover:border-sidebar-border hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground data-[status=active]:border-sidebar-primary/25 data-[status=active]:bg-sidebar-accent data-[status=active]:text-sidebar-primary"
+                      >
+                        <item.icon className="size-5 transition-transform duration-200 group-hover:scale-110" aria-hidden />
+                        {needsAttention ? (
+                          <span className="absolute right-0.5 top-0.5 size-2 rounded-full bg-primary" aria-label={needsAttention.label} role="status" />
+                        ) : null}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        }
 
         return (
           <div key={group} className="rounded-lg">
@@ -111,11 +140,11 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function Brand() {
+function Brand({ compact = false }: { compact?: boolean }) {
   return (
-    <Link to="/" className="group flex items-center gap-3 px-5 py-5">
-      <PathLogo className="size-9 transition-transform duration-150 group-hover:-translate-y-0.5" />
-      <span className="min-w-0">
+    <Link to="/" className={cn("group flex items-center gap-3 py-5", compact ? "justify-center px-2" : "px-5")}>
+      <PathLogo className="size-9 shrink-0 transition-transform duration-150 group-hover:-translate-y-0.5" />
+      <span className={cn("min-w-0", compact && "hidden")}>
         <span className="block font-display text-base font-semibold tracking-tight">{domain.appName}</span>
         <span className="block text-[11px] leading-tight text-muted-foreground">
           Your Journey. Your Legacy.
@@ -137,6 +166,27 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const palette = useCommandPalette();
   const { user } = useAppState();
+  const [sidebarCompact, setSidebarCompact] = useState(false);
+
+  useEffect(() => {
+    try {
+      setSidebarCompact(window.localStorage.getItem("itpath.sidebar.compact") === "1");
+    } catch {
+      setSidebarCompact(false);
+    }
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarCompact((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem("itpath.sidebar.compact", next ? "1" : "0");
+      } catch {
+        // Local storage is optional.
+      }
+      return next;
+    });
+  };
 
   
 
@@ -196,12 +246,45 @@ export function AppShell({ children }: { children: ReactNode }) {
       <StudyReminder />
       <WelcomeTour />
       <CommandPalette open={palette.open} onOpenChange={palette.setOpen} />
-      <aside className="sidebar-glass fixed inset-y-0 left-0 z-30 hidden w-68 flex-col overflow-y-auto border-r border-sidebar-border lg:flex">
-        <Brand />
-        <CommandPaletteButton onClick={() => palette.setOpen(true)} />
-        <NavList />
-        <div className="mt-auto border-t border-sidebar-border px-5 py-4">
-          <AccountPanel />
+      <aside className={cn("sidebar-glass fixed inset-y-0 left-0 z-30 hidden flex-col overflow-y-auto border-r border-sidebar-border transition-[width] duration-200 lg:flex", sidebarCompact ? "w-16" : "w-68")}>
+        <div className="relative">
+          <Brand compact={sidebarCompact} />
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            aria-label={sidebarCompact ? "Expand sidebar" : "Collapse sidebar"}
+            title={sidebarCompact ? "Expand sidebar" : "Collapse sidebar"}
+            className="absolute right-1 top-1 grid size-7 place-items-center rounded-md text-muted-foreground transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            {sidebarCompact ? <ChevronRight className="size-4" aria-hidden /> : <ChevronLeft className="size-4" aria-hidden />}
+          </button>
+        </div>
+        {sidebarCompact ? (
+          <button
+            type="button"
+            onClick={() => palette.setOpen(true)}
+            aria-label="Search"
+            title="Search"
+            className="mx-auto grid size-11 place-items-center rounded-lg text-sidebar-foreground/72 transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            <Search className="size-5" aria-hidden />
+          </button>
+        ) : (
+          <CommandPaletteButton onClick={() => palette.setOpen(true)} />
+        )}
+        <NavList compact={sidebarCompact} />
+        <div className={cn("mt-auto border-t border-sidebar-border py-4", sidebarCompact ? "px-2" : "px-5")}>
+          {sidebarCompact ? (
+            <button
+              type="button"
+              onClick={() => setSidebarCompact(false)}
+              className="grid size-11 place-items-center rounded-lg text-xs font-semibold text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              title="Open account and sidebar"
+              aria-label="Open account and sidebar"
+            >
+              ME
+            </button>
+          ) : <AccountPanel />}
         </div>
       </aside>
 
@@ -236,7 +319,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Button>
       </header>
 
-      <main className={cn("relative z-10 pb-16 pt-12 lg:pl-68 lg:pb-0 lg:pt-0", virusRun && "virus-run-shell-main")}>
+      <main className={cn("relative z-10 pb-16 pt-12 transition-[padding] duration-200 lg:pb-0 lg:pt-0", sidebarCompact ? "lg:pl-16" : "lg:pl-68", virusRun && "virus-run-shell-main")}>
         <div className={cn(
           immersiveBackground
             ? "w-full p-0"
