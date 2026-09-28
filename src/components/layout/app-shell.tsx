@@ -326,6 +326,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             : "mx-auto w-full max-w-6xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8",
         )}>
           {!immersiveBackground ? <StudyTabs /> : null}
+          {!immersiveBackground && domain.id !== "auto-repair" ? (
+            <div className="mb-4 flex items-center gap-3" aria-hidden>
+              <div className="h-[3px] w-14 rounded-full bg-[var(--it-path-gradient)] shadow-[0_0_14px_color-mix(in_srgb,var(--it-path-violet)_20%,transparent)]" />
+              <div className="h-px flex-1 bg-border/45" />
+            </div>
+          ) : null}
           <div key={pathname} className={cn(!immersiveBackground && "page-enter")} data-page-content>
             {children}
           </div>
