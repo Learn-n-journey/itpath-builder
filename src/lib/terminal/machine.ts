@@ -316,6 +316,62 @@ export function hasLink(state: MachineState): boolean {
   return Boolean(iface && iface.up && iface.ip && !iface.ip.startsWith("169.254."));
 }
 
+export type TrainingFaultKind = "dns" | "adapter" | "gateway" | "service" | "disk" | "account";
+
+export interface TrainingFault {
+  id: string;
+  kind: TrainingFaultKind;
+  title: string;
+  symptom: string;
+  target?: string;
+}
+
+export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind): TrainingFault {
+  const iface = primaryInterface(state);
+  const stamp = Date.now().toString(36);
+  if (kind === "dns") {
+    state.dnsServers = ["203.0.113.53"];
+    state.dnsCache = {};
+    state.eventLog.unshift(`${new Date().toISOString()} name resolution configuration changed`);
+    return { id: `dns-${stamp}`, kind, title: "Websites will not resolve", symptom: "The network link is up, but hostnames fail to resolve." };
+  }
+  if (kind === "adapter") {
+    if (iface) iface.up = false;
+    state.eventLog.unshift(`${new Date().toISOString()} network interface ${iface?.name ?? "primary"} went down`);
+    return { id: `adapter-${stamp}`, kind, title: "Network connection lost", symptom: "The workstation has no usable network link.", target: iface?.name };
+  }
+  if (kind === "gateway") {
+    if (iface) iface.gateway = "";
+    state.eventLog.unshift(`${new Date().toISOString()} default route is unavailable`);
+    return { id: `gateway-${stamp}`, kind, title: "Local network only", symptom: "Local resources may work, but remote networks are unreachable.", target: iface?.name };
+  }
+  if (kind === "service") {
+    const svc = state.services.find((item) => item.status === "running");
+    if (svc) svc.status = "stopped";
+    state.eventLog.unshift(`${new Date().toISOString()} ${svc?.name ?? "background service"} stopped unexpectedly`);
+    return { id: `service-${stamp}`, kind, title: "Background service failure", symptom: "A required background service has stopped.", target: svc?.name };
+  }
+  if (kind === "disk") {
+    state.diskUsedPercent = 99;
+    state.eventLog.unshift(`${new Date().toISOString()} storage capacity warning: disk is 99% full`);
+    return { id: `disk-${stamp}`, kind, title: "Disk almost full", symptom: "The system volume has almost no free space." };
+  }
+  const account = state.users.find((item) => item.name === state.currentUser);
+  if (account) account.locked = true;
+  state.eventLog.unshift(`${new Date().toISOString()} account ${state.currentUser} locked`);
+  return { id: `account-${stamp}`, kind, title: "Account locked", symptom: "The current local account is locked.", target: state.currentUser };
+}
+
+export function trainingFaultResolved(state: MachineState, fault: TrainingFault): boolean {
+  const iface = primaryInterface(state);
+  if (fault.kind === "dns") return state.dnsServers.length > 0 && !state.dnsServers.includes("203.0.113.53");
+  if (fault.kind === "adapter") return Boolean(iface?.up);
+  if (fault.kind === "gateway") return Boolean(iface?.gateway);
+  if (fault.kind === "service") return state.services.find((svc) => svc.name === fault.target)?.status === "running";
+  if (fault.kind === "disk") return state.diskUsedPercent < 95;
+  return state.users.find((user) => user.name === fault.target)?.locked === false;
+}
+
 /* ------------------------------------------------------------------ */
 /* Machine construction                                                */
 /* ------------------------------------------------------------------ */
