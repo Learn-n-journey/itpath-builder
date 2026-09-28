@@ -17,7 +17,6 @@ import { checkInMessage, gaylMessages, lessonInsight, type GaylMessage } from "@
 import { gaylContinuityEvent } from "@/lib/gayl/continuity-events";
 import { missedQuestionPrompt, missedQuestions } from "@/lib/missed-questions";
 import { cn } from "@/lib/utils";
-import { PathLogo } from "@/components/layout/path-logo";
 
 const DISMISS_KEY = "itpath.gayl.bubble.dismissed";
 const CLEARED_KEY = "itpath.gayl.bubble.cleared";
@@ -241,7 +240,7 @@ export function GaylBubble() {
                 <ChevronLeft className="size-4" />
               </button>
             ) : (
-              <PathLogo className="size-7 shrink-0 rounded-lg" />
+              <img src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2011_22_22%20PM.png" alt="" className="size-7 shrink-0 rounded-lg object-contain" />
             )}
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-foreground">
@@ -333,7 +332,7 @@ export function GaylBubble() {
         )}
       >
         <img
-          src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2010_32_36%20AM.png"
+          src="/ChatGPT%20Image%20Sep%2027%2C%202026%2C%2011_22_22%20PM.png"
           alt=""
           width={816}
           height={816}
