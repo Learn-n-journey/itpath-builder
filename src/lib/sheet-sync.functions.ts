@@ -20,7 +20,7 @@ export interface SyncRunSummary {
   lessonsRejected: number;
   workTopics: number;
   unchangedFiles?: number;
-  lessonIssues: Array<{ file: string; topic: string; reasons: string[] }>;
+  lessonIssues: Array<{ file: string; topic: string; domain?: string; topicId?: string; reasons: string[] }>;
   report?: Record<string, string | number | boolean | null | undefined | string[]>[];
 }
 
@@ -191,6 +191,88 @@ export const syncStatus = createServerFn({ method: "GET" })
             | undefined) ?? null,
       })),
     };
+  });
+
+export interface SyncAdviceFixProposal {
+  ok: boolean;
+  owner: boolean;
+  topicId: string;
+  reason: string;
+  claim?: string;
+  correction?: string;
+  error?: string;
+}
+
+/**
+ * Prepares one targeted repair for a sync quality note. This never writes.
+ * The owner must review and confirm the exact before/after text in the UI,
+ * after which the existing workbook correction path performs the edit.
+ */
+export const proposeSyncAdviceFix = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { topicId: string; reason: string }) => ({
+    topicId: input.topicId.trim(),
+    reason: input.reason.trim(),
+  }))
+  .handler(async ({ context, data }): Promise<SyncAdviceFixProposal> => {
+    if (!isOwner(context)) return { ok: false, owner: false, topicId: data.topicId, reason: data.reason, error: "Not allowed." };
+    const supabaseAdmin = await adminClient();
+    if (!supabaseAdmin) return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: UNAVAILABLE };
+
+    const { data: row, error } = await supabaseAdmin
+      .from("owner_lessons")
+      .select("lesson")
+      .eq("topic_id", data.topicId)
+      .eq("status", "approved")
+      .order("synced_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error || !row?.lesson) {
+      return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: error?.message ?? "The imported lesson could not be found." };
+    }
+
+    const lessonJson = JSON.stringify(row.lesson);
+    const { runAi } = await import("@/lib/ai/run.server");
+    const reply = await runAi({
+      feature: "self_check",
+      system: [
+        "You are preparing one narrowly targeted repair to an educational workbook.",
+        "Fix only the supplied quality finding. Do not broadly rewrite or add unrelated material.",
+        "The claim MUST be one exact, verbatim text substring already present in the supplied lesson JSON and should be the smallest complete passage that can be safely replaced.",
+        "The correction must be complete replacement text for that same passage, preserve the original meaning unless the finding requires clarification, and remain suitable for an intelligent adult beginner.",
+        "Do not alter factual claims unless necessary to resolve the stated finding.",
+        "If the finding cannot be safely fixed by replacing one existing text passage, return ok false.",
+        "Return JSON only: {\"ok\":boolean,\"claim\":\"exact existing text\",\"correction\":\"complete replacement text\",\"error\":\"reason when not fixable\"}.",
+      ].join("\n"),
+      prompt: `Quality finding: ${data.reason}\n\nImported lesson JSON:\n${lessonJson.slice(0, 24000)}`,
+      risk: "low",
+      priority: "interactive",
+      json: true,
+      requireCapable: true,
+      skipBudget: true,
+    });
+    if (!reply.ok) {
+      return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: reply.error };
+    }
+    try {
+      const start = reply.text.indexOf("{");
+      const end = reply.text.lastIndexOf("}");
+      const parsed = JSON.parse(reply.text.slice(start, end + 1)) as { ok?: boolean; claim?: string; correction?: string; error?: string };
+      const claim = parsed.claim?.trim() ?? "";
+      const correction = parsed.correction?.trim() ?? "";
+      if (!parsed.ok || !claim || !correction) {
+        return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: parsed.error ?? "This advice needs manual review." };
+      }
+      if (!lessonJson.includes(claim)) {
+        return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: "The proposed repair did not identify exact existing workbook text, so nothing was changed." };
+      }
+      if (claim === correction) {
+        return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: "The proposed repair would not change the lesson." };
+      }
+      return { ok: true, owner: true, topicId: data.topicId, reason: data.reason, claim, correction };
+    } catch {
+      return { ok: false, owner: true, topicId: data.topicId, reason: data.reason, error: "The repair proposal could not be read." };
+    }
   });
 
 /** Clears a stuck sync so a new one can start. Owner only. */
