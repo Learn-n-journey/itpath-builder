@@ -179,7 +179,7 @@ function VirtualPcPage() {
 
   const switchOs = (next: PcOs) => {
     setPcOs(next);
-    setFolder(next === "windows" ? ["Users", "student"] : ["home", "student"]);
+    setFolder(next === "windows" ? ["Users", "student"] : next === "mac" ? ["Users", "student"] : ["home", "student"]);
     setTerminalLines([]);
     setOpenApp(null);
     setStartOpen(false);
@@ -197,7 +197,7 @@ function VirtualPcPage() {
     if (!name || machine.users.some((u) => u.name.toLowerCase() === name)) return;
     mutate((next) => {
       next.users.push({ name, fullName: accountName.trim(), groups: pcOs === "windows" ? ["Users"] : ["users"], admin: false, locked: false, passwordExpired: false });
-      makeDir(next, pcOs === "windows" ? `C:\\Users\\${name}` : `/home/${name}`);
+      makeDir(next, pcOs === "windows" ? `C:\\Users\\${name}` : pcOs === "mac" ? `/Users/${name}` : `/home/${name}`);
       addEvent(next, `User account ${name} created.`);
     });
     setAccountName("");
