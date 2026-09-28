@@ -79,6 +79,51 @@ interface GatewayReply {
   status: number;
 }
 
+function runtimeAiValue(name: "GEMINI_API_KEY" | "GEMINI_TUTOR_MODEL"): string | undefined {
+  const value = typeof process !== "undefined" ? process.env?.[name] : undefined;
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+async function callGeminiTutor(
+  system: string,
+  turns: Array<{ role: "user" | "assistant"; content: string }>,
+  json: boolean,
+  apiKey: string,
+): Promise<GatewayReply | { error: number }> {
+  const model = runtimeAiValue("GEMINI_TUTOR_MODEL") ?? "gemini-3.5-flash";
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: turns.map((turn) => ({
+          role: turn.role === "assistant" ? "model" : "user",
+          parts: [{ text: turn.content }],
+        })),
+        generationConfig: {
+          ...(json ? { responseMimeType: "application/json" } : {}),
+          temperature: 0.35,
+        },
+      }),
+      signal: AbortSignal.timeout(45_000),
+    },
+  );
+  if (!response.ok) return { error: response.status };
+  const body = (await response.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
+  };
+  const text = body.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim() ?? "";
+  return {
+    text,
+    promptTokens: body.usageMetadata?.promptTokenCount ?? estimateTokens(system + turns.map((turn) => turn.content).join(" ")),
+    completionTokens: body.usageMetadata?.candidatesTokenCount ?? estimateTokens(text),
+    status: response.status,
+  };
+}
+
 async function callGateway(
   model: ModelSpec,
   system: string,
@@ -115,9 +160,10 @@ async function callGateway(
 export async function runAi(input: RunAiInput): Promise<RunAiResult> {
   const started = Date.now();
   const priority: AiPriority = input.priority ?? "interactive";
-  const apiKey = process.env["LOVABLE_API_KEY"];
+  const directGeminiTutor = input.feature === "tutor";
+  const apiKey = directGeminiTutor ? runtimeAiValue("GEMINI_API_KEY") : process.env["LOVABLE_API_KEY"];
   if (!apiKey) {
-    return { ok: false, error: "AI service is not configured.", outcome: "error" };
+    return { ok: false, error: directGeminiTutor ? "GEMINI_API_KEY is not configured on the server." : "AI service is not configured.", outcome: "error" };
   }
 
   // JSON replies are parsed, not read, so they keep their own instructions.
@@ -231,7 +277,9 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       let reply: GatewayReply | { error: number };
       try {
-        reply = await callGateway(model, system, turns, input.json ?? false, apiKey);
+        reply = directGeminiTutor
+          ? await callGeminiTutor(system, turns, input.json ?? false, apiKey)
+          : await callGateway(model, system, turns, input.json ?? false, apiKey);
       } catch {
         return { failed: "Could not reach the AI service. Check your connection and try again.", status: 0 } as const;
       }
@@ -253,7 +301,13 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
       if (reply.text.length === 0) {
         return { failed: "The AI returned an empty reply. Try again.", status: 0 } as const;
       }
-      return { reply, model, escalated } as const;
+      return {
+        reply,
+        model: directGeminiTutor
+          ? { ...model, id: runtimeAiValue("GEMINI_TUTOR_MODEL") ?? "gemini-3.5-flash", label: "Gemini 3.5 Flash" }
+          : model,
+        escalated,
+      } as const;
     }
     return { failed: "The AI returned an empty reply. Try again.", status: 0 } as const;
   });
