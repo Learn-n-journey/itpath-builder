@@ -57,8 +57,10 @@ function VirtualPcPage() {
   const { user, actions } = useAppState();
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
   const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
+  const [pcOs, setPcOs] = useState<PcOs>("windows");
+  const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => ({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "bash", hostname: "itpath-mac" }) }));
   const machine = pcOs === "windows" ? (sharedAttempt?.machine ?? osMachines.windows ?? fallbackMachine) : osMachines[pcOs];
-  const [folder, setFolder] = useState<string[]>(["Users", machine.currentUser]);
+  const [folder, setFolder] = useState<string[]>(["Users", "student"]);
   const [openApp, setOpenApp] = useState<AppId | null>("files");
   const [startOpen, setStartOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -68,14 +70,16 @@ function VirtualPcPage() {
   const [pcOs, setPcOs] = useState<PcOs>("windows");
   const [terminalInput, setTerminalInput] = useState("");
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
-  const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => ({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "bash", hostname: "itpath-mac" }) }));
   const currentNode = getNode(machine, folder);
   const visibleFiles = useMemo(
     () => entries(currentNode).filter((file) => file.name.toLowerCase().includes(query.toLowerCase())),
     [currentNode, query],
   );
 
-  const pathFor = (name?: string) => `C:\\\\${[...folder, ...(name ? [name] : [])].join("\\\\")}`;
+  const pathFor = (name?: string) => {
+    const parts = [...folder, ...(name ? [name] : [])];
+    return pcOs === "windows" ? `C:\\\\${parts.join("\\\\")}` : `/${parts.join("/")}`;
+  };
   const saveMachine = (next: MachineState) => {
     setOsMachines((current) => ({ ...current, [pcOs]: next }));
     if (pcOs === "windows" && sharedAttempt) actions.updateTerminalAttempt({ ...sharedAttempt, machine: next, updatedAt: new Date().toISOString() });
@@ -136,17 +140,17 @@ function VirtualPcPage() {
 
   return (
     <div className="fixed inset-0 z-40 overflow-hidden bg-[#071426] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(38,140,255,.32),transparent_32%),radial-gradient(circle_at_35%_75%,rgba(116,72,255,.22),transparent_35%),linear-gradient(145deg,#071426_0%,#0b2140_48%,#102a50_100%)]" />
+      <div className={cn("absolute inset-0", pcOs === "windows" && "bg-[radial-gradient(circle_at_72%_18%,rgba(38,140,255,.34),transparent_32%),linear-gradient(145deg,#061426_0%,#0b2140_50%,#174c82_100%)]", pcOs === "linux" && "bg-[radial-gradient(circle_at_25%_25%,rgba(255,110,40,.26),transparent_30%),radial-gradient(circle_at_80%_70%,rgba(104,63,180,.34),transparent_35%),linear-gradient(145deg,#24102e,#3c174b_48%,#171128)]", pcOs === "mac" && "bg-[radial-gradient(circle_at_70%_20%,rgba(80,190,255,.34),transparent_30%),radial-gradient(circle_at_25%_80%,rgba(255,120,190,.24),transparent_35%),linear-gradient(145deg,#16304c,#315a75_48%,#70526f)]")} />
       <header className="absolute inset-x-0 top-0 z-30 flex h-12 items-center justify-between border-b border-white/10 bg-[#071426]/80 px-3 backdrop-blur-xl">
-        <div className="flex items-center gap-2 text-sm font-semibold"><Monitor className="size-4 text-cyan-300" /> IT PATH Virtual PC</div>
+        <div className="flex items-center gap-2 text-sm font-semibold"><Monitor className="size-4 text-cyan-300" /> {pcOs === "windows" ? "IT PATH · Windows Lab" : pcOs === "linux" ? "IT PATH · Linux Lab" : "IT PATH · macOS Lab"}</div>
         <div className="flex items-center gap-2"><select value={pcOs} onChange={(e) => switchOs(e.target.value as PcOs)} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs text-white outline-none"><option value="windows" className="text-slate-900">Windows</option><option value="linux" className="text-slate-900">Linux</option><option value="mac" className="text-slate-900">macOS</option></select><div className="flex items-center gap-2 text-xs text-white/65"><Wifi className="size-4 text-cyan-300" /><span className="hidden sm:inline">Training network</span></div></div>
       </header>
 
       <main className="absolute inset-x-0 bottom-14 top-12 p-3 sm:p-6">
         <div className="grid w-24 gap-5 text-center text-xs">
-          <button onClick={() => launch("files")} className="rounded-xl p-2 hover:bg-white/10"><FolderOpen className="mx-auto mb-1 size-8 text-amber-300" />File Explorer</button>
-          <button onClick={() => launch("settings")} className="rounded-xl p-2 hover:bg-white/10"><Settings className="mx-auto mb-1 size-8 text-slate-200" />Settings</button>
-          <button onClick={() => launch("terminal")} className="rounded-xl p-2 hover:bg-white/10"><SquareTerminal className="mx-auto mb-1 size-8 text-cyan-300" />Terminal</Link>
+          <button onClick={() => launch("files")} className="rounded-xl p-2 hover:bg-white/10"><FolderOpen className="mx-auto mb-1 size-8 text-amber-300" /> {pcOs === "windows" ? "File Explorer" : pcOs === "linux" ? "Files" : "Finder"}</button>
+          <button onClick={() => launch("settings")} className="rounded-xl p-2 hover:bg-white/10"><Settings className="mx-auto mb-1 size-8 text-slate-200" /> {pcOs === "linux" ? "System" : "Settings"}</button>
+          <button onClick={() => launch("terminal")} className="rounded-xl p-2 hover:bg-white/10"><SquareTerminal className="mx-auto mb-1 size-8 text-cyan-300" />Terminal</button>
         </div>
 
         {openApp ? (
@@ -210,7 +214,7 @@ function VirtualPcPage() {
         </div>
       ) : null}
 
-      <footer className="absolute inset-x-0 bottom-0 z-50 flex h-14 items-center justify-center border-t border-white/10 bg-[#071426]/85 px-3 backdrop-blur-xl">
+      <footer className={cn("absolute inset-x-0 bottom-0 z-50 flex h-14 items-center justify-center border-t border-white/10 px-3 backdrop-blur-xl", pcOs === "windows" && "bg-[#071426]/85", pcOs === "linux" && "bg-[#1d1025]/88", pcOs === "mac" && "bottom-2 left-1/2 right-auto w-auto -translate-x-1/2 rounded-2xl border bg-white/15 shadow-2xl")}>
         <Link to="/dashboard" className="absolute left-3 flex items-center gap-1 rounded-lg px-2 py-2 text-xs text-white/65 hover:bg-white/10 hover:text-white"><ChevronLeft className="size-4" /><span className="hidden sm:inline">Exit PC</span></Link>
         <div className="flex items-center gap-1">
           <button onClick={() => setStartOpen((value) => !value)} className={cn("grid size-10 place-items-center rounded-xl hover:bg-white/10", startOpen && "bg-white/10")} aria-label="Start"><span className="grid grid-cols-2 gap-[2px]">{Array.from({length:4}).map((_,i)=><span key={i} className="size-[6px] bg-cyan-300" />)}</span></button>
