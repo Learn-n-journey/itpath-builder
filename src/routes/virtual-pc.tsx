@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { prompt } from "@/lib/terminal/machine";
+import { execute } from "@/lib/terminal/shells";
 import { clone, createMachine, getNode, makeDir, removePath, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
 
@@ -28,7 +30,8 @@ export const Route = createFileRoute("/virtual-pc")({
   component: VirtualPcPage,
 });
 
-type AppId = "files" | "settings";
+type AppId = "files" | "settings" | "terminal";
+type PcOs = "windows" | "linux" | "mac";
 type VirtualFile = { name: string; kind: "folder" | "file"; detail: string };
 
 const SHARED_WINDOWS_SCENARIO = "terminal-free-cmd";
@@ -54,7 +57,7 @@ function VirtualPcPage() {
   const { user, actions } = useAppState();
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
   const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
-  const machine = sharedAttempt?.machine ?? fallbackMachine;
+  const machine = pcOs === "windows" ? (sharedAttempt?.machine ?? osMachines.windows ?? fallbackMachine) : osMachines[pcOs];
   const [folder, setFolder] = useState<string[]>(["Users", machine.currentUser]);
   const [openApp, setOpenApp] = useState<AppId | null>("files");
   const [startOpen, setStartOpen] = useState(false);
@@ -62,6 +65,10 @@ function VirtualPcPage() {
   const [draftName, setDraftName] = useState("");
   const [editing, setEditing] = useState<VirtualFile | null>(null);
   const [fileText, setFileText] = useState("");
+  const [pcOs, setPcOs] = useState<PcOs>("windows");
+  const [terminalInput, setTerminalInput] = useState("");
+  const [terminalLines, setTerminalLines] = useState<string[]>([]);
+  const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => ({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "bash", hostname: "itpath-mac" }) }));
   const currentNode = getNode(machine, folder);
   const visibleFiles = useMemo(
     () => entries(currentNode).filter((file) => file.name.toLowerCase().includes(query.toLowerCase())),
@@ -70,7 +77,8 @@ function VirtualPcPage() {
 
   const pathFor = (name?: string) => `C:\\\\${[...folder, ...(name ? [name] : [])].join("\\\\")}`;
   const saveMachine = (next: MachineState) => {
-    if (sharedAttempt) actions.updateTerminalAttempt({ ...sharedAttempt, machine: next, updatedAt: new Date().toISOString() });
+    setOsMachines((current) => ({ ...current, [pcOs]: next }));
+    if (pcOs === "windows" && sharedAttempt) actions.updateTerminalAttempt({ ...sharedAttempt, machine: next, updatedAt: new Date().toISOString() });
   };
   const mutate = (fn: (next: MachineState) => void) => {
     const next = clone(machine);
@@ -103,6 +111,24 @@ function VirtualPcPage() {
     setEditing(null);
   };
 
+  const runEmbeddedTerminal = () => {
+    const command = terminalInput.trim();
+    if (!command) return;
+    const before = prompt(machine);
+    const result = execute(machine, command);
+    saveMachine(result.state);
+    setTerminalLines((lines) => [...lines, `${before}${command}`, result.output].filter(Boolean).slice(-120));
+    setTerminalInput("");
+  };
+
+  const switchOs = (next: PcOs) => {
+    setPcOs(next);
+    setFolder(next === "windows" ? ["Users", "student"] : ["home", "student"]);
+    setTerminalLines([]);
+    setOpenApp(null);
+    setStartOpen(false);
+  };
+
   const launch = (app: AppId) => {
     setOpenApp(app);
     setStartOpen(false);
@@ -113,22 +139,22 @@ function VirtualPcPage() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(38,140,255,.32),transparent_32%),radial-gradient(circle_at_35%_75%,rgba(116,72,255,.22),transparent_35%),linear-gradient(145deg,#071426_0%,#0b2140_48%,#102a50_100%)]" />
       <header className="absolute inset-x-0 top-0 z-30 flex h-12 items-center justify-between border-b border-white/10 bg-[#071426]/80 px-3 backdrop-blur-xl">
         <div className="flex items-center gap-2 text-sm font-semibold"><Monitor className="size-4 text-cyan-300" /> IT PATH Virtual PC</div>
-        <div className="flex items-center gap-2 text-xs text-white/65"><Wifi className="size-4 text-cyan-300" /><span className="hidden sm:inline">Training network</span></div>
+        <div className="flex items-center gap-2"><select value={pcOs} onChange={(e) => switchOs(e.target.value as PcOs)} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs text-white outline-none"><option value="windows" className="text-slate-900">Windows</option><option value="linux" className="text-slate-900">Linux</option><option value="mac" className="text-slate-900">macOS</option></select><div className="flex items-center gap-2 text-xs text-white/65"><Wifi className="size-4 text-cyan-300" /><span className="hidden sm:inline">Training network</span></div></div>
       </header>
 
       <main className="absolute inset-x-0 bottom-14 top-12 p-3 sm:p-6">
         <div className="grid w-24 gap-5 text-center text-xs">
           <button onClick={() => launch("files")} className="rounded-xl p-2 hover:bg-white/10"><FolderOpen className="mx-auto mb-1 size-8 text-amber-300" />File Explorer</button>
           <button onClick={() => launch("settings")} className="rounded-xl p-2 hover:bg-white/10"><Settings className="mx-auto mb-1 size-8 text-slate-200" />Settings</button>
-          <Link to="/command-line" className="rounded-xl p-2 hover:bg-white/10"><SquareTerminal className="mx-auto mb-1 size-8 text-cyan-300" />Terminal</Link>
+          <button onClick={() => launch("terminal")} className="rounded-xl p-2 hover:bg-white/10"><SquareTerminal className="mx-auto mb-1 size-8 text-cyan-300" />Terminal</Link>
         </div>
 
         {openApp ? (
           <section className="absolute inset-2 top-2 overflow-hidden rounded-2xl border border-white/15 bg-[#f7f9fc] text-slate-900 shadow-2xl sm:inset-x-[8%] sm:inset-y-[5%] lg:inset-x-[16%]">
             <div className="flex h-11 items-center justify-between border-b border-slate-200 bg-white px-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
-                {openApp === "files" ? <FolderOpen className="size-4 text-blue-600" /> : <Settings className="size-4 text-blue-600" />}
-                {openApp === "files" ? "File Explorer" : "Settings"}
+                {openApp === "files" ? <FolderOpen className="size-4 text-blue-600" /> : openApp === "terminal" ? <SquareTerminal className="size-4 text-slate-700" /> : <Settings className="size-4 text-blue-600" />}
+                {openApp === "files" ? (pcOs === "mac" ? "Files" : "File Explorer") : openApp === "terminal" ? "Terminal" : "Settings"}
               </div>
               <button onClick={() => setOpenApp(null)} className="grid size-8 place-items-center rounded-lg hover:bg-slate-100" aria-label="Close"><X className="size-4" /></button>
             </div>
@@ -157,6 +183,8 @@ function VirtualPcPage() {
                   </div>
                 </div>
               </div>
+            ) : openApp === "terminal" ? (
+              <div className="flex h-[calc(100%-2.75rem)] flex-col bg-[#0b1020] text-slate-100"><div className="min-h-0 flex-1 overflow-y-auto p-4 font-mono text-xs sm:text-sm">{terminalLines.length === 0 ? <p className="text-slate-400">IT PATH {pcOs === "windows" ? "Windows" : pcOs === "linux" ? "Linux" : "macOS"} training terminal. Type help to begin.</p> : terminalLines.map((line, i) => <pre key={i} className="whitespace-pre-wrap break-words">{line}</pre>)}</div><form onSubmit={(e) => { e.preventDefault(); runEmbeddedTerminal(); }} className="flex items-center gap-2 border-t border-white/10 bg-black/20 p-3"><span className="shrink-0 font-mono text-xs text-cyan-300">{prompt(machine)}</span><input autoCapitalize="none" autoCorrect="off" spellCheck={false} value={terminalInput} onChange={(e) => setTerminalInput(e.target.value)} className="min-w-0 flex-1 bg-transparent font-mono text-sm text-white outline-none" placeholder="Enter command" /><button className="rounded-lg bg-cyan-500 px-3 py-2 text-xs font-semibold text-slate-950">Run</button></form></div>
             ) : (
               <div className="p-5">
                 <h2 className="text-xl font-semibold">System</h2>
@@ -177,7 +205,7 @@ function VirtualPcPage() {
           <div className="grid grid-cols-3 gap-2 text-center text-xs sm:grid-cols-5">
             <button onClick={() => launch("files")} className="rounded-xl p-3 hover:bg-white/10"><FolderOpen className="mx-auto mb-2 size-7 text-amber-300" />Explorer</button>
             <button onClick={() => launch("settings")} className="rounded-xl p-3 hover:bg-white/10"><Settings className="mx-auto mb-2 size-7" />Settings</button>
-            <Link to="/command-line" className="rounded-xl p-3 hover:bg-white/10"><SquareTerminal className="mx-auto mb-2 size-7 text-cyan-300" />Terminal</Link>
+            <button onClick={() => launch("terminal")} className="rounded-xl p-3 hover:bg-white/10"><SquareTerminal className="mx-auto mb-2 size-7 text-cyan-300" />Terminal</button>
           </div>
         </div>
       ) : null}
@@ -187,7 +215,7 @@ function VirtualPcPage() {
         <div className="flex items-center gap-1">
           <button onClick={() => setStartOpen((value) => !value)} className={cn("grid size-10 place-items-center rounded-xl hover:bg-white/10", startOpen && "bg-white/10")} aria-label="Start"><span className="grid grid-cols-2 gap-[2px]">{Array.from({length:4}).map((_,i)=><span key={i} className="size-[6px] bg-cyan-300" />)}</span></button>
           <button onClick={() => launch("files")} className="grid size-10 place-items-center rounded-xl hover:bg-white/10" aria-label="File Explorer"><FolderOpen className="size-5 text-amber-300" /></button>
-          <Link to="/command-line" className="grid size-10 place-items-center rounded-xl hover:bg-white/10" aria-label="Terminal"><SquareTerminal className="size-5 text-cyan-300" /></Link>
+          <button onClick={() => launch("terminal")} className="grid size-10 place-items-center rounded-xl hover:bg-white/10" aria-label="Terminal"><SquareTerminal className="size-5 text-cyan-300" /></button>
         </div>
       </footer>
     </div>
