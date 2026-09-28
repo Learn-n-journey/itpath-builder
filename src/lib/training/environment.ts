@@ -10,6 +10,8 @@ export interface SharedResource {
   hostname: string;
   port: number;
   available: boolean;
+  /** Training-facing access model. Connected systems stay simulated; the learner works primarily on one machine. */
+  access?: { readGroups: string[]; writeGroups: string[]; files?: { name: string; content: string; readGroups?: string[]; writeGroups?: string[] }[] };
 }
 
 export interface VirtualEnvironmentState {
@@ -33,7 +35,7 @@ export function createVirtualEnvironment(): VirtualEnvironmentState {
       "print.itpath.local": "10.0.0.23",
     },
     resources: [
-      { id: "shared-files", name: "Team Files", host: "windows", kind: "share", hostname: "files.itpath.local", port: 445, available: true },
+      { id: "shared-files", name: "Team Files", host: "windows", kind: "share", hostname: "files.itpath.local", port: 445, available: true, access: { readGroups: ["Users","Accounting","staff"], writeGroups: ["Accounting"], files: [{ name:"Monthly Report.txt", content:"Accounting monthly report training file.", readGroups:["Accounting"], writeGroups:["Accounting"] }, { name:"Company Readme.txt", content:"Welcome to the IT PATH Training LAN.", readGroups:["Users","Accounting","staff"], writeGroups:["Accounting"] }] } },
       { id: "intranet", name: "IT PATH Intranet", host: "linux", kind: "web", hostname: "intranet.itpath.local", port: 80, available: true },
       { id: "office-printer", name: "Office Printer", host: "mac", kind: "printer", hostname: "print.itpath.local", port: 631, available: true },
     ],
@@ -91,4 +93,18 @@ export function syncVirtualEnvironment(
 export function sharedResourceAvailable(resourceId: string, machines: Record<VirtualOsKey, MachineState>, env: VirtualEnvironmentState): boolean {
   const resource = env.resources.find((item) => item.id === resourceId);
   return Boolean(resource && resourceAvailable(resource, machines));
+}
+
+export type ResourceAccess = "unreachable" | "denied" | "read" | "write";
+
+/** Evaluate access from one workstation without requiring a second interactive PC. */
+export function resourceAccessForMachine(resourceId: string, machine: MachineState, machines: Record<VirtualOsKey, MachineState>, env: VirtualEnvironmentState): ResourceAccess {
+  const resource = env.resources.find((item) => item.id === resourceId);
+  if (!resource || !resourceAvailable(resource, machines)) return "unreachable";
+  if (!resource.access) return "read";
+  const account = machine.users.find((item) => item.name === machine.currentUser);
+  const groups = new Set([...(account?.groups ?? []), account?.admin ? "Administrators" : ""].filter(Boolean));
+  if (resource.access.writeGroups.some((group) => groups.has(group))) return "write";
+  if (resource.access.readGroups.some((group) => groups.has(group))) return "read";
+  return "denied";
 }
