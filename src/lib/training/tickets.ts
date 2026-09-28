@@ -4,6 +4,8 @@ export type TrainingSurface = "virtual-pc" | "terminal";
 export interface TrainingTicket {
   id: string; topicId: string; title: string; requester: string; brief: string; environment: string;
   fault: TrainingFaultKind; surfaces: TrainingSurface[]; shells: ShellKind[]; verification: string[]; tags: string[];
+  difficulty?: "beginner" | "intermediate" | "advanced";
+  scope?: "single-machine" | "cross-machine";
 }
 
 export const trainingTickets: TrainingTicket[] = [
@@ -15,6 +17,17 @@ export const trainingTickets: TrainingTicket[] = [
   { id:"ticket-1847", topicId:"topic-user-accounts", title:"User cannot sign in", requester:"HR", brief:"A local user who signed in successfully yesterday is now unable to access the workstation. Inspect the account state and restore access without replacing the account.", environment:"Local workstation account", fault:"account", surfaces:["virtual-pc","terminal"], shells:["cmd","powershell","bash","mac"], verification:["Confirm the account exists","Restore the account to an unlocked state","Verify the original account remains present"], tags:["account","lockout","identity"] },
   { id:"ticket-1848", topicId:"topic-device-drivers", title:"Network disappeared after an update", requester:"Sales", brief:"The workstation lost network access immediately after a driver update. Inspect the network adapter in Device Manager, determine its device status, restore the working driver, and verify connectivity.", environment:"Windows workstation after a network adapter driver update", fault:"driver", surfaces:["virtual-pc"], shells:["cmd","powershell"], verification:["Identify the adapter driver error","Restore the adapter to a working driver state","Confirm the network interface is enabled again"], tags:["windows","driver","device-manager","network"] },
 ];
+
+export function ticketDifficulty(ticket: TrainingTicket): "beginner" | "intermediate" | "advanced" {
+  if (ticket.difficulty) return ticket.difficulty;
+  if (ticket.fault === "dns" || ticket.fault === "adapter" || ticket.fault === "account") return "beginner";
+  if (ticket.fault === "gateway" || ticket.fault === "service" || ticket.fault === "disk" || ticket.fault === "driver") return "intermediate";
+  return "beginner";
+}
+
+export function ticketScope(ticket: TrainingTicket): "single-machine" | "cross-machine" {
+  return ticket.scope ?? "single-machine";
+}
 
 export function ticketsForSurface(surface: TrainingSurface, shell?: ShellKind): TrainingTicket[] {
   return trainingTickets.filter((ticket) => ticket.surfaces.includes(surface) && (!shell || ticket.shells.includes(shell)));
