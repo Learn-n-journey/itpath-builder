@@ -19,7 +19,7 @@ import { loadOwnerLessons } from "@/lib/owner-lesson-store";
 import { loadOwnerQuestions } from "@/lib/owner-question-store";
 import { loadOwnerWork } from "@/lib/owner-work-store";
 import { refreshTopic } from "@/lib/sheet-sync.functions";
-import { verifyImportedTopicFacts, type TopicFactualVerification } from "@/lib/admin.functions";
+import { applyTopicFactCorrection, verifyImportedTopicFacts, type TopicFactualVerification } from "@/lib/admin.functions";
 import { useAuth } from "@/state/auth-state";
 import { useAppState } from "@/state/app-state";
 import { trackFlow } from "@/lib/flow-events.functions";
@@ -79,9 +79,11 @@ function TopicPage() {
   const { email } = useAuth();
   const refresh = useServerFn(refreshTopic);
   const verifyFacts = useServerFn(verifyImportedTopicFacts);
+  const applyFactCorrection = useServerFn(applyTopicFactCorrection);
   const [refreshing, setRefreshing] = useState(false);
   const [verifyingFacts, setVerifyingFacts] = useState(false);
   const [factVerification, setFactVerification] = useState<TopicFactualVerification | null>(null);
+  const [fixingFact, setFixingFact] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<TopicTab>("overview");
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
   // Workbook-backed media can arrive after the route first renders. Subscribe
@@ -214,6 +216,39 @@ function TopicPage() {
     }
   }
 
+  async function handleFixFact(index: number) {
+    const finding = factVerification?.findings[index];
+    if (!finding?.correction) {
+      toast.error("This finding does not include a proposed correction.");
+      return;
+    }
+    const approved = window.confirm(
+      `Apply this correction to the source workbook?\n\nFLAGGED:\n${finding.claim}\n\nREPLACEMENT:\n${finding.correction}`,
+    );
+    if (!approved) return;
+
+    setFixingFact(index);
+    try {
+      const result = await applyFactCorrection({
+        data: { topicId: refreshTopicId, claim: finding.claim, correction: finding.correction },
+      });
+      if (!result.ok) {
+        toast.error(result.error ?? "The workbook could not be updated.", { duration: 10000 });
+        return;
+      }
+      toast.success(`Fixed in ${result.sourceFile} → ${result.sheet} ${result.cell}. Refreshing and rechecking…`);
+      await handleRefresh();
+      const checked = await verifyFacts({ data: { topicId: refreshTopicId } });
+      setFactVerification(checked);
+      if (checked.findings.length === 0 && !checked.error) toast.success("Correction saved to the workbook and Verify Facts now passes.");
+      else toast.warning(`Workbook updated. ${checked.findings.length} factual finding${checked.findings.length === 1 ? "" : "s"} remain.`, { duration: 10000 });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "The workbook could not be updated.");
+    } finally {
+      setFixingFact(null);
+    }
+  }
+
   const TopicIcon = getTopicIcon(topic);
   const status = mastered ? "Passed" : progress ? "In progress" : "Not started";
   const availableTargets = new Set(
@@ -270,7 +305,22 @@ function TopicPage() {
                   <li key={index} className="py-2 text-xs">
                     <p className="font-medium">Flagged: {finding.claim}</p>
                     <p className="mt-1 text-muted-foreground">Why: {finding.problem}</p>
-                    {finding.correction ? <p className="mt-1 text-muted-foreground">Correction: {finding.correction}</p> : null}
+                    {finding.correction ? (
+                      <>
+                        <p className="mt-1 text-muted-foreground">Correction: {finding.correction}</p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="mt-2"
+                          disabled={fixingFact !== null || refreshing || verifyingFacts}
+                          onClick={() => handleFixFact(index)}
+                        >
+                          <Wrench className={fixingFact === index ? "animate-pulse" : ""} aria-hidden />
+                          {fixingFact === index ? "Fixing…" : "Fix"}
+                        </Button>
+                      </>
+                    ) : null}
                   </li>
                 ))}
               </ul>
