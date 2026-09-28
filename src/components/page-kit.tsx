@@ -19,7 +19,6 @@ export function PageHeader({
   return (
     <header className="motion-content-enter mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:mb-6">
       <div className="min-w-0">
-        <div className="mb-2 it-path-header-mark" aria-hidden />
         <div className="flex items-center gap-1.5">
           <h1 className="font-display text-2xl font-semibold leading-tight sm:text-3xl">{title}</h1>
           {description && descriptionVisibility === "help" ? <HelpTip label={`About ${title}`}>{description}</HelpTip> : null}
