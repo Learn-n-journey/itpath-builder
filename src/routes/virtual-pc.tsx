@@ -84,6 +84,8 @@ function VirtualPcPage() {
   const [activeFault, setActiveFault] = useState<TrainingFault | null>(null);
   const [ticketOpen, setTicketOpen] = useState(false);
   const [ticketVerified, setTicketVerified] = useState(false);
+  const [ticketEvidence, setTicketEvidence] = useState<string[]>([]);
+  const [gaylHelpLevel, setGaylHelpLevel] = useState(0);
   const [netIp, setNetIp] = useState("");
   const [netMask, setNetMask] = useState("");
   const [netGateway, setNetGateway] = useState("");
@@ -177,14 +179,14 @@ function VirtualPcPage() {
       const saved = localStorage.getItem(`itpath-virtualpc-ticket-${pcOs}`);
       if (!saved) { setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); return; }
       const parsed = JSON.parse(saved) as { ticketId: string; fault: TrainingFault; verified?: boolean };
-      setActiveTicketId(parsed.ticketId); setActiveFault(parsed.fault); setTicketVerified(Boolean(parsed.verified));
+      setActiveTicketId(parsed.ticketId); setActiveFault(parsed.fault); setTicketVerified(Boolean(parsed.verified)); setTicketEvidence((parsed as any).evidence ?? []); setGaylHelpLevel((parsed as any).helpLevel ?? 0);
     } catch { setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); }
   }, [pcOs]);
 
   useEffect(() => {
     if (!activeTicketId || !activeFault) return;
-    localStorage.setItem(`itpath-virtualpc-ticket-${pcOs}`, JSON.stringify({ ticketId: activeTicketId, fault: activeFault, verified: ticketVerified }));
-  }, [activeTicketId, activeFault, ticketVerified, pcOs]);
+    localStorage.setItem(`itpath-virtualpc-ticket-${pcOs}`, JSON.stringify({ ticketId: activeTicketId, fault: activeFault, verified: ticketVerified, evidence: ticketEvidence, helpLevel: gaylHelpLevel }));
+  }, [activeTicketId, activeFault, ticketVerified, ticketEvidence, gaylHelpLevel, pcOs]);
 
   const activeTicket = trainingTickets.find((ticket) => ticket.id === activeTicketId);
   const repairReady = Boolean(activeFault && trainingFaultResolved(machine, activeFault));
@@ -195,22 +197,26 @@ function VirtualPcPage() {
     const next = clone(machine);
     const fault = injectTrainingFault(next, ticket.fault);
     saveMachine(next);
-    setActiveTicketId(ticket.id); setActiveFault(fault); setTicketVerified(false); setTicketOpen(true); setTerminalLines([]);
+    setActiveTicketId(ticket.id); setActiveFault(fault); setTicketVerified(false); setTicketEvidence(["Ticket opened"]); setGaylHelpLevel(0); setTicketOpen(true); setTerminalLines([]);
   };
   const verifyTicket = () => {
     if (!activeFault) return;
     const passed = trainingFaultResolved(machine, activeFault);
-    setTicketVerified(passed);
+    setTicketVerified(passed); setTicketEvidence((items) => [...items, passed ? "Fix verified successfully" : "Verification attempted; issue remains"].slice(-40));
     if (passed) mutate((next) => { addEvent(next, `Help desk ticket ${activeTicketId?.replace("ticket-","") ?? ""} verified resolved.`); });
   };
   const closeTicket = () => {
     if (!ticketResolved) return;
     localStorage.removeItem(`itpath-virtualpc-ticket-${pcOs}`);
-    setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketOpen(false);
+    setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0); setTicketOpen(false);
   };
   const cleanupStorage = () => {
     mutate((next) => { reclaimTrainingDiskSpace(next, 12); });
   };
+
+  const recordEvidence = (message: string) => { if (activeTicketId) setTicketEvidence((items) => [...items, message].slice(-40)); };
+  const gaylHelp = () => { if (!activeFault) return; setGaylHelpLevel((level) => Math.min(3, level + 1)); recordEvidence(`GAYL assistance requested (level ${Math.min(3, gaylHelpLevel + 1)})`); };
+  const gaylMessage = !activeFault ? "" : gaylHelpLevel === 0 ? "I’ll stay out of the way unless you need me." : gaylHelpLevel === 1 ? "Start with evidence. Inspect the part of the system connected to the symptom before changing anything." : gaylHelpLevel === 2 ? ({dns:"Compare the DNS configuration with the network path, then test name resolution.",adapter:"Check whether the primary network interface is enabled and has a usable configuration.",gateway:"Inspect the default route or gateway before changing addressing.",service:"Identify the service tied to the failed feature and inspect its current state.",disk:"Check disk usage and identify safe temporary or cached data before deleting anything.",account:"Inspect the affected user's account state before enabling or resetting it."} as Record<string,string>)[activeFault.kind] : ({dns:"Repair the invalid DNS server, then test hostname resolution again.",adapter:"Re-enable the affected network interface, then verify connectivity.",gateway:"Restore a valid default gateway and verify off-subnet connectivity.",service:"Start the stopped required service and confirm it remains running.",disk:"Reclaim enough safe storage to bring usage below the warning threshold.",account:"Use an administrative account-management tool to enable the affected user, then verify the account state."} as Record<string,string>)[activeFault.kind];
 
   const runEmbeddedTerminal = () => {
     const command = terminalInput.trim();
@@ -219,6 +225,7 @@ function VirtualPcPage() {
     const result = execute(machine, command);
     saveMachine(result.state);
     setTerminalLines((lines) => [...lines, `${before}${command}`, result.output].filter(Boolean).slice(-120));
+    recordEvidence(`Terminal: ${command}`);
     setTerminalInput("");
   };
 
@@ -280,7 +287,7 @@ function VirtualPcPage() {
     <div className="fixed inset-0 z-40 overflow-hidden bg-[#071426] text-white select-none [-webkit-touch-callout:none] overscroll-none">
       <div className={cn("absolute inset-0", pcOs === "windows" && "bg-[radial-gradient(circle_at_72%_18%,rgba(38,140,255,.34),transparent_32%),linear-gradient(145deg,#061426_0%,#0b2140_50%,#174c82_100%)]", pcOs === "linux" && "bg-[radial-gradient(circle_at_25%_25%,rgba(255,110,40,.26),transparent_30%),radial-gradient(circle_at_80%_70%,rgba(104,63,180,.34),transparent_35%),linear-gradient(145deg,#24102e,#3c174b_48%,#171128)]", pcOs === "mac" && "bg-[radial-gradient(circle_at_70%_20%,rgba(80,190,255,.34),transparent_30%),radial-gradient(circle_at_25%_80%,rgba(255,120,190,.24),transparent_35%),linear-gradient(145deg,#16304c,#315a75_48%,#70526f)]")} />
       <button onClick={()=>setTicketOpen(v=>!v)} className="absolute bottom-20 right-3 z-40 rounded-xl border border-cyan-300/30 bg-[#0d1b2e]/95 px-3 py-2 text-xs font-semibold shadow-xl backdrop-blur-xl sm:right-4">Tickets{activeTicket ? ` · ${activeTicket.id.replace("ticket-","")}` : ""}</button>
-      {ticketOpen ? <div className="absolute bottom-32 right-3 z-50 w-[min(92vw,24rem)] overflow-hidden rounded-2xl border border-white/15 bg-[#0d1b2e]/95 shadow-2xl backdrop-blur-2xl sm:right-4"><div className="flex items-center justify-between border-b border-white/10 p-4"><div><b>Help Desk Queue</b><p className="text-xs text-slate-400">Diagnose from symptoms. The cause is hidden.</p></div><button onClick={()=>setTicketOpen(false)}><X className="size-4"/></button></div>{activeTicket ? <div className="p-4"><div className="mb-2 flex items-center justify-between"><span className="text-xs text-cyan-300">#{activeTicket.id.replace("ticket-","")}</span><span className={cn("rounded-full px-2 py-1 text-[10px] font-semibold",ticketResolved?"bg-emerald-500/20 text-emerald-300":"bg-amber-500/20 text-amber-200")}>{ticketResolved?"Resolved":"Open"}</span></div><h3 className="font-semibold">{activeTicket.title}</h3><p className="mt-1 text-xs text-slate-400">{activeTicket.requester} · {activeTicket.environment}</p><p className="mt-3 text-sm leading-6 text-slate-200">{activeTicket.brief}</p><div className="mt-4 rounded-xl bg-white/5 p-3"><b className="text-xs">Verification</b>{activeTicket.verification.map(item=><p key={item} className="mt-1 text-xs text-slate-300">• {item}</p>)}</div>{ticketResolved?<button onClick={closeTicket} className="mt-4 w-full rounded-lg bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-950">Close resolved ticket</button>:<button onClick={verifyTicket} className="mt-4 w-full rounded-lg bg-cyan-500 px-3 py-2 text-xs font-semibold text-slate-950">{repairReady?"Verify fix":"Verify fix"}</button>}</div> : <div className="max-h-[60vh] space-y-2 overflow-y-auto p-3">{trainingTickets.map(ticket=><button key={ticket.id} onClick={()=>startTicket(ticket.id)} className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-left hover:border-cyan-400/50"><span className="text-[10px] text-cyan-300">#{ticket.id.replace("ticket-","")} · {ticket.requester}</span><p className="mt-1 text-sm font-semibold">{ticket.title}</p><p className="mt-1 line-clamp-2 text-xs text-slate-400">{ticket.brief}</p></button>)}</div>}</div> : null}
+      {ticketOpen ? <div className="absolute bottom-32 right-3 z-50 w-[min(92vw,24rem)] overflow-hidden rounded-2xl border border-white/15 bg-[#0d1b2e]/95 shadow-2xl backdrop-blur-2xl sm:right-4"><div className="flex items-center justify-between border-b border-white/10 p-4"><div><b>Help Desk Queue</b><p className="text-xs text-slate-400">Diagnose from symptoms. The cause is hidden.</p></div><button onClick={()=>setTicketOpen(false)}><X className="size-4"/></button></div>{activeTicket ? <div className="p-4"><div className="mb-2 flex items-center justify-between"><span className="text-xs text-cyan-300">#{activeTicket.id.replace("ticket-","")}</span><span className={cn("rounded-full px-2 py-1 text-[10px] font-semibold",ticketResolved?"bg-emerald-500/20 text-emerald-300":"bg-amber-500/20 text-amber-200")}>{ticketResolved?"Resolved":"Open"}</span></div><h3 className="font-semibold">{activeTicket.title}</h3><p className="mt-1 text-xs text-slate-400">{activeTicket.requester} · {activeTicket.environment}</p><p className="mt-3 text-sm leading-6 text-slate-200">{activeTicket.brief}</p><div className="mt-4 rounded-xl bg-white/5 p-3"><b className="text-xs">Verification</b>{activeTicket.verification.map(item=><p key={item} className="mt-1 text-xs text-slate-300">• {item}</p>)}</div><div className="mt-3 rounded-xl border border-violet-400/20 bg-violet-500/10 p-3"><div className="flex items-center justify-between"><b className="text-xs text-violet-200">GAYL</b><button onClick={gaylHelp} className="rounded-lg border border-violet-300/30 px-2 py-1 text-[10px] text-violet-100">{gaylHelpLevel>=3?"Explain":"Need help?"}</button></div><p className="mt-2 text-xs leading-5 text-slate-200">{gaylMessage}</p><p className="mt-2 text-[10px] text-slate-400">Assistance level {gaylHelpLevel}/3 · recorded with this attempt</p></div><details className="mt-3 rounded-xl bg-white/5 p-3"><summary className="cursor-pointer text-xs font-semibold">Troubleshooting evidence · {ticketEvidence.length}</summary><div className="mt-2 max-h-28 overflow-y-auto">{ticketEvidence.map((item,index)=><p key={index} className="mt-1 text-[10px] text-slate-400">{index+1}. {item}</p>)}</div></details>{ticketResolved?<button onClick={closeTicket} className="mt-4 w-full rounded-lg bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-950">Close resolved ticket</button>:<button onClick={verifyTicket} className="mt-4 w-full rounded-lg bg-cyan-500 px-3 py-2 text-xs font-semibold text-slate-950">{repairReady?"Verify fix":"Verify fix"}</button>}</div> : <div className="max-h-[60vh] space-y-2 overflow-y-auto p-3">{trainingTickets.map(ticket=><button key={ticket.id} onClick={()=>startTicket(ticket.id)} className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-left hover:border-cyan-400/50"><span className="text-[10px] text-cyan-300">#{ticket.id.replace("ticket-","")} · {ticket.requester}</span><p className="mt-1 text-sm font-semibold">{ticket.title}</p><p className="mt-1 line-clamp-2 text-xs text-slate-400">{ticket.brief}</p></button>)}</div>}</div> : null}
       {pcOs === "mac" ? <header className="absolute inset-x-0 top-0 z-30 flex h-8 items-center justify-between border-b border-white/10 bg-black/25 px-3 text-xs backdrop-blur-xl"><div className="flex items-center gap-4"><b className="text-cyan-200">IT PATH</b><b>Finder</b><span className="hidden sm:inline">File</span><span className="hidden sm:inline">Edit</span><span className="hidden sm:inline">View</span><span className="hidden sm:inline">Go</span><span className="hidden sm:inline">Window</span></div><div className="flex items-center gap-3"><Wifi className="size-3.5"/><span>{machine.hostname}</span><select value={pcOs} onChange={(e)=>switchOs(e.target.value as PcOs)} className="rounded bg-white/10 px-1 py-0.5 text-[10px]"><option value="windows" className="text-black">Windows</option><option value="linux" className="text-black">Linux</option><option value="mac" className="text-black">macOS</option></select></div></header> : pcOs === "linux" ? <header className="absolute inset-x-0 top-0 z-30 flex h-10 items-center justify-between bg-[#21152a]/90 px-3 text-xs backdrop-blur-xl"><button onClick={()=>setStartOpen(v=>!v)} className="rounded-lg px-3 py-1.5 font-semibold hover:bg-white/10">Activities</button><b className="text-cyan-200">IT PATH · Linux</b><div className="flex items-center gap-3"><Wifi className="size-3.5"/><span className="hidden sm:inline">{machine.hostname}</span><select value={pcOs} onChange={(e)=>switchOs(e.target.value as PcOs)} className="rounded bg-white/10 px-1 py-0.5"><option value="windows" className="text-black">Windows</option><option value="linux" className="text-black">Linux</option><option value="mac" className="text-black">macOS</option></select></div></header> : <header className="absolute inset-x-0 top-0 z-30 flex h-12 items-center justify-between border-b border-white/10 bg-[#071426]/80 px-3 backdrop-blur-xl"><div className="flex items-center gap-2 text-sm font-semibold"><Monitor className="size-4 text-cyan-300"/>IT PATH · Windows Lab</div><div className="flex items-center gap-2"><select value={pcOs} onChange={(e)=>switchOs(e.target.value as PcOs)} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1 text-xs"><option value="windows" className="text-black">Windows</option><option value="linux" className="text-black">Linux</option><option value="mac" className="text-black">macOS</option></select><Wifi className="size-4 text-cyan-300"/></div></header>}
 
       <main className={cn("absolute inset-x-0 p-3 sm:p-6",pcOs==="mac"?"bottom-20 top-8":pcOs==="linux"?"bottom-16 top-10":"bottom-14 top-12")}>
