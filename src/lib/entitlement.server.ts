@@ -10,6 +10,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { domain } from "@/domain/active";
+import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 
 export type PlanTier = "free" | "plus" | "pro";
 
@@ -39,6 +40,11 @@ export async function planTier(
   email?: string | null,
 ): Promise<PlanTier> {
   if (email) {
+    const normalizedEmail = email.trim().toLowerCase();
+    // The app owner always has Pro access. This must not depend on a beta row
+    // or a paid subscription existing in the current Supabase project.
+    if (OWNER_EMAILS.includes(normalizedEmail)) return "pro";
+
     const { data: beta } = await supabase
       .from("beta_access")
       .select("email")
