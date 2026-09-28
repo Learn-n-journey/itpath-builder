@@ -274,7 +274,7 @@ const allNavItems: NavItem[] = [
     description: "Skill progress, your streak and every badge earned from recorded work.",
   },
   {
-    label: "AI Tutor",
+    label: "Ask GAYL",
     to: "/ai-tutor",
     icon: Bot,
     group: "Learn",
