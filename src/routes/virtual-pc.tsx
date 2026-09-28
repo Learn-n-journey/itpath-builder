@@ -83,7 +83,7 @@ function VirtualPcPage() {
   const [terminalInput, setTerminalInput] = useState("");
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [accountName, setAccountName] = useState("");
-  const [windowsSettingsView, setWindowsSettingsView] = useState<"home" | "system" | "update" | "security" | "apps">("home");
+  const [windowsSettingsView, setWindowsSettingsView] = useState<"home" | "system" | "update" | "security" | "apps" | "personalization" | "time">("home");
   const [controlView, setControlView] = useState<"home" | "network" | "programs" | "system" | "users" | "tools">("home");
   const [eventChannel, setEventChannel] = useState<"all" | "system" | "application" | "security">("all");
   const [serviceQuery, setServiceQuery] = useState("");
@@ -121,6 +121,9 @@ function VirtualPcPage() {
   const [shareFileName, setShareFileName] = useState<string | null>(null);
   const [shareFileText, setShareFileText] = useState("");
   const [shareNotice, setShareNotice] = useState("");
+  const [deviceNameDraft, setDeviceNameDraft] = useState("");
+  const [firewallDraft, setFirewallDraft] = useState(true);
+  const [windowsTheme, setWindowsTheme] = useState<"dark" | "light">("dark");
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentNode = getNode(machine, folder);
   const visibleFiles = useMemo(
@@ -468,6 +471,29 @@ function VirtualPcPage() {
   const launch = (app: AppId) => {
     setOpenApp(app);
     setStartOpen(false);
+    if (app === "settings" && pcOs === "windows") {
+      setDeviceNameDraft(machine.hostname);
+      setFirewallDraft(machine.firewallEnabled);
+    }
+  };
+  const renameWorkstation = () => {
+    const name = deviceNameDraft.trim().replace(/[^a-zA-Z0-9-]/g, "").slice(0, 15);
+    if (!name || name === machine.hostname) return;
+    mutate((next) => {
+      const previous = next.hostname;
+      next.hostname = name;
+      next.restartRequired = true;
+      addEvent(next, `Computer rename requested: ${previous} → ${name}. Restart required.`);
+    });
+    setDeviceNameDraft(name);
+    recordEvidence("GUI: renamed Windows workstation; restart required");
+  };
+  const applyFirewall = () => {
+    mutate((next) => {
+      next.firewallEnabled = firewallDraft;
+      addEvent(next, `Windows Defender Firewall turned ${firewallDraft ? "on" : "off"}.`);
+    });
+    recordEvidence(`GUI: Windows firewall turned ${firewallDraft ? "on" : "off"}`);
   };
   const homeFolder = (os: PcOs = pcOs) => os === "windows" ? ["Users","student"] : os === "mac" ? ["Users","student"] : ["home","student"];
   const navigateFiles = (place: string) => {
