@@ -77,8 +77,8 @@ export function LearningDisclaimerGate({ children }: { children: ReactNode }) {
   }
 
   return (
-    <main className="fixed inset-0 z-[100] flex min-h-screen items-center justify-center bg-background/98 p-3 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="learning-disclaimer-title">
-      <section className="flex max-h-[94vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
+    <main className="fixed inset-0 z-[100] flex h-[100dvh] items-stretch justify-center overflow-hidden bg-background/98 p-0 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby="learning-disclaimer-title">
+      <section className="flex h-full min-h-0 w-full max-w-3xl flex-col overflow-hidden bg-card shadow-2xl sm:h-auto sm:max-h-[94dvh] sm:rounded-xl sm:border sm:border-border">
         <header className="border-b border-border px-5 py-4 sm:px-7">
           <h1 id="learning-disclaimer-title" className="font-display text-2xl font-semibold">Before You Begin</h1>
         </header>
@@ -107,7 +107,7 @@ export function LearningDisclaimerGate({ children }: { children: ReactNode }) {
           <p className="font-medium text-foreground">The goal is simple: learn something useful, practice it, challenge yourself, connect with other learners, and have fun doing it.</p>
         </div>
 
-        <footer className="border-t border-border bg-background/70 px-5 py-4 sm:px-7">
+        <footer className="shrink-0 border-t border-border bg-background/95 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:px-7 sm:pb-4">
           <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed">
             <input
               type="checkbox"
