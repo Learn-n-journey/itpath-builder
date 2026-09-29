@@ -7,7 +7,7 @@ import { createMachine, primaryInterface, setServiceStatus, type MachineState } 
 import { execute } from "@/lib/terminal/shells";
 import { applyTrainingNetworkAction, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 import { useAppState } from "@/state/app-state";
-import { hasSimulatorCredit, simulatorOutcomeSignal, simulatorScaffoldingProfile, topicLearningPolicy } from "@/lib/learner-signals";
+import { hasSimulatorCredit, shouldRecordSimulatorOutcome, simulatorOutcomeSignal, simulatorScaffoldingProfile, topicLearningPolicy } from "@/lib/learner-signals";
 import { labs } from "@/data/static-content";
 import { simulatorLabContract } from "@/lib/lab-environments";
 
@@ -272,7 +272,7 @@ function VirtualMobilePage() {
     const processComplete=required.every(step=>ticketTrace.includes(step) || step==="verify" && ticketVerified);
     const processScore=processComplete?1:0.75;
     setTicketHistory(history=>[{id:activeTicket.id,title:activeTicket.title,os:activeTicket.os,assisted:gaylLevel>0,completedAt:new Date().toISOString()},...history].slice(0,50));
-    if(!hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,processScore,gaylLevel));
+    if(shouldRecordSimulatorOutcome(user,"troubleshoot",activeTicket.id,gaylLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,processScore,gaylLevel));
     setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setTicketOpen(false); setConsoleLines([]);
   };
   const syncUiFromMachine = (machine:MachineState) => update(current => {
@@ -314,7 +314,7 @@ function VirtualMobilePage() {
   const completePracticeLab=()=>{
     if(!practiceMode||!launchContext.lab||!launchContext.topic||!practiceContract?.supported){setNotice(practiceContract?.requirement ?? "This Lab uses the normal evidence workflow.");return;}
     if(practiceActions<practiceContract.minimumRelevantActions||!practiceHealthy){setNotice(practiceContract.requirement);return;}
-    if(!hasSimulatorCredit(user,"lab",launchContext.lab)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,practiceHelpLevel));
+    if(shouldRecordSimulatorOutcome(user,"lab",launchContext.lab,practiceHelpLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,practiceHelpLevel));
     setNotice("Lab objective verified from an isolated simulator session and recorded as practical evidence.");
     if(practiceBaseline) setDevices(structuredClone(practiceBaseline));
   };
