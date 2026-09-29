@@ -105,6 +105,37 @@ export function prescribe(
   let methodReason: string | null = null;
   let isDiagnostic = false;
 
+  // The mastery state defines the learning phase. Diagnosis can remediate a
+  // weakness, but a healthy concept should move forward instead of receiving
+  // easier repetitions forever.
+  if (diagnosis === "solid" && options.state) {
+    if (options.state === "functional") {
+      method = "hands_on";
+      route = "/labs";
+      minutes = 25;
+      instruction = `Prove ${profile.title} hands-on`;
+      methodReason = "Knowledge is functional; the next useful evidence is practical performance.";
+    } else if (options.state === "transferable") {
+      method = "scenario";
+      route = "/troubleshoot";
+      minutes = 25;
+      instruction = `Troubleshoot ${profile.title} in a new context`;
+      methodReason = "Transfer is demonstrated; now test independent diagnosis under uncertainty.";
+    } else if (options.state === "reliable") {
+      method = "retrieval_drill";
+      route = "/review";
+      minutes = 10;
+      instruction = `Interleave and retain ${profile.title}`;
+      methodReason = "Performance is reliable; reduce cues and revisit it only through spaced, mixed retrieval.";
+    } else if (options.state === "retained") {
+      method = "retrieval_drill";
+      route = "/review";
+      minutes = 8;
+      instruction = `Maintain ${profile.title}`;
+      methodReason = "This is retained; keep intervention light until its next spaced verification.";
+    }
+  }
+
   // Hands-on beats written practice once the learner can already apply the idea.
   if (diagnosis === "application_failure" && difficulty !== "foundation") {
     method = "hands_on";
