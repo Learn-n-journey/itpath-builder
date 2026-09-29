@@ -11,7 +11,9 @@ export interface SharedResource {
   port: number;
   available: boolean;
   /** Training-facing access model. Connected systems stay simulated; the learner works primarily on one machine. */
-  access?: { readGroups: string[]; writeGroups: string[]; files?: { name: string; content: string; readGroups?: string[]; writeGroups?: string[] }[] };
+  access?: { readGroups: string[]; writeGroups: string[]; files?: { name: string; content: string; readGroups?: string[]; writeGroups?: string[]   /** Live host reachability is separate from the application/service port. */
+  hostReachable?: boolean;
+}[] };
 }
 
 export interface VirtualEnvironmentState {
@@ -46,14 +48,23 @@ function serviceRunning(machine: MachineState, names: string[]): boolean {
   return names.some((name) => machine.services.some((svc) => svc.name.toLowerCase() === name.toLowerCase() && svc.status === "running"));
 }
 
-export function resourceAvailable(resource: SharedResource, machines: Record<VirtualOsKey, MachineState>): boolean {
+export function resourceHostReachable(resource: SharedResource, machines: Record<VirtualOsKey, MachineState>): boolean {
   const host = machines[resource.host];
   const iface = host.interfaces.find((item) => item.name !== "lo" && item.name !== "lo0") ?? host.interfaces[0];
-  if (!iface?.up) return false;
+  return Boolean(iface?.up && iface.ip && !iface.ip.startsWith("169.254."));
+}
+
+export function resourceServiceAvailable(resource: SharedResource, machines: Record<VirtualOsKey, MachineState>): boolean {
+  const host = machines[resource.host];
+  if (!resourceHostReachable(resource, machines)) return false;
   if (resource.kind === "web") return serviceRunning(host, ["nginx", "apache2", "httpd"]);
   if (resource.kind === "printer") return serviceRunning(host, ["cupsd", "cups"]);
-  if (resource.kind === "share") return serviceRunning(host, ["LanmanServer", "Server", "smbd"]) || host.platform === "windows";
+  if (resource.kind === "share") return serviceRunning(host, ["LanmanServer", "Server", "smbd"]);
   return resource.available;
+}
+
+export function resourceAvailable(resource: SharedResource, machines: Record<VirtualOsKey, MachineState>): boolean {
+  return resourceHostReachable(resource, machines) && resourceServiceAvailable(resource, machines);
 }
 
 export function connectMachineToEnvironment(machine: MachineState, env: VirtualEnvironmentState): MachineState {
@@ -65,15 +76,13 @@ export function connectMachineToEnvironment(machine: MachineState, env: VirtualE
     const existing = next.targets.find((target) => target.host === resource.hostname);
     if (existing) {
       existing.ip = ip;
-      // Host reachability and application availability are separate facts.
-      // A stopped SMB/web/print service must not make the server itself disappear.
-      existing.reachable = true;
+      existing.reachable = resource.hostReachable ?? true;
       const ports = new Set(existing.openPorts ?? []);
       if (resource.available) ports.add(resource.port);
       else ports.delete(resource.port);
       existing.openPorts = Array.from(ports);
     } else {
-      next.targets.push({ host: resource.hostname, ip, reachable: true, latencyMs: 2, openPorts: resource.available ? [resource.port] : [] });
+      next.targets.push({ host: resource.hostname, ip, reachable: resource.hostReachable ?? true, latencyMs: 2, openPorts: resource.available ? [resource.port] : [] });
     }
   }
   return next;
@@ -85,7 +94,11 @@ export function syncVirtualEnvironment(
 ): Record<VirtualOsKey, MachineState> {
   const liveEnv: VirtualEnvironmentState = {
     ...env,
-    resources: env.resources.map((resource) => ({ ...resource, available: resourceAvailable(resource, machines) })),
+    resources: env.resources.map((resource) => ({
+      ...resource,
+      hostReachable: resourceHostReachable(resource, machines),
+      available: resourceServiceAvailable(resource, machines),
+    })),
   };
   return {
     windows: connectMachineToEnvironment(machines.windows, liveEnv),
