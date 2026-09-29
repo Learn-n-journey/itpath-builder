@@ -6,6 +6,8 @@ import { mobileTrainingTickets, type MobileTrainingTicket } from "@/lib/training
 import { createMachine, primaryInterface, setServiceStatus, type MachineState } from "@/lib/terminal/machine";
 import { execute } from "@/lib/terminal/shells";
 import { applyTrainingNetworkAction, observeTrainingNetwork } from "@/lib/training/network-capabilities";
+import { useAppState } from "@/state/app-state";
+import { hasSimulatorCredit, simulatorOutcomeSignal, simulatorScaffoldingProfile } from "@/lib/learner-signals";
 
 export const Route = createFileRoute("/virtual-mobile")({
   validateSearch: (search: Record<string, unknown>): { activity?: "lab"|"ticket"; lab?: string; ticket?: string; topic?: string; tool?: string; os?: MobileOs } => ({
@@ -97,6 +99,9 @@ function freshMobile(os: MobileOs): MobileState {
 function VirtualMobilePage() {
   const launchContext = Route.useSearch();
   const practiceMode = launchContext.activity === "lab" && Boolean(launchContext.lab);
+  const {user,actions}=useAppState();
+  const [practiceActions,setPracticeActions]=useState(0);
+  const [practiceHelpLevel,setPracticeHelpLevel]=useState(0);
   const [os, setOs] = useState<MobileOs>(()=>launchContext.os ?? "android");
   const [devices, setDevices] = useState<Record<MobileOs, MobileState>>(() => {
     if (typeof window !== "undefined") {
@@ -154,7 +159,7 @@ function VirtualMobilePage() {
     localStorage.setItem("itpath-mobile-ticket-history-v1", JSON.stringify(ticketHistory.slice(0,50)));
   }, [ticketHistory]);
 
-  const update = (fn: (draft: MobileState) => MobileState) => setDevices(current => ({ ...current, [os]: fn(current[os]) }));
+  const update = (fn: (draft: MobileState) => MobileState) => { if(practiceMode) setPracticeActions(count=>count+1); setDevices(current => ({ ...current, [os]: fn(current[os]) })); };
   const patch = (values: Partial<MobileState>) => update(current => ({ ...current, ...values }));
 
   const toggleWifi = () => update(current => {
@@ -270,6 +275,21 @@ function VirtualMobilePage() {
 
   const open = (next: MobileApp) => { setApp(next); setShade(false); setNotice(""); };
   const switchOs = (next: MobileOs) => { setOs(next); setApp(null); setSettingsPage("main"); setShade(false); setNotice(""); };
+
+  const scaffoldingProfile=launchContext.lab?simulatorScaffoldingProfile(user,launchContext.lab):null;
+  const practiceHint=practiceHelpLevel===0?"I’ll stay out of the way unless you need me.":scaffoldingProfile?.openingHintStyle==="socratic"?"You have demonstrated this before. What observation would best test your first hypothesis?":scaffoldingProfile?.openingHintStyle==="guided"?"Name the subsystem involved, inspect its current state, then make the smallest justified change.":"Start with the symptom. Compare the expected state with what the device shows before changing anything.";
+  const practiceHealthy = launchContext.tool==="bluetooth" ? state.bluetoothEnabled
+    : launchContext.tool==="battery" ? state.battery>=20
+    : launchContext.tool==="storage" ? state.storageUsed<95
+    : launchContext.tool==="network" ? mobileOnline
+    : launchContext.tool==="apps" ? state.installedApps.some(item=>item.enabled)
+    : launchContext.tool==="terminal" ? consoleLines.length>0
+    : true;
+  const completePracticeLab=()=>{
+    if(!practiceMode||!launchContext.lab||!launchContext.topic||practiceActions<2||!practiceHealthy)return;
+    if(!hasSimulatorCredit(user,"lab",launchContext.lab)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,practiceHelpLevel));
+    setNotice("Practice verified from the simulated device state and recorded as practical evidence.");
+  };
 
   const apps = [
     { id:"settings" as const, label:"Settings", icon:Settings },
