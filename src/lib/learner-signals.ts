@@ -199,7 +199,26 @@ export function evidenceStream(user: UserData): LearnerSignal[] {
 }
 
 
-/** True when this simulator outcome has already been credited. errorTag carries the stable activity identity. */
+/** Best verified assistance level for an activity. Lower means more independent. */
+export function bestSimulatorHelpLevel(user: UserData, kind: "lab"|"troubleshoot"|"career", activityId: string): number | null {
+  const prefix=`simulator:${activityId}:help-`;
+  const levels=user.learnerSignals
+    .filter(signal=>signal.kind===kind && signal.correct===true && signal.errorTag?.startsWith(prefix))
+    .map(signal=>Number(signal.errorTag?.slice(prefix.length)))
+    .filter(Number.isFinite);
+  return levels.length ? Math.min(...levels) : null;
+}
+
+/**
+ * Record a simulator success only when it adds stronger independence evidence.
+ * Legacy unsuffixed credit does not block a new assistance-tagged result.
+ */
+export function shouldRecordSimulatorOutcome(user: UserData, kind: "lab"|"troubleshoot"|"career", activityId: string, helpLevel: number): boolean {
+  const best=bestSimulatorHelpLevel(user,kind,activityId);
+  return best===null || Math.max(0,helpLevel)<best;
+}
+
+/** Compatibility helper for callers that only need to know whether any success exists. */
 export function hasSimulatorCredit(user: UserData, kind: "lab"|"troubleshoot"|"career", activityId: string): boolean {
   return user.learnerSignals.some(signal=>signal.kind===kind && (signal.errorTag===`simulator:${activityId}` || signal.errorTag?.startsWith(`simulator:${activityId}:`)) && signal.correct===true);
 }
