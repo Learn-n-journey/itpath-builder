@@ -150,7 +150,8 @@ function VirtualPcPage() {
     [currentNode, query],
   );
   const teamFilesResource = virtualEnvironment.resources.find((resource) => resource.id === "shared-files");
-  const teamFilesAccess = resourceAccessForMachine("shared-files", machine, osMachines, virtualEnvironment);\n  const teamFilesService = probeTrainingService(machine, "files.itpath.local", 445);
+  const teamFilesAccess = resourceAccessForMachine("shared-files", machine, osMachines, virtualEnvironment);
+  const teamFilesService = probeTrainingService(machine, "files.itpath.local", 445);
 
   const pathFor = (name?: string) => {
     const parts = [...folder, ...(name ? [name] : [])];
