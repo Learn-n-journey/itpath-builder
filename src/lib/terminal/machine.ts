@@ -842,6 +842,12 @@ export function canAllocateStorage(state: MachineState, bytes: number): boolean 
   return state.diskUsedPercent < 100;
 }
 
+function nodeBytes(node: VfsNode): number {
+  return node.type === "file"
+    ? new TextEncoder().encode(node.content ?? "").length
+    : Object.values(node.children ?? {}).reduce((total, child) => total + nodeBytes(child), 0);
+}
+
 export function writeFile(
   state: MachineState,
   path: string,
@@ -900,6 +906,7 @@ export function copyPath(state: MachineState, from: string, to: string): string 
   const source = getNode(state, resolvePath(state, from));
   if (!source) return "not_found";
   if (!canRead(state, source)) return "denied";
+  if (!canAllocateStorage(state, nodeBytes(source))) return "no_space";
   const targetSegments = resolvePath(state, to);
   const existingTarget = getNode(state, targetSegments);
   const finalSegments =
