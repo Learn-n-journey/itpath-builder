@@ -78,7 +78,7 @@ function VirtualPcPage() {
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
   const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
   const [pcOs, setPcOs] = useState<PcOs>("windows");
-  const [virtualEnvironment] = useState(() => createVirtualEnvironment());
+  const [virtualEnvironment, setVirtualEnvironment] = useState(() => createVirtualEnvironment());
   const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => syncVirtualEnvironment({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "mac", hostname: "itpath-mac" }) }, createVirtualEnvironment()));
   const machine = ensureWorkstationState(osMachines[pcOs] ?? (pcOs === "windows" ? sharedAttempt?.machine ?? fallbackMachine : fallbackMachine));
   const networkState = useMemo(() => observeTrainingNetwork(machine), [machine]);
@@ -288,10 +288,24 @@ function VirtualPcPage() {
       return setShareNotice("You can read this file, but you do not have permission to save changes to it.");
     }
     item.content = shareFileText;
+    setVirtualEnvironment(current => ({ ...current, resources: current.resources.map(resource => resource.id !== "shared-files" ? resource : { ...resource, access: resource.access ? { ...resource.access, files: resource.access.files?.map(file => file.name === shareFileName ? { ...file, content:shareFileText } : file) } : resource.access }) }));
     recordEvidence(`GUI: saved shared file ${shareFileName}`);
     mutate((next) => { addEvent(next, `Network file ${shareFileName} saved to \\\\files.itpath.local\\Team Files.`); });
     setShareNotice("Changes saved to Team Files."); setShareFileName(null);
   };
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("itpath-virtualpc-environment-v1");
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (saved?.resources && saved?.dnsRecords) setVirtualEnvironment(saved);
+    } catch { /* keep the clean training LAN */ }
+  }, []);
+
+  useEffect(() => {
+    try { localStorage.setItem("itpath-virtualpc-environment-v1", JSON.stringify(virtualEnvironment)); } catch { /* storage unavailable */ }
+  }, [virtualEnvironment]);
 
   useEffect(() => {
     try {
@@ -322,6 +336,26 @@ function VirtualPcPage() {
     const key = ticket?.scope === "cross-machine" ? "itpath-virtualpc-ticket-shared" : `itpath-virtualpc-ticket-${pcOs}`;
     localStorage.setItem(key, JSON.stringify({ ticketId: activeTicketId, fault: activeFault, verified: ticketVerified, evidence: ticketEvidence, helpLevel: gaylHelpLevel }));
   }, [activeTicketId, activeFault, ticketVerified, ticketEvidence, gaylHelpLevel, pcOs]);
+
+  const resetVirtualLab = () => {
+    const cleanEnvironment = createVirtualEnvironment();
+    const cleanMachines = syncVirtualEnvironment({
+      windows: freshWindowsMachine(),
+      linux: createMachine({ shell:"bash", hostname:"itpath-linux" }),
+      mac: createMachine({ shell:"mac", hostname:"itpath-mac" }),
+    }, cleanEnvironment);
+    try {
+      localStorage.removeItem("itpath-virtualpc-machines-v1");
+      localStorage.removeItem("itpath-virtualpc-environment-v1");
+      localStorage.removeItem("itpath-virtualpc-ticket-shared");
+      (["windows","linux","mac"] as PcOs[]).forEach(os => localStorage.removeItem(`itpath-virtualpc-ticket-${os}`));
+    } catch { /* reset still applies in memory */ }
+    setVirtualEnvironment(cleanEnvironment);
+    setOsMachines(cleanMachines);
+    setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0);
+    setOpenApp(null); setShareFileName(null); setShareNotice(""); setDesktopScenarioAttempt(null);
+    recordEvidence("Virtual lab reset to clean baseline");
+  };
 
   const activeTicket = helpDeskTickets.find((ticket) => ticket.id === activeTicketId);
   const faultMachine = activeTicket?.faultHostOs ? osMachines[activeTicket.faultHostOs] : machine;
