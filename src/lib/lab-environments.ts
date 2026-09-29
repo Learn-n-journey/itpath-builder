@@ -91,3 +91,33 @@ export function labEnvironmentAudit(labs: Lab[]) {
   }).sort((a,b)=>b.count-a.count);
   return {total:labs.length,profiles,byEnvironment};
 }
+
+
+export type TrainingActivityKind = "lab" | "ticket";
+export type TrainingSurface = "virtual-pc" | "virtual-mobile" | "hardware-explorer" | "guided-workspace";
+
+export interface LabLaunchContext {
+  kind: "lab";
+  labId: string;
+  topicId: string;
+  surface: TrainingSurface;
+  launchPath?: string;
+  capabilities: string[];
+}
+
+/** Labs are practice. This deliberately contains no ticket/requester/fault fields. */
+export function labLaunchContext(lab: Lab): LabLaunchContext {
+  const profile = labEnvironmentProfile(lab);
+  const surface: TrainingSurface =
+    profile.environmentId === "virtual-pc" || profile.environmentId === "virtual-mobile" || profile.environmentId === "hardware-explorer"
+      ? profile.environmentId
+      : "guided-workspace";
+  return { kind:"lab", labId:lab.id, topicId:lab.topicId, surface, ...(profile.launchPath ? {launchPath:profile.launchPath} : {}), capabilities:profile.capabilities };
+}
+
+export function labLaunchHref(lab: Lab): string | undefined {
+  const context=labLaunchContext(lab);
+  if(!context.launchPath) return undefined;
+  const params=new URLSearchParams({ activity:"lab", lab:lab.id, topic:lab.topicId });
+  return `${context.launchPath}?${params.toString()}`;
+}
