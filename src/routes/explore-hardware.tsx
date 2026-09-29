@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BookOpen, ChevronLeft, ChevronRight, CircuitBoard, Cpu, MousePointerClick, RotateCcw, Trophy } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, CircuitBoard, Cpu, Laptop, MousePointerClick, RotateCcw, Smartphone, Trophy } from "lucide-react";
 
-import { hardwareComponents, type HardwarePart } from "@/data/hardware-explorer";
+import { hardwareComponents, type HardwareDeviceFamily, type HardwarePart } from "@/data/hardware-explorer";
 import { hardwarePhotos } from "@/components/hardware/photos";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,8 @@ export const Route = createFileRoute("/explore-hardware")({
 type Mode = "explore" | "learn" | "quiz";
 
 function ExploreHardwarePage() {
+  const [family, setFamily] = useState<HardwareDeviceFamily>("desktop");
+  const familyComponents = hardwareComponents.filter((item) => (item.family ?? "desktop") === family);
   const [componentId, setComponentId] = useState(hardwareComponents[0]!.id);
   const [partId, setPartId] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("explore");
@@ -31,8 +33,13 @@ function ExploreHardwarePage() {
   const [quizAnswer, setQuizAnswer] = useState<string | null>(null);
   const [quizScore, setQuizScore] = useState(0);
 
-  const component = hardwareComponents.find((c) => c.id === componentId)!;
-  const photo = hardwarePhotos[component.id]!;
+  const component = hardwareComponents.find((c) => c.id === componentId) ?? familyComponents[0]!;
+  const pickFamily = (next: HardwareDeviceFamily) => {
+    const first = hardwareComponents.find((item) => (item.family ?? "desktop") === next);
+    if (!first) return;
+    setFamily(next); setComponentId(first.id); setPartId(null); setLearnStep(0); setQuizStep(0); setQuizAnswer(null); setQuizScore(0);
+  };
+  const photo = hardwarePhotos[component.id] ?? hardwarePhotos.motherboard!;
   const selected: HardwarePart | null = component.parts.find((p) => p.id === partId) ?? null;
   const lessonPart = component.parts[learnStep % component.parts.length]!;
   const quizPart = component.parts[quizStep % component.parts.length]!;
@@ -80,8 +87,10 @@ function ExploreHardwarePage() {
         </div>
       </header>
 
+      <div className="mb-4 flex flex-wrap items-center gap-2"><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Device</span><select value={family} onChange={(e)=>pickFamily(e.target.value as HardwareDeviceFamily)} className="rounded-lg border border-border/70 bg-card px-3 py-2 text-sm font-medium"><option value="desktop">Desktop PC</option><option value="laptop">Laptop</option><option value="mobile">Mobile device</option></select><span className="ml-1 flex items-center gap-1 text-xs text-muted-foreground">{family==="desktop"?<CircuitBoard className="size-4"/>:family==="laptop"?<Laptop className="size-4"/>:<Smartphone className="size-4"/>}{family==="desktop"?"Desktop components":family==="laptop"?"Laptop hardware":"Phone and tablet hardware"}</span></div>
+
       <div className="mb-5 flex flex-wrap gap-2" role="tablist" aria-label="Hardware components">
-        {hardwareComponents.map((item) => (
+        {familyComponents.map((item) => (
           <button key={item.id} role="tab" aria-selected={item.id === componentId} onClick={() => pickComponent(item.id)}
             className={cn("motion-press rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
               item.id === componentId ? "border-primary bg-primary text-primary-foreground" : "border-border/70 bg-card/30 text-muted-foreground hover:text-foreground")}>
@@ -189,7 +198,7 @@ function HardwareImage({ component, photo, activeId, onPick, interactive = true 
   return <div className="overflow-hidden rounded-xl border border-border/70 bg-card/30">
     <div className="flex items-center justify-between border-b border-border/70 px-4 py-3"><div><h2 className="font-display font-semibold">{component.name}</h2><p className="text-xs text-muted-foreground">{component.tagline}</p></div><span className="text-xs text-muted-foreground">{component.parts.length} parts</span></div>
     <div className="p-3 sm:p-4"><div className="relative mx-auto">
-      <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className="w-full rounded-lg border border-border" />
+      {component.family && component.family !== "desktop" ? <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-border bg-gradient-to-br from-secondary/70 via-background to-primary/10"><div className="absolute inset-6 rounded-[2rem] border border-primary/30 bg-card/70 shadow-inner"/><div className="absolute inset-0 flex items-center justify-center"><div className="text-center"><CircuitBoard className="mx-auto size-16 text-primary/35"/><p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">{component.family==="laptop"?"Laptop internal layout":"Mobile internal layout"}</p></div></div></div> : <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className="w-full rounded-lg border border-border" />}
       {component.parts.map((part, index) => {
         const active = part.id === activeId;
         return <button key={part.id} type="button" disabled={!interactive} onClick={() => onPick(part.id)} aria-label={`Part ${index + 1}: ${part.name}`} style={{ left: `${part.x}%`, top: `${part.y}%` }}
