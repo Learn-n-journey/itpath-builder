@@ -32,6 +32,7 @@ export function writeStateOwner(userId: string | null): void {
     const key = scopedKey(STORAGE_OWNER_KEY);
     if (userId) window.localStorage.setItem(key, userId);
     else window.localStorage.removeItem(key);
+    if (legacyAllowed()) window.localStorage.removeItem(STORAGE_OWNER_KEY);
   } catch {
     /* ignore */
   }
@@ -338,6 +339,7 @@ export function loadState(): LoadResult {
 export function saveState(state: PersistedState): boolean {
   try {
     window.localStorage.setItem(scopedKey(STORAGE_KEY), JSON.stringify(state));
+    if (legacyAllowed()) window.localStorage.removeItem(STORAGE_KEY);
     return true;
   } catch {
     return false;
@@ -347,6 +349,7 @@ export function saveState(state: PersistedState): boolean {
 export function clearState(): boolean {
   try {
     window.localStorage.removeItem(scopedKey(STORAGE_KEY));
+    if (legacyAllowed()) window.localStorage.removeItem(STORAGE_KEY);
     return true;
   } catch {
     return false;
