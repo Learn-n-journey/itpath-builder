@@ -31,13 +31,14 @@ function activeInterface(machine: MachineState): NetInterface {
 /** One deterministic network model shared by GUI training, terminals, labs and tickets. */
 export function observeTrainingNetwork(machine: MachineState): TrainingNetworkObservation {
   const iface = activeInterface(machine);
+  const driverReady = machine.networkDriverHealthy !== false;
   const hasAddress = Boolean(iface.ip && iface.ip !== "0.0.0.0" && !iface.ip.startsWith("169.254."));
   const hasGateway = Boolean(iface.gateway);
   const hasDns = machine.dnsServers.some(Boolean);
-  const localReady = iface.up && hasAddress;
+  const localReady = driverReady && iface.up && hasAddress;
   const internetReady = localReady && hasGateway && hasDns;
-  const state: TrainingNetworkObservation["state"] = !iface.up || !hasAddress ? (!iface.up ? "offline" : "limited") : !hasGateway || !hasDns ? "local" : "online";
-  const summary = !iface.up ? "Network disconnected" : !hasAddress ? "Limited connectivity · no usable address" : !hasGateway ? "Local network only · no default route" : !hasDns ? "Connected · name resolution unavailable" : "Connected";
+  const state: TrainingNetworkObservation["state"] = !driverReady || !iface.up ? "offline" : !hasAddress ? "limited" : !hasGateway || !hasDns ? "local" : "online";
+  const summary = !driverReady ? "Network disconnected · adapter driver unavailable" : !iface.up ? "Network disconnected" : !hasAddress ? "Limited connectivity · no usable address" : !hasGateway ? "Local network only · no default route" : !hasDns ? "Connected · name resolution unavailable" : "Connected";
   return {
     interfaceName: iface.name,
     linkUp: iface.up,
