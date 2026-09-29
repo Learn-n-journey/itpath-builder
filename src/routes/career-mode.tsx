@@ -23,6 +23,7 @@ import {
   ticketStatusLabel,
 } from "@/lib/career-engine";
 import { useAppState } from "@/state/app-state";
+import { troubleshootingAvailability } from "@/lib/lab-environments";
 
 export const Route = createFileRoute("/career-mode")({
   staticData: { sitemap: false },
@@ -63,9 +64,10 @@ const priorityLabels: Record<Ticket["priority"], string> = {
 
 function CareerMode() {
   const { user } = useAppState();
-  const [selectedId, setSelectedId] = useState(tickets[0]?.id ?? "");
-  const ticket = tickets.find((item) => item.id === selectedId) ?? tickets[0];
   const attempts = user.ticketAttempts;
+  const readyTickets = tickets.filter(item=>troubleshootingAvailability(user,item.topicId).available || attempts.some(a=>a.ticketId===item.id));
+  const [selectedId, setSelectedId] = useState("");
+  const ticket = tickets.find((item) => item.id === selectedId);
   const latest = ticket ? attempts.find((attempt) => attempt.ticketId === ticket.id) : undefined;
   const closed = attempts.filter((attempt) => attempt.passed);
   const submitted = attempts.filter((attempt) => attempt.status === "submitted");
@@ -87,7 +89,7 @@ function CareerMode() {
 
       <div className="border-y border-border/70">
         <div className="grid grid-cols-4 divide-x divide-border/70">
-          <CareerStat label="Queue" value={tickets.length} />
+          <CareerStat label="Ready" value={readyTickets.length} />
           <CareerStat label="Active" value={activeCount} />
           <CareerStat label="Closed" value={closed.length} />
           <CareerStat label="Average" value={submitted.length ? `${average}%` : "—"} />
@@ -101,7 +103,7 @@ function CareerMode() {
               <h2 className="font-display text-lg font-semibold">Ticket queue</h2>
               <p className="text-xs text-muted-foreground">Choose a ticket to open its workspace.</p>
             </div>
-            <Badge variant="outline">{tickets.length}</Badge>
+            <Badge variant="outline">{readyTickets.length} ready</Badge>
           </div>
           <div className="overflow-hidden rounded-xl border border-border/70 bg-card/30">
             {trackOrder.map((track) => {
@@ -116,6 +118,8 @@ function CareerMode() {
                   {trackTickets.map((item) => {
                     const itemAttempt = attempts.find((attempt) => attempt.ticketId === item.id);
                     const selected = item.id === ticket?.id;
+                    const availability=troubleshootingAvailability(user,item.topicId);
+                    const accessible=availability.available || Boolean(itemAttempt);
                     return (
                       <button key={item.id} type="button" onClick={() => setSelectedId(item.id)}
                         className={`flex w-full items-center gap-3 border-t border-border/50 px-3 py-3 text-left transition-colors hover:bg-secondary/50 ${selected ? "bg-secondary/70" : ""}`}>
@@ -123,7 +127,7 @@ function CareerMode() {
                         <span className="min-w-0 flex-1">
                           <span className="line-clamp-2 block text-sm font-medium leading-snug">{item.title}</span>
                           <span className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{priorityLabels[item.priority]}</span><span aria-hidden>·</span><span>{ticketStatusLabel(itemAttempt)}</span>
+                            <span>{priorityLabels[item.priority]}</span><span aria-hidden>·</span><span>{accessible ? ticketStatusLabel(itemAttempt) : "Upcoming"}</span>
                             {itemAttempt?.status === "submitted" && itemAttempt.totalScore != null ? <><span aria-hidden>·</span><span>{itemAttempt.totalScore}%</span></> : null}
                           </span>
                         </span>
@@ -137,7 +141,7 @@ function CareerMode() {
           </div>
         </aside>
         <main className="min-w-0">
-          {ticket ? <TicketWorkspace key={ticket.id} ticket={ticket} {...(latest ? { latestAttempt: latest } : {})} /> : null}
+          {ticket ? (troubleshootingAvailability(user,ticket.topicId).available || latest ? <TicketWorkspace key={ticket.id} ticket={ticket} {...(latest ? { latestAttempt: latest } : {})} /> : <Panel title="Upcoming ticket" description="This case stays visible so you can see what is ahead."><p className="text-sm text-muted-foreground">{troubleshootingAvailability(user,ticket.topicId).reason}</p></Panel>) : <Panel title="Ticket queue" description="Choose a ready ticket, or preview an upcoming case."><p className="text-sm text-muted-foreground">{readyTickets.length ? "Ready tickets are available based on the skills you have already demonstrated." : "As you prove topics and complete applied practice, support tickets will become ready here."}</p></Panel>}
         </main>
       </div>
     </>
