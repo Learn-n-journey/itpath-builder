@@ -54,3 +54,24 @@ export function ticketScope(ticket: TrainingTicket): "single-machine" | "cross-m
 export function ticketsForSurface(surface: TrainingSurface, shell?: ShellKind): TrainingTicket[] {
   return trainingTickets.filter((ticket) => isSupportTicket(ticket) && ticket.surfaces.includes(surface) && (!shell || ticket.shells.includes(shell)));
 }
+
+
+export interface TicketLaunchContext {
+  kind: "ticket";
+  ticketId: string;
+  topicId: string;
+  surface: "virtual-pc";
+  launchPath: "/virtual-pc";
+  reporterOs?: VirtualOsKey;
+}
+
+/** Tickets launch an incident by ID only. Root-cause details stay in the simulator's ticket model. */
+export function ticketLaunchContext(ticket: TrainingTicket): TicketLaunchContext {
+  return { kind:"ticket", ticketId:ticket.id, topicId:ticket.topicId, surface:"virtual-pc", launchPath:"/virtual-pc", ...(ticket.reporterOs?{reporterOs:ticket.reporterOs}:{}) };
+}
+
+export function ticketLaunchHref(ticket: TrainingTicket): string {
+  const context=ticketLaunchContext(ticket);
+  const params=new URLSearchParams({activity:"ticket",ticket:context.ticketId,topic:context.topicId});
+  return `${context.launchPath}?${params.toString()}`;
+}
