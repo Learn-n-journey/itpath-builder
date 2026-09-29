@@ -190,23 +190,31 @@ export type SimulatorLabContract = {
 };
 
 /**
- * Automatic Lab evidence is opt-in and conservative. A simulator surface being
- * capable of showing a tool is not enough: we only issue a contract when the
- * current simulator has an objective-specific state we can verify honestly.
+ * Explicit automatic-verification registry.
+ *
+ * Automatic simulator credit is never inferred from a Lab's prose. Add a Lab
+ * here only after its authored objective has a deterministic state transition
+ * the named simulator can observe honestly. Everything else remains on the
+ * normal Lab evidence workflow.
  */
+const SIMULATOR_LAB_CONTRACTS: Readonly<Record<string, SimulatorLabContract>> = {
+  // Intentionally empty until individual authored Labs are reviewed and opted
+  // in. This fail-closed default prevents generated wording from creating
+  // accidental mastery evidence.
+};
+
 export function simulatorLabContract(lab: Lab): SimulatorLabContract {
+  const explicit=SIMULATOR_LAB_CONTRACTS[lab.id];
+  if(explicit) return explicit;
   const context=labLaunchContext(lab);
-  const source=text(lab);
-  const base={surface:context.surface==="virtual-pc"||context.surface==="virtual-mobile"?context.surface:null,tool:context.preferredTool,minimumRelevantActions:2};
-  if(context.surface==="virtual-mobile" && context.preferredTool==="bluetooth" && has(source,/enable|turn on|switch on|bluetooth/))
-    return {...base,supported:true,success:{kind:"bluetooth-enabled"},requirement:"Use the device controls to leave Bluetooth enabled after at least two relevant Lab actions."};
-  if(context.surface==="virtual-mobile" && context.preferredTool==="storage" && has(source,/free space|storage|capacity|cleanup|clean up/))
-    return {...base,supported:true,success:{kind:"storage-below",percent:95},requirement:"Use the simulated device to bring storage below the critical threshold after at least two relevant Lab actions."};
-  if(context.surface==="virtual-mobile" && context.preferredTool==="network" && has(source,/connect|connectivity|online|wi-fi|wifi|cellular/))
-    return {...base,supported:true,success:{kind:"network-online"},requirement:"Restore a usable simulated network connection after at least two relevant Lab actions."};
-  if((context.surface==="virtual-pc"||context.surface==="virtual-mobile") && context.preferredTool==="terminal" && has(source,/run|execute|command|powershell|bash|cmd/))
-    return {...base,supported:true,success:{kind:"terminal-command"},requirement:"Run the required command work in the simulator; automatic credit requires at least two relevant Lab actions."};
-  return {...base,supported:false,success:{kind:"manual"},minimumRelevantActions:0,requirement:"No explicit simulator success contract exists for this Lab yet. Use the normal Lab evidence workflow."};
+  return {
+    supported:false,
+    surface:context.surface==="virtual-pc"||context.surface==="virtual-mobile"?context.surface:null,
+    ...(context.preferredTool?{tool:context.preferredTool}:{}),
+    minimumRelevantActions:0,
+    success:{kind:"manual"},
+    requirement:"This Lab has no authored simulator verification contract. Use the normal Lab evidence workflow.",
+  };
 }
 
 export type SimulatorLabVerification = { supported:boolean; requirement:string; minimumActions:number };
