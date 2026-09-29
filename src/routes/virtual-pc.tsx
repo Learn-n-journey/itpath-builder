@@ -33,7 +33,7 @@ import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { clone,
   bootServices, ensureWorkstationState, copyPath, canManageAccounts, createMachine, currentGroups, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setAccountAdmin, setAccountLocked, setServiceStatus, storageFreePercent, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
-import { hasSimulatorCredit, simulatorOutcomeSignal, simulatorScaffoldingProfile } from "@/lib/learner-signals";
+import { hasSimulatorCredit, simulatorOutcomeSignal, simulatorScaffoldingProfile, topicLearningPolicy } from "@/lib/learner-signals";
 import { applyTrainingNetworkAction, navigateTrainingBrowser, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
 import { labs } from "@/data/static-content";
 import { simulatorLabContract } from "@/lib/lab-environments";
@@ -539,7 +539,10 @@ function VirtualPcPage() {
     if(baseline){setVirtualEnvironment(structuredClone(baseline.environment));setOsMachines({windows:clone(baseline.machines.windows),linux:clone(baseline.machines.linux),mac:clone(baseline.machines.mac)});setPcOs(baseline.os);}
   };
   const scaffoldingProfile = launchContext.lab ? simulatorScaffoldingProfile(user,launchContext.lab) : null;
-  const adaptiveOpeningHint = scaffoldingProfile?.openingHintStyle==="socratic"
+  const topicPolicy = launchContext.topic ? topicLearningPolicy(user,launchContext.topic) : null;
+  const adaptiveOpeningHint = topicPolicy?.policy.scaffold==="none" ? "Work the problem independently. Verify the result before you finish."
+    : topicPolicy?.policy.scaffold==="low" ? "What evidence would most efficiently distinguish your leading hypotheses?"
+    : scaffoldingProfile?.openingHintStyle==="socratic"
     ? "You have solved work like this before. What observation would most efficiently test your first hypothesis?"
     : scaffoldingProfile?.openingHintStyle==="guided"
       ? "Start with the symptom, name the subsystem it depends on, then inspect that subsystem before changing state."
