@@ -4,7 +4,7 @@ import { gatewayFetch, type PaddleEnv } from "@/lib/paddle.server";
 
 /** Resolves a human-readable price ID to the Paddle internal price ID. */
 export const resolvePaddlePrice = createServerFn({ method: "GET" })
-  .inputValidator((data: { priceId: string; environment: PaddleEnv }) => data)
+  .validator((data: { priceId: string; environment: PaddleEnv }) => data)
   .handler(async ({ data }) => {
     const response = await gatewayFetch(
       data.environment,
