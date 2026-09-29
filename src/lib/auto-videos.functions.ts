@@ -209,7 +209,7 @@ export interface AutoVideoPage {
 }
 
 export const getAutoVideoPage = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => {
+  .validator((data: unknown) => {
     const page = Number((data as { page?: unknown } | undefined)?.page ?? 0);
     return { page: Number.isFinite(page) && page > 0 ? Math.min(Math.floor(page), MAX_PAGES) : 0 };
   })
