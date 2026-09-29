@@ -7,7 +7,7 @@ import { createMachine, primaryInterface, setServiceStatus, type MachineState } 
 import { execute } from "@/lib/terminal/shells";
 import { applyTrainingNetworkAction, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 import { useAppState } from "@/state/app-state";
-import { hasSimulatorCredit, simulatorOutcomeSignal, simulatorScaffoldingProfile } from "@/lib/learner-signals";
+import { hasSimulatorCredit, simulatorOutcomeSignal, simulatorScaffoldingProfile, topicLearningPolicy } from "@/lib/learner-signals";
 import { labs } from "@/data/static-content";
 import { simulatorLabContract } from "@/lib/lab-environments";
 
@@ -302,7 +302,8 @@ function VirtualMobilePage() {
   const switchOs = (next: MobileOs) => { setOs(next); setApp(null); setSettingsPage("main"); setShade(false); setNotice(""); };
 
   const scaffoldingProfile=launchContext.lab?simulatorScaffoldingProfile(user,launchContext.lab):null;
-  const practiceHint=practiceHelpLevel===0?"I’ll stay out of the way unless you need me.":scaffoldingProfile?.openingHintStyle==="socratic"?"You have demonstrated this before. What observation would best test your first hypothesis?":scaffoldingProfile?.openingHintStyle==="guided"?"Name the subsystem involved, inspect its current state, then make the smallest justified change.":"Start with the symptom. Compare the expected state with what the device shows before changing anything.";
+  const topicPolicy=launchContext.topic?topicLearningPolicy(user,launchContext.topic):null;
+  const practiceHint=practiceHelpLevel===0?"I’ll stay out of the way unless you need me.":topicPolicy?.policy.scaffold==="none"?"Work independently and verify the result before you finish.":topicPolicy?.policy.scaffold==="low"?"What evidence would most efficiently distinguish your leading hypotheses?":scaffoldingProfile?.openingHintStyle==="socratic"?"You have demonstrated this before. What observation would best test your first hypothesis?":scaffoldingProfile?.openingHintStyle==="guided"?"Name the subsystem involved, inspect its current state, then make the smallest justified change.":"Start with the symptom. Compare the expected state with what the device shows before changing anything.";
   const practiceHealthy = !practiceContract?.supported ? false
     : practiceContract.success.kind==="bluetooth-enabled" ? state.bluetoothEnabled
     : practiceContract.success.kind==="storage-below" ? state.storageUsed<practiceContract.success.percent
