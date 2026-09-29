@@ -51,6 +51,7 @@ import { nextJourneyTopic } from "@/lib/journey-order";
 import type { VisualAccent } from "@/lib/visual-accents";
 import type { LucideIcon } from "lucide-react";
 import { domain } from "@/domain/active";
+import { labEnvironmentAudit, labEnvironmentProfile } from "@/lib/lab-environments";
 
 export const Route = createFileRoute("/labs")({
   staticData: { sitemap: false },
@@ -126,6 +127,9 @@ function LabsPage() {
   const recommended = shuffled.find((item) => !attempts.some((attempt) => attempt.labId === item.id && (attempt.status === "completed" || attempt.status === "mastered"))) ?? shuffled[0];
   const recommendedTopic = recommended ? topics.find((item) => item.id === recommended.topicId) : undefined;
   const categories = Array.from(new Set(shuffled.map((item) => item.category)));
+  const environmentAudit = useMemo(() => labEnvironmentAudit(labs), []);
+  const plannedEnvironmentLabs = environmentAudit.profiles.filter(item => item.profile.status === "planned").length;
+  const supportedEnvironmentLabs = environmentAudit.profiles.filter(item => item.profile.status === "supported").length;
 
   if (!hydrated) return <LearnerPageSkeleton rows={6} metrics={4} detail />;
 
@@ -149,6 +153,7 @@ function LabsPage() {
             </Button>
           }
         />
+        <div className="mt-4">{(() => { const env=labEnvironmentProfile(lab); return <div className="rounded-xl border border-border/70 bg-card/70 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-wider text-primary">Practice environment</p><b className="mt-1 block text-sm">{env.label}</b><p className="mt-1 text-xs text-muted-foreground">{env.reason}</p></div>{env.launchPath?<Link to={env.launchPath as any} className="inline-flex items-center rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">Launch environment <ArrowRight className="ml-1 size-3"/></Link>:<Badge variant="outline">{env.status==="planned"?"Planned environment":"External / guided"}</Badge>}</div>{env.capabilities.length?<div className="mt-3 flex flex-wrap gap-1.5">{env.capabilities.map(cap=><Badge key={cap} variant="outline">{cap}</Badge>)}</div>:null}</div>; })()}</div>
         <div className="mt-6">
           <LabWorkspace key={lab.id} lab={lab} {...(latest ? { latestAttempt: latest } : {})} />
         </div>
@@ -190,6 +195,8 @@ function LabsPage() {
         <LabStat icon={Trophy} value={completedCount} label="Completed" />
       </section>
 
+      <section className="mt-5 rounded-2xl border border-border/70 bg-card/60 p-4"><div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">Virtual environment map</p><h2 className="mt-1 font-display text-lg font-semibold">Labs are now mapped to practice environments</h2><p className="mt-1 text-xs text-muted-foreground">{supportedEnvironmentLabs} labs map to a current primary environment · {plannedEnvironmentLabs} map to planned environments.</p></div></div><div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{environmentAudit.byEnvironment.filter(item=>item.count>0).slice(0,8).map(item=><div key={item.environmentId} className="rounded-xl border border-border/60 bg-background/50 p-3"><div className="flex items-center justify-between gap-2"><b className="text-xs">{item.label}</b><Badge variant={item.status==="supported"?"default":"outline"}>{item.count}</Badge></div><p className="mt-1 text-[10px] capitalize text-muted-foreground">{item.status.replace("-"," ")}</p></div>)}</div></section>
+
       <section className="mt-6">
         <div className="flex items-end justify-between gap-3">
           <div><h2 className="font-display text-lg font-semibold">{"Lab Library"}</h2><p className="text-xs text-muted-foreground">{labs.length} {"hands-on labs"}</p></div>
@@ -227,7 +234,7 @@ function LabsPage() {
                       <div className="mt-2 flex flex-wrap gap-2">
                         <Badge variant="outline">{categoryLabels[item.category]}</Badge>
                         {topic ? <Badge variant="outline">{topic.title}</Badge> : null}
-                        <Badge variant="outline">{item.environment}</Badge>
+                        <Badge variant="outline">{item.environment}</Badge>{(() => { const env=labEnvironmentProfile(item); return <><Badge variant={env.status==="supported"?"default":"outline"}>{env.label}</Badge><Badge variant="outline">{env.status==="supported"?"Ready":env.status==="partial"?"Partial":env.status==="planned"?"Planned":"External"}</Badge></>; })()}
                       </div>
                     </div>
                     <Button className="mt-4 w-full sm:w-auto" onClick={(event) => { event.stopPropagation(); document.getElementById("selected-lab-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>
