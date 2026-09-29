@@ -1,3 +1,5 @@
+import { buildIntelligence } from "@/lib/intelligence/engine";
+import { learningPolicyForState, type LearningPolicy } from "@/lib/intelligence/states";
 /**
  * The evidence stream behind the learner intelligence engine.
  *
@@ -214,6 +216,16 @@ export function simulatorOutcomeSignal(topicId: string, kind: "lab"|"troubleshoo
   return {topicId,kind,correct:adjusted>=0.7,score:adjusted,errorTag:`simulator:${activityId}:help-${Math.max(0,helpLevel)}`};
 }
 
+
+export interface TopicLearningPolicy {
+  state: import("@/lib/intelligence/states").LearningState;
+  policy: LearningPolicy;
+}
+
+export function topicLearningPolicy(user: UserData, topicId: string): TopicLearningPolicy | null {
+  const concept=buildIntelligence(user).concepts.find(item=>item.topicId===topicId);
+  return concept ? {state:concept.state,policy:learningPolicyForState(concept.state)} : null;
+}
 
 export interface ScaffoldingProfile {
   priorSuccesses: number;
