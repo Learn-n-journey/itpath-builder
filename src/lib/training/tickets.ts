@@ -3,6 +3,8 @@ import type { VirtualOsKey } from "@/lib/training/environment";
 
 export type TrainingSurface = "virtual-pc" | "terminal";
 export interface TrainingTicket {
+  /** Tickets are support incidents: a requester reports a symptom and the learner must diagnose a hidden root cause. */
+  activityKind?: "ticket";
   id: string; topicId: string; title: string; requester: string; brief: string; environment: string;
   fault: TrainingFaultKind; surfaces: TrainingSurface[]; shells: ShellKind[]; verification: string[]; tags: string[];
   terminalScenarioId?: string;
@@ -34,6 +36,10 @@ export const trainingTickets: TrainingTicket[] = [
   { id:"ticket-1852", topicId:"topic-storage", title:"Windows Update will not install", requester:"Support Queue", brief:"Windows Update opens, but installation cannot proceed. Diagnose the workstation instead of repeatedly retrying the update. Restore the dependency that is preventing update work and verify the update application is ready.", environment:"Windows workstation", fault:"disk", surfaces:["virtual-pc"], shells:["cmd","powershell"], verification:["Inspect update status before deleting anything","Identify the storage pressure","Restore sufficient free space safely","Verify the update application can proceed"], tags:["windows","updates","storage","troubleshooting"], difficulty:"intermediate", reporterOs:"windows", faultHostOs:"windows", symptomApp:"updates" },
 ];
 
+export function isSupportTicket(ticket: TrainingTicket): boolean {
+  return Boolean(ticket.requester.trim() && ticket.brief.trim() && ticket.fault && ticket.verification.length);
+}
+
 export function ticketDifficulty(ticket: TrainingTicket): "beginner" | "intermediate" | "advanced" {
   if (ticket.difficulty) return ticket.difficulty;
   if (ticket.fault === "dns" || ticket.fault === "adapter" || ticket.fault === "account") return "beginner";
@@ -46,5 +52,5 @@ export function ticketScope(ticket: TrainingTicket): "single-machine" | "cross-m
 }
 
 export function ticketsForSurface(surface: TrainingSurface, shell?: ShellKind): TrainingTicket[] {
-  return trainingTickets.filter((ticket) => ticket.surfaces.includes(surface) && (!shell || ticket.shells.includes(shell)));
+  return trainingTickets.filter((ticket) => isSupportTicket(ticket) && ticket.surfaces.includes(surface) && (!shell || ticket.shells.includes(shell)));
 }
