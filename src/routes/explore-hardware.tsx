@@ -198,14 +198,14 @@ function HardwareImage({ component, photo, activeId, onPick, interactive = true 
   return <div className="overflow-hidden rounded-xl border border-border/70 bg-card/30">
     <div className="flex items-center justify-between border-b border-border/70 px-4 py-3"><div><h2 className="font-display font-semibold">{component.name}</h2><p className="text-xs text-muted-foreground">{component.tagline}</p></div><span className="text-xs text-muted-foreground">{component.parts.length} parts</span></div>
     <div className="p-3 sm:p-4"><div className="relative mx-auto">
-      {component.family === "laptop" ? <LaptopHardwareIllustration /> : component.family === "mobile" ? <MobileHardwareIllustration /> : <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className="w-full rounded-lg border border-border" />}
+      <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className={cn("w-full rounded-lg border border-border object-contain", component.family === "mobile" && "max-h-[42rem] bg-black/20")} />
       {component.parts.map((part, index) => {
         const active = part.id === activeId;
         return <button key={part.id} type="button" disabled={!interactive} onClick={() => onPick(part.id)} aria-label={`Part ${index + 1}: ${part.name}`} style={{ left: `${part.x}%`, top: `${part.y}%` }}
           className={cn("absolute flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border text-xs font-bold shadow-lg ring-2 ring-background transition-all",
             active ? "scale-110 border-primary bg-primary text-primary-foreground" : "border-primary bg-background/90 text-primary", interactive && !active && "hover:scale-110")}>{index + 1}</button>;
       })}
-    </div></div>
+    </div>{photo.credit ? <p className="mt-2 text-right text-[10px] text-muted-foreground"><a href={photo.creditUrl} target="_blank" rel="noreferrer" className="hover:text-foreground hover:underline">{photo.credit}</a></p> : null}</div>
     <div className="flex items-center justify-center gap-2 border-t border-border/70 px-4 py-3 text-xs text-muted-foreground"><MousePointerClick className="size-4" aria-hidden />{interactive ? "Tap a numbered marker to inspect that part" : "Identify the highlighted marker"}</div>
   </div>;
 }
@@ -218,39 +218,3 @@ function PartDetail({ part, index }: { part: HardwarePart; index: number }) {
 }
 
 
-function LaptopHardwareIllustration() {
-  return <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-border bg-[radial-gradient(circle_at_50%_35%,hsl(var(--primary)/.12),transparent_48%),linear-gradient(145deg,hsl(var(--secondary)/.7),hsl(var(--background)))]" aria-label="Illustrated cutaway of laptop internal hardware">
-    <div className="absolute left-[16%] top-[5%] h-[34%] w-[68%] rounded-t-2xl border-4 border-slate-600 bg-slate-900 shadow-2xl"><div className="absolute inset-[3%] rounded bg-gradient-to-br from-sky-950 via-blue-900 to-slate-950"/><Camera className="absolute left-1/2 top-1 size-3 -translate-x-1/2 text-sky-300"/></div>
-    <div className="absolute left-[9%] top-[38%] h-[53%] w-[82%] -skew-x-6 rounded-xl border-4 border-slate-600 bg-slate-900 shadow-2xl">
-      <div className="absolute inset-[4%] overflow-hidden rounded-lg border border-slate-700 bg-slate-950">
-        <div className="absolute left-[8%] top-[9%] h-[45%] w-[60%] rounded-xl border border-sky-500/30 bg-sky-950/30">
-          <CircuitBoard className="absolute left-[8%] top-[18%] size-12 text-emerald-500/60"/><Cpu className="absolute left-[43%] top-[30%] size-10 text-sky-300"/>
-          <MemoryStick className="absolute left-[57%] top-[58%] size-12 rotate-6 text-emerald-400"/><HardDrive className="absolute left-[23%] top-[61%] size-12 -rotate-6 text-violet-300"/>
-          <Wifi className="absolute left-[5%] top-[62%] size-9 text-sky-300"/><Fan className="absolute right-[3%] top-[8%] size-16 text-slate-300"/>
-          <div className="absolute right-[15%] top-[16%] h-2 w-[34%] rotate-[-8deg] rounded-full bg-amber-600/70"/><div className="absolute right-[16%] top-[24%] h-2 w-[31%] rotate-[-5deg] rounded-full bg-amber-500/70"/>
-        </div>
-        <div className="absolute bottom-[5%] left-[13%] h-[34%] w-[65%] rounded-xl border border-slate-600 bg-gradient-to-b from-slate-700 to-slate-900"><Battery className="absolute left-1/2 top-1/2 size-12 -translate-x-1/2 -translate-y-1/2 text-slate-400"/></div>
-        <Speaker className="absolute bottom-[8%] left-[3%] size-8 text-slate-400"/><Speaker className="absolute bottom-[8%] right-[3%] size-8 text-slate-400"/>
-      </div>
-    </div>
-    <div className="absolute bottom-[2%] left-[20%] h-[8%] w-[60%] -skew-x-6 rounded-lg border border-slate-600 bg-slate-800"><Keyboard className="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 text-slate-400"/></div>
-  </div>;
-}
-
-function MobileHardwareIllustration() {
-  return <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-border bg-[radial-gradient(circle_at_50%_45%,hsl(var(--primary)/.14),transparent_45%),linear-gradient(145deg,hsl(var(--secondary)/.7),hsl(var(--background)))]" aria-label="Illustrated exploded view of smartphone internal hardware">
-    <div className="absolute left-[31%] top-[4%] h-[91%] w-[38%] rounded-[2.8rem] border-[6px] border-slate-600 bg-slate-950 shadow-2xl">
-      <div className="absolute inset-[4%] overflow-hidden rounded-[2.1rem] border border-slate-700 bg-slate-900">
-        <div className="absolute left-[7%] top-[5%] h-[35%] w-[86%] rounded-2xl border border-sky-500/30 bg-sky-950/30">
-          <CircuitBoard className="absolute left-[9%] top-[20%] size-16 text-emerald-500/60"/><Cpu className="absolute left-[42%] top-[31%] size-11 text-sky-300"/>
-          <Camera className="absolute right-[7%] top-[8%] size-10 text-violet-300"/><Radio className="absolute bottom-[8%] left-[9%] size-9 text-sky-300"/>
-        </div>
-        <div className="absolute left-[11%] top-[43%] h-[43%] w-[78%] rounded-[1.4rem] border border-slate-600 bg-gradient-to-b from-slate-700 to-slate-950"><Battery className="absolute left-1/2 top-1/2 size-16 -translate-x-1/2 -translate-y-1/2 text-slate-500"/><div className="absolute inset-[13%] rounded-[50%] border-2 border-amber-500/30"/></div>
-        <Speaker className="absolute bottom-[4%] left-[8%] size-6 text-slate-400"/><Mic className="absolute bottom-[4%] right-[8%] size-6 text-slate-400"/><Zap className="absolute bottom-[2%] left-1/2 size-7 -translate-x-1/2 text-sky-300"/>
-      </div>
-    </div>
-    <div className="absolute left-[13%] top-[22%] flex flex-col gap-4 text-primary/70"><Camera className="size-9"/><Radio className="size-9"/><Wifi className="size-9"/></div>
-    <div className="absolute right-[13%] top-[28%] flex flex-col gap-5 text-primary/70"><Cpu className="size-9"/><Battery className="size-9"/><Zap className="size-9"/></div>
-    <div className="absolute left-[22%] top-[13%] h-[72%] w-px bg-gradient-to-b from-transparent via-primary/30 to-transparent"/><div className="absolute right-[22%] top-[13%] h-[72%] w-px bg-gradient-to-b from-transparent via-primary/30 to-transparent"/>
-  </div>;
-}
