@@ -194,3 +194,13 @@ export function evidenceStream(user: UserData): LearnerSignal[] {
     (a, b) => new Date(b.at).getTime() - new Date(a.at).getTime(),
   );
 }
+
+
+/** True when this simulator outcome has already been credited. errorTag carries the stable activity identity. */
+export function hasSimulatorCredit(user: UserData, kind: "lab"|"troubleshoot"|"career", activityId: string): boolean {
+  return user.learnerSignals.some(signal=>signal.kind===kind && signal.errorTag===`simulator:${activityId}` && signal.correct===true);
+}
+
+export function simulatorOutcomeSignal(topicId: string, kind: "lab"|"troubleshoot"|"career", activityId: string, score=1): SignalInput {
+  return {topicId,kind,correct:score>=0.7,score,errorTag:`simulator:${activityId}`};
+}
