@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createMachine, setServiceStatus } from "@/lib/terminal/machine";
+import { createMachine, injectTrainingFault, setServiceStatus } from "@/lib/terminal/machine";
 import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
 import { applicationCheck, launchTrainingApplication, trainingApplications } from "@/lib/training/applications";
 
@@ -28,6 +28,17 @@ describe("training application runtime", () => {
     const result = applicationCheck(app, machines.windows, machines, environment);
     expect(result.health).toBe("blocked");
     expect(result.causes.join(" ")).toContain("LanmanWorkstation");
+  });
+
+  it("targets the exact service behind an application incident", () => {
+    const { environment, machines } = lab();
+    const fault = injectTrainingFault(machines.mac, "service", "cupsd");
+    const synced = syncVirtualEnvironment(machines, environment);
+    expect(fault.target).toBe("cupsd");
+    expect(synced.mac.services.find((service) => service.name === "cupsd")?.status).toBe("stopped");
+    expect(synced.mac.processes.some((process) => process.name === "cupsd")).toBe(false);
+    const app = trainingApplications.find((item) => item.id === "print-center")!;
+    expect(applicationCheck(app, synced.windows, synced, environment).health).toBe("blocked");
   });
 
   it("blocks the intranet browser when nginx is stopped on another machine", () => {
