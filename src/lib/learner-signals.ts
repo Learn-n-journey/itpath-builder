@@ -184,6 +184,7 @@ export function evidenceStream(user: UserData): LearnerSignal[] {
       signal.kind === "lesson" ||
       signal.kind === "ai_tutor" ||
       signal.kind === "ai_grading" ||
+      signal.kind === "lab" ||
       signal.kind === "troubleshoot" ||
       signal.kind === "career" ||
       signal.kind === "assignment" ||
