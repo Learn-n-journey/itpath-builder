@@ -338,6 +338,12 @@ function VirtualPcPage() {
     setActiveTicketId(ticket.id); setActiveFault(fault); setTicketVerified(false); setTicketEvidence([ticket.scope === "cross-machine" ? "Cross-machine incident opened from reporting workstation" : "Ticket opened"]); setGaylHelpLevel(0); setGaylWalkthrough(false); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); setTicketOpen(true); setTerminalLines([]);
   };
   const verifyTicket = () => {
+    if (activeJobScenario) {
+      const passed = Boolean(activeJobResult && activeJobResult.missingGoals.length === 0);
+      setTicketVerified(passed);
+      setTicketEvidence((items) => [...items, passed ? "Job verified successfully" : "Verification attempted; objectives remain"].slice(-40));
+      return;
+    }
     if (!activeFault) return;
     const host = activeTicket?.faultHostOs ? osMachines[activeTicket.faultHostOs] : machine;
     const faultFixed = trainingFaultResolved(host, activeFault);
