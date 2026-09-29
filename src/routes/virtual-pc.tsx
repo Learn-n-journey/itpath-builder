@@ -450,11 +450,8 @@ function VirtualPcPage() {
   };
   const closeTicket = () => {
     if (!ticketResolved) return;
-    const required=activeTicket?requiredTicketEvidence(activeTicket):[];
-    const processComplete=required.every(step=>ticketTrace.includes(step) || step==="verify" && ticketVerified);
-    if(activeTicket && !hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,processComplete?1:0.75,gaylHelpLevel));
     const required=activeTicket?requiredTicketEvidence(activeTicket):["observe","repair","verify"];
-    const demonstrated=required.every(stage=>ticketTrace.includes(stage));
+    const demonstrated=required.every(stage=>ticketTrace.includes(stage) || stage==="verify" && ticketVerified);
     if(!demonstrated){ setNotice(`The fix works, but demonstrate the troubleshooting process first: ${required.filter(stage=>!ticketTrace.includes(stage)).join(", ")}.`); return; }
     if(activeTicket && !hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylHelpLevel));
     localStorage.removeItem(`itpath-virtualpc-ticket-${pcOs}`);
