@@ -120,7 +120,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "preload", as: "image", href: "/ChatGPT%20Image%20Sep%2024%2C%202026%2C%2004_42_52%20PM.png", fetchPriority: "high" },
-      { rel: "preload", as: "image", href: "/images/meditation-background.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
