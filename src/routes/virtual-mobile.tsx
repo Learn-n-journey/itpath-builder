@@ -39,6 +39,9 @@ type MobileState = {
   notificationPermission: boolean;
   installedProfiles: string[];
   networkCacheStale: boolean;
+  preferredCellular: boolean;
+  files: Record<string, string[]>;
+  evidenceLog: { at:string; action:string; source:"gui"|"console"|"system" }[];
 };
 
 const STORAGE_KEY = "itpath-virtual-mobile-v1";
@@ -76,6 +79,14 @@ function freshMobile(os: MobileOs): MobileState {
     notificationPermission: true,
     installedProfiles: ["corp-wifi.mobileconfig"],
     networkCacheStale: false,
+    preferredCellular: true,
+    files: {
+      Downloads: ["vpn-profile.mobileconfig", "support-log.txt"],
+      Documents: ["device-notes.txt"],
+      Pictures: ["IMG_1001.jpg", "IMG_1002.jpg"],
+      Support: ["network-diagnostics.txt"],
+    },
+    evidenceLog: [],
   };
 }
 
@@ -120,26 +131,27 @@ function VirtualMobilePage() {
   }, [ticketHistory]);
 
   const update = (fn: (draft: MobileState) => MobileState) => setDevices(current => ({ ...current, [os]: fn(current[os]) }));
-  const patch = (values: Partial<MobileState>) => update(current => ({ ...current, ...values }));
+  const record = (current: MobileState, action:string, source:"gui"|"console"|"system"="gui") => ({...current,evidenceLog:[...current.evidenceLog,{at:new Date().toISOString(),action,source}].slice(-100)});
+  const patch = (values: Partial<MobileState>, action?:string) => update(current => record({ ...current, ...values }, action ?? "Changed device setting"));
 
   const toggleWifi = () => update(current => {
     const next = !current.wifiEnabled;
     const machine = structuredClone(current.machine);
     const network = primaryInterface(machine);
     network.up = next && !current.airplaneMode;
-    return { ...current, machine, wifiEnabled: next };
+    return record({ ...current, machine, wifiEnabled: next }, `Wi-Fi ${next?"enabled":"disabled"}`);
   });
   const toggleBluetooth = () => update(current => {
     const next = !current.bluetoothEnabled;
     const machine = structuredClone(current.machine);
     setServiceStatus(machine, "bluetooth", next ? "running" : "stopped");
-    return { ...current, machine, bluetoothEnabled: next };
+    return record({ ...current, machine, bluetoothEnabled: next }, `Bluetooth ${next?"enabled":"disabled"}`);
   });
   const toggleAirplane = () => update(current => {
     const next = !current.airplaneMode;
     const machine = structuredClone(current.machine);
     primaryInterface(machine).up = !next && current.wifiEnabled;
-    return { ...current, machine, airplaneMode: next, cellularEnabled: next ? false : current.cellularEnabled };
+    return record({ ...current, machine, airplaneMode: next, cellularEnabled: next ? false : current.preferredCellular }, `Airplane mode ${next?"enabled":"disabled"}`);
   });
   const resetDevice = () => {
     setDevices(current => ({ ...current, [os]: freshMobile(os) }));
@@ -203,6 +215,7 @@ function VirtualMobilePage() {
       cellularEnabled: service("data") || service("cellular") || current.cellularEnabled,
       cloudSync: os==="phone" ? service("icloud") : service("sync"),
       mailSync: os==="phone" ? service("mail") : current.mailSync,
+      evidenceLog:[...current.evidenceLog,{at:new Date().toISOString(),action:"Ran support-console command",source:"console"}].slice(-100),
     };
   });
   const runMobileConsole = () => {
@@ -212,7 +225,7 @@ function VirtualMobilePage() {
     setConsoleLines(lines=>[...lines,{command:raw,output:result.output,error:result.error}].slice(-40));
     setConsoleCommand("");
   };
-  const clearNetworkState = () => patch({networkCacheStale:false});
+  const clearNetworkState = () => patch({networkCacheStale:false},"Reset local network state");
   const removeProfile = (name:string) => update(current=>({...current,installedProfiles:current.installedProfiles.filter(item=>item!==name)}));
 
   const open = (next: MobileApp) => { setApp(next); setShade(false); setNotice(""); };
@@ -262,17 +275,17 @@ function VirtualMobilePage() {
                 {settingsPage!=="main"?<button onClick={()=>setSettingsPage("main")} className="m-3 text-xs font-semibold text-blue-600">‹ Settings</button>:null}
                 {settingsPage==="main"?<div className="m-3 overflow-hidden rounded-2xl bg-white shadow-sm"><SettingRow title="Network & internet" detail={state.wifiEnabled&&!state.airplaneMode?"Training Wi-Fi connected":"Offline"} onClick={()=>setSettingsPage("network")}/><SettingRow title="Bluetooth" detail={state.bluetoothEnabled?"On":"Off"} onClick={()=>setSettingsPage("bluetooth")}/><SettingRow title="Cellular & SIM" detail={state.simActive&&state.cellularEnabled&&!state.airplaneMode?"Connected":state.simActive?"Cellular off":"SIM unavailable"} onClick={()=>setSettingsPage("cellular")}/><SettingRow title="Battery" detail={state.battery+"% · "+state.batteryHealth+"% health"} onClick={()=>setSettingsPage("battery")}/><SettingRow title="Storage" detail={state.storageUsed+"% used"} onClick={()=>setSettingsPage("storage")}/><SettingRow title="Apps & permissions" detail={state.installedApps.length+" installed apps"} onClick={()=>setSettingsPage("apps")}/><SettingRow title="Privacy & security" detail="Permissions and device protection" onClick={()=>setSettingsPage("security")}/><SettingRow title="Accounts & sync" detail="student@itpath.local" onClick={()=>setSettingsPage("sync")}/><SettingRow title="System & updates" detail={state.updateAvailable&&!state.updateInstalled?"Update available":"Up to date"} onClick={()=>setSettingsPage("system")}/></div>:null}
                 {settingsPage==="network"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><span><b className="block">Wi-Fi</b><span className="text-xs text-slate-500">Training Wi-Fi</span></span><Toggle on={state.wifiEnabled&&!state.airplaneMode} onClick={toggleWifi}/></div></div><div className="rounded-2xl bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><span><b className="block">Airplane mode</b><span className="text-xs text-slate-500">Disable wireless connections</span></span><Toggle on={state.airplaneMode} onClick={toggleAirplane}/></div></div><div className="rounded-2xl bg-white p-4 text-xs shadow-sm"><b>Connection details</b><p className="mt-2 text-slate-500">Address: {iface.ip}</p><p className="text-slate-500">Gateway: {iface.gateway||"None"}</p><p className="text-slate-500">DNS: {iface.dns.join(", ")||"None"}</p><p className={cn("mt-2 font-semibold",state.networkCacheStale?"text-amber-600":"text-emerald-600")}>Local network state: {state.networkCacheStale?"Stale":"Current"}</p>{state.networkCacheStale?<button onClick={clearNetworkState} className="mt-3 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-semibold text-white">Reset local network state</button>:null}</div></div>:null}
-                {settingsPage==="cellular"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><b className="text-sm">Mobile network</b><p className="mt-1 text-xs text-slate-500">{state.simType==="esim"?"eSIM":"Physical SIM"} · {state.simActive?"Active":"Inactive"}</p><div className="mt-4 flex items-center justify-between"><span className="text-xs">Cellular data</span><Toggle on={state.cellularEnabled&&!state.airplaneMode} onClick={()=>patch({cellularEnabled:!state.cellularEnabled})}/></div><div className="mt-3 flex items-center justify-between"><span className="text-xs">SIM active</span><Toggle on={state.simActive} onClick={()=>patch({simActive:!state.simActive})}/></div><div className="mt-3 flex items-center justify-between"><span className="text-xs">Personal hotspot</span><Toggle on={state.hotspotEnabled} onClick={()=>patch({hotspotEnabled:!state.hotspotEnabled})}/></div><div className="mt-3 flex items-center justify-between"><span className="text-xs">VPN</span><Toggle on={state.vpnEnabled} onClick={()=>patch({vpnEnabled:!state.vpnEnabled})}/></div></div></div>:null}
-                {settingsPage==="battery"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><BatteryFull className="size-7 text-emerald-600"/><b className="mt-3 block">Battery</b><p className="mt-1 text-xs text-slate-500">{state.battery}% charge · {state.batteryHealth}% maximum health</p><div className="mt-4 flex items-center justify-between"><span className="text-xs">Restrict background activity</span><Toggle on={state.backgroundRestricted} onClick={()=>patch({backgroundRestricted:!state.backgroundRestricted})}/></div></div></div>:null}
+                {settingsPage==="cellular"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><b className="text-sm">Mobile network</b><p className="mt-1 text-xs text-slate-500">{state.simType==="esim"?"eSIM":"Physical SIM"} · {state.simActive?"Active":"Inactive"}</p><div className="mt-4 flex items-center justify-between"><span className="text-xs">Cellular data</span><Toggle on={state.cellularEnabled&&!state.airplaneMode} onClick={()=>update(current=>record({...current,preferredCellular:!current.preferredCellular,cellularEnabled:current.airplaneMode?false:!current.preferredCellular},`Cellular data ${!current.preferredCellular?"enabled":"disabled"}`))}/></div><div className="mt-3 flex items-center justify-between"><span className="text-xs">SIM active</span><Toggle on={state.simActive} onClick={()=>patch({simActive:!state.simActive},"Changed SIM state")}/></div><div className="mt-3 flex items-center justify-between"><span className="text-xs">Personal hotspot</span><Toggle on={state.hotspotEnabled} onClick={()=>patch({hotspotEnabled:!state.hotspotEnabled},"Changed hotspot state")}/></div><div className="mt-3 flex items-center justify-between"><span className="text-xs">VPN</span><Toggle on={state.vpnEnabled} onClick={()=>patch({vpnEnabled:!state.vpnEnabled},"Changed VPN state")}/></div></div></div>:null}
+                {settingsPage==="battery"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><BatteryFull className="size-7 text-emerald-600"/><b className="mt-3 block">Battery</b><p className="mt-1 text-xs text-slate-500">{state.battery}% charge · {state.batteryHealth}% maximum health</p><div className="mt-4 flex items-center justify-between"><span className="text-xs">Restrict background activity</span><Toggle on={state.backgroundRestricted} onClick={()=>patch({backgroundRestricted:!state.backgroundRestricted},"Changed background activity restriction")}/></div></div></div>:null}
                 {settingsPage==="system"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><b className="text-sm">Software update</b><p className="mt-1 text-xs text-slate-500">{state.updateInstalled?"Latest training update installed.":state.updateAvailable?"A training system update is ready.":"Device is up to date."}</p>{state.updateAvailable&&!state.updateInstalled?<button onClick={()=>patch({updateInstalled:true,updateAvailable:false})} className="mt-4 rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white">Install update</button>:null}</div><div className="rounded-2xl bg-white p-4 text-xs shadow-sm"><b>Device information</b><p className="mt-2 text-slate-500">Name: {state.machine.hostname}</p><p className="text-slate-500">Platform: {os==="android"?"IT PATH Mobile":"PathOS Pocket"}</p><p className="text-slate-500">Management: {state.managementProfile?"Enrolled":"Not enrolled"}</p></div></div>:null}
                 {settingsPage==="bluetooth"?<div className="m-3 rounded-2xl bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><span><b className="block">Bluetooth</b><span className="text-xs text-slate-500">{state.bluetoothEnabled?"Ready for nearby devices":"Disabled"}</span></span><Toggle on={state.bluetoothEnabled} onClick={toggleBluetooth}/></div></div>:null}
-                {settingsPage==="storage"?<div className="m-3 rounded-2xl bg-white p-4 shadow-sm"><b>Device storage</b><div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-200"><div className="h-full bg-blue-500" style={{width:state.storageUsed+"%"}}/></div><p className="mt-2 text-xs text-slate-500">{state.storageUsed}% used · training data, apps, photos and cache</p><button onClick={()=>patch({storageUsed:Math.max(20,state.storageUsed-8)})} className="mt-4 rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white">Clear temporary cache</button></div>:null}
+                {settingsPage==="storage"?<div className="m-3 rounded-2xl bg-white p-4 shadow-sm"><b>Device storage</b><div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-200"><div className="h-full bg-blue-500" style={{width:state.storageUsed+"%"}}/></div><p className="mt-2 text-xs text-slate-500">{state.storageUsed}% used · training data, apps, photos and cache</p><button onClick={()=>patch({storageUsed:Math.max(20,state.storageUsed-8)},"Cleared temporary device cache")} className="mt-4 rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white">Clear temporary cache</button></div>:null}
                 {settingsPage==="apps"?<div className="m-3 space-y-2">{state.installedApps.map(item=><div key={item.id} className="rounded-2xl bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><span><b className="block text-sm">{item.name}</b><span className="text-[11px] text-slate-500">{item.permission} · {item.cacheMb} MB cache</span></span><button onClick={()=>update(current=>({...current,installedApps:current.installedApps.map(app=>app.id===item.id?{...app,cacheMb:0}:app)}))} className="rounded-lg bg-slate-100 px-2 py-1 text-[10px] font-semibold">Clear cache</button></div></div>)}</div>:null}
                 {settingsPage==="security"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><ShieldCheck className="size-7 text-emerald-600"/><b className="mt-3 block">Device protection</b><div className="mt-4 flex items-center justify-between"><span className="text-xs">Screen lock</span><Toggle on={state.screenLock} onClick={()=>patch({screenLock:!state.screenLock})}/></div></div><div className="rounded-2xl bg-white p-4 shadow-sm"><b className="text-sm">Management profile</b><p className="mt-1 text-xs text-slate-500">{state.managementProfile?"IT PATH Training Management is installed.":"No management profile installed."}</p><button onClick={()=>patch({managementProfile:!state.managementProfile})} className="mt-3 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold">{state.managementProfile?"Remove training profile":"Install training profile"}</button></div><div className="rounded-2xl bg-white p-4 shadow-sm"><b className="text-sm">Configuration profiles</b>{state.installedProfiles.map(profile=><div key={profile} className="mt-3 flex items-center justify-between gap-2 rounded-xl bg-slate-50 p-3"><span className="min-w-0 truncate text-xs">{profile}</span>{profile!=="corp-wifi.mobileconfig"?<button onClick={()=>removeProfile(profile)} className="rounded-lg bg-red-50 px-2 py-1 text-[10px] font-semibold text-red-700">Remove</button>:null}</div>)}</div></div>:null}
                 {settingsPage==="sync"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><UserRound className="size-7 text-blue-600"/><b className="mt-3 block">IT PATH Student</b><p className="text-xs text-slate-500">student@itpath.local</p><div className="mt-4 flex items-center justify-between"><span className="text-xs">Mail sync</span><Toggle on={state.mailSync} onClick={()=>patch({mailSync:!state.mailSync})}/></div><div className="mt-3 flex items-center justify-between"><span className="text-xs">Cloud sync</span><Toggle on={state.cloudSync} onClick={()=>patch({cloudSync:!state.cloudSync})}/></div></div></div>:null}
                 {settingsPage==="account"?<div className="m-3 rounded-2xl bg-white p-4 shadow-sm"><UserRound className="size-7 text-blue-600"/><b className="mt-3 block">IT PATH Student</b><p className="text-xs text-slate-500">student@itpath.local</p><p className="mt-4 text-xs text-emerald-600">Management status: enrolled</p></div>:null}
               </div>:null}
-              {app==="files"?<div className="p-4"><h2 className="font-semibold">On this device</h2><div className="mt-3 grid grid-cols-2 gap-3">{["Downloads","Documents","Pictures","Support"].map(name=><button key={name} onClick={()=>setNotice(name+" folder opened. File-state integration comes next.")} className="rounded-2xl bg-white p-4 text-left shadow-sm"><Folder className="size-7 text-blue-500"/><b className="mt-3 block text-sm">{name}</b></button>)}</div></div>:null}
+              {app==="files"?<div className="p-4"><h2 className="font-semibold">On this device</h2><div className="mt-3 space-y-3">{Object.entries(state.files).map(([name,items])=><div key={name} className="rounded-2xl bg-white p-4 shadow-sm"><div className="flex items-center gap-3"><Folder className="size-7 text-blue-500"/><div><b className="block text-sm">{name}</b><span className="text-[10px] text-slate-500">{items.length} items</span></div></div><div className="mt-3 space-y-1">{items.map(file=><div key={file} className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">{file}</div>)}</div></div>)}</div>:null}
               {app==="browser"?<div className="p-4"><div className="rounded-xl border bg-white p-3 text-xs text-slate-500">https://support.itpath.local</div><div className="mt-4 rounded-2xl bg-white p-5 shadow-sm"><Globe2 className="size-8 text-blue-600"/><h2 className="mt-3 font-semibold">IT PATH Support</h2><p className="mt-2 text-xs text-slate-500">{iface.up?"The simulated support portal is reachable.":"No connection. Check the device network settings."}</p></div></div>:null}
               {app==="messages"?<div className="p-4"><div className="rounded-2xl bg-white p-4 shadow-sm"><b>IT Support</b><p className="mt-2 text-sm text-slate-600">Your training device is ready. Future mobile tickets will arrive here as realistic user symptoms and support messages.</p></div></div>:null}
               {app==="photos"?<div className="p-4"><div className="grid grid-cols-3 gap-2">{Array.from({length:9},(_,i)=><div key={i} className="aspect-square rounded-xl bg-gradient-to-br from-sky-200 to-indigo-300"/>)}</div></div>:null}
