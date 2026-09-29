@@ -199,9 +199,17 @@ export function evidenceStream(user: UserData): LearnerSignal[] {
 
 /** True when this simulator outcome has already been credited. errorTag carries the stable activity identity. */
 export function hasSimulatorCredit(user: UserData, kind: "lab"|"troubleshoot"|"career", activityId: string): boolean {
-  return user.learnerSignals.some(signal=>signal.kind===kind && signal.errorTag===`simulator:${activityId}` && signal.correct===true);
+  return user.learnerSignals.some(signal=>signal.kind===kind && signal.errorTag?.startsWith(`simulator:${activityId}:`) && signal.correct===true);
 }
 
-export function simulatorOutcomeSignal(topicId: string, kind: "lab"|"troubleshoot"|"career", activityId: string, score=1): SignalInput {
-  return {topicId,kind,correct:score>=0.7,score,errorTag:`simulator:${activityId}`};
+export function assistanceAdjustedScore(helpLevel: number): number {
+  if(helpLevel<=0) return 1;
+  if(helpLevel===1) return 0.9;
+  if(helpLevel===2) return 0.8;
+  return 0.7;
+}
+
+export function simulatorOutcomeSignal(topicId: string, kind: "lab"|"troubleshoot"|"career", activityId: string, score=1, helpLevel=0): SignalInput {
+  const adjusted=Math.min(score,assistanceAdjustedScore(helpLevel));
+  return {topicId,kind,correct:adjusted>=0.7,score:adjusted,errorTag:`simulator:${activityId}:help-${Math.max(0,helpLevel)}`};
 }
