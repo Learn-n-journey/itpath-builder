@@ -68,6 +68,7 @@ export const trainingApplications: TrainingApplication[] = [
     os: "any",
     processName: "print-center",
     memoryMb: 82,
+    requiresServices: ["Spooler"],
     requiresNetwork: true,
     requiresDns: true,
     resourceId: "office-printer",
@@ -122,6 +123,7 @@ export function applicationCheck(
   }
 
   for (const service of application.requiresServices ?? []) {
+    if (service === "Spooler" && machine.platform !== "windows") continue;
     if (!serviceIsRunning(machine, service)) causes.push(`Required service ${service} is stopped.`);
   }
 
@@ -216,6 +218,19 @@ export function applicationPermissionSummary(machine: MachineState): string {
 }
 
 
+export function printFailureReason(
+  machine: MachineState,
+  machines: Record<VirtualOsKey, MachineState>,
+  environment: VirtualEnvironmentState,
+): string | undefined {
+  if (machine.platform === "windows" && !serviceIsRunning(machine, "Spooler")) return "Local Print Spooler service is stopped.";
+  const network = observeTrainingNetwork(machine);
+  if (!network.localReady) return network.summary;
+  if (!dnsUsable(machine)) return "Printer name cannot be resolved because DNS is unavailable.";
+  if (!sharedResourceAvailable("office-printer", machines, environment)) return "Office Printer host or remote print service is unavailable.";
+  return undefined;
+}
+
 export function submitPrintJob(
   machine: MachineState,
   machines: Record<VirtualOsKey, MachineState>,
@@ -226,15 +241,17 @@ export function submitPrintJob(
   const check = applicationCheck(application, machine, machines, environment);
   machine.printJobs ??= [];
   machine.nextPrintJobId ??= 1;
+  const reason = printFailureReason(machine, machines, environment);
   const job = {
     id: machine.nextPrintJobId++,
     document,
     printer: "Office Printer",
-    status: (check.health === "ready" ? "printing" : "error") as "printing" | "error",
+    status: (reason ? "error" : "queued") as "queued" | "error",
     submittedAt: new Date().toISOString(),
+    ...(reason ? { errorReason: reason } : {}),
   };
   machine.printJobs.unshift(job);
-  machine.eventLog.unshift(`${new Date().toISOString()} Print: ${document} — ${job.status}`);
+  machine.eventLog.unshift(`${new Date().toISOString()} Print: ${document} — ${job.status}${reason ? ` — ${reason}` : ""}`);
   return check;
 }
 
@@ -244,13 +261,53 @@ export function reconcilePrintQueue(
   environment: VirtualEnvironmentState,
 ): void {
   if (!machine.printJobs?.length) return;
-  const application = trainingApplications.find((item) => item.id === "print-center")!;
-  const ready = applicationCheck(application, machine, machines, environment).health === "ready";
+  const reason = printFailureReason(machine, machines, environment);
+  let activeAssigned = false;
   machine.printJobs = machine.printJobs.map((job) => {
-    if (ready && (job.status === "error" || job.status === "queued")) return { ...job, status: "printing" as const };
-    if (!ready && job.status === "printing") return { ...job, status: "error" as const };
-    return job;
+    if (job.status === "completed" || job.status === "cancelled") return job;
+    if (reason) return { ...job, status: "error" as const, errorReason: reason };
+    if (!activeAssigned) {
+      activeAssigned = true;
+      return { ...job, status: "printing" as const, errorReason: undefined };
+    }
+    return { ...job, status: "queued" as const, errorReason: undefined };
   });
+}
+
+export function advancePrintQueue(
+  machine: MachineState,
+  machines: Record<VirtualOsKey, MachineState>,
+  environment: VirtualEnvironmentState,
+): void {
+  reconcilePrintQueue(machine, machines, environment);
+  const active = machine.printJobs?.find((job) => job.status === "printing");
+  if (!active) return;
+  active.status = "completed";
+  active.completedAt = new Date().toISOString();
+  machine.eventLog.unshift(`${active.completedAt} Print: ${active.document} — completed`);
+  reconcilePrintQueue(machine, machines, environment);
+}
+
+export function retryPrintJob(
+  machine: MachineState,
+  machines: Record<VirtualOsKey, MachineState>,
+  environment: VirtualEnvironmentState,
+  jobId: number,
+): void {
+  const job = machine.printJobs?.find((item) => item.id === jobId);
+  if (!job || job.status === "completed" || job.status === "cancelled") return;
+  job.status = "queued";
+  job.errorReason = undefined;
+  machine.eventLog.unshift(`${new Date().toISOString()} Print: retry requested for ${job.document}`);
+  reconcilePrintQueue(machine, machines, environment);
+}
+
+export function cancelPrintJob(machine: MachineState, jobId: number): void {
+  const job = machine.printJobs?.find((item) => item.id === jobId);
+  if (!job || job.status === "completed" || job.status === "cancelled") return;
+  job.status = "cancelled";
+  job.errorReason = undefined;
+  machine.eventLog.unshift(`${new Date().toISOString()} Print: ${job.document} — cancelled`);
 }
 
 
