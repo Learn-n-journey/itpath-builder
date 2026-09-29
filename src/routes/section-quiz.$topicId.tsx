@@ -100,7 +100,7 @@ function SectionQuizPage() {
       <LearningBreadcrumbs items={[{ label: domain.id === "auto-repair" ? "Training Plan" : "My Path", to: "/my-path" }, ...(certifications.find((item) => item.id === topic.certificationId) ? [{ label: certifications.find((item) => item.id === topic.certificationId)?.title ?? "Certification", to: "/certifications/$certId", params: { certId: topic.certificationId } }] : []), { label: topic.title, to: "/topics/$topicId", params: { topicId } }, { label: domain.id === "auto-repair" ? "Shop knowledge check" : "Section quiz" }]} />
       <PageHeader
         title={`${topic.title}: ${domain.id === "auto-repair" ? "shop knowledge check" : "section quiz"}`}
-        description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Every question is multiple choice, and ${SECTION_PASS_SCORE}% is a pass. This is one part of what opens the next section, alongside recall, teach back and the hands on work.`}
+        description={`${SECTION_QUIZ_SIZE} questions drawn from this section only. Every question is multiple choice, and ${SECTION_PASS_SCORE}% is a pass. This is one part of what opens the next section, alongside the required recall, teach-back and real-world proof. Hands-on Labs are additional practice when available.`}
       />
 
       {passed ? (
