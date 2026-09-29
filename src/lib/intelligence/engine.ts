@@ -255,13 +255,15 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
       return tag.endsWith(":help-0");
     });
     const independentPassKinds = new Set(independentPasses.map((entry)=>entry.signal.kind)).size;
-    const firstPassAt=passes[0]?.atMs ?? null;
+    // The evidence stream is newest-first, so derive chronological bounds
+    // explicitly rather than treating array position as time order.
+    const passTimes=passes.map((entry)=>entry.atMs);
+    const firstPassAt=passTimes.length ? Math.min(...passTimes) : null;
+    const lastPassAt=passTimes.length ? Math.max(...passTimes) : null;
     const delayedIndependentPass=firstPassAt!==null && independentPasses.some((entry)=>entry.atMs-firstPassAt>=21*24*60*60*1000);
     const passSpanDays =
-      passes.length >= 2
-        ? Math.round(
-            (passes[passes.length - 1]!.atMs - passes[0]!.atMs) / (24 * 60 * 60 * 1000),
-          )
+      firstPassAt!==null && lastPassAt!==null && passes.length>=2
+        ? Math.round((lastPassAt-firstPassAt)/(24*60*60*1000))
         : 0;
 
     const stateAssessment = assessState({
