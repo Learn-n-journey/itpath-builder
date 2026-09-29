@@ -670,7 +670,7 @@ export const hardwareComponents: HardwareComponent[] = [
           "A common beginner setup is two fans in front pulling in, one at the rear pushing out. That slight positive pressure also keeps dust out.",
       },
     ],
-  },,
+  },
   {
     id: "laptop-overview", family: "laptop", name: "Laptop internals", tagline: "Compact computer hardware built around battery power, portability and shared cooling.",
     parts: [
