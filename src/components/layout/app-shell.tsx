@@ -207,6 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const virusRun = pathname === "/virus";
   const byteRun = pathname === "/byte-break";
   const virtualPc = pathname === "/virtual-pc";
+  const virtualMobile = pathname === "/virtual-mobile";
 
   // The course chooser is the neutral front door, before either subject loads.
   if (pathname === "/") return <>{children}</>;
