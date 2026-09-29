@@ -192,15 +192,6 @@ const allNavItems: NavItem[] = [
     subjects: ["it-cybersecurity"],
   },
   {
-    label: "Command Line",
-    to: "/command-line",
-    icon: SquareTerminal,
-    group: "Tools",
-    description: "Practice CMD, PowerShell and Linux in safe, persistent virtual computers.",
-    pro: true,
-    subjects: ["it-cybersecurity"],
-  },
-  {
     label: "Virus Run",
     to: "/virus",
     icon: Bug,
