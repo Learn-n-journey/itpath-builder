@@ -33,7 +33,7 @@ import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { clone,
   ensureWorkstationState, copyPath, createMachine, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setServiceStatus, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
-import { applyTrainingNetworkAction, observeTrainingNetwork, probeTrainingNetwork } from "@/lib/training/network-capabilities";
+import { applyTrainingNetworkAction, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
 
 export const Route = createFileRoute("/virtual-pc")({
   staticData: { sitemap: false },
@@ -150,7 +150,7 @@ function VirtualPcPage() {
     [currentNode, query],
   );
   const teamFilesResource = virtualEnvironment.resources.find((resource) => resource.id === "shared-files");
-  const teamFilesAccess = resourceAccessForMachine("shared-files", machine, osMachines, virtualEnvironment);
+  const teamFilesAccess = resourceAccessForMachine("shared-files", machine, osMachines, virtualEnvironment);\n  const teamFilesService = probeTrainingService(machine, "files.itpath.local", 445);
 
   const pathFor = (name?: string) => {
     const parts = [...folder, ...(name ? [name] : [])];
