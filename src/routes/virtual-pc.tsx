@@ -79,8 +79,8 @@ function freshWindowsMachine(): MachineState {
 const helpDeskTickets: TrainingTicket[] = trainingTickets.filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
 
 function VirtualPcPage() {
-  const launch = Route.useSearch();
-  const practiceMode = launch.activity === "lab" && Boolean(launch.lab);
+  const launchContext = Route.useSearch();
+  const practiceMode = launchContext.activity === "lab" && Boolean(launchContext.lab);
   const { user, actions } = useAppState();
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
   const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
