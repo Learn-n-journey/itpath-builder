@@ -1,8 +1,8 @@
-import { navigateTrainingBrowser } from "@/lib/training/network-capabilities";
+import { navigateTrainingBrowser, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 import { describe, expect, it } from "vitest";
 import { createMachine, injectTrainingFault, setServiceStatus } from "@/lib/terminal/machine";
 import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
-import { applicationCheck, applicationForProcess, applicationInstalled, launchTrainingApplication, reconcilePrintQueue, stopTrainingApplication, submitPrintJob, trainingApplications } from "@/lib/training/applications";
+import { advancePrintQueue, applicationCheck, applicationForProcess, applicationInstalled, launchTrainingApplication, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications } from "@/lib/training/applications";
 
 function lab() {
   const environment = createVirtualEnvironment();
@@ -48,6 +48,16 @@ describe("training application runtime", () => {
     const web = refused.targets.find((item) => item.host === "intranet.itpath.local");
     if (web) web.openPorts = (web.openPorts ?? []).filter((port) => port !== 80);
     expect(navigateTrainingBrowser(refused, "http://intranet.itpath.local").status).toBe("refused");
+  });
+
+  it("uses adapter health as the same network truth shown by the tray and apps", () => {
+    const { environment, machines } = lab();
+    machines.windows.networkDriverHealthy = false;
+    expect(observeTrainingNetwork(machines.windows).state).toBe("offline");
+    const browser = trainingApplications.find((item) => item.id === "browser")!;
+    expect(applicationCheck(browser, machines.windows, machines, environment).health).toBe("blocked");
+    machines.windows.networkDriverHealthy = true;
+    expect(observeTrainingNetwork(machines.windows).state).toBe("online");
   });
 
   it("cascades network loss and recovery across network applications", () => {
@@ -124,6 +134,20 @@ describe("training application runtime", () => {
     synced = syncVirtualEnvironment(synced, environment);
     reconcilePrintQueue(synced.windows, synced, environment);
     expect(synced.windows.printJobs?.[0]?.status).toBe("printing");
+  });
+
+  it("models local spooler failure separately and completes recovered print work", () => {
+    const { environment, machines } = lab();
+    setServiceStatus(machines.windows, "Spooler", "stopped");
+    submitPrintJob(machines.windows, machines, environment, "Service Ticket");
+    expect(machines.windows.printJobs?.[0]?.status).toBe("error");
+    expect(machines.windows.printJobs?.[0]?.errorReason).toContain("Spooler");
+    setServiceStatus(machines.windows, "Spooler", "running");
+    retryPrintJob(machines.windows, machines, environment, machines.windows.printJobs![0].id);
+    expect(machines.windows.printJobs?.[0]?.status).toBe("printing");
+    advancePrintQueue(machines.windows, machines, environment);
+    expect(machines.windows.printJobs?.[0]?.status).toBe("completed");
+    expect(machines.windows.printJobs?.[0]?.completedAt).toBeTruthy();
   });
 
   it("blocks the intranet browser when nginx is stopped on another machine", () => {
