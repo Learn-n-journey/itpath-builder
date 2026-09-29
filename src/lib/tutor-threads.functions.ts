@@ -79,7 +79,7 @@ export const listTutorThreads = createServerFn({ method: "GET" })
 
 export const getTutorThread = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .validator((data) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ context, data }): Promise<ThreadReply> => {
     const { data: row, error } = await context.supabase
       .from("tutor_threads")
@@ -99,7 +99,7 @@ const messageSchema = z.object({
 
 export const saveTutorThread = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         id: z.string().optional(),
@@ -135,7 +135,7 @@ export const saveTutorThread = createServerFn({ method: "POST" })
 
 export const deleteTutorThread = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .validator((data) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ context, data }): Promise<OkReply> => {
     const { error } = await context.supabase
       .from("tutor_threads")
