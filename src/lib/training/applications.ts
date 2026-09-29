@@ -2,7 +2,6 @@ import {
   canRead,
   currentGroups,
   getNode,
-  hasLink,
   resolvePath,
   storageFreePercent,
   type MachineState,
@@ -13,6 +12,7 @@ import {
   type VirtualEnvironmentState,
   type VirtualOsKey,
 } from "@/lib/training/environment";
+import { observeTrainingNetwork } from "@/lib/training/network-capabilities";
 
 export type TrainingApplicationId = "browser" | "team-files" | "print-center" | "updates" | "notes";
 export type ApplicationHealth = "ready" | "degraded" | "blocked";
@@ -125,8 +125,10 @@ export function applicationCheck(
     if (!serviceIsRunning(machine, service)) causes.push(`Required service ${service} is stopped.`);
   }
 
-  if (application.requiresNetwork && !hasLink(machine)) causes.push("The workstation has no usable network link.");
-  if (application.requiresDns && !dnsUsable(machine)) causes.push("Name resolution is unavailable because DNS is not usable.");
+  const network = observeTrainingNetwork(machine);
+  if (application.requiresNetwork && !network.localReady) causes.push(network.summary);
+  if (application.requiresDns && network.localReady && !dnsUsable(machine)) causes.push("Name resolution is unavailable because DNS is not usable.");
+  if (application.id === "updates" && network.localReady && !network.hasGateway) causes.push("System Update cannot reach remote update servers because no default route is available.");
 
   if (application.resourceId) {
     if (!sharedResourceAvailable(application.resourceId, machines, environment)) {
