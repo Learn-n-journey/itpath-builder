@@ -249,6 +249,14 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
     );
 
     const passes = graded.filter((entry) => entry.outcome >= 0.7);
+    const independentPasses = passes.filter((entry) => {
+      const tag=entry.signal.errorTag;
+      if(!tag?.startsWith("simulator:")) return true;
+      return tag.endsWith(":help-0");
+    });
+    const independentPassKinds = new Set(independentPasses.map((entry)=>entry.signal.kind)).size;
+    const firstPassAt=passes[0]?.atMs ?? null;
+    const delayedIndependentPass=firstPassAt!==null && independentPasses.some((entry)=>entry.atMs-firstPassAt>=21*24*60*60*1000);
     const passSpanDays =
       passes.length >= 2
         ? Math.round(
@@ -266,6 +274,9 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
       unresolvedMisconception: repeatedMisconception && unresolvedMistakes > 0,
       passSpanDays,
       daysSinceExposure: profile.daysSinceExposure,
+      independentPasses: independentPasses.length,
+      independentPassKinds,
+      delayedIndependentPass,
     });
 
     // 5. Intervene, treatment when the cause is confirmed, a test when it is not.
