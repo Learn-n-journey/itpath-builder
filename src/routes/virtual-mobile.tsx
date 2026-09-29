@@ -4,6 +4,7 @@ import { BatteryFull, Bluetooth, ChevronLeft, Download, Folder, Globe2, Image, K
 import { cn } from "@/lib/utils";
 import { mobileTrainingTickets, type MobileTrainingTicket } from "@/lib/training/mobile-tickets";
 import { createMachine, primaryInterface, setServiceStatus, type MachineState } from "@/lib/terminal/machine";
+import { execute } from "@/lib/terminal/shells";
 
 export const Route = createFileRoute("/virtual-mobile")({
   staticData: { sitemap: false },
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/virtual-mobile")({
 });
 
 type MobileOs = "android" | "phone";
-type MobileApp = "settings" | "files" | "browser" | "messages" | "photos" | "account" | "apps" | "mail" | "support" | null;
+type MobileApp = "settings" | "files" | "browser" | "messages" | "photos" | "account" | "apps" | "mail" | "support" | "console" | null;
 type MobileState = {
   machine: MachineState;
   wifiEnabled: boolean;
@@ -101,6 +102,12 @@ function VirtualMobilePage() {
   const [ticketBaseline, setTicketBaseline] = useState<MobileState | null>(null);
   const [ticketVerified, setTicketVerified] = useState(false);
   const [gaylLevel, setGaylLevel] = useState(0);
+  const [consoleCommand, setConsoleCommand] = useState("");
+  const [consoleLines, setConsoleLines] = useState<{command:string;output:string;error:boolean}[]>([]);
+  const [ticketHistory, setTicketHistory] = useState<{id:string;title:string;os:MobileOs;assisted:boolean;completedAt:string}[]>(() => {
+    if(typeof window==="undefined") return [];
+    try { return JSON.parse(localStorage.getItem("itpath-mobile-ticket-history-v1") || "[]"); } catch { return []; }
+  });
 
   const state = devices[os];
   const iface = useMemo(() => primaryInterface(state.machine), [state.machine]);
@@ -108,6 +115,9 @@ function VirtualMobilePage() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
   }, [devices]);
+  useEffect(() => {
+    localStorage.setItem("itpath-mobile-ticket-history-v1", JSON.stringify(ticketHistory.slice(0,50)));
+  }, [ticketHistory]);
 
   const update = (fn: (draft: MobileState) => MobileState) => setDevices(current => ({ ...current, [os]: fn(current[os]) }));
   const patch = (values: Partial<MobileState>) => update(current => ({ ...current, ...values }));
@@ -179,7 +189,29 @@ function VirtualMobilePage() {
     setTicketVerified(ticketResolved);
     setNotice(ticketResolved ? "Fix verified against the simulated device state." : "The device still shows evidence of the problem.");
   };
-  const closeTicket = () => { if(!ticketResolved)return; setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setTicketOpen(false); };
+  const closeTicket = () => {
+    if(!ticketResolved || !activeTicket)return;
+    setTicketHistory(history=>[{id:activeTicket.id,title:activeTicket.title,os:activeTicket.os,assisted:gaylLevel>0,completedAt:new Date().toISOString()},...history].slice(0,50));
+    setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setTicketOpen(false); setConsoleLines([]);
+  };
+  const syncUiFromMachine = (machine:MachineState) => update(current => {
+    const service = (name:string) => machine.services.find(item=>item.name===name)?.status === "running";
+    return {
+      ...current, machine,
+      wifiEnabled: service("wifi") || current.wifiEnabled && primaryInterface(machine).up,
+      bluetoothEnabled: service("bluetooth") || false,
+      cellularEnabled: service("data") || service("cellular") || current.cellularEnabled,
+      cloudSync: os==="phone" ? service("icloud") : service("sync"),
+      mailSync: os==="phone" ? service("mail") : current.mailSync,
+    };
+  });
+  const runMobileConsole = () => {
+    const raw=consoleCommand.trim(); if(!raw)return;
+    const result=execute(state.machine,raw);
+    syncUiFromMachine(result.state);
+    setConsoleLines(lines=>[...lines,{command:raw,output:result.output,error:result.error}].slice(-40));
+    setConsoleCommand("");
+  };
   const clearNetworkState = () => patch({networkCacheStale:false});
   const removeProfile = (name:string) => update(current=>({...current,installedProfiles:current.installedProfiles.filter(item=>item!==name)}));
 
@@ -196,6 +228,7 @@ function VirtualMobilePage() {
     { id:"apps" as const, label:"Apps", icon:Smartphone },
     { id:"mail" as const, label:"Mail", icon:Mail },
     { id:"support" as const, label:"Support", icon:ShieldCheck },
+    { id:"console" as const, label: os==="android"?"Terminal":"Support Console", icon:KeyRound },
   ];
 
   const SettingRow = ({title,detail,onClick}:{title:string;detail:string;onClick:()=>void}) => <button onClick={onClick} className="flex w-full items-center justify-between border-b border-slate-200 px-4 py-4 text-left last:border-0"><span><b className="block text-sm text-slate-900">{title}</b><span className="text-xs text-slate-500">{detail}</span></span><span className="text-slate-400">›</span></button>;
@@ -209,7 +242,7 @@ function VirtualMobilePage() {
     </header>
 
 
-    {ticketOpen?<div className="absolute right-3 top-16 z-[70] w-[min(25rem,94vw)] overflow-hidden rounded-2xl border border-white/15 bg-[#0d1b2e]/95 shadow-2xl backdrop-blur-2xl"><div className="flex items-center justify-between border-b border-white/10 p-4"><div><b>Mobile Help Desk</b><p className="text-[10px] text-slate-400">Problems are injected into the simulated device.</p></div><button onClick={()=>setTicketOpen(false)}><X className="size-4"/></button></div>{activeTicket?<div className="p-4"><div className="flex items-center justify-between"><span className="text-[10px] text-cyan-300">#{activeTicket.id.replace("mobile-","")} · {activeTicket.requester}</span><span className={cn("rounded-full px-2 py-1 text-[10px]",ticketResolved?"bg-emerald-500/20 text-emerald-300":"bg-amber-500/20 text-amber-200")}>{ticketResolved?"Resolved":"Open"}</span></div><h3 className="mt-2 font-semibold">{activeTicket.title}</h3><p className="mt-2 text-xs leading-5 text-slate-300">{activeTicket.brief}</p><div className="mt-3 rounded-xl bg-white/5 p-3"><b className="text-[10px] text-slate-300">VERIFY</b>{activeTicket.verification.map(item=><p key={item} className="mt-1 text-[10px] text-slate-400">• {item}</p>)}</div><div className="mt-3 rounded-xl border border-violet-400/20 bg-violet-500/10 p-3"><div className="flex items-center justify-between"><b className="text-xs text-violet-200">GAYL</b><button onClick={()=>setGaylLevel(level=>Math.min(level+1,activeTicket.hints.length))} className="rounded-lg border border-violet-300/25 px-2 py-1 text-[10px]">Give me a hint</button></div><p className="mt-2 text-xs leading-5 text-slate-300">{gaylLevel===0?"I’ll stay out of the way unless you need me.":activeTicket.hints[Math.min(gaylLevel-1,activeTicket.hints.length-1)]}</p></div>{notice?<p className="mt-3 text-xs text-cyan-200">{notice}</p>:null}<div className="mt-4 grid grid-cols-2 gap-2"><button onClick={cancelTicket} className="rounded-lg border border-red-300/25 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100">Cancel ticket</button>{ticketResolved?<button onClick={closeTicket} className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-950">Close resolved ticket</button>:<button onClick={verifyTicket} className="rounded-lg bg-cyan-500 px-3 py-2 text-xs font-semibold text-slate-950">Verify fix</button>}</div></div>:<div className="max-h-[65vh] space-y-2 overflow-y-auto p-3">{mobileTrainingTickets.map(ticket=><button key={ticket.id} onClick={()=>startTicket(ticket)} className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-left hover:border-cyan-400/50"><div className="flex items-center justify-between"><span className="text-[10px] text-cyan-300">#{ticket.id.replace("mobile-","")} · {ticket.requester}</span><span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px]">{ticket.os==="android"?"IT PATH Mobile":"PathOS Pocket"}</span></div><p className="mt-1 text-sm font-semibold">{ticket.title}</p><p className="mt-1 line-clamp-2 text-xs text-slate-400">{ticket.brief}</p></button>)}</div>}</div>:null}
+    {ticketOpen?<div className="absolute right-3 top-16 z-[70] w-[min(25rem,94vw)] overflow-hidden rounded-2xl border border-white/15 bg-[#0d1b2e]/95 shadow-2xl backdrop-blur-2xl"><div className="flex items-center justify-between border-b border-white/10 p-4"><div><b>Mobile Help Desk</b><p className="text-[10px] text-slate-400">Problems are injected into the simulated device.</p></div><button onClick={()=>setTicketOpen(false)}><X className="size-4"/></button></div>{activeTicket?<div className="p-4"><div className="flex items-center justify-between"><span className="text-[10px] text-cyan-300">#{activeTicket.id.replace("mobile-","")} · {activeTicket.requester}</span><span className={cn("rounded-full px-2 py-1 text-[10px]",ticketResolved?"bg-emerald-500/20 text-emerald-300":"bg-amber-500/20 text-amber-200")}>{ticketResolved?"Resolved":"Open"}</span></div><h3 className="mt-2 font-semibold">{activeTicket.title}</h3><p className="mt-2 text-xs leading-5 text-slate-300">{activeTicket.brief}</p><div className="mt-3 rounded-xl bg-white/5 p-3"><b className="text-[10px] text-slate-300">VERIFY</b>{activeTicket.verification.map(item=><p key={item} className="mt-1 text-[10px] text-slate-400">• {item}</p>)}</div><div className="mt-3 rounded-xl border border-violet-400/20 bg-violet-500/10 p-3"><div className="flex items-center justify-between"><b className="text-xs text-violet-200">GAYL</b><button onClick={()=>setGaylLevel(level=>Math.min(level+1,activeTicket.hints.length))} className="rounded-lg border border-violet-300/25 px-2 py-1 text-[10px]">Give me a hint</button></div><p className="mt-2 text-xs leading-5 text-slate-300">{gaylLevel===0?"I’ll stay out of the way unless you need me.":activeTicket.hints[Math.min(gaylLevel-1,activeTicket.hints.length-1)]}</p></div>{notice?<p className="mt-3 text-xs text-cyan-200">{notice}</p>:null}<div className="mt-4 grid grid-cols-2 gap-2"><button onClick={cancelTicket} className="rounded-lg border border-red-300/25 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-100">Cancel ticket</button>{ticketResolved?<button onClick={closeTicket} className="rounded-lg bg-emerald-500 px-3 py-2 text-xs font-semibold text-slate-950">Close resolved ticket</button>:<button onClick={verifyTicket} className="rounded-lg bg-cyan-500 px-3 py-2 text-xs font-semibold text-slate-950">Verify fix</button>}</div></div>:<div className="max-h-[65vh] space-y-2 overflow-y-auto p-3">{mobileTrainingTickets.map(ticket=><button key={ticket.id} onClick={()=>startTicket(ticket)} className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-left hover:border-cyan-400/50"><div className="flex items-center justify-between"><span className="text-[10px] text-cyan-300">#{ticket.id.replace("mobile-","")} · {ticket.requester}</span><span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px]">{ticket.os==="android"?"IT PATH Mobile":"PathOS Pocket"}</span></div><p className="mt-1 text-sm font-semibold">{ticket.title}</p><p className="mt-1 line-clamp-2 text-xs text-slate-400">{ticket.brief}</p></button>)}{ticketHistory.length?<div className="mt-4 border-t border-white/10 pt-3"><b className="px-1 text-[10px] uppercase tracking-wider text-slate-500">Recent completed</b>{ticketHistory.slice(0,5).map(item=><div key={item.id+item.completedAt} className="mt-2 rounded-xl bg-emerald-500/5 p-3"><div className="flex justify-between gap-2"><span className="text-xs text-slate-300">{item.title}</span><span className="text-[9px] text-emerald-300">{item.assisted?"GAYL assisted":"Independent"}</span></div></div>)}</div>:null}</div>}</div>:null}
     <main className="absolute inset-x-0 bottom-0 top-14 grid place-items-center overflow-auto p-3 sm:p-6">
       <div className={cn("relative h-[min(780px,calc(100vh-5rem))] w-[min(390px,94vw)] overflow-hidden border-[7px] border-slate-950 bg-slate-100 shadow-2xl",os==="android"?"rounded-[2.1rem]":"rounded-[3.2rem]")}>
         <div className="absolute inset-x-0 top-0 z-30 flex h-8 items-center justify-between px-5 text-[10px] font-semibold text-white">
@@ -246,6 +279,7 @@ function VirtualMobilePage() {
               {app==="account"?<div className="p-4"><div className="rounded-2xl bg-white p-5 shadow-sm"><UserRound className="size-9 text-blue-600"/><h2 className="mt-3 font-semibold">IT PATH Student</h2><p className="text-xs text-slate-500">Managed training account</p><p className={cn("mt-4 text-xs",state.managementProfile?"text-emerald-600":"text-amber-600")}>{state.managementProfile?"Device enrollment active":"Device is not managed"}</p></div></div>:null}
               {app==="apps"?<div className="p-4 space-y-3"><h2 className="font-semibold">Installed apps</h2>{state.installedApps.map(item=><div key={item.id} className="rounded-2xl bg-white p-4 shadow-sm"><b className="text-sm">{item.name}</b><p className="mt-1 text-xs text-slate-500">{item.permission}</p><p className="mt-1 text-xs text-slate-400">{item.cacheMb} MB temporary data</p></div>)}</div>:null}
               {app==="mail"?<div className="p-4"><div className="rounded-2xl bg-white p-5 shadow-sm"><Mail className="size-8 text-blue-600"/><h2 className="mt-3 font-semibold">Work Mail</h2><p className="mt-2 text-xs text-slate-500">{!state.notificationPermission?"Mail can sync, but notifications are blocked.":state.backgroundRestricted?"Background activity is restricted; delivery may be delayed.":state.mailSync?"Mail is syncing normally.":"Mail sync is paused. New messages will not arrive automatically."}</p><button onClick={()=>patch({mailSync:!state.mailSync})} className="mt-4 rounded-xl bg-blue-600 px-3 py-2 text-xs font-semibold text-white">{state.mailSync?"Pause sync":"Resume sync"}</button><div className="mt-3 flex items-center justify-between border-t pt-3"><span className="text-xs">Notifications</span><Toggle on={state.notificationPermission} onClick={()=>patch({notificationPermission:!state.notificationPermission})}/></div></div></div>:null}
+              {app==="console"?<div className="flex h-full flex-col bg-slate-950 p-3 font-mono text-[11px] text-slate-100"><div className="mb-2 rounded-lg bg-white/5 p-2 text-slate-400">{os==="android"?"Simulated Android support shell. Type help for available commands.":"Simulated managed-device support console. Type help for available commands."}</div><div className="min-h-0 flex-1 overflow-y-auto">{consoleLines.map((line,i)=><div key={i} className="mb-3"><p className="text-cyan-300">$ {line.command}</p><pre className={cn("whitespace-pre-wrap",line.error?"text-red-300":"text-slate-300")}>{line.output}</pre></div>)}</div><form onSubmit={e=>{e.preventDefault();runMobileConsole()}} className="mt-2 flex gap-2"><input value={consoleCommand} onChange={e=>setConsoleCommand(e.target.value)} className="min-w-0 flex-1 rounded-lg border border-white/10 bg-black px-3 py-2 text-white outline-none" placeholder="help"/><button className="rounded-lg bg-cyan-500 px-3 py-2 font-sans font-semibold text-slate-950">Run</button></form></div>:null}
               {app==="support"?<div className="p-4 space-y-3"><div className="rounded-2xl bg-white p-5 shadow-sm"><ShieldCheck className="size-8 text-blue-600"/><h2 className="mt-3 font-semibold">Device health</h2><div className="mt-4 space-y-2 text-xs"><p>Wi-Fi <b className="float-right">{state.wifiEnabled&&!state.airplaneMode?"On":"Off"}</b></p><p>Cellular <b className="float-right">{state.cellularEnabled&&state.simActive&&!state.airplaneMode?"Ready":"Unavailable"}</b></p><p>Mail sync <b className="float-right">{state.mailSync?"On":"Off"}</b></p><p>Management <b className="float-right">{state.managementProfile?"Enrolled":"Missing"}</b></p><p>Storage <b className="float-right">{state.storageUsed}% used</b></p><p>Battery health <b className="float-right">{state.batteryHealth}%</b></p></div></div></div>:null}
               {notice?<div className="mx-4 mb-4 rounded-xl bg-blue-50 p-3 text-xs text-blue-800">{notice}</div>:null}
             </div>
