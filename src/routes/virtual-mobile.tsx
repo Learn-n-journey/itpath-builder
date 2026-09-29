@@ -315,7 +315,7 @@ function VirtualMobilePage() {
     if(practiceActions<practiceContract.minimumRelevantActions||!practiceHealthy){setNotice(practiceContract.requirement);return;}
     if(shouldRecordSimulatorOutcome(user,"lab",launchContext.lab,practiceHelpLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,practiceHelpLevel));
     setNotice("Lab objective verified from an isolated simulator session and recorded as practical evidence.");
-    if(practiceBaseline) setDevices(structuredClone(practiceBaseline));
+    if(practiceBaseline){setDevices(structuredClone(practiceBaseline));setPracticeBaseline(null);setPracticeActions(0);setPracticeHelpLevel(0);}
   };
 
   const apps = [
