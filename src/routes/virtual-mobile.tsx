@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { mobileTrainingTickets, type MobileTrainingTicket } from "@/lib/training/mobile-tickets";
 import { createMachine, primaryInterface, setServiceStatus, type MachineState } from "@/lib/terminal/machine";
 import { execute } from "@/lib/terminal/shells";
+import { applyTrainingNetworkAction, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 
 export const Route = createFileRoute("/virtual-mobile")({
   staticData: { sitemap: false },
@@ -124,9 +125,8 @@ function VirtualMobilePage() {
 
   const toggleWifi = () => update(current => {
     const next = !current.wifiEnabled;
-    const machine = structuredClone(current.machine);
-    const network = primaryInterface(machine);
-    network.up = next && !current.airplaneMode;
+    const network = observeTrainingNetwork(current.machine);
+    const machine = applyTrainingNetworkAction(current.machine, { type: "set-interface", name: network.interfaceName, up: next && !current.airplaneMode });
     return { ...current, machine, wifiEnabled: next };
   });
   const toggleBluetooth = () => update(current => {
@@ -137,8 +137,8 @@ function VirtualMobilePage() {
   });
   const toggleAirplane = () => update(current => {
     const next = !current.airplaneMode;
-    const machine = structuredClone(current.machine);
-    primaryInterface(machine).up = !next && current.wifiEnabled;
+    const network = observeTrainingNetwork(current.machine);
+    const machine = applyTrainingNetworkAction(current.machine, { type: "set-interface", name: network.interfaceName, up: !next && current.wifiEnabled });
     return { ...current, machine, airplaneMode: next, cellularEnabled: next ? false : current.cellularEnabled };
   });
   const resetDevice = () => {
@@ -212,7 +212,7 @@ function VirtualMobilePage() {
     setConsoleLines(lines=>[...lines,{command:raw,output:result.output,error:result.error}].slice(-40));
     setConsoleCommand("");
   };
-  const clearNetworkState = () => patch({networkCacheStale:false});
+  const clearNetworkState = () => update(current => ({ ...current, networkCacheStale:false, machine: applyTrainingNetworkAction(current.machine, { type: "flush-dns" }) }));
   const removeProfile = (name:string) => update(current=>({...current,installedProfiles:current.installedProfiles.filter(item=>item!==name)}));
 
   const open = (next: MobileApp) => { setApp(next); setShade(false); setNotice(""); };
