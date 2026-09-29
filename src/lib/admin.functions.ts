@@ -213,7 +213,7 @@ export interface TopicFactualVerification {
  */
 export const verifyImportedTopicFacts = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { topicId: string }) => ({ topicId: input.topicId.trim() }))
+  .validator((input: { topicId: string }) => ({ topicId: input.topicId.trim() }))
   .handler(async ({ context, data }): Promise<TopicFactualVerification> => {
     const ranAt = new Date().toISOString();
     if (!isOwnerEmail(emailOf(context))) {
@@ -307,7 +307,7 @@ export const verifyImportedTopicFacts = createServerFn({ method: "POST" })
 
 export const applyTopicFactCorrection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { domain?: string; topicId: string; claim: string; correction: string }) => ({
+  .validator((input: { domain?: string; topicId: string; claim: string; correction: string }) => ({
     domain: input.domain?.trim() || undefined,
     topicId: input.topicId.trim(),
     claim: input.claim.trim(),
@@ -450,7 +450,7 @@ export const systemHealth = createServerFn({ method: "POST" })
 /** Keeps a record of a check that was run, so "not yet checked" stays honest. */
 export const recordHealthRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       area: string;
       state: HealthState;
@@ -525,7 +525,7 @@ export const lastHealthRuns = createServerFn({ method: "GET" })
 
 export const logActivity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       area: string;
       action: string;
@@ -542,7 +542,7 @@ export const logActivity = createServerFn({ method: "POST" })
 
 export const listActivity = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { area?: string; limit?: number }) => input)
+  .validator((input: { area?: string; limit?: number }) => input)
   .handler(async ({ data, context }) => {
     if (!isOwnerEmail(emailOf(context))) return { ok: true, owner: false, entries: [] as ActivityEntry[] };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -567,7 +567,7 @@ export const listActivity = createServerFn({ method: "POST" })
 
 export const listVersions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { topicId?: string; kind?: string; limit?: number }) => input)
+  .validator((input: { topicId?: string; kind?: string; limit?: number }) => input)
   .handler(async ({ data, context }) => {
     if (!isOwnerEmail(emailOf(context))) return { ok: true, owner: false, versions: [] as ContentVersion[] };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -587,7 +587,7 @@ export const listVersions = createServerFn({ method: "POST" })
 /** Records an import and its validation result. Failed validation never becomes live. */
 export const recordImport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (input: {
       domain: string;
       topicId: string;
@@ -641,7 +641,7 @@ export const recordImport = createServerFn({ method: "POST" })
 /** Moves a version along the release path. Only the owner can approve or publish. */
 export const advanceVersion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { versionId: string; action: "preview" | "approve" | "publish" | "reject" }) => input)
+  .validator((input: { versionId: string; action: "preview" | "approve" | "publish" | "reject" }) => input)
   .handler(async ({ data, context }) => {
     const actor = emailOf(context);
     if (!isOwnerEmail(actor)) return { ok: false, owner: false, error: "Only the owner can do this." };
@@ -717,7 +717,7 @@ export const advanceVersion = createServerFn({ method: "POST" })
 /** Puts the last known-good version back. Always confirmed, never silent. */
 export const rollbackVersion = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { topicId: string; kind: string; confirm: boolean }) => input)
+  .validator((input: { topicId: string; kind: string; confirm: boolean }) => input)
   .handler(async ({ data, context }) => {
     const actor = emailOf(context);
     if (!isOwnerEmail(actor)) return { ok: false, owner: false, error: "Only the owner can do this." };
