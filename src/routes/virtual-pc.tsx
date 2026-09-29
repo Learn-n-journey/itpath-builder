@@ -37,10 +37,12 @@ import { applyTrainingNetworkAction, navigateTrainingBrowser, observeTrainingNet
 import { advancePrintQueue, advanceWindowsUpdate, applicationCheck, applicationForProcess, applicationInstalled, cancelPrintJob, launchTrainingApplication, completeWindowsUpdateRestart, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications, type TrainingApplicationId } from "@/lib/training/applications";
 
 export const Route = createFileRoute("/virtual-pc")({
-  validateSearch: (search: Record<string, unknown>): { activity?: "lab"; lab?: string; topic?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { activity?: "lab"; lab?: string; topic?: string; tool?: string; os?: "windows"|"linux" } => ({
     ...(search.activity === "lab" ? { activity:"lab" as const } : {}),
     ...(typeof search.lab === "string" ? { lab:search.lab } : {}),
     ...(typeof search.topic === "string" ? { topic:search.topic } : {}),
+    ...(typeof search.tool === "string" ? { tool:search.tool } : {}),
+    ...(search.os === "windows" || search.os === "linux" ? { os:search.os } : {}),
   }),
   staticData: { sitemap: false },
   head: () => ({
@@ -84,14 +86,19 @@ function VirtualPcPage() {
   const { user, actions } = useAppState();
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
   const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
-  const [pcOs, setPcOs] = useState<PcOs>("windows");
+  const [pcOs, setPcOs] = useState<PcOs>(()=>launchContext.os ?? "windows");
   const [virtualEnvironment, setVirtualEnvironment] = useState(() => createVirtualEnvironment());
   const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => syncVirtualEnvironment({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "mac", hostname: "itpath-mac" }) }, createVirtualEnvironment()));
   const machine = ensureWorkstationState(osMachines[pcOs] ?? (pcOs === "windows" ? sharedAttempt?.machine ?? fallbackMachine : fallbackMachine));
   const networkState = useMemo(() => observeTrainingNetwork(machine), [machine]);
   const diskFreePercent = storageFreePercent(machine);
   const [folder, setFolder] = useState<string[]>(["Users", "student"]);
-  const [openApp, setOpenApp] = useState<AppId | null>("files");
+  const [openApp, setOpenApp] = useState<AppId | null>(() => {
+    if(!practiceMode) return "files";
+    const tool=launchContext.tool;
+    if(tool==="terminal"||tool==="files"||tool==="services"||tool==="processes"||tool==="accounts"||tool==="network"||tool==="storage") return tool;
+    return "files";
+  });
   const [startOpen, setStartOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [draftName, setDraftName] = useState("");
