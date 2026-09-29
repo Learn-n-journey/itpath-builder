@@ -51,7 +51,7 @@ import { nextJourneyTopic } from "@/lib/journey-order";
 import type { VisualAccent } from "@/lib/visual-accents";
 import type { LucideIcon } from "lucide-react";
 import { domain } from "@/domain/active";
-import { labEnvironmentAudit, labEnvironmentProfile } from "@/lib/lab-environments";
+import { labEnvironmentAudit, labEnvironmentProfile, labLaunchHref } from "@/lib/lab-environments";
 
 export const Route = createFileRoute("/labs")({
   staticData: { sitemap: false },
@@ -153,7 +153,7 @@ function LabsPage() {
             </Button>
           }
         />
-        <div className="mt-4">{(() => { const env=labEnvironmentProfile(lab); return <div className="rounded-xl border border-border/70 bg-card/70 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-wider text-primary">Practice environment</p><b className="mt-1 block text-sm">{env.label}</b><p className="mt-1 text-xs text-muted-foreground">{env.reason}</p></div>{env.launchPath?<Link to={env.launchPath as any} className="inline-flex items-center rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">Launch environment <ArrowRight className="ml-1 size-3"/></Link>:<Badge variant="outline">{env.status==="planned"?"Planned environment":"External / guided"}</Badge>}</div>{env.capabilities.length?<div className="mt-3 flex flex-wrap gap-1.5">{env.capabilities.map(cap=><Badge key={cap} variant="outline">{cap}</Badge>)}</div>:null}</div>; })()}</div>
+        <div className="mt-4">{(() => { const env=labEnvironmentProfile(lab); return <div className="rounded-xl border border-border/70 bg-card/70 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-wider text-primary">Practice environment</p><b className="mt-1 block text-sm">{env.label}</b><p className="mt-1 text-xs text-muted-foreground">{env.reason}</p></div>{labLaunchHref(lab)?<a href={labLaunchHref(lab)} className="inline-flex items-center rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">Open practice environment <ArrowRight className="ml-1 size-3"/></a>:<Badge variant="outline">{env.status==="planned"?"Planned environment":"External / guided"}</Badge>}</div>{env.capabilities.length?<div className="mt-3 flex flex-wrap gap-1.5">{env.capabilities.map(cap=><Badge key={cap} variant="outline">{cap}</Badge>)}</div>:null}</div>; })()}</div>
         <div className="mt-6">
           <LabWorkspace key={lab.id} lab={lab} {...(latest ? { latestAttempt: latest } : {})} />
         </div>
