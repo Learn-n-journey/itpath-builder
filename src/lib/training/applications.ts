@@ -311,6 +311,56 @@ export function cancelPrintJob(machine: MachineState, jobId: number): void {
 }
 
 
+export function advanceWindowsUpdate(
+  machine: MachineState,
+  machines: Record<VirtualOsKey, MachineState>,
+  environment: VirtualEnvironmentState,
+): ApplicationCheck {
+  const application = trainingApplications.find((item) => item.id === "updates")!;
+  const check = applicationCheck(application, machine, machines, environment);
+  machine.updateState ??= { phase: "idle", progress: 0 };
+  const now = new Date().toISOString();
+  if (check.health === "blocked") {
+    machine.updateState = { ...machine.updateState, phase:"error", message:check.causes[0], lastCheckedAt:now };
+    machine.eventLog.unshift(`${now} Windows Update: blocked — ${check.causes[0]}`);
+    return check;
+  }
+  const service = machine.services.find(item => item.name.toLowerCase() === "wuauserv");
+  if (service && service.status !== "running") {
+    service.status = "running";
+    if (!machine.processes.some(proc => proc.name === (service.processName ?? service.name))) {
+      machine.processes.push({ pid:machine.nextPid++, name:service.processName ?? service.name, user:"SYSTEM", cpu:0.2, memoryMb:46 });
+    }
+  }
+  const state = machine.updateState;
+  if (state.phase === "idle" || state.phase === "completed" || state.phase === "error") {
+    machine.updateState = { phase:"checking", progress:10, message:"Checking for updates…", lastCheckedAt:now };
+  } else if (state.phase === "checking") {
+    machine.pendingUpdates ??= [];
+    if (!machine.pendingUpdates.length) machine.pendingUpdates.push({ title:"2026-09 Cumulative Update for IT PATH Windows", kind:"security", requiresRestart:true });
+    machine.updateState = { phase:"downloading", progress:35, message:"Downloading updates…", lastCheckedAt:state.lastCheckedAt ?? now };
+  } else if (state.phase === "downloading") {
+    machine.updateState = { phase:"installing", progress:70, message:"Installing updates…", lastCheckedAt:state.lastCheckedAt };
+  } else if (state.phase === "installing") {
+    const requiresRestart = machine.pendingUpdates?.some(item => item.requiresRestart) ?? false;
+    machine.restartRequired = requiresRestart;
+    machine.updateState = requiresRestart
+      ? { phase:"restart-required", progress:100, message:"Restart required to finish installing.", lastCheckedAt:state.lastCheckedAt }
+      : { phase:"completed", progress:100, message:"You’re up to date.", lastCheckedAt:state.lastCheckedAt };
+  }
+  machine.eventLog.unshift(`${now} Windows Update: ${machine.updateState.phase} (${machine.updateState.progress}%)`);
+  return check;
+}
+
+export function completeWindowsUpdateRestart(machine: MachineState): void {
+  if (machine.updateState?.phase !== "restart-required" && !machine.restartRequired) return;
+  machine.pendingUpdates = [];
+  machine.restartRequired = false;
+  machine.updateState = { phase:"completed", progress:100, message:"You’re up to date.", lastCheckedAt:machine.updateState?.lastCheckedAt };
+  machine.eventLog.unshift(`${new Date().toISOString()} Windows Update: installation completed after restart`);
+}
+
+
 export function applicationInstalled(applicationId: TrainingApplicationId, os: VirtualOsKey): boolean {
   const application = trainingApplications.find((item) => item.id === applicationId);
   return Boolean(application && (application.os === "any" || application.os === os));
