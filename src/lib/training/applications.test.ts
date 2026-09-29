@@ -1,3 +1,4 @@
+import { navigateTrainingBrowser } from "@/lib/training/network-capabilities";
 import { describe, expect, it } from "vitest";
 import { createMachine, injectTrainingFault, setServiceStatus } from "@/lib/terminal/machine";
 import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
@@ -28,6 +29,25 @@ describe("training application runtime", () => {
     const result = applicationCheck(app, machines.windows, machines, environment);
     expect(result.health).toBe("blocked");
     expect(result.causes.join(" ")).toContain("LanmanWorkstation");
+  });
+
+  it("distinguishes browser DNS, reachability, service, and offline failures", () => {
+    const { machines } = lab();
+    expect(navigateTrainingBrowser(machines.windows, "http://intranet.itpath.local").status).toBe("ok");
+    const dns = structuredClone(machines.windows);
+    dns.dnsServers = ["203.0.113.53"];
+    expect(navigateTrainingBrowser(dns, "http://intranet.itpath.local").status).toBe("dns");
+    const offline = structuredClone(machines.windows);
+    offline.interfaces.find((item) => item.up)!.up = false;
+    expect(navigateTrainingBrowser(offline, "http://intranet.itpath.local").status).toBe("offline");
+    const unreachable = structuredClone(machines.windows);
+    const intranet = unreachable.targets.find((item) => item.host === "intranet.itpath.local");
+    if (intranet) intranet.reachable = false;
+    expect(navigateTrainingBrowser(unreachable, "http://intranet.itpath.local").status).toBe("unreachable");
+    const refused = structuredClone(machines.windows);
+    const web = refused.targets.find((item) => item.host === "intranet.itpath.local");
+    if (web) web.openPorts = (web.openPorts ?? []).filter((port) => port !== 80);
+    expect(navigateTrainingBrowser(refused, "http://intranet.itpath.local").status).toBe("refused");
   });
 
   it("cascades network loss and recovery across network applications", () => {
