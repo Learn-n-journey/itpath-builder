@@ -95,6 +95,8 @@ function VirtualPcPage() {
   const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
   const [pcOs, setPcOs] = useState<PcOs>(()=>launchContext.os ?? "windows");
   const [virtualEnvironment, setVirtualEnvironment] = useState(() => createVirtualEnvironment());
+  const practiceBaseline=useRef<{machines:Record<PcOs,MachineState>;environment:ReturnType<typeof createVirtualEnvironment>;os:PcOs}|null>(null);
+  const [practiceIsolated,setPracticeIsolated]=useState(false);
   const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => syncVirtualEnvironment({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "mac", hostname: "itpath-mac" }) }, createVirtualEnvironment()));
   const machine = ensureWorkstationState(osMachines[pcOs] ?? (pcOs === "windows" ? sharedAttempt?.machine ?? fallbackMachine : fallbackMachine));
   const networkState = useMemo(() => observeTrainingNetwork(machine), [machine]);
@@ -326,21 +328,31 @@ function VirtualPcPage() {
   }, []);
 
   useEffect(() => {
+    if(practiceMode) return;
     try { localStorage.setItem("itpath-virtualpc-environment-v1", JSON.stringify(virtualEnvironment)); } catch { /* storage unavailable */ }
-  }, [virtualEnvironment]);
+  }, [virtualEnvironment,practiceMode]);
 
   useEffect(() => {
+    if(practiceMode) return;
     try {
       const raw = localStorage.getItem("itpath-virtualpc-machines-v1");
       if (!raw) return;
       const saved = JSON.parse(raw) as Partial<Record<PcOs, MachineState>>;
       setOsMachines(current => syncVirtualEnvironment({ ...current, ...saved }, virtualEnvironment));
     } catch { /* keep fresh training machines if saved state is invalid */ }
-  }, [virtualEnvironment]);
+  }, [virtualEnvironment,practiceMode]);
 
   useEffect(() => {
-    localStorage.setItem("itpath-virtualpc-machines-v1", JSON.stringify(osMachines));
-  }, [osMachines]);
+    if(!practiceMode) localStorage.setItem("itpath-virtualpc-machines-v1", JSON.stringify(osMachines));
+  }, [osMachines,practiceMode]);
+
+  useEffect(()=>{
+    if(!practiceMode || practiceIsolated) return;
+    practiceBaseline.current={machines:{windows:clone(osMachines.windows),linux:clone(osMachines.linux),mac:clone(osMachines.mac)},environment:structuredClone(virtualEnvironment),os:pcOs};
+    const cleanEnvironment=createVirtualEnvironment();
+    const cleanMachines=syncVirtualEnvironment({windows:freshWindowsMachine(),linux:createMachine({shell:"bash",hostname:"itpath-linux"}),mac:createMachine({shell:"mac",hostname:"itpath-mac"})},cleanEnvironment);
+    setVirtualEnvironment(cleanEnvironment); setOsMachines(cleanMachines); setPracticeActions(0); setPracticeIsolated(true);
+  },[practiceMode,practiceIsolated]);
 
   useEffect(() => {
     try {
@@ -511,7 +523,9 @@ function VirtualPcPage() {
     if(!practiceMode || !launchContext.lab || !launchContext.topic || !practiceContract?.supported){setNotice(practiceContract?.requirement ?? "This Lab uses the normal evidence workflow.");return;}
     if(practiceActions<practiceContract.minimumRelevantActions || !practiceHealthy){setNotice(practiceContract.requirement);return;}
     if(!hasSimulatorCredit(user,"lab",launchContext.lab)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,gaylHelpLevel));
-    setNotice("Lab objective verified from the simulator contract and recorded as practical evidence.");
+    setNotice("Lab objective verified from an isolated simulator session and recorded as practical evidence.");
+    const baseline=practiceBaseline.current;
+    if(baseline){setVirtualEnvironment(structuredClone(baseline.environment));setOsMachines({windows:clone(baseline.machines.windows),linux:clone(baseline.machines.linux),mac:clone(baseline.machines.mac)});setPcOs(baseline.os);}
   };
   const scaffoldingProfile = launchContext.lab ? simulatorScaffoldingProfile(user,launchContext.lab) : null;
   const adaptiveOpeningHint = scaffoldingProfile?.openingHintStyle==="socratic"
