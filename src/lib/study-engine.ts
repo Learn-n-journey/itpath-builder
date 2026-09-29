@@ -77,7 +77,7 @@ function weakestPrerequisite(user: UserData, topicId: string): string | undefine
   return unmet[0]?.id;
 }
 
-interface Candidate extends Omit<StudyPlanTask, "id" | "status" | "trackedSeconds"> {}
+interface Candidate extends Omit<StudyPlanTask, "id" | "status" | "trackedSeconds"> {\n  /** Lower numbers run first. Intelligence-driven work can outrank generic category order. */\n  priority?: number;\n}
 
 function buildCandidates(user: UserData, now: Date): Candidate[] {
   const nowMs = now.getTime();
@@ -165,11 +165,11 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
   const intelligence=buildIntelligence(user,now);
   const functionalConcept=intelligence.concepts.find(concept=>concept.state==="functional" && isTopicOpen(user,concept.topicId));
   if(functionalConcept){
-    out.push({kind:"lab",title:`Lab: prove ${functionalConcept.title}`,detail:"Demonstrate the skill at the simulator or lab surface.",reason:"Your knowledge is functional; practical proof is the next rung.",plannedMinutes:25,to:"/labs",topicId:functionalConcept.topicId});
+    out.push({kind:"lab",priority:25,title:`Lab: prove ${functionalConcept.title}`,detail:"Demonstrate the skill at the simulator or lab surface.",reason:"Your knowledge is functional; practical proof is the next rung.",plannedMinutes:25,to:"/labs",topicId:functionalConcept.topicId});
   }
   const transferConcept=intelligence.concepts.find(concept=>concept.state==="transferable" && isTopicOpen(user,concept.topicId));
   if(transferConcept){
-    out.push({kind:"practice",title:`Troubleshoot: ${transferConcept.title}`,detail:"Work an unfamiliar fault with minimal cues.",reason:"You can transfer the concept; now build reliable independent diagnosis.",plannedMinutes:25,to:"/troubleshoot",topicId:transferConcept.topicId});
+    out.push({kind:"practice",priority:25,title:`Troubleshoot: ${transferConcept.title}`,detail:"Work an unfamiliar fault with minimal cues.",reason:"You can transfer the concept; now build reliable independent diagnosis.",plannedMinutes:25,to:"/troubleshoot",topicId:transferConcept.topicId});
   }
 
   // 4. Practice, topics already opened and still waiting on an applied attempt.
@@ -297,7 +297,7 @@ export function generateStudyPlan(
   now: Date = new Date(),
 ): StudyPlan {
   const candidates = buildCandidates(user, now);
-  candidates.sort((a, b) => KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind));
+  const defaultPriority=(candidate:Candidate)=>KIND_ORDER.indexOf(candidate.kind)*10+10;\n  candidates.sort((a,b)=>(a.priority ?? defaultPriority(a))-(b.priority ?? defaultPriority(b)));
 
   const tasks: StudyPlanTask[] = [];
   let planned = 0;
