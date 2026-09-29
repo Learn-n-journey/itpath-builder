@@ -1,3 +1,6 @@
+import type { UserData } from "@/lib/app-data/types";
+import { masteryGate } from "@/lib/mastery-gate";
+import { topicScopeProgress } from "@/lib/scope-progress";
 import type { Lab } from "@/lib/app-data/types";
 
 export type LabEnvironmentId =
@@ -141,4 +144,31 @@ export function labLaunchHref(lab: Lab): string | undefined {
   if(context.preferredTool) params.set("tool",context.preferredTool);
   if(context.preferredOs) params.set("os",context.preferredOs);
   return `${context.launchPath}?${params.toString()}`;
+}
+
+
+export interface TrainingAvailability {
+  available: boolean;
+  reason: string;
+}
+
+/** Labs are deliberate practice: expose them once the learner has begun proving the topic. They never gate section progression. */
+export function labAvailability(user: UserData, lab: Lab): TrainingAvailability {
+  const gate=masteryGate(user,lab.topicId);
+  const scope=topicScopeProgress(user,lab.topicId);
+  const begun=scope.attempted>0 || gate.met;
+  return begun
+    ? {available:true,reason:"Practice is available for this topic."}
+    : {available:false,reason:"Start this topic first. The lab opens once you have begun working its learning checks."};
+}
+
+/** Diagnostic incidents require knowledge plus some application/practical evidence; they should not be a learner's first exposure. */
+export function troubleshootingAvailability(user: UserData, topicId: string): TrainingAvailability {
+  const gate=masteryGate(user,topicId);
+  const scope=topicScopeProgress(user,topicId);
+  const knowledgeReady=gate.met;
+  const applied=scope.application.attempted>0 || scope.practicalAbility.attempted>0;
+  return knowledgeReady && applied
+    ? {available:true,reason:"You have enough topic and applied evidence to work an incident independently."}
+    : {available:false,reason:!knowledgeReady?"Prove the topic first before taking an incident.":"Complete some applied or hands-on work before taking an incident."};
 }
