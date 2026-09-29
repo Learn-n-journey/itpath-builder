@@ -118,7 +118,7 @@ export interface MachineState {
   startupApps?: { name: string; enabled: boolean; impact: "Low" | "Medium" | "High" }[];
   pendingUpdates?: { title: string; kind: "quality" | "driver" | "security"; requiresRestart?: boolean }[];
   /** User-visible print queue shared with the Print Center and system tray. */
-  printJobs?: { id: number; document: string; printer: string; status: "printing" | "queued" | "error"; submittedAt: string }[];
+  printJobs?: { id: number; document: string; printer: string; status: "printing" | "queued" | "error" | "completed" | "cancelled"; submittedAt: string; completedAt?: string; errorReason?: string }[];
   nextPrintJobId?: number;
   restartRequired?: boolean;
   /** Restart metadata used by the Virtual PC lifecycle and troubleshooting tickets. */
