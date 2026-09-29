@@ -8,8 +8,9 @@ import { execute } from "@/lib/terminal/shells";
 import { applyTrainingNetworkAction, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 
 export const Route = createFileRoute("/virtual-mobile")({
-  validateSearch: (search: Record<string, unknown>): { activity?: "lab"; lab?: string; topic?: string; tool?: string; os?: MobileOs } => ({
-    ...(search.activity === "lab" ? { activity:"lab" as const } : {}),
+  validateSearch: (search: Record<string, unknown>): { activity?: "lab"|"ticket"; lab?: string; ticket?: string; topic?: string; tool?: string; os?: MobileOs } => ({
+    ...(search.activity === "lab" || search.activity === "ticket" ? { activity:search.activity } : {}),
+    ...(typeof search.ticket === "string" ? { ticket:search.ticket } : {}),
     ...(typeof search.lab === "string" ? { lab:search.lab } : {}),
     ...(typeof search.topic === "string" ? { topic:search.topic } : {}),
     ...(typeof search.tool === "string" ? { tool:search.tool } : {}),
@@ -228,6 +229,11 @@ function VirtualMobilePage() {
     });
     setActiveTicketId(ticket.id); setTicketVerified(false); setGaylLevel(0); setApp(null); setSettingsPage("main"); setTicketOpen(true);
   };
+  useEffect(()=>{
+    if(launchContext.activity!=="ticket" || !launchContext.ticket || activeTicketId) return;
+    const ticket=mobileTrainingTickets.find(item=>item.id===launchContext.ticket);
+    if(ticket) startTicket(ticket);
+  },[launchContext.activity,launchContext.ticket]);
   const cancelTicket = () => {
     if(activeTicket && ticketBaseline) setDevices(current=>({...current,[activeTicket.os]:ticketBaseline}));
     setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setApp(null); setTicketOpen(false);
