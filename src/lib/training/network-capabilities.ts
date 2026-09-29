@@ -120,3 +120,40 @@ export function probeTrainingNetwork(machine: MachineState, host?: string): Trai
   });
   return probes;
 }
+
+
+export type TrainingServiceProbe = {
+  host: string;
+  address?: string;
+  port: number;
+  service: string;
+  networkReachable: boolean;
+  listening: boolean;
+  blocked: boolean;
+  ok: boolean;
+  detail: string;
+};
+
+const WELL_KNOWN_TRAINING_SERVICES: Record<number, string> = {
+  22: "SSH", 53: "DNS", 80: "HTTP", 443: "HTTPS", 445: "SMB", 3389: "RDP",
+};
+
+/** Prove that a specific application service is available after basic reachability succeeds. */
+export function probeTrainingService(machine: MachineState, host: string, port: number): TrainingServiceProbe {
+  const networkProbe = probeTrainingNetwork(machine, host).find(item => item.kind === "reachability");
+  const address = resolveHost(machine, host) ?? (/^\d+\.\d+\.\d+\.\d+$/.test(host) ? host : undefined);
+  const target = address ? findTarget(machine, address) ?? findTarget(machine, host) : undefined;
+  const networkReachable = Boolean(networkProbe?.ok);
+  const listening = Boolean(target?.openPorts?.includes(port));
+  const blocked = machine.firewallEnabled && machine.blockedPorts.includes(port);
+  const service = WELL_KNOWN_TRAINING_SERVICES[port] ?? `TCP/${port}`;
+  const ok = networkReachable && listening && !blocked;
+  const detail = !networkReachable
+    ? `${service} cannot be tested successfully because ${host} is not reachable.`
+    : blocked
+      ? `${service} on TCP ${port} is blocked by the simulated local firewall.`
+      : !listening
+        ? `${host} is reachable, but TCP ${port} is not accepting connections.`
+        : `${service} is reachable on ${host} TCP ${port}.`;
+  return { host, ...(address ? { address } : {}), port, service, networkReachable, listening, blocked, ok, detail };
+}
