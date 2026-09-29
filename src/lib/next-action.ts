@@ -61,11 +61,8 @@ function mean(values: number[]): number {
  */
 function startedTopicIds(user: UserData): Set<EntityId> {
   const started = new Set<EntityId>();
-  for (const attempt of user.assignmentAttempts) {
-    if (!attempt.topicId) continue;
-    if (attempt.status === "completed" || attempt.status === "evaluated") {
-      started.add(attempt.topicId);
-    }
+  for (const topic of journeyTopics(user)) {
+    if (topicScopeProgress(user, topic.id).attempted > 0) started.add(topic.id);
   }
   return started;
 }
@@ -225,13 +222,17 @@ export function nextActions(user: UserData, now: Date = new Date()): NextAction[
 
   // 8. Everything measured is above the bar.
   if (report.band === "exam_ready") {
-    out.unshift({
+    const examAction: NextAction = {
       id: "next-exam",
       label: `Book your ${path.certification.title} exam`,
       reason: "Your recorded evidence is above the exam-ready bar on every measure.",
       minutes: 10,
       to: "/certifications",
-    });
+    };
+    // Exam readiness should not erase a retention obligation. If review is due,
+    // keep it first; otherwise exam booking can lead the queue.
+    if (due.length > 0) out.splice(1, 0, examAction);
+    else out.unshift(examAction);
   }
 
   // Final guard: never ask for work on a topic that has not been started. The one
