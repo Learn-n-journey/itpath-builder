@@ -22,6 +22,8 @@ import { getPracticeActivity, getRealWorldScenario, getRecallQuestions } from "@
 import { getSectionQuizQuestions } from "@/data/topic-quizzes";
 import { staticContent } from "@/data/static-content";
 import { terminalScenarios } from "@/lib/terminal/scenarios";
+import { trainingTickets } from "@/lib/training/tickets";
+import { mobileTrainingTickets } from "@/lib/training/mobile-tickets";
 import type { EntityId, UserData } from "@/lib/app-data/types";
 
 export type ScopeDimensionKey =
@@ -164,6 +166,7 @@ export function topicEvidence(user: UserData, topicId: EntityId): EvidenceItem[]
   const labs = staticContent.labs.filter((item) => item.topicId === topicId);
   const incidents = staticContent.incidents.filter((item) => item.topicId === topicId);
   const tickets = staticContent.tickets.filter((item) => item.topicId === topicId);
+  const simulatorTickets = [...trainingTickets, ...mobileTrainingTickets].filter((item) => item.topicId === topicId);
   const terminal = terminalScenarios.filter((item) => item.topicId === topicId);
   const quizQuestionIds = [
     ...new Set([
@@ -186,6 +189,7 @@ export function topicEvidence(user: UserData, topicId: EntityId): EvidenceItem[]
   // Troubleshooting: finding the cause of a fault.
   incidents.forEach((item) => add(item.id, "troubleshooting", "best"));
   tickets.forEach((item) => add(item.id, "troubleshooting", "best"));
+  simulatorTickets.forEach((item) => add(item.id, "troubleshooting", "best"));
   // Assignments land wherever their task type points.
   assignments.forEach((item) => {
     const dimension = dimensionForAssignment(item.type);
