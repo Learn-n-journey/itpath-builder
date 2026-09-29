@@ -79,7 +79,6 @@ export const trainingApplications: TrainingApplication[] = [
     os: "windows",
     processName: "system-update-ui",
     memoryMb: 96,
-    requiresServices: ["wuauserv"],
     requiresNetwork: true,
     minimumFreePercent: 8,
   },
