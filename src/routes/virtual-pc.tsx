@@ -229,7 +229,7 @@ function VirtualPcPage() {
   const openTeamShare = () => {
     recordEvidence("GUI: opened Team Files network share");
     setShareNotice("");
-    if (teamFilesAccess === "unreachable") return setShareNotice("Windows cannot access \\\\files.itpath.local\\Team Files. Check the network path and the remote file service.");
+    if (!teamFilesService.ok || teamFilesAccess === "unreachable") return setShareNotice(teamFilesService.detail);
     if (teamFilesAccess === "denied") return setShareNotice("Access denied. Your signed-in account does not have permission to open this network share.");
     setShareOpen(true);
   };
