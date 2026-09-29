@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BatteryFull, Bluetooth, ChevronLeft, Download, Folder, Globe2, Image, KeyRound, Mail, MessageSquare, Phone, RotateCcw, Settings, ShieldCheck, Smartphone, Trash2, UserRound, Wifi, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { requiredMobileTicketEvidence, mobileTrainingTickets, type MobileTrainingTicket } from "@/lib/training/mobile-tickets";
@@ -109,6 +109,8 @@ function VirtualMobilePage() {
   const practiceLab=practiceMode?labs.find(item=>item.id===launchContext.lab):undefined;
   const practiceContract=practiceLab?simulatorLabContract(practiceLab):null;
   const [practiceBaseline,setPracticeBaseline]=useState<Record<MobileOs,MobileState>|null>(null);
+  const practiceSessionLabId=useRef<string|null>(null);
+  const completedPracticeLabId=useRef<string|null>(null);
   const [os, setOs] = useState<MobileOs>(()=>launchContext.os ?? "android");
   const [devices, setDevices] = useState<Record<MobileOs, MobileState>>(() => {
     if (typeof window !== "undefined") {
@@ -164,11 +166,20 @@ function VirtualMobilePage() {
     if(!practiceMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
   }, [devices,practiceMode]);
   useEffect(()=>{
-    if(!practiceMode || practiceBaseline) return;
+    const labId=practiceMode ? launchContext.lab ?? null : null;
+    if(!labId) {
+      practiceSessionLabId.current=null;
+      completedPracticeLabId.current=null;
+      return;
+    }
+    if(completedPracticeLabId.current===labId || (practiceBaseline && practiceSessionLabId.current===labId)) return;
     setPracticeBaseline(structuredClone(devices));
+    practiceSessionLabId.current=labId;
+    completedPracticeLabId.current=null;
     setDevices({android:freshMobile("android"),phone:freshMobile("phone")});
     setPracticeActions(0);
-  },[practiceMode,practiceBaseline]);
+    setPracticeHelpLevel(0);
+  },[practiceMode,launchContext.lab,practiceBaseline]);
   useEffect(() => {
     localStorage.setItem("itpath-mobile-ticket-history-v1", JSON.stringify(ticketHistory.slice(0,50)));
   }, [ticketHistory]);
@@ -194,7 +205,7 @@ function VirtualMobilePage() {
     const next = !current.airplaneMode;
     const network = observeTrainingNetwork(current.machine);
     const machine = applyTrainingNetworkAction(current.machine, { type: "set-interface", name: network.interfaceName, up: !next && current.wifiEnabled });
-    return { ...current, machine, airplaneMode: next, cellularEnabled: next ? false : current.cellularEnabled };
+    return { ...current, machine, airplaneMode: next, hotspotEnabled: next ? false : current.hotspotEnabled };
   });
   const resetDevice = () => {
     setDevices(current => ({ ...current, [os]: freshMobile(os) }));
@@ -236,7 +247,7 @@ function VirtualMobilePage() {
       if (ticket.fault==="cloud-sync-off" || ticket.fault==="account-sync-off") next.cloudSync=false;
       if (ticket.fault==="legacy-profile" && !next.installedProfiles.includes("legacy-restrictions.mobileconfig")) next.installedProfiles.push("legacy-restrictions.mobileconfig");
       if (ticket.fault==="network-cache") next.networkCacheStale=true;
-      if (ticket.fault==="bluetooth-off") next.bluetoothEnabled=false;
+      if (ticket.fault==="bluetooth-off") { next.bluetoothEnabled=false; setServiceStatus(next.machine, "bluetooth", "stopped"); }
       if (ticket.fault==="mail-sync-off") next.mailSync=false;
       if (ticket.fault==="retired-profile" && !next.installedProfiles.includes("retired-test.mobileconfig")) next.installedProfiles.push("retired-test.mobileconfig");
       if (ticket.fault==="storage-full") { next.storageUsed=98; next.installedApps=next.installedApps.map(item=>({...item,cacheMb:item.cacheMb+650})); }
@@ -315,7 +326,7 @@ function VirtualMobilePage() {
     if(practiceActions<practiceContract.minimumRelevantActions||!practiceHealthy){setNotice(practiceContract.requirement);return;}
     if(shouldRecordSimulatorOutcome(user,"lab",launchContext.lab,practiceHelpLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,practiceHelpLevel));
     setNotice("Lab objective verified from an isolated simulator session and recorded as practical evidence.");
-    if(practiceBaseline){setDevices(structuredClone(practiceBaseline));setPracticeBaseline(null);setPracticeActions(0);setPracticeHelpLevel(0);}
+    if(practiceBaseline){setDevices(structuredClone(practiceBaseline));setPracticeBaseline(null);completedPracticeLabId.current=launchContext.lab;setPracticeActions(0);setPracticeHelpLevel(0);}
   };
 
   const apps = [
