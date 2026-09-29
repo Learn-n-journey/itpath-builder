@@ -4,7 +4,8 @@ import type { VirtualOsKey } from "@/lib/training/environment";
 export type TrainingSurface = "virtual-pc" | "terminal";
 export interface TrainingTicket {
   id: string; topicId: string; title: string; requester: string; brief: string; environment: string;
-  fault: TrainingFaultKind; surfaces: TrainingSurface[]; shells: ShellKind[]; verification: string[]; tags: string[];
+  fault?: TrainingFaultKind; surfaces: TrainingSurface[]; shells: ShellKind[]; verification: string[]; tags: string[];
+  terminalScenarioId?: string;
   difficulty?: "beginner" | "intermediate" | "advanced";
   scope?: "single-machine" | "cross-machine";
   /** OS where the user reports the symptom. Defaults to the currently open machine. */
@@ -28,6 +29,7 @@ export const trainingTickets: TrainingTicket[] = [
 
 export function ticketDifficulty(ticket: TrainingTicket): "beginner" | "intermediate" | "advanced" {
   if (ticket.difficulty) return ticket.difficulty;
+  if (!ticket.fault) return "intermediate";
   if (ticket.fault === "dns" || ticket.fault === "adapter" || ticket.fault === "account") return "beginner";
   if (ticket.fault === "gateway" || ticket.fault === "service" || ticket.fault === "disk" || ticket.fault === "driver") return "intermediate";
   return "beginner";
