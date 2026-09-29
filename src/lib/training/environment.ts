@@ -10,10 +10,14 @@ export interface SharedResource {
   hostname: string;
   port: number;
   available: boolean;
-  /** Training-facing access model. Connected systems stay simulated; the learner works primarily on one machine. */
-  access?: { readGroups: string[]; writeGroups: string[]; files?: { name: string; content: string; readGroups?: string[]; writeGroups?: string[]   /** Live host reachability is separate from the application/service port. */
+  /** Live host reachability is separate from the application/service port. */
   hostReachable?: boolean;
-}[] };
+  /** Training-facing access model. */
+  access?: {
+    readGroups: string[];
+    writeGroups: string[];
+    files?: { name: string; content: string; readGroups?: string[]; writeGroups?: string[] }[];
+  };
 }
 
 export interface VirtualEnvironmentState {
