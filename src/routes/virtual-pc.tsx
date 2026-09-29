@@ -96,6 +96,8 @@ function VirtualPcPage() {
   const [pcOs, setPcOs] = useState<PcOs>(()=>launchContext.os ?? "windows");
   const [virtualEnvironment, setVirtualEnvironment] = useState(() => createVirtualEnvironment());
   const practiceBaseline=useRef<{machines:Record<PcOs,MachineState>;environment:ReturnType<typeof createVirtualEnvironment>;os:PcOs}|null>(null);
+  const practiceSessionLabId=useRef<string|null>(null);
+  const completedPracticeLabId=useRef<string|null>(null);
   const [practiceIsolated,setPracticeIsolated]=useState(false);
   const [osMachines, setOsMachines] = useState<Record<PcOs, MachineState>>(() => syncVirtualEnvironment({ windows: sharedAttempt?.machine ?? freshWindowsMachine(), linux: createMachine({ shell: "bash", hostname: "itpath-linux" }), mac: createMachine({ shell: "mac", hostname: "itpath-mac" }) }, createVirtualEnvironment()));
   const machine = ensureWorkstationState(osMachines[pcOs] ?? (pcOs === "windows" ? sharedAttempt?.machine ?? fallbackMachine : fallbackMachine));
@@ -347,12 +349,21 @@ function VirtualPcPage() {
   }, [osMachines,practiceMode]);
 
   useEffect(()=>{
-    if(!practiceMode || practiceIsolated) return;
+    const labId=practiceMode ? launchContext.lab ?? null : null;
+    if(!labId) {
+      practiceSessionLabId.current=null;
+      completedPracticeLabId.current=null;
+      setPracticeIsolated(false);
+      return;
+    }
+    if(completedPracticeLabId.current===labId || (practiceIsolated && practiceSessionLabId.current===labId)) return;
     practiceBaseline.current={machines:{windows:clone(osMachines.windows),linux:clone(osMachines.linux),mac:clone(osMachines.mac)},environment:structuredClone(virtualEnvironment),os:pcOs};
+    practiceSessionLabId.current=labId;
+    completedPracticeLabId.current=null;
     const cleanEnvironment=createVirtualEnvironment();
     const cleanMachines=syncVirtualEnvironment({windows:freshWindowsMachine(),linux:createMachine({shell:"bash",hostname:"itpath-linux"}),mac:createMachine({shell:"mac",hostname:"itpath-mac"})},cleanEnvironment);
     setVirtualEnvironment(cleanEnvironment); setOsMachines(cleanMachines); setPracticeActions(0); setPracticeIsolated(true);
-  },[practiceMode,practiceIsolated]);
+  },[practiceMode,launchContext.lab,practiceIsolated]);
 
   useEffect(() => {
     try {
@@ -536,7 +547,7 @@ function VirtualPcPage() {
     if(shouldRecordSimulatorOutcome(user,"lab",launchContext.lab,gaylHelpLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,gaylHelpLevel));
     setNotice("Lab objective verified from an isolated simulator session and recorded as practical evidence.");
     const baseline=practiceBaseline.current;
-    if(baseline){setVirtualEnvironment(structuredClone(baseline.environment));setOsMachines({windows:clone(baseline.machines.windows),linux:clone(baseline.machines.linux),mac:clone(baseline.machines.mac)});setPcOs(baseline.os);practiceBaseline.current=null;setPracticeIsolated(false);}
+    if(baseline){setVirtualEnvironment(structuredClone(baseline.environment));setOsMachines({windows:clone(baseline.machines.windows),linux:clone(baseline.machines.linux),mac:clone(baseline.machines.mac)});setPcOs(baseline.os);practiceBaseline.current=null;completedPracticeLabId.current=launchContext.lab;setPracticeActions(0);setPracticeIsolated(false);}
   };
   const scaffoldingProfile = launchContext.lab ? simulatorScaffoldingProfile(user,launchContext.lab) : null;
   const topicPolicy = launchContext.topic ? topicLearningPolicy(user,launchContext.topic) : null;
