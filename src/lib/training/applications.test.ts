@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createMachine, injectTrainingFault, setServiceStatus } from "@/lib/terminal/machine";
 import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
-import { applicationCheck, applicationInstalled, launchTrainingApplication, reconcilePrintQueue, stopTrainingApplication, submitPrintJob, trainingApplications } from "@/lib/training/applications";
+import { applicationCheck, applicationForProcess, applicationInstalled, launchTrainingApplication, reconcilePrintQueue, stopTrainingApplication, submitPrintJob, trainingApplications } from "@/lib/training/applications";
 
 function lab() {
   const environment = createVirtualEnvironment();
@@ -28,6 +28,12 @@ describe("training application runtime", () => {
     const result = applicationCheck(app, machines.windows, machines, environment);
     expect(result.health).toBe("blocked");
     expect(result.causes.join(" ")).toContain("LanmanWorkstation");
+  });
+
+  it("maps an ended process back to the application it owns", () => {
+    expect(applicationForProcess("itpath-browser")?.id).toBe("browser");
+    expect(applicationForProcess("itpath-browser.exe")?.id).toBe("browser");
+    expect(applicationForProcess("spoolsv")).toBeUndefined();
   });
 
   it("removes a closed application from the process list and returns its memory", () => {
