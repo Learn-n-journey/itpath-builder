@@ -27,7 +27,7 @@ const STORAGE_KEY = "itpath-virtual-mobile-v1";
 
 function freshMobile(os: MobileOs): MobileState {
   const shell = os === "android" ? "android" : "ios";
-  const machine = createMachine({ shell, hostname: os === "android" ? "path-mobile-a" : "path-mobile-p", osName: os === "android" ? "IT PATH Mobile" : "PathOS Pocket" });
+  const machine = createMachine({ shell, hostname: os === "android" ? "path-mobile-a" : "path-mobile-p" });
   return {
     machine,
     wifiEnabled: true,
