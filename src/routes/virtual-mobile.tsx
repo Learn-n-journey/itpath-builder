@@ -163,6 +163,9 @@ function VirtualMobilePage() {
       case "account-sync-off": return state.cloudSync;
       case "mail-sync-off": return state.mailSync;
       case "retired-profile": return !state.installedProfiles.includes("retired-test.mobileconfig") && state.managementProfile;
+      case "storage-full": return state.storageUsed < 90;
+      case "notifications-blocked": return state.notificationPermission && state.mailSync;
+      case "sim-disabled": return state.simActive && state.cellularEnabled && !state.airplaneMode;
     }
   })() : false;
 
@@ -181,6 +184,9 @@ function VirtualMobilePage() {
       if (ticket.fault==="bluetooth-off") next.bluetoothEnabled=false;
       if (ticket.fault==="mail-sync-off") next.mailSync=false;
       if (ticket.fault==="retired-profile" && !next.installedProfiles.includes("retired-test.mobileconfig")) next.installedProfiles.push("retired-test.mobileconfig");
+      if (ticket.fault==="storage-full") { next.storageUsed=98; next.installedApps=next.installedApps.map(item=>({...item,cacheMb:item.cacheMb+650})); }
+      if (ticket.fault==="notifications-blocked") { next.notificationPermission=false; next.mailSync=true; }
+      if (ticket.fault==="sim-disabled") { next.simActive=false; next.cellularEnabled=true; next.wifiEnabled=true; }
       next.notifications=[ticket.brief,...next.notifications];
       return {...current,[target]:next};
     });
