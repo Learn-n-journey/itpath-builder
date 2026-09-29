@@ -96,6 +96,8 @@ export function labEnvironmentAudit(labs: Lab[]) {
 export type TrainingActivityKind = "lab" | "ticket";
 export type TrainingSurface = "virtual-pc" | "virtual-mobile" | "hardware-explorer" | "guided-workspace";
 
+export type PracticeTool = "terminal" | "files" | "services" | "processes" | "accounts" | "network" | "settings" | "apps" | "bluetooth" | "battery" | "storage";
+
 export interface LabLaunchContext {
   kind: "lab";
   labId: string;
@@ -103,21 +105,40 @@ export interface LabLaunchContext {
   surface: TrainingSurface;
   launchPath?: string;
   capabilities: string[];
+  preferredTool?: PracticeTool;
+  preferredOs?: "windows" | "linux" | "android" | "phone";
 }
 
 /** Labs are practice. This deliberately contains no ticket/requester/fault fields. */
 export function labLaunchContext(lab: Lab): LabLaunchContext {
   const profile = labEnvironmentProfile(lab);
+  const source=text(lab);
+  const preferredTool: PracticeTool | undefined =
+    has(source,/bluetooth|pairing/) ? "bluetooth" :
+    has(source,/battery|charging/) ? "battery" :
+    has(source,/storage|disk|free space|capacity/) ? "storage" :
+    has(source,/service/) ? "services" :
+    has(source,/process|task manager/) ? "processes" :
+    has(source,/user|group|account|permission/) ? "accounts" :
+    has(source,/network|dns|dhcp|ip address|gateway|ping|vpn|cellular|wi-fi|wifi/) ? "network" :
+    has(source,/file|folder|directory/) ? "files" :
+    has(source,/terminal|command|powershell|bash|cmd/) ? "terminal" :
+    profile.environmentId==="virtual-mobile" ? "settings" : undefined;
+  const preferredOs =
+    profile.environmentId==="virtual-mobile" ? (has(source,/iphone|ios|pathos/) ? "phone" : "android") :
+    has(source,/linux|bash/) ? "linux" : "windows";
   const surface: TrainingSurface =
     profile.environmentId === "virtual-pc" || profile.environmentId === "virtual-mobile" || profile.environmentId === "hardware-explorer"
       ? profile.environmentId
       : "guided-workspace";
-  return { kind:"lab", labId:lab.id, topicId:lab.topicId, surface, ...(profile.launchPath ? {launchPath:profile.launchPath} : {}), capabilities:profile.capabilities };
+  return { kind:"lab", labId:lab.id, topicId:lab.topicId, surface, ...(profile.launchPath ? {launchPath:profile.launchPath} : {}), capabilities:profile.capabilities, ...(preferredTool?{preferredTool}:{}), ...(preferredOs?{preferredOs}: {}) };
 }
 
 export function labLaunchHref(lab: Lab): string | undefined {
   const context=labLaunchContext(lab);
   if(!context.launchPath) return undefined;
   const params=new URLSearchParams({ activity:"lab", lab:lab.id, topic:lab.topicId });
+  if(context.preferredTool) params.set("tool",context.preferredTool);
+  if(context.preferredOs) params.set("os",context.preferredOs);
   return `${context.launchPath}?${params.toString()}`;
 }
