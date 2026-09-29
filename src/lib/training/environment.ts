@@ -96,6 +96,9 @@ export function syncVirtualEnvironment(
   machines: Record<VirtualOsKey, MachineState>,
   env: VirtualEnvironmentState,
 ): Record<VirtualOsKey, MachineState> {
+  reconcileServiceProcesses(machines.windows);
+  reconcileServiceProcesses(machines.linux);
+  reconcileServiceProcesses(machines.mac);
   const liveEnv: VirtualEnvironmentState = {
     ...env,
     resources: env.resources.map((resource) => ({
