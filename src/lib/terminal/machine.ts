@@ -117,6 +117,7 @@ export interface MachineState {
   /** Windows workstation state used across Settings, Task Manager and ticket faults. */
   startupApps?: { name: string; enabled: boolean; impact: "Low" | "Medium" | "High" }[];
   pendingUpdates?: { title: string; kind: "quality" | "driver" | "security"; requiresRestart?: boolean }[];
+  updateState?: { phase: "idle" | "checking" | "downloading" | "installing" | "restart-required" | "completed" | "error"; progress: number; message?: string; lastCheckedAt?: string };
   /** User-visible print queue shared with the Print Center and system tray. */
   printJobs?: { id: number; document: string; printer: string; status: "printing" | "queued" | "error" | "completed" | "cancelled"; submittedAt: string; completedAt?: string; errorReason?: string }[];
   nextPrintJobId?: number;
@@ -162,6 +163,7 @@ export function ensureWorkstationState(state: MachineState): MachineState {
       { name: "Windows Security notification icon", enabled: true, impact: "Low" },
     ];
     state.pendingUpdates ??= [];
+    state.updateState ??= { phase: state.restartRequired ? "restart-required" : "idle", progress: 0 };
     state.printJobs ??= [];
     state.nextPrintJobId ??= 1;
     state.restartRequired ??= false;
