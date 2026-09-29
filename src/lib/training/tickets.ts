@@ -37,7 +37,7 @@ export const trainingTickets: TrainingTicket[] = [
 ];
 
 export function isSupportTicket(ticket: TrainingTicket): boolean {
-  return Boolean(ticket.requester.trim() && ticket.brief.trim() && ticket.fault && ticket.verification.length);
+  return Boolean(ticket.topicId.trim() && ticket.requester.trim() && ticket.brief.trim() && ticket.fault && ticket.verification.length);
 }
 
 export function ticketDifficulty(ticket: TrainingTicket): "beginner" | "intermediate" | "advanced" {
