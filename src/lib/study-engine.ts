@@ -16,6 +16,7 @@ import type {
 import { adaptivePath } from "@/lib/adaptive-path";
 import { currentJourneyTopic, isTopicOpen, journeyIndexFor, journeyTopics } from "@/lib/journey-order";
 import { topicScopeProgress } from "@/lib/scope-progress";
+import { buildIntelligence } from "@/lib/intelligence/engine";
 
 export const STUDY_DURATIONS = [30, 60, 90, 120] as const;
 export type StudyDuration = (typeof STUDY_DURATIONS)[number];
@@ -156,6 +157,19 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
       params: { topicId: nextTopic.id },
       topicId: nextTopic.id,
     });
+  }
+
+  // State-driven work: use the same intelligence model as the dashboard/GAYL.
+  // Functional concepts need hands-on proof; transferable concepts need
+  // troubleshooting/transfer; reliable concepts should be left to spacing.
+  const intelligence=buildIntelligence(user,now);
+  const functionalConcept=intelligence.concepts.find(concept=>concept.state==="functional" && isTopicOpen(user,concept.topicId));
+  if(functionalConcept){
+    out.push({kind:"lab",title:`Lab: prove ${functionalConcept.title}`,detail:"Demonstrate the skill at the simulator or lab surface.",reason:"Your knowledge is functional; practical proof is the next rung.",plannedMinutes:25,to:"/labs",topicId:functionalConcept.topicId});
+  }
+  const transferConcept=intelligence.concepts.find(concept=>concept.state==="transferable" && isTopicOpen(user,concept.topicId));
+  if(transferConcept){
+    out.push({kind:"practice",title:`Troubleshoot: ${transferConcept.title}`,detail:"Work an unfamiliar fault with minimal cues.",reason:"You can transfer the concept; now build reliable independent diagnosis.",plannedMinutes:25,to:"/troubleshoot",topicId:transferConcept.topicId});
   }
 
   // 4. Practice, topics already opened and still waiting on an applied attempt.
