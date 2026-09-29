@@ -104,6 +104,8 @@ export interface MachineState {
   blockedPorts: number[];
   env: Record<string, string>;
   diskUsedPercent: number;
+  /** Approximate virtual disk capacity for realistic free-space failures. */
+  diskCapacityBytes?: number;
   memoryTotalMb: number;
   memoryUsedMb: number;
   osName: string;
@@ -643,6 +645,7 @@ export function createMachine(spec: MachineSpec): MachineState {
           HOME: android ? "/sdcard" : ios ? "/device" : mac ? `/Users/${user}` : `/home/${user}`,
         },
     diskUsedPercent: spec.diskUsedPercent ?? 46,
+    diskCapacityBytes: 512 * 1024 * 1024,
     memoryTotalMb: 8192,
     memoryUsedMb: spec.memoryUsedMb ?? 3100,
     osName: windows
@@ -833,13 +836,23 @@ export function filesystemBytes(state: MachineState): number {
   return measure(state.root);
 }
 
+export function storageUsedBytes(state: MachineState): number {
+  const capacity = state.diskCapacityBytes ?? 512 * 1024 * 1024;
+  const scenarioUsed = Math.round(capacity * Math.min(100, Math.max(0, state.diskUsedPercent)) / 100);
+  return Math.max(filesystemBytes(state), scenarioUsed);
+}
+
+export function storageFreeBytes(state: MachineState): number {
+  return Math.max(0, (state.diskCapacityBytes ?? 512 * 1024 * 1024) - storageUsedBytes(state));
+}
+
 export function storageFreePercent(state: MachineState): number {
-  return Math.max(0, 100 - state.diskUsedPercent);
+  const capacity = state.diskCapacityBytes ?? 512 * 1024 * 1024;
+  return Math.max(0, Math.round(storageFreeBytes(state) / capacity * 100));
 }
 
 export function canAllocateStorage(state: MachineState, bytes: number): boolean {
-  if (bytes <= 0) return true;
-  return state.diskUsedPercent < 100;
+  return bytes <= 0 || bytes <= storageFreeBytes(state);
 }
 
 function nodeBytes(node: VfsNode): number {
@@ -854,7 +867,6 @@ export function writeFile(
   content: string,
   append: boolean,
 ): string | null {
-  if (!canAllocateStorage(state, new TextEncoder().encode(content).length)) return "no_space";
   const segments = resolvePath(state, path);
   const parent = parentOf(state, segments);
   if (!parent || parent.type !== "dir") return "not_found";
@@ -864,10 +876,15 @@ export function writeFile(
   if (existing) {
     if (existing.type === "dir") return "is_dir";
     if (!canWrite(state, existing)) return "denied";
-    existing.content = append ? `${existing.content ?? ""}${content}` : content;
+    const oldBytes = new TextEncoder().encode(existing.content ?? "").length;
+    const newContent = append ? `${existing.content ?? ""}${content}` : content;
+    const newBytes = new TextEncoder().encode(newContent).length;
+    if (!canAllocateStorage(state, Math.max(0, newBytes - oldBytes))) return "no_space";
+    existing.content = newContent;
     return null;
   }
   if (!canWrite(state, parent)) return "denied";
+  if (!canAllocateStorage(state, new TextEncoder().encode(content).length)) return "no_space";
   parent.children[name] = file(name, content, state.elevated ? "root" : state.currentUser, "644");
   return null;
 }
