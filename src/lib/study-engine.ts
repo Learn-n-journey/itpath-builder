@@ -82,7 +82,7 @@ interface Candidate extends Omit<StudyPlanTask, "id" | "status" | "trackedSecond
   priority?: number;
 }
 
-function buildCandidates(user: UserData, now: Date): Candidate[] {
+export function buildStudyCandidates(user: UserData, now: Date): Candidate[] {
   const nowMs = now.getTime();
   const out: Candidate[] = [];
   const usedTopics = new Set<string>();
@@ -317,7 +317,7 @@ export function generateStudyPlan(
   targetMinutes: number,
   now: Date = new Date(),
 ): StudyPlan {
-  const candidates = buildCandidates(user, now);
+  const candidates = buildStudyCandidates(user, now);
   const defaultPriority=(candidate:Candidate)=>KIND_ORDER.indexOf(candidate.kind)*10+10;
   candidates.sort((a,b)=>(a.priority ?? defaultPriority(a))-(b.priority ?? defaultPriority(b)));
 
