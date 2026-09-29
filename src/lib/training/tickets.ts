@@ -18,6 +18,8 @@ export interface TrainingTicket {
   verifyResourceId?: string;
   /** Exact service to stop for a service-fault ticket. */
   faultTarget?: string;
+  /** Minimum diagnostic process expected before a resolved state counts as demonstrated troubleshooting. */
+  requiredEvidence?: Array<"observe"|"test"|"repair"|"verify">;
   /** Application the requester is using when the symptom appears. */
   symptomApp?: "browser" | "team-files" | "print-center" | "updates";
 }
@@ -35,6 +37,10 @@ export const trainingTickets: TrainingTicket[] = [
   { id:"ticket-1851", topicId:"topic-troubleshooting-methodology", title:"Team Files disappeared", requester:"Accounting", brief:"The user can reach other network resources, but Team Files reports that the network path is unavailable. Trace the dependency chain, restore the file-sharing service without changing unrelated network settings, and verify the share opens again.", environment:"IT PATH Training LAN · Windows client and Windows-hosted Team Files", fault:"service", surfaces:["virtual-pc"], shells:["cmd","powershell"], verification:["Confirm the workstation network remains healthy","Identify the service responsible for the share","Restore file sharing without changing unrelated settings","Verify Team Files is reachable again"], tags:["file-sharing","service","permissions","troubleshooting"], difficulty:"intermediate", scope:"single-machine", reporterOs:"windows", faultHostOs:"windows", verifyResourceId:"shared-files", faultTarget:"LanmanServer", symptomApp:"team-files" },
   { id:"ticket-1852", topicId:"topic-storage", title:"Windows Update will not install", requester:"Support Queue", brief:"Windows Update opens, but installation cannot proceed. Diagnose the workstation instead of repeatedly retrying the update. Restore the dependency that is preventing update work and verify the update application is ready.", environment:"Windows workstation", fault:"disk", surfaces:["virtual-pc"], shells:["cmd","powershell"], verification:["Inspect update status before deleting anything","Identify the storage pressure","Restore sufficient free space safely","Verify the update application can proceed"], tags:["windows","updates","storage","troubleshooting"], difficulty:"intermediate", reporterOs:"windows", faultHostOs:"windows", symptomApp:"updates" },
 ];
+
+export function requiredTicketEvidence(ticket: TrainingTicket): Array<"observe"|"test"|"repair"|"verify"> {
+  return ticket.requiredEvidence ?? ["observe","repair","verify"];
+}
 
 export function isSupportTicket(ticket: TrainingTicket): boolean {
   return Boolean(ticket.topicId.trim() && ticket.requester.trim() && ticket.brief.trim() && ticket.fault && ticket.verification.length);
