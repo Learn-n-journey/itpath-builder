@@ -257,6 +257,30 @@ export function topicEvidence(user: UserData, topicId: EntityId): EvidenceItem[]
     record(row.assignmentId, row.submittedAt ?? row.updatedAt, ratio(row.score, row.maxScore)),
   );
 
+  // Verified simulator outcomes may strengthen an authored Lab/Ticket, but may
+  // never create a new mastery item. The activity must already exist in this
+  // topic's curriculum evidence map. Recording onto the same item also avoids
+  // double-counting when a normal attempt record exists.
+  user.learnerSignals
+    .filter((signal) =>
+      signal.topicId === topicId &&
+      (signal.kind === "lab" || signal.kind === "troubleshoot" || signal.kind === "career") &&
+      signal.errorTag?.startsWith("simulator:"),
+    )
+    .forEach((signal) => {
+      const match = signal.errorTag?.match(/^simulator:([^:]+)(?::help-(\d+))?$/);
+      if (!match) return;
+      const activityId = match[1];
+      const item = activityId ? byId.get(activityId) : undefined;
+      if (!item) return;
+      if (signal.kind === "lab" && item.dimension !== "practicalAbility") return;
+      if ((signal.kind === "troubleshoot" || signal.kind === "career") && item.dimension !== "troubleshooting") return;
+      const score = typeof signal.score === "number"
+        ? signal.score * 100
+        : signal.correct === undefined ? undefined : signal.correct ? 100 : 0;
+      record(activityId, signal.at, score);
+    });
+
   return items;
 }
 
