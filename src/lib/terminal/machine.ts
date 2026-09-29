@@ -38,6 +38,9 @@ export interface ServiceInfo {
   startType: "auto" | "manual" | "disabled";
   /** Written to the service log when a start is attempted and fails. */
   failReason?: string;
+  /** Optional runtime process and service dependencies used by the simulator. */
+  processName?: string;
+  dependencies?: string[];
 }
 
 export interface NetInterface {
@@ -1014,6 +1017,8 @@ export function killProcess(state: MachineState, match: string): string | null {
     return "denied";
   }
   state.processes.splice(index, 1);
+  const ownedService = state.services.find((service) => serviceProcess(state, service)?.pid === target.pid || (service.processName ?? service.name).toLowerCase().replace(/\.exe$/, "") === target.name.toLowerCase().replace(/\.exe$/, ""));
+  if (ownedService) { ownedService.status = "stopped"; state.eventLog.unshift(`${new Date().toISOString()} ${ownedService.name}: process terminated unexpectedly`); }
   state.memoryUsedMb = Math.max(600, state.memoryUsedMb - target.memoryMb);
   return null;
 }
@@ -1023,6 +1028,28 @@ export function findService(state: MachineState, name: string): ServiceInfo | un
   return state.services.find(
     (service) => service.name.toLowerCase() === key || service.display.toLowerCase() === key,
   );
+}
+
+export function serviceProcess(state: MachineState, service: ServiceInfo): ProcessInfo | undefined {
+  const processName = service.processName ?? service.name;
+  return state.processes.find((process) =>
+    process.name.toLowerCase().replace(/\.exe$/, "") === processName.toLowerCase().replace(/\.exe$/, ""),
+  );
+}
+
+function startServiceProcess(state: MachineState, service: ServiceInfo): void {
+  if (serviceProcess(state, service)) return;
+  const name = service.processName ?? (isWindows(state) ? `${service.name}.exe` : service.name);
+  const memoryMb = Math.max(12, Math.min(160, Math.round(state.memoryTotalMb * 0.006)));
+  state.processes.push({ pid: state.nextPid++, name, user: isWindows(state) ? "SYSTEM" : "root", cpu: 0.1, memoryMb });
+  state.memoryUsedMb = Math.min(state.memoryTotalMb, state.memoryUsedMb + memoryMb);
+}
+
+function stopServiceProcess(state: MachineState, service: ServiceInfo): void {
+  const process = serviceProcess(state, service);
+  if (!process) return;
+  state.processes = state.processes.filter((item) => item.pid !== process.pid);
+  state.memoryUsedMb = Math.max(600, state.memoryUsedMb - process.memoryMb);
 }
 
 export function setServiceStatus(
@@ -1036,12 +1063,49 @@ export function setServiceStatus(
   if (status === "running") {
     if (service.startType === "disabled") return { error: "disabled" };
     if (service.failReason) return { error: "failed", reason: service.failReason };
+    const stoppedDependency = (service.dependencies ?? []).map((dependency) => findService(state, dependency)).find((dependency) => !dependency || dependency.status !== "running");
+    if (stoppedDependency || (service.dependencies ?? []).some((dependency) => !findService(state, dependency))) {
+      const reason = `Dependency service is not running: ${stoppedDependency?.display ?? (service.dependencies ?? []).find((dependency) => !findService(state, dependency)) ?? "unknown"}`;
+      state.eventLog.unshift(`${new Date().toISOString()} ${service.name}: failed to start - ${reason}`);
+      return { error: "failed", reason };
+    }
+    service.status = "running";
+    startServiceProcess(state, service);
+  } else {
+    const dependent = state.services.find((candidate) => candidate.status === "running" && (candidate.dependencies ?? []).some((dependency) => dependency.toLowerCase() === service.name.toLowerCase()));
+    if (dependent) return { error: "dependent_running", reason: `${dependent.display} depends on this service.` };
+    service.status = "stopped";
+    stopServiceProcess(state, service);
   }
-  service.status = status;
-  state.eventLog.unshift(
-    `${new Date().toISOString()} ${service.name}: ${status === "running" ? "started" : "stopped"}`,
-  );
+  state.eventLog.unshift(`${new Date().toISOString()} ${service.name}: ${status === "running" ? "started" : "stopped"}`);
   return {};
+}
+
+export function reconcileServiceProcesses(state: MachineState): void {
+  for (const service of state.services) {
+    if (service.status === "running") startServiceProcess(state, service);
+    else stopServiceProcess(state, service);
+  }
+}
+
+export function bootServices(state: MachineState): void {
+  for (const service of state.services) {
+    service.status = "stopped";
+    stopServiceProcess(state, service);
+  }
+  const pending = state.services.filter((service) => service.startType === "auto");
+  for (let pass = 0; pass < pending.length + 1; pass += 1) {
+    let changed = false;
+    for (const service of pending) {
+      if (service.status === "running" || service.failReason) continue;
+      const dependenciesReady = (service.dependencies ?? []).every((dependency) => findService(state, dependency)?.status === "running");
+      if (!dependenciesReady) continue;
+      service.status = "running";
+      startServiceProcess(state, service);
+      changed = true;
+    }
+    if (!changed) break;
+  }
 }
 
 export function isAdmin(state: MachineState): boolean {
