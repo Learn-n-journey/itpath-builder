@@ -27,7 +27,7 @@ import { injectTrainingFault, prompt, reclaimTrainingDiskSpace, trainingFaultRes
 import { ticketDifficulty, ticketScope, trainingTickets, type TrainingTicket } from "@/lib/training/tickets";
 import { createVirtualEnvironment, resourceAccessForMachine, sharedResourceAvailable, syncVirtualEnvironment } from "@/lib/training/environment";
 import { execute } from "@/lib/terminal/shells";
-import { terminalScenarios, type TerminalScenario } from "@/lib/terminal/scenarios";
+import { buildScenarioMachine, terminalScenarios, type TerminalScenario } from "@/lib/terminal/scenarios";
 import { createTerminalAttempt, evaluateTerminalAttempt, runTerminalCommand } from "@/lib/terminal/session";
 import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { clone,
@@ -307,9 +307,27 @@ function VirtualPcPage() {
     const targetOs: PcOs = ticket.faultHostOs ?? launchOs;
     ticketEnvironmentBaseline.current = { os: pcOs, machines: { windows: clone(osMachines.windows), linux: clone(osMachines.linux), mac: clone(osMachines.mac) } };
     const sourceMachine = osMachines[targetOs];
-    const next = clone(sourceMachine);
     ticketBaseline.current = { os: targetOs, machine: clone(sourceMachine) };
-    const fault = injectTrainingFault(next, ticket.fault);
+    let next = clone(sourceMachine);
+    let fault: TrainingFault | null = null;
+    if (ticket.terminalScenarioId) {
+      const scenario = terminalScenarios.find((item) => item.id === ticket.terminalScenarioId);
+      if (!scenario) return;
+      next = buildScenarioMachine(scenario);
+      const attempt = createTerminalAttempt(scenario, "challenge");
+      const linkedAttempt = { ...attempt, machine: next };
+      actions.addTerminalAttempt(linkedAttempt);
+      setDesktopScenarioId(scenario.id);
+      setDesktopScenarioMode("challenge");
+      setDesktopScenarioAttempt(linkedAttempt);
+      setDesktopScenarioReasoning("");
+      setDesktopScenarioResult(null);
+    } else if (ticket.fault) {
+      fault = injectTrainingFault(next, ticket.fault);
+      setDesktopScenarioAttempt(null);
+      setDesktopScenarioResult(null);
+      setDesktopScenarioId("");
+    }
     setOsMachines((current) => syncVirtualEnvironment({ ...current, [targetOs]: next }, virtualEnvironment));
     setPcOs(launchOs);
     setFolder(homeFolder(launchOs));
