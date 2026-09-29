@@ -66,7 +66,7 @@ interface EventRow {
 
 export const getAiDashboard = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ days: z.number().min(1).max(90).default(7) }).parse(data))
+  .validator((data) => z.object({ days: z.number().min(1).max(90).default(7) }).parse(data))
   .handler(async ({ context, data }): Promise<AiDashboardReply> => {
     const email = ((context.claims as { email?: string } | null)?.email ?? "").trim().toLowerCase();
     if (!OWNER_EMAILS.includes(email)) return { ok: true, owner: false };
