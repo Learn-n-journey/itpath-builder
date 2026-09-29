@@ -91,7 +91,7 @@ function clamp(value: number): number {
 
 export const gradeWrittenAnswer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => inputSchema.parse(data))
+  .validator((data) => inputSchema.parse(data))
   .handler(async ({ data, context }): Promise<GradeReply> => {
     const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "AI grading and feedback");
     if (denied) return denied;
