@@ -162,17 +162,31 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // State-driven work: use the same intelligence model as the dashboard/GAYL.
-  // Functional concepts need hands-on proof; transferable concepts need
-  // troubleshooting/transfer; reliable concepts should be left to spacing.
+  // State-driven work comes directly from the same ranked intelligence queue
+  // used by Next Action. Study Plan fills a session around that recommendation
+  // instead of recreating mastery-state rules locally.
   const intelligence=buildIntelligence(user,now);
-  const functionalConcept=intelligence.concepts.find(concept=>concept.state==="functional" && isTopicOpen(user,concept.topicId));
-  if(functionalConcept){
-    out.push({kind:"lab",priority:25,title:`Lab: prove ${functionalConcept.title}`,detail:"Demonstrate the skill at the simulator or lab surface.",reason:"Your knowledge is functional; practical proof is the next rung.",plannedMinutes:25,to:"/labs",topicId:functionalConcept.topicId});
-  }
-  const transferConcept=intelligence.concepts.find(concept=>concept.state==="transferable" && isTopicOpen(user,concept.topicId));
-  if(transferConcept){
-    out.push({kind:"practice",priority:25,title:`Troubleshoot: ${transferConcept.title}`,detail:"Work an unfamiliar fault with minimal cues.",reason:"You can transfer the concept; now build reliable independent diagnosis.",plannedMinutes:25,to:"/troubleshoot",topicId:transferConcept.topicId});
+  const intelligenceConcept=intelligence.queue.find(concept=>
+    isTopicOpen(user,concept.topicId) &&
+    concept.attempts>0 &&
+    concept.diagnosis!=="never_learned"
+  );
+  if(intelligenceConcept){
+    const kind: StudyTaskKind =
+      intelligenceConcept.route==="/labs" ? "lab" :
+      intelligenceConcept.route==="/review" ? "review" :
+      "practice";
+    out.push({
+      kind,
+      priority:25,
+      title:intelligenceConcept.instruction,
+      detail:intelligenceConcept.methodReason ?? intelligenceConcept.evidence,
+      reason:intelligenceConcept.evidence,
+      plannedMinutes:intelligenceConcept.estimatedMinutes,
+      to:intelligenceConcept.route,
+      params:intelligenceConcept.route==="/topics/$topicId" ? {topicId:intelligenceConcept.topicId} : undefined,
+      topicId:intelligenceConcept.topicId,
+    });
   }
 
   // 4. Practice, topics already opened and still waiting on an applied attempt.
