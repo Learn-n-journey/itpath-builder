@@ -198,7 +198,11 @@ function HardwareImage({ component, photo, activeId, onPick, interactive = true 
   return <div className="overflow-hidden rounded-xl border border-border/70 bg-card/30">
     <div className="flex items-center justify-between border-b border-border/70 px-4 py-3"><div><h2 className="font-display font-semibold">{component.name}</h2><p className="text-xs text-muted-foreground">{component.tagline}</p></div><span className="text-xs text-muted-foreground">{component.parts.length} parts</span></div>
     <div className="p-3 sm:p-4"><div className="relative mx-auto">
-      <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className={cn("w-full rounded-lg border border-border object-contain", component.family === "mobile" && "max-h-[42rem] bg-black/20")} />
+      <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className={cn(
+        "w-full rounded-lg border border-border object-contain",
+        component.family === "mobile" && "mx-auto max-h-[42rem] bg-black/20",
+        component.family === "laptop" && "mx-auto min-h-[30rem] max-h-[46rem] bg-black/20 object-cover sm:min-h-[36rem]"
+      )} />
       {component.parts.map((part, index) => {
         const active = part.id === activeId;
         return <button key={part.id} type="button" disabled={!interactive} onClick={() => onPick(part.id)} aria-label={`Part ${index + 1}: ${part.name}`} style={{ left: `${part.x}%`, top: `${part.y}%` }}
