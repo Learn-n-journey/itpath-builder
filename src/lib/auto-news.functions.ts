@@ -253,7 +253,7 @@ function decodeCursor(raw: unknown): { index: number; after: string } {
 }
 
 export const getAutoNewsPage = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => {
+  .validator((data: unknown) => {
     const cursor = (data as { cursor?: unknown } | undefined)?.cursor;
     return { cursor: typeof cursor === "string" ? cursor.slice(0, 200) : "" };
   })
