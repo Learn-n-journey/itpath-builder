@@ -8,6 +8,11 @@ import { execute } from "@/lib/terminal/shells";
 import { applyTrainingNetworkAction, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 
 export const Route = createFileRoute("/virtual-mobile")({
+  validateSearch: (search: Record<string, unknown>): { activity?: "lab"; lab?: string; topic?: string } => ({
+    ...(search.activity === "lab" ? { activity:"lab" as const } : {}),
+    ...(typeof search.lab === "string" ? { lab:search.lab } : {}),
+    ...(typeof search.topic === "string" ? { topic:search.topic } : {}),
+  }),
   staticData: { sitemap: false },
   head: () => ({ meta: [{ title: "Virtual Mobile | IT PATH" }, { name: "description", content: "Practice mobile support inside safe simulated Android-style and phone-style devices." }] }),
   component: VirtualMobilePage,
@@ -87,6 +92,8 @@ function freshMobile(os: MobileOs): MobileState {
 }
 
 function VirtualMobilePage() {
+  const launch = Route.useSearch();
+  const practiceMode = launch.activity === "lab" && Boolean(launch.lab);
   const [os, setOs] = useState<MobileOs>("android");
   const [devices, setDevices] = useState<Record<MobileOs, MobileState>>(() => {
     if (typeof window !== "undefined") {
@@ -267,7 +274,7 @@ function VirtualMobilePage() {
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgba(34,211,238,.16),transparent_35%),radial-gradient(circle_at_80%_80%,rgba(99,102,241,.14),transparent_38%)]"/>
     <header className="absolute inset-x-0 top-0 z-40 flex h-14 items-center justify-between border-b border-white/10 bg-[#07111f]/90 px-3 backdrop-blur-xl">
       <div className="flex items-center gap-2"><Link to="/dashboard" className="grid size-9 place-items-center rounded-lg hover:bg-white/10" aria-label="Exit Virtual Mobile"><ChevronLeft className="size-5"/></Link><Smartphone className="size-5 text-cyan-300"/><div><b className="text-sm">Virtual Mobile</b><p className="text-[10px] text-slate-400">Shared mobile simulation foundation</p></div></div>
-      <div className="flex items-center gap-2"><button onClick={()=>setTicketOpen(v=>!v)} className="rounded-lg border border-cyan-300/20 bg-cyan-400/10 px-2 py-1.5 text-xs font-semibold text-cyan-100">Tickets{activeTicket?" · 1":""}</button><select value={os} onChange={e=>switchOs(e.target.value as MobileOs)} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1.5 text-xs"><option value="android" className="text-black">IT PATH Mobile</option><option value="phone" className="text-black">PathOS Pocket</option></select><button onClick={resetDevice} className="rounded-lg border border-white/10 px-2 py-1.5 text-xs hover:bg-white/10">Reset</button></div>
+      <div className="flex items-center gap-2">{practiceMode?<span className="hidden rounded-lg border border-emerald-300/25 bg-emerald-400/10 px-2 py-1.5 text-xs font-semibold text-emerald-100 sm:inline">Practice lab</span>:null}<button onClick={()=>setTicketOpen(v=>!v)} className="rounded-lg border border-cyan-300/20 bg-cyan-400/10 px-2 py-1.5 text-xs font-semibold text-cyan-100">Tickets{activeTicket?" · 1":""}</button><select value={os} onChange={e=>switchOs(e.target.value as MobileOs)} className="rounded-lg border border-white/10 bg-white/10 px-2 py-1.5 text-xs"><option value="android" className="text-black">IT PATH Mobile</option><option value="phone" className="text-black">PathOS Pocket</option></select><button onClick={resetDevice} className="rounded-lg border border-white/10 px-2 py-1.5 text-xs hover:bg-white/10">Reset</button></div>
     </header>
 
 
