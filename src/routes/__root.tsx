@@ -36,7 +36,7 @@ function NotFoundComponent() {
         </p>
         <div className="mt-6">
           <Button asChild>
-            <Link to="/">Go home</Link>
+            <Link to="/dashboard">Go to dashboard</Link>
           </Button>
         </div>
       </div>
@@ -45,9 +45,9 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
   useEffect(() => {
+    console.error(error);
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
@@ -70,7 +70,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             Try again
           </Button>
           <Button asChild variant="outline">
-            <a href="/">Go home</a>
+            <Link to="/dashboard">Go to dashboard</Link>
           </Button>
         </div>
       </div>
