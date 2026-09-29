@@ -172,3 +172,28 @@ export function troubleshootingAvailability(user: UserData, topicId: string): Tr
     ? {available:true,reason:"You have enough topic and applied evidence to work an incident independently."}
     : {available:false,reason:!knowledgeReady?"Prove the topic first before taking an incident.":"Complete some applied or hands-on work before taking an incident."};
 }
+
+
+export type SimulatorLabVerification = {
+  supported: boolean;
+  requirement: string;
+  minimumActions: number;
+};
+
+/** Only tools whose behavior is actually represented by the simulator can earn automatic Lab evidence. */
+export function simulatorLabVerification(lab: Lab): SimulatorLabVerification {
+  const context=labLaunchContext(lab);
+  const tool=context.preferredTool;
+  const supported=context.surface==="virtual-pc"
+    ? ["terminal","files","services","processes","accounts","network","storage"].includes(tool ?? "")
+    : context.surface==="virtual-mobile"
+      ? ["terminal","files","bluetooth","battery","storage","network","settings","apps"].includes(tool ?? "")
+      : false;
+  return {
+    supported,
+    minimumActions: supported ? 2 : 0,
+    requirement: supported
+      ? "Perform at least two relevant actions in the simulator and leave the targeted system in a valid working state."
+      : "This lab is not automatically verifiable in the current simulator and must use the normal Lab evidence workflow.",
+  };
+}
