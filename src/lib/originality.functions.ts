@@ -45,7 +45,7 @@ function curriculumCorpus(): string[] {
 
 export const checkMarkdownOriginality = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => schema.parse(data))
+  .validator((data) => schema.parse(data))
   .handler(async ({ data }): Promise<OriginalityReply> => {
     const threshold = data.threshold ?? 0.2;
 
