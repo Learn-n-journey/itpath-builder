@@ -24,7 +24,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { injectTrainingFault, prompt, reclaimTrainingDiskSpace, trainingFaultResolved, type TrainingFault } from "@/lib/terminal/machine";
-import { ticketDifficulty, ticketScope, trainingTickets, type TrainingTicket } from "@/lib/training/tickets";
+import { requiredTicketEvidence, ticketDifficulty, ticketScope, trainingTickets, type TrainingTicket } from "@/lib/training/tickets";
 import { createVirtualEnvironment, resourceAccessForMachine, sharedResourceAvailable, syncVirtualEnvironment } from "@/lib/training/environment";
 import { execute } from "@/lib/terminal/shells";
 import { buildScenarioMachine, terminalScenarios, type TerminalScenario } from "@/lib/terminal/scenarios";
@@ -424,13 +424,14 @@ function VirtualPcPage() {
     setFolder(homeFolder(launchOs));
     setOpenApp((ticket.symptomApp ?? null) as AppId | null);
     setDesktopScenarioAttempt(null); setDesktopScenarioResult(null); setDesktopScenarioId("");
-    setActiveTicketId(ticket.id); setActiveFault(fault); setTicketVerified(false); setTicketEvidence([ticket.scope === "cross-machine" ? "Cross-machine incident opened from reporting workstation" : "Ticket opened"]); setGaylHelpLevel(0); setGaylWalkthrough(false); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); setTicketOpen(true); setTerminalLines([]);
+    setActiveTicketId(ticket.id); setActiveFault(fault); setTicketTrace([]); setTicketVerified(false); setTicketEvidence([ticket.scope === "cross-machine" ? "Cross-machine incident opened from reporting workstation" : "Ticket opened"]); setGaylHelpLevel(0); setGaylWalkthrough(false); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); setTicketOpen(true); setTerminalLines([]);
   };
   useEffect(()=>{
     if(launchContext.activity!=="ticket" || !launchContext.ticket || activeTicketId) return;
     if(helpDeskTickets.some(item=>item.id===launchContext.ticket)) startTicket(launchContext.ticket);
   },[launchContext.activity,launchContext.ticket]);
   const verifyTicket = () => {
+    if(activeTicketId)setTicketTrace(trace=>trace.includes("verify")?trace:[...trace,"verify"]);
     if (activeJobScenario) {
       const passed = Boolean(activeJobResult && activeJobResult.missingGoals.length === 0);
       setTicketVerified(passed);
@@ -449,6 +450,9 @@ function VirtualPcPage() {
   };
   const closeTicket = () => {
     if (!ticketResolved) return;
+    const required=activeTicket?requiredTicketEvidence(activeTicket):[];
+    const processComplete=required.every(step=>ticketTrace.includes(step) || step==="verify" && ticketVerified);
+    if(activeTicket && !hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,processComplete?1:0.75,gaylHelpLevel));
     const required=activeTicket?requiredTicketEvidence(activeTicket):["observe","repair","verify"];
     const demonstrated=required.every(stage=>ticketTrace.includes(stage));
     if(!demonstrated){ setNotice(`The fix works, but demonstrate the troubleshooting process first: ${required.filter(stage=>!ticketTrace.includes(stage)).join(", ")}.`); return; }
