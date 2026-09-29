@@ -228,12 +228,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return;
       }
       setUser((local) => {
+        // Once an account has a cloud snapshot, that account copy is authoritative.
+        // A stale device can contain more historical rows than a newer device, so
+        // choosing by activity count can silently roll back newer cross-device work.
+        if (result.found && result.user) return reconcileSettingsToDomain(result.user);
+
+        // No account snapshot exists yet. This is the one safe time to seed the
+        // account from the richest same-account/device recovery copy.
         const candidates: UserData[] = [];
-        if (result.found && result.user) candidates.push(result.user);
         if (backup) candidates.push(backup);
         if (!foreignCache) candidates.push(local);
         if (candidates.length === 0) return local;
-        // Whichever copy holds the most recorded work wins.
         const chosen = candidates.reduce((best, item) =>
           activityCount(item) > activityCount(best) ? item : best,
         );
