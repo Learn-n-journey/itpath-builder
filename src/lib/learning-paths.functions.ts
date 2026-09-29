@@ -31,7 +31,7 @@ async function allPaths(): Promise<LearningPath[]> {
 /** Create a fresh path: a folder name, a list of sections, nothing else. */
 export const createLearningPath = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         name: z.string().trim().min(2).max(40),
@@ -69,7 +69,7 @@ export const createLearningPath = createServerFn({ method: "POST" })
 /** Show a path to everyone, or put it back to owner-only. */
 export const setLearningPathVisible = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z.object({ slug: z.string().trim().min(1), visible: z.boolean() }).parse(data),
   )
   .handler(async ({ context, data }): Promise<LearningPathReply> => {
@@ -88,7 +88,7 @@ export const setLearningPathVisible = createServerFn({ method: "POST" })
 /** Replace a path's section list. The numbering follows the new order. */
 export const setLearningPathTopics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         slug: z.string().trim().min(1),
