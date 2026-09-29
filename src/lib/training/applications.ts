@@ -209,3 +209,41 @@ export function applicationPermissionSummary(machine: MachineState): string {
   const groups = Array.from(currentGroups(machine));
   return groups.length ? groups.join(", ") : "No effective groups";
 }
+
+
+export function submitPrintJob(
+  machine: MachineState,
+  machines: Record<VirtualOsKey, MachineState>,
+  environment: VirtualEnvironmentState,
+  document = "Test Page",
+): ApplicationCheck {
+  const application = trainingApplications.find((item) => item.id === "print-center")!;
+  const check = applicationCheck(application, machine, machines, environment);
+  machine.printJobs ??= [];
+  machine.nextPrintJobId ??= 1;
+  const job = {
+    id: machine.nextPrintJobId++,
+    document,
+    printer: "Office Printer",
+    status: (check.health === "ready" ? "printing" : "error") as "printing" | "error",
+    submittedAt: new Date().toISOString(),
+  };
+  machine.printJobs.unshift(job);
+  machine.eventLog.unshift(`${new Date().toISOString()} Print: ${document} — ${job.status}`);
+  return check;
+}
+
+export function reconcilePrintQueue(
+  machine: MachineState,
+  machines: Record<VirtualOsKey, MachineState>,
+  environment: VirtualEnvironmentState,
+): void {
+  if (!machine.printJobs?.length) return;
+  const application = trainingApplications.find((item) => item.id === "print-center")!;
+  const ready = applicationCheck(application, machine, machines, environment).health === "ready";
+  machine.printJobs = machine.printJobs.map((job) => {
+    if (ready && (job.status === "error" || job.status === "queued")) return { ...job, status: "printing" as const };
+    if (!ready && job.status === "printing") return { ...job, status: "error" as const };
+    return job;
+  });
+}
