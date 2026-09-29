@@ -25,6 +25,7 @@ import {
 } from "@/lib/troubleshoot-engine";
 import { useAppState } from "@/state/app-state";
 import { activeDomainKey } from "@/lib/active-domain";
+import { troubleshootingAvailability } from "@/lib/lab-environments";
 
 export const Route = createFileRoute("/troubleshoot")({
   staticData: { sitemap: false },
@@ -105,7 +106,7 @@ function TroubleshootPage() {
 
   const recommended = ordered.find((item) => {
     const attempt = attempts.find((candidate) => candidate.incidentId === item.id);
-    return attempt?.status !== "submitted";
+    return troubleshootingAvailability(user,item.topicId).available && attempt?.status !== "submitted";
   }) ?? ordered[0];
   const recommendedAttempt = recommended
     ? attempts.find((attempt) => attempt.incidentId === recommended.id)
@@ -140,7 +141,7 @@ function TroubleshootPage() {
       ) : null}
 
       <section className="mt-4 grid grid-cols-4 divide-x divide-border border-y border-border py-3" aria-label="Troubleshooting progress">
-        <TroubleshootStat value={incidents.length} label="Available" />
+        <TroubleshootStat value={incidents.filter(item=>troubleshootingAvailability(user,item.topicId).available || attempts.some(a=>a.incidentId===item.id)).length} label="Ready" />
         <TroubleshootStat value={attempts.filter((attempt) => attempt.status === "in_progress").length} label="Active" />
         <TroubleshootStat value={resolved.length} label="Resolved" />
         <TroubleshootStat value={resolved.length ? `${averageScore}%` : "—"} label="Average" />
@@ -169,6 +170,8 @@ function TroubleshootPage() {
             const selected = item.id === incident?.id;
             const topic = topics.find((candidate) => candidate.id === item.topicId);
             const IncidentIcon = incidentCategoryIcons[item.category];
+            const availability = troubleshootingAvailability(user,item.topicId);
+            const accessible = availability.available || Boolean(itemAttempt);
             return (
               <div key={item.id} className={`overflow-hidden rounded-xl border bg-card/70 transition-colors ${selected ? "border-primary/55 shadow-sm" : "border-border/70"}`}>
                 <button type="button" aria-expanded={selected} onClick={() => setSelectedId(selected ? "" : item.id)} className="flex w-full items-center gap-3 p-4 text-left transition-colors hover:bg-accent/50">
@@ -179,7 +182,7 @@ function TroubleshootPage() {
                     <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{incidentCategoryLabels[item.category]}</span>
                     <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
                     <span className="mt-1 block truncate text-xs text-muted-foreground">
-                      {topic?.title ?? "Technical troubleshooting"} · {incidentStatusLabel(itemAttempt)}
+                      {topic?.title ?? "Technical troubleshooting"} · {accessible ? incidentStatusLabel(itemAttempt) : "Upcoming"}
                     </span>
                   </span>
                   <ChevronRight className={`size-4 shrink-0 text-primary transition-transform ${selected ? "rotate-90" : ""}`} aria-hidden />
@@ -189,9 +192,7 @@ function TroubleshootPage() {
                     <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">Incident report</p>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.report}</p>
                     <p className="mt-3 text-xs text-muted-foreground"><span className="font-medium text-foreground">Environment:</span> {item.environment}</p>
-                    <Button className="mt-4 w-full sm:w-auto" onClick={() => document.getElementById("active-incident-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" })}>
-                      {itemAttempt?.status === "in_progress" ? "Continue Incident" : itemAttempt?.status === "submitted" ? "Review Incident" : "Start Incident"} <ArrowRight />
-                    </Button>
+                    {accessible?<Button className="mt-4 w-full sm:w-auto" onClick={() => document.getElementById("active-incident-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" })}>{itemAttempt?.status === "in_progress" ? "Continue Incident" : itemAttempt?.status === "submitted" ? "Review Incident" : "Start Incident"} <ArrowRight /></Button>:<div className="mt-4 rounded-lg border border-border/60 bg-background/40 p-3 text-xs text-muted-foreground"><b className="text-foreground">Upcoming.</b> {availability.reason}</div>}
                   </div>
                 ) : null}
               </div>
@@ -200,7 +201,7 @@ function TroubleshootPage() {
         </div>
       </section>
 
-      {incident ? (
+      {incident && (troubleshootingAvailability(user,incident.topicId).available || Boolean(latest)) ? (
         <div id="active-incident-workspace" className="mt-7 scroll-mt-24 border-t border-border pt-6">
           <IncidentWorkspace key={incident.id} incident={incident} {...(latest ? { latestAttempt: latest } : {})} />
         </div>
