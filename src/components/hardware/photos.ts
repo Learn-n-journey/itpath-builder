@@ -19,12 +19,12 @@ export interface HardwarePhoto {
 
 export const hardwarePhotos: Record<string, HardwarePhoto> = {
   "laptop-overview": {
-    src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Pc%20bottom%20base.jpg",
-    width: 4480,
-    height: 2016,
-    alt: "Open laptop with its bottom cover removed, showing the motherboard, cooling fan, memory, storage, battery and speakers.",
-    credit: "Flewing Bird / Wikimedia Commons · CC BY-SA 4.0",
-    creditUrl: "https://commons.wikimedia.org/wiki/File:Pc_bottom_base.jpg",
+    src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/HP%20Pavilion%2015-bc400nh%20internals.jpg",
+    width: 4000,
+    height: 6000,
+    alt: "Vertical top-down photo of an HP Pavilion laptop with the bottom cover removed, showing its internal hardware.",
+    credit: "Trajcinema / Wikimedia Commons · CC BY 4.0",
+    creditUrl: "https://commons.wikimedia.org/wiki/File:HP_Pavilion_15-bc400nh_internals.jpg",
   },
   "mobile-overview": {
     src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Apple-iPhone-6S-Plus-Inside.jpg",
