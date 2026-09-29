@@ -35,3 +35,26 @@ export const mobileTrainingTickets: MobileTrainingTicket[] = [
   { id:"mobile-2016", os:"android", title:"System update refuses to install", requester:"Security Operations", brief:"A required mobile update is available, but installation will not begin. Determine which prerequisite is failing and complete the update without wiping the device.", environment:"IT PATH Mobile online with a low battery", fault:"update-prereq", verification:["Confirm the update is available","Identify the failed installation prerequisite","Meet the prerequisite and install the update"], hints:["Check connectivity, free storage, and battery rather than repeatedly pressing Install.","The battery is below the safe installation threshold.","Connect the simulated charger, then retry the update."], explanation:"The device battery was below the update installation threshold. Charging it above the required level allowed installation." },
   { id:"mobile-2017", os:"phone", title:"Managed cloud services stopped syncing", requester:"Human Resources", brief:"The phone still has network access, but managed cloud content no longer syncs. Determine whether this is a connectivity, account, or enrollment problem.", environment:"Managed PathOS Pocket with healthy network connectivity", fault:"account-signed-out", verification:["Confirm the network is healthy","Identify that the managed account is signed out","Sign back in and restore managed service readiness"], hints:["Prove connectivity before touching network settings.","Check the Account screen and management state.","Restore the signed-out work account."], explanation:"The device remained online and enrolled, but the managed account had been signed out." },
 ];
+
+
+export function isMobileSupportTicket(ticket: MobileTrainingTicket): boolean {
+  return Boolean(ticket.requester.trim() && ticket.brief.trim() && ticket.fault && ticket.verification.length);
+}
+
+export interface MobileTicketLaunchContext {
+  kind: "ticket";
+  ticketId: string;
+  surface: "virtual-mobile";
+  launchPath: "/virtual-mobile";
+  os: "android" | "phone";
+}
+
+export function mobileTicketLaunchContext(ticket: MobileTrainingTicket): MobileTicketLaunchContext {
+  return {kind:"ticket",ticketId:ticket.id,surface:"virtual-mobile",launchPath:"/virtual-mobile",os:ticket.os};
+}
+
+export function mobileTicketLaunchHref(ticket: MobileTrainingTicket): string {
+  const context=mobileTicketLaunchContext(ticket);
+  const params=new URLSearchParams({activity:"ticket",ticket:context.ticketId});
+  return `${context.launchPath}?${params.toString()}`;
+}
