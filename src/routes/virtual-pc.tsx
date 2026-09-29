@@ -37,8 +37,9 @@ import { applyTrainingNetworkAction, navigateTrainingBrowser, observeTrainingNet
 import { advancePrintQueue, advanceWindowsUpdate, applicationCheck, applicationForProcess, applicationInstalled, cancelPrintJob, launchTrainingApplication, completeWindowsUpdateRestart, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications, type TrainingApplicationId } from "@/lib/training/applications";
 
 export const Route = createFileRoute("/virtual-pc")({
-  validateSearch: (search: Record<string, unknown>): { activity?: "lab"; lab?: string; topic?: string; tool?: string; os?: "windows"|"linux" } => ({
-    ...(search.activity === "lab" ? { activity:"lab" as const } : {}),
+  validateSearch: (search: Record<string, unknown>): { activity?: "lab"|"ticket"; lab?: string; ticket?: string; topic?: string; tool?: string; os?: "windows"|"linux" } => ({
+    ...(search.activity === "lab" || search.activity === "ticket" ? { activity:search.activity } : {}),
+    ...(typeof search.ticket === "string" ? { ticket:search.ticket } : {}),
     ...(typeof search.lab === "string" ? { lab:search.lab } : {}),
     ...(typeof search.topic === "string" ? { topic:search.topic } : {}),
     ...(typeof search.tool === "string" ? { tool:search.tool } : {}),
@@ -422,6 +423,10 @@ function VirtualPcPage() {
     setDesktopScenarioAttempt(null); setDesktopScenarioResult(null); setDesktopScenarioId("");
     setActiveTicketId(ticket.id); setActiveFault(fault); setTicketVerified(false); setTicketEvidence([ticket.scope === "cross-machine" ? "Cross-machine incident opened from reporting workstation" : "Ticket opened"]); setGaylHelpLevel(0); setGaylWalkthrough(false); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); setTicketOpen(true); setTerminalLines([]);
   };
+  useEffect(()=>{
+    if(launchContext.activity!=="ticket" || !launchContext.ticket || activeTicketId) return;
+    if(helpDeskTickets.some(item=>item.id===launchContext.ticket)) startTicket(launchContext.ticket);
+  },[launchContext.activity,launchContext.ticket]);
   const verifyTicket = () => {
     if (activeJobScenario) {
       const passed = Boolean(activeJobResult && activeJobResult.missingGoals.length === 0);
