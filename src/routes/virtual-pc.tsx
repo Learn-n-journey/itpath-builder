@@ -432,9 +432,8 @@ function VirtualPcPage() {
   const gaylProgress = gaylWalkthrough ? Math.round(((gaylStep + (gaylStepSatisfied()?1:0))/Math.max(1,gaylGuide.length))*100) : gaylIndependent ? Math.round((gaylIndependentChecks.length/Math.max(1,independentMilestones.length))*100) : 0;
   const gaylStatus = ticketResolved ? "Verified" : repairReady ? "Repair detected — verify it" : gaylWalkthrough ? "Guided practice" : gaylIndependent ? "Independent attempt" : "Available when you need help";
 
-  const desktopShells = pcOs === "windows" ? new Set(["cmd","powershell"]) : pcOs === "linux" ? new Set(["bash"]) : new Set(["mac"]);
-  const desktopScenarios = terminalScenarios.filter((scenario, index, all) => !scenario.id.startsWith("ticket-terminal-") && desktopShells.has(scenario.shell) && all.findIndex((item) => item.id === scenario.id) === index);
-  const selectedDesktopScenario = desktopScenarios.find((scenario) => scenario.id === desktopScenarioId) ?? desktopScenarios[0];
+  const desktopScenarios: TerminalScenario[] = [];
+  const selectedDesktopScenario = terminalScenarios.find((scenario) => scenario.id === desktopScenarioId);
 
   const startDesktopScenario = (scenario: TerminalScenario, mode: TerminalMode = desktopScenarioMode) => {
     const attempt = createTerminalAttempt(scenario, mode);
