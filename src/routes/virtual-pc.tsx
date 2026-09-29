@@ -487,7 +487,7 @@ function VirtualPcPage() {
   };
   const completePracticeLab = () => {
     if(!practiceMode || !launchContext.lab || !launchContext.topic || practiceActions<2) return;
-    if(!hasSimulatorCredit(user,"lab",launchContext.lab)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1));
+    if(!hasSimulatorCredit(user,"lab",launchContext.lab)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,gaylHelpLevel));
     setNotice("Practice verified. This demonstrated work has been recorded as practical evidence.");
   };
   const gaylHelp = () => { if (!activeFault && !activeJobScenario) return; setGaylHelpLevel((level) => Math.min(3, level + 1)); recordEvidence(`GAYL assistance requested (level ${Math.min(3, gaylHelpLevel + 1)})`); };
