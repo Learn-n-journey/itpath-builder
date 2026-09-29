@@ -417,6 +417,26 @@ function VirtualPcPage() {
   const restartAfterGayl = () => {
     if(!activeTicket || !ticketBaseline.current) return;
     const targetOs=ticketBaseline.current.os;
+    if (activeJobScenario) {
+      const cleanJob = buildScenarioMachine(activeJobScenario);
+      const nextAttempt = createTerminalAttempt(activeJobScenario, "challenge");
+      const linked = { ...nextAttempt, machine: cleanJob };
+      setOsMachines(current=>syncVirtualEnvironment({...current,[targetOs]:cleanJob},virtualEnvironment));
+      setDesktopScenarioAttempt(linked);
+      actions.addTerminalAttempt(linked);
+      setDesktopScenarioResult(null);
+      setDesktopScenarioReasoning("");
+      setTicketVerified(false);
+      setTicketEvidence(["Guided practice completed","Problem restarted for independent attempt"]);
+      setGaylWalkthrough(false);
+      setGaylStep(0);
+      setGaylStepChecked(false);
+      setGaylIndependent(true);
+      setGaylHelpLevel(0);
+      setPcOs(activeTicket.reporterOs ?? targetOs);
+      setOpenApp("terminal");
+      return;
+    }
     if (!activeTicket.fault) return;
     const clean=clone(ticketBaseline.current.machine);
     const fault=injectTrainingFault(clean,activeTicket.fault);
