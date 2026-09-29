@@ -9,8 +9,11 @@ export interface HardwarePart {
   gaylNote: string;
 }
 
+export type HardwareDeviceFamily = "desktop" | "laptop" | "mobile";
+
 export interface HardwareComponent {
   id: string;
+  family?: HardwareDeviceFamily;
   name: string;
   tagline: string;
   parts: HardwarePart[];
@@ -667,5 +670,37 @@ export const hardwareComponents: HardwareComponent[] = [
           "A common beginner setup is two fans in front pulling in, one at the rear pushing out. That slight positive pressure also keeps dust out.",
       },
     ],
+  },,
+  {
+    id: "laptop-overview", family: "laptop", name: "Laptop internals", tagline: "Compact computer hardware built around battery power, portability and shared cooling.",
+    parts: [
+      { id:"laptop-board",x:52,y:42,name:"System board",whatItIs:"The laptop's main circuit board, shaped to fit the chassis.",whatItDoes:"It connects the processor, memory, storage, wireless hardware, ports and power circuitry.",gaylNote:"Laptop boards are highly model-specific, so replacement parts must be matched carefully." },
+      { id:"laptop-cpu",x:53,y:34,name:"CPU / SoC",whatItIs:"The main processor, commonly soldered directly to the system board.",whatItDoes:"It executes operating-system and application instructions; many laptop processors also integrate graphics and other controllers.",gaylNote:"Unlike desktop CPUs, many laptop processors are not socketed or intended for field replacement." },
+      { id:"laptop-ram",x:60,y:51,name:"Memory (SODIMM / soldered)",whatItIs:"Compact SODIMM modules or memory chips soldered to the board.",whatItDoes:"RAM holds active code and data for fast processor access.",gaylNote:"Check whether a laptop has SODIMM slots before promising a memory upgrade; some models use only soldered RAM." },
+      { id:"laptop-storage",x:64,y:61,name:"M.2 SSD",whatItIs:"A compact solid-state storage module attached to the system board.",whatItDoes:"It stores the operating system, applications and user files without power.",gaylNote:"M.2 describes the physical form. Verify supported size, keying and protocol before replacing a drive." },
+      { id:"laptop-battery",x:49,y:70,name:"Battery pack",whatItIs:"A rechargeable battery assembly mounted inside the chassis.",whatItDoes:"It supplies DC power when the laptop is disconnected from its adapter.",gaylNote:"A swollen battery is a safety issue. Stop using or compressing it and follow approved service procedures." },
+      { id:"laptop-cooling",x:43,y:37,name:"Cooling system",whatItIs:"Fans, heat pipes or vapor chambers, heatsinks and thermal-interface material.",whatItDoes:"It moves processor and graphics heat to fins where airflow can carry it out of the chassis.",gaylNote:"Dust-blocked fins can cause high temperatures even when the fan itself still spins." },
+      { id:"laptop-wireless",x:71,y:48,name:"Wi-Fi / Bluetooth module",whatItIs:"A small radio module, often M.2, connected to antenna leads routed through the display.",whatItDoes:"It provides wireless networking and Bluetooth connectivity.",gaylNote:"Loose antenna leads can create weak or intermittent wireless performance without making the adapter disappear from the OS." },
+      { id:"laptop-display",x:52,y:16,name:"Display assembly",whatItIs:"The panel, lid, display cable, hinges, webcam and related hardware.",whatItDoes:"It presents video output and carries integrated camera and microphone hardware.",gaylNote:"A display problem can come from the panel, cable, graphics path or backlight, so test before replacing parts." },
+      { id:"laptop-input",x:48,y:84,name:"Keyboard & touchpad",whatItIs:"The laptop's built-in input devices.",whatItDoes:"They send keyboard, pointing and gesture input to the system.",gaylNote:"A working external keyboard or mouse can help separate an internal input-device problem from an operating-system problem." },
+      { id:"laptop-power",x:22,y:61,name:"Charging & power circuitry",whatItIs:"The charging port, adapter path and board-level power-management circuitry.",whatItDoes:"It accepts adapter power, charges the battery and distributes regulated power through the laptop.",gaylNote:"A no-charge complaint can involve the adapter, port, battery, firmware or board-level charging circuit." },
+    ],
   },
+  {
+    id: "mobile-overview", family: "mobile", name: "Mobile device internals", tagline: "Smartphone hardware integrates computing, radios, sensors and power into a very small space.",
+    parts: [
+      { id:"mobile-soc",x:51,y:45,name:"System on a Chip (SoC)",whatItIs:"A highly integrated chip containing the main processor and several supporting functions.",whatItDoes:"It runs the operating system and applications while coordinating graphics, memory and other integrated controllers.",gaylNote:"Mobile designs integrate far more functions into a few packages than typical desktop PCs." },
+      { id:"mobile-memory",x:57,y:48,name:"RAM & storage packages",whatItIs:"Compact memory and flash-storage packages mounted directly to the logic board.",whatItDoes:"RAM holds active work while nonvolatile flash storage keeps the OS, apps and user data.",gaylNote:"These packages are normally soldered and are not treated as routine user upgrades." },
+      { id:"mobile-battery",x:50,y:65,name:"Battery",whatItIs:"A thin rechargeable lithium-based battery occupying much of the device interior.",whatItDoes:"It stores energy for the device and supplies the voltage needed by its power-management system.",gaylNote:"Swelling, puncture or heat damage requires careful handling; do not bend or compress a damaged battery." },
+      { id:"mobile-display",x:50,y:20,name:"Display & touch assembly",whatItIs:"The screen panel and touch-sensing layers at the front of the device.",whatItDoes:"It displays the interface and detects touch input.",gaylNote:"A visible image with no touch response and a black screen with working sounds point toward different parts of the display path." },
+      { id:"mobile-camera",x:68,y:19,name:"Camera modules",whatItIs:"Front and rear camera modules containing image sensors, lenses and supporting electronics.",whatItDoes:"They capture still images and video for apps and system features.",gaylNote:"Camera failures can be hardware, permissions or software; check the symptom across more than one app." },
+      { id:"mobile-radio",x:68,y:40,name:"Cellular / Wi-Fi / Bluetooth radios",whatItIs:"Radio hardware and supporting RF components connected to antennas around the chassis.",whatItDoes:"They provide cellular service and local wireless communication.",gaylNote:"Signal problems can involve settings, SIM/eSIM provisioning, antennas, radio hardware or the network itself." },
+      { id:"mobile-sim",x:79,y:55,name:"SIM / eSIM",whatItIs:"A physical SIM interface or embedded subscriber-identity hardware and provisioning.",whatItDoes:"It identifies a cellular subscription to the carrier network.",gaylNote:"eSIM is provisioned electronically, so there may be no removable card even though the device has cellular service." },
+      { id:"mobile-charge",x:50,y:91,name:"Charging port",whatItIs:"The external USB or other charging/data connector and its supporting circuitry.",whatItDoes:"It accepts wired power and may also carry data.",gaylNote:"Lint or connector damage can mimic a failed charger. Inspect safely before assuming the battery is bad." },
+      { id:"mobile-wireless-charge",x:50,y:75,name:"Wireless charging / NFC coil",whatItIs:"A thin coil assembly positioned behind the rear housing on supported devices.",whatItDoes:"It can receive inductive charging power and may support near-field communication functions.",gaylNote:"Cases, alignment and foreign objects can affect wireless charging before there is any internal hardware failure." },
+      { id:"mobile-audio",x:29,y:84,name:"Speakers & microphones",whatItIs:"Small acoustic modules and microphone openings distributed around the chassis.",whatItDoes:"They provide audio output and capture voice and environmental sound.",gaylNote:"Testing speakerphone, media and voice recording separately helps isolate which audio path is affected." },
+      { id:"mobile-sensors",x:33,y:27,name:"Biometrics & sensors",whatItIs:"Hardware such as fingerprint readers, proximity sensors, accelerometers, gyroscopes and ambient-light sensors.",whatItDoes:"These components support authentication, orientation, motion detection and context-aware behavior.",gaylNote:"A sensor can be physically fine while an app lacks permission to use the data it provides." },
+      { id:"mobile-thermal",x:44,y:43,name:"Thermal system",whatItIs:"Graphite sheets, metal frames, vapor chambers or other passive heat-spreading parts.",whatItDoes:"They spread heat away from concentrated chips and the battery through the chassis.",gaylNote:"Phones usually cannot rely on large fans, so sustained load is often controlled by reducing performance when temperatures rise." },
+    ],
+  }
 ];
