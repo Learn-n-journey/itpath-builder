@@ -73,7 +73,7 @@ async function adminClient() {
 
 export const syncNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { scope?: SyncScope; force?: boolean } | undefined) => ({
+  .validator((input: { scope?: SyncScope; force?: boolean } | undefined) => ({
     scope: (input?.scope ?? "all") as SyncScope,
     force: input?.force === true,
   }))
@@ -124,7 +124,7 @@ export const syncSlice = createServerFn({ method: "POST" })
 /** Refreshes one topic immediately from its lesson, try-it, quiz and lab workbooks. */
 export const refreshTopic = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { domain: string; topicId: string }) => ({
+  .validator((input: { domain: string; topicId: string }) => ({
     domain: input.domain.trim(),
     topicId: input.topicId.trim(),
   }))
@@ -211,7 +211,7 @@ export interface SyncAdviceFixProposal {
  */
 export const proposeSyncAdviceFix = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { domain: string; topicId: string; reason: string }) => ({
+  .validator((input: { domain: string; topicId: string; reason: string }) => ({
     domain: input.domain.trim(),
     topicId: input.topicId.trim(),
     reason: input.reason.trim(),
