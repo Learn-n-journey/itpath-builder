@@ -13,6 +13,7 @@ export interface MobileTrainingTicket {
   environment: string;
   fault: MobileTicketFault;
   verification: string[];
+  requiredEvidence?: Array<"observe"|"test"|"repair"|"verify">;
   hints: string[];
   explanation: string;
 }
@@ -38,6 +39,10 @@ export const mobileTrainingTickets: MobileTrainingTicket[] = [
   { id:"mobile-2017", topicId:"topic-mobile-security-and-mdm", os:"phone", title:"Managed cloud services stopped syncing", requester:"Human Resources", brief:"The phone still has network access, but managed cloud content no longer syncs. Determine whether this is a connectivity, account, or enrollment problem.", environment:"Managed PathOS Pocket with healthy network connectivity", fault:"account-signed-out", verification:["Confirm the network is healthy","Identify that the managed account is signed out","Sign back in and restore managed service readiness"], hints:["Prove connectivity before touching network settings.","Check the Account screen and management state.","Restore the signed-out work account."], explanation:"The device remained online and enrolled, but the managed account had been signed out." },
 ];
 
+
+export function requiredMobileTicketEvidence(ticket: MobileTrainingTicket): Array<"observe"|"test"|"repair"|"verify"> {
+  return ticket.requiredEvidence ?? ["observe","repair","verify"];
+}
 
 export function isMobileSupportTicket(ticket: MobileTrainingTicket): boolean {
   return Boolean(ticket.topicId.trim() && ticket.requester.trim() && ticket.brief.trim() && ticket.fault && ticket.verification.length);
