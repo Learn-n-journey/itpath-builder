@@ -733,7 +733,7 @@ const cache = new Map<string, { at: number; jobs: TechJob[] }>();
 const CACHE_MS = 15 * 60 * 1000;
 
 export const getTechJobs = createServerFn({ method: "GET" })
-  .inputValidator((input: { country?: string } | undefined) => input ?? {})
+  .validator((input: { country?: string } | undefined) => input ?? {})
   .handler(async ({ data }): Promise<TechJobsResult> => {
     const asked = normaliseCountry(data.country);
     const detectedCode = countryFromRequest();
