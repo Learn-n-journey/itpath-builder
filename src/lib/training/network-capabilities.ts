@@ -1,4 +1,4 @@
-import type { MachineState, NetInterface } from "@/lib/terminal/machine";
+import { findTarget, resolveHost, type MachineState, type NetInterface } from "@/lib/terminal/machine";
 
 export type TrainingNetworkObservation = {
   interfaceName: string;
@@ -80,4 +80,43 @@ export function trainingNetworkChecks(machine: MachineState) {
     { id: "dns", label: "At least one DNS server is configured", passed: net.hasDns },
     { id: "internet", label: "Core network configuration is complete", passed: net.internetReady },
   ];
+}
+
+
+export type TrainingNetworkProbe =
+  | { kind: "link"; ok: boolean; detail: string }
+  | { kind: "gateway"; ok: boolean; detail: string }
+  | { kind: "dns"; ok: boolean; detail: string; address?: string }
+  | { kind: "reachability"; ok: boolean; detail: string; address?: string };
+
+/** Active diagnostic probes. These model what a learner can prove, not merely what is configured. */
+export function probeTrainingNetwork(machine: MachineState, host?: string): TrainingNetworkProbe[] {
+  const net = observeTrainingNetwork(machine);
+  const probes: TrainingNetworkProbe[] = [
+    { kind: "link", ok: net.localReady, detail: !net.linkUp ? "Interface is down." : !net.hasAddress ? "Interface is up but has no usable IP address." : `Interface ${net.interfaceName} is up with ${net.address}.` },
+    { kind: "gateway", ok: net.localReady && net.hasGateway, detail: !net.localReady ? "Cannot test the gateway until local addressing works." : net.hasGateway ? `Default gateway ${net.gateway} is configured.` : "No default gateway is configured." },
+  ];
+  if (!host) return probes;
+
+  const numeric = /^\d+\.\d+\.\d+\.\d+$/.test(host);
+  const resolved = resolveHost(machine, host);
+  probes.push({
+    kind: "dns",
+    ok: numeric || Boolean(resolved),
+    detail: numeric ? "Numeric address does not require DNS." : resolved ? `${host} resolved to ${resolved}.` : !net.hasDns ? "No DNS server is configured." : `${host} could not be resolved.`,
+    ...(resolved ? { address: resolved } : {}),
+  });
+
+  const target = resolved ? findTarget(machine, resolved) ?? findTarget(machine, host) : undefined;
+  const address = resolved ?? (numeric ? host : undefined);
+  const localSubnet = Boolean(address && net.address && address.split(".").slice(0, 3).join(".") === net.address.split(".").slice(0, 3).join("."));
+  const routeReady = net.localReady && (localSubnet || net.hasGateway);
+  const reachable = routeReady && Boolean(target?.reachable);
+  probes.push({
+    kind: "reachability",
+    ok: reachable,
+    detail: !address ? "Destination cannot be tested until its address is known." : !net.localReady ? "Local network configuration is not usable." : !localSubnet && !net.hasGateway ? "Remote destination has no route because the default gateway is missing." : reachable ? `${host} is reachable at ${address}.` : `${host} did not respond.`,
+    ...(address ? { address } : {}),
+  });
+  return probes;
 }
