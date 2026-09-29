@@ -421,7 +421,7 @@ export function addSystemEvent(state: MachineState, event: Omit<SystemEvent, "at
   state.systemEvents = state.systemEvents.slice(0, 250);
 }
 
-export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind): TrainingFault {
+export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind, target?: string): TrainingFault {
   const iface = primaryInterface(state);
   const stamp = Date.now().toString(36);
   if (kind === "dns") {
@@ -448,7 +448,7 @@ export function injectTrainingFault(state: MachineState, kind: TrainingFaultKind
     return { id: `gateway-${stamp}`, kind, title: "Local network only", symptom: "Local resources may work, but remote networks are unreachable.", target: iface?.name };
   }
   if (kind === "service") {
-    const preferred = state.platform === "windows" ? "Spooler" : state.platform === "linux" ? "nginx" : state.platform === "macos" ? "cupsd" : undefined;
+    const preferred = target ?? (state.platform === "windows" ? "Spooler" : state.platform === "linux" ? "nginx" : state.platform === "macos" ? "cupsd" : undefined);
     const svc = (preferred ? findService(state, preferred) : undefined) ?? state.services.find((item) => item.status === "running");
     if (svc) svc.status = "stopped";
     const now = new Date().toISOString();
