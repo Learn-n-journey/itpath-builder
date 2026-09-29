@@ -819,12 +819,13 @@ function defaultServices(shell: ShellKind): ServiceInfo[] {
     ];
   }
   return [
-    { name: "Dhcp", display: "DHCP Client", status: "running", startType: "auto" },
-    { name: "Dnscache", display: "DNS Client", status: "running", startType: "auto" },
-    { name: "Spooler", display: "Print Spooler", status: "running", startType: "auto" },
-    { name: "wuauserv", display: "Windows Update", status: "stopped", startType: "manual" },
-    { name: "LanmanWorkstation", display: "Workstation", status: "running", startType: "auto" },
-    { name: "MpsSvc", display: "Windows Defender Firewall", status: "running", startType: "auto" },
+    { name: "Dhcp", display: "DHCP Client", status: "running", startType: "auto", processName: "svchost-dhcp" },
+    { name: "Dnscache", display: "DNS Client", status: "running", startType: "auto", processName: "svchost-dns" },
+    { name: "Spooler", display: "Print Spooler", status: "running", startType: "auto", processName: "spoolsv" },
+    { name: "wuauserv", display: "Windows Update", status: "stopped", startType: "manual", processName: "svchost-update" },
+    { name: "LanmanWorkstation", display: "Workstation", status: "running", startType: "auto", processName: "svchost-workstation" },
+    { name: "LanmanServer", display: "Server", status: "running", startType: "auto", processName: "svchost-server" },
+    { name: "MpsSvc", display: "Windows Defender Firewall", status: "running", startType: "auto", processName: "mpssvc" },
   ];
 }
 
