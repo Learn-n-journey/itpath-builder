@@ -256,3 +256,11 @@ export function applicationInstalled(applicationId: TrainingApplicationId, os: V
   const application = trainingApplications.find((item) => item.id === applicationId);
   return Boolean(application && (application.os === "any" || application.os === os));
 }
+
+
+export function applicationForProcess(processName: string): TrainingApplication | undefined {
+  const key = processName.toLowerCase().replace(/\.exe$/, "");
+  return trainingApplications.find((application) =>
+    application.processName.toLowerCase().replace(/\.exe$/, "") === key,
+  );
+}
