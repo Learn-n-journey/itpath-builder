@@ -33,7 +33,7 @@ import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { clone,
   bootServices, ensureWorkstationState, copyPath, canManageAccounts, createMachine, currentGroups, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setAccountAdmin, setAccountLocked, setServiceStatus, storageFreePercent, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
-import { hasSimulatorCredit, simulatorOutcomeSignal, simulatorScaffoldingProfile, topicLearningPolicy } from "@/lib/learner-signals";
+import { hasSimulatorCredit, shouldRecordSimulatorOutcome, simulatorOutcomeSignal, simulatorScaffoldingProfile, topicLearningPolicy } from "@/lib/learner-signals";
 import { applyTrainingNetworkAction, navigateTrainingBrowser, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
 import { labs } from "@/data/static-content";
 import { simulatorLabContract } from "@/lib/lab-environments";
@@ -469,7 +469,7 @@ function VirtualPcPage() {
     const required=activeTicket?requiredTicketEvidence(activeTicket):["observe","repair","verify"];
     const demonstrated=required.every(stage=>ticketTrace.includes(stage) || stage==="verify" && ticketVerified);
     if(!demonstrated){ setNotice(`The fix works, but demonstrate the troubleshooting process first: ${required.filter(stage=>!ticketTrace.includes(stage)).join(", ")}.`); return; }
-    if(activeTicket && !hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylHelpLevel));
+    if(activeTicket && shouldRecordSimulatorOutcome(user,"troubleshoot",activeTicket.id,gaylHelpLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylHelpLevel));
     localStorage.removeItem(`itpath-virtualpc-ticket-${pcOs}`);
     localStorage.removeItem("itpath-virtualpc-ticket-shared");
     setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0); setGaylFeedback("Start with the symptom. Gather evidence before you change anything."); setGaylHypothesis(""); setGaylActions(0); setGaylWalkthrough(false); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); ticketBaseline.current=null; ticketEnvironmentBaseline.current=null; setTicketOpen(false);
@@ -533,7 +533,7 @@ function VirtualPcPage() {
   const completePracticeLab = () => {
     if(!practiceMode || !launchContext.lab || !launchContext.topic || !practiceContract?.supported){setNotice(practiceContract?.requirement ?? "This Lab uses the normal evidence workflow.");return;}
     if(practiceActions<practiceContract.minimumRelevantActions || !practiceHealthy){setNotice(practiceContract.requirement);return;}
-    if(!hasSimulatorCredit(user,"lab",launchContext.lab)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,gaylHelpLevel));
+    if(shouldRecordSimulatorOutcome(user,"lab",launchContext.lab,gaylHelpLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,gaylHelpLevel));
     setNotice("Lab objective verified from an isolated simulator session and recorded as practical evidence.");
     const baseline=practiceBaseline.current;
     if(baseline){setVirtualEnvironment(structuredClone(baseline.environment));setOsMachines({windows:clone(baseline.machines.windows),linux:clone(baseline.machines.linux),mac:clone(baseline.machines.mac)});setPcOs(baseline.os);}
