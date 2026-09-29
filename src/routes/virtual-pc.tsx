@@ -354,7 +354,7 @@ function VirtualPcPage() {
     setOsMachines(cleanMachines);
     setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0);
     setOpenApp(null); setShareFileName(null); setShareNotice(""); setDesktopScenarioAttempt(null);
-    recordEvidence("Virtual lab reset to clean baseline");
+    setTicketOpen(false); setTerminalLines([]); setTerminalInput("");
   };
 
   const activeTicket = helpDeskTickets.find((ticket) => ticket.id === activeTicketId);
