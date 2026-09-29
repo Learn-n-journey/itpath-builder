@@ -22,7 +22,7 @@ import { lessonSectionId, resolveLessonSection } from "@/lib/lesson-concepts";
 
 /** "Practice in" text from the Labs tab -> an in-app practice page. */
 const PRACTICE_PAGES: Array<{ match: RegExp; path: string; label: string }> = [
-  { match: /command|terminal|shell|prompt|cli/i, path: "/command-line", label: "Open the command line" },
+  { match: /command|terminal|shell|prompt|cli/i, path: "/virtual-mobile", label: "Open the support console" },
   { match: /hardware|motherboard|board/i, path: "/explore-hardware", label: "Open Explore hardware" },
   { match: /engine|under the hood|auto/i, path: "/explore-engine", label: "Open Explore engine" },
   { match: /scan|obd/i, path: "/obd-scanner", label: "Open the scan tool" },
