@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Battery, BookOpen, Camera, ChevronLeft, ChevronRight, CircuitBoard, Cpu, Fan, HardDrive, Keyboard, Laptop, MemoryStick, Mic, MousePointerClick, Radio, RotateCcw, Smartphone, Speaker, Trophy, Wifi, Zap } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, CircuitBoard, Cpu, Laptop, MousePointerClick, RotateCcw, Smartphone, Trophy } from "lucide-react";
 
 import { hardwareComponents, type HardwareDeviceFamily, type HardwarePart } from "@/data/hardware-explorer";
 import { hardwarePhotos } from "@/components/hardware/photos";
