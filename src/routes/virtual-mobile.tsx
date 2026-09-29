@@ -61,7 +61,10 @@ function VirtualMobilePage() {
     if (typeof window !== "undefined") {
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "");
-        if (saved?.android?.machine && saved?.phone?.machine) return saved;
+        if (saved?.android?.machine && saved?.phone?.machine) {
+          const hydrate = (value: MobileState, kind: MobileOs): MobileState => ({ ...freshMobile(kind), ...value, installedApps: value.installedApps ?? freshMobile(kind).installedApps });
+          return { android: hydrate(saved.android, "android"), phone: hydrate(saved.phone, "phone") };
+        }
       } catch {}
     }
     return { android: freshMobile("android"), phone: freshMobile("phone") };
