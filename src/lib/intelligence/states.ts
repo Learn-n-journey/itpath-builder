@@ -60,6 +60,12 @@ export interface StateInput {
   /** Days between the first and most recent passing result. */
   passSpanDays: number;
   daysSinceExposure: number | null;
+  /** Successful graded work completed without simulator/GAYL assistance. */
+  independentPasses: number;
+  /** Distinct activity kinds with an independent passing result. */
+  independentPassKinds: number;
+  /** Independent passing evidence after the concept had already been proven earlier. */
+  delayedIndependentPass: boolean;
 }
 
 export interface StateAssessment {
@@ -80,6 +86,9 @@ export function assessState(input: StateInput): StateAssessment {
     unresolvedMisconception,
     passSpanDays,
     daysSinceExposure,
+    independentPasses,
+    independentPassKinds,
+    delayedIndependentPass,
   } = input;
 
   if (evidence.gradedSignals === 0) {
@@ -110,35 +119,41 @@ export function assessState(input: StateInput): StateAssessment {
     };
   }
 
-  if (!transfer.demonstrated) {
+  if (!transfer.demonstrated || independentPassKinds < 2) {
     return {
       state: "functional",
       blockedBy:
         transfer.attemptedContexts === 0
           ? "It has only been tested by questions, never applied."
-          : "Applied or hands-on work on it has not held up twice yet.",
+          : independentPassKinds < 2
+            ? "Transfer needs independent success in two different kinds of work."
+            : "Applied or hands-on work on it has not held up twice yet.",
     };
   }
 
-  if (accuracy < 0.8 || mastery < 0.75 || evidence.level !== "strong" || unresolvedMisconception) {
+  if (accuracy < 0.8 || mastery < 0.75 || evidence.level !== "strong" || unresolvedMisconception || independentPasses < 3) {
     return {
       state: "transferable",
       blockedBy: unresolvedMisconception
         ? "A repeating error on this is still unresolved."
-        : evidence.level !== "strong"
-          ? "Evidence is not yet broad enough to call it reliable."
-          : "Accuracy is not yet consistently high.",
+        : independentPasses < 3
+          ? "Reliable requires repeated independent success, not assisted completion."
+          : evidence.level !== "strong"
+            ? "Evidence is not yet broad enough to call it reliable."
+            : "Accuracy is not yet consistently high.",
     };
   }
 
-  const held = passSpanDays >= 21 && retention >= 0.8 && (daysSinceExposure ?? 0) <= 45;
+  const held = passSpanDays >= 21 && retention >= 0.8 && delayedIndependentPass && (daysSinceExposure ?? 0) <= 45;
   if (!held) {
     return {
       state: "reliable",
       blockedBy:
         passSpanDays < 21
           ? "Not yet proven over a long enough stretch of time to call it retained."
-          : "Recall needs to be confirmed again after the current gap.",
+          : !delayedIndependentPass
+            ? "Retention needs an independent passing result again after the delay."
+            : "Recall needs to be confirmed again after the current gap.",
     };
   }
 
