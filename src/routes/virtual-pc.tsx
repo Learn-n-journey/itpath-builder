@@ -417,6 +417,7 @@ function VirtualPcPage() {
   const restartAfterGayl = () => {
     if(!activeTicket || !ticketBaseline.current) return;
     const targetOs=ticketBaseline.current.os;
+    if (!activeTicket.fault) return;
     const clean=clone(ticketBaseline.current.machine);
     const fault=injectTrainingFault(clean,activeTicket.fault);
     setOsMachines(current=>syncVirtualEnvironment({...current,[targetOs]:clean},virtualEnvironment));
