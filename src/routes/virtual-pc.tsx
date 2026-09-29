@@ -34,7 +34,7 @@ import { clone,
   bootServices, ensureWorkstationState, copyPath, createMachine, currentGroups, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setAccountAdmin, setAccountLocked, setServiceStatus, storageFreePercent, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
 import { applyTrainingNetworkAction, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
-import { applicationCheck, applicationInstalled, launchTrainingApplication, reconcilePrintQueue, stopTrainingApplication, submitPrintJob, trainingApplications, type TrainingApplicationId } from "@/lib/training/applications";
+import { applicationCheck, applicationForProcess, applicationInstalled, launchTrainingApplication, reconcilePrintQueue, stopTrainingApplication, submitPrintJob, trainingApplications, type TrainingApplicationId } from "@/lib/training/applications";
 
 export const Route = createFileRoute("/virtual-pc")({
   staticData: { sitemap: false },
@@ -546,7 +546,32 @@ function VirtualPcPage() {
   };
 
   const addEvent = (next: MachineState, message: string) => { next.eventLog = [...(next.eventLog ?? []), message].slice(-250); };
-  const endProcess = (pid: number) => { recordEvidence(`GUI: ended process PID ${pid}`); mutate((next) => { killProcess(next, String(pid)); addEvent(next, `Process PID ${pid} ended by ${next.currentUser}.`); }); };
+  const endProcess = (pid: number) => {
+    const process = machine.processes.find((item) => item.pid === pid);
+    if (!process) return;
+    const application = applicationForProcess(process.name);
+    const service = machine.services.find((item) => (item.processName ?? item.name).toLowerCase().replace(/\.exe$/, "") === process.name.toLowerCase().replace(/\.exe$/, ""));
+    recordEvidence(`GUI: ended process ${process.name} PID ${pid}`);
+    const next = clone(machine);
+    const result = killProcess(next, String(pid));
+    if (result) {
+      addEvent(next, `Process PID ${pid} could not be ended: ${result}.`);
+      saveMachine(next);
+      return;
+    }
+    if (application) {
+      addEvent(next, `${application.name} was terminated from the process manager (PID ${pid}).`);
+      next.systemEvents ??= [];
+      next.systemEvents.unshift({ at:new Date().toISOString(), level:"warning", source:pcOs==="windows"?"Application Error":pcOs==="linux"?"systemd-coredump":"ReportCrash", eventId:1000, channel:"application", message:`${application.name} was terminated by ${next.currentUser}.` });
+      if (openApp === application.id) setOpenApp(null);
+    } else if (service) {
+      addEvent(next, `Service process ${process.name} ended; ${service.name} is now stopped.`);
+    } else {
+      addEvent(next, `Process ${process.name} PID ${pid} ended by ${next.currentUser}.`);
+    }
+    reconcilePrintQueue(next, { ...osMachines, [pcOs]: next }, virtualEnvironment);
+    saveMachine(next);
+  };
   const toggleService = (name: string, running: boolean) => { mutate((next) => { const result=setServiceStatus(next,name,running?"stopped":"running"); if(result.error){ addEvent(next,`Service ${name} action failed: ${result.reason??result.error}.`); recordEvidence(`GUI: service ${name} action failed (${result.error})`); return; } addEvent(next,`Service ${name} ${running?"stopped":"started"} by ${next.currentUser}.`); recordEvidence(`GUI: ${running?"stopped":"started"} service ${name}`); }); };
   const toggleNetwork = () => { const iface = primaryInterface(machine); if (!iface) return; recordEvidence(`GUI: ${iface.up ? "disabled" : "enabled"} network interface ${iface.name}`); mutate((next) => { const updated = applyTrainingNetworkAction(next, { type: "set-interface", name: iface.name, up: !iface.up }); Object.assign(next, updated); addEvent(next, `Network interface ${iface.name} changed to ${!iface.up ? "up" : "down"}.`); }); };
   const beginNetworkEdit = () => { const net = observeTrainingNetwork(machine); recordEvidence("GUI: inspected network configuration"); setNetIp(net.address); setNetMask(net.mask); setNetGateway(net.gateway); setNetDns(net.dnsServers.join(", ")); setNetworkEditing(true); };
