@@ -236,7 +236,7 @@ function isSolvable(scenario: TerminalScenario, shell: ShellKind): boolean {
 
 export const generateTerminalScenario = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => inputSchema.parse(data))
+  .validator((data) => inputSchema.parse(data))
   .handler(async ({ data, context }): Promise<AiScenarioReply> => {
     const denied = await requirePlan(context.supabase, context.userId, context.claims, "plus", "AI practice scenarios");
     if (denied) return denied;
