@@ -31,7 +31,7 @@ import { buildScenarioMachine, terminalScenarios, type TerminalScenario } from "
 import { createTerminalAttempt, evaluateTerminalAttempt, runTerminalCommand } from "@/lib/terminal/session";
 import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { clone,
-  ensureWorkstationState, copyPath, createMachine, currentGroups, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setAccountAdmin, setAccountLocked, setServiceStatus, storageFreePercent, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
+  bootServices, ensureWorkstationState, copyPath, createMachine, currentGroups, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setAccountAdmin, setAccountLocked, setServiceStatus, storageFreePercent, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
 import { applyTrainingNetworkAction, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
 
@@ -619,6 +619,7 @@ function VirtualPcPage() {
       next.memoryUsedMb = Math.min(next.memoryTotalMb, Math.max(512, next.processes.reduce((sum, proc) => sum + proc.memoryMb, 0)));
       next.restartRequired = false;
     }
+    bootServices(next);
     next.bootCount = (next.bootCount ?? 1) + 1;
     next.lastBootAt = new Date().toISOString();
     addEvent(next, `Workstation restarted. Boot #${next.bootCount}.`);
