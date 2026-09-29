@@ -167,10 +167,10 @@ export function troubleshootingAvailability(user: UserData, topicId: string): Tr
   const gate=masteryGate(user,topicId);
   const scope=topicScopeProgress(user,topicId);
   const knowledgeReady=gate.met;
-  const applied=scope.application.attempted>0 || scope.practicalAbility.attempted>0;
+  const applied=(scope.application.attempted>0 && scope.application.score>=80) || (scope.practicalAbility.attempted>0 && scope.practicalAbility.score>=80);
   return knowledgeReady && applied
     ? {available:true,reason:"You have enough topic and applied evidence to work an incident independently."}
-    : {available:false,reason:!knowledgeReady?"Prove the topic first before taking an incident.":"Complete some applied or hands-on work before taking an incident."};
+    : {available:false,reason:!knowledgeReady?"Prove the topic first before taking an incident.":"Successfully demonstrate some applied or hands-on work before taking an incident."};
 }
 
 
