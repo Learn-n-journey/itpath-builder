@@ -50,6 +50,18 @@ describe("training application runtime", () => {
     expect(navigateTrainingBrowser(refused, "http://intranet.itpath.local").status).toBe("refused");
   });
 
+  it("keeps local-only network state distinct from offline state", () => {
+    const { machines } = lab();
+    const machine = machines.windows;
+    const iface = machine.interfaces.find(item => item.up)!;
+    iface.gateway = "";
+    expect(observeTrainingNetwork(machine).state).toBe("local");
+    expect(observeTrainingNetwork(machine).localReady).toBe(true);
+    iface.up = false;
+    expect(observeTrainingNetwork(machine).state).toBe("offline");
+    expect(observeTrainingNetwork(machine).localReady).toBe(false);
+  });
+
   it("uses adapter health as the same network truth shown by the tray and apps", () => {
     const { environment, machines } = lab();
     machines.windows.networkDriverHealthy = false;
