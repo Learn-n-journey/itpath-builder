@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import {
   ArrowDown,
   CheckCircle2,
@@ -68,7 +68,7 @@ export const Route = createFileRoute("/command-line")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: CommandLineRoute,
+  component: () => <Navigate to="/virtual-mobile" replace />,
 });
 
 function CommandLineRoute() {
