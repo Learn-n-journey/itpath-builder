@@ -31,7 +31,7 @@ import { buildScenarioMachine, terminalScenarios, type TerminalScenario } from "
 import { createTerminalAttempt, evaluateTerminalAttempt, runTerminalCommand } from "@/lib/terminal/session";
 import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { clone,
-  ensureWorkstationState, copyPath, createMachine, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setServiceStatus, storageFreePercent, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
+  ensureWorkstationState, copyPath, createMachine, currentGroups, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setAccountAdmin, setAccountLocked, setServiceStatus, storageFreePercent, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
 import { applyTrainingNetworkAction, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
 
@@ -223,10 +223,7 @@ function VirtualPcPage() {
     mutate((next) => { writeFile(next, pathFor(editing.name), fileText, false); });
     setEditing(null);
   };
-  const currentGroups = () => {
-    const account = machine.users.find((item) => item.name === machine.currentUser);
-    return new Set([...(account?.groups ?? []), account?.admin ? "Administrators" : ""].filter(Boolean));
-  };
+  const signedInGroups = () => currentGroups(machine);
   const openTeamShare = () => {
     recordEvidence("GUI: opened Team Files network share");
     setShareNotice("");
@@ -237,7 +234,7 @@ function VirtualPcPage() {
   const openShareFile = (name: string) => {
     const item = teamFilesResource?.access?.files?.find((file) => file.name === name);
     if (!item) return;
-    const groups = currentGroups();
+    const groups = signedInGroups();
     if (item.readGroups?.length && !item.readGroups.some((group) => groups.has(group))) {
       recordEvidence(`GUI: access denied opening shared file ${name}`);
       return setShareNotice(`You don't have permission to open ${name}. The share is reachable, but this file has more restrictive permissions.`);
@@ -249,7 +246,7 @@ function VirtualPcPage() {
     if (!shareFileName) return;
     const item = teamFilesResource?.access?.files?.find((file) => file.name === shareFileName);
     if (!item) return;
-    const groups = currentGroups();
+    const groups = signedInGroups();
     const allowed = teamFilesAccess === "write" && (!item.writeGroups?.length || item.writeGroups.some((group) => groups.has(group)));
     if (!allowed) {
       recordEvidence(`GUI: write denied for shared file ${shareFileName}`);
@@ -556,8 +553,24 @@ function VirtualPcPage() {
     });
     setAccountName("");
   };
-  const toggleAdmin = (name: string) => { recordEvidence(`GUI: changed administrator access for ${name}`); mutate((next) => { const u = next.users.find((item) => item.name === name); if (u) { u.admin = !u.admin; u.groups = u.admin ? Array.from(new Set([...u.groups, pcOs === "windows" ? "Administrators" : pcOs === "mac" ? "admin" : "sudo"])) : u.groups.filter((g) => !["Administrators","admin","sudo"].includes(g)); addEvent(next, `Account ${name} administrator access ${u.admin ? "enabled" : "removed"}.`); } }); };
-  const toggleLock = (name: string) => { const current=machine.users.find((u)=>u.name===name); recordEvidence(`GUI: ${current?.locked ? "unlocked" : "locked"} account ${name}`); mutate((next) => { const u = next.users.find((item) => item.name === name); if (u) { u.locked = !u.locked; addEvent(next, `Account ${name} ${u.locked ? "locked" : "unlocked"}.`); } }); };
+  const toggleAdmin = (name: string) => {
+    const current = machine.users.find((u) => u.name === name);
+    if (!current) return;
+    recordEvidence(`GUI: changed administrator access for ${name}`);
+    mutate((next) => {
+      const error = setAccountAdmin(next, name, !current.admin);
+      if (!error) addEvent(next, `Account ${name} administrator access ${current.admin ? "removed" : "enabled"}.`);
+    });
+  };
+  const toggleLock = (name: string) => {
+    const current = machine.users.find((u) => u.name === name);
+    if (!current) return;
+    recordEvidence(`GUI: ${current.locked ? "unlocked" : "locked"} account ${name}`);
+    mutate((next) => {
+      const error = setAccountLocked(next, name, !current.locked);
+      if (!error) addEvent(next, `Account ${name} ${current.locked ? "unlocked" : "locked"}.`);
+    });
+  };
 
   const repairNetworkDriver = () => {
     recordEvidence("GUI: rolled back network adapter driver");
