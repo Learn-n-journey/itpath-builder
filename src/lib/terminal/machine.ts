@@ -826,13 +826,29 @@ export function readFile(state: MachineState, path: string): { text?: string; er
   return { text: node.content ?? "" };
 }
 
+export function filesystemBytes(state: MachineState): number {
+  const measure = (node: VfsNode): number => node.type === "file"
+    ? new TextEncoder().encode(node.content ?? "").length
+    : Object.values(node.children ?? {}).reduce((total, child) => total + measure(child), 0);
+  return measure(state.root);
+}
+
+export function storageFreePercent(state: MachineState): number {
+  return Math.max(0, 100 - state.diskUsedPercent);
+}
+
+export function canAllocateStorage(state: MachineState, bytes: number): boolean {
+  if (bytes <= 0) return true;
+  return state.diskUsedPercent < 100;
+}
+
 export function writeFile(
   state: MachineState,
   path: string,
   content: string,
   append: boolean,
 ): string | null {
-  const segments = resolvePath(state, path);
+  if (!canAllocateStorage(state, new TextEncoder().encode(content).length)) return "no_space";\n  const segments = resolvePath(state, path);
   const parent = parentOf(state, segments);
   if (!parent || parent.type !== "dir") return "not_found";
   const name = segments[segments.length - 1] as string;
