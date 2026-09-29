@@ -155,6 +155,17 @@ describe("learning states", () => {
     expect(assessState(base).state).toBe("retained");
   });
 
+  it("uses the 21-day retention boundary exactly", () => {
+    expect(assessState({ ...base, passSpanDays: 20 }).state).toBe("reliable");
+    expect(assessState({ ...base, passSpanDays: 21 }).state).toBe("retained");
+  });
+
+  it("drops stale retained evidence back to reliable until it is rechecked", () => {
+    expect(assessState({ ...base, daysSinceExposure: 45 }).state).toBe("retained");
+    expect(assessState({ ...base, daysSinceExposure: 46 }).state).toBe("reliable");
+  });
+
+
   it("always explains what is blocking the next rung", () => {
     expect(assessState({ ...base, passSpanDays: 5 }).blockedBy).toBeTruthy();
   });
