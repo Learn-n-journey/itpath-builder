@@ -502,7 +502,18 @@ function VirtualPcPage() {
       ["ping","nslookup","probe","test","browser","terminal:"].some(word=>lowerMessage.includes(word)) ? "test" :
       ["opened","inspect","status","network","service","storage","account","device"].some(word=>lowerMessage.includes(word)) ? "observe" : null;
     if(stage) setTicketTrace(trace=>trace.includes(stage)?trace:[...trace,stage]);
-    if (practiceMode) setPracticeActions(count=>count+1);
+    if (practiceMode && practiceContract?.supported) {
+      const tool=practiceContract.tool;
+      const relevant = tool==="terminal" ? lowerMessage.startsWith("terminal:") || lowerMessage.includes("command")
+        : tool==="network" ? ["network","ipconfig","ip link","ping","nslookup","route","dns","browser"].some(word=>lowerMessage.includes(word))
+        : tool==="storage" ? ["storage","disk","df ","cleanup","file"].some(word=>lowerMessage.includes(word))
+        : tool==="services" ? ["service","systemctl","sc ","get-service","started","stopped"].some(word=>lowerMessage.includes(word))
+        : tool==="processes" ? ["process","task","ps ","top"].some(word=>lowerMessage.includes(word))
+        : tool==="accounts" ? ["account","user","group"].some(word=>lowerMessage.includes(word))
+        : tool==="files" ? ["file","folder","saved","opened"].some(word=>lowerMessage.includes(word))
+        : false;
+      if(relevant) setPracticeActions(count=>count+1);
+    }
     if (!activeTicketId) return;
     setTicketEvidence((items) => [...items, message].slice(-40));
     setGaylActions((count) => count + 1);
