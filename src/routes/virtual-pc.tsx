@@ -288,7 +288,9 @@ function VirtualPcPage() {
 
   const activeTicket = helpDeskTickets.find((ticket) => ticket.id === activeTicketId);
   const faultMachine = activeTicket?.faultHostOs ? osMachines[activeTicket.faultHostOs] : machine;
-  const repairReady = Boolean(activeFault && trainingFaultResolved(faultMachine, activeFault));
+  const activeJobScenario = activeTicket?.terminalScenarioId ? terminalScenarios.find((scenario) => scenario.id === activeTicket.terminalScenarioId) : undefined;
+  const activeJobResult = activeJobScenario && desktopScenarioAttempt ? evaluateTerminalAttempt(activeJobScenario, { ...desktopScenarioAttempt, machine }) : null;
+  const repairReady = activeJobScenario ? Boolean(activeJobResult && activeJobResult.missingGoals.length === 0) : Boolean(activeFault && trainingFaultResolved(faultMachine, activeFault));
   const ticketResolved = repairReady && ticketVerified;
   const ticketOs = (ticket: TrainingTicket): PcOs | null => {
     if (ticket.reporterOs) return ticket.reporterOs;
