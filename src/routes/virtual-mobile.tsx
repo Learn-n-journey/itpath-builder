@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { BatteryFull, Bluetooth, ChevronLeft, Download, Folder, Globe2, Image, KeyRound, Mail, MessageSquare, Phone, RotateCcw, Settings, ShieldCheck, Smartphone, Trash2, UserRound, Wifi, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mobileTrainingTickets, type MobileTrainingTicket } from "@/lib/training/mobile-tickets";
+import { requiredMobileTicketEvidence, mobileTrainingTickets, type MobileTrainingTicket } from "@/lib/training/mobile-tickets";
 import { createMachine, primaryInterface, setServiceStatus, type MachineState } from "@/lib/terminal/machine";
 import { execute } from "@/lib/terminal/shells";
 import { applyTrainingNetworkAction, observeTrainingNetwork } from "@/lib/training/network-capabilities";
@@ -137,6 +137,7 @@ function VirtualMobilePage() {
   const [gaylLevel, setGaylLevel] = useState(0);
   const [consoleCommand, setConsoleCommand] = useState("");
   const [consoleLines, setConsoleLines] = useState<{command:string;output:string;error:boolean}[]>([]);
+  const [ticketTrace,setTicketTrace]=useState<Array<"observe"|"test"|"repair"|"verify">>([]);
   const [ticketHistory, setTicketHistory] = useState<{id:string;title:string;os:MobileOs;assisted:boolean;completedAt:string}[]>(() => {
     if(typeof window==="undefined") return [];
     try { return JSON.parse(localStorage.getItem("itpath-mobile-ticket-history-v1") || "[]"); } catch { return []; }
@@ -161,7 +162,8 @@ function VirtualMobilePage() {
     localStorage.setItem("itpath-mobile-ticket-history-v1", JSON.stringify(ticketHistory.slice(0,50)));
   }, [ticketHistory]);
 
-  const update = (fn: (draft: MobileState) => MobileState) => { if(practiceMode) setPracticeActions(count=>count+1); setDevices(current => ({ ...current, [os]: fn(current[os]) })); };
+  const markTicket=(step:"observe"|"test"|"repair"|"verify")=>{if(activeTicketId)setTicketTrace(items=>items.includes(step)?items:[...items,step]);};
+  const update = (fn: (draft: MobileState) => MobileState) => { if(practiceMode) setPracticeActions(count=>count+1); if(activeTicketId) markTicket("repair"); setDevices(current => ({ ...current, [os]: fn(current[os]) })); };
   const patch = (values: Partial<MobileState>) => update(current => ({ ...current, ...values }));
 
   const toggleWifi = () => update(current => {
@@ -236,7 +238,7 @@ function VirtualMobilePage() {
       next.notifications=[ticket.brief,...next.notifications];
       return {...current,[target]:next};
     });
-    setActiveTicketId(ticket.id); setTicketVerified(false); setGaylLevel(0); setApp(null); setSettingsPage("main"); setTicketOpen(true);
+    setActiveTicketId(ticket.id); setTicketTrace([]); setTicketVerified(false); setGaylLevel(0); setApp(null); setSettingsPage("main"); setTicketOpen(true);
   };
   useEffect(()=>{
     if(launchContext.activity!=="ticket" || !launchContext.ticket || activeTicketId) return;
@@ -248,13 +250,17 @@ function VirtualMobilePage() {
     setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setApp(null); setTicketOpen(false);
   };
   const verifyTicket = () => {
+    markTicket("verify");
     setTicketVerified(ticketResolved);
     setNotice(ticketResolved ? "Fix verified against the simulated device state." : "The device still shows evidence of the problem.");
   };
   const closeTicket = () => {
     if(!ticketResolved || !activeTicket)return;
+    const required=requiredMobileTicketEvidence(activeTicket);
+    const processComplete=required.every(step=>ticketTrace.includes(step) || step==="verify" && ticketVerified);
+    const processScore=processComplete?1:0.75;
     setTicketHistory(history=>[{id:activeTicket.id,title:activeTicket.title,os:activeTicket.os,assisted:gaylLevel>0,completedAt:new Date().toISOString()},...history].slice(0,50));
-    if(!hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylLevel));
+    if(!hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,processScore,gaylLevel));
     setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setTicketOpen(false); setConsoleLines([]);
   };
   const syncUiFromMachine = (machine:MachineState) => update(current => {
@@ -269,6 +275,7 @@ function VirtualMobilePage() {
     };
   });
   const runMobileConsole = () => {
+    if(activeTicketId) markTicket("test");
     const raw=consoleCommand.trim(); if(!raw)return;
     const result=execute(state.machine,raw);
     syncUiFromMachine(result.state);
@@ -278,7 +285,7 @@ function VirtualMobilePage() {
   const clearNetworkState = () => update(current => ({ ...current, networkCacheStale:false, machine: applyTrainingNetworkAction(current.machine, { type: "flush-dns" }) }));
   const removeProfile = (name:string) => update(current=>({...current,installedProfiles:current.installedProfiles.filter(item=>item!==name)}));
 
-  const open = (next: MobileApp) => { setApp(next); setShade(false); setNotice(""); };
+  const open = (next: MobileApp) => { if(activeTicketId) markTicket("observe"); setApp(next); setShade(false); setNotice(""); };
   const switchOs = (next: MobileOs) => { setOs(next); setApp(null); setSettingsPage("main"); setShade(false); setNotice(""); };
 
   const scaffoldingProfile=launchContext.lab?simulatorScaffoldingProfile(user,launchContext.lab):null;
