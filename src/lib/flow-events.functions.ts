@@ -24,7 +24,7 @@ export type TrackedFlow = (typeof TRACKED_FLOWS)[number];
 const SLOW_MS = 4000;
 
 export const recordFlowEvent = createServerFn({ method: "POST" })
-  .inputValidator((input: { flow: string; outcome?: "ok" | "failed"; durationMs?: number }) => ({
+  .validator((input: { flow: string; outcome?: "ok" | "failed"; durationMs?: number }) => ({
     flow: String(input?.flow ?? ""),
     outcome: input?.outcome === "failed" ? ("failed" as const) : ("ok" as const),
     durationMs: Math.max(0, Math.min(Math.round(Number(input?.durationMs ?? 0)) || 0, 600000)),
