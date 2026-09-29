@@ -393,8 +393,14 @@ export function buildIntelligence(user: UserData, now: Date = new Date()): Intel
   ).length;
   const pathFunctional = onPath.length === 0 ? 0 : Number((functional / onPath.length).toFixed(3));
 
+  // Solid concepts stay quiet until spacing says they are due. Reliable
+  // knowledge still needs delayed verification; excluding every "solid"
+  // concept would hide that retention check from Next Action and Study Plan.
   const queue = interleave(
-    concepts.filter((concept) => concept.diagnosis !== "solid" && concept.onTargetPath),
+    concepts.filter((concept) =>
+      concept.onTargetPath &&
+      (concept.diagnosis !== "solid" || concept.daysOverdue >= 0 && new Date(concept.nextReviewAt).getTime() <= nowMs)
+    ),
   );
 
   const planFor = (minutes: number): LearningPlan => {
