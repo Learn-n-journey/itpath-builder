@@ -254,7 +254,7 @@ function VirtualMobilePage() {
   const closeTicket = () => {
     if(!ticketResolved || !activeTicket)return;
     setTicketHistory(history=>[{id:activeTicket.id,title:activeTicket.title,os:activeTicket.os,assisted:gaylLevel>0,completedAt:new Date().toISOString()},...history].slice(0,50));
-    if(!hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.id,"troubleshoot",activeTicket.id,1,gaylLevel));
+    if(!hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylLevel));
     setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setTicketOpen(false); setConsoleLines([]);
   };
   const syncUiFromMachine = (machine:MachineState) => update(current => {
