@@ -330,7 +330,7 @@ interface YouTubeSearchPage {
 }
 
 export const searchYouTubeVideoPage = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => {
+  .validator((data: unknown) => {
     const input = data as { query?: unknown; pageToken?: unknown } | undefined;
     return {
       query: String(input?.query ?? "").trim().slice(0, 100),
@@ -395,7 +395,7 @@ function searchText(video: TechVideo): string {
 }
 
 export const searchLearningVideos = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => {
+  .validator((data: unknown) => {
     const query = String((data as { query?: unknown } | undefined)?.query ?? "").trim().slice(0, 100);
     return { query };
   })
@@ -584,7 +584,7 @@ export interface VideoPage {
  * it is reachable; every page pulls fresh videos from the other services.
  */
 export const getVideoPage = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => {
+  .validator((data: unknown) => {
     const page = Number((data as { page?: unknown } | undefined)?.page ?? 0);
     return { page: Number.isFinite(page) && page > 0 ? Math.min(Math.floor(page), 120) : 0 };
   })
