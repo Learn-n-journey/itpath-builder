@@ -219,7 +219,7 @@ export const listKnowledge = createServerFn({ method: "GET" })
 
 export const getKnowledgeFileUrl = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ path: z.string().min(1) }).parse(data))
+  .validator((data) => z.object({ path: z.string().min(1) }).parse(data))
   .handler(async ({ context, data }): Promise<{ ok: true; url: string } | { ok: false; error: string }> => {
     if (!data.path.startsWith(`${context.userId}/`)) return { ok: false, error: "Not your file." };
     const { data: signed, error } = await context.supabase.storage
@@ -250,7 +250,7 @@ const saveSchema = z.object({
 
 export const saveKnowledge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => saveSchema.parse(data))
+  .validator((data) => saveSchema.parse(data))
   .handler(async ({ context, data }): Promise<ItemReply> => {
     const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "Second Brain");
     if (denied) return denied;
@@ -363,7 +363,7 @@ export const saveKnowledge = createServerFn({ method: "POST" })
 
 export const deleteKnowledge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ id: z.string() }).parse(data))
+  .validator((data) => z.object({ id: z.string() }).parse(data))
   .handler(async ({ context, data }): Promise<OkReply> => {
     const { data: row } = await context.supabase
       .from("knowledge_items")
@@ -474,7 +474,7 @@ function buildSearchDigest(items: KnowledgeItem[], query: string): string {
 
 export const searchKnowledge = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ query: z.string().min(2).max(500) }).parse(data))
+  .validator((data) => z.object({ query: z.string().min(2).max(500) }).parse(data))
   .handler(async ({ context, data }): Promise<SearchReply> => {
     const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "Second Brain");
     if (denied) return denied;
