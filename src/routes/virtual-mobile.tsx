@@ -281,8 +281,9 @@ function VirtualMobilePage() {
     if(!ticketResolved || !activeTicket)return;
     const required=requiredMobileTicketEvidence(activeTicket);
     const processComplete=required.every(step=>step==="verify" ? ticketVerified : ticketTrace.includes(step));
+    if(!processComplete){setNotice(`The fix works, but demonstrate the troubleshooting process first: ${required.filter(step=>step==="verify" ? !ticketVerified : !ticketTrace.includes(step)).join(", ")}.`);return;}
     setTicketHistory(history=>[{id:activeTicket.id,title:activeTicket.title,os:activeTicket.os,assisted:gaylLevel>0,completedAt:new Date().toISOString()},...history].slice(0,50));
-    if(processComplete && shouldRecordSimulatorOutcome(user,"troubleshoot",activeTicket.id,gaylLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylLevel));
+    if(shouldRecordSimulatorOutcome(user,"troubleshoot",activeTicket.id,gaylLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylLevel));
     setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setTicketOpen(false); setConsoleLines([]);
   };
   const syncUiFromMachine = (machine:MachineState) => update(current => {
