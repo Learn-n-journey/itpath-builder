@@ -156,6 +156,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [cloudError, setCloudError] = useState<string | null>(null);
   const [syncedUserId, setSyncedUserId] = useState<string | null>(null);
   const pushedSnapshot = useRef<string>("");
+  const cloudSaveGeneration = useRef(0);
   const activityBaseline = useRef<UserData | null>(null);
 
   // Hydrate after mount so server and client render the same initial markup.
@@ -262,20 +263,23 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const snapshot = JSON.stringify(user);
     if (pushedSnapshot.current === snapshot) return;
 
+    const generation=++cloudSaveGeneration.current;
     const timer = setTimeout(() => {
       setCloudStatus("syncing");
       void pushCloudState(userId, user).then((result) => {
+        // A newer edit was queued while this request was in flight. Never let
+        // the older response overwrite the status/snapshot of that newer work.
+        if(generation!==cloudSaveGeneration.current) return;
         if (result.ok) {
           pushedSnapshot.current = snapshot;
-          // Safely in the account now, so the local safety copy is no longer needed.
           clearStateBackup(userId);
           setCloudError(null);
           setCloudSyncedAt(new Date().toISOString());
           setCloudStatus("synced");
         } else {
-          // The sign-in lapsed: keep a local safety copy so nothing is lost,
-          // and ask the learner to sign in again rather than retrying forever.
-          if (result.expired) writeStateBackup(userId, user);
+          // Preserve every failed account save locally, not only expired sessions.
+          // Network/backend outages should never turn into learner data loss.
+          writeStateBackup(userId, user);
           setCloudError(result.error ?? "Could not save to your account");
           setCloudStatus("error");
         }
