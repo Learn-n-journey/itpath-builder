@@ -77,7 +77,10 @@ function weakestPrerequisite(user: UserData, topicId: string): string | undefine
   return unmet[0]?.id;
 }
 
-interface Candidate extends Omit<StudyPlanTask, "id" | "status" | "trackedSeconds"> {\n  /** Lower numbers run first. Intelligence-driven work can outrank generic category order. */\n  priority?: number;\n}
+interface Candidate extends Omit<StudyPlanTask, "id" | "status" | "trackedSeconds"> {
+  /** Lower numbers run first. Intelligence-driven work can outrank generic category order. */
+  priority?: number;
+}
 
 function buildCandidates(user: UserData, now: Date): Candidate[] {
   const nowMs = now.getTime();
@@ -297,7 +300,8 @@ export function generateStudyPlan(
   now: Date = new Date(),
 ): StudyPlan {
   const candidates = buildCandidates(user, now);
-  const defaultPriority=(candidate:Candidate)=>KIND_ORDER.indexOf(candidate.kind)*10+10;\n  candidates.sort((a,b)=>(a.priority ?? defaultPriority(a))-(b.priority ?? defaultPriority(b)));
+  const defaultPriority=(candidate:Candidate)=>KIND_ORDER.indexOf(candidate.kind)*10+10;
+  candidates.sort((a,b)=>(a.priority ?? defaultPriority(a))-(b.priority ?? defaultPriority(b)));
 
   const tasks: StudyPlanTask[] = [];
   let planned = 0;
