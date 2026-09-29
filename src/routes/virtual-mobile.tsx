@@ -8,10 +8,12 @@ import { execute } from "@/lib/terminal/shells";
 import { applyTrainingNetworkAction, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 
 export const Route = createFileRoute("/virtual-mobile")({
-  validateSearch: (search: Record<string, unknown>): { activity?: "lab"; lab?: string; topic?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { activity?: "lab"; lab?: string; topic?: string; tool?: string; os?: MobileOs } => ({
     ...(search.activity === "lab" ? { activity:"lab" as const } : {}),
     ...(typeof search.lab === "string" ? { lab:search.lab } : {}),
     ...(typeof search.topic === "string" ? { topic:search.topic } : {}),
+    ...(typeof search.tool === "string" ? { tool:search.tool } : {}),
+    ...(search.os === "android" || search.os === "phone" ? { os:search.os } : {}),
   }),
   staticData: { sitemap: false },
   head: () => ({ meta: [{ title: "Virtual Mobile | IT PATH" }, { name: "description", content: "Practice mobile support inside safe simulated Android-style and phone-style devices." }] }),
@@ -94,7 +96,7 @@ function freshMobile(os: MobileOs): MobileState {
 function VirtualMobilePage() {
   const launchContext = Route.useSearch();
   const practiceMode = launchContext.activity === "lab" && Boolean(launchContext.lab);
-  const [os, setOs] = useState<MobileOs>("android");
+  const [os, setOs] = useState<MobileOs>(()=>launchContext.os ?? "android");
   const [devices, setDevices] = useState<Record<MobileOs, MobileState>>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -112,6 +114,15 @@ function VirtualMobilePage() {
   const [shade, setShade] = useState(false);
   const [notice, setNotice] = useState("");
   const [ticketOpen, setTicketOpen] = useState(false);
+  useEffect(()=>{
+    if(!practiceMode || !launchContext.tool) return;
+    const tool=launchContext.tool;
+    if(tool==="bluetooth"||tool==="battery"||tool==="storage"||tool==="network"||tool==="settings"||tool==="apps"){
+      setApp("settings");
+      setSettingsPage(tool==="network"?"network":tool==="settings"?"main":tool as "bluetooth"|"battery"|"storage"|"apps");
+    } else if(tool==="terminal") setApp("console");
+    else if(tool==="files") setApp("files");
+  },[practiceMode,launchContext.lab,launchContext.tool]);
   const [activeTicketId, setActiveTicketId] = useState<string | null>(null);
   const [ticketBaseline, setTicketBaseline] = useState<MobileState | null>(null);
   const [ticketVerified, setTicketVerified] = useState(false);
