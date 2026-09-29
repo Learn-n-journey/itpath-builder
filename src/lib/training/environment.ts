@@ -65,10 +65,15 @@ export function connectMachineToEnvironment(machine: MachineState, env: VirtualE
     const existing = next.targets.find((target) => target.host === resource.hostname);
     if (existing) {
       existing.ip = ip;
-      existing.reachable = resource.available;
-      existing.openPorts = resource.available ? Array.from(new Set([...(existing.openPorts ?? []), resource.port])) : [];
+      // Host reachability and application availability are separate facts.
+      // A stopped SMB/web/print service must not make the server itself disappear.
+      existing.reachable = true;
+      const ports = new Set(existing.openPorts ?? []);
+      if (resource.available) ports.add(resource.port);
+      else ports.delete(resource.port);
+      existing.openPorts = Array.from(ports);
     } else {
-      next.targets.push({ host: resource.hostname, ip, reachable: resource.available, latencyMs: 2, openPorts: resource.available ? [resource.port] : [] });
+      next.targets.push({ host: resource.hostname, ip, reachable: true, latencyMs: 2, openPorts: resource.available ? [resource.port] : [] });
     }
   }
   return next;
