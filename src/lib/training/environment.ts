@@ -1,4 +1,4 @@
-import { currentGroups, type MachineState } from "@/lib/terminal/machine";
+import { currentGroups, reconcileServiceProcesses, type MachineState } from "@/lib/terminal/machine";
 
 export type VirtualOsKey = "windows" | "linux" | "mac";
 
