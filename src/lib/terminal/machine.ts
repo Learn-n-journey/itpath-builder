@@ -117,6 +117,9 @@ export interface MachineState {
   /** Windows workstation state used across Settings, Task Manager and ticket faults. */
   startupApps?: { name: string; enabled: boolean; impact: "Low" | "Medium" | "High" }[];
   pendingUpdates?: { title: string; kind: "quality" | "driver" | "security"; requiresRestart?: boolean }[];
+  /** User-visible print queue shared with the Print Center and system tray. */
+  printJobs?: { id: number; document: string; printer: string; status: "printing" | "queued" | "error"; submittedAt: string }[];
+  nextPrintJobId?: number;
   restartRequired?: boolean;
   /** Restart metadata used by the Virtual PC lifecycle and troubleshooting tickets. */
   bootCount?: number;
@@ -159,6 +162,8 @@ export function ensureWorkstationState(state: MachineState): MachineState {
       { name: "Windows Security notification icon", enabled: true, impact: "Low" },
     ];
     state.pendingUpdates ??= [];
+    state.printJobs ??= [];
+    state.nextPrintJobId ??= 1;
     state.restartRequired ??= false;
     state.bootCount ??= 1;
     state.lastBootAt ??= new Date().toISOString();
