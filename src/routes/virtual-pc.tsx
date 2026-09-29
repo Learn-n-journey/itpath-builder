@@ -34,7 +34,7 @@ import { clone,
   bootServices, ensureWorkstationState, copyPath, createMachine, currentGroups, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setAccountAdmin, setAccountLocked, setServiceStatus, storageFreePercent, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
 import { useAppState } from "@/state/app-state";
 import { applyTrainingNetworkAction, navigateTrainingBrowser, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
-import { applicationCheck, applicationForProcess, applicationInstalled, launchTrainingApplication, reconcilePrintQueue, stopTrainingApplication, submitPrintJob, trainingApplications, type TrainingApplicationId } from "@/lib/training/applications";
+import { advancePrintQueue, applicationCheck, applicationForProcess, applicationInstalled, cancelPrintJob, launchTrainingApplication, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications, type TrainingApplicationId } from "@/lib/training/applications";
 
 export const Route = createFileRoute("/virtual-pc")({
   staticData: { sitemap: false },
