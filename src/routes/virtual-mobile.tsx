@@ -206,6 +206,7 @@ function VirtualMobilePage() {
       case "photos-permission": return state.installedApps.find(item=>item.id==="photos")?.permissionGranted !== false;
       case "update-prereq": return state.updateInstalled;
       case "account-signed-out": return state.accountSignedIn && state.managementProfile;
+      case "background-refresh-off": return state.backgroundRefresh;
     }
   })() : false;
 
@@ -231,6 +232,7 @@ function VirtualMobilePage() {
       if (ticket.fault==="photos-permission") next.installedApps=next.installedApps.map(item=>item.id==="photos"?{...item,permissionGranted:false}:item);
       if (ticket.fault==="update-prereq") { next.updateAvailable=true; next.updateInstalled=false; next.battery=24; }
       if (ticket.fault==="account-signed-out") { next.accountSignedIn=false; next.cloudSync=false; }
+      if (ticket.fault==="background-refresh-off") next.backgroundRefresh=false;
       next.notifications=[ticket.brief,...next.notifications];
       return {...current,[target]:next};
     });
@@ -252,6 +254,7 @@ function VirtualMobilePage() {
   const closeTicket = () => {
     if(!ticketResolved || !activeTicket)return;
     setTicketHistory(history=>[{id:activeTicket.id,title:activeTicket.title,os:activeTicket.os,assisted:gaylLevel>0,completedAt:new Date().toISOString()},...history].slice(0,50));
+    if(!hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.id,"troubleshoot",activeTicket.id,1,gaylLevel));
     setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setTicketOpen(false); setConsoleLines([]);
   };
   const syncUiFromMachine = (machine:MachineState) => update(current => {
