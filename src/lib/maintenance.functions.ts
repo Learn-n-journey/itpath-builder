@@ -17,7 +17,7 @@ function isOwner(email: string | undefined | null) {
 /** Turn the maintenance screen on or off for one course. Owner only. */
 export const setMaintenance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z
       .object({
         domain: z.enum(["it-cybersecurity", "auto-repair"]),
