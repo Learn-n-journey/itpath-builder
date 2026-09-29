@@ -213,3 +213,25 @@ export function simulatorOutcomeSignal(topicId: string, kind: "lab"|"troubleshoo
   const adjusted=Math.min(score,assistanceAdjustedScore(helpLevel));
   return {topicId,kind,correct:adjusted>=0.7,score:adjusted,errorTag:`simulator:${activityId}:help-${Math.max(0,helpLevel)}`};
 }
+
+
+export interface ScaffoldingProfile {
+  priorSuccesses: number;
+  bestHelpLevel: number | null;
+  independentSuccess: boolean;
+  openingHintStyle: "socratic"|"guided"|"structured";
+}
+
+/** Read prior verified simulator outcomes without asking AI to judge mastery. Lower help level means greater demonstrated independence. */
+export function simulatorScaffoldingProfile(user: UserData, activityId: string): ScaffoldingProfile {
+  const prefix=`simulator:${activityId}:help-`;
+  const successes=user.learnerSignals.filter(signal=>signal.correct===true && signal.errorTag?.startsWith(prefix));
+  const levels=successes.map(signal=>Number(signal.errorTag?.slice(prefix.length))).filter(Number.isFinite);
+  const bestHelpLevel=levels.length ? Math.min(...levels) : null;
+  return {
+    priorSuccesses: successes.length,
+    bestHelpLevel,
+    independentSuccess: bestHelpLevel===0,
+    openingHintStyle: bestHelpLevel===0 ? "socratic" : bestHelpLevel===null || bestHelpLevel>=2 ? "structured" : "guided",
+  };
+}
