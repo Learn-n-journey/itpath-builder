@@ -163,3 +163,28 @@ export function probeTrainingService(machine: MachineState, host: string, port: 
         : `${service} is reachable on ${host} TCP ${port}.`;
   return { host, ...(address ? { address } : {}), port, service, networkReachable, listening, blocked, ok, detail };
 }
+
+
+export type BrowserNavigationResult = {
+  host: string;
+  address?: string;
+  status: "ok" | "offline" | "dns" | "unreachable" | "refused";
+  title: string;
+  detail: string;
+};
+
+export function navigateTrainingBrowser(machine: MachineState, rawAddress: string): BrowserNavigationResult {
+  const trimmed = rawAddress.trim() || "http://intranet.itpath.local";
+  const withoutScheme = trimmed.replace(/^https?:\/\//i, "");
+  const host = withoutScheme.split(/[/?#]/)[0]?.split(":")[0] || "intranet.itpath.local";
+  const net = observeTrainingNetwork(machine);
+  if (!net.localReady) return { host, status:"offline", title:"You’re offline", detail:net.summary };
+  const numeric = /^\d+\.\d+\.\d+\.\d+$/.test(host);
+  const address = numeric ? host : resolveHost(machine, host) ?? undefined;
+  if (!address) return { host, status:"dns", title:"This site can’t be reached", detail:`DNS could not find ${host}.` };
+  const reachability = probeTrainingNetwork(machine, host).find(item => item.kind === "reachability");
+  if (!reachability?.ok) return { host, address, status:"unreachable", title:"This site can’t be reached", detail:reachability?.detail ?? `${host} did not respond.` };
+  const web = probeTrainingService(machine, host, 80);
+  if (!web.ok) return { host, address, status:"refused", title:"This site refused to connect", detail:web.detail };
+  return { host, address, status:"ok", title:host === "intranet.itpath.local" ? "Company Intranet" : host, detail:`Connected to ${host}${address ? ` at ${address}` : ""}.` };
+}
