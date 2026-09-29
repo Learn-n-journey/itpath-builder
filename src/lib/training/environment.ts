@@ -1,4 +1,4 @@
-import type { MachineState } from "@/lib/terminal/machine";
+import { currentGroups, type MachineState } from "@/lib/terminal/machine";
 
 export type VirtualOsKey = "windows" | "linux" | "mac";
 
@@ -107,8 +107,7 @@ export function resourceAccessForMachine(resourceId: string, machine: MachineSta
   const resource = env.resources.find((item) => item.id === resourceId);
   if (!resource || !resourceAvailable(resource, machines)) return "unreachable";
   if (!resource.access) return "read";
-  const account = machine.users.find((item) => item.name === machine.currentUser);
-  const groups = new Set([...(account?.groups ?? []), account?.admin ? "Administrators" : ""].filter(Boolean));
+  const groups = currentGroups(machine);
   if (resource.access.writeGroups.some((group) => groups.has(group))) return "write";
   if (resource.access.readGroups.some((group) => groups.has(group))) return "read";
   return "denied";
