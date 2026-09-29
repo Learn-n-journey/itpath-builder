@@ -262,14 +262,14 @@ function VirtualMobilePage() {
     setActiveTicketId(null); setTicketBaseline(null); setTicketVerified(false); setGaylLevel(0); setApp(null); setTicketOpen(false);
   };
   const verifyTicket = () => {
-    markTicket("verify");
+    if(ticketResolved) markTicket("verify");
     setTicketVerified(ticketResolved);
     setNotice(ticketResolved ? "Fix verified against the simulated device state." : "The device still shows evidence of the problem.");
   };
   const closeTicket = () => {
     if(!ticketResolved || !activeTicket)return;
     const required=requiredMobileTicketEvidence(activeTicket);
-    const processComplete=required.every(step=>ticketTrace.includes(step) || step==="verify" && ticketVerified);
+    const processComplete=required.every(step=>step==="verify" ? ticketVerified : ticketTrace.includes(step));
     const processScore=processComplete?1:0.75;
     setTicketHistory(history=>[{id:activeTicket.id,title:activeTicket.title,os:activeTicket.os,assisted:gaylLevel>0,completedAt:new Date().toISOString()},...history].slice(0,50));
     if(shouldRecordSimulatorOutcome(user,"troubleshoot",activeTicket.id,gaylLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,processScore,gaylLevel));
