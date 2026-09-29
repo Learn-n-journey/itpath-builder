@@ -43,7 +43,7 @@ export const listBetaTesters = createServerFn({ method: "GET" })
 
 export const addBetaTester = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) =>
+  .validator((data) =>
     z.object({ email: z.string().email(), note: z.string().max(200).optional() }).parse(data),
   )
   .handler(async ({ context, data }): Promise<BetaListReply> => {
@@ -68,7 +68,7 @@ export const addBetaTester = createServerFn({ method: "POST" })
 
 export const removeBetaTester = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => z.object({ email: z.string() }).parse(data))
+  .validator((data) => z.object({ email: z.string() }).parse(data))
   .handler(async ({ context, data }): Promise<BetaListReply> => {
     const email = (context.claims as { email?: string } | null)?.email;
     if (!isOwner(email)) return { ok: false, error: "Not allowed." };
