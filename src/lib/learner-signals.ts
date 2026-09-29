@@ -199,7 +199,7 @@ export function evidenceStream(user: UserData): LearnerSignal[] {
 
 /** True when this simulator outcome has already been credited. errorTag carries the stable activity identity. */
 export function hasSimulatorCredit(user: UserData, kind: "lab"|"troubleshoot"|"career", activityId: string): boolean {
-  return user.learnerSignals.some(signal=>signal.kind===kind && signal.errorTag?.startsWith(`simulator:${activityId}:`) && signal.correct===true);
+  return user.learnerSignals.some(signal=>signal.kind===kind && (signal.errorTag===`simulator:${activityId}` || signal.errorTag?.startsWith(`simulator:${activityId}:`)) && signal.correct===true);
 }
 
 export function assistanceAdjustedScore(helpLevel: number): number {
