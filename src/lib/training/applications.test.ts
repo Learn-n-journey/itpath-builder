@@ -30,6 +30,35 @@ describe("training application runtime", () => {
     expect(result.causes.join(" ")).toContain("LanmanWorkstation");
   });
 
+  it("cascades network loss and recovery across network applications", () => {
+    const { environment, machines } = lab();
+    const browser = trainingApplications.find((item) => item.id === "browser")!;
+    const files = trainingApplications.find((item) => item.id === "team-files")!;
+    const print = trainingApplications.find((item) => item.id === "print-center")!;
+    const updates = trainingApplications.find((item) => item.id === "updates")!;
+    const iface = machines.windows.interfaces.find((item) => item.up)!;
+    iface.up = false;
+    expect(applicationCheck(browser, machines.windows, machines, environment).health).toBe("blocked");
+    expect(applicationCheck(files, machines.windows, machines, environment).health).toBe("blocked");
+    expect(applicationCheck(print, machines.windows, machines, environment).health).toBe("blocked");
+    expect(applicationCheck(updates, machines.windows, machines, environment).health).toBe("blocked");
+    iface.up = true;
+    expect(applicationCheck(browser, machines.windows, machines, environment).health).toBe("ready");
+    expect(applicationCheck(files, machines.windows, machines, environment).health).not.toBe("blocked");
+    expect(applicationCheck(print, machines.windows, machines, environment).health).toBe("ready");
+    expect(applicationCheck(updates, machines.windows, machines, environment).health).toBe("ready");
+  });
+
+  it("keeps local resources available when only the default route is missing", () => {
+    const { environment, machines } = lab();
+    const files = trainingApplications.find((item) => item.id === "team-files")!;
+    const updates = trainingApplications.find((item) => item.id === "updates")!;
+    const iface = machines.windows.interfaces.find((item) => item.up)!;
+    iface.gateway = "";
+    expect(applicationCheck(files, machines.windows, machines, environment).health).not.toBe("blocked");
+    expect(applicationCheck(updates, machines.windows, machines, environment).health).toBe("blocked");
+  });
+
   it("maps an ended process back to the application it owns", () => {
     expect(applicationForProcess("itpath-browser")?.id).toBe("browser");
     expect(applicationForProcess("itpath-browser.exe")?.id).toBe("browser");
