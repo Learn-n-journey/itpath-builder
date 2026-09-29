@@ -35,6 +35,8 @@ import { clone,
 import { useAppState } from "@/state/app-state";
 import { hasSimulatorCredit, simulatorOutcomeSignal, simulatorScaffoldingProfile } from "@/lib/learner-signals";
 import { applyTrainingNetworkAction, navigateTrainingBrowser, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
+import { labs } from "@/data/static-content";
+import { simulatorLabContract } from "@/lib/lab-environments";
 import { advancePrintQueue, advanceWindowsUpdate, applicationCheck, applicationForProcess, applicationInstalled, cancelPrintJob, launchTrainingApplication, completeWindowsUpdateRestart, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications, type TrainingApplicationId } from "@/lib/training/applications";
 
 export const Route = createFileRoute("/virtual-pc")({
@@ -87,6 +89,8 @@ function VirtualPcPage() {
   const practiceMode = launchContext.activity === "lab" && Boolean(launchContext.lab);
   const [practiceActions,setPracticeActions]=useState(0);
   const { user, actions } = useAppState();
+  const practiceLab=practiceMode?labs.find(item=>item.id===launchContext.lab):undefined;
+  const practiceContract=practiceLab?simulatorLabContract(practiceLab):null;
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
   const [fallbackMachine] = useState<MachineState>(() => freshWindowsMachine());
   const [pcOs, setPcOs] = useState<PcOs>(()=>launchContext.os ?? "windows");
@@ -498,10 +502,16 @@ function VirtualPcPage() {
     else if ((relevant[activeFault.kind] ?? []).some(word=>lower.includes(word))) setGaylFeedback("That evidence is relevant. Ask what it rules in or rules out before making the next change.");
     else if (lower.startsWith("terminal:")) setGaylFeedback("That command may still be useful, but connect its output to the reported symptom. Avoid collecting evidence without a reason.");
   };
+  const practiceHealthy = !practiceContract?.supported ? false
+    : practiceContract.success.kind==="terminal-command" ? terminalLines.length>0
+    : practiceContract.success.kind==="network-online" ? networkState.localReady
+    : practiceContract.success.kind==="storage-below" ? 100-diskFreePercent<practiceContract.success.percent
+    : false;
   const completePracticeLab = () => {
-    if(!practiceMode || !launchContext.lab || !launchContext.topic || practiceActions<2) return;
+    if(!practiceMode || !launchContext.lab || !launchContext.topic || !practiceContract?.supported){setNotice(practiceContract?.requirement ?? "This Lab uses the normal evidence workflow.");return;}
+    if(practiceActions<practiceContract.minimumRelevantActions || !practiceHealthy){setNotice(practiceContract.requirement);return;}
     if(!hasSimulatorCredit(user,"lab",launchContext.lab)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,gaylHelpLevel));
-    setNotice("Practice verified. This demonstrated work has been recorded as practical evidence.");
+    setNotice("Lab objective verified from the simulator contract and recorded as practical evidence.");
   };
   const scaffoldingProfile = launchContext.lab ? simulatorScaffoldingProfile(user,launchContext.lab) : null;
   const adaptiveOpeningHint = scaffoldingProfile?.openingHintStyle==="socratic"
