@@ -84,6 +84,8 @@ export function useSubscription() {
     }
 
     let active = true;
+    setLoading(true);
+    setSubscription(null);
     const load = async () => {
       const { data } = await supabase
         .from("subscriptions")
