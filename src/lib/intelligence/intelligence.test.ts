@@ -8,6 +8,7 @@ import type { LearnerSignal, LearnerSignalKind } from "@/lib/app-data/types";
 import { evidenceStrength, gradedSignals, transferEvidence, velocityFrom } from "./evidence";
 import { assessState } from "./states";
 import { interventionHistory } from "./interventions";
+import { prescribe } from "./prescribe";
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = new Date("2026-06-01T12:00:00.000Z").getTime();
@@ -156,6 +157,32 @@ describe("learning states", () => {
 
   it("always explains what is blocking the next rung", () => {
     expect(assessState({ ...base, passSpanDays: 5 }).blockedBy).toBeTruthy();
+  });
+});
+
+describe("state-driven prescriptions", () => {
+  const profile = {
+    topicId:"topic-1", title:"Networking", mastery:0.9, confidence:0.9, retention:0.9,
+    accuracy:0.95, attempts:12, avgResponseSeconds:20, lastExposureAt:new Date(NOW).toISOString(),
+    daysSinceExposure:0, prerequisites:[], errorPatterns:[],
+  } as any;
+
+  it("moves functional knowledge to hands-on proof", () => {
+    const result=prescribe(profile,"solid",{state:"functional"});
+    expect(result.route).toBe("/labs");
+    expect(result.method).toBe("hands_on");
+  });
+
+  it("moves transferable knowledge to uncertain troubleshooting", () => {
+    const result=prescribe(profile,"solid",{state:"transferable"});
+    expect(result.route).toBe("/troubleshoot");
+    expect(result.method).toBe("scenario");
+  });
+
+  it("does not send reliable knowledge backward to beginner practice", () => {
+    const result=prescribe(profile,"solid",{state:"reliable"});
+    expect(result.route).toBe("/review");
+    expect(result.difficulty).not.toBe("foundation");
   });
 });
 
