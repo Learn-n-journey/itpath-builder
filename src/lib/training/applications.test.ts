@@ -2,7 +2,7 @@ import { navigateTrainingBrowser, observeTrainingNetwork } from "@/lib/training/
 import { describe, expect, it } from "vitest";
 import { createMachine, injectTrainingFault, setServiceStatus } from "@/lib/terminal/machine";
 import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
-import { advancePrintQueue, applicationCheck, applicationForProcess, applicationInstalled, launchTrainingApplication, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications } from "@/lib/training/applications";
+import { advancePrintQueue, advanceWindowsUpdate, applicationCheck, applicationForProcess, applicationInstalled, completeWindowsUpdateRestart, launchTrainingApplication, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications } from "@/lib/training/applications";
 
 function lab() {
   const environment = createVirtualEnvironment();
@@ -87,6 +87,33 @@ describe("training application runtime", () => {
     iface.gateway = "";
     expect(applicationCheck(files, machines.windows, machines, environment).health).not.toBe("blocked");
     expect(applicationCheck(updates, machines.windows, machines, environment).health).toBe("blocked");
+  });
+
+  it("runs Windows Update through download install and restart completion", () => {
+    const { environment, machines } = lab();
+    const machine = machines.windows;
+    advanceWindowsUpdate(machine, machines, environment);
+    expect(machine.updateState?.phase).toBe("checking");
+    advanceWindowsUpdate(machine, machines, environment);
+    expect(machine.updateState?.phase).toBe("downloading");
+    expect(machine.services.find(item => item.name === "wuauserv")?.status).toBe("running");
+    advanceWindowsUpdate(machine, machines, environment);
+    expect(machine.updateState?.phase).toBe("installing");
+    advanceWindowsUpdate(machine, machines, environment);
+    expect(machine.updateState?.phase).toBe("restart-required");
+    expect(machine.restartRequired).toBe(true);
+    completeWindowsUpdateRestart(machine);
+    expect(machine.updateState?.phase).toBe("completed");
+    expect(machine.restartRequired).toBe(false);
+    expect(machine.pendingUpdates).toHaveLength(0);
+  });
+
+  it("blocks Windows Update without enough free storage", () => {
+    const { environment, machines } = lab();
+    machines.windows.diskUsedPercent = 99;
+    advanceWindowsUpdate(machines.windows, machines, environment);
+    expect(machines.windows.updateState?.phase).toBe("error");
+    expect(machines.windows.updateState?.message).toContain("free disk space");
   });
 
   it("maps an ended process back to the application it owns", () => {
