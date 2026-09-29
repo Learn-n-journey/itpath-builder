@@ -8,6 +8,8 @@ import { execute } from "@/lib/terminal/shells";
 import { applyTrainingNetworkAction, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 import { useAppState } from "@/state/app-state";
 import { hasSimulatorCredit, simulatorOutcomeSignal, simulatorScaffoldingProfile } from "@/lib/learner-signals";
+import { labs } from "@/data/static-content";
+import { simulatorLabContract } from "@/lib/lab-environments";
 
 export const Route = createFileRoute("/virtual-mobile")({
   validateSearch: (search: Record<string, unknown>): { activity?: "lab"|"ticket"; lab?: string; ticket?: string; topic?: string; tool?: string; os?: MobileOs } => ({
@@ -104,6 +106,9 @@ function VirtualMobilePage() {
   const {user,actions}=useAppState();
   const [practiceActions,setPracticeActions]=useState(0);
   const [practiceHelpLevel,setPracticeHelpLevel]=useState(0);
+  const practiceLab=practiceMode?labs.find(item=>item.id===launchContext.lab):undefined;
+  const practiceContract=practiceLab?simulatorLabContract(practiceLab):null;
+  const [practiceBaseline,setPracticeBaseline]=useState<Record<MobileOs,MobileState>|null>(null);
   const [os, setOs] = useState<MobileOs>(()=>launchContext.os ?? "android");
   const [devices, setDevices] = useState<Record<MobileOs, MobileState>>(() => {
     if (typeof window !== "undefined") {
@@ -156,8 +161,14 @@ function VirtualMobilePage() {
   const workServicesReady = state.accountSignedIn && state.managementProfile;
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
-  }, [devices]);
+    if(!practiceMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
+  }, [devices,practiceMode]);
+  useEffect(()=>{
+    if(!practiceMode || practiceBaseline) return;
+    setPracticeBaseline(structuredClone(devices));
+    setDevices({android:freshMobile("android"),phone:freshMobile("phone")});
+    setPracticeActions(0);
+  },[practiceMode,practiceBaseline]);
   useEffect(() => {
     localStorage.setItem("itpath-mobile-ticket-history-v1", JSON.stringify(ticketHistory.slice(0,50)));
   }, [ticketHistory]);
@@ -290,17 +301,19 @@ function VirtualMobilePage() {
 
   const scaffoldingProfile=launchContext.lab?simulatorScaffoldingProfile(user,launchContext.lab):null;
   const practiceHint=practiceHelpLevel===0?"I’ll stay out of the way unless you need me.":scaffoldingProfile?.openingHintStyle==="socratic"?"You have demonstrated this before. What observation would best test your first hypothesis?":scaffoldingProfile?.openingHintStyle==="guided"?"Name the subsystem involved, inspect its current state, then make the smallest justified change.":"Start with the symptom. Compare the expected state with what the device shows before changing anything.";
-  const practiceHealthy = launchContext.tool==="bluetooth" ? state.bluetoothEnabled
-    : launchContext.tool==="battery" ? state.battery>=20
-    : launchContext.tool==="storage" ? state.storageUsed<95
-    : launchContext.tool==="network" ? mobileOnline
-    : launchContext.tool==="apps" ? state.installedApps.some(item=>item.enabled)
-    : launchContext.tool==="terminal" ? consoleLines.length>0
-    : true;
+  const practiceHealthy = !practiceContract?.supported ? false
+    : practiceContract.success.kind==="bluetooth-enabled" ? state.bluetoothEnabled
+    : practiceContract.success.kind==="storage-below" ? state.storageUsed<practiceContract.success.percent
+    : practiceContract.success.kind==="network-online" ? mobileOnline
+    : practiceContract.success.kind==="terminal-command" ? consoleLines.length>0
+    : practiceContract.success.kind==="app-enabled" ? state.installedApps.some(item=>item.enabled)
+    : false;
   const completePracticeLab=()=>{
-    if(!practiceMode||!launchContext.lab||!launchContext.topic||practiceActions<2||!practiceHealthy)return;
+    if(!practiceMode||!launchContext.lab||!launchContext.topic||!practiceContract?.supported){setNotice(practiceContract?.requirement ?? "This Lab uses the normal evidence workflow.");return;}
+    if(practiceActions<practiceContract.minimumRelevantActions||!practiceHealthy){setNotice(practiceContract.requirement);return;}
     if(!hasSimulatorCredit(user,"lab",launchContext.lab)) actions.addLearnerSignal(simulatorOutcomeSignal(launchContext.topic,"lab",launchContext.lab,1,practiceHelpLevel));
-    setNotice("Practice verified from the simulated device state and recorded as practical evidence.");
+    setNotice("Lab objective verified from an isolated simulator session and recorded as practical evidence.");
+    if(practiceBaseline) setDevices(structuredClone(practiceBaseline));
   };
 
   const apps = [
