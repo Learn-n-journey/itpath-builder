@@ -208,7 +208,7 @@ function HardwareImage({ component, photo, activeId, onPick, interactive = true 
         return <button key={part.id} type="button" disabled={!interactive} onClick={() => onPick(part.id)} aria-label={`Part ${index + 1}: ${part.name}`} style={{ left: `${part.x}%`, top: `${part.y}%` }}
           className={cn("group absolute -translate-x-1/2 -translate-y-1/2 transition-all", interactive && "hover:scale-110")}>
           <span className={cn("absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background shadow", active ? "bg-primary" : "bg-cyan-400")} />
-          <span className={cn("absolute bottom-[calc(50%+6px)] left-[calc(50%+6px)] h-5 w-px origin-bottom -rotate-45 shadow-sm", active ? "bg-primary" : "bg-cyan-400")} />
+          <span className={cn("absolute bottom-[calc(50%+3px)] left-[calc(50%+3px)] h-[27px] w-px origin-bottom -rotate-45 shadow-sm", active ? "bg-primary" : "bg-cyan-400")} />
           <span className={cn("absolute bottom-[calc(50%+20px)] left-[calc(50%+19px)] flex size-6 items-center justify-center rounded-full border text-[10px] font-bold shadow-lg ring-1 ring-background", active ? "border-primary bg-primary text-primary-foreground" : "border-cyan-400 bg-background/95 text-cyan-400")}>{index + 1}</span>
         </button>;
       })}
