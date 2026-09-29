@@ -70,8 +70,8 @@ function freshWindowsMachine(): MachineState {
   });
 }
 
-const promotedDesktopJobs: TrainingTicket[] = terminalScenarios.filter(x => ["cmd","powershell","bash","mac"].includes(x.shell)).map(x => ({ id: "ticket-job-" + x.id, topicId:x.topicId, title:x.title, requester:"Support Queue", brief:x.brief, environment:x.environment, fault:"service", surfaces:["virtual-pc"], shells:[x.shell], verification:x.goals.map(g=>g.description), tags:["help-desk","scenario"], difficulty:x.difficulty==="challenging"?"advanced":x.difficulty==="gentle"?"beginner":"intermediate", terminalScenarioId:x.id, reporterOs:x.shell==="bash"?"linux":x.shell==="mac"?"mac":"windows" }));
-const helpDeskTickets: TrainingTicket[] = [...trainingTickets, ...promotedDesktopJobs].filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
+// Tickets are authored incidents with a real reported symptom and hidden cause. Terminal scenarios are practice/lab work and must never be promoted into the support queue.
+const helpDeskTickets: TrainingTicket[] = trainingTickets.filter((x,i,a)=>a.findIndex(y=>y.id===x.id)===i);
 
 function VirtualPcPage() {
   const { user, actions } = useAppState();
