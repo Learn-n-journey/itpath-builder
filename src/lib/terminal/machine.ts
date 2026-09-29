@@ -848,7 +848,8 @@ export function writeFile(
   content: string,
   append: boolean,
 ): string | null {
-  if (!canAllocateStorage(state, new TextEncoder().encode(content).length)) return "no_space";\n  const segments = resolvePath(state, path);
+  if (!canAllocateStorage(state, new TextEncoder().encode(content).length)) return "no_space";
+  const segments = resolvePath(state, path);
   const parent = parentOf(state, segments);
   if (!parent || parent.type !== "dir") return "not_found";
   const name = segments[segments.length - 1] as string;
