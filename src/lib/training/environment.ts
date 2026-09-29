@@ -121,14 +121,21 @@ export function sharedResourceAvailable(resourceId: string, machines: Record<Vir
 }
 
 export type ResourceAccess = "unreachable" | "denied" | "read" | "write";
+export type ResourceAccessDecision = { access: ResourceAccess; reason: "unreachable" | "no-matching-group" | "read-group" | "write-group"; matchedGroup?: string };
 
 /** Evaluate access from one workstation without requiring a second interactive PC. */
-export function resourceAccessForMachine(resourceId: string, machine: MachineState, machines: Record<VirtualOsKey, MachineState>, env: VirtualEnvironmentState): ResourceAccess {
+export function resourceAccessDecisionForMachine(resourceId: string, machine: MachineState, machines: Record<VirtualOsKey, MachineState>, env: VirtualEnvironmentState): ResourceAccessDecision {
   const resource = env.resources.find((item) => item.id === resourceId);
-  if (!resource || !resourceAvailable(resource, machines)) return "unreachable";
-  if (!resource.access) return "read";
+  if (!resource || !resourceAvailable(resource, machines)) return { access:"unreachable", reason:"unreachable" };
+  if (!resource.access) return { access:"read", reason:"read-group" };
   const groups = currentGroups(machine);
-  if (resource.access.writeGroups.some((group) => groups.has(group))) return "write";
-  if (resource.access.readGroups.some((group) => groups.has(group))) return "read";
-  return "denied";
+  const writeGroup = resource.access.writeGroups.find((group) => groups.has(group));
+  if (writeGroup) return { access:"write", reason:"write-group", matchedGroup:writeGroup };
+  const readGroup = resource.access.readGroups.find((group) => groups.has(group));
+  if (readGroup) return { access:"read", reason:"read-group", matchedGroup:readGroup };
+  return { access:"denied", reason:"no-matching-group" };
+}
+
+export function resourceAccessForMachine(resourceId: string, machine: MachineState, machines: Record<VirtualOsKey, MachineState>, env: VirtualEnvironmentState): ResourceAccess {
+  return resourceAccessDecisionForMachine(resourceId, machine, machines, env).access;
 }
