@@ -56,9 +56,9 @@ const PRO_FEATURES: ProFeature[] = [
     tier: "plus",
   },
   {
-    name: "The command-line simulator",
-    shortName: "Command-line simulator",
-    description: "Practice Windows, PowerShell, Linux and mobile shells safely.",
+    name: "Virtual computer and mobile practice",
+    shortName: "Virtual computer & mobile",
+    description: "Practice Windows, PowerShell, Linux and mobile support workflows in safe simulated environments.",
     tier: "plus",
   },
   {
@@ -152,7 +152,7 @@ export function ProGate({
       ) : null}
       <div className="mt-6 flex flex-wrap justify-center gap-2">
         <Button asChild>
-          <Link to="/pricing">See Pro plans</Link>
+          <Link to="/pricing">See plans</Link>
         </Button>
         {!userId ? (
           <Button asChild variant="outline">
