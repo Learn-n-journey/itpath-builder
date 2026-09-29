@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createMachine, injectTrainingFault, setServiceStatus } from "@/lib/terminal/machine";
 import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
-import { applicationCheck, launchTrainingApplication, reconcilePrintQueue, submitPrintJob, trainingApplications } from "@/lib/training/applications";
+import { applicationCheck, applicationInstalled, launchTrainingApplication, reconcilePrintQueue, stopTrainingApplication, submitPrintJob, trainingApplications } from "@/lib/training/applications";
 
 function lab() {
   const environment = createVirtualEnvironment();
@@ -28,6 +28,24 @@ describe("training application runtime", () => {
     const result = applicationCheck(app, machines.windows, machines, environment);
     expect(result.health).toBe("blocked");
     expect(result.causes.join(" ")).toContain("LanmanWorkstation");
+  });
+
+  it("removes a closed application from the process list and returns its memory", () => {
+    const { environment, machines } = lab();
+    const browser = trainingApplications.find((item) => item.id === "browser")!;
+    const before = machines.windows.memoryUsedMb;
+    expect(launchTrainingApplication(browser.id, machines.windows, machines, environment).health).toBe("ready");
+    expect(machines.windows.processes.some((process) => process.name === browser.processName)).toBe(true);
+    expect(stopTrainingApplication(browser.id, machines.windows)).toBe(true);
+    expect(machines.windows.processes.some((process) => process.name === browser.processName)).toBe(false);
+    expect(machines.windows.memoryUsedMb).toBeLessThanOrEqual(before);
+  });
+
+  it("keeps Windows-only applications off the other virtual desktops", () => {
+    expect(applicationInstalled("team-files", "windows")).toBe(true);
+    expect(applicationInstalled("team-files", "linux")).toBe(false);
+    expect(applicationInstalled("updates", "mac")).toBe(false);
+    expect(applicationInstalled("browser", "mac")).toBe(true);
   });
 
   it("targets the exact service behind an application incident", () => {
