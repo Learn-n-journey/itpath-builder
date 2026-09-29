@@ -40,6 +40,9 @@ type MobileState = {
   notificationPermission: boolean;
   installedProfiles: string[];
   networkCacheStale: boolean;
+  pairedBluetooth: string[];
+  charging: boolean;
+  accountSignedIn: boolean;
 };
 
 const STORAGE_KEY = "itpath-virtual-mobile-v1";
@@ -77,6 +80,9 @@ function freshMobile(os: MobileOs): MobileState {
     notificationPermission: true,
     installedProfiles: ["corp-wifi.mobileconfig"],
     networkCacheStale: false,
+    pairedBluetooth: ["IT PATH Buds"],
+    charging: false,
+    accountSignedIn: true,
   };
 }
 
@@ -117,6 +123,10 @@ function VirtualMobilePage() {
   const storageCritical = state.storageUsed >= 95;
   const mailApp = state.installedApps.find(item=>item.id==="mail");
   const mailOperational = Boolean(mailApp?.enabled) && (mailApp?.cacheMb ?? 0) < 400;
+  const photosApp = state.installedApps.find(item=>item.id==="photos");
+  const browserApp = state.installedApps.find(item=>item.id==="browser");
+  const updateReady = mobileOnline && state.battery >= 50 && !storageCritical;
+  const workServicesReady = state.accountSignedIn && state.managementProfile;
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
@@ -166,6 +176,10 @@ function VirtualMobilePage() {
       case "storage-full": return state.storageUsed < 90;
       case "notifications-blocked": return state.notificationPermission && state.mailSync;
       case "sim-disabled": return state.simActive && state.cellularEnabled && !state.airplaneMode;
+      case "bluetooth-unpaired": return state.bluetoothEnabled && state.pairedBluetooth.includes("IT PATH Buds");
+      case "photos-permission": return state.installedApps.find(item=>item.id==="photos")?.permissionGranted !== false;
+      case "update-prereq": return state.updateInstalled;
+      case "account-signed-out": return state.accountSignedIn && state.managementProfile;
     }
   })() : false;
 
@@ -187,6 +201,10 @@ function VirtualMobilePage() {
       if (ticket.fault==="storage-full") { next.storageUsed=98; next.installedApps=next.installedApps.map(item=>({...item,cacheMb:item.cacheMb+650})); }
       if (ticket.fault==="notifications-blocked") { next.notificationPermission=false; next.mailSync=true; }
       if (ticket.fault==="sim-disabled") { next.simActive=false; next.cellularEnabled=true; next.wifiEnabled=true; }
+      if (ticket.fault==="bluetooth-unpaired") { next.bluetoothEnabled=true; next.pairedBluetooth=next.pairedBluetooth.filter(item=>item!=="IT PATH Buds"); }
+      if (ticket.fault==="photos-permission") next.installedApps=next.installedApps.map(item=>item.id==="photos"?{...item,permissionGranted:false}:item);
+      if (ticket.fault==="update-prereq") { next.updateAvailable=true; next.updateInstalled=false; next.battery=24; }
+      if (ticket.fault==="account-signed-out") { next.accountSignedIn=false; next.cloudSync=false; }
       next.notifications=[ticket.brief,...next.notifications];
       return {...current,[target]:next};
     });
