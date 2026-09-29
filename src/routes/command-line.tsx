@@ -73,7 +73,7 @@ export const Route = createFileRoute("/command-line")({
 
 function CommandLineRoute() {
   return (
-    <ProGate feature="The command-line simulator">
+    <ProGate feature="Virtual computer and mobile practice">
       <CommandLinePage />
     </ProGate>
   );
