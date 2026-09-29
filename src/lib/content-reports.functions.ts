@@ -33,7 +33,7 @@ export type ReportReply = { ok: true } | { ok: false; error: string };
 
 export const reportContentProblem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => submitSchema.parse(data))
+  .validator((data) => submitSchema.parse(data))
   .handler(async ({ data, context }): Promise<ReportReply> => {
     const { error } = await context.supabase.from("content_reports").insert({
       user_id: context.userId,
