@@ -94,7 +94,7 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
       </ul>
       {extras.length > 0 ? (
         <div className="mt-5 border-t border-border pt-4">
-          <p className="text-xs font-medium text-muted-foreground">Extra practice, not needed to move on</p>
+          <p className="text-xs font-medium text-muted-foreground">Extra practice, not needed to move on · Plus</p>
           <ul className="mt-2 space-y-3">
             {extras.map((item) => (
               <li key={item.key} className="text-sm">
@@ -125,7 +125,7 @@ export function MasteryChecklist({ topicId }: { topicId: string }) {
         </Button>
         <Button asChild size="sm" variant="ghost">
           <Link to="/labs" search={{ lab: identificationLabId(topicId) }}>
-            Lab (optional)
+            Lab practice · Plus (optional)
           </Link>
         </Button>
       </div>
