@@ -1,7 +1,7 @@
 import { navigateTrainingBrowser, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 import { describe, expect, it } from "vitest";
 import { createMachine, injectTrainingFault, setServiceStatus } from "@/lib/terminal/machine";
-import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
+import { createVirtualEnvironment, resourceAccessForMachine, syncVirtualEnvironment } from "@/lib/training/environment";
 import { advancePrintQueue, advanceWindowsUpdate, applicationCheck, applicationForProcess, applicationInstalled, completeWindowsUpdateRestart, launchTrainingApplication, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications } from "@/lib/training/applications";
 
 function lab() {
@@ -87,6 +87,30 @@ describe("training application runtime", () => {
     iface.gateway = "";
     expect(applicationCheck(files, machines.windows, machines, environment).health).not.toBe("blocked");
     expect(applicationCheck(updates, machines.windows, machines, environment).health).toBe("blocked");
+  });
+
+  it("uses one identity model for local and shared-resource permissions", () => {
+    const { environment, machines } = lab();
+    const machine = machines.windows;
+    const readme = getNode(machine, ["Users","student","Documents","readme.txt"])!;
+    expect(accessDecision(machine, readme, "read").allowed).toBe(true);
+    expect(resourceAccessForMachine("shared-files", machine, machines, environment)).toBe("read");
+    expect(addAccountToGroup(machine, "student", "Accounting")).toBeNull();
+    expect(resourceAccessForMachine("shared-files", machine, machines, environment)).toBe("write");
+    expect(setNodePermissions(machine, ["Users","student","Documents","readme.txt"], "400")).toBeNull();
+    expect(accessDecision(machine, readme, "write").allowed).toBe(false);
+  });
+
+  it("requires administrative authority to change account privileges", () => {
+    const { machines } = lab();
+    const machine = machines.windows;
+    machine.users.push({ name:"operator", fullName:"Operator", groups:["Users"], admin:false, locked:false, passwordExpired:false });
+    machine.currentUser = "operator";
+    machine.elevated = false;
+    expect(canManageAccounts(machine)).toBe(false);
+    expect(setAccountAdmin(machine, "student", true)).toBe("denied");
+    machine.elevated = true;
+    expect(setAccountAdmin(machine, "student", true)).toBeNull();
   });
 
   it("runs Windows Update through download install and restart completion", () => {
