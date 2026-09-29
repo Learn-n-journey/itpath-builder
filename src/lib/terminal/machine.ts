@@ -325,6 +325,7 @@ export function canExecute(state: MachineState, node: VfsNode): boolean {
 }
 
 export function setAccountAdmin(state: MachineState, name: string, admin: boolean): string | null {
+  if (!canManageAccounts(state)) return "denied";
   const account = state.users.find((item) => item.name === name);
   if (!account) return "not_found";
   if (account.name === state.currentUser && !admin) return "current_user";
@@ -337,6 +338,7 @@ export function setAccountAdmin(state: MachineState, name: string, admin: boolea
 }
 
 export function setAccountLocked(state: MachineState, name: string, locked: boolean): string | null {
+  if (!canManageAccounts(state)) return "denied";
   const account = state.users.find((item) => item.name === name);
   if (!account) return "not_found";
   if (account.name === state.currentUser && locked) return "current_user";
@@ -345,6 +347,7 @@ export function setAccountLocked(state: MachineState, name: string, locked: bool
 }
 
 export function addAccountToGroup(state: MachineState, name: string, group: string): string | null {
+  if (!canManageAccounts(state)) return "denied";
   const account = state.users.find((item) => item.name === name);
   if (!account) return "not_found";
   account.groups = Array.from(new Set([...account.groups, group]));
@@ -352,10 +355,43 @@ export function addAccountToGroup(state: MachineState, name: string, group: stri
 }
 
 export function removeAccountFromGroup(state: MachineState, name: string, group: string): string | null {
+  if (!canManageAccounts(state)) return "denied";
   const account = state.users.find((item) => item.name === name);
   if (!account) return "not_found";
   account.groups = account.groups.filter((item) => item !== group);
   if (["Administrators", "sudo", "admin"].includes(group)) account.admin = false;
+  return null;
+}
+
+export type AccessDecision = { allowed: boolean; reason: "elevated" | "owner" | "group" | "other"; permission: "read" | "write" | "execute" };
+
+export function accessDecision(state: MachineState, node: VfsNode, permission: "read" | "write" | "execute"): AccessDecision {
+  if (state.elevated || state.currentUser === "root") return { allowed:true, reason:"elevated", permission };
+  const position = permissionPosition(state, node);
+  const bit = permission === "read" ? 4 : permission === "write" ? 2 : 1;
+  return { allowed:(modeDigit(node, position) & bit) === bit, reason:position === 0 ? "owner" : position === 1 ? "group" : "other", permission };
+}
+
+export function canManageAccounts(state: MachineState): boolean {
+  return state.elevated || state.currentUser === "root" || Boolean(currentAccount(state)?.admin);
+}
+
+export function setNodePermissions(state: MachineState, segments: string[], mode: string): string | null {
+  const node = getNode(state, segments);
+  if (!node) return "not_found";
+  if (!/^\d{3}$/.test(mode)) return "invalid_mode";
+  if (!state.elevated && state.currentUser !== "root" && node.owner !== state.currentUser) return "denied";
+  node.mode = mode;
+  return null;
+}
+
+export function setNodeOwnership(state: MachineState, segments: string[], owner: string, group?: string): string | null {
+  const node = getNode(state, segments);
+  if (!node) return "not_found";
+  if (!state.elevated && state.currentUser !== "root" && !isAdmin(state)) return "denied";
+  if (!state.users.some(account => account.name === owner) && owner !== "root" && owner !== "SYSTEM") return "unknown_owner";
+  node.owner = owner;
+  if (group) node.group = group;
   return null;
 }
 
