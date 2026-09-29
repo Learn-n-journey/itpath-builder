@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { createMachine, injectTrainingFault, setServiceStatus } from "@/lib/terminal/machine";
 import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
-import { applicationCheck, launchTrainingApplication, trainingApplications } from "@/lib/training/applications";
+import { applicationCheck, launchTrainingApplication, reconcilePrintQueue, submitPrintJob, trainingApplications } from "@/lib/training/applications";
 
 function lab() {
   const environment = createVirtualEnvironment();
@@ -39,6 +39,18 @@ describe("training application runtime", () => {
     expect(synced.mac.processes.some((process) => process.name === "cupsd")).toBe(false);
     const app = trainingApplications.find((item) => item.id === "print-center")!;
     expect(applicationCheck(app, synced.windows, synced, environment).health).toBe("blocked");
+  });
+
+  it("keeps failed print work visible and recovers it when the print host returns", () => {
+    const { environment, machines } = lab();
+    setServiceStatus(machines.mac, "cupsd", "stopped");
+    let synced = syncVirtualEnvironment(machines, environment);
+    expect(submitPrintJob(synced.windows, synced, environment, "Quarterly Report").health).toBe("blocked");
+    expect(synced.windows.printJobs?.[0]?.status).toBe("error");
+    setServiceStatus(synced.mac, "cupsd", "running");
+    synced = syncVirtualEnvironment(synced, environment);
+    reconcilePrintQueue(synced.windows, synced, environment);
+    expect(synced.windows.printJobs?.[0]?.status).toBe("printing");
   });
 
   it("blocks the intranet browser when nginx is stopped on another machine", () => {
