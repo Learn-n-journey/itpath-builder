@@ -294,17 +294,21 @@ function buildCandidates(user: UserData, now: Date): Candidate[] {
     });
   }
 
-  // Keep one task per topic per plan where the topic is the subject of the work.
-  const seenTopicTask = new Set<string>();
-  return out.filter((candidate) => {
-    if (candidate.kind !== "weak_topic" && candidate.kind !== "new_material" && candidate.kind !== "practice") {
+  // Keep one primary task per topic. Sort by effective priority first so
+  // intelligence-driven or due work wins over a generic Lab/practice candidate
+  // instead of asking the learner to repeat the same topic twice in one plan.
+  const defaultPriority=(candidate:Candidate)=>KIND_ORDER.indexOf(candidate.kind)*10+10;
+  const ranked=out.map((candidate,index)=>({candidate,index}))
+    .sort((a,b)=>(a.candidate.priority ?? defaultPriority(a.candidate))-(b.candidate.priority ?? defaultPriority(b.candidate)) || a.index-b.index);
+  const seenTopicTask=new Set<string>();
+  return ranked
+    .filter(({candidate})=>{
+      if(!candidate.topicId) return true;
+      if(seenTopicTask.has(candidate.topicId)) return false;
+      seenTopicTask.add(candidate.topicId);
       return true;
-    }
-    if (!candidate.topicId) return true;
-    if (seenTopicTask.has(candidate.topicId)) return false;
-    seenTopicTask.add(candidate.topicId);
-    return true;
-  });
+    })
+    .map(({candidate})=>candidate);
 }
 
 /** Builds a plan that fits the chosen duration, in strict priority order. */
