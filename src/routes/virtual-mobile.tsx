@@ -92,8 +92,8 @@ function freshMobile(os: MobileOs): MobileState {
 }
 
 function VirtualMobilePage() {
-  const launch = Route.useSearch();
-  const practiceMode = launch.activity === "lab" && Boolean(launch.lab);
+  const launchContext = Route.useSearch();
+  const practiceMode = launchContext.activity === "lab" && Boolean(launchContext.lab);
   const [os, setOs] = useState<MobileOs>("android");
   const [devices, setDevices] = useState<Record<MobileOs, MobileState>>(() => {
     if (typeof window !== "undefined") {
