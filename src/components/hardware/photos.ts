@@ -13,9 +13,27 @@ export interface HardwarePhoto {
   width: number;
   height: number;
   alt: string;
+  credit?: string;
+  creditUrl?: string;
 }
 
 export const hardwarePhotos: Record<string, HardwarePhoto> = {
+  "laptop-overview": {
+    src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Pc%20bottom%20base.jpg",
+    width: 4480,
+    height: 2016,
+    alt: "Open laptop with its bottom cover removed, showing the motherboard, cooling fan, memory, storage, battery and speakers.",
+    credit: "Flewing Bird / Wikimedia Commons · CC BY-SA 4.0",
+    creditUrl: "https://commons.wikimedia.org/wiki/File:Pc_bottom_base.jpg",
+  },
+  "mobile-overview": {
+    src: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Apple-iPhone-6S-Plus-Inside.jpg",
+    width: 3000,
+    height: 5800,
+    alt: "Opened smartphone showing the battery, logic board, camera hardware, connectors and other internal components.",
+    credit: "Evan-Amos / Wikimedia Commons · Public domain",
+    creditUrl: "https://commons.wikimedia.org/wiki/File:Apple-iPhone-6S-Plus-Inside.jpg",
+  },
   motherboard: {
     src: motherboard,
     width: 1280,
