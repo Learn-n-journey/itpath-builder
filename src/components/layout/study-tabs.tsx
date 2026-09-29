@@ -25,7 +25,6 @@ const STUDY_PAGES: { path: string; label: string }[] = [
   { path: "/practice", label: "Practice" },
   { path: "/quiz-me", label: "Quiz Me" },
   { path: "/labs", label: "Labs" },
-  { path: "/command-line", label: "Command Line" },
   { path: "/explore-hardware", label: "Hardware Explorer" },
   { path: "/virus", label: "Virus Run" },
   { path: "/byte-break", label: "BYTE//BREAK" },
