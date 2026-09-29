@@ -126,6 +126,7 @@ function VirtualPcPage() {
   const [ticketOpen, setTicketOpen] = useState(false);
   const [ticketVerified, setTicketVerified] = useState(false);
   const [ticketEvidence, setTicketEvidence] = useState<string[]>([]);
+  const [ticketTrace, setTicketTrace] = useState<Array<"observe"|"test"|"repair"|"verify">>([]);
   const [gaylHelpLevel, setGaylHelpLevel] = useState(0);
   const [gaylWalkthrough, setGaylWalkthrough] = useState(false);
   const [gaylStep, setGaylStep] = useState(0);
@@ -369,7 +370,7 @@ function VirtualPcPage() {
     } catch { /* reset still applies in memory */ }
     setVirtualEnvironment(cleanEnvironment);
     setOsMachines(cleanMachines);
-    setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0);
+    setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setTicketTrace([]); setGaylHelpLevel(0);
     setOpenApp(null); setShareFileName(null); setShareNotice(""); setDesktopScenarioAttempt(null);
     setTicketOpen(false); setTerminalLines([]); setTerminalInput("");
   };
@@ -442,11 +443,16 @@ function VirtualPcPage() {
     const resourceFixed = activeTicket?.verifyResourceId ? sharedResourceAvailable(activeTicket.verifyResourceId, osMachines, virtualEnvironment) : true;
     const reporterHealthy = activeTicket?.reporterOs ? Boolean(primaryInterface(osMachines[activeTicket.reporterOs])?.up) : true;
     const passed = faultFixed && resourceFixed && reporterHealthy;
+    if(passed) setTicketTrace(trace=>trace.includes("verify")?trace:[...trace,"verify"]);
     setTicketVerified(passed); setTicketEvidence((items) => [...items, passed ? "Fix verified successfully" : "Verification attempted; issue remains"].slice(-40));
     if (passed) mutate((next) => { addEvent(next, `Help desk ticket ${activeTicketId?.replace("ticket-","") ?? ""} verified resolved.`); });
   };
   const closeTicket = () => {
     if (!ticketResolved) return;
+    const required=activeTicket?requiredTicketEvidence(activeTicket):["observe","repair","verify"];
+    const demonstrated=required.every(stage=>ticketTrace.includes(stage));
+    if(!demonstrated){ setNotice(`The fix works, but demonstrate the troubleshooting process first: ${required.filter(stage=>!ticketTrace.includes(stage)).join(", ")}.`); return; }
+    if(activeTicket && !hasSimulatorCredit(user,"troubleshoot",activeTicket.id)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylHelpLevel));
     localStorage.removeItem(`itpath-virtualpc-ticket-${pcOs}`);
     localStorage.removeItem("itpath-virtualpc-ticket-shared");
     setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0); setGaylFeedback("Start with the symptom. Gather evidence before you change anything."); setGaylHypothesis(""); setGaylActions(0); setGaylWalkthrough(false); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); ticketBaseline.current=null; ticketEnvironmentBaseline.current=null; setTicketOpen(false);
@@ -473,6 +479,12 @@ function VirtualPcPage() {
   };
 
   const recordEvidence = (message: string) => {
+    const lowerMessage=message.toLowerCase();
+    const stage: "observe"|"test"|"repair"|null =
+      ["saved","started","enabled","cleanup","unlocked","roll back","restored","changed","disabled"].some(word=>lowerMessage.includes(word)) ? "repair" :
+      ["ping","nslookup","probe","test","browser","terminal:"].some(word=>lowerMessage.includes(word)) ? "test" :
+      ["opened","inspect","status","network","service","storage","account","device"].some(word=>lowerMessage.includes(word)) ? "observe" : null;
+    if(stage) setTicketTrace(trace=>trace.includes(stage)?trace:[...trace,stage]);
     if (practiceMode) setPracticeActions(count=>count+1);
     if (!activeTicketId) return;
     setTicketEvidence((items) => [...items, message].slice(-40));
