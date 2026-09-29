@@ -107,6 +107,9 @@ describe("learning states", () => {
     unresolvedMisconception: false,
     passSpanDays: 40,
     daysSinceExposure: 1,
+    independentPasses: 8,
+    independentPassKinds: 6,
+    delayedIndependentPass: true,
   };
 
   it("is unknown with no graded work", () => {
@@ -132,6 +135,18 @@ describe("learning states", () => {
 
   it("stops at transferable while a misconception is unresolved", () => {
     expect(assessState({ ...base, unresolvedMisconception: true }).state).toBe("transferable");
+  });
+
+  it("will not call assisted or single-kind success transferable", () => {
+    expect(assessState({ ...base, independentPassKinds: 1 }).state).toBe("functional");
+  });
+
+  it("requires repeated independent success before reliable", () => {
+    expect(assessState({ ...base, independentPasses: 2 }).state).toBe("transferable");
+  });
+
+  it("requires an independent delayed pass before retained", () => {
+    expect(assessState({ ...base, delayedIndependentPass: false }).state).toBe("reliable");
   });
 
   it("needs three weeks of passing results before it is retained", () => {
