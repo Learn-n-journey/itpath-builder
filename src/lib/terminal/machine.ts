@@ -285,24 +285,68 @@ function modeDigit(node: VfsNode, position: 0 | 1 | 2): number {
   return Number.parseInt(digits[position] ?? "0", 10);
 }
 
+export function currentAccount(state: MachineState): UserAccount | undefined {
+  return state.users.find((account) => account.name === state.currentUser);
+}
+
+export function currentGroups(state: MachineState): Set<string> {
+  const account = currentAccount(state);
+  return new Set([...(account?.groups ?? []), account?.admin ? "Administrators" : ""].filter(Boolean));
+}
+
+function permissionPosition(state: MachineState, node: VfsNode): 0 | 1 | 2 {
+  if (node.owner === state.currentUser) return 0;
+  return currentGroups(state).has(node.group) ? 1 : 2;
+}
+
 export function canRead(state: MachineState, node: VfsNode): boolean {
   if (state.elevated || state.currentUser === "root") return true;
-  if (isWindows(state)) return node.owner === state.currentUser || node.mode !== "600";
-  const position = node.owner === state.currentUser ? 0 : 2;
-  return (modeDigit(node, position) & 4) === 4;
+  return (modeDigit(node, permissionPosition(state, node)) & 4) === 4;
 }
 
 export function canWrite(state: MachineState, node: VfsNode): boolean {
   if (state.elevated || state.currentUser === "root") return true;
-  if (isWindows(state)) return node.owner === state.currentUser || node.mode !== "444";
-  const position = node.owner === state.currentUser ? 0 : 2;
-  return (modeDigit(node, position) & 2) === 2;
+  return (modeDigit(node, permissionPosition(state, node)) & 2) === 2;
 }
 
 export function canExecute(state: MachineState, node: VfsNode): boolean {
   if (state.elevated || state.currentUser === "root") return true;
-  const position = node.owner === state.currentUser ? 0 : 2;
-  return (modeDigit(node, position) & 1) === 1;
+  return (modeDigit(node, permissionPosition(state, node)) & 1) === 1;
+}
+
+export function setAccountAdmin(state: MachineState, name: string, admin: boolean): string | null {
+  const account = state.users.find((item) => item.name === name);
+  if (!account) return "not_found";
+  if (account.name === state.currentUser && !admin) return "current_user";
+  account.admin = admin;
+  const adminGroup = state.platform === "linux" ? "sudo" : state.platform === "macos" ? "admin" : "Administrators";
+  account.groups = admin
+    ? Array.from(new Set([...account.groups, adminGroup]))
+    : account.groups.filter((group) => group !== adminGroup && group !== "Administrators");
+  return null;
+}
+
+export function setAccountLocked(state: MachineState, name: string, locked: boolean): string | null {
+  const account = state.users.find((item) => item.name === name);
+  if (!account) return "not_found";
+  if (account.name === state.currentUser && locked) return "current_user";
+  account.locked = locked;
+  return null;
+}
+
+export function addAccountToGroup(state: MachineState, name: string, group: string): string | null {
+  const account = state.users.find((item) => item.name === name);
+  if (!account) return "not_found";
+  account.groups = Array.from(new Set([...account.groups, group]));
+  return null;
+}
+
+export function removeAccountFromGroup(state: MachineState, name: string, group: string): string | null {
+  const account = state.users.find((item) => item.name === name);
+  if (!account) return "not_found";
+  account.groups = account.groups.filter((item) => item !== group);
+  if (["Administrators", "sudo", "admin"].includes(group)) account.admin = false;
+  return null;
 }
 
 export function permissionString(node: VfsNode): string {
