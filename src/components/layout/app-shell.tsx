@@ -214,7 +214,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // BYTE//BREAK is a true game surface: no site chrome, page scrolling, tabs,
   // footer, sidebar, or bottom navigation. The game owns the whole viewport.
-  if (byteRun || virtualPc) return <MaintenanceGate pathname={pathname}><>{children}</></MaintenanceGate>;
+  if (byteRun || virtualPc || virtualMobile) return <MaintenanceGate pathname={pathname}><>{children}</></MaintenanceGate>;
 
   // Public study guides sit outside the app chrome so search engines and
   // signed-out visitors get a plain, readable page.
