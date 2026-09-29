@@ -100,7 +100,7 @@ function ExploreHardwarePage() {
       </div>
 
       {mode === "explore" ? (
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(18rem,1fr)]">
+        <div className={cn("grid gap-5", component.family === "laptop" ? "grid-cols-1" : "lg:grid-cols-[minmax(0,3fr)_minmax(18rem,1fr)]")}>
           <HardwareImage component={component} photo={photo} activeId={partId} onPick={(id) => setPartId(id === partId ? null : id)} />
           <div className="overflow-hidden rounded-xl border border-border/70 bg-card/30">
             {selected ? <PartDetail part={selected} index={component.parts.findIndex((p) => p.id === selected.id) + 1} /> : (
@@ -125,7 +125,7 @@ function ExploreHardwarePage() {
       ) : null}
 
       {mode === "learn" ? (
-        <div className="grid gap-5 lg:grid-cols-[minmax(18rem,2fr)_minmax(0,3fr)]">
+        <div className={cn("grid gap-5", component.family === "laptop" ? "grid-cols-1" : "lg:grid-cols-[minmax(18rem,2fr)_minmax(0,3fr)]")}>
           <div className="rounded-xl border border-border/70 bg-card/30 p-5">
             <div className="flex items-center justify-between gap-3">
               <div><p className="text-xs font-semibold uppercase tracking-wider text-primary">Step {learnStep + 1}</p><h2 className="mt-1 font-display text-2xl font-semibold">{lessonPart.name}</h2></div>
@@ -147,7 +147,7 @@ function ExploreHardwarePage() {
       ) : null}
 
       {mode === "quiz" ? (
-        <div className="grid gap-5 lg:grid-cols-[minmax(18rem,3fr)_minmax(18rem,2fr)]">
+        <div className={cn("grid gap-5", component.family === "laptop" ? "grid-cols-1" : "lg:grid-cols-[minmax(18rem,3fr)_minmax(18rem,2fr)]")}>
           <div className="rounded-xl border border-border/70 bg-card/30 p-5 sm:p-6">
             <div className="flex items-center justify-between gap-4">
               <div className="h-1 flex-1 overflow-hidden rounded-full bg-secondary"><div className="h-full bg-primary" style={{ width: `${((quizStep + 1) / component.parts.length) * 100}%` }} /></div>
@@ -201,7 +201,7 @@ function HardwareImage({ component, photo, activeId, onPick, interactive = true 
       <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" className={cn(
         "w-full rounded-lg border border-border object-contain",
         component.family === "mobile" && "mx-auto max-h-[42rem] bg-black/20",
-        component.family === "laptop" && "mx-auto min-h-[30rem] max-h-[46rem] bg-black/20 object-cover sm:min-h-[36rem]"
+        component.family === "laptop" && "mx-auto h-auto bg-black/20 object-contain"
       )} />
       {component.parts.map((part, index) => {
         const active = part.id === activeId;
