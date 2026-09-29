@@ -13,6 +13,8 @@ export type TrainingNetworkObservation = {
   hasDns: boolean;
   localReady: boolean;
   internetReady: boolean;
+  state: "offline" | "limited" | "local" | "online";
+  summary: string;
 };
 
 export type TrainingNetworkAction =
@@ -34,6 +36,8 @@ export function observeTrainingNetwork(machine: MachineState): TrainingNetworkOb
   const hasDns = machine.dnsServers.some(Boolean);
   const localReady = iface.up && hasAddress;
   const internetReady = localReady && hasGateway && hasDns;
+  const state: TrainingNetworkObservation["state"] = !iface.up || !hasAddress ? (!iface.up ? "offline" : "limited") : !hasGateway || !hasDns ? "local" : "online";
+  const summary = !iface.up ? "Network disconnected" : !hasAddress ? "Limited connectivity · no usable address" : !hasGateway ? "Local network only · no default route" : !hasDns ? "Connected · name resolution unavailable" : "Connected";
   return {
     interfaceName: iface.name,
     linkUp: iface.up,
@@ -47,6 +51,8 @@ export function observeTrainingNetwork(machine: MachineState): TrainingNetworkOb
     hasDns,
     localReady,
     internetReady,
+    state,
+    summary,
   };
 }
 
