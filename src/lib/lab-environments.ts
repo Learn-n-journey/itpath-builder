@@ -1,7 +1,7 @@
 import type { Lab } from "@/lib/app-data/types";
 
 export type LabEnvironmentId =
-  | "virtual-pc" | "virtual-mobile" | "hardware-explorer" | "mobile-hardware-explorer"
+  | "virtual-pc" | "virtual-mobile" | "hardware-explorer"
   | "virtual-network" | "server-directory" | "cloud-sandbox" | "security-sandbox"
   | "automotive-simulator" | "document-workspace" | "physical-external";
 
@@ -19,8 +19,7 @@ export interface LabEnvironmentProfile {
 const definitions: Record<LabEnvironmentId, Omit<LabEnvironmentProfile,"capabilities"|"reason">> = {
   "virtual-pc": { environmentId:"virtual-pc", label:"Virtual PC", status:"supported", launchPath:"/virtual-pc" },
   "virtual-mobile": { environmentId:"virtual-mobile", label:"Virtual Mobile", status:"supported", launchPath:"/virtual-mobile" },
-  "hardware-explorer": { environmentId:"hardware-explorer", label:"PC Hardware Explorer", status:"supported", launchPath:"/explore-hardware" },
-  "mobile-hardware-explorer": { environmentId:"mobile-hardware-explorer", label:"Mobile Hardware Explorer", status:"planned" },
+  "hardware-explorer": { environmentId:"hardware-explorer", label:"Hardware Explorer", status:"supported", launchPath:"/explore-hardware" },
   "virtual-network": { environmentId:"virtual-network", label:"Virtual Network", status:"planned" },
   "server-directory": { environmentId:"server-directory", label:"Server & Directory Lab", status:"planned" },
   "cloud-sandbox": { environmentId:"cloud-sandbox", label:"Cloud Sandbox", status:"planned" },
@@ -44,7 +43,7 @@ export function labEnvironmentProfile(lab: Lab): LabEnvironmentProfile {
     environmentId="automotive-simulator"; capabilities.add("diagnostics"); capabilities.add("measurement"); capabilities.add("service-information");
   } else if(has(source,/phone|mobile device|android|iphone|ios|cellular|bluetooth|mdm|esim|sim card/)) {
     if(has(source,/battery|charging port|camera|display|antenna|speaker|microphone|sensor|hardware component/)) {
-      environmentId="mobile-hardware-explorer"; capabilities.add("component-identification"); capabilities.add("hardware-diagnosis");
+      environmentId="hardware-explorer"; capabilities.add("mobile"); capabilities.add("component-identification"); capabilities.add("hardware-diagnosis");
     } else {
       environmentId="virtual-mobile"; capabilities.add("device-settings"); capabilities.add("connectivity"); capabilities.add("app-management"); capabilities.add("mdm");
     }
@@ -61,7 +60,7 @@ export function labEnvironmentProfile(lab: Lab): LabEnvironmentProfile {
   } else if(has(source,/malware|incident|forensic|vulnerab|threat|security control|attack|pentest/)) {
     environmentId="security-sandbox"; capabilities.add("safe-faults"); capabilities.add("logs"); capabilities.add("evidence");
   } else if(has(source,/cpu|memory|ram|motherboard|storage drive|power supply|hardware component|desktop.*component|laptop.*component/)) {
-    environmentId="hardware-explorer"; capabilities.add("component-identification"); capabilities.add("compatibility"); capabilities.add("hardware-diagnosis");
+    environmentId="hardware-explorer"; if(has(source,/laptop|notebook/)) capabilities.add("laptop"); else capabilities.add("desktop"); capabilities.add("component-identification"); capabilities.add("compatibility"); capabilities.add("hardware-diagnosis");
   } else if(lab.category==="windows" || lab.category==="linux" || lab.category==="powershell" || lab.category==="bash") {
     environmentId="virtual-pc"; capabilities.add("filesystem"); capabilities.add("processes"); capabilities.add("services"); capabilities.add("terminal");
   }
