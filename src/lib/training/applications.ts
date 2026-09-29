@@ -154,9 +154,12 @@ export function applicationCheck(
     if (!machine.env[key]) causes.push(`Required configuration ${key} is missing.`);
   }
 
-  return causes.length
-    ? { health: "blocked", summary: `${application.name} cannot complete its task.`, causes }
-    : { health: "ready", summary: `${application.name} is ready.`, causes: [] };
+  if (causes.length) return { health: "blocked", summary: `${application.name} cannot complete its task.`, causes };
+  if (application.resourceId === "shared-files") {
+    const access = resourceAccessForMachine(application.resourceId, machine, machines, environment);
+    if (access === "read") return { health: "degraded", summary: `${application.name} is available read-only.`, causes: ["The signed-in account has read-only access to this share."] };
+  }
+  return { health: "ready", summary: `${application.name} is ready.`, causes: [] };
 }
 
 export function launchTrainingApplication(
@@ -246,4 +249,10 @@ export function reconcilePrintQueue(
     if (!ready && job.status === "printing") return { ...job, status: "error" as const };
     return job;
   });
+}
+
+
+export function applicationInstalled(applicationId: TrainingApplicationId, os: VirtualOsKey): boolean {
+  const application = trainingApplications.find((item) => item.id === applicationId);
+  return Boolean(application && (application.os === "any" || application.os === os));
 }
