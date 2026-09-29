@@ -1,0 +1,72 @@
+import { describe, expect, it } from "vitest";
+import { createMachine, setServiceStatus } from "@/lib/terminal/machine";
+import { createVirtualEnvironment, syncVirtualEnvironment } from "@/lib/training/environment";
+import { applicationCheck, launchTrainingApplication, trainingApplications } from "@/lib/training/applications";
+
+function lab() {
+  const environment = createVirtualEnvironment();
+  const machines = syncVirtualEnvironment({
+    windows: createMachine({ shell: "cmd" }),
+    linux: createMachine({ shell: "bash" }),
+    mac: createMachine({ shell: "mac" }),
+  }, environment);
+  return { environment, machines };
+}
+
+describe("training application runtime", () => {
+  it("launches a healthy application as a real user process", () => {
+    const { environment, machines } = lab();
+    const result = launchTrainingApplication("browser", machines.windows, machines, environment);
+    expect(result.health).toBe("ready");
+    expect(machines.windows.processes.some((process) => process.name === "itpath-browser")).toBe(true);
+  });
+
+  it("blocks Team Files when the workstation service is stopped", () => {
+    const { environment, machines } = lab();
+    expect(setServiceStatus(machines.windows, "LanmanWorkstation", "stopped").error).toBeUndefined();
+    const app = trainingApplications.find((item) => item.id === "team-files")!;
+    const result = applicationCheck(app, machines.windows, machines, environment);
+    expect(result.health).toBe("blocked");
+    expect(result.causes.join(" ")).toContain("LanmanWorkstation");
+  });
+
+  it("blocks the intranet browser when nginx is stopped on another machine", () => {
+    const { environment, machines } = lab();
+    expect(setServiceStatus(machines.linux, "nginx", "stopped").error).toBeUndefined();
+    const app = trainingApplications.find((item) => item.id === "browser")!;
+    const result = applicationCheck(app, machines.windows, machines, environment);
+    expect(result.health).toBe("blocked");
+    expect(result.causes.join(" ")).toContain("network resource");
+  });
+
+  it("distinguishes DNS failure from a dead network link", () => {
+    const { environment, machines } = lab();
+    machines.windows.dnsServers = ["203.0.113.53"];
+    const app = trainingApplications.find((item) => item.id === "browser")!;
+    const result = applicationCheck(app, machines.windows, machines, environment);
+    expect(result.causes).toContain("Name resolution is unavailable because DNS is not usable.");
+    expect(result.causes).not.toContain("The workstation has no usable network link.");
+  });
+
+  it("blocks a local application when its required file is unreadable", () => {
+    const { environment, machines } = lab();
+    const node = machines.windows.root.children?.Users?.children?.student?.children?.Documents?.children?.["readme.txt"];
+    expect(node).toBeTruthy();
+    if (node) { node.owner = "Administrator"; node.group = "Administrators"; node.mode = "600"; }
+    machines.windows.elevated = false;
+    const app = trainingApplications.find((item) => item.id === "notes")!;
+    const result = applicationCheck(app, machines.windows, machines, environment);
+    expect(result.health).toBe("blocked");
+    expect(result.causes.join(" ")).toContain("Access is denied");
+  });
+
+  it("blocks update work when free space is below the application's requirement", () => {
+    const { environment, machines } = lab();
+    machines.windows.diskUsedPercent = 99;
+    expect(setServiceStatus(machines.windows, "wuauserv", "running").error).toBeUndefined();
+    const app = trainingApplications.find((item) => item.id === "updates")!;
+    const result = applicationCheck(app, machines.windows, machines, environment);
+    expect(result.health).toBe("blocked");
+    expect(result.causes.join(" ")).toContain("free disk space");
+  });
+});
