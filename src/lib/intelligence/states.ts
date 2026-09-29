@@ -163,3 +163,40 @@ export function assessState(input: StateInput): StateAssessment {
 export function stateRank(state: LearningState): number {
   return STATE_ORDER.indexOf(state);
 }
+
+
+export type LearningMode = "acquire" | "stabilize" | "apply" | "transfer" | "interleave" | "retain";
+export type ScaffoldLevel = "high" | "medium" | "low" | "none";
+export type PreferredLearningActivity = "lesson" | "recall" | "practice" | "lab" | "ticket" | "review";
+
+export interface LearningPolicy {
+  mode: LearningMode;
+  scaffold: ScaffoldLevel;
+  preferredActivity: PreferredLearningActivity;
+  feedback: "immediate" | "after-attempt";
+  ambiguity: "low" | "medium" | "high";
+  mixPriorTopics: boolean;
+}
+
+/**
+ * Shared deterministic learning policy. Screens and assistants consume this
+ * policy; they do not invent their own mastery or scaffolding rules.
+ */
+export function learningPolicyForState(state: LearningState): LearningPolicy {
+  switch (state) {
+    case "unknown":
+      return { mode:"acquire", scaffold:"high", preferredActivity:"lesson", feedback:"immediate", ambiguity:"low", mixPriorTopics:false };
+    case "emerging":
+      return { mode:"acquire", scaffold:"high", preferredActivity:"recall", feedback:"immediate", ambiguity:"low", mixPriorTopics:false };
+    case "fragile":
+      return { mode:"stabilize", scaffold:"medium", preferredActivity:"practice", feedback:"immediate", ambiguity:"low", mixPriorTopics:true };
+    case "functional":
+      return { mode:"apply", scaffold:"medium", preferredActivity:"lab", feedback:"after-attempt", ambiguity:"medium", mixPriorTopics:false };
+    case "transferable":
+      return { mode:"transfer", scaffold:"low", preferredActivity:"ticket", feedback:"after-attempt", ambiguity:"high", mixPriorTopics:true };
+    case "reliable":
+      return { mode:"interleave", scaffold:"none", preferredActivity:"ticket", feedback:"after-attempt", ambiguity:"high", mixPriorTopics:true };
+    case "retained":
+      return { mode:"retain", scaffold:"none", preferredActivity:"review", feedback:"after-attempt", ambiguity:"high", mixPriorTopics:true };
+  }
+}
