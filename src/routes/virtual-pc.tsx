@@ -219,7 +219,7 @@ function VirtualPcPage() {
   };
   const saveMachine = (next: MachineState) => {
     setOsMachines((current) => syncVirtualEnvironment({ ...current, [pcOs]: next }, virtualEnvironment));
-    if (pcOs === "windows" && sharedAttempt) actions.updateTerminalAttempt({ ...sharedAttempt, machine: next, updatedAt: new Date().toISOString() });
+    if (!practiceMode && pcOs === "windows" && sharedAttempt) actions.updateTerminalAttempt({ ...sharedAttempt, machine: next, updatedAt: new Date().toISOString() });
   };
   const mutate = (fn: (next: MachineState) => void) => {
     const next = clone(machine);
@@ -447,7 +447,7 @@ function VirtualPcPage() {
     if(helpDeskTickets.some(item=>item.id===launchContext.ticket)) startTicket(launchContext.ticket);
   },[launchContext.activity,launchContext.ticket]);
   const verifyTicket = () => {
-    if(activeTicketId)setTicketTrace(trace=>trace.includes("verify")?trace:[...trace,"verify"]);
+    if(activeTicketId && repairReady)setTicketTrace(trace=>trace.includes("verify")?trace:[...trace,"verify"]);
     if (activeJobScenario) {
       const passed = Boolean(activeJobResult && activeJobResult.missingGoals.length === 0);
       setTicketVerified(passed);
@@ -467,7 +467,7 @@ function VirtualPcPage() {
   const closeTicket = () => {
     if (!ticketResolved) return;
     const required=activeTicket?requiredTicketEvidence(activeTicket):["observe","repair","verify"];
-    const demonstrated=required.every(stage=>ticketTrace.includes(stage) || stage==="verify" && ticketVerified);
+    const demonstrated=required.every(stage=>stage==="verify" ? ticketVerified : ticketTrace.includes(stage));
     if(!demonstrated){ setNotice(`The fix works, but demonstrate the troubleshooting process first: ${required.filter(stage=>!ticketTrace.includes(stage)).join(", ")}.`); return; }
     if(activeTicket && shouldRecordSimulatorOutcome(user,"troubleshoot",activeTicket.id,gaylHelpLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylHelpLevel));
     localStorage.removeItem(`itpath-virtualpc-ticket-${pcOs}`);
