@@ -22,7 +22,7 @@ export type TutorReply = { ok: true; answer: string } | { ok: false; error: stri
 
 export const askTutor = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => inputSchema.parse(data))
+  .validator((data) => inputSchema.parse(data))
   .handler(async ({ data, context }): Promise<TutorReply> => {
     const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "The AI Tutor");
     if (denied) return denied;
