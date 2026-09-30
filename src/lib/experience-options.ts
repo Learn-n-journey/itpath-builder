@@ -7,13 +7,6 @@ const IT_EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
   { id: "intermediate", label: "Working in IT already" },
 ];
 
-const AUTO_EXPERIENCE: { id: ExperienceLevel; label: string }[] = [
-  { id: "none", label: "New to automotive" },
-  { id: "beginner", label: "Some automotive basics" },
-  { id: "some", label: "DIY / hands-on experience" },
-  { id: "intermediate", label: "Working in automotive already" },
-];
-
-export function experienceOptions(domainId: string): { id: ExperienceLevel; label: string }[] {
-  return domainId === "auto-repair" ? AUTO_EXPERIENCE : IT_EXPERIENCE;
+export function experienceOptions(_domainId: string): { id: ExperienceLevel; label: string }[] {
+  return IT_EXPERIENCE;
 }
