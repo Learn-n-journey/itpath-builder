@@ -74,9 +74,7 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[]): Inciden
       {
         id: `ia-${slug}-scope`,
         label: "Establish the scope: who is affected, since when, and what changed",
-        finding: automotive
-          ? `The customer confirms the symptom is repeatable under the reported conditions. A comparable operating condition does not produce it. ${sentence(failure)}`
-          : `One team reports the problem since a change yesterday. A comparable system that did not receive the change behaves normally. ${sentence(failure)}`,
+        finding: `One team reports the problem since a change yesterday. A comparable system that did not receive the change behaves normally. ${sentence(failure)}`,
         informative: true,
       },
       ...steps.slice(0, 3).map((step, index) => ({
@@ -179,9 +177,7 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[]): Inciden
       topicId: topic.id,
       category: categoryFor(topic),
       title: `${topic.title}: ${lower(sentence(primary)).replace(/\.$/, "")}`,
-      report: automotive
-        ? `A customer brings in a vehicle with a repeatable concern related to ${topic.title.toLowerCase()}. ${sentence(failure)} Your job is to verify the complaint, gather evidence, isolate the cause, choose a proportionate repair, and prove the repair worked.`
-        : `Users report that something related to ${topic.title.toLowerCase()} stopped behaving normally. ${sentence(failure)} It worked before the most recent change, and an equivalent system is unaffected.`,
+      report: `Users report that something related to ${topic.title.toLowerCase()} stopped behaving normally. ${sentence(failure)} It worked before the most recent change, and an equivalent system is unaffected.`,
       environment: sentence(where),
       difficulty: topic.difficulty,
       actions,
@@ -194,8 +190,8 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[]): Inciden
         ...(lesson?.keyTerms ?? []).slice(0, 2).map((term) => term.term.toLowerCase()),
         ...keywords(primary, 3),
       ],
-      documentationKeywords: automotive ? ["complaint", "test", "cause", "repair", "verif"] : ["symptom", "check", "cause", "fix", "verif"],
-      rootCause: `${sentence(primary)} ${sentence(failure)} Working the documented order, ${(a1 ? a1.testPlan : steps)
+      documentationKeywords: ["symptom", "check", "cause", "fix", "verif"],
+      rootCause: `${sentence(primary)} ${sentence(failure)} Working the documented order, ${steps
         .map((step) => lower(sentence(step)).replace(/\.$/, ""))
         .join("; then ")}, separates this cause from ${lower(sentence(secondary))}`,
     });
