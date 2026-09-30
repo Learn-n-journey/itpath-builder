@@ -157,17 +157,17 @@ function StudyPlanPage() {
         <PageHeader title="Study Plan" description="Build a focused study session from your own data." />
       </div>
 
-      <div className="glass-surface grid grid-cols-4 divide-x divide-border/40 overflow-hidden rounded-2xl border border-border/70 py-4">
+      <div className="grid grid-cols-4 divide-x divide-border/60 border-y border-border/70 py-4">
         <StudyStat icon={Clock3} value={`${target}m`} label="Today" />
         <StudyStat icon={CalendarDays} value={formatHours(weekMinutes)} label="This week" />
         <StudyStat icon={BarChart2} value={user.studySessions.length} label="Sessions" />
         <StudyStat icon={Trophy} value={completedPlans.length} label="Finished" />
       </div>
 
-      <section className="glass-surface mt-4 rounded-2xl border border-primary/25 p-4" aria-labelledby="study-next-action">
+      <section className="mt-4 rounded-xl border border-border/70 bg-card/75 p-4" aria-labelledby="study-next-action">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+            <p className="text-xs font-medium text-primary">
               {continuity.kind === "study_plan" ? "Current session task" : continuity.kind === "resume" ? "Continue learning" : "Recommended next"}
             </p>
             <h2 id="study-next-action" className="mt-1 line-clamp-2 font-display text-base font-semibold text-foreground">{continuity.label}</h2>
@@ -189,8 +189,8 @@ function StudyPlanPage() {
       </section>
 
       {justFinished && !activePlan ? (
-        <section className="glass-surface mt-4 rounded-2xl border border-success/40 p-4" aria-live="polite">
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-success">Session complete</p>
+        <section className="mt-4 border-y border-success/40 py-4" aria-live="polite">
+          <p className="text-xs font-medium text-success">Session complete</p>
           <h2 className="mt-1 font-display text-lg font-semibold text-foreground">Good work. Your progress is saved.</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {justFinished.completed} task{justFinished.completed === 1 ? "" : "s"} completed{justFinished.skipped ? ` · ${justFinished.skipped} skipped` : ""}{justFinished.minutes ? ` · ${justFinished.minutes} minutes logged` : ""}.
@@ -208,18 +208,18 @@ function StudyPlanPage() {
         </section>
       ) : null}
 
-      <section className="glass-surface mt-6 rounded-3xl border border-border/70 p-4 shadow-sm sm:p-6">
+      <section className="mt-6 rounded-xl border border-border/70 bg-card/70 p-4 sm:p-6">
         {!activePlan ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">Build your session</p>
+                <p className="text-xs font-medium text-muted-foreground">Build your session</p>
                 <div className="mt-1 flex items-center gap-1.5">
                   <h2 className="font-display text-xl font-semibold text-foreground">How much time do you have?</h2>
                   <HelpTip label="About session length">Scroll to choose how much time you have. The study plan will fill this time with the best mix of lessons, practice, and review based on your progress.</HelpTip>
                 </div>
               </div>
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 text-primary">
+              <span className="flex size-9 shrink-0 items-center justify-center text-primary">
                 <Clock3 className="size-5" aria-hidden />
               </span>
             </div>
@@ -227,7 +227,7 @@ function StudyPlanPage() {
             <StudyDurationPicker value={target} onChange={setTarget} className="mx-auto max-w-xl" />
             <p className="-mt-1 text-center text-xs text-muted-foreground">Drag or swipe to adjust in 5-minute steps</p>
 
-            <Button className="h-14 w-full rounded-2xl text-sm font-semibold shadow-lg shadow-primary/10 sm:text-base" onClick={generate}>
+            <Button className="h-12 w-full rounded-md text-sm font-semibold sm:text-base" onClick={generate}>
               <Sparkles className="size-4" aria-hidden />
               <span>Generate {target}-minute session</span>
               <ArrowRight className="size-4" aria-hidden />
@@ -235,7 +235,7 @@ function StudyPlanPage() {
 
             <div>
               <div className="mb-3 flex items-center gap-2">
-                <div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Session mix</p><h2 className="font-display text-base font-semibold">What you’ll work on</h2></div>
+                <div><p className="text-xs font-medium text-muted-foreground">Session mix</p><h2 className="font-display text-base font-semibold">What you’ll work on</h2></div>
                 <HelpTip label="About session contents">This preview comes from the activities currently selected for your generated session.</HelpTip>
               </div>
               <div className="mx-auto grid w-full max-w-md grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1 pb-4 pt-1 sm:gap-2">
@@ -246,7 +246,7 @@ function StudyPlanPage() {
                     <div key={group.title} className="contents">
                       <div
                         className={cn(
-                          "relative flex min-h-20 w-full min-w-0 flex-col items-center justify-center rounded-2xl border px-1.5 pb-3 pt-2.5 text-center sm:min-h-24 sm:px-2.5 sm:pb-4 sm:pt-3",
+                          "relative flex min-h-20 w-full min-w-0 flex-col items-center justify-center rounded-lg border px-1.5 pb-3 pt-2.5 text-center sm:min-h-24 sm:px-2.5 sm:pb-4 sm:pt-3",
                           included ? cn(group.tone, "shadow-sm") : "border-border/70 bg-card/60 opacity-55",
                         )}
                       >
@@ -274,7 +274,7 @@ function StudyPlanPage() {
         )}
       </section>
 
-      <section className="glass-surface mt-5 overflow-hidden rounded-2xl border border-border/70 shadow-sm">
+      <section className="mt-5 overflow-hidden rounded-xl border border-border/70 bg-card/60">
         <button
           type="button"
           className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
@@ -297,7 +297,7 @@ function StudyPlanPage() {
         ) : null}
       </section>
 
-      <section className="glass-surface mt-4 overflow-hidden rounded-2xl border border-border/70 shadow-sm">
+      <section className="mt-4 overflow-hidden rounded-xl border border-border/70 bg-card/60">
         <button
           type="button"
           className="flex w-full items-center justify-between gap-3 p-4 text-left transition-colors hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
@@ -341,7 +341,7 @@ function StudyStat({ icon: Icon, value, label }: { icon: typeof Clock3; value: s
     <div className="min-w-0 px-1 text-center sm:px-4">
       <Icon className="mx-auto mb-1.5 size-4 text-primary" aria-hidden />
       <div className="truncate text-xl font-bold tabular-nums text-foreground sm:text-2xl">{value}</div>
-      <div className="mt-0.5 truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">{label}</div>
+      <div className="mt-0.5 truncate text-xs font-medium text-muted-foreground">{label}</div>
     </div>
   );
 }
