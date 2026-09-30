@@ -10,10 +10,6 @@
 import { ACTIVE_PACKAGE } from "@/domain/registry";
 import { domainOverride } from "@/lib/active-domain";
 import { itPack } from "@/content/packs/it-pack";
-import { autoRepairPackage as autoRepair2_0_0Package } from "@/content/packs/auto-repair/2.0.0/package";
-import { autoRepairPackage as autoRepair3_4_0Package } from "@/content/packs/auto-repair/3.4.0/package";
-import { autoPathCurriculumPack } from "@/content/packs/auto-repair/auto-path-pack";
-import { coursePackFromDomainPackage } from "@/content/packs/from-package";
 import { customPathPack } from "@/content/packs/custom-path-pack";
 import { learningPathForKey } from "@/lib/learning-path-store";
 import type { CoursePack } from "@/content/pack-contract";
@@ -21,9 +17,6 @@ import type { CoursePack } from "@/content/pack-contract";
 /** Every subject's material, by the same key the registry uses. */
 const packs: Record<string, () => CoursePack> = {
   "it-cybersecurity@1.0.0": () => itPack,
-  "auto-repair@2.0.0": () => coursePackFromDomainPackage(autoRepair2_0_0Package),
-  "auto-repair@3.4.0": () => coursePackFromDomainPackage(autoRepair3_4_0Package),
-  "auto-repair@3.7.0": () => autoPathCurriculumPack(),
 };
 
 function resolveActivePack(): CoursePack {
