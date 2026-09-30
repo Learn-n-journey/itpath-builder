@@ -33,7 +33,7 @@ import {
   tutorTopicOptions,
   type TutorMode,
 } from "@/lib/tutor-prompts";
-import { useAppState } from "@/state/app-state";
+import { useAppState } from "@/state/app-state";\nimport { useAuth } from "@/state/auth-state";
 import { ContentReportButton } from "@/components/content-report-button";
 
 export const Route = createFileRoute("/ai-tutor")({
@@ -99,7 +99,7 @@ async function copyText(text: string): Promise<boolean> {
 }
 
 function AiTutor() {
-  const { user } = useAppState();
+  const { user } = useAppState();\n  const { session } = useAuth();
   const [mode, setMode] = useState<TutorMode>("ask_anything");
   const [topicId, setTopicId] = useState<string>(NO_TOPIC);
   const [answer, setAnswer] = useState("");
@@ -159,6 +159,42 @@ function AiTutor() {
   async function send(next: ChatMessage[]) {
     setBusy(true);
     const digest = knowledgeDigest(knowledgeItems, topicId === NO_TOPIC ? undefined : topicId);
+    if (session?.access_token) {
+      try {
+        const response = await fetch("/api/ai/tutor-stream", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ messages: next, ...(digest ? { knowledge: digest } : {}) }),
+        });
+        if (response.ok && response.body) {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder();
+          let streamedAnswer = "";
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            streamedAnswer += decoder.decode(value, { stream: true });
+            if (streamedAnswer) {
+              setMessages([...next, { role: "assistant" as const, content: streamedAnswer }]);
+            }
+          }
+          streamedAnswer += decoder.decode();
+          if (streamedAnswer.trim()) {
+            const updated = [...next, { role: "assistant" as const, content: streamedAnswer.trim() }];
+            setMessages(updated);
+            setBusy(false);
+            void persist(updated);
+            return;
+          }
+        }
+      } catch {
+        // Fall through to the established non-streaming tutor path.
+      }
+    }
+
     const reply = await askTutor({
       data: { messages: next, ...(digest ? { knowledge: digest } : {}) },
     });
