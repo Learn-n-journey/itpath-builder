@@ -162,10 +162,9 @@ function ExamPage() {
       </section>
 
       {!started ? (
-        <section className="relative mt-5 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
-          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
-          <div className="relative">
-            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+        <section className="relative mt-5 overflow-hidden rounded-xl border border-border/70 bg-card/80 p-5">
+              <div className="relative">
+            <p className="flex items-center gap-2 text-xs font-medium text-primary">
               <Sparkles className="size-4" aria-hidden />Build your exam
             </p>
             <h2 className="mt-3 font-display text-xl font-semibold sm:text-2xl">Choose your challenge</h2>
