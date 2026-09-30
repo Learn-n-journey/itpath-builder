@@ -196,7 +196,7 @@ function PracticePage() {
           
           <div className="relative">
             <div className="flex items-center justify-between gap-3">
-              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Star className="size-4 fill-current" aria-hidden />Up next</p>
+              <p className="flex items-center gap-2 text-xs font-medium text-primary"><Star className="size-4 fill-current" aria-hidden />Up next</p>
               <p className="max-w-[55%] truncate text-xs font-medium text-primary">{recommendedTopic?.title ?? activeGroup?.title}</p>
             </div>
             <h2 className="mt-3 max-w-2xl font-display text-xl font-semibold sm:text-2xl">{recommended.title}</h2>
@@ -244,7 +244,7 @@ function PracticePage() {
                 <button type="button" aria-expanded={selected} onClick={() => setSelectedId(selected ? "" : item.id)} className="group flex w-full items-center gap-3 p-3 text-left hover:bg-accent/50">
                   <span className={cn("grid size-10 shrink-0 place-items-center rounded-md", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{typeLabels[item.type]}</span>
+                    <span className="block text-xs font-medium text-muted-foreground">{typeLabels[item.type]}</span>
                     <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
                     <span className="mt-1 block truncate text-xs text-muted-foreground">{topic?.title ?? learnerStatusLabel(itemAttempt?.status)}</span>
                   </span>
@@ -252,7 +252,7 @@ function PracticePage() {
                 </button>
                 {selected ? (
                   <div className="border-t border-border/70 bg-muted/20 px-4 py-4">
-                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">What you'll do</p>
+                    <p className="text-xs font-medium text-muted-foreground">What you'll do</p>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.brief}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Badge variant="outline">{typeLabels[item.type]}</Badge>
