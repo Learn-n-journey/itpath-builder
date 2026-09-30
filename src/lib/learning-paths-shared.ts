@@ -28,6 +28,15 @@ export interface LearningPath {
 /** The version every created path runs at; keys stay `slug@1.0.0`. */
 export const PATH_VERSION = "1.0.0";
 
+export const ROADMAP_PATHS = [
+  { slug: "build", name: "Build", folder: "it path build", subtitle: "Software & Programming", description: "Programming, software development, web, APIs, databases, testing and application development." },
+  { slug: "secure", name: "Secure", folder: "it path secure", subtitle: "Cybersecurity", description: "Security operations, defense, incident response, forensics, threat hunting and security engineering." },
+  { slug: "operate", name: "Operate", folder: "it path operate", subtitle: "Cloud, Systems & DevOps", description: "Advanced systems, cloud, infrastructure, automation, containers, monitoring and DevOps." },
+  { slug: "data-ai", name: "Data + AI", folder: "it path data ai", subtitle: "Data, Machine Learning & AI", description: "Data, analytics, engineering, machine learning, LLMs and AI application development." },
+] as const;
+
+export const ROADMAP_SLUGS = ROADMAP_PATHS.map((path) => path.slug);
+
 /** Sizes every created path is held to: 20 per topic quiz, 80 in the final. */
 export const PATH_SIZES = { sectionQuiz: 20, stageExam: 80 } as const;
 
@@ -50,7 +59,8 @@ export function pathKey(slug: string): string {
 
 /** The product name shown on screen, matching IT PATH and AUTO PATH. */
 export function pathAppName(name: string): string {
-  return `${name.trim().toUpperCase()} PATH`;
+  const roadmap = ROADMAP_PATHS.find((path) => path.name.toLowerCase() === name.trim().toLowerCase());
+  return roadmap ? `IT PATH: ${roadmap.name.toUpperCase()}` : `${name.trim().toUpperCase()} PATH`;
 }
 
 export function pathCertificationId(slug: string): string {
