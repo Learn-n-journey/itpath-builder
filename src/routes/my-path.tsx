@@ -120,19 +120,19 @@ function MyPath() {
       <div className="relative mx-auto max-w-4xl px-3 py-4 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
 <nav
         aria-label="Path view"
-        className="glass-surface mb-3 flex h-[3.25rem] w-full max-w-md items-center rounded-full border border-border/80 p-1 shadow-sm"
+        className="mb-5 flex h-11 w-full max-w-sm items-center border-b border-border/70"
       >
         <Link
           to="/my-path"
           aria-current="page"
-          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-[background-color,color] motion-safe:duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex h-11 flex-1 items-center justify-center gap-2 border-b-2 border-primary px-4 text-sm font-semibold text-foreground transition-colors motion-safe:duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <BookOpen className="size-4 shrink-0" aria-hidden />
           <span>My Path</span>
         </Link>
         <Link
           to="/journey"
-          className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors motion-safe:duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex h-11 flex-1 items-center justify-center gap-2 border-b-2 border-transparent px-4 text-sm font-medium text-muted-foreground transition-colors motion-safe:duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <span>Journey Map</span>
         </Link>
@@ -140,12 +140,11 @@ function MyPath() {
 
       <GaylPathNote className="mb-4" {...(current ? { topicId: current.id } : {})} />
 
-      <section className="relative mb-6 overflow-hidden rounded-3xl border border-primary/40 bg-card/95 p-5 shadow-lg sm:p-6" aria-labelledby="path-next-action">
-        <div className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-primary/10 blur-3xl" />
+      <section className="relative mb-7 overflow-hidden rounded-xl border border-border/70 bg-card/80 p-5 sm:p-6" aria-labelledby="path-next-action">
         <div className="relative">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+              <p className="flex items-center gap-2 text-xs font-medium text-primary">
                 {continuity.kind === "study_plan" ? "Continue your session" : continuity.kind === "resume" ? "Pick up where you left off" : "Recommended next"}
               </p>
               <h2 id="path-next-action" className="mt-1 line-clamp-2 font-display text-lg font-semibold text-foreground">
@@ -155,7 +154,7 @@ function MyPath() {
                 {continuity.reason}{continuity.minutes ? ` · About ${continuity.minutes} min` : ""}
               </p>
             </div>
-            <Button asChild className="h-12 shrink-0 rounded-xl px-6 text-sm font-bold shadow-md">
+            <Button asChild className="h-11 shrink-0 rounded-md px-6 text-sm font-semibold">
               <Link
                 to={continuity.to as never}
                 {...(continuity.params ? { params: continuity.params as never } : {})}
@@ -223,13 +222,13 @@ function MyPath() {
 
                 <div className="min-w-0 flex-1">
                   {isFeatured ? (
-                    <div className="relative overflow-hidden rounded-2xl border border-primary/45 bg-card/95 p-4 shadow-md sm:p-5">
-                      <div className="mb-2 flex items-center gap-1.5 text-[0.625rem] font-bold uppercase tracking-[0.18em] text-primary">
+                    <div className="relative border-y border-primary/40 bg-primary/[0.035] px-1 py-4 sm:px-3 sm:py-5">
+                      <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-primary">
                         <span className="size-1.5 rounded-full bg-primary motion-safe:animate-pulse" aria-hidden />
                         <span>Next up</span>
                       </div>
                       <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:gap-4">
-                        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-primary/25 bg-primary/10 text-primary">
+                        <div className="flex size-9 shrink-0 items-center justify-center text-primary">
                           <TopicIcon className="size-6" aria-hidden />
                         </div>
                         <div className="min-w-0">
@@ -242,7 +241,7 @@ function MyPath() {
                           </Link>
                           <p className="mt-0.5 text-xs text-muted-foreground">{metadata}</p>
                         </div>
-                        <Button asChild size="sm" className="col-span-2 h-10 rounded-xl font-semibold sm:col-span-1">
+                        <Button asChild size="sm" className="col-span-2 h-10 rounded-md font-semibold sm:col-span-1">
                           <Link to="/topics/$topicId" params={{ topicId: entry.topic.id }}>
                             {hasActivity ? "Continue" : "Start"}
                             <ChevronRight className="ml-1 size-4" aria-hidden />
@@ -267,13 +266,13 @@ function MyPath() {
                       </div>
                     </div>
                   ) : entry.unlocked ? (
-                    <div className="group relative flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/90 p-3 transition-colors hover:border-primary/30 hover:bg-card/95 sm:p-3.5">
+                    <div className="group relative flex items-center justify-between gap-3 border-b border-border/60 px-1 py-3 transition-colors hover:bg-secondary/20 sm:px-2 sm:py-3.5">
                       <Link
                         to="/topics/$topicId"
                         params={{ topicId: entry.topic.id }}
                         className="grid min-h-11 min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-3 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-secondary/50 text-muted-foreground">
+                        <div className="flex size-8 shrink-0 items-center justify-center text-muted-foreground">
                           <TopicIcon className="size-5" aria-hidden />
                         </div>
                         <div className="min-w-0">
@@ -287,9 +286,9 @@ function MyPath() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-between gap-3 rounded-xl border border-border/50 bg-card/80 p-3 opacity-80 sm:p-3.5">
+                    <div className="flex items-center justify-between gap-3 border-b border-border/50 px-1 py-3 opacity-70 sm:px-2 sm:py-3.5">
                       <div className="grid min-w-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border/30 bg-secondary/30 text-muted-foreground/50">
+                        <div className="flex size-8 shrink-0 items-center justify-center text-muted-foreground/50">
                           <TopicIcon className="size-5" aria-hidden />
                         </div>
                         <div className="min-w-0">
@@ -309,8 +308,8 @@ function MyPath() {
           })}
         </div>
 
-        <div className="mt-4 flex items-center gap-3.5 rounded-2xl border border-border/70 bg-card/90 p-4">
-          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-feature-amber/25 bg-feature-amber/10 text-feature-amber">
+        <div className="mt-5 flex items-center gap-3.5 border-y border-border/60 py-4">
+          <div className="flex size-8 shrink-0 items-center justify-center text-muted-foreground">
             <Trophy className="size-5" aria-hidden />
           </div>
           <div className="min-w-0 flex-1">
@@ -348,7 +347,7 @@ function MyPath() {
             )}
             {levels.map((group) => (
               <li key={group.level} className="relative">
-                <p className="pb-1 pl-9 pt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{group.label}</p>
+                <p className="pb-1 pl-9 pt-4 text-xs font-medium text-muted-foreground">{group.label}</p>
                 <ul className="space-y-2">
                   {group.items.map((certification) => {
                     const index = running++;
