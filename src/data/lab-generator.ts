@@ -5,7 +5,6 @@
  * claims access to an external machine, network or cloud account.
  */
 import { learningModules } from "@/data/learning-content";
-import { a1PracticalProfileFor } from "@/data/auto/a1-practical";
 import type { Lab, Lesson, Topic } from "@/lib/app-data/types";
 
 type LabCategory = Lab["category"];
@@ -46,57 +45,46 @@ function lower(text: string): string {
 }
 
 /** Two labs per topic: a documentation lab and a fault-diagnosis drill. */
-export function buildTopicLabs(topics: Topic[], lessons: Lesson[], mode: "it" | "automotive" = "it"): Lab[] {
+export function buildTopicLabs(topics: Topic[], lessons: Lesson[]): Lab[] {
   const out: Lab[] = [];
-  const automotive = mode === "automotive";
-
   for (const topic of topics) {
     const learningModule = learningModules.find((item) => item.topicId === topic.id);
     if (!learningModule) continue;
     const lesson = lessons.find((item) => item.topicId === topic.id);
     const slug = topic.id.replace(/^topic-/, "");
     const category = categoryFor(topic);
-    const a1 = automotive ? a1PracticalProfileFor(topic.id) : undefined;
     const where = learningModule.whereYouSeeIt[0] ?? topic.summary;
     const terms = (lesson?.keyTerms ?? []).slice(0, 3);
-    const prerequisites = automotive
-      ? [topic.title, "A safe training vehicle, component, simulator, or service-information exercise you are authorized to use"]
-      : [topic.title, "A computer or documentation you are authorized to inspect"];
+    const prerequisites = [topic.title, "A computer or documentation you are authorized to inspect"];
 
     const studyInstructions = [
       `Write down what you already know about ${topic.title} before opening the lesson.`,
-      ...learningModule.howItWorks.map((step) => automotive
-        ? `Explain this system behavior in your own words and name what you would observe or measure in the shop: ${sentence(step)}`
-        : `Record evidence for this behaviour in your own words: ${sentence(step)}`),
+      ...learningModule.howItWorks.map((step) => `Record evidence for this behaviour in your own words: ${sentence(step)}`),
       `Find one place this appears in real work and describe it: ${sentence(where)}`,
       terms.length
         ? `Define these terms from memory, then correct yourself against the lesson: ${terms.map((term) => term.term).join(", ")}.`
         : `Summarise ${topic.title} in five sentences from memory, then correct yourself against the lesson.`,
-      automotive ? "Save the inspection notes with today's date so you can compare them with a later attempt." : "Save your notes with today's date so you can compare them with a later attempt.",
+      "Save your notes with today's date so you can compare them with a later attempt.",
     ];
 
     out.push({
       id: `lab-${slug}-documented-walkthrough`,
       topicId: topic.id,
-      title: automotive ? `${topic.title}: inspection and service-information walkthrough` : `${topic.title}: documented walkthrough`,
+      title: `${topic.title}: documented walkthrough`,
       category,
       objective: topic.learningObjectives[0] ?? `Explain and document how ${topic.title} works in practice.`,
       prerequisites,
       difficulty: topic.difficulty,
       estimatedMinutes: Math.max(25, Math.round(topic.estimatedMinutes * 0.7)),
-      environment: automotive
-        ? "Your notes, the training scenario, and the correct service information for the vehicle or component. Use manufacturer procedures and specifications whenever a real vehicle is involved."
-        : "Your own notes plus any system or official documentation you are permitted to read. This lab is read-only: it never asks you to change a configuration you do not own.",
+      environment: "Your own notes plus any system or official documentation you are permitted to read. This lab is read-only: it never asks you to change a configuration you do not own.",
       instructions: studyInstructions,
-      expectedResult: automotive
-        ? `A dated shop-style record that explains ${topic.title}, identifies what would be inspected or measured, and uses the correct service vocabulary.`
-        : `A dated write-up that explains ${topic.title} accurately, with at least one real-world example and correct vocabulary.`,
+      expectedResult: `A dated write-up that explains ${topic.title} accurately, with at least one real-world example and correct vocabulary.`,
       checklist: checklist(`${slug}-doc`, [
-        automotive ? "Recorded the complaint or service goal before testing" : "Recorded prior knowledge before reading",
+        "Recorded prior knowledge before reading",
         "Explained how it works in your own words",
-        automotive ? "Named the inspection or measurement that would provide evidence" : "Recorded a real-world example",
+        "Recorded a real-world example",
         "Defined the key vocabulary correctly",
-        automotive ? "Saved dated shop notes for later comparison" : "Saved dated notes for later comparison",
+        "Saved dated notes for later comparison",
       ]),
       reflectionPrompt: `Which part of ${topic.title} did you explain least confidently, and what evidence would make it clear?`,
       masteryScore: 100,
@@ -107,47 +95,13 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[], mode: "it" | 
     const steps = learningModule.troubleshooting;
     if (problems.length === 0 || steps.length === 0) continue;
 
-    if (a1) {
-      out.push({
-        id: `lab-${slug}-a1-test-diagnose-verify`,
-        topicId: topic.id,
-        title: `${topic.title}: test, diagnose, repair decision, and verification`,
-        category,
-        objective: `Use an A1-style test sequence to gather evidence for ${topic.title}, choose a justified repair decision, and verify the result.`,
-        prerequisites: [...prerequisites, `${topic.title}: component identification`],
-        difficulty: topic.difficulty,
-        estimatedMinutes: Math.max(35, Math.round(topic.estimatedMinutes * 0.9)),
-        environment: "A written or supervised shop exercise using the listed tools and the correct manufacturer service information. Never substitute generic values in this activity for vehicle-specific procedures or specifications.",
-        instructions: [
-          `Tools/reference: ${a1.tools.join("; ")}.`,
-          ...a1.testPlan.map((step, index) => `Test ${index + 1}: ${sentence(step)}`),
-          `Repair decision: ${sentence(a1.repairDecision)}`,
-          ...a1.verification.map((step, index) => `Verification ${index + 1}: ${sentence(step)}`),
-          "Record the complaint, each test performed, the observed or supplied result, what that result proves, the repair decision, and the final verification evidence.",
-        ],
-        expectedResult: `A complete A1 diagnostic record for ${topic.title} that moves from symptom to measured evidence, justified repair decision, and verification without parts swapping or invented specifications.`,
-        checklist: checklist(`${slug}-a1`, [
-          "Verified the complaint and selected the correct service information",
-          "Identified the components involved before testing",
-          "Used the appropriate test sequence and recorded evidence",
-          "Separated the confirmed cause from plausible alternatives",
-          "Chose a repair supported by the evidence",
-          "Repeated the decisive test and verified the original complaint was resolved",
-        ]),
-        reflectionPrompt: "Which measurement or observation changed your diagnosis the most, and what alternative did it rule out?",
-        masteryScore: 100,
-      });
-      continue;
-    }
 
     const drillInstructions = [
       `Pick one fault to work through: ${problems.join("; ")}.`,
       ...failures.map((failure) => `Write the symptoms a user would report when this happens: ${sentence(failure)}`),
       ...steps.map((step, index) => `Step ${index + 1}, carry out and record the result of: ${sentence(step)}`),
       "State the single most likely cause, and say which observation rules out the alternatives.",
-      automotive
-        ? "Write the repair decision, the verification you would run, and what you would record on the repair order."
-        : "Write the fix, the verification you would run, and what you would put in the ticket notes.",
+      "Write the fix, the verification you would run, and what you would put in the ticket notes.",
     ];
 
     out.push({
@@ -159,9 +113,7 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[], mode: "it" | 
       prerequisites: [...prerequisites, "The documented walkthrough lab for this topic"],
       difficulty: topic.difficulty,
       estimatedMinutes: Math.max(30, Math.round(topic.estimatedMinutes * 0.8)),
-      environment: automotive
-        ? "A written shop diagnostic exercise. Record the inspection or test, tool, expected evidence, repair decision, and verification. The app does not claim to measure a real vehicle."
-        : "A written diagnostic exercise. You record the checks you would run and what each result would prove; the app does not inspect any real system for you.",
+      environment: "A written diagnostic exercise. You record the checks you would run and what each result would prove; the app does not inspect any real system for you.",
       instructions: drillInstructions,
       expectedResult:
         "A diagnostic record that follows the documented order, names one most-likely cause with supporting evidence, and ends with a fix plus a verification step.",
@@ -170,7 +122,7 @@ export function buildTopicLabs(topics: Topic[], lessons: Lesson[], mode: "it" | 
         "Followed the documented diagnostic order",
         "Recorded what each check would prove",
         "Named one most-likely cause with evidence",
-        automotive ? "Wrote a repair decision, verification, and repair-order notes" : "Wrote a fix, a verification and ticket notes",
+        "Wrote a fix, a verification and ticket notes",
       ]),
       reflectionPrompt: "Which check gave you the most information for the least effort, and why would you run it earlier next time?",
       masteryScore: 100,
