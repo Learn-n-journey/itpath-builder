@@ -77,7 +77,7 @@ function TodayChip({
       {...(params ? { params: params as never } : {})}
       className="flex min-h-11 min-w-[10rem] max-w-[15rem] shrink-0 items-center gap-2.5 rounded-md bg-secondary/50 px-3 py-2 motion-safe:transition-all motion-safe:duration-150 hover:bg-secondary active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background motion-reduce:transition-none"
     >
-       <Icon className="size-4 shrink-0 text-feature-amber" aria-hidden />
+       <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
       <span className="min-w-0">
         <span className="block truncate text-sm font-medium">{label}</span>
         <span className="block truncate text-xs text-muted-foreground">{detail}</span>
@@ -212,13 +212,8 @@ function Dashboard() {
 
       <section
         aria-labelledby="continue-heading"
-        className="relative mb-6 overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-card via-card/95 to-background p-5 shadow-2xl shadow-black/50 before:absolute before:inset-x-0 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent sm:rounded-3xl sm:p-7 md:p-9"
+        className="relative mb-7 overflow-hidden rounded-xl border border-border/70 bg-card/80 p-5 sm:p-7 md:p-8"
       >
-        <div
-          className="pointer-events-none absolute -right-16 -top-16 size-80 rounded-full bg-primary/15 blur-3xl"
-          aria-hidden="true"
-        />
-
         <div
           className="pointer-events-none absolute inset-y-0 right-0 w-full overflow-hidden sm:w-3/5 lg:w-[55%]"
           aria-hidden="true"
@@ -235,7 +230,7 @@ function Dashboard() {
           <>
             <div className="relative z-10 min-w-0 max-w-xl">
               <div className="flex items-center gap-2">
-                <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-primary">
+                <span className="text-xs font-medium text-primary">
                   {primary.kind === "study_plan" ? "Continue Your Session" : d.hasAnyActivity ? "Continue Learning" : "Start Learning"}
                 </span>
               </div>
@@ -269,7 +264,7 @@ function Dashboard() {
                   aria-valuenow={currentTopicPercent}
                 >
                   <div
-                    className="h-full rounded-full bg-primary shadow-md shadow-primary/25 motion-safe:transition-[width] motion-safe:duration-500 motion-safe:ease-out motion-reduce:transition-none"
+                    className="h-full rounded-full bg-primary motion-safe:transition-[width] motion-safe:duration-500 motion-safe:ease-out motion-reduce:transition-none"
                     style={{ width: `${currentTopicPercent}%` }}
                   />
                 </div>
@@ -279,7 +274,7 @@ function Dashboard() {
                 <Button
                   asChild
                   size="lg"
-                  className="h-12 w-full rounded-xl bg-primary px-7 font-semibold text-primary-foreground shadow-lg shadow-primary/25 motion-safe:transition-all motion-safe:duration-150 hover:bg-primary/90 active:translate-y-px active:scale-[0.985] motion-reduce:transition-none sm:w-auto sm:px-8"
+                  className="h-11 w-full rounded-md bg-primary px-6 font-semibold text-primary-foreground motion-safe:transition-colors motion-safe:duration-150 hover:bg-primary/90 motion-reduce:transition-none sm:w-auto"
                 >
                   <Link
                     to={primary.to}
@@ -298,7 +293,7 @@ function Dashboard() {
           </>
         ) : (
           <div className="relative z-10 max-w-md">
-            <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-primary">
+            <span className="text-xs font-medium text-primary">
               Start Learning
             </span>
             <h1 id="continue-heading" className="mt-2 font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
@@ -307,7 +302,7 @@ function Dashboard() {
             <p className="mt-2 text-sm text-muted-foreground">
               Select your first topic from the curriculum to begin your path.
             </p>
-            <Button asChild className="mt-5 h-12 rounded-xl px-6 font-semibold">
+            <Button asChild className="mt-5 h-11 rounded-md px-6 font-semibold">
               <Link to="/learn">Choose a topic</Link>
             </Button>
           </div>
@@ -344,7 +339,7 @@ function Dashboard() {
       <section className="mb-7" aria-labelledby="today-heading">
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Today</p>
+            <p className="text-xs font-medium text-muted-foreground">Today</p>
             <h2 id="today-heading" className="font-display text-xl font-semibold">Your learning plan</h2>
           </div>
           <Link to="/study-plan" className="text-xs font-semibold text-primary hover:underline">Study plan</Link>
@@ -382,7 +377,7 @@ function Dashboard() {
         <section className="mb-8" aria-labelledby="progress-heading">
           <div className="mb-3 flex items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Progress</p>
+              <p className="text-xs font-medium text-muted-foreground">Progress</p>
               <h2 id="progress-heading" className="font-display text-xl font-semibold">Your learning progress</h2>
             </div>
             <Link to="/progress" className="text-xs font-semibold text-primary hover:underline">View full progress</Link>
@@ -397,19 +392,23 @@ function Dashboard() {
 
       <section className="mb-8" aria-labelledby="practice-heading">
         <div className="mb-3">
-          <p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Practice</p>
+          <p className="text-xs font-medium text-muted-foreground">Practice</p>
           <h2 id="practice-heading" className="font-display text-xl font-semibold">Choose another way to learn</h2>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Link to="/practice" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><BookOpen className="size-5 text-feature-blue"/><p className="mt-3 text-sm font-semibold">Practice</p><p className="mt-1 text-xs text-muted-foreground">Apply what you know.</p></Link>
-          <Link to="/labs" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Wrench className="size-5 text-feature-orange"/><p className="mt-3 text-sm font-semibold">Labs</p><p className="mt-1 text-xs text-muted-foreground">Learn by doing.</p></Link>
-          <Link to="/review" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Sparkles className="size-5 text-feature-cyan"/><p className="mt-3 text-sm font-semibold">Review</p><p className="mt-1 text-xs text-muted-foreground">{reviewTopics.length ? reviewTopics.length + " ready now." : "Keep knowledge fresh."}</p></Link>
-          <Link to="/quiz-me" className="rounded-2xl border border-border/50 bg-card/45 p-4 hover:border-primary/30"><Compass className="size-5 text-feature-violet"/><p className="mt-3 text-sm font-semibold">Quiz Me</p><p className="mt-1 text-xs text-muted-foreground">Challenge yourself.</p></Link>
+        <div className="grid border-y border-border/60 sm:grid-cols-2 sm:divide-x sm:divide-border/60">
+          <div className="divide-y divide-border/60">
+            <Link to="/practice" className="group grid min-h-16 grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-3 py-3 pr-3 sm:pl-1"><BookOpen className="size-4 text-muted-foreground"/><span><span className="block text-sm font-semibold">Practice</span><span className="block text-xs text-muted-foreground">Apply what you know.</span></span><ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground"/></Link>
+            <Link to="/labs" className="group grid min-h-16 grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-3 py-3 pr-3 sm:pl-1"><Wrench className="size-4 text-muted-foreground"/><span><span className="block text-sm font-semibold">Labs</span><span className="block text-xs text-muted-foreground">Learn by doing.</span></span><ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground"/></Link>
+          </div>
+          <div className="divide-y divide-border/60">
+            <Link to="/review" className="group grid min-h-16 grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-3 py-3 pr-3 sm:pl-4"><Sparkles className="size-4 text-muted-foreground"/><span><span className="block text-sm font-semibold">Review</span><span className="block text-xs text-muted-foreground">{reviewTopics.length ? reviewTopics.length + " ready now." : "Keep knowledge fresh."}</span></span><ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground"/></Link>
+            <Link to="/quiz-me" className="group grid min-h-16 grid-cols-[1.5rem_minmax(0,1fr)_auto] items-center gap-3 py-3 pr-3 sm:pl-4"><Compass className="size-4 text-muted-foreground"/><span><span className="block text-sm font-semibold">Quiz Me</span><span className="block text-xs text-muted-foreground">Challenge yourself.</span></span><ChevronRight className="size-4 text-muted-foreground group-hover:text-foreground"/></Link>
+          </div>
         </div>
       </section>
 
       <section className="mb-8" aria-labelledby="community-heading">
-        <div className="mb-2 flex items-end justify-between gap-3"><div><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Community</p><h2 id="community-heading" className="font-display text-xl font-semibold">Learning together</h2></div><Link to="/community" className="text-xs font-semibold text-primary hover:underline">Open community</Link></div>
+        <div className="mb-2 flex items-end justify-between gap-3"><div><p className="text-xs font-medium text-muted-foreground">Community</p><h2 id="community-heading" className="font-display text-xl font-semibold">Learning together</h2></div><Link to="/community" className="text-xs font-semibold text-primary hover:underline">Open community</Link></div>
         <div className="divide-y divide-border/60 border-y border-border/60">
           {communityPosts.length===0?<Link to="/community" className="flex items-center gap-3 py-5 text-sm text-muted-foreground"><Users className="size-5"/>Be the first to start a conversation.</Link>:communityPosts.slice(0,2).map(post=><Link key={post.id} to="/community" search={{room:post.room}} className="block py-4 hover:bg-secondary/20"><div className="flex gap-3"><div className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-xs font-bold">{post.displayName.charAt(0).toUpperCase()}</div><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><span className="truncate text-sm font-semibold">{post.displayName}</span><span className="truncate text-[11px] text-muted-foreground">{post.room==="general"?"General":post.room}</span></div>{post.body.trim()?<p className="mt-1 line-clamp-2 text-sm leading-relaxed text-foreground/90">{post.body}</p>:null}<div className="mt-2 flex gap-4 text-[11px] text-muted-foreground"><span className="inline-flex items-center gap-1"><Heart className="size-3.5"/>{post.likeCount}</span><span className="inline-flex items-center gap-1"><MessageCircle className="size-3.5"/>{post.commentCount}</span></div></div></div></Link>)}
         </div>
@@ -417,10 +416,10 @@ function Dashboard() {
 
       <Link
         to="/meditation"
-        className="group mb-8 flex min-h-20 items-center justify-between gap-4 rounded-xl border border-border/50 bg-card/40 p-4 shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="group mb-8 flex min-h-16 items-center justify-between gap-4 border-y border-border/60 py-4 transition-colors hover:bg-secondary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
         <span className="flex min-w-0 items-center gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-feature-violet/15 text-feature-violet">
+          <span className="grid size-8 shrink-0 place-items-center text-muted-foreground">
             <Sparkles className="size-4" aria-hidden />
           </span>
           <span className="min-w-0">
@@ -432,11 +431,11 @@ function Dashboard() {
       </Link>
 
       <section className="mb-4" aria-labelledby="discover-heading">
-        <div className="mb-3"><p className="text-xs font-semibold uppercase tracking-[.14em] text-primary">Discover</p><h2 id="discover-heading" className="font-display text-lg font-semibold">More when you want it</h2></div>
+        <div className="mb-3"><p className="text-xs font-medium text-muted-foreground">Discover</p><h2 id="discover-heading" className="font-display text-lg font-semibold">More when you want it</h2></div>
         <div className="flex flex-wrap gap-2">
-          <Link to="/learn" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Explore topics</Link>
-          <Link to="/pomodoro" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Focus timer</Link>
-          {!isAutoPath ? <Link to="/virus" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link> : <Link to="/garage-match" className="rounded-full border border-border/60 bg-card/40 px-3 py-2 text-xs font-medium hover:border-primary/30">Games</Link>}
+          <Link to="/learn" className="border-b border-border/70 px-1 py-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground">Explore topics</Link>
+          <Link to="/pomodoro" className="border-b border-border/70 px-1 py-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground">Focus timer</Link>
+          {!isAutoPath ? <Link to="/virus" className="border-b border-border/70 px-1 py-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground">Games</Link> : <Link to="/garage-match" className="border-b border-border/70 px-1 py-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground">Games</Link>}
         </div>
       </section>
 
