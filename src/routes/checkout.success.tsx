@@ -11,9 +11,9 @@ export const Route = createFileRoute("/checkout/success")({
   head: () => ({
     meta: [
       { title: "Purchase complete | IT PATH" },
-      { name: "description", content: "Your IT PATH Pro purchase is confirmed." },
+      { name: "description", content: "Your IT PATH purchase is confirmed." },
       { property: "og:title", content: "Purchase complete | IT PATH" },
-      { property: "og:description", content: "Your IT PATH Pro purchase is confirmed." },
+      { property: "og:description", content: "Your IT PATH purchase is confirmed." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -54,11 +54,17 @@ function CheckoutSuccessPage() {
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Button asChild>
-            <Link to="/">Back to dashboard</Link>
+            <Link to="/dashboard">Back to dashboard</Link>
           </Button>
-          <Button asChild variant="outline">
-            <Link to="/ai-tutor">Try the AI Tutor</Link>
-          </Button>
+          {tier === "pro" ? (
+            <Button asChild variant="outline">
+              <Link to="/ai-tutor">Try the AI Tutor</Link>
+            </Button>
+          ) : tier === "plus" ? (
+            <Button asChild variant="outline">
+              <Link to="/labs">Open hands-on labs</Link>
+            </Button>
+          ) : null}
         </div>
       </div>
     </div>
