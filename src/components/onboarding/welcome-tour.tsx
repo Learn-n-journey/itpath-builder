@@ -174,7 +174,7 @@ export function WelcomeTour() {
       setOpen(false);
       markSetupPending();
       if (goToSettings) {
-        void navigate({ to: "/settings" });
+        void navigate({ to: "/dashboard" });
       }
     },
     [navigate],
@@ -288,7 +288,7 @@ export function WelcomeTour() {
                 </Button>
               )}
               <Button className="tour-action" size="sm" onClick={() => (last ? close(true) : next())}>
-                {last ? "Set up my preferences" : "Next"}
+                {last ? "Quick setup" : "Next"}
                 <ArrowRight className="size-4" aria-hidden />
               </Button>
             </div>
