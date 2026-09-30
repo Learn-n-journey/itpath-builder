@@ -170,11 +170,10 @@ function LabsPage() {
       />
 
       {recommended ? (
-        <section className="relative mt-2 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
-          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
-          <div className="relative">
+        <section className="relative mt-2 overflow-hidden rounded-xl border border-border/70 bg-card/80 p-5">
+              <div className="relative">
             <div className="flex items-center justify-between gap-3">
-              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Star className="size-4 fill-current" aria-hidden />{"Recommended Lab"}</p>
+              <p className="flex items-center gap-2 text-xs font-medium text-primary"><Star className="size-4 fill-current" aria-hidden />{"Recommended Lab"}</p>
               <p className="max-w-[48%] truncate text-xs font-medium text-primary">{categoryLabels[recommended.category]}</p>
             </div>
             <h2 className="mt-3 max-w-2xl font-display text-xl font-semibold sm:text-2xl">{recommended.title}</h2>
@@ -195,7 +194,7 @@ function LabsPage() {
         <LabStat icon={Trophy} value={completedCount} label="Completed" />
       </section>
 
-      <section className="mt-5 rounded-2xl border border-border/70 bg-card/60 p-4"><div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">Virtual environment map</p><h2 className="mt-1 font-display text-lg font-semibold">Labs are now mapped to practice environments</h2><p className="mt-1 text-xs text-muted-foreground">{supportedEnvironmentLabs} labs map to a current primary environment · {plannedEnvironmentLabs} map to planned environments.</p></div></div><div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{environmentAudit.byEnvironment.filter(item=>item.count>0).slice(0,8).map(item=><div key={item.environmentId} className="rounded-xl border border-border/60 bg-background/50 p-3"><div className="flex items-center justify-between gap-2"><b className="text-xs">{item.label}</b><Badge variant={item.status==="supported"?"default":"outline"}>{item.count}</Badge></div><p className="mt-1 text-[10px] capitalize text-muted-foreground">{item.status.replace("-"," ")}</p></div>)}</div></section>
+      <section className="mt-5 rounded-2xl border border-border/70 bg-card/60 p-4"><div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-medium text-muted-foreground">Virtual environment map</p><h2 className="mt-1 font-display text-lg font-semibold">Labs are now mapped to practice environments</h2><p className="mt-1 text-xs text-muted-foreground">{supportedEnvironmentLabs} labs map to a current primary environment · {plannedEnvironmentLabs} map to planned environments.</p></div></div><div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{environmentAudit.byEnvironment.filter(item=>item.count>0).slice(0,8).map(item=><div key={item.environmentId} className="rounded-xl border border-border/60 bg-background/50 p-3"><div className="flex items-center justify-between gap-2"><b className="text-xs">{item.label}</b><Badge variant={item.status==="supported"?"default":"outline"}>{item.count}</Badge></div><p className="mt-1 text-[10px] capitalize text-muted-foreground">{item.status.replace("-"," ")}</p></div>)}</div></section>
 
       <section className="mt-6">
         <div className="flex items-end justify-between gap-3">
@@ -219,7 +218,7 @@ function LabsPage() {
                 <button type="button" aria-expanded={selected} onClick={() => setSelectedId(selected ? "" : item.id)} className="group flex w-full items-center gap-3 p-3 text-left hover:bg-accent/50">
                   <span className={cn("grid size-12 shrink-0 place-items-center rounded-lg ring-1 ring-inset", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{categoryLabels[item.category]}</span>
+                    <span className="block text-xs font-medium text-muted-foreground">{categoryLabels[item.category]}</span>
                     <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
                     <span className="mt-1 block truncate text-xs text-muted-foreground">{topic?.title ?? learnerStatusLabel(itemAttempt?.status)}{itemAttempt ? ` · ${learnerStatusLabel(itemAttempt.status)}` : " · Not started"}</span>
                   </span>
@@ -227,7 +226,7 @@ function LabsPage() {
                 </button>
                 {selected ? (
                   <div className="border-t border-border/70 bg-muted/20 px-4 py-4">
-                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">{"Lab objective"}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{"Lab objective"}</p>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.objective}</p>
                     <div className="mt-4">
                       <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-muted-foreground">You'll practice</p>
