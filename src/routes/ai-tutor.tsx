@@ -33,7 +33,8 @@ import {
   tutorTopicOptions,
   type TutorMode,
 } from "@/lib/tutor-prompts";
-import { useAppState } from "@/state/app-state";\nimport { useAuth } from "@/state/auth-state";
+import { useAppState } from "@/state/app-state";
+import { useAuth } from "@/state/auth-state";
 import { ContentReportButton } from "@/components/content-report-button";
 
 export const Route = createFileRoute("/ai-tutor")({
