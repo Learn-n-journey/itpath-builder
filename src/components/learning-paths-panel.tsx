@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { setDomainOverride } from "@/lib/active-domain";
 import {
   createLearningPath,
+  ensureRoadmapLearningPaths,
   setLearningPathVisible,
 } from "@/lib/learning-paths.functions";
 import {
@@ -26,11 +27,12 @@ import {
   loadLearningPaths,
   rememberLearningPaths,
 } from "@/lib/learning-path-store";
-import { pathFolder, pathKey, type LearningPath } from "@/lib/learning-paths-shared";
+import { ROADMAP_SLUGS, pathAppName, pathFolder, pathKey, type LearningPath } from "@/lib/learning-paths-shared";
 import { syncNow } from "@/lib/sheet-sync.functions";
 
 export function LearningPathsPanel() {
   const create = useServerFn(createLearningPath);
+  const ensureRoadmap = useServerFn(ensureRoadmapLearningPaths);
   const setVisible = useServerFn(setLearningPathVisible);
   const runSync = useServerFn(syncNow);
 
@@ -41,8 +43,15 @@ export function LearningPathsPanel() {
 
   useEffect(() => {
     setPaths(learningPaths());
-    void loadLearningPaths().then(setPaths);
-  }, []);
+    void ensureRoadmap({}).then((result) => {
+      if (result.ok) {
+        rememberLearningPaths(result.paths);
+        setPaths(result.paths);
+        return;
+      }
+      void loadLearningPaths().then(setPaths);
+    });
+  }, [ensureRoadmap]);
 
   const titles = sections
     .split("\n")
@@ -159,11 +168,11 @@ export function LearningPathsPanel() {
               key={path.slug}
               className="rounded-md border border-border bg-muted/20 p-3"
             >
-              <p className="text-sm font-medium">{path.name}</p>
+              <p className="text-sm font-medium">{pathAppName(path.name)}</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Folder “{path.folder}” · {path.topics.length} section
                 {path.topics.length === 1 ? "" : "s"} ·{" "}
-                {path.visible ? "visible to everyone" : "only you can see it"}
+                {ROADMAP_SLUGS.includes(path.slug as (typeof ROADMAP_SLUGS)[number]) ? (path.visible ? "unlocked for learners" : "locked · coming soon") : (path.visible ? "visible to everyone" : "only you can see it")}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button
@@ -191,7 +200,7 @@ export function LearningPathsPanel() {
                   disabled={busy !== null}
                   onClick={() => toggleVisible(path)}
                 >
-                  {path.visible ? "Hide from learners" : "Show to everyone"}
+                  {ROADMAP_SLUGS.includes(path.slug as (typeof ROADMAP_SLUGS)[number]) ? (path.visible ? "Lock path" : "Unlock path") : (path.visible ? "Hide from learners" : "Show to everyone")}
                 </Button>
               </div>
             </div>
