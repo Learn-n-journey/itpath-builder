@@ -57,7 +57,7 @@ const FREE_FEATURES = [
   "Quizzes, review buckets and weak-area sets",
   "Daily Challenge with a tracked study streak and freezes",
   "Progress tracking, insights and study record",
-  "Cloud backup of your progress",
+  "Cloud backup of your progress when signed in",
 ];
 
 const PLUS_FEATURES = [
@@ -65,7 +65,7 @@ const PLUS_FEATURES = [
   "Adaptive learning engine that picks your next best topic",
   "All 100+ hands-on labs and fault drills",
   "Troubleshooting incident simulator",
-  "Command-line simulator for Windows CMD, PowerShell, Linux, Android and iOS",
+  "Virtual computer and mobile practice with integrated command-line training",
   "Exam simulator and certification readiness scoring",
 ];
 
@@ -121,9 +121,9 @@ const TOP_FEATURES: TopFeature[] = [
   },
   {
     icon: Terminal,
-    title: "Command-line simulator",
+    title: "Virtual computer & mobile",
     description:
-      "Run realistic Windows CMD, PowerShell, Linux, Android (adb-style) and iOS (support-console) commands in persistent virtual environments. Solve networking, service, permission and mobile-device problems safely.",
+      "Practice desktop and mobile support workflows in safe simulated environments, including integrated command-line troubleshooting where the scenario calls for it.",
   },
   {
     icon: Cpu,
@@ -265,7 +265,7 @@ function PricingPage() {
           </ul>
           <div className="mt-6">
             <Button asChild variant="outline" className="w-full">
-              <Link to="/learn">Start studying</Link>
+              <Link to="/dashboard">Start studying</Link>
             </Button>
           </div>
         </Panel>
