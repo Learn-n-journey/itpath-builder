@@ -94,7 +94,7 @@ function Learn() {
         description="Explore freely. What you read here can support your studies, but it never skips prerequisites or changes mastery in My Path."
       />
 
-      <section className="rounded-2xl border border-primary/25 bg-card p-4 sm:p-5">
+      <section className="border-y border-border/70 py-4 sm:py-5">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-primary" aria-hidden />
           <Input
@@ -138,7 +138,7 @@ function Learn() {
       <section className="mt-7">
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary">{needle ? "Search results" : "Explore topics"}</p>
+            <p className="text-xs font-medium text-muted-foreground">{needle ? "Search results" : "Explore topics"}</p>
             <h2 className="font-display text-xl font-bold">{needle ? `Topics about “${query.trim()}”` : "Follow your curiosity"}</h2>
           </div>
           <Compass className="size-5 shrink-0 text-muted-foreground" aria-hidden />
@@ -181,7 +181,7 @@ function Learn() {
       {needle ? (
         <section className="mt-7" aria-label="Video search results">
           <div className="mb-3 flex items-end justify-between gap-3">
-            <div><p className="text-xs font-semibold uppercase tracking-wider text-primary">Watch</p><h2 className="font-display text-xl font-bold">Videos about “{query.trim()}”</h2><p className="mt-1 text-xs text-muted-foreground">Supplemental video results. Verified reading remains the factual foundation.</p></div>
+            <div><p className="text-xs font-medium text-muted-foreground">Watch</p><h2 className="font-display text-xl font-bold">Videos about “{query.trim()}”</h2><p className="mt-1 text-xs text-muted-foreground">Supplemental video results. Verified reading remains the factual foundation.</p></div>
             <Video className="size-5 shrink-0 text-muted-foreground" aria-hidden />
           </div>
           {videosLoading ? <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{[0,1,2].map((item)=><div key={item} className="aspect-video animate-pulse rounded-xl bg-muted" />)}</div> : videoResults.length > 0 ? (
@@ -202,7 +202,7 @@ function Learn() {
         <section className="mt-7" aria-label="Official web search">
           <div className="mb-3 flex items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-primary">Official web</p>
+              <p className="text-xs font-medium text-muted-foreground">Official web</p>
               <h2 className="font-display text-xl font-bold">Search official sources for “{query.trim()}”</h2>
               <p className="mt-1 text-xs text-muted-foreground">Searches Google with the active path’s official-source domain filter applied.</p>
             </div>
@@ -224,7 +224,7 @@ function Learn() {
 
       <section className="mt-7">
         <div className="mb-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-primary">{needle ? "Verified material" : "Recommended reading"}</p>
+          <p className="text-xs font-medium text-muted-foreground">{needle ? "Verified material" : "Recommended reading"}</p>
           <h2 className="font-display text-xl font-bold">{needle ? "Sources that match" : "Go a little deeper"}</h2>
         </div>
         {matchingResources.length > 0 ? (
