@@ -517,15 +517,10 @@ html.light[data-subject="auto-repair"] {
 }
 
 @utility panel {
-  background: color-mix(in oklab, var(--color-card) 14%, transparent);
-  border: 1px solid color-mix(in oklab, var(--color-foreground) 22%, transparent);
-  border-radius: var(--radius-xl);
-  backdrop-filter: blur(20px) saturate(130%) brightness(1.08);
-  -webkit-backdrop-filter: blur(20px) saturate(130%) brightness(1.08);
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 18%, transparent),
-    inset 0 -1px 0 color-mix(in oklab, var(--color-background) 12%, transparent),
-    0 12px 32px -24px color-mix(in oklab, var(--color-background) 65%, transparent);
+  background: color-mix(in oklab, var(--color-card) 94%, transparent);
+  border: 1px solid color-mix(in oklab, var(--color-foreground) 14%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--color-foreground) 5%, transparent);
 }
 
 /* A non-default course is resolved in the browser from its persisted choice.
@@ -570,91 +565,28 @@ html.dark[data-subject="auto-repair"] .app-background .app-wallpaper-image {
   content: url("/ChatGPT%20Image%20Sep%2026%2C%202026%2C%2011_29_23%20PM.png");
 }
 
-/* Global glass shell. Background artwork will be layered underneath this system later. */
+/* Quiet product surfaces: wallpaper remains a brand layer, while content surfaces
+ * use restrained borders and solid hierarchy instead of repeated glass effects. */
 body {
-  background-image:
-    radial-gradient(circle at 78% 8%, color-mix(in oklab, var(--color-primary) 10%, transparent), transparent 34rem),
-    radial-gradient(circle at 18% 88%, color-mix(in oklab, var(--color-feature-violet) 7%, transparent), transparent 30rem);
+  background-image: linear-gradient(color-mix(in oklab, var(--color-background) 90%, transparent), color-mix(in oklab, var(--color-background) 90%, transparent));
   background-attachment: scroll;
 }
 
-/* Keep backdrop-filter out of transitions so glass renders at its final state immediately. */
-.glass-surface,
-.panel,
-[class*="bg-card/"],
-[data-slot="card"],
-[data-slot="dialog-content"],
-[data-slot="sheet-content"],
-[data-slot="popover-content"],
-[data-slot="dropdown-menu-content"],
-[data-slot="select-content"] {
-  transition-property: color, background-color, border-color, box-shadow, opacity, transform !important;
-}
-
-/* Large surfaces use instant simulated frost instead of expensive live backdrop blur. */
 .glass-surface,
 .panel,
 [class*="bg-card/"] {
-  background-image: linear-gradient(
-    145deg,
-    color-mix(in oklab, white 5%, transparent),
-    transparent 38%,
-    color-mix(in oklab, var(--color-background) 12%, transparent)
-  ) !important;
-}
-
-/* One glass recipe for every card-like surface over themed backgrounds. */
-.glass-surface,
-.panel,
-[class*="bg-card/"] {
-  background-color: color-mix(in oklab, var(--color-background) 88%, transparent) !important;
-  border-color: color-mix(in oklab, var(--color-foreground) 20%, transparent) !important;
+  background-image: none !important;
+  background-color: color-mix(in oklab, var(--color-card) 94%, transparent) !important;
+  border-color: color-mix(in oklab, var(--color-foreground) 14%, transparent) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 15%, transparent),
-    0 12px 32px -26px color-mix(in oklab, var(--color-background) 60%, transparent) !important;
-}
-
-/* Mica material: softly tinted, mostly opaque surfaces that inherit the wallpaper palette
-   without the expensive/heavy live blur used by traditional glass. */
-.glass-surface,
-.panel,
-[class*="bg-card/"] {
-  background-image:
-    radial-gradient(circle at 12% 0%, color-mix(in oklab, var(--color-primary) 8%, transparent), transparent 42%),
-    linear-gradient(145deg,
-      color-mix(in oklab, white 7%, transparent),
-      transparent 42%,
-      color-mix(in oklab, var(--color-feature-violet) 4%, transparent)
-    ) !important;
-  background-color: color-mix(in oklab, var(--color-background) 91%, var(--color-card) 9%) !important;
-  border-color: color-mix(in oklab, var(--color-foreground) 16%, transparent) !important;
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 13%, transparent),
-    inset 0 0 0 1px color-mix(in oklab, var(--color-primary) 2%, transparent),
-    0 14px 34px -28px color-mix(in oklab, var(--color-background) 72%, transparent) !important;
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--color-foreground) 5%, transparent) !important;
 }
 
 html.light .glass-surface,
 html.light .panel,
 html.light [class*="bg-card/"] {
-  background-color: color-mix(in oklab, white 86%, var(--color-primary) 14%) !important;
-  border-color: color-mix(in oklab, var(--color-foreground) 12%, transparent) !important;
-}
-
-/* Frost only intentional UI surfaces. Never blur open page/background areas. */
-.bg-card,
-.bg-card\/20,
-.bg-card\/25,
-.bg-card\/30,
-.bg-card\/35,
-.bg-card\/40 {
-  background-color: color-mix(in oklab, var(--color-background) 86%, transparent) !important;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-color: color-mix(in oklab, var(--color-foreground) 18%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in oklab, white 14%, transparent);
+  background-color: color-mix(in oklab, white 96%, var(--color-card) 4%) !important;
 }
 
 [data-slot="card"],
@@ -663,72 +595,32 @@ html.light [class*="bg-card/"] {
 [data-slot="popover-content"],
 [data-slot="dropdown-menu-content"],
 [data-slot="select-content"] {
-  background: color-mix(in oklab, var(--color-background) 88%, transparent);
-  backdrop-filter: blur(10px) saturate(132%);
-  -webkit-backdrop-filter: blur(10px) saturate(132%);
-  border-color: color-mix(in oklab, var(--color-foreground) 17%, var(--color-border));
-  box-shadow:
-    inset 0 1px 0 color-mix(in oklab, var(--color-foreground) 8%, transparent),
-    0 24px 60px -34px color-mix(in oklab, var(--color-background) 92%, transparent);
+  background: var(--color-card);
+  border-color: color-mix(in oklab, var(--color-foreground) 14%, var(--color-border));
+  box-shadow: 0 12px 30px -24px color-mix(in oklab, black 55%, transparent);
 }
 
 input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 button[role="combobox"] {
-  background-color: color-mix(in oklab, var(--color-background) 20%, transparent);
-  backdrop-filter: blur(6px) saturate(125%);
-  -webkit-backdrop-filter: blur(6px) saturate(125%);
-}
-
-@supports not (backdrop-filter: blur(1px)) {
-  .panel,
-  [data-slot="card"],
-  [data-slot="dialog-content"],
-  [data-slot="sheet-content"],
-  [data-slot="popover-content"],
-  [data-slot="dropdown-menu-content"],
-  [data-slot="select-content"] {
-    background-color: var(--color-card);
-  }
+  background-color: color-mix(in oklab, var(--color-background) 72%, var(--color-card));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .sidebar-glass {
-  background-color: color-mix(in oklab, var(--color-sidebar) 82%, transparent);
-  background-image:
-    radial-gradient(circle at 18% 4%, color-mix(in oklab, var(--color-primary) 10%, transparent), transparent 40%),
-    linear-gradient(180deg, color-mix(in oklab, white 6%, transparent), transparent 34%, color-mix(in oklab, black 8%, transparent)) !important;
-  backdrop-filter: blur(30px) saturate(125%) brightness(.9);
-  -webkit-backdrop-filter: blur(30px) saturate(125%) brightness(.9);
-  border-color: color-mix(in oklab, white 10%, transparent) !important;
-  box-shadow:
-    inset -1px 0 0 color-mix(in oklab, white 9%, transparent),
-    inset 0 1px 0 color-mix(in oklab, white 7%, transparent),
-    10px 0 36px -30px color-mix(in oklab, black 75%, transparent);
+  background: color-mix(in oklab, var(--color-sidebar) 97%, transparent) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: var(--color-sidebar-border) !important;
+  box-shadow: inset -1px 0 0 color-mix(in oklab, var(--color-foreground) 4%, transparent);
 }
 
 html.light .sidebar-glass {
-  color: oklch(0.22 0.015 250);
-  background-color: color-mix(in oklab, white 78%, transparent);
-  background-image:
-    radial-gradient(circle at 18% 4%, color-mix(in oklab, var(--color-primary) 9%, transparent), transparent 42%),
-    linear-gradient(180deg,
-      color-mix(in oklab, white 24%, transparent) 0%,
-      color-mix(in oklab, oklch(0.93 0.018 245) 14%, transparent) 48%,
-      color-mix(in oklab, oklch(0.84 0.025 245) 10%, transparent) 100%
-    ) !important;
-  backdrop-filter: blur(30px) saturate(122%) brightness(1.06);
-  -webkit-backdrop-filter: blur(30px) saturate(122%) brightness(1.06);
-  border-color: color-mix(in oklab, white 58%, var(--color-border)) !important;
-  box-shadow:
-    inset -1px 0 0 color-mix(in oklab, white 58%, transparent),
-    inset 0 1px 0 color-mix(in oklab, white 72%, transparent),
-    10px 0 34px -30px color-mix(in oklab, oklch(0.35 0.02 250) 35%, transparent);
-}
-
-@supports not (backdrop-filter: blur(1px)) {
-  .sidebar-glass {
-    background-color: var(--color-sidebar);
-  }
+  color: var(--color-sidebar-foreground);
+  background: color-mix(in oklab, white 98%, var(--color-sidebar) 2%) !important;
+  border-color: var(--color-sidebar-border) !important;
+  box-shadow: inset -1px 0 0 color-mix(in oklab, var(--color-foreground) 4%, transparent);
 }
 
 @utility technical-rule {
