@@ -77,7 +77,7 @@ function AuthPage() {
   const [sentConfirmation, setSentConfirmation] = useState(false);
 
   useEffect(() => {
-    if (ready && userId) void navigate({ to: "/", replace: true });
+    if (ready && userId) void navigate({ to: "/dashboard", replace: true });
   }, [ready, userId, navigate]);
 
   async function handleSubmit(event: React.FormEvent) {
