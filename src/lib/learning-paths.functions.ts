@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
-import { learningPathFromRow, pathFolder, pathSlug, type LearningPath } from "@/lib/learning-paths-shared";
+import { ROADMAP_PATHS, ROADMAP_SLUGS, learningPathFromRow, pathFolder, pathSlug, type LearningPath } from "@/lib/learning-paths-shared";
 
 export type LearningPathReply =
   | { ok: true; paths: LearningPath[] }
@@ -27,6 +27,48 @@ async function allPaths(): Promise<LearningPath[]> {
     .order("created_at", { ascending: true });
   return (data ?? []).map(learningPathFromRow);
 }
+
+/** Public release state for the fixed IT PATH roadmap cards. */
+export const roadmapReleaseState = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("learning_paths")
+    .select("slug, visible")
+    .in("slug", ROADMAP_SLUGS);
+  return Object.fromEntries(ROADMAP_PATHS.map((path) => [
+    path.slug,
+    Boolean((data ?? []).find((row) => row.slug === path.slug)?.visible),
+  ]));
+});
+
+/** Owner-only: make sure the four planned technology tracks exist, locked by default. */
+export const ensureRoadmapLearningPaths = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<LearningPathReply> => {
+    const email = (context.claims as { email?: string } | null)?.email;
+    if (!isOwner(email)) return { ok: false, error: "Not allowed." };
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existing } = await supabaseAdmin
+      .from("learning_paths")
+      .select("slug")
+      .in("slug", ROADMAP_SLUGS);
+    const existingSlugs = new Set((existing ?? []).map((row) => row.slug));
+    const missing = ROADMAP_PATHS.filter((path) => !existingSlugs.has(path.slug));
+    if (missing.length) {
+      const { error } = await supabaseAdmin.from("learning_paths").insert(
+        missing.map((path) => ({
+          slug: path.slug,
+          name: path.name,
+          folder: path.folder,
+          topics: [],
+          visible: false,
+        })),
+      );
+      if (error) return { ok: false, error: error.message };
+    }
+    return { ok: true, paths: await allPaths() };
+  });
 
 /** Create a fresh path: a folder name, a list of sections, nothing else. */
 export const createLearningPath = createServerFn({ method: "POST" })
