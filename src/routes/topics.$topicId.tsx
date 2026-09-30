@@ -131,7 +131,7 @@ function TopicPage() {
         <EmptyState
           icon={Lock}
           title={`Master ${blocker.title} first`}
-          body={`Your journey runs in order, so this one waits until ${blocker.title} is proven. Finish the recall, practice and teach back there and this opens on its own.`}
+          body={`Your journey runs in order, so this one waits until ${blocker.title} is proven. Complete its required quiz, recall, teach-back, and real-world scenario when one is included. Optional practice and labs can help, but they never block the next section.`}
         >
           <Button asChild>
             <Link to="/topics/$topicId" params={{ topicId: blocker.id }}>
