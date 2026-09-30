@@ -164,6 +164,13 @@ function AiTutor() {
     });
     setBusy(false);
     if (reply.ok) {
+      const paragraphs = reply.answer.split(/\n{2,}/).map((part) => part.trim()).filter(Boolean);
+      let visibleAnswer = "";
+      for (const paragraph of paragraphs.length ? paragraphs : [reply.answer]) {
+        visibleAnswer = visibleAnswer ? `${visibleAnswer}\n\n${paragraph}` : paragraph;
+        setMessages([...next, { role: "assistant" as const, content: visibleAnswer }]);
+        await new Promise((resolve) => window.setTimeout(resolve, 300));
+      }
       const updated = [...next, { role: "assistant" as const, content: reply.answer }];
       setMessages(updated);
       void persist(updated);
