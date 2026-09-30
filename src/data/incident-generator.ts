@@ -5,7 +5,6 @@
  * evidence; nothing here claims to inspect real equipment.
  */
 import { learningModules } from "@/data/learning-content";
-import { a1PracticalProfileFor } from "@/data/auto/a1-practical";
 import type { Incident, IncidentCategory, IncidentOption, Lesson, Topic } from "@/lib/app-data/types";
 
 const CATEGORY_RULES: Array<[IncidentCategory, RegExp]> = [
@@ -52,10 +51,8 @@ function keywords(text: string, limit: number): string[] {
     .slice(0, limit);
 }
 
-export function buildTopicIncidents(topics: Topic[], lessons: Lesson[], mode: "it" | "automotive" = "it"): Incident[] {
+export function buildTopicIncidents(topics: Topic[], lessons: Lesson[]): Incident[] {
   const out: Incident[] = [];
-  const automotive = mode === "automotive";
-
   for (const topic of topics) {
     const learningModule = learningModules.find((item) => item.topicId === topic.id);
     if (!learningModule) continue;
@@ -72,47 +69,40 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[], mode: "i
     const failure = failures[0] as string;
     const where = learningModule.whereYouSeeIt[0] ?? topic.summary;
     const practical = learningModule.practicalKnowledge;
-    const a1 = automotive ? a1PracticalProfileFor(topic.id) : undefined;
 
     const actions = [
       {
         id: `ia-${slug}-scope`,
-        label: automotive ? "Confirm the customer complaint, operating conditions, and recent work" : "Establish the scope: who is affected, since when, and what changed",
+        label: "Establish the scope: who is affected, since when, and what changed",
         finding: automotive
           ? `The customer confirms the symptom is repeatable under the reported conditions. A comparable operating condition does not produce it. ${sentence(failure)}`
           : `One team reports the problem since a change yesterday. A comparable system that did not receive the change behaves normally. ${sentence(failure)}`,
         informative: true,
       },
-      ...(a1 ? a1.testPlan : steps.slice(0, 3)).map((step, index) => ({
+      ...steps.slice(0, 3).map((step, index) => ({
         id: `ia-${slug}-step-${index + 1}`,
         label: sentence(step).replace(/\.$/, ""),
-        finding: a1
-          ? index === 0
-            ? "The complaint is verified and the baseline inspection gives you evidence to choose the next test instead of guessing."
-            : index === (a1.testPlan.length - 1)
-              ? "The result completes the test sequence. Compare the accumulated evidence with service information before choosing the repair."
-              : "Record the supplied or observed result and state what it rules in or rules out before continuing."
-          : index === 0
+        finding: index === 0
             ? `The observations line up with ${lower(sentence(primary))} Nothing yet supports ${lower(sentence(secondary))}`
             : `Recorded. The result is consistent with the first finding and does not introduce a new fault.`,
         informative: true,
       })),
       {
         id: `ia-${slug}-usage`,
-        label: automotive ? "Confirm when and how the vehicle normally shows the symptom" : "Confirm how the affected system is normally used",
+        label: "Confirm how the affected system is normally used",
         finding: sentence(where),
         informative: true,
       },
       {
         id: `ia-${slug}-noise-restart`,
-        label: automotive ? "Clear the symptom and return the vehicle without testing" : "Restart everything and see whether the fault clears",
-        finding: automotive ? "The symptom returns because no cause was identified or repaired. No useful diagnostic evidence was gathered." : "Services come back and the fault returns shortly afterwards. No evidence was gathered.",
+        label: "Restart everything and see whether the fault clears",
+        finding: "Services come back and the fault returns shortly afterwards. No evidence was gathered.",
         informative: false,
       },
       {
         id: `ia-${slug}-noise-rebuild`,
-        label: automotive ? "Replace the suspected assembly before confirming the fault" : "Rebuild the affected system now",
-        finding: automotive ? "Parts replacement without a confirming test adds cost and may leave the original symptom unchanged." : "A rebuild is possible, but nothing observed yet justifies destroying the evidence.",
+        label: "Rebuild the affected system now",
+        finding: "A rebuild is possible, but nothing observed yet justifies destroying the evidence.",
         informative: false,
       },
     ];
@@ -147,42 +137,40 @@ export function buildTopicIncidents(topics: Topic[], lessons: Lesson[], mode: "i
     const fixes: IncidentOption[] = [
       {
         id: `if-${slug}-correct`,
-        label: a1 ? sentence(a1.repairDecision) : practical[0] ? sentence(practical[0]) : `Correct the condition behind ${lower(sentence(primary))}`,
+        label: practical[0] ? sentence(practical[0]) : `Correct the condition behind ${lower(sentence(primary))}`,
         correct: true,
       },
       {
         id: `if-${slug}-hide`,
-        label: automotive ? "Clear the warning or code without correcting the cause" : "Silence the alert or warning that reports the problem",
+        label: "Silence the alert or warning that reports the problem",
         correct: false,
-        hint: automotive ? "Clearing a warning is not a repair. The underlying condition can return." : "Hiding the report leaves the cause running.",
+        hint: "Hiding the report leaves the cause running.",
       },
       {
         id: `if-${slug}-scope`,
-        label: automotive ? "Mask the symptom without repairing the failed condition" : "Apply a manual workaround for the one user who called",
+        label: "Apply a manual workaround for the one user who called",
         correct: false,
-        hint: automotive ? "A workaround that hides the symptom does not correct the failed condition." : "A single workaround leaves everyone else exposed to the same cause.",
+        hint: "A single workaround leaves everyone else exposed to the same cause.",
       },
       {
         id: `if-${slug}-rebuild`,
-        label: automotive ? "Replace multiple related parts without isolating the cause" : "Rebuild the system and hope the fault does not return",
+        label: "Rebuild the system and hope the fault does not return",
         correct: false,
-        hint: automotive ? "Parts swapping is not a substitute for isolating the fault with evidence." : "A rebuild without a cause can reproduce the same fault immediately.",
+        hint: "A rebuild without a cause can reproduce the same fault immediately.",
       },
     ];
 
     const verifications: IncidentOption[] = [
-      ...(a1
-        ? a1.verification.map((step, index) => ({ id: `iv-${slug}-a1-${index + 1}`, label: sentence(step), correct: true }))
-        : [
+      ...[
             { id: `iv-${slug}-repeat`, label: "Repeat the check that first exposed the fault and confirm the result changed", correct: true },
-            { id: `iv-${slug}-user`, label: automotive ? "Recreate the customer complaint under the original operating conditions" : "Have an affected user repeat the original failing task", correct: true },
-            { id: `iv-${slug}-watch`, label: automotive ? "Complete an appropriate road or functional test and check for recurrence" : "Watch for a recurrence over an agreed period before closing", correct: true },
-          ]),
+            { id: `iv-${slug}-user`, label: "Have an affected user repeat the original failing task", correct: true },
+            { id: `iv-${slug}-watch`, label: "Watch for a recurrence over an agreed period before closing", correct: true },
+          ],
       {
         id: `iv-${slug}-assume`,
-        label: automotive ? "Return the vehicle because the repair step completed without an error" : "Close it because the change applied without an error",
+        label: "Close it because the change applied without an error",
         correct: false,
-        hint: automotive ? "Completing a repair step does not prove the original complaint is gone. Verify it." : "A successful change proves the command ran, not that the fault is gone.",
+        hint: "A successful change proves the command ran, not that the fault is gone.",
       },
     ];
 
