@@ -15,20 +15,6 @@
 import { itDomain, itManifest } from "./packages/it";
 import type { DomainDefinition } from "./types";
 import type { DomainManifest, DomainPackage } from "./package";
-import { autoRepairManifest as autoRepair2_0_0Manifest } from "@/content/packs/auto-repair/2.0.0/manifest";
-import { autoRepairDomain as autoRepair2_0_0Domain } from "@/content/packs/auto-repair/2.0.0/domain";
-import { autoRepairManifest as autoRepair3_4_0Manifest } from "@/content/packs/auto-repair/3.4.0/manifest";
-import { autoRepairDomain as autoRepair3_4_0Domain } from "@/content/packs/auto-repair/3.4.0/domain";
-import { autoRepairManifest as autoRepair3_5_0Manifest } from "@/content/packs/auto-repair/3.5.0/manifest";
-import { autoRepairDomain as autoRepair3_5_0Domain } from "@/content/packs/auto-repair/3.5.0/domain";
-import { autoRepairManifest as autoRepair3_6_0Manifest } from "@/content/packs/auto-repair/3.6.0/manifest";
-import { autoRepairDomain as autoRepair3_6_0Domain } from "@/content/packs/auto-repair/3.6.0/domain";
-import { autoRepairManifest as autoRepair3_7_0Manifest } from "@/content/packs/auto-repair/3.7.0/manifest";
-import { autoRepairDomain as autoRepair3_7_0Domain } from "@/content/packs/auto-repair/3.7.0/domain";
-import { autoPathCurriculumPackage } from "@/content/packs/auto-repair/auto-path-pack";
-
-const autoRepair3_7_0Package = autoPathCurriculumPackage();
-
 export interface RegistryEntry {
   manifest: DomainManifest;
   definition: DomainDefinition;
@@ -44,39 +30,6 @@ export interface RegistryEntry {
 
 /** Every subject version this build knows about. */
 export const registry: Record<string, RegistryEntry> = {
-  "auto-repair@3.7.0": {
-    manifest: autoRepair3_7_0Manifest,
-    definition: autoRepair3_7_0Domain,
-    packageSync: autoRepair3_7_0Package,
-    load: async () => autoRepair3_7_0Package,
-  },
-  // Retired versions keep their (small) manifest and definition registered so
-  // a stored choice still resolves, but their full content is loaded on demand
-  // only — it never ships in the browser bundle.
-  "auto-repair@3.6.0": {
-    manifest: autoRepair3_6_0Manifest,
-    definition: autoRepair3_6_0Domain,
-    load: async () =>
-      (await import("@/content/packs/auto-repair/3.6.0/package")).autoRepairPackage,
-  },
-  "auto-repair@3.5.0": {
-    manifest: autoRepair3_5_0Manifest,
-    definition: autoRepair3_5_0Domain,
-    load: async () =>
-      (await import("@/content/packs/auto-repair/3.5.0/package")).autoRepairPackage,
-  },
-  "auto-repair@3.4.0": {
-    manifest: autoRepair3_4_0Manifest,
-    definition: autoRepair3_4_0Domain,
-    load: async () =>
-      (await import("@/content/packs/auto-repair/3.4.0/package")).autoRepairPackage,
-  },
-  "auto-repair@2.0.0": {
-    manifest: autoRepair2_0_0Manifest,
-    definition: autoRepair2_0_0Domain,
-    load: async () =>
-      (await import("@/content/packs/auto-repair/2.0.0/package")).autoRepairPackage,
-  },
   [itManifest.key]: {
     manifest: itManifest,
     definition: itDomain,
