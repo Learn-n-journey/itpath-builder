@@ -156,7 +156,24 @@ function AiTutor() {
     }
   }
 
-  async function revealAssistantAnswer(next: ChatMessage[], fullAnswer: string) {\n    const chunks = fullAnswer.split(/\\n{2,}/).map((part) => part.trim()).filter(Boolean);\n    setRevealing(true);\n    setFollowResponse(true);\n    let visible = "";\n    for (const chunk of chunks.length ? chunks : [fullAnswer]) {\n      visible = visible ? `${visible}\\n\\n${chunk}` : chunk;\n      setMessages([...next, { role: "assistant" as const, content: visible }]);\n      await new Promise((resolve) => window.setTimeout(resolve, 360));\n    }\n    setRevealing(false);\n    return [...next, { role: "assistant" as const, content: fullAnswer }];\n  }\n\n  async function send(next: ChatMessage[]) {
+  async function revealAssistantAnswer(next: ChatMessage[], fullAnswer: string) {
+    const chunks = fullAnswer
+      .split(/\n{2,}/)
+      .map((part) => part.trim())
+      .filter(Boolean);
+    setRevealing(true);
+    setFollowResponse(true);
+    let visible = "";
+    for (const chunk of chunks.length ? chunks : [fullAnswer]) {
+      visible = visible ? `${visible}\n\n${chunk}` : chunk;
+      setMessages([...next, { role: "assistant" as const, content: visible }]);
+      await new Promise((resolve) => window.setTimeout(resolve, 360));
+    }
+    setRevealing(false);
+    return [...next, { role: "assistant" as const, content: fullAnswer }];
+  }
+
+  async function send(next: ChatMessage[]) {
     setBusy(true);
     const digest = knowledgeDigest(knowledgeItems, topicId === NO_TOPIC ? undefined : topicId);
     const reply = await askTutor({
@@ -441,7 +458,8 @@ function AiTutor() {
                       <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         GAYL
                       </p>
-                      <div className="grid gap-3 text-sm leading-relaxed">{m.content.split(/\\n{2,}/).map((paragraph, paragraphIndex, paragraphs) => <p key={`${i}-${paragraphIndex}`} className={revealing && paragraphIndex === paragraphs.length - 1 ? "whitespace-pre-wrap animate-in fade-in slide-in-from-bottom-1 duration-500 motion-reduce:animate-none" : "whitespace-pre-wrap"}>{paragraph}</p>)}</div>
+                      <div className="grid gap-3 text-sm leading-relaxed">{m.content.split(/
+{2,}/).map((paragraph, paragraphIndex, paragraphs) => <p key={`${i}-${paragraphIndex}`} className={revealing && paragraphIndex === paragraphs.length - 1 ? "whitespace-pre-wrap animate-in fade-in slide-in-from-bottom-1 duration-500 motion-reduce:animate-none" : "whitespace-pre-wrap"}>{paragraph}</p>)}</div>
                       <ContentReportButton
                         kind="ai_answer"
                         refId={`tutor-${i}`}
