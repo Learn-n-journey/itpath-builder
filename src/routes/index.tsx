@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BarChart3, BookOpen, Briefcase, Compass, FlaskConical, LayoutDashboard, LogIn, Monitor, Settings, ShieldCheck, Users } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { ArrowRight, BarChart3, BookOpen, Briefcase, CloudCog, Code2, Compass, Database, FlaskConical, LayoutDashboard, Lock, LogIn, Monitor, Settings, Shield, ShieldCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,8 @@ import { setDomainOverride } from "@/lib/active-domain";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { useAuth } from "@/state/auth-state";
 import { learningPaths, loadLearningPaths } from "@/lib/learning-path-store";
-import { pathAppName, pathKey, type LearningPath } from "@/lib/learning-paths-shared";
+import { ROADMAP_PATHS, ROADMAP_SLUGS, pathAppName, pathKey, type LearningPath } from "@/lib/learning-paths-shared";
+import { roadmapReleaseState } from "@/lib/learning-paths.functions";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
@@ -48,13 +50,16 @@ function CourseChooser() {
   const { email, userId, ready } = useAuth();
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
   const [created, setCreated] = useState<LearningPath[]>([]);
+  const readRoadmapState = useServerFn(roadmapReleaseState);
+  const [roadmapState, setRoadmapState] = useState<Record<string, boolean>>({});
 
   // Paths created in Settings. Row level security only returns a hidden one to
   // its owner, so a learner sees nothing until it is switched on.
   useEffect(() => {
     setCreated(learningPaths());
     void loadLearningPaths().then(setCreated);
-  }, [userId]);
+    void readRoadmapState({}).then(setRoadmapState);
+  }, [userId, readRoadmapState]);
 
   function choose(id: string) {
     setDomainOverride(id);
@@ -110,7 +115,7 @@ function CourseChooser() {
             </article>
           ))}
 
-          {created.map((path) => (
+          {created.filter((path) => !ROADMAP_SLUGS.includes(path.slug as (typeof ROADMAP_SLUGS)[number])).map((path) => (
             <article key={path.slug} className="group relative flex min-h-[22rem] flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-xl sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <span className="flex size-20 items-center justify-center rounded-xl border border-border bg-muted/30"><Compass className="size-10 text-primary" aria-hidden /></span>
@@ -125,6 +130,47 @@ function CourseChooser() {
             </article>
           ))}
         </div>
+
+        <section className="mt-9 border-t border-border/60 pt-7" aria-labelledby="technology-roadmap-title">
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary">Technology roadmap</p>
+            <h2 id="technology-roadmap-title" className="mt-2 font-display text-2xl font-bold">Choose where your IT foundation can take you</h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              New IT PATH tracks will build on the same learning system. Locked tracks stay visible here so you can see what is being built next.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {ROADMAP_PATHS.map((path, index) => {
+              const unlocked = Boolean(roadmapState[path.slug]);
+              const Icon = [Code2, Shield, CloudCog, Database][index] ?? Code2;
+              return (
+                <article key={path.slug} className="flex min-h-[17rem] flex-col border border-border bg-card p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <Icon className="size-6 text-primary" aria-hidden />
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                      {!unlocked ? <Lock className="size-3.5" aria-hidden /> : null}
+                      {unlocked ? "Available" : path.slug === "build" ? "Coming soon" : "Planned"}
+                    </span>
+                  </div>
+                  <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">IT PATH</p>
+                  <h3 className="mt-1 font-display text-2xl font-bold">{path.name}</h3>
+                  <p className="mt-1 text-sm font-medium text-foreground/80">{path.subtitle}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{path.description}</p>
+                  <Button
+                    type="button"
+                    variant={unlocked ? "secondary" : "outline"}
+                    disabled={!unlocked}
+                    onClick={() => unlocked && choose(pathKey(path.slug))}
+                    className="mt-auto w-full justify-between"
+                  >
+                    {unlocked ? `Choose IT PATH: ${path.name}` : "Locked"}
+                    {unlocked ? <ArrowRight className="size-4" aria-hidden /> : <Lock className="size-4" aria-hidden />}
+                  </Button>
+                </article>
+              );
+            })}
+          </div>
+        </section>
 
         <section className="mt-9 grid gap-5 border-y border-border/50 py-6 sm:grid-cols-2 lg:grid-cols-5" aria-label="What every path includes">
           {[
