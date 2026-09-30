@@ -44,7 +44,6 @@ import {
 } from "@/lib/owner-lesson-store";
 import { ownerWorkRecallFor, ownerWorkTeachBackFor } from "@/lib/owner-work-store";
 import { useOwnerContentVersion } from "@/hooks/use-owner-content";
-import { ObdPracticePanel } from "@/components/auto/obd-practice-panel";
 import { TopicKnowledgePanel } from "@/components/knowledge/topic-knowledge-panel";
 import { ReturnToActivity, ReviewConceptLink } from "@/components/learning/remediation-link";
 import { lessonConceptAnchor, lessonSectionId, resolveLessonSection } from "@/lib/lesson-concepts";
@@ -440,7 +439,6 @@ export function TopicLearningExperience({ topic, view = "learning" }: { topic: T
           const mapped = resolveLessonSection(topic.id, sectionId, deepLesson);
           return <Panel key={activity.id} title={`Practice ${index + 1}: ${activity.title}`} description={activity.prompt} descriptionVisibility="visible"><div className="grid gap-2">{activity.choices.map((choice, choiceIndex) => <Button key={choice} variant={chosen === choiceIndex ? "secondary" : "outline"} className="h-auto justify-start whitespace-normal py-3 text-left" onClick={() => setPracticeChoices((current) => ({ ...current, [activity.id]: choiceIndex }))}>{choice}</Button>)}</div><Button className="mt-4" onClick={() => submitPractice(activity.id)}>Check decision</Button>{feedback ? <p role="status" className="mt-3 text-sm text-muted-foreground">{feedback}</p> : null}{incorrect && mapped && sectionId ? <ReviewConceptLink topicId={topic.id} conceptId={activity.conceptId ?? `${topic.id}:practice:${activity.id}`} sectionId={sectionId} anchor={mapped.anchor} sourceKind="practice" sourceItemId={activity.id} /> : null}</Panel>;
         })}</div> : null}
-      <ObdPracticePanel topicId={topic.id} topicTitle={topic.title} />
       </div>
     </LearningStage>
 
