@@ -17,10 +17,10 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="motion-content-enter mb-4 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:mb-6">
+    <header className="motion-content-enter mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 border-b border-border/60 pb-4 sm:mb-7">
       <div className="min-w-0">
         <div className="flex items-center gap-1.5">
-          <h1 className="font-display text-2xl font-semibold leading-tight sm:text-3xl">{title}</h1>
+          <h1 className="font-display text-2xl font-semibold leading-tight tracking-[-0.02em] sm:text-3xl">{title}</h1>
           {description && descriptionVisibility === "help" ? <HelpTip label={`About ${title}`}>{description}</HelpTip> : null}
         </div>
         {description && descriptionVisibility === "visible" ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
@@ -50,7 +50,7 @@ export function Panel({
 }) {
   const helpContent = help && description && descriptionVisibility === "help" ? <><span>{description}</span><span className="mt-2 block">{help}</span></> : help ?? (descriptionVisibility === "help" ? description : undefined);
   return (
-    <section id={id} className={cn("panel motion-surface scroll-mt-24 p-4 sm:p-5", className)}>
+    <section id={id} className={cn("panel scroll-mt-24 p-4 sm:p-5", className)}>
       {title ? <div className="flex items-center gap-1.5"><h2 className="font-display text-lg font-semibold">{title}</h2>{helpContent ? <HelpTip label={`About ${title}`}>{helpContent}</HelpTip> : null}</div> : null}
       {title && description && descriptionVisibility === "visible" ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       {!title && description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
@@ -71,7 +71,7 @@ export function StatCard({
   icon?: LucideIcon;
 }) {
   return (
-    <div className="panel min-w-0 p-3.5" data-icon={Icon ? "1" : undefined}>
+    <div className="min-w-0 border-l border-border/70 px-3.5 py-2 first:border-l-0" data-icon={Icon ? "1" : undefined}>
       <p className="font-display text-xl font-semibold tabular-nums">{value}</p>
       <div className="mt-0.5 flex items-center gap-0.5 text-xs text-foreground/80">
         <span>{label}</span>
@@ -93,9 +93,9 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="panel flex flex-col items-center px-4 py-8 text-center">
+    <div className="flex flex-col items-center border-y border-border/70 px-4 py-10 text-center">
       {Icon ? (
-        <span className="mb-4 flex size-11 items-center justify-center rounded-xl bg-secondary text-emphasis">
+        <span className="mb-4 flex size-11 items-center justify-center rounded-md bg-secondary text-emphasis">
           <Icon className="size-5" aria-hidden />
         </span>
       ) : null}
