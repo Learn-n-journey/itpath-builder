@@ -110,7 +110,7 @@ function AiTutor() {
   const [threadId, setThreadId] = useState<string | null>(null);
   const [threads, setThreads] = useState<TutorThreadSummary[]>([]);
   const [historyBusy, setHistoryBusy] = useState(false);
-  const chatEndRef = useRef<HTMLDivElement | null>(null);\n  const chatScrollRef = useRef<HTMLDivElement | null>(null);\n  const [revealing, setRevealing] = useState(false);\n  const [followResponse, setFollowResponse] = useState(true);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
 
   const { items: knowledgeItems } = useKnowledge();
   const listThreads = useServerFn(listTutorThreads);
@@ -133,8 +133,8 @@ function AiTutor() {
 
   useEffect(() => {
     if (!started && !busy) return;
-    if (!followResponse) return;\n    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  }, [messages, busy, started, followResponse]);
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [messages, busy, started]);
 
   async function persist(next: ChatMessage[]) {
     const topicTitle =
@@ -154,23 +154,6 @@ function AiTutor() {
       if (!threadId) setThreadId(reply.id);
       void refreshHistory();
     }
-  }
-
-  async function revealAssistantAnswer(next: ChatMessage[], fullAnswer: string) {
-    const chunks = fullAnswer
-      .split(/\n{2,}/)
-      .map((part) => part.trim())
-      .filter(Boolean);
-    setRevealing(true);
-    setFollowResponse(true);
-    let visible = "";
-    for (const chunk of chunks.length ? chunks : [fullAnswer]) {
-      visible = visible ? `${visible}\n\n${chunk}` : chunk;
-      setMessages([...next, { role: "assistant" as const, content: visible }]);
-      await new Promise((resolve) => window.setTimeout(resolve, 360));
-    }
-    setRevealing(false);
-    return [...next, { role: "assistant" as const, content: fullAnswer }];
   }
 
   async function send(next: ChatMessage[]) {
@@ -362,7 +345,7 @@ function AiTutor() {
 
             {started ? (
               <div className="flex flex-wrap gap-2">
-                <Button variant="secondary" onClick={newChat} disabled={busy || revealing}>
+                <Button variant="secondary" onClick={newChat} disabled={busy}>
                   <Plus className="size-4" aria-hidden />
                   New chat
                 </Button>
@@ -445,7 +428,7 @@ function AiTutor() {
         >
           {started ? (
             <div className="grid gap-4">
-              <div ref={chatScrollRef} onScroll={(event) => { const el = event.currentTarget; setFollowResponse(el.scrollHeight - el.scrollTop - el.clientHeight < 96); }} className="grid min-h-[28rem] max-h-[56vh] gap-3 overflow-y-auto pr-1">
+              <div className="grid min-h-[28rem] max-h-[56vh] gap-3 overflow-y-auto pr-1">
                 {messages.slice(1).map((m, i) =>
                   m.role === "assistant" ? (
                     <div key={i} className="flex max-w-[94%] items-start gap-3">
@@ -458,8 +441,7 @@ function AiTutor() {
                       <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                         GAYL
                       </p>
-                      <div className="grid gap-3 text-sm leading-relaxed">{m.content.split(/
-{2,}/).map((paragraph, paragraphIndex, paragraphs) => <p key={`${i}-${paragraphIndex}`} className={revealing && paragraphIndex === paragraphs.length - 1 ? "whitespace-pre-wrap animate-in fade-in slide-in-from-bottom-1 duration-500 motion-reduce:animate-none" : "whitespace-pre-wrap"}>{paragraph}</p>)}</div>
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed">{m.content}</p>
                       <ContentReportButton
                         kind="ai_answer"
                         refId={`tutor-${i}`}
