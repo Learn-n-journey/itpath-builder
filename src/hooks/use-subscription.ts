@@ -54,21 +54,28 @@ export function useSubscription() {
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(null);
   const [betaAccess, setBetaAccess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [betaLoading, setBetaLoading] = useState(true);
 
   // Beta / creator access: an email on the beta list unlocks Pro without paying.
   useEffect(() => {
-    if (!ready || !userId || !email) {
+    if (!ready) return;
+    if (!userId || !email) {
       setBetaAccess(false);
+      setBetaLoading(false);
       return;
     }
     let active = true;
+    setBetaLoading(true);
     void supabase
       .from("beta_access")
       .select("email")
       .ilike("email", email)
       .maybeSingle()
       .then(({ data }) => {
-        if (active) setBetaAccess(Boolean(data));
+        if (active) {
+          setBetaAccess(Boolean(data));
+          setBetaLoading(false);
+        }
       });
     return () => {
       active = false;
@@ -133,5 +140,5 @@ export function useSubscription() {
       : "free";
   const isPro = tier === "pro";
   const isPlus = tier !== "free";
-  return { subscription, tier, isPro, isPlus, paid, betaAccess, loading: loading || !ready };
+  return { subscription, tier, isPro, isPlus, paid, betaAccess, loading: loading || betaLoading || !ready };
 }
