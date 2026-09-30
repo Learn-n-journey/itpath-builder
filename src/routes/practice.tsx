@@ -192,8 +192,8 @@ function PracticePage() {
       />
 
       {recommended ? (
-        <section className="relative mt-2 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
-          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
+        <section className="relative mt-2 overflow-hidden border-y border-primary/35 bg-card/60 px-1 py-5 sm:px-4">
+          
           <div className="relative">
             <div className="flex items-center justify-between gap-3">
               <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary"><Star className="size-4 fill-current" aria-hidden />Up next</p>
@@ -240,9 +240,9 @@ function PracticePage() {
             const topic = topics.find((entry) => entry.id === item.topicId);
             const selected = item.id === assignment?.id;
             return (
-              <div key={item.id} className={cn("overflow-hidden rounded-xl border bg-card/70 transition-colors", selected ? "border-primary/55 shadow-sm" : "border-border/70")}>
+              <div key={item.id} className={cn("overflow-hidden border-b border-border/70 transition-colors", selected && "border-primary/55 bg-card/45")}>
                 <button type="button" aria-expanded={selected} onClick={() => setSelectedId(selected ? "" : item.id)} className="group flex w-full items-center gap-3 p-3 text-left hover:bg-accent/50">
-                  <span className={cn("grid size-12 shrink-0 place-items-center rounded-lg ring-1 ring-inset", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
+                  <span className={cn("grid size-10 shrink-0 place-items-center rounded-md", accentSurface[visual.accent])}><Icon className="size-5" aria-hidden /></span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{typeLabels[item.type]}</span>
                     <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
