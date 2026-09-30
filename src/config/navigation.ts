@@ -1,5 +1,4 @@
 import {
-  Car,
   Brain,
   LayoutDashboard,
   Monitor,
@@ -38,8 +37,6 @@ import {
   Medal,
   Newspaper,
   Video,
-  Gauge,
-  Cog,
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -215,38 +212,6 @@ const allNavItems: NavItem[] = [
     description: "Tap through photos of a motherboard, RAM, GPU, drives, power supply, cooler and case to learn each part.",
     subjects: ["it-cybersecurity"],
   },
-  {
-    label: "OBD-II Scanner",
-    to: "/obd-scanner",
-    icon: Gauge,
-    group: "Tools",
-    description: "Plug a virtual scan tool into faulty vehicles and read codes, freeze frame and live data.",
-    subjects: ["auto-repair"],
-  },
-  {
-    label: "Explore the Engine",
-    to: "/explore-engine",
-    icon: Wrench,
-    group: "Tools",
-    description: "Tap through photos of an engine bay, a sectioned engine, alternator, starter, radiator, battery, brakes and spark plug.",
-    subjects: ["auto-repair"],
-  },
-  {
-    label: "Virtual Engine",
-    to: "/engine-simulator",
-    icon: Cog,
-    group: "Tools",
-    description: "Run a four stroke engine, change throttle, timing and mixture, and introduce faults.",
-    subjects: ["auto-repair"],
-  },
-  {
-    label: "Garage Match",
-    to: "/garage-match",
-    icon: Car,
-    group: "Games",
-    description: "A match-3 restoration game: clear parts, fix cars and grow your garage.",
-    subjects: ["auto-repair"],
-  },
 
   {
     label: "Flashcards",
@@ -315,22 +280,6 @@ const allNavItems: NavItem[] = [
     icon: Video,
     group: "Community",
     description: "A scrolling feed of technology videos, played in each platform's own player.",
-  },
-  {
-    label: "Auto News",
-    to: "/auto-news",
-    icon: Newspaper,
-    group: "Community",
-    description: "A live feed of automotive headlines for working and future technicians.",
-    subjects: ["auto-repair"],
-  },
-  {
-    label: "Auto Videos",
-    to: "/auto-videos",
-    icon: Video,
-    group: "Community",
-    description: "A scrolling feed of repair and diagnostic videos, played in each creator's own player.",
-    subjects: ["auto-repair"],
   },
   {
     label: "Community",
