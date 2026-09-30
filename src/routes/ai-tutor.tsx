@@ -100,7 +100,8 @@ async function copyText(text: string): Promise<boolean> {
 }
 
 function AiTutor() {
-  const { user } = useAppState();\n  const { session } = useAuth();
+  const { user } = useAppState();
+  const { session } = useAuth();
   const [mode, setMode] = useState<TutorMode>("ask_anything");
   const [topicId, setTopicId] = useState<string>(NO_TOPIC);
   const [answer, setAnswer] = useState("");
