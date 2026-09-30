@@ -32,6 +32,7 @@ import { createTerminalAttempt, evaluateTerminalAttempt, runTerminalCommand } fr
 import type { TerminalAttempt, TerminalMode } from "@/lib/app-data/types";
 import { clone,
   bootServices, ensureWorkstationState, copyPath, canManageAccounts, createMachine, currentGroups, getNode, killProcess, makeDir, movePath, primaryInterface, removePath, setAccountAdmin, setAccountLocked, setServiceStatus, storageFreePercent, writeFile, type MachineState, type VfsNode } from "@/lib/terminal/machine";
+import { createVirtualKernel } from "@/lib/virtual-os";
 import { useAppState } from "@/state/app-state";
 import { hasSimulatorCredit, shouldRecordSimulatorOutcome, simulatorOutcomeSignal, simulatorScaffoldingProfile, topicLearningPolicy } from "@/lib/learner-signals";
 import { applyTrainingNetworkAction, navigateTrainingBrowser, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
@@ -224,8 +225,12 @@ function VirtualPcPage() {
     if (!practiceMode && pcOs === "windows" && sharedAttempt) actions.updateTerminalAttempt({ ...sharedAttempt, machine: next, updatedAt: new Date().toISOString() });
   };
   const mutate = (fn: (next: MachineState) => void) => {
-    const next = clone(machine);
-    fn(next);
+    // PathKernel is now the mutation boundary for visible OS controls. During
+    // migration MachineState remains the compatibility state, so existing
+    // applications keep working while all new behavior gains one transaction
+    // and reconciliation path.
+    const kernel = createVirtualKernel(machine);
+    const next = kernel.transact(fn);
     saveMachine(next);
   };
   const openFile = (item: VirtualFile) => {
