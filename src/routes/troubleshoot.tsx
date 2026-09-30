@@ -121,10 +121,9 @@ function TroubleshootPage() {
       />
 
       {recommended ? (
-        <section className="relative mt-2 overflow-hidden rounded-2xl border border-primary/45 bg-gradient-to-br from-primary/10 via-card to-card p-5 shadow-lg">
-          <div className="absolute -right-12 -top-16 size-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
-          <div className="relative">
-            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary">
+        <section className="relative mt-2 overflow-hidden rounded-xl border border-border/70 bg-card/80 p-5">
+              <div className="relative">
+            <p className="flex items-center gap-2 text-xs font-medium text-primary">
               <Sparkles className="size-4" aria-hidden />Recommended incident
             </p>
             <h2 className="mt-3 max-w-2xl font-display text-xl font-semibold sm:text-2xl">{recommended.title}</h2>
@@ -179,7 +178,7 @@ function TroubleshootPage() {
                     <IncidentIcon className="size-4" aria-hidden />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[0.6875rem] font-bold uppercase tracking-wide text-primary">{incidentCategoryLabels[item.category]}</span>
+                    <span className="block text-xs font-medium text-muted-foreground">{incidentCategoryLabels[item.category]}</span>
                     <span className="mt-0.5 block line-clamp-2 font-display text-sm font-semibold sm:text-base">{item.title}</span>
                     <span className="mt-1 block truncate text-xs text-muted-foreground">
                       {topic?.title ?? "Technical troubleshooting"} · {accessible ? incidentStatusLabel(itemAttempt) : "Upcoming"}
@@ -189,7 +188,7 @@ function TroubleshootPage() {
                 </button>
                 {selected ? (
                   <div className="border-t border-border/70 bg-muted/20 px-4 py-4">
-                    <p className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-primary">Incident report</p>
+                    <p className="text-xs font-medium text-muted-foreground">Incident report</p>
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.report}</p>
                     <p className="mt-3 text-xs text-muted-foreground"><span className="font-medium text-foreground">Environment:</span> {item.environment}</p>
                     {accessible?<Button className="mt-4 w-full sm:w-auto" onClick={() => document.getElementById("active-incident-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" })}>{itemAttempt?.status === "in_progress" ? "Continue Incident" : itemAttempt?.status === "submitted" ? "Review Incident" : "Start Incident"} <ArrowRight /></Button>:<div className="mt-4 rounded-lg border border-border/60 bg-background/40 p-3 text-xs text-muted-foreground"><b className="text-foreground">Upcoming.</b> {availability.reason}</div>}
