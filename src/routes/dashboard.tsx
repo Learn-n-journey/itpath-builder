@@ -18,8 +18,6 @@ import { certificationTopics } from "@/lib/cert-path";
 import { topicScopeProgress } from "@/lib/scope-progress";
 import { useAppState } from "@/state/app-state";
 import itPathArtwork from "@/assets/path-it.jpg";
-import autoPathArtwork from "@/assets/path-auto.jpg";
-import { activeDomainKey } from "@/domain/active";
 import { useCommunityPreview } from "@/hooks/use-community-preview";
 import { useProfile } from "@/hooks/use-profile";
 import { useAuth } from "@/state/auth-state";
@@ -120,16 +118,7 @@ function Dashboard() {
   const { profile } = useProfile();
   const { notifications, unreadCount, markNotificationRead, markAllEventNotificationsRead } = useCommunityNotifications(8);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const isAutoPath = activeDomainKey.split("@")[0] === "auto-repair";
-
-  // The subject choice lives in browser storage, so the matching course art
-  // is selected as soon as the dashboard hydrates.
-  const [courseArtwork, setCourseArtwork] = useState({ src: itPathArtwork, alt: "A blue-lit desktop computer" });
-  useEffect(() => {
-    if (activeDomainKey.split("@")[0] === "auto-repair") {
-      setCourseArtwork({ src: autoPathArtwork, alt: "A detailed automotive engine" });
-    }
-  }, []);
+  const courseArtwork = { src: itPathArtwork, alt: "A blue-lit desktop computer" };
 
   const d = useMemo(() => computeDashboard(user), [user]);
   const path = useMemo(() => adaptivePath(user), [user]);
@@ -435,7 +424,7 @@ function Dashboard() {
         <div className="flex flex-wrap gap-2">
           <Link to="/learn" className="border-b border-border/70 px-1 py-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground">Explore topics</Link>
           <Link to="/pomodoro" className="border-b border-border/70 px-1 py-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground">Focus timer</Link>
-          {!isAutoPath ? <Link to="/virus" className="border-b border-border/70 px-1 py-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground">Games</Link> : <Link to="/garage-match" className="border-b border-border/70 px-1 py-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground">Games</Link>}
+          <Link to="/virus" className="border-b border-border/70 px-1 py-2 text-xs font-medium text-muted-foreground hover:border-primary hover:text-foreground">Games</Link>
         </div>
       </section>
 
