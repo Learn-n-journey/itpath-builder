@@ -8,9 +8,9 @@ import itImage from "@/assets/path-it.jpg";
 import { setDomainOverride } from "@/lib/active-domain";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { useAuth } from "@/state/auth-state";
-import { learningPaths, loadLearningPaths } from "@/lib/learning-path-store";
+import { learningPaths, loadLearningPaths, rememberLearningPaths } from "@/lib/learning-path-store";
 import { ROADMAP_PATHS, ROADMAP_SLUGS, pathAppName, pathKey, type LearningPath } from "@/lib/learning-paths-shared";
-import { roadmapReleaseState } from "@/lib/learning-paths.functions";
+import { ensureRoadmapLearningPaths, roadmapReleaseState } from "@/lib/learning-paths.functions";
 
 export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
@@ -51,6 +51,7 @@ function CourseChooser() {
   const isOwner = OWNER_EMAILS.includes((email ?? "").trim().toLowerCase());
   const [created, setCreated] = useState<LearningPath[]>([]);
   const readRoadmapState = useServerFn(roadmapReleaseState);
+  const ensureRoadmap = useServerFn(ensureRoadmapLearningPaths);
   const [roadmapState, setRoadmapState] = useState<Record<string, boolean>>({});
 
   // Paths created in Settings. Row level security only returns a hidden one to
@@ -59,7 +60,14 @@ function CourseChooser() {
     setCreated(learningPaths());
     void loadLearningPaths().then(setCreated);
     void readRoadmapState({}).then(setRoadmapState);
-  }, [userId, readRoadmapState]);
+    if (ready && isOwner) {
+      void ensureRoadmap({}).then((result) => {
+        if (!result.ok) return;
+        rememberLearningPaths(result.paths);
+        setCreated(result.paths);
+      });
+    }
+  }, [userId, ready, isOwner, readRoadmapState, ensureRoadmap]);
 
   function choose(id: string) {
     setDomainOverride(id);
@@ -142,6 +150,7 @@ function CourseChooser() {
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {ROADMAP_PATHS.map((path, index) => {
               const unlocked = Boolean(roadmapState[path.slug]);
+              const canOpen = unlocked || isOwner;
               const Icon = [Code2, Shield, CloudCog, Database][index] ?? Code2;
               return (
                 <article key={path.slug} className="flex min-h-[17rem] flex-col border border-border bg-card p-5">
@@ -149,7 +158,7 @@ function CourseChooser() {
                     <Icon className="size-6 text-primary" aria-hidden />
                     <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                       {!unlocked ? <Lock className="size-3.5" aria-hidden /> : null}
-                      {unlocked ? "Available" : path.slug === "build" ? "Coming soon" : "Planned"}
+                      {unlocked ? "Available" : isOwner ? "Private build" : path.slug === "build" ? "Coming soon" : "Planned"}
                     </span>
                   </div>
                   <p className="mt-6 text-xs font-semibold uppercase tracking-wider text-muted-foreground">IT PATH</p>
@@ -158,13 +167,13 @@ function CourseChooser() {
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{path.description}</p>
                   <Button
                     type="button"
-                    variant={unlocked ? "secondary" : "outline"}
-                    disabled={!unlocked}
-                    onClick={() => unlocked && choose(pathKey(path.slug))}
+                    variant={canOpen ? "secondary" : "outline"}
+                    disabled={!canOpen}
+                    onClick={() => canOpen && choose(pathKey(path.slug))}
                     className="mt-auto w-full justify-between"
                   >
-                    {unlocked ? `Choose IT PATH: ${path.name}` : "Locked"}
-                    {unlocked ? <ArrowRight className="size-4" aria-hidden /> : <Lock className="size-4" aria-hidden />}
+                    {unlocked ? `Choose IT PATH: ${path.name}` : isOwner ? "Open privately" : "Locked"}
+                    {canOpen ? <ArrowRight className="size-4" aria-hidden /> : <Lock className="size-4" aria-hidden />}
                   </Button>
                 </article>
               );
