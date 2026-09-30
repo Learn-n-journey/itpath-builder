@@ -1,13 +1,10 @@
-import { domain } from "@/domain/active";
-
 /**
  * Community rooms represent recurring learner groups, not curriculum topics.
  * Specific lesson concepts belong in post text/tags; communities are the people
  * and purposes learners come back to.
  */
 const IT_GENERAL_ROOM = "general";
-const AUTO_GENERAL_ROOM = "auto-general";
-export const GENERAL_ROOM = domain.id === "auto-repair" ? AUTO_GENERAL_ROOM : IT_GENERAL_ROOM;
+export const GENERAL_ROOM = IT_GENERAL_ROOM;
 
 const IT_COMMUNITY_ROOMS = [
   { id: IT_GENERAL_ROOM, label: "General IT", description: "Anything IT related", tagline: "The common room for the whole IT PATH community.", about: "Talk across IT disciplines, share useful discoveries, and meet learners outside your usual lane." },
@@ -28,25 +25,7 @@ const IT_COMMUNITY_ROOMS = [
   { id: "off-topic", label: "Off Topic", description: "Conversation beyond IT", tagline: "Sometimes learners just need a place to talk.", about: "A casual space for conversations that do not fit the technical communities while still following IT PATH community standards." },
 ] as const;
 
-const AUTO_COMMUNITY_ROOMS = [
-  { id: AUTO_GENERAL_ROOM, label: "General Garage", description: "Anything automotive", tagline: "The common bay for the whole AUTO PATH community.", about: "Talk across automotive systems, share useful discoveries, and meet learners and technicians outside your usual lane." },
-  { id: "auto-new-to-auto", label: "New to Auto", description: "Beginner questions welcome", tagline: "Start here. Learn the shop without pretending you already know it.", about: "A welcoming place for first tools, terminology, safety, maintenance basics, study habits, and figuring out where to begin." },
-  { id: "auto-diy-garage", label: "DIY Garage", description: "Home repairs, maintenance, and tools", tagline: "Work on your own car and learn why the repair works.", about: "Share home-garage repairs, maintenance, tool choices, lessons learned, and safe ways to build hands-on experience." },
-  { id: "auto-aspiring-techs", label: "Aspiring Technicians", description: "Preparing for professional shop work", tagline: "Turn training into technician capability.", about: "Discuss entry-level shop skills, career transitions, expectations, training progress, and preparing for professional automotive work." },
-  { id: "auto-ase-study", label: "ASE Study", description: "Certification preparation and study", tagline: "Know the system, not just the answer.", about: "Discuss ASE preparation, objectives, study strategies, practice habits, and lessons learned without turning the community into an answer dump." },
-  { id: "auto-diagnostics", label: "Diagnostics", description: "Symptoms, testing, scan data, and evidence", tagline: "Test before you replace.", about: "Work through symptoms, diagnostic strategy, scan data, measurements, possible causes, and evidence-based fault isolation." },
-  { id: "auto-electrical", label: "Electrical & Electronics", description: "Circuits, meters, modules, and wiring", tagline: "Follow the circuit. Prove the fault.", about: "Talk batteries, starting and charging, wiring, voltage drop, meters, sensors, modules, networks, and electrical diagnosis." },
-  { id: "auto-engine", label: "Engine & Drivability", description: "Engine systems and performance diagnosis", tagline: "Air, fuel, spark, compression, timing, evidence.", about: "Discuss engine mechanical systems, fuel and ignition, emissions, drivability symptoms, testing, and repair verification." },
-  { id: "auto-chassis", label: "Brakes, Steering & Suspension", description: "Chassis systems, inspection, and repair", tagline: "Inspect the vehicle. Understand what the driver feels.", about: "Discuss brakes, steering, suspension, tires, alignment symptoms, inspection findings, measurements, and repair decisions." },
-  { id: "auto-tools-shop", label: "Tools & Shop Life", description: "Tools, workflow, safety, and the working shop", tagline: "Use the right tool and build good habits.", about: "Compare hand tools, scan tools, meters, lifts, safety practices, workflow, organization, and lessons from the shop." },
-  { id: "auto-build-show", label: "Build & Show", description: "Share repairs, restorations, and projects", tagline: "Show the work, not just the finished car.", about: "Share repairs, restorations, upgrades, diagnostic wins, unfinished projects, and what you learned along the way." },
-  { id: "auto-troubleshooting-help", label: "Repair Help", description: "Work through vehicle problems together", tagline: "Bring the complaint. Bring the evidence.", about: "Describe the vehicle, symptom, conditions, codes, measurements, and what you already tested. Work the problem methodically with other learners." },
-  { id: "auto-career-shop", label: "Careers & Shop Talk", description: "Jobs, interviews, dealerships, and independent shops", tagline: "Learn what the work is really like.", about: "Discuss technician careers, interviews, shop environments, tools, training, pay structures, professional development, and moving from learner to applicant." },
-  { id: "auto-study-accountability", label: "Training Accountability", description: "Goals, check-ins, and training momentum", tagline: "Keep showing up.", about: "Set realistic training goals, share check-ins, celebrate consistency, and help other learners maintain momentum." },
-  { id: "auto-off-topic", label: "Off Topic", description: "Conversation beyond the garage", tagline: "Sometimes people just need a place to talk.", about: "A casual space for conversations that do not fit the automotive communities while still following AUTO PATH community standards." },
-] as const;
-
-export const COMMUNITY_ROOMS = domain.id === "auto-repair" ? AUTO_COMMUNITY_ROOMS : IT_COMMUNITY_ROOMS;
+export const COMMUNITY_ROOMS = IT_COMMUNITY_ROOMS;
 
 export type CommunityRoom = (typeof COMMUNITY_ROOMS)[number];
 
