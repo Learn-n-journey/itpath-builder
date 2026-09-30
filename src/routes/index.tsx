@@ -1,10 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BarChart3, BookOpen, Briefcase, Car, Compass, FlaskConical, LayoutDashboard, LogIn, Monitor, Settings, ShieldCheck, Users, Wrench } from "lucide-react";
+import { ArrowRight, BarChart3, BookOpen, Briefcase, Compass, FlaskConical, LayoutDashboard, LogIn, Monitor, Settings, ShieldCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import itImage from "@/assets/path-it.jpg";
-import autoImage from "@/assets/path-auto.jpg";
 import { setDomainOverride } from "@/lib/active-domain";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 import { useAuth } from "@/state/auth-state";
@@ -15,15 +14,15 @@ export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Learn IT & Automotive Skills Online | IT PATH & AUTO PATH" },
+      { title: "Learn IT Skills Online | IT PATH" },
       {
         name: "description",
-        content: "Learn IT, cybersecurity, networking, computer hardware, automotive diagnostics and repair with structured lessons, hands-on practice and skill checks.",
+        content: "Learn IT, cybersecurity, networking, computer hardware, cloud and systems skills with structured lessons, hands-on practice and skill checks.",
       },
-      { property: "og:title", content: "Learn Practical IT & Automotive Skills | PATH" },
+      { property: "og:title", content: "Learn Practical IT Skills | IT PATH" },
       {
         property: "og:description",
-        content: "Structured beginner-friendly learning for IT, cybersecurity and automotive repair with lessons, practice, troubleshooting and progress tracking.",
+        content: "Structured beginner-friendly learning for IT, networking, systems, cloud and cybersecurity with lessons, practice, troubleshooting and progress tracking.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://it-path.net/" },
@@ -42,14 +41,6 @@ const paths = [
     action: "Choose IT PATH",
     tone: "it" as const,
     image: itImage,
-  },
-  {
-    id: "auto-repair@3.7.0",
-    name: "AUTO PATH",
-    description: "Vehicle systems, diagnostics, repair, and shop fundamentals.",
-    action: "Choose AUTO PATH",
-    tone: "auto" as const,
-    image: autoImage,
   },
 ];
 
@@ -86,45 +77,38 @@ function CourseChooser() {
         </div>
 
         <header className="mx-auto mb-8 mt-3 max-w-4xl text-center sm:mb-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.38em] text-primary/75">Welcome to PATH</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.38em] text-primary/75">IT PATH</p>
           <h1 className="mt-4 font-display text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            Learn practical <span className="text-primary">IT and automotive skills</span>
+            Learn practical <span className="text-primary">IT skills</span>
           </h1>
           <p className="mt-3 text-base text-foreground/90 sm:text-lg">Start from the basics and build real skills through structured lessons, hands-on practice, troubleshooting and mastery checks.</p>
-          <p className="mt-1 text-sm text-muted-foreground sm:text-base">Study IT, networking, cybersecurity, computer hardware, automotive diagnostics and repair at your own pace.</p>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">Study computer hardware, networking, systems, cloud and cybersecurity at your own pace.</p>
         </header>
 
-        <div className="grid gap-5 lg:grid-cols-2 lg:gap-7">
-          {paths.map((path) => {
-            const isIt = path.tone === "it";
-            const Icon = isIt ? Monitor : Car;
-            const features = isIt
-              ? ["Beginner to advanced", "Hands-on labs and simulations", "Real-world troubleshooting", "Certification preparation", "Career-ready skills"]
-              : ["From basics to advanced systems", "Step-by-step repair guidance", "Interactive diagrams and simulations", "Real-world diagnostic practice", "Build job-ready skills"];
-            return (
-              <article key={path.id} className={`group relative min-h-[34rem] overflow-hidden rounded-2xl border bg-card shadow-2xl ${isIt ? "border-path-it/70" : "border-amber-400/80 shadow-[0_0_55px_-20px_rgba(250,204,21,0.55)]"}`}>
-                <img src={path.image} alt="" width={1024} height={640} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.025]" />
-                <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/25" aria-hidden />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/10" aria-hidden />
-                <div className="relative flex min-h-[34rem] max-w-[82%] flex-col p-6 sm:p-8">
-                  <span className={`grid size-16 place-items-center rounded-2xl border backdrop-blur-sm ${isIt ? "border-path-it bg-path-it/20 text-path-it" : "border-amber-400/80 bg-amber-400/20 text-amber-500 shadow-[0_0_28px_-10px_rgba(250,204,21,0.75)]"}`}>
-                    <Icon className="size-8" aria-hidden />
-                  </span>
-                  <h2 className="mt-5 font-display text-4xl font-bold tracking-tight">{path.name}</h2>
-                  <p className={`mt-1 text-xl font-semibold ${isIt ? "text-path-it" : "text-amber-500"}`}>{isIt ? "Technology & IT" : "Automotive Technology"}</p>
-                  <p className="mt-4 max-w-xl text-base leading-relaxed text-foreground/90">
-                    {isIt ? "Build practical IT skills from computer fundamentals through networking, security, cloud, and beyond." : "Learn how vehicles work, diagnose problems, and develop practical repair knowledge."}
-                  </p>
-                  <ul className="mt-6 space-y-2.5 text-sm sm:text-base">
-                    {features.map((feature) => <li key={feature} className="flex items-center gap-3"><ShieldCheck className={`size-4 shrink-0 ${isIt ? "text-path-it" : "text-amber-500"}`} aria-hidden /><span>{feature}</span></li>)}
-                  </ul>
-                  <Button type="button" size="lg" onClick={() => choose(path.id)} className={`mt-auto h-14 w-full justify-center text-base font-bold ${isIt ? "bg-path-it text-white hover:bg-path-it/90" : "bg-amber-400 text-zinc-950 hover:bg-amber-300 shadow-[0_0_30px_-12px_rgba(250,204,21,0.8)]"}`}>
-                    {isIt ? "Start IT PATH" : "Start AUTO PATH"}<ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" aria-hidden />
-                  </Button>
-                </div>
-              </article>
-            );
-          })}
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(18rem,0.5fr)] lg:gap-7">
+          {paths.map((path) => (
+            <article key={path.id} className="group relative min-h-[34rem] overflow-hidden rounded-2xl border border-path-it/70 bg-card shadow-2xl">
+              <img src={path.image} alt="" width={1024} height={640} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.025]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-background/25" aria-hidden />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/10" aria-hidden />
+              <div className="relative flex min-h-[34rem] max-w-[82%] flex-col p-6 sm:p-8">
+                <span className="grid size-16 place-items-center rounded-2xl border border-path-it bg-path-it/20 text-path-it backdrop-blur-sm">
+                  <Monitor className="size-8" aria-hidden />
+                </span>
+                <h2 className="mt-5 font-display text-4xl font-bold tracking-tight">{path.name}</h2>
+                <p className="mt-1 text-xl font-semibold text-path-it">Technology & IT</p>
+                <p className="mt-4 max-w-xl text-base leading-relaxed text-foreground/90">
+                  Build practical IT skills from computer fundamentals through networking, security, cloud, and beyond.
+                </p>
+                <ul className="mt-6 space-y-2.5 text-sm sm:text-base">
+                  {["Beginner to advanced", "Hands-on labs and simulations", "Real-world troubleshooting", "Certification preparation", "Career-ready skills"].map((feature) => <li key={feature} className="flex items-center gap-3"><ShieldCheck className="size-4 shrink-0 text-path-it" aria-hidden /><span>{feature}</span></li>)}
+                </ul>
+                <Button type="button" size="lg" onClick={() => choose(path.id)} className="mt-auto h-14 w-full justify-center bg-path-it text-base font-bold text-white hover:bg-path-it/90">
+                  Start IT PATH<ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" aria-hidden />
+                </Button>
+              </div>
+            </article>
+          ))}
 
           {created.map((path) => (
             <article key={path.slug} className="group relative flex min-h-[22rem] flex-col overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-xl sm:p-8">
@@ -171,7 +155,7 @@ function CourseChooser() {
         </section>
 
         <p className="py-8 text-center text-[10px] font-semibold uppercase tracking-[0.32em] text-muted-foreground sm:text-xs">
-          Same powerful learning system. Different paths. Your future.
+          Build real IT knowledge. Prove it through practice.
         </p>
       </div>
     </main>
