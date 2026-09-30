@@ -19,9 +19,9 @@ export function MobileBottomNav({ onMore: _onMore }: { onMore: () => void }) {
     <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl lg:hidden">
       <div className="grid h-16 grid-cols-5">
         {items.map((item) => {
-          const active = pathname === item.to;
+          const active = pathname === item.to || (item.to !== "/dashboard" && pathname.startsWith(`${item.to}/`));
           return (
-            <Link key={item.to} to={item.to} className={cn("flex min-w-0 flex-col items-center justify-center gap-1 text-[0.625rem] text-muted-foreground", active && "text-primary")}>
+            <Link key={item.to} to={item.to} aria-current={active ? "page" : undefined} className={cn("flex min-w-0 touch-manipulation flex-col items-center justify-center gap-1 text-[0.625rem] text-muted-foreground", active && "text-primary")}>
               <item.icon className={cn("size-4.5 shrink-0", active ? "text-primary" : accentText[featureAccent(item.to)])} aria-hidden />
               <span className="max-w-full truncate px-1">{item.label}</span>
             </Link>
