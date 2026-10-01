@@ -60,8 +60,6 @@ type MobileState = {
   accountSignedIn: boolean;
 };
 
-const STORAGE_KEY = "itpath-virtual-mobile-v1";
-
 function freshMobile(os: MobileOs): MobileState {
   const shell = os === "android" ? "android" : "ios";
   const machine = createMachine({ shell, hostname: os === "android" ? "path-mobile-a" : "path-mobile-p" });
@@ -150,7 +148,7 @@ function VirtualMobilePage() {
   const [ticketTrace,setTicketTrace]=useState<Array<"observe"|"test"|"repair"|"verify">>([]);
   const [ticketHistory, setTicketHistory] = useState<{id:string;title:string;os:MobileOs;assisted:boolean;completedAt:string}[]>(() => {
     if(typeof window==="undefined") return [];
-    try { return JSON.parse(localStorage.getItem("itpath-mobile-ticket-history-v1") || "[]"); } catch { return []; }
+    return readSimulatorState("virtual-mobile-ticket-history", userId, []);
   });
 
   const state = devices[os];
@@ -336,8 +334,8 @@ function VirtualMobilePage() {
     : practiceContract.success.kind==="bluetooth-enabled" ? state.bluetoothEnabled
     : practiceContract.success.kind==="storage-below" ? state.storageUsed<practiceContract.success.percent
     : practiceContract.success.kind==="network-online" ? mobileOnline
-    : practiceContract.success.kind==="terminal-command" ? consoleLines.length>0
-    : practiceContract.success.kind==="app-enabled" ? state.installedApps.some(item=>item.enabled)
+    : practiceContract.success.kind==="terminal-command" ? consoleLines.some(item => item.output.trim().length > 0 && item.command.trim().toLowerCase() === practiceContract.success.command.trim().toLowerCase())
+    : practiceContract.success.kind==="app-enabled" ? state.installedApps.some(item=>item.id===practiceContract.success.appId && item.enabled)
     : false;
   const completePracticeLab=()=>{
     if(!practiceMode||!launchContext.lab||!launchContext.topic||!practiceContract?.supported){setNotice(practiceContract?.requirement ?? "This Lab uses the normal evidence workflow.");return;}
