@@ -180,11 +180,11 @@ export type SimulatorLabContract = {
   tool?: PracticeTool;
   minimumRelevantActions: number;
   success:
-    | { kind:"terminal-command" }
+    | { kind:"terminal-command"; command:string }
     | { kind:"network-online" }
     | { kind:"storage-below"; percent:number }
     | { kind:"bluetooth-enabled" }
-    | { kind:"app-enabled" }
+    | { kind:"app-enabled"; appId:string }
     | { kind:"manual" };
   requirement: string;
 };
