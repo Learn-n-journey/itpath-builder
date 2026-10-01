@@ -198,9 +198,54 @@ export type SimulatorLabContract = {
  * normal Lab evidence workflow.
  */
 const SIMULATOR_LAB_CONTRACTS: Readonly<Record<string, SimulatorLabContract>> = {
-  // Intentionally empty until individual authored Labs are reviewed and opted
-  // in. This fail-closed default prevents generated wording from creating
-  // accidental mastery evidence.
+  "lab-windows-system-baseline": {
+    supported: true,
+    surface: "virtual-pc",
+    tool: "terminal",
+    minimumRelevantActions: 1,
+    success: { kind: "terminal-command", command: "systeminfo" },
+    requirement: "Run systeminfo in the Windows terminal and use its output to complete the baseline.",
+  },
+  "lab-networking-local-path": {
+    supported: true,
+    surface: "virtual-pc",
+    tool: "network",
+    minimumRelevantActions: 1,
+    success: { kind: "network-online" },
+    requirement: "Restore the local network path, then verify the connection from the simulator.",
+  },
+  "lab-dns-resolution-chain": {
+    supported: true,
+    surface: "virtual-pc",
+    tool: "terminal",
+    minimumRelevantActions: 1,
+    success: { kind: "terminal-command", command: "nslookup" },
+    requirement: "Run nslookup against the training host and use the result to complete the DNS check.",
+  },
+  "lab-linux-system-inventory": {
+    supported: true,
+    surface: "virtual-pc",
+    tool: "terminal",
+    minimumRelevantActions: 1,
+    success: { kind: "terminal-command", command: "uname -a" },
+    requirement: "Run uname -a in the Linux terminal and record the system details.",
+  },
+  "lab-powershell-service-report": {
+    supported: true,
+    surface: "virtual-pc",
+    tool: "services",
+    minimumRelevantActions: 1,
+    success: { kind: "terminal-command", command: "Get-Service" },
+    requirement: "Run Get-Service in the PowerShell terminal and use the service state in your report.",
+  },
+  "lab-bash-log-summary": {
+    supported: true,
+    surface: "virtual-pc",
+    tool: "terminal",
+    minimumRelevantActions: 1,
+    success: { kind: "terminal-command", command: "grep" },
+    requirement: "Use grep in the Bash terminal to extract the relevant log entries.",
+  },
 };
 
 export function simulatorLabContract(lab: Lab): SimulatorLabContract {
