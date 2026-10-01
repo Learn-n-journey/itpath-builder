@@ -39,4 +39,16 @@ describe("simulator Lab verification contracts", () => {
     expect(contract.supported).toBe(false);
     expect(contract.requirement).toContain("no authored simulator verification contract");
   });
+  it("requires the exact authored command for an enabled contract", () => {
+    const contract = simulatorLabContract(lab({
+      id: "lab-dns-resolution-chain",
+      title: "Inspect DNS",
+      category: "linux",
+      objective: "Inspect DNS resolution.",
+    }));
+    expect(contract.supported).toBe(true);
+    expect(contract.success).toEqual({ kind: "terminal-command", command: "nslookup" });
+    expect(contract.minimumRelevantActions).toBe(1);
+  });
+
 });
