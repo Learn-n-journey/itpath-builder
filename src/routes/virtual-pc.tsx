@@ -38,7 +38,7 @@ import { hasSimulatorCredit, shouldRecordSimulatorOutcome, simulatorOutcomeSigna
 import { applyTrainingNetworkAction, navigateTrainingBrowser, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
 import { labs } from "@/data/static-content";
 import { simulatorLabContract } from "@/lib/lab-environments";
-import { readSimulatorState, writeSimulatorState } from "@/lib/simulator-state";
+import { clearSimulatorState, readSimulatorState, writeSimulatorState } from "@/lib/simulator-state";
 import { useAuth } from "@/state/auth-state";
 import { advancePrintQueue, advanceWindowsUpdate, applicationCheck, applicationForProcess, applicationInstalled, cancelPrintJob, launchTrainingApplication, completeWindowsUpdateRestart, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications, type TrainingApplicationId } from "@/lib/training/applications";
 
@@ -93,6 +93,7 @@ function VirtualPcPage() {
   const [practiceActions,setPracticeActions]=useState(0);
   const { user, actions } = useAppState();
   const { userId } = useAuth();
+  const ticketStorageKey = (scope: string) => `itpath:virtual-pc-ticket:${scope}:${userId ?? "guest"}:v2`;
   const practiceLab=practiceMode?labs.find(item=>item.id===launchContext.lab):undefined;
   const practiceContract=practiceLab?simulatorLabContract(practiceLab):null;
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
@@ -367,8 +368,8 @@ function VirtualPcPage() {
 
   useEffect(() => {
     try {
-      const sharedSaved = localStorage.getItem("itpath-virtualpc-ticket-shared");
-      const saved = sharedSaved ?? localStorage.getItem(`itpath-virtualpc-ticket-${pcOs}`);
+      const sharedSaved = localStorage.getItem(ticketStorageKey("shared"));
+      const saved = sharedSaved ?? localStorage.getItem(ticketStorageKey(pcOs));
       if (!saved) { setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); return; }
       const parsed = JSON.parse(saved) as { ticketId: string; fault: TrainingFault; verified?: boolean };
       setActiveTicketId(parsed.ticketId); setActiveFault(parsed.fault); setTicketVerified(Boolean(parsed.verified)); setTicketEvidence((parsed as any).evidence ?? []); setGaylHelpLevel((parsed as any).helpLevel ?? 0);
@@ -379,7 +380,7 @@ function VirtualPcPage() {
     if (!activeTicketId || !activeFault) return;
     const ticket = helpDeskTickets.find((item) => item.id === activeTicketId);
     const key = ticket?.scope === "cross-machine" ? "itpath-virtualpc-ticket-shared" : `itpath-virtualpc-ticket-${pcOs}`;
-    localStorage.setItem(key, JSON.stringify({ ticketId: activeTicketId, fault: activeFault, verified: ticketVerified, evidence: ticketEvidence, helpLevel: gaylHelpLevel }));
+    localStorage.setItem(key.replace(/^itpath-virtualpc-ticket-shared$/, ticketStorageKey("shared")).replace(/^itpath-virtualpc-ticket-(windows|linux|mac)$/, ticketStorageKey(pcOs)), JSON.stringify({ ticketId: activeTicketId, fault: activeFault, verified: ticketVerified, evidence: ticketEvidence, helpLevel: gaylHelpLevel }));
   }, [activeTicketId, activeFault, ticketVerified, ticketEvidence, gaylHelpLevel, pcOs]);
 
   const resetVirtualLab = () => {
@@ -390,10 +391,10 @@ function VirtualPcPage() {
       mac: createMachine({ shell:"mac", hostname:"itpath-mac" }),
     }, cleanEnvironment);
     try {
-      localStorage.removeItem("itpath-virtualpc-machines-v1");
-      localStorage.removeItem("itpath-virtualpc-environment-v1");
-      localStorage.removeItem("itpath-virtualpc-ticket-shared");
-      (["windows","linux","mac"] as PcOs[]).forEach(os => localStorage.removeItem(`itpath-virtualpc-ticket-${os}`));
+      clearSimulatorState("virtual-pc-machines", userId);
+      clearSimulatorState("virtual-pc-environment", userId);
+      localStorage.removeItem(ticketStorageKey("shared"));
+      (["windows","linux","mac"] as PcOs[]).forEach(os => localStorage.removeItem(ticketStorageKey(os)));
     } catch { /* reset still applies in memory */ }
     setVirtualEnvironment(cleanEnvironment);
     setOsMachines(cleanMachines);
@@ -481,7 +482,7 @@ function VirtualPcPage() {
     const demonstrated=required.every(stage=>stage==="verify" ? ticketVerified : ticketTrace.includes(stage));
     if(!demonstrated){ setNotice(`The fix works, but demonstrate the troubleshooting process first: ${required.filter(stage=>!ticketTrace.includes(stage)).join(", ")}.`); return; }
     if(activeTicket && shouldRecordSimulatorOutcome(user,"troubleshoot",activeTicket.id,gaylHelpLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylHelpLevel));
-    localStorage.removeItem(`itpath-virtualpc-ticket-${pcOs}`);
+    localStorage.removeItem(ticketStorageKey(pcOs));
     localStorage.removeItem("itpath-virtualpc-ticket-shared");
     setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0); setGaylFeedback("Start with the symptom. Gather evidence before you change anything."); setGaylHypothesis(""); setGaylActions(0); setGaylWalkthrough(false); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); ticketBaseline.current=null; ticketEnvironmentBaseline.current=null; setTicketOpen(false);
   };
