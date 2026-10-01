@@ -34,7 +34,8 @@ function readExternalIds(items: SubscriptionItem[] | undefined) {
 }
 
 async function upsertSubscriptionRow(row: Record<string, unknown>) {
-  await table().upsert(row, { onConflict: "paddle_subscription_id" });
+  const { error } = await table().upsert(row, { onConflict: "paddle_subscription_id" });
+  if (error) throw new Error(`Subscription upsert failed: ${error.message}`);
 }
 
 async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
@@ -65,7 +66,7 @@ async function handleSubscriptionCreated(data: any, env: PaddleEnv) {
 
 async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
   const { id, status, currentBillingPeriod, scheduledChange } = data;
-  await table()
+  const { error } = await table()
     .update({
       status,
       current_period_start: currentBillingPeriod?.startsAt,
@@ -75,13 +76,15 @@ async function handleSubscriptionUpdated(data: any, env: PaddleEnv) {
     })
     .eq("paddle_subscription_id", id)
     .eq("environment", env);
+  if (error) throw new Error(`Subscription update failed: ${error.message}`);
 }
 
 async function handleSubscriptionCanceled(data: any, env: PaddleEnv) {
-  await table()
+  const { error } = await table()
     .update({ status: "canceled", updated_at: new Date().toISOString() })
     .eq("paddle_subscription_id", data.id)
     .eq("environment", env);
+  if (error) throw new Error(`Subscription cancellation update failed: ${error.message}`);
 }
 
 /**
@@ -146,7 +149,11 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
     handlers: {
       POST: async ({ request }) => {
         const url = new URL(request.url);
-        const env = (url.searchParams.get("env") || "sandbox") as PaddleEnv;
+        const requestedEnv = url.searchParams.get("env") || "sandbox";
+        if (requestedEnv !== "sandbox" && requestedEnv !== "live") {
+          return new Response("Invalid payment environment", { status: 400 });
+        }
+        const env = requestedEnv as PaddleEnv;
         try {
           await handleWebhook(request, env);
           return Response.json({ received: true });
