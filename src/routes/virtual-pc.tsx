@@ -538,7 +538,7 @@ function VirtualPcPage() {
     else if (lower.startsWith("terminal:")) setGaylFeedback("That command may still be useful, but connect its output to the reported symptom. Avoid collecting evidence without a reason.");
   };
   const practiceHealthy = !practiceContract?.supported ? false
-    : practiceContract.success.kind==="terminal-command" ? terminalLines.some(line => line.trim().toLowerCase().includes(practiceContract.success.command.trim().toLowerCase()))
+    : practiceContract.success.kind==="terminal-command" ? terminalLines.some(line => (line.includes(">") ? line.slice(line.lastIndexOf(">") + 1) : line).trim().toLowerCase() === practiceContract.success.command.trim().toLowerCase())
     : practiceContract.success.kind==="network-online" ? networkState.localReady
     : practiceContract.success.kind==="storage-below" ? 100-diskFreePercent<practiceContract.success.percent
     : false;
