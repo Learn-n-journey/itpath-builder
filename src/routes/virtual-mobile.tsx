@@ -10,6 +10,8 @@ import { useAppState } from "@/state/app-state";
 import { hasSimulatorCredit, shouldRecordSimulatorOutcome, simulatorOutcomeSignal, simulatorScaffoldingProfile, topicLearningPolicy } from "@/lib/learner-signals";
 import { labs } from "@/data/static-content";
 import { simulatorLabContract } from "@/lib/lab-environments";
+import { readSimulatorState, writeSimulatorState } from "@/lib/simulator-state";
+import { useAuth } from "@/state/auth-state";
 
 export const Route = createFileRoute("/virtual-mobile")({
   validateSearch: (search: Record<string, unknown>): { activity?: "lab"|"ticket"; lab?: string; ticket?: string; topic?: string; tool?: string; os?: MobileOs } => ({
@@ -104,6 +106,7 @@ function VirtualMobilePage() {
   const launchContext = Route.useSearch();
   const practiceMode = launchContext.activity === "lab" && Boolean(launchContext.lab);
   const {user,actions}=useAppState();
+  const { userId } = useAuth();
   const [practiceActions,setPracticeActions]=useState(0);
   const [practiceHelpLevel,setPracticeHelpLevel]=useState(0);
   const practiceLab=practiceMode?labs.find(item=>item.id===launchContext.lab):undefined;
@@ -115,7 +118,7 @@ function VirtualMobilePage() {
   const [devices, setDevices] = useState<Record<MobileOs, MobileState>>(() => {
     if (typeof window !== "undefined") {
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "");
+        const saved = readSimulatorState<Partial<Record<MobileOs, MobileState>>>("virtual-mobile", userId, {});
         if (saved?.android?.machine && saved?.phone?.machine) {
           const hydrate = (value: MobileState, kind: MobileOs): MobileState => ({ ...freshMobile(kind), ...value, installedApps: value.installedApps ?? freshMobile(kind).installedApps });
           return { android: hydrate(saved.android, "android"), phone: hydrate(saved.phone, "phone") };
@@ -165,8 +168,8 @@ function VirtualMobilePage() {
   const workServicesReady = state.accountSignedIn && state.managementProfile;
 
   useEffect(() => {
-    if(!practiceMode) localStorage.setItem(STORAGE_KEY, JSON.stringify(devices));
-  }, [devices,practiceMode]);
+    if(!practiceMode) writeSimulatorState("virtual-mobile", userId, devices);
+  }, [devices,practiceMode,userId]);
   useEffect(()=>{
     const labId=practiceMode ? launchContext.lab ?? null : null;
     if(!labId) {
@@ -183,8 +186,8 @@ function VirtualMobilePage() {
     setPracticeHelpLevel(0);
   },[practiceMode,launchContext.lab,practiceBaseline]);
   useEffect(() => {
-    localStorage.setItem("itpath-mobile-ticket-history-v1", JSON.stringify(ticketHistory.slice(0,50)));
-  }, [ticketHistory]);
+    writeSimulatorState("virtual-mobile-ticket-history", userId, ticketHistory.slice(0,50));
+  }, [ticketHistory,userId]);
 
   const markTicket=(step:"observe"|"test"|"repair"|"verify")=>{if(activeTicketId)setTicketTrace(items=>items.includes(step)?items:[...items,step]);};
   const countPracticeAction=(tool: typeof launchContext.tool)=>{if(practiceMode && practiceContract?.supported && practiceContract.tool===tool)setPracticeActions(count=>count+1);};
