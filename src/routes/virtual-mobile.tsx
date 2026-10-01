@@ -165,6 +165,19 @@ function VirtualMobilePage() {
   const updateReady = mobileOnline && state.battery >= 50 && !storageCritical;
   const workServicesReady = state.accountSignedIn && state.managementProfile;
 
+  // Reload the account-scoped simulator snapshot when authentication becomes ready.
+  useEffect(() => {
+    if (!userId) return;
+    const saved = readSimulatorState<Partial<Record<MobileOs, MobileState>>>("virtual-mobile", userId, {});
+    if (!saved.android?.machine || !saved.phone?.machine) return;
+    const hydrate = (value: MobileState, kind: MobileOs): MobileState => ({
+      ...freshMobile(kind),
+      ...value,
+      installedApps: value.installedApps ?? freshMobile(kind).installedApps,
+    });
+    setDevices({ android: hydrate(saved.android, "android"), phone: hydrate(saved.phone, "phone") });
+  }, [userId]);
+
   useEffect(() => {
     if(!practiceMode) writeSimulatorState("virtual-mobile", userId, devices);
   }, [devices,practiceMode,userId]);
