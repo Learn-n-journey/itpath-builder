@@ -374,7 +374,7 @@ function VirtualPcPage() {
       const parsed = JSON.parse(saved) as { ticketId: string; fault: TrainingFault; verified?: boolean };
       setActiveTicketId(parsed.ticketId); setActiveFault(parsed.fault); setTicketVerified(Boolean(parsed.verified)); setTicketEvidence((parsed as any).evidence ?? []); setGaylHelpLevel((parsed as any).helpLevel ?? 0);
     } catch { setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); }
-  }, [pcOs]);
+  }, [pcOs,userId]);
 
   useEffect(() => {
     if (!activeTicketId || !activeFault) return;
@@ -483,14 +483,14 @@ function VirtualPcPage() {
     if(!demonstrated){ setNotice(`The fix works, but demonstrate the troubleshooting process first: ${required.filter(stage=>!ticketTrace.includes(stage)).join(", ")}.`); return; }
     if(activeTicket && shouldRecordSimulatorOutcome(user,"troubleshoot",activeTicket.id,gaylHelpLevel)) actions.addLearnerSignal(simulatorOutcomeSignal(activeTicket.topicId,"troubleshoot",activeTicket.id,1,gaylHelpLevel));
     localStorage.removeItem(ticketStorageKey(pcOs));
-    localStorage.removeItem("itpath-virtualpc-ticket-shared");
+    localStorage.removeItem(ticketStorageKey("shared"));
     setActiveTicketId(null); setActiveFault(null); setTicketVerified(false); setTicketEvidence([]); setGaylHelpLevel(0); setGaylFeedback("Start with the symptom. Gather evidence before you change anything."); setGaylHypothesis(""); setGaylActions(0); setGaylWalkthrough(false); setGaylStep(0); setGaylStepChecked(false); setGaylIndependent(false); ticketBaseline.current=null; ticketEnvironmentBaseline.current=null; setTicketOpen(false);
   };
   const cancelTicket = () => {
     if (!activeTicketId) return;
     const baseline = ticketEnvironmentBaseline.current;
     localStorage.removeItem("itpath-virtualpc-ticket-shared");
-    (["windows","linux","mac"] as const).forEach((os) => localStorage.removeItem(`itpath-virtualpc-ticket-${os}`));
+    (["windows","linux","mac"] as const).forEach((os) => localStorage.removeItem(ticketStorageKey(os)));
     if (baseline) {
       setOsMachines(syncVirtualEnvironment({ windows: clone(baseline.machines.windows), linux: clone(baseline.machines.linux), mac: clone(baseline.machines.mac) }, virtualEnvironment));
       setPcOs(baseline.os);
