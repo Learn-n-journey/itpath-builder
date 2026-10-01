@@ -38,6 +38,8 @@ import { hasSimulatorCredit, shouldRecordSimulatorOutcome, simulatorOutcomeSigna
 import { applyTrainingNetworkAction, navigateTrainingBrowser, observeTrainingNetwork, probeTrainingNetwork, probeTrainingService } from "@/lib/training/network-capabilities";
 import { labs } from "@/data/static-content";
 import { simulatorLabContract } from "@/lib/lab-environments";
+import { readSimulatorState, writeSimulatorState } from "@/lib/simulator-state";
+import { useAuth } from "@/state/auth-state";
 import { advancePrintQueue, advanceWindowsUpdate, applicationCheck, applicationForProcess, applicationInstalled, cancelPrintJob, launchTrainingApplication, completeWindowsUpdateRestart, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications, type TrainingApplicationId } from "@/lib/training/applications";
 
 export const Route = createFileRoute("/virtual-pc")({
@@ -90,6 +92,7 @@ function VirtualPcPage() {
   const practiceMode = launchContext.activity === "lab" && Boolean(launchContext.lab);
   const [practiceActions,setPracticeActions]=useState(0);
   const { user, actions } = useAppState();
+  const { userId } = useAuth();
   const practiceLab=practiceMode?labs.find(item=>item.id===launchContext.lab):undefined;
   const practiceContract=practiceLab?simulatorLabContract(practiceLab):null;
   const sharedAttempt = user.terminalAttempts.find((attempt) => attempt.scenarioId === SHARED_WINDOWS_SCENARIO && attempt.status === "in_progress");
@@ -326,32 +329,24 @@ function VirtualPcPage() {
   };
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("itpath-virtualpc-environment-v1");
-      if (!raw) return;
-      const saved = JSON.parse(raw);
-      if (saved?.resources && saved?.dnsRecords) setVirtualEnvironment(saved);
-    } catch { /* keep the clean training LAN */ }
-  }, []);
+    const saved = readSimulatorState<ReturnType<typeof createVirtualEnvironment> | null>("virtual-pc-environment", userId, null);
+    if (saved?.resources && saved?.dnsRecords) setVirtualEnvironment(saved);
+  }, [userId]);
 
   useEffect(() => {
     if(practiceMode) return;
-    try { localStorage.setItem("itpath-virtualpc-environment-v1", JSON.stringify(virtualEnvironment)); } catch { /* storage unavailable */ }
-  }, [virtualEnvironment,practiceMode]);
+    writeSimulatorState("virtual-pc-environment", userId, virtualEnvironment);
+  }, [virtualEnvironment,practiceMode,userId]);
 
   useEffect(() => {
     if(practiceMode) return;
-    try {
-      const raw = localStorage.getItem("itpath-virtualpc-machines-v1");
-      if (!raw) return;
-      const saved = JSON.parse(raw) as Partial<Record<PcOs, MachineState>>;
-      setOsMachines(current => syncVirtualEnvironment({ ...current, ...saved }, virtualEnvironment));
-    } catch { /* keep fresh training machines if saved state is invalid */ }
-  }, [virtualEnvironment,practiceMode]);
+    const saved = readSimulatorState<Partial<Record<PcOs, MachineState>>>("virtual-pc-machines", userId, {});
+    if (Object.keys(saved).length) setOsMachines(current => syncVirtualEnvironment({ ...current, ...saved }, virtualEnvironment));
+  }, [virtualEnvironment,practiceMode,userId]);
 
   useEffect(() => {
-    if(!practiceMode) localStorage.setItem("itpath-virtualpc-machines-v1", JSON.stringify(osMachines));
-  }, [osMachines,practiceMode]);
+    if(!practiceMode) writeSimulatorState("virtual-pc-machines", userId, osMachines);
+  }, [osMachines,practiceMode,userId]);
 
   useEffect(()=>{
     const labId=practiceMode ? launchContext.lab ?? null : null;
@@ -542,7 +537,7 @@ function VirtualPcPage() {
     else if (lower.startsWith("terminal:")) setGaylFeedback("That command may still be useful, but connect its output to the reported symptom. Avoid collecting evidence without a reason.");
   };
   const practiceHealthy = !practiceContract?.supported ? false
-    : practiceContract.success.kind==="terminal-command" ? terminalLines.length>0
+    : practiceContract.success.kind==="terminal-command" ? terminalLines.some(line => line.trim().toLowerCase().includes(practiceContract.success.command.trim().toLowerCase()))
     : practiceContract.success.kind==="network-online" ? networkState.localReady
     : practiceContract.success.kind==="storage-below" ? 100-diskFreePercent<practiceContract.success.percent
     : false;
