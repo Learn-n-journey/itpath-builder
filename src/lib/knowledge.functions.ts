@@ -255,7 +255,7 @@ export const saveKnowledge = createServerFn({ method: "POST" })
     const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "Second Brain");
     if (denied) return denied;
 
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    const apiKey = process.env["GEMINI_API_KEY"];
 
     let filePath: string | null = null;
     let fileType: string | null = null;
@@ -479,7 +479,7 @@ export const searchKnowledge = createServerFn({ method: "POST" })
     const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "Second Brain");
     if (denied) return denied;
 
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI service is not configured." };
 
     const { data: rows, error } = await context.supabase

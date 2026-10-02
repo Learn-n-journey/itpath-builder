@@ -7,8 +7,8 @@ import { getTopicQuestionPool } from "@/data/topic-quizzes";
 import { lessons, topics } from "@/data/static-content";
 import { getLearningModule } from "@/data/learning-content";
 
-const KEY = process.env["LOVABLE_API_KEY"];
-if (!KEY) throw new Error("LOVABLE_API_KEY missing");
+const KEY = process.env["GEMINI_API_KEY"];
+if (!KEY) throw new Error("GEMINI_API_KEY missing");
 
 const SYSTEM = `You write exam style multiple choice questions for an IT and cybersecurity course.
 Rules:
@@ -40,11 +40,11 @@ function context(topicId: string): string {
 
 async function ask(topicId: string, count: number, existing: string[]): Promise<AiQuestionSeed[]> {
   const topic = topics.find((item) => item.id === topicId)!;
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": KEY!, "X-Lovable-AIG-SDK": "fetch" },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${KEY}` },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM },

@@ -1,6 +1,6 @@
 /**
  * One off generator: writes src/data/ai-question-bank.ts from the lesson content
- * of every section, using the Lovable AI gateway. Run with:
+ * of every section, using Google Gemini. Run with:
  *   bun scripts/gen-ai-questions.ts
  */
 import { lessons, topics } from "@/data/static-content";
@@ -8,8 +8,8 @@ import { getLearningModule } from "@/data/learning-content";
 import { questionIssues } from "@/lib/question-quality";
 import type { Question } from "@/lib/app-data/types";
 
-const KEY = process.env["LOVABLE_API_KEY"];
-if (!KEY) throw new Error("LOVABLE_API_KEY missing");
+const KEY = process.env["GEMINI_API_KEY"];
+if (!KEY) throw new Error("GEMINI_API_KEY missing");
 
 const PER_TOPIC = 8;
 
@@ -60,11 +60,11 @@ Answer choices must match the question type: Term questions must have short term
 
 async function ask(topicId: string): Promise<Seed[]> {
   const topic = topics.find((item) => item.id === topicId)!;
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": KEY!, "X-Lovable-AIG-SDK": "fetch" },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${KEY}` },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: SYSTEM },

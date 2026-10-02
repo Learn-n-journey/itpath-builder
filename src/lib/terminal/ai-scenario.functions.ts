@@ -241,7 +241,7 @@ export const generateTerminalScenario = createServerFn({ method: "POST" })
     const denied = await requirePlan(context.supabase, context.userId, context.claims, "plus", "AI practice scenarios");
     if (denied) return denied;
 
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI practice is not configured." };
 
     const allowed = faultsFor(data.shell);

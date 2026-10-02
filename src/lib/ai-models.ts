@@ -1,8 +1,8 @@
 /**
  * Central model choices for every AI call in the app.
  *
- * All app AI runs through the Lovable AI gateway and is billed in credits, so
- * the model is chosen once here rather than being repeated at each call site.
+ * All app AI runs on Google Gemini with the server's GEMINI_API_KEY, so the
+ * model is chosen once here rather than being repeated at each call site.
  *
  * Two tiers:
  *  - CHEAP: short structured jobs where accuracy is easy to verify.
@@ -11,11 +11,11 @@
  *    (e.g. that APIPA assigns no default gateway) and marking too leniently.
  */
 
-/** Cheapest chat model on the gateway. */
-const CHEAP_MODEL = "google/gemini-3.1-flash-lite";
+/** Cheapest chat model. */
+const CHEAP_MODEL = "gemini-3.5-flash-lite";
 
 /** Stronger model reserved for complex, learner-facing reasoning. */
-const CAPABLE_MODEL = "google/gemini-3.8-flash";
+const CAPABLE_MODEL = "gemini-3.5-flash";
 
 /** Conversational tutoring. */
 export const TUTOR_MODEL = CAPABLE_MODEL;
@@ -26,5 +26,6 @@ export const GRADING_MODEL = CAPABLE_MODEL;
 /** Short structured jobs: self-checks, extraction, search, scenario writing. */
 export const UTILITY_MODEL = CHEAP_MODEL;
 
-export const GATEWAY_CHAT_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+/** Gemini's OpenAI-compatible chat endpoint; authenticate with the Gemini API key as a bearer token. */
+export const GATEWAY_CHAT_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
