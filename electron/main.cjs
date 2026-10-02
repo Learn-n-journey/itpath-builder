@@ -3,7 +3,7 @@ const path = require("path");
 
 // IT PATH runs its accounts, AI tutor, grading and payments on the server,
 // so the desktop app is a dedicated window onto the published site.
-const APP_URL = process.env.ITPATH_URL || "https://itpath-builder.lovable.app";
+const APP_URL = process.env.ITPATH_URL || "https://www.it-path.net";
 const APP_ORIGIN = new URL(APP_URL).origin;
 
 function createWindow() {

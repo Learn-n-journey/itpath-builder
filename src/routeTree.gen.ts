@@ -16,8 +16,6 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AiUsageRouteImport } from './routes/ai-usage'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AutoNewsRouteImport } from './routes/auto-news'
-import { Route as AutoVideosRouteImport } from './routes/auto-videos'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as ByteBreakRouteImport } from './routes/byte-break'
 import { Route as CareerModeRouteImport } from './routes/career-mode'
@@ -30,7 +28,6 @@ import { Route as EngineSimulatorRouteImport } from './routes/engine-simulator'
 import { Route as ExamRouteImport } from './routes/exam'
 import { Route as ExploreEngineRouteImport } from './routes/explore-engine'
 import { Route as ExploreHardwareRouteImport } from './routes/explore-hardware'
-import { Route as GarageMatchRouteImport } from './routes/garage-match'
 import { Route as GuideRouteImport } from './routes/guide'
 import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as JourneyRouteImport } from './routes/journey'
@@ -64,11 +61,12 @@ import { Route as TechNewsRouteImport } from './routes/tech-news'
 import { Route as TechVideosRouteImport } from './routes/tech-videos'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TroubleshootRouteImport } from './routes/troubleshoot'
+import { Route as VirtualMobileRouteImport } from './routes/virtual-mobile'
+import { Route as VirtualPcRouteImport } from './routes/virtual-pc'
 import { Route as VirusRouteImport } from './routes/virus'
 import { Route as WeakAreasRouteImport } from './routes/weak-areas'
 import { Route as CertificationsIndexRouteImport } from './routes/certifications.index'
 import { Route as CertificationsCertIdRouteImport } from './routes/certifications.$certId'
-import { Route as CheckoutSuccessRouteImport } from './routes/checkout.success'
 import { Route as FlashcardsIndexRouteImport } from './routes/flashcards.index'
 import { Route as FlashcardsTopicIdRouteImport } from './routes/flashcards.$topicId'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
@@ -83,12 +81,12 @@ import { Route as TopicsIndexRouteImport } from './routes/topics.index'
 import { Route as TopicsTopicIdRouteImport } from './routes/topics.$topicId'
 import { Route as TracksIndexRouteImport } from './routes/tracks.index'
 import { Route as TracksSlugRouteImport } from './routes/tracks.$slug'
+import { Route as ApiAiTutorStreamRouteImport } from './routes/api/ai/tutor-stream'
 import { Route as ApiAuthMicrosoftRouteImport } from './routes/api/auth/microsoft'
 import { Route as ApiPublicContentAuditRouteImport } from './routes/api/public/content-audit'
 import { Route as ApiPublicLinkCheckRouteImport } from './routes/api/public/link-check'
 import { Route as ApiPublicSheetSyncRouteImport } from './routes/api/public/sheet-sync'
 import { Route as ApiAuthMicrosoftCallbackRouteImport } from './routes/api/auth/microsoft/callback'
-import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -123,16 +121,6 @@ const AiUsageRoute = AiUsageRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AutoNewsRoute = AutoNewsRouteImport.update({
-  id: '/auto-news',
-  path: '/auto-news',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AutoVideosRoute = AutoVideosRouteImport.update({
-  id: '/auto-videos',
-  path: '/auto-videos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookmarksRoute = BookmarksRouteImport.update({
@@ -193,11 +181,6 @@ const ExploreEngineRoute = ExploreEngineRouteImport.update({
 const ExploreHardwareRoute = ExploreHardwareRouteImport.update({
   id: '/explore-hardware',
   path: '/explore-hardware',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GarageMatchRoute = GarageMatchRouteImport.update({
-  id: '/garage-match',
-  path: '/garage-match',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuideRoute = GuideRouteImport.update({
@@ -365,6 +348,16 @@ const TroubleshootRoute = TroubleshootRouteImport.update({
   path: '/troubleshoot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VirtualMobileRoute = VirtualMobileRouteImport.update({
+  id: '/virtual-mobile',
+  path: '/virtual-mobile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VirtualPcRoute = VirtualPcRouteImport.update({
+  id: '/virtual-pc',
+  path: '/virtual-pc',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VirusRoute = VirusRouteImport.update({
   id: '/virus',
   path: '/virus',
@@ -383,11 +376,6 @@ const CertificationsIndexRoute = CertificationsIndexRouteImport.update({
 const CertificationsCertIdRoute = CertificationsCertIdRouteImport.update({
   id: '/certifications/$certId',
   path: '/certifications/$certId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckoutSuccessRoute = CheckoutSuccessRouteImport.update({
-  id: '/checkout/success',
-  path: '/checkout/success',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FlashcardsIndexRoute = FlashcardsIndexRouteImport.update({
@@ -460,6 +448,11 @@ const TracksSlugRoute = TracksSlugRouteImport.update({
   path: '/tracks/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiTutorStreamRoute = ApiAiTutorStreamRouteImport.update({
+  id: '/api/ai/tutor-stream',
+  path: '/api/ai/tutor-stream',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthMicrosoftRoute = ApiAuthMicrosoftRouteImport.update({
   id: '/api/auth/microsoft',
   path: '/api/auth/microsoft',
@@ -486,12 +479,6 @@ const ApiAuthMicrosoftCallbackRoute =
     path: '/callback',
     getParentRoute: () => ApiAuthMicrosoftRoute,
   } as any)
-const ApiPublicPaymentsWebhookRoute =
-  ApiPublicPaymentsWebhookRouteImport.update({
-    id: '/api/public/payments/webhook',
-    path: '/api/public/payments/webhook',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -501,8 +488,6 @@ export interface FileRoutesByFullPath {
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
-  '/auto-news': typeof AutoNewsRoute
-  '/auto-videos': typeof AutoVideosRoute
   '/bookmarks': typeof BookmarksRoute
   '/byte-break': typeof ByteBreakRoute
   '/career-mode': typeof CareerModeRoute
@@ -515,7 +500,6 @@ export interface FileRoutesByFullPath {
   '/exam': typeof ExamRoute
   '/explore-engine': typeof ExploreEngineRoute
   '/explore-hardware': typeof ExploreHardwareRoute
-  '/garage-match': typeof GarageMatchRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
   '/journey': typeof JourneyRoute
@@ -549,10 +533,11 @@ export interface FileRoutesByFullPath {
   '/tech-videos': typeof TechVideosRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/virtual-mobile': typeof VirtualMobileRoute
+  '/virtual-pc': typeof VirtualPcRoute
   '/virus': typeof VirusRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
-  '/checkout/success': typeof CheckoutSuccessRoute
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/learn/videos': typeof LearnVideosRoute
@@ -568,12 +553,12 @@ export interface FileRoutesByFullPath {
   '/practice-tests/': typeof PracticeTestsIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/tracks/': typeof TracksIndexRoute
+  '/api/ai/tutor-stream': typeof ApiAiTutorStreamRoute
   '/api/auth/microsoft': typeof ApiAuthMicrosoftRouteWithChildren
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/sheet-sync': typeof ApiPublicSheetSyncRoute
   '/api/auth/microsoft/callback': typeof ApiAuthMicrosoftCallbackRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -583,8 +568,6 @@ export interface FileRoutesByTo {
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
-  '/auto-news': typeof AutoNewsRoute
-  '/auto-videos': typeof AutoVideosRoute
   '/bookmarks': typeof BookmarksRoute
   '/byte-break': typeof ByteBreakRoute
   '/career-mode': typeof CareerModeRoute
@@ -597,7 +580,6 @@ export interface FileRoutesByTo {
   '/exam': typeof ExamRoute
   '/explore-engine': typeof ExploreEngineRoute
   '/explore-hardware': typeof ExploreHardwareRoute
-  '/garage-match': typeof GarageMatchRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
   '/journey': typeof JourneyRoute
@@ -631,10 +613,11 @@ export interface FileRoutesByTo {
   '/tech-videos': typeof TechVideosRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/virtual-mobile': typeof VirtualMobileRoute
+  '/virtual-pc': typeof VirtualPcRoute
   '/virus': typeof VirusRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
-  '/checkout/success': typeof CheckoutSuccessRoute
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/learn/videos': typeof LearnVideosRoute
@@ -650,12 +633,12 @@ export interface FileRoutesByTo {
   '/practice-tests': typeof PracticeTestsIndexRoute
   '/topics': typeof TopicsIndexRoute
   '/tracks': typeof TracksIndexRoute
+  '/api/ai/tutor-stream': typeof ApiAiTutorStreamRoute
   '/api/auth/microsoft': typeof ApiAuthMicrosoftRouteWithChildren
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/sheet-sync': typeof ApiPublicSheetSyncRoute
   '/api/auth/microsoft/callback': typeof ApiAuthMicrosoftCallbackRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -666,8 +649,6 @@ export interface FileRoutesById {
   '/ai-tutor': typeof AiTutorRoute
   '/ai-usage': typeof AiUsageRoute
   '/auth': typeof AuthRoute
-  '/auto-news': typeof AutoNewsRoute
-  '/auto-videos': typeof AutoVideosRoute
   '/bookmarks': typeof BookmarksRoute
   '/byte-break': typeof ByteBreakRoute
   '/career-mode': typeof CareerModeRoute
@@ -680,7 +661,6 @@ export interface FileRoutesById {
   '/exam': typeof ExamRoute
   '/explore-engine': typeof ExploreEngineRoute
   '/explore-hardware': typeof ExploreHardwareRoute
-  '/garage-match': typeof GarageMatchRoute
   '/guide': typeof GuideRoute
   '/insights': typeof InsightsRoute
   '/journey': typeof JourneyRoute
@@ -714,10 +694,11 @@ export interface FileRoutesById {
   '/tech-videos': typeof TechVideosRoute
   '/terms': typeof TermsRoute
   '/troubleshoot': typeof TroubleshootRoute
+  '/virtual-mobile': typeof VirtualMobileRoute
+  '/virtual-pc': typeof VirtualPcRoute
   '/virus': typeof VirusRoute
   '/weak-areas': typeof WeakAreasRoute
   '/certifications/$certId': typeof CertificationsCertIdRoute
-  '/checkout/success': typeof CheckoutSuccessRoute
   '/flashcards/$topicId': typeof FlashcardsTopicIdRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/learn/videos': typeof LearnVideosRoute
@@ -733,12 +714,12 @@ export interface FileRoutesById {
   '/practice-tests/': typeof PracticeTestsIndexRoute
   '/topics/': typeof TopicsIndexRoute
   '/tracks/': typeof TracksIndexRoute
+  '/api/ai/tutor-stream': typeof ApiAiTutorStreamRoute
   '/api/auth/microsoft': typeof ApiAuthMicrosoftRouteWithChildren
   '/api/public/content-audit': typeof ApiPublicContentAuditRoute
   '/api/public/link-check': typeof ApiPublicLinkCheckRoute
   '/api/public/sheet-sync': typeof ApiPublicSheetSyncRoute
   '/api/auth/microsoft/callback': typeof ApiAuthMicrosoftCallbackRoute
-  '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -750,8 +731,6 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
-    | '/auto-news'
-    | '/auto-videos'
     | '/bookmarks'
     | '/byte-break'
     | '/career-mode'
@@ -764,7 +743,6 @@ export interface FileRouteTypes {
     | '/exam'
     | '/explore-engine'
     | '/explore-hardware'
-    | '/garage-match'
     | '/guide'
     | '/insights'
     | '/journey'
@@ -798,10 +776,11 @@ export interface FileRouteTypes {
     | '/tech-videos'
     | '/terms'
     | '/troubleshoot'
+    | '/virtual-mobile'
+    | '/virtual-pc'
     | '/virus'
     | '/weak-areas'
     | '/certifications/$certId'
-    | '/checkout/success'
     | '/flashcards/$topicId'
     | '/guides/$slug'
     | '/learn/videos'
@@ -817,12 +796,12 @@ export interface FileRouteTypes {
     | '/practice-tests/'
     | '/topics/'
     | '/tracks/'
+    | '/api/ai/tutor-stream'
     | '/api/auth/microsoft'
     | '/api/public/content-audit'
     | '/api/public/link-check'
     | '/api/public/sheet-sync'
     | '/api/auth/microsoft/callback'
-    | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -832,8 +811,6 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
-    | '/auto-news'
-    | '/auto-videos'
     | '/bookmarks'
     | '/byte-break'
     | '/career-mode'
@@ -846,7 +823,6 @@ export interface FileRouteTypes {
     | '/exam'
     | '/explore-engine'
     | '/explore-hardware'
-    | '/garage-match'
     | '/guide'
     | '/insights'
     | '/journey'
@@ -880,10 +856,11 @@ export interface FileRouteTypes {
     | '/tech-videos'
     | '/terms'
     | '/troubleshoot'
+    | '/virtual-mobile'
+    | '/virtual-pc'
     | '/virus'
     | '/weak-areas'
     | '/certifications/$certId'
-    | '/checkout/success'
     | '/flashcards/$topicId'
     | '/guides/$slug'
     | '/learn/videos'
@@ -899,12 +876,12 @@ export interface FileRouteTypes {
     | '/practice-tests'
     | '/topics'
     | '/tracks'
+    | '/api/ai/tutor-stream'
     | '/api/auth/microsoft'
     | '/api/public/content-audit'
     | '/api/public/link-check'
     | '/api/public/sheet-sync'
     | '/api/auth/microsoft/callback'
-    | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
@@ -914,8 +891,6 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/ai-usage'
     | '/auth'
-    | '/auto-news'
-    | '/auto-videos'
     | '/bookmarks'
     | '/byte-break'
     | '/career-mode'
@@ -928,7 +903,6 @@ export interface FileRouteTypes {
     | '/exam'
     | '/explore-engine'
     | '/explore-hardware'
-    | '/garage-match'
     | '/guide'
     | '/insights'
     | '/journey'
@@ -962,10 +936,11 @@ export interface FileRouteTypes {
     | '/tech-videos'
     | '/terms'
     | '/troubleshoot'
+    | '/virtual-mobile'
+    | '/virtual-pc'
     | '/virus'
     | '/weak-areas'
     | '/certifications/$certId'
-    | '/checkout/success'
     | '/flashcards/$topicId'
     | '/guides/$slug'
     | '/learn/videos'
@@ -981,12 +956,12 @@ export interface FileRouteTypes {
     | '/practice-tests/'
     | '/topics/'
     | '/tracks/'
+    | '/api/ai/tutor-stream'
     | '/api/auth/microsoft'
     | '/api/public/content-audit'
     | '/api/public/link-check'
     | '/api/public/sheet-sync'
     | '/api/auth/microsoft/callback'
-    | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -997,8 +972,6 @@ export interface RootRouteChildren {
   AiTutorRoute: typeof AiTutorRoute
   AiUsageRoute: typeof AiUsageRoute
   AuthRoute: typeof AuthRoute
-  AutoNewsRoute: typeof AutoNewsRoute
-  AutoVideosRoute: typeof AutoVideosRoute
   BookmarksRoute: typeof BookmarksRoute
   ByteBreakRoute: typeof ByteBreakRoute
   CareerModeRoute: typeof CareerModeRoute
@@ -1011,7 +984,6 @@ export interface RootRouteChildren {
   ExamRoute: typeof ExamRoute
   ExploreEngineRoute: typeof ExploreEngineRoute
   ExploreHardwareRoute: typeof ExploreHardwareRoute
-  GarageMatchRoute: typeof GarageMatchRoute
   GuideRoute: typeof GuideRoute
   InsightsRoute: typeof InsightsRoute
   JourneyRoute: typeof JourneyRoute
@@ -1045,10 +1017,11 @@ export interface RootRouteChildren {
   TechVideosRoute: typeof TechVideosRoute
   TermsRoute: typeof TermsRoute
   TroubleshootRoute: typeof TroubleshootRoute
+  VirtualMobileRoute: typeof VirtualMobileRoute
+  VirtualPcRoute: typeof VirtualPcRoute
   VirusRoute: typeof VirusRoute
   WeakAreasRoute: typeof WeakAreasRoute
   CertificationsCertIdRoute: typeof CertificationsCertIdRoute
-  CheckoutSuccessRoute: typeof CheckoutSuccessRoute
   FlashcardsTopicIdRoute: typeof FlashcardsTopicIdRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   PracticeTestsCertIdRoute: typeof PracticeTestsCertIdRoute
@@ -1063,11 +1036,11 @@ export interface RootRouteChildren {
   PracticeTestsIndexRoute: typeof PracticeTestsIndexRoute
   TopicsIndexRoute: typeof TopicsIndexRoute
   TracksIndexRoute: typeof TracksIndexRoute
+  ApiAiTutorStreamRoute: typeof ApiAiTutorStreamRoute
   ApiAuthMicrosoftRoute: typeof ApiAuthMicrosoftRouteWithChildren
   ApiPublicContentAuditRoute: typeof ApiPublicContentAuditRoute
   ApiPublicLinkCheckRoute: typeof ApiPublicLinkCheckRoute
   ApiPublicSheetSyncRoute: typeof ApiPublicSheetSyncRoute
-  ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1119,20 +1092,6 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auto-news': {
-      id: '/auto-news'
-      path: '/auto-news'
-      fullPath: '/auto-news'
-      preLoaderRoute: typeof AutoNewsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auto-videos': {
-      id: '/auto-videos'
-      path: '/auto-videos'
-      fullPath: '/auto-videos'
-      preLoaderRoute: typeof AutoVideosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bookmarks': {
@@ -1217,13 +1176,6 @@ declare module '@tanstack/react-router' {
       path: '/explore-hardware'
       fullPath: '/explore-hardware'
       preLoaderRoute: typeof ExploreHardwareRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/garage-match': {
-      id: '/garage-match'
-      path: '/garage-match'
-      fullPath: '/garage-match'
-      preLoaderRoute: typeof GarageMatchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guide': {
@@ -1457,6 +1409,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TroubleshootRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/virtual-mobile': {
+      id: '/virtual-mobile'
+      path: '/virtual-mobile'
+      fullPath: '/virtual-mobile'
+      preLoaderRoute: typeof VirtualMobileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/virtual-pc': {
+      id: '/virtual-pc'
+      path: '/virtual-pc'
+      fullPath: '/virtual-pc'
+      preLoaderRoute: typeof VirtualPcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/virus': {
       id: '/virus'
       path: '/virus'
@@ -1483,13 +1449,6 @@ declare module '@tanstack/react-router' {
       path: '/certifications/$certId'
       fullPath: '/certifications/$certId'
       preLoaderRoute: typeof CertificationsCertIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkout/success': {
-      id: '/checkout/success'
-      path: '/checkout/success'
-      fullPath: '/checkout/success'
-      preLoaderRoute: typeof CheckoutSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/flashcards/': {
@@ -1590,6 +1549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TracksSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai/tutor-stream': {
+      id: '/api/ai/tutor-stream'
+      path: '/api/ai/tutor-stream'
+      fullPath: '/api/ai/tutor-stream'
+      preLoaderRoute: typeof ApiAiTutorStreamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/microsoft': {
       id: '/api/auth/microsoft'
       path: '/api/auth/microsoft'
@@ -1625,13 +1591,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthMicrosoftCallbackRouteImport
       parentRoute: typeof ApiAuthMicrosoftRoute
     }
-    '/api/public/payments/webhook': {
-      id: '/api/public/payments/webhook'
-      path: '/api/public/payments/webhook'
-      fullPath: '/api/public/payments/webhook'
-      preLoaderRoute: typeof ApiPublicPaymentsWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -1664,8 +1623,6 @@ const rootRouteChildren: RootRouteChildren = {
   AiTutorRoute: AiTutorRoute,
   AiUsageRoute: AiUsageRoute,
   AuthRoute: AuthRoute,
-  AutoNewsRoute: AutoNewsRoute,
-  AutoVideosRoute: AutoVideosRoute,
   BookmarksRoute: BookmarksRoute,
   ByteBreakRoute: ByteBreakRoute,
   CareerModeRoute: CareerModeRoute,
@@ -1678,7 +1635,6 @@ const rootRouteChildren: RootRouteChildren = {
   ExamRoute: ExamRoute,
   ExploreEngineRoute: ExploreEngineRoute,
   ExploreHardwareRoute: ExploreHardwareRoute,
-  GarageMatchRoute: GarageMatchRoute,
   GuideRoute: GuideRoute,
   InsightsRoute: InsightsRoute,
   JourneyRoute: JourneyRoute,
@@ -1712,10 +1668,11 @@ const rootRouteChildren: RootRouteChildren = {
   TechVideosRoute: TechVideosRoute,
   TermsRoute: TermsRoute,
   TroubleshootRoute: TroubleshootRoute,
+  VirtualMobileRoute: VirtualMobileRoute,
+  VirtualPcRoute: VirtualPcRoute,
   VirusRoute: VirusRoute,
   WeakAreasRoute: WeakAreasRoute,
   CertificationsCertIdRoute: CertificationsCertIdRoute,
-  CheckoutSuccessRoute: CheckoutSuccessRoute,
   FlashcardsTopicIdRoute: FlashcardsTopicIdRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   PracticeTestsCertIdRoute: PracticeTestsCertIdRoute,
@@ -1730,11 +1687,11 @@ const rootRouteChildren: RootRouteChildren = {
   PracticeTestsIndexRoute: PracticeTestsIndexRoute,
   TopicsIndexRoute: TopicsIndexRoute,
   TracksIndexRoute: TracksIndexRoute,
+  ApiAiTutorStreamRoute: ApiAiTutorStreamRoute,
   ApiAuthMicrosoftRoute: ApiAuthMicrosoftRouteWithChildren,
   ApiPublicContentAuditRoute: ApiPublicContentAuditRoute,
   ApiPublicLinkCheckRoute: ApiPublicLinkCheckRoute,
   ApiPublicSheetSyncRoute: ApiPublicSheetSyncRoute,
-  ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

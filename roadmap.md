@@ -114,12 +114,12 @@ Done when: typecheck + build clean, features verified in browser.
 - [x] Topic 1 practice pool uses owner spreadsheet questions only.
 - [x] Purge every old question for spreadsheet-covered topics from all surfaces (topic quizzes, cert quizzes, daily challenge, weak areas, missed questions, exams).
 - [x] Stable numbering: IT PATH topics 1..N and AUTO PATH topics 1..M in curriculum order; spreadsheet N feeds topic N.
-- [x] owner_questions table (Lovable Cloud) so new spreadsheets go live without a rebuild.
+- [x] owner_questions table (Supabase) so new spreadsheets go live without a rebuild.
 - [x] /api/public/sheet-sync route: reads OneDrive "itpath" and "autopath" folders, maps numbered files to topics, runs the quality gate, stores approved/rejected rows.
 - [x] Nightly schedule (04:30 UTC, pg_cron) so uploads populate quizzes automatically; link-check 04:15, content audit 04:45.
 - [x] App reads live owner questions from the database, with the build-time file as offline fallback.
 - [x] Verified live: topics 1 and 2 serve only spreadsheet questions; 44 approved, 16 rejected stored with reasons; tests pass, build OK.
-- [x] "Sync now" button on Settings (owner-only): runs the same sync immediately without waiting for the nightly pull or opening Lovable.
+- [x] "Sync now" button on Settings (owner-only): runs the same sync immediately without waiting for the nightly pull.
 
 ## AUTO PATH lesson depth (in progress)
 - [ ] Expand every AUTO PATH topic into full "how it works" + "how to diagnose and repair it" reading (deep lesson layer, original wording, deterministic quality gate).

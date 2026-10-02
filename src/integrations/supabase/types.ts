@@ -1255,7 +1255,6 @@ export type Database = {
         }
         Returns: undefined
       }
-      ensure_sync_worker: { Args: never; Returns: undefined }
       get_public_profiles: {
         Args: { _ids: string[] }
         Returns: {
