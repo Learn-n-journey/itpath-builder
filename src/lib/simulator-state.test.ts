@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { simulatorStorageKey } from "@/lib/simulator-state";
+import type { Lab } from "@/lib/app-data/types";
 import { simulatorLabContract } from "@/lib/lab-environments";
 
 describe("simulator persistence", () => {
@@ -11,15 +12,23 @@ describe("simulator persistence", () => {
   });
 
   it("fails closed when a lab has no explicit simulator contract", () => {
-    const contract = simulatorLabContract({
+    const lab: Lab = {
       id: "unregistered",
-      title: "Unregistered",
       topicId: "topic-test",
+      title: "Unregistered",
+      objective: "test",
       category: "windows",
-      description: "test",
+      prerequisites: [],
+      difficulty: "gentle",
+      estimatedMinutes: 10,
+      environment: "",
       instructions: [],
-      verification: [],
-    } as never);
+      expectedResult: "",
+      checklist: [],
+      reflectionPrompt: "",
+      masteryScore: 0,
+    };
+    const contract = simulatorLabContract(lab);
     expect(contract.supported).toBe(false);
     expect(contract.success.kind).toBe("manual");
   });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { getRecallQuestions } from "@/data/learning-content";
 import { createDefaultUserData } from "@/lib/app-data/defaults";
 import { nextActions } from "./next-action";
 import { buildStudyCandidates } from "./study-engine";
@@ -11,7 +12,8 @@ function userWithRecall() {
   const topic=journeyTopics(user)[0]!;
   user.recallResponses.push({
     id:"recall-started",
-    questionId:"question-test",
+    // A real recall question for the topic, so progress counts the answer.
+    questionId:getRecallQuestions(topic.id)[0]!.id,
     topicId:topic.id,
     answer:"answer",
     correct:true,

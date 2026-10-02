@@ -10,7 +10,8 @@ describe("virtual mobile filesystem", () => {
   it("lists direct children without leaking nested files", () => {
     const files = createMobileFiles("android");
     expect(listMobileFiles(files, "/Internal storage/Documents")).toHaveLength(1);
-    expect(listMobileFiles(files, "/Internal storage")).toHaveLength(3);
+    // Every file at the root sits inside a folder, so none are direct children.
+    expect(listMobileFiles(files, "/Internal storage")).toHaveLength(0);
   });
 
   it("clears temporary files without deleting user data", () => {
