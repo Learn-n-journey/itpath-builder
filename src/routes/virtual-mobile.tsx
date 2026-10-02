@@ -16,12 +16,12 @@ import { clearTemporaryFiles, createMobileFiles, type MobileFile } from "@/lib/v
 
 export const Route = createFileRoute("/virtual-mobile")({
   validateSearch: (search: Record<string, unknown>): { activity?: "lab"|"ticket"; lab?: string; ticket?: string; topic?: string; tool?: string; os?: MobileOs } => ({
-    ...(search.activity === "lab" || search.activity === "ticket" ? { activity:search.activity } : {}),
-    ...(typeof search.ticket === "string" ? { ticket:search.ticket } : {}),
-    ...(typeof search.lab === "string" ? { lab:search.lab } : {}),
-    ...(typeof search.topic === "string" ? { topic:search.topic } : {}),
-    ...(typeof search.tool === "string" ? { tool:search.tool } : {}),
-    ...(search.os === "android" || search.os === "phone" ? { os:search.os } : {}),
+    ...(search["activity"] === "lab" || search["activity"] === "ticket" ? { activity:search["activity"] } : {}),
+    ...(typeof search["ticket"] === "string" ? { ticket:search["ticket"] } : {}),
+    ...(typeof search["lab"] === "string" ? { lab:search["lab"] } : {}),
+    ...(typeof search["topic"] === "string" ? { topic:search["topic"] } : {}),
+    ...(typeof search["tool"] === "string" ? { tool:search["tool"] } : {}),
+    ...(search["os"] === "android" || search["os"] === "phone" ? { os:search["os"] } : {}),
   }),
   staticData: { sitemap: false },
   head: () => ({ meta: [{ title: "Virtual Mobile | IT PATH" }, { name: "description", content: "Practice mobile support inside safe simulated Android-style and phone-style devices." }] }),
@@ -155,7 +155,8 @@ function VirtualMobilePage() {
   });
 
   const state = devices[os];
-  const iface = useMemo(() => primaryInterface(state.machine), [state.machine]);
+  // A device without a network interface shows as disconnected instead of crashing.
+  const iface = useMemo(() => primaryInterface(state.machine) ?? { name: "wlan0", mac: "", ip: "", mask: "", gateway: "", dhcp: true, up: false }, [state.machine]);
   const network = useMemo(() => observeTrainingNetwork(state.machine), [state.machine]);
   const wifiOnline = state.wifiEnabled && iface.up && network.localReady;
   const cellularOnline = !state.airplaneMode && state.cellularEnabled && state.simActive;
@@ -266,7 +267,7 @@ function VirtualMobilePage() {
     setDevices(current => {
       const next = structuredClone(current[target]);
       if (ticket.fault==="battery-drain") { next.backgroundRestricted=false; next.battery=38; next.installedApps=next.installedApps.map(item=>item.id==="mail"?{...item,backgroundUse:true}:item); }
-      if (ticket.fault==="wifi-off") { next.wifiEnabled=false; primaryInterface(next.machine).up=false; }
+      if (ticket.fault==="wifi-off") { next.wifiEnabled=false; const wifi=primaryInterface(next.machine); if(wifi) wifi.up=false; }
       if (ticket.fault==="mail-cache") next.installedApps=next.installedApps.map(item=>item.id==="mail"?{...item,cacheMb:486}:item);
       if (ticket.fault==="cloud-sync-off" || ticket.fault==="account-sync-off") next.cloudSync=false;
       if (ticket.fault==="legacy-profile" && !next.installedProfiles.includes("legacy-restrictions.mobileconfig")) next.installedProfiles.push("legacy-restrictions.mobileconfig");
@@ -314,7 +315,7 @@ function VirtualMobilePage() {
     const service = (name:string) => machine.services.find(item=>item.name===name)?.status === "running";
     return {
       ...current, machine,
-      wifiEnabled: primaryInterface(machine).up,
+      wifiEnabled: primaryInterface(machine)?.up ?? false,
       bluetoothEnabled: machine.services.some(item=>item.name==="bluetooth") ? service("bluetooth") : current.bluetoothEnabled,
       cellularEnabled: machine.services.some(item=>item.name==="data"||item.name==="cellular") ? service("data") || service("cellular") : current.cellularEnabled,
       cloudSync: machine.services.some(item=>item.name===(os==="phone"?"icloud":"sync")) ? (os==="phone" ? service("icloud") : service("sync")) : current.cloudSync,
@@ -346,13 +347,19 @@ function VirtualMobilePage() {
   const scaffoldingProfile=launchContext.lab?simulatorScaffoldingProfile(user,launchContext.lab):null;
   const topicPolicy=launchContext.topic?topicLearningPolicy(user,launchContext.topic):null;
   const practiceHint=practiceHelpLevel===0?"I’ll stay out of the way unless you need me.":topicPolicy?.policy.scaffold==="none"?"Work independently and verify the result before you finish.":topicPolicy?.policy.scaffold==="low"?"What evidence would most efficiently distinguish your leading hypotheses?":scaffoldingProfile?.openingHintStyle==="socratic"?"You have demonstrated this before. What observation would best test your first hypothesis?":scaffoldingProfile?.openingHintStyle==="guided"?"Name the subsystem involved, inspect its current state, then make the smallest justified change.":"Start with the symptom. Compare the expected state with what the device shows before changing anything.";
-  const practiceHealthy = !practiceContract?.supported ? false
-    : practiceContract.success.kind==="bluetooth-enabled" ? state.bluetoothEnabled
-    : practiceContract.success.kind==="storage-below" ? state.storageUsed<practiceContract.success.percent
-    : practiceContract.success.kind==="network-online" ? mobileOnline
-    : practiceContract.success.kind==="terminal-command" ? consoleLines.some(item => item.output.trim().length > 0 && item.command.trim().toLowerCase() === practiceContract.success.command.trim().toLowerCase())
-    : practiceContract.success.kind==="app-enabled" ? state.installedApps.some(item=>item.id===practiceContract.success.appId && item.enabled)
-    : false;
+  const practiceHealthy = (() => {
+    if (!practiceContract?.supported) return false;
+    const success = practiceContract.success;
+    if (success.kind==="bluetooth-enabled") return state.bluetoothEnabled;
+    if (success.kind==="storage-below") return state.storageUsed<success.percent;
+    if (success.kind==="network-online") return mobileOnline;
+    if (success.kind==="terminal-command") {
+      const expected = success.command.trim().toLowerCase();
+      return consoleLines.some(item => item.output.trim().length > 0 && item.command.trim().toLowerCase() === expected);
+    }
+    if (success.kind==="app-enabled") return state.installedApps.some(item=>item.id===success.appId && item.enabled);
+    return false;
+  })();
   const completePracticeLab=()=>{
     if(!practiceMode||!launchContext.lab||!launchContext.topic||!practiceContract?.supported){setNotice(practiceContract?.requirement ?? "This Lab uses the normal evidence workflow.");return;}
     if(practiceActions<practiceContract.minimumRelevantActions||!practiceHealthy){setNotice(practiceContract.requirement);return;}
@@ -404,7 +411,7 @@ function VirtualMobilePage() {
               {app==="settings"?<div>
                 {settingsPage!=="main"?<button onClick={()=>setSettingsPage("main")} className="m-2 min-h-11 rounded-lg px-2 text-xs font-semibold text-blue-600 active:bg-blue-50">‹ Settings</button>:null}
                 {settingsPage==="main"?<div className={cn("m-3 overflow-hidden bg-white",os==="android"?"rounded-[1.4rem] shadow-sm":"rounded-xl border border-slate-200/70")}><div className={cn("px-4 pt-4 pb-2",os==="android"?"text-lg font-semibold":"text-xs font-semibold uppercase tracking-wide text-slate-400")}>{os==="android"?"Settings":"Device settings"}</div><SettingRow title={os==="android"?"Network & internet":"Wi-Fi"} detail={wifiOnline?"Training Wi-Fi connected":state.wifiEnabled?"Wi-Fi enabled · not connected":"Wi-Fi off"} onClick={()=>setSettingsPage("network")}/><SettingRow title="Bluetooth" detail={state.bluetoothEnabled?"On":"Off"} onClick={()=>setSettingsPage("bluetooth")}/><SettingRow title="Cellular & SIM" detail={state.simActive&&state.cellularEnabled&&!state.airplaneMode?"Connected":state.simActive?"Cellular off":"SIM unavailable"} onClick={()=>setSettingsPage("cellular")}/><SettingRow title="Battery" detail={state.battery+"% · "+state.batteryHealth+"% health"} onClick={()=>setSettingsPage("battery")}/><SettingRow title="Storage" detail={state.storageUsed+"% used"} onClick={()=>setSettingsPage("storage")}/><SettingRow title={os==="android"?"Apps & permissions":"Privacy & app access"} detail={state.installedApps.length+" installed apps"} onClick={()=>setSettingsPage("apps")}/><SettingRow title="Privacy & security" detail="Permissions and device protection" onClick={()=>setSettingsPage("security")}/><SettingRow title={os==="android"?"Accounts & sync":"Account & cloud"} detail="student@itpath.local" onClick={()=>setSettingsPage("sync")}/><SettingRow title={os==="android"?"System & updates":"General & software update"} detail={state.updateAvailable&&!state.updateInstalled?"Update available":"Up to date"} onClick={()=>setSettingsPage("system")}/></div>:null}
-                {settingsPage==="network"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><span><b className="block">Wi-Fi</b><span className="text-xs text-slate-500">Training Wi-Fi</span></span><Toggle on={state.wifiEnabled&&!state.airplaneMode} onClick={toggleWifi}/></div></div><div className="rounded-2xl bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><span><b className="block">Airplane mode</b><span className="text-xs text-slate-500">Disable wireless connections</span></span><Toggle on={state.airplaneMode} onClick={toggleAirplane}/></div></div><div className="rounded-2xl bg-white p-4 text-xs shadow-sm"><b>Connection details</b><p className="mt-2 text-slate-500">Address: {iface.ip}</p><p className="text-slate-500">Gateway: {iface.gateway||"None"}</p><p className="text-slate-500">DNS: {iface.dns.join(", ")||"None"}</p><p className={cn("mt-2 font-semibold",state.networkCacheStale?"text-amber-600":"text-emerald-600")}>Local network state: {state.networkCacheStale?"Stale":"Current"}</p>{state.networkCacheStale?<button onClick={clearNetworkState} className="mt-3 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-semibold text-white">Reset local network state</button>:null}</div></div>:null}
+                {settingsPage==="network"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><span><b className="block">Wi-Fi</b><span className="text-xs text-slate-500">Training Wi-Fi</span></span><Toggle on={state.wifiEnabled&&!state.airplaneMode} onClick={toggleWifi}/></div></div><div className="rounded-2xl bg-white p-4 shadow-sm"><div className="flex items-center justify-between"><span><b className="block">Airplane mode</b><span className="text-xs text-slate-500">Disable wireless connections</span></span><Toggle on={state.airplaneMode} onClick={toggleAirplane}/></div></div><div className="rounded-2xl bg-white p-4 text-xs shadow-sm"><b>Connection details</b><p className="mt-2 text-slate-500">Address: {iface.ip}</p><p className="text-slate-500">Gateway: {iface.gateway||"None"}</p><p className="text-slate-500">DNS: {state.machine.dnsServers.join(", ")||"None"}</p><p className={cn("mt-2 font-semibold",state.networkCacheStale?"text-amber-600":"text-emerald-600")}>Local network state: {state.networkCacheStale?"Stale":"Current"}</p>{state.networkCacheStale?<button onClick={clearNetworkState} className="mt-3 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-semibold text-white">Reset local network state</button>:null}</div></div>:null}
                 {settingsPage==="cellular"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><b className="text-sm">Mobile network</b><p className="mt-1 text-xs text-slate-500">{state.simType==="esim"?"eSIM":"Physical SIM"} · {state.simActive?"Active":"Inactive"}</p><div className="mt-4 flex items-center justify-between"><span className="text-xs">Cellular data</span><Toggle on={state.cellularEnabled} onClick={toggleCellular}/></div><div className="mt-1 text-[10px] text-slate-400">{state.airplaneMode?"Temporarily unavailable while airplane mode is on.":"Cellular preference is "+(state.cellularEnabled?"enabled.":"disabled.")}</div><div className="mt-3 flex items-center justify-between"><span className="text-xs">SIM active</span><Toggle on={state.simActive} onClick={toggleSim}/></div><div className="mt-3 flex items-center justify-between"><span className="text-xs">Personal hotspot</span><Toggle on={state.hotspotEnabled} onClick={toggleHotspot}/></div><div className="mt-3 flex items-center justify-between"><span className="text-xs">VPN</span><Toggle on={state.vpnEnabled} onClick={()=>patch({vpnEnabled:!state.vpnEnabled})}/></div></div></div>:null}
                 {settingsPage==="battery"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><BatteryFull className="size-7 text-emerald-600"/><b className="mt-3 block">Battery</b><p className="mt-1 text-xs text-slate-500">{state.battery}% charge · {state.batteryHealth}% maximum health · {state.charging?"charging":"on battery"}</p><div className="mt-4 flex items-center justify-between"><span className="text-xs">Connected to charger</span><Toggle on={state.charging} onClick={()=>patch({charging:!state.charging,battery:!state.charging?Math.max(state.battery,55):state.battery})}/></div><div className="mt-4 flex items-center justify-between"><span className="text-xs">Restrict background activity</span><Toggle on={state.backgroundRestricted} onClick={()=>patch({backgroundRestricted:!state.backgroundRestricted})}/></div><p className="mt-3 text-[10px] text-slate-400">{state.backgroundRestricted?"Background-heavy apps are restricted.":"Background apps may continue using power."}</p></div></div>:null}
                 {settingsPage==="system"?<div className="m-3 space-y-3"><div className="rounded-2xl bg-white p-4 shadow-sm"><b className="text-sm">{os==="android"?"System update":"Software Update"}</b><p className="mt-1 text-xs text-slate-500">{state.updateInstalled?"Latest training update installed.":state.updateAvailable?"A training system update is ready.":"Device is up to date."}</p>{state.updateAvailable&&!state.updateInstalled?<button onClick={()=>update(current=>updateReady?{...current,updateInstalled:true,updateAvailable:false}:{...current,notifications:["Update needs a network connection, at least 50% battery, and free storage.",...current.notifications]})} className={cn("mt-4 rounded-xl px-3 py-2 text-xs font-semibold text-white",updateReady?"bg-blue-600":"bg-slate-400")}>Install update</button>:null}</div><div className="rounded-2xl bg-white p-4 text-xs shadow-sm"><b>Device information</b><p className="mt-2 text-slate-500">Name: {state.machine.hostname}</p><p className="text-slate-500">Platform: {os==="android"?"IT PATH Mobile · Android-style support model":"PathOS Pocket · iOS-style support model"}</p><p className="text-slate-500">Management: {state.managementProfile?"Enrolled":"Not enrolled"}</p></div></div>:null}

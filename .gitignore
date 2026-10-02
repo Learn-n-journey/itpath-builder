@@ -37,3 +37,6 @@ dist-ssr
 # Capacitor native projects (generated locally)
 /android
 /ios
+
+# Local Lighthouse CI reports
+.lighthouseci/

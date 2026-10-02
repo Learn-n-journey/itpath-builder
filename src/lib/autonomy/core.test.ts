@@ -97,10 +97,17 @@ describe("domain-neutral Autonomy Core", () => {
   it("refuses to compare different domains or rule versions", async () => {
     const loaded = await packages();
     const first = loaded[0];
+    if (!first) throw new Error("A registered domain package is required.");
     // Two different subjects: several versions of the same subject share a
-    // domain id, and comparing those is exactly what this rule allows.
-    const second = loaded.find((pkg) => pkg.definition.id !== first?.definition.id);
-    if (!first || !second) throw new Error("Two different domain packages are required.");
+    // domain id, and comparing those is exactly what this rule allows. Only
+    // one subject is registered, so the second is the same content under
+    // another subject id.
+    const otherId = `${first.manifest.id}-other`;
+    const second: DomainPackage = {
+      ...first,
+      manifest: { ...first.manifest, id: otherId, key: `${otherId}@${first.manifest.version}` },
+      definition: { ...first.definition, id: otherId },
+    };
     const baseline = runAutonomyCore({ pkg: first, evidence: evidence(first, "strong"), now: NOW });
     const current = runAutonomyCore({ pkg: second, evidence: evidence(second, "weak"), now: NOW });
     expect(monitorDeployment(baseline.snapshot, current.snapshot, NOW).action).toBe("wait");

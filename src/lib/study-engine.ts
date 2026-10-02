@@ -184,7 +184,7 @@ export function buildStudyCandidates(user: UserData, now: Date): Candidate[] {
       reason:intelligenceConcept.evidence,
       plannedMinutes:intelligenceConcept.estimatedMinutes,
       to:intelligenceConcept.route,
-      params:intelligenceConcept.route==="/topics/$topicId" ? {topicId:intelligenceConcept.topicId} : undefined,
+      ...(intelligenceConcept.route==="/topics/$topicId" ? {params:{topicId:intelligenceConcept.topicId}} : {}),
       topicId:intelligenceConcept.topicId,
     });
   }

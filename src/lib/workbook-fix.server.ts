@@ -31,7 +31,8 @@ async function uploadWorkbook(fileId: string, bytes: Uint8Array): Promise<void> 
       Authorization: `Bearer ${token}`,
       "content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     },
-    body: bytes,
+    // A copy backed by a plain ArrayBuffer, which fetch accepts as a body.
+    body: bytes.slice(),
   });
   if (!response.ok) {
     throw new Error(`Workbook save failed [${response.status}]: ${(await response.text()).slice(0, 300)}`);

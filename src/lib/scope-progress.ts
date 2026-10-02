@@ -275,7 +275,8 @@ export function topicEvidence(user: UserData, topicId: EntityId): EvidenceItem[]
       const match = signal.errorTag?.match(/^simulator:([^:]+)(?::help-(\d+))?$/);
       if (!match) return;
       const activityId = match[1];
-      const item = activityId ? byId.get(activityId) : undefined;
+      if (!activityId) return;
+      const item = byId.get(activityId);
       if (!item) return;
       if (signal.kind === "lab" && item.dimension !== "practicalAbility") return;
       if ((signal.kind === "troubleshoot" || signal.kind === "career") && item.dimension !== "troubleshooting") return;

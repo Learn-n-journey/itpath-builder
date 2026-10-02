@@ -25,6 +25,7 @@ const serviceChoices: Record<ShellKind, string[]> = {
   cmd: ["Spooler", "Dhcp", "LanmanWorkstation", "wuauserv"],
   powershell: ["Spooler", "Dhcp", "LanmanWorkstation", "wuauserv"],
   bash: ["ssh", "nginx", "cron", "ufw"],
+  mac: ["cupsd", "mDNSResponder", "softwareupdated", "locationd"],
   android: ["wifi", "data", "bluetooth", "nfc", "location", "sync"],
   ios: ["wifi", "cellular", "icloud", "mail", "mdm", "findmy"],
 };
@@ -33,6 +34,7 @@ const processChoices: Record<ShellKind, string[]> = {
   cmd: ["backup-agent.exe", "indexer.exe", "sync-agent.exe"],
   powershell: ["backup-agent.exe", "indexer.exe", "sync-agent.exe"],
   bash: ["report-worker", "log-shipper", "media-encoder"],
+  mac: ["mds", "Safari", "report-worker"],
   android: ["com.android.chrome", "com.corp.mail"],
   ios: ["Maps", "Safari", "Mail"],
 };

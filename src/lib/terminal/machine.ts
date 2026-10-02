@@ -65,7 +65,7 @@ export interface UserAccount {
 export interface NetworkTarget {
   /** Hostname or IP the learner may probe. */
   host: string;
-  ip?: string;
+  ip?: string | undefined;
   reachable: boolean;
   latencyMs?: number;
   /** Ports that answer a connection test. */
@@ -117,9 +117,9 @@ export interface MachineState {
   /** Windows workstation state used across Settings, Task Manager and ticket faults. */
   startupApps?: { name: string; enabled: boolean; impact: "Low" | "Medium" | "High" }[];
   pendingUpdates?: { title: string; kind: "quality" | "driver" | "security"; requiresRestart?: boolean }[];
-  updateState?: { phase: "idle" | "checking" | "downloading" | "installing" | "restart-required" | "completed" | "error"; progress: number; message?: string; lastCheckedAt?: string };
+  updateState?: { phase: "idle" | "checking" | "downloading" | "installing" | "restart-required" | "completed" | "error"; progress: number; message?: string | undefined; lastCheckedAt?: string | undefined };
   /** User-visible print queue shared with the Print Center and system tray. */
-  printJobs?: { id: number; document: string; printer: string; status: "printing" | "queued" | "error" | "completed" | "cancelled"; submittedAt: string; completedAt?: string; errorReason?: string }[];
+  printJobs?: { id: number; document: string; printer: string; status: "printing" | "queued" | "error" | "completed" | "cancelled"; submittedAt: string; completedAt?: string | undefined; errorReason?: string | undefined }[];
   nextPrintJobId?: number;
   restartRequired?: boolean;
   /** Restart metadata used by the Virtual PC lifecycle and troubleshooting tickets. */
@@ -455,7 +455,7 @@ export interface TrainingFault {
   kind: TrainingFaultKind;
   title: string;
   symptom: string;
-  target?: string;
+  target?: string | undefined;
 }
 
 export function addSystemEvent(state: MachineState, event: Omit<SystemEvent, "at"> & { at?: string }): void {
