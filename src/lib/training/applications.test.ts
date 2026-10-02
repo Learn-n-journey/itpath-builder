@@ -1,6 +1,6 @@
 import { navigateTrainingBrowser, observeTrainingNetwork } from "@/lib/training/network-capabilities";
 import { describe, expect, it } from "vitest";
-import { createMachine, injectTrainingFault, setServiceStatus } from "@/lib/terminal/machine";
+import { accessDecision, addAccountToGroup, canManageAccounts, createMachine, getNode, injectTrainingFault, setAccountAdmin, setNodePermissions, setServiceStatus } from "@/lib/terminal/machine";
 import { createVirtualEnvironment, resourceAccessForMachine, syncVirtualEnvironment } from "@/lib/training/environment";
 import { advancePrintQueue, advanceWindowsUpdate, applicationCheck, applicationForProcess, applicationInstalled, completeWindowsUpdateRestart, launchTrainingApplication, reconcilePrintQueue, retryPrintJob, stopTrainingApplication, submitPrintJob, trainingApplications } from "@/lib/training/applications";
 
@@ -110,6 +110,8 @@ describe("training application runtime", () => {
     expect(addAccountToGroup(machine, "student", "Accounting")).toBeNull();
     expect(resourceAccessForMachine("shared-files", machine, machines, environment)).toBe("write");
     expect(setNodePermissions(machine, ["Users","student","Documents","readme.txt"], "400")).toBeNull();
+    // An elevated session bypasses file modes; the owner's own session does not.
+    machine.elevated = false;
     expect(accessDecision(machine, readme, "write").allowed).toBe(false);
   });
 
@@ -189,7 +191,9 @@ describe("training application runtime", () => {
 
   it("keeps failed print work visible and recovers it when the print host returns", () => {
     const { environment, machines } = lab();
-    setServiceStatus(machines.mac, "cupsd", "stopped");
+    // Stopping a service needs administrator rights, as with sudo on a real Mac.
+    machines.mac.elevated = true;
+    expect(setServiceStatus(machines.mac, "cupsd", "stopped").error).toBeUndefined();
     let synced = syncVirtualEnvironment(machines, environment);
     expect(submitPrintJob(synced.windows, synced, environment, "Quarterly Report").health).toBe("blocked");
     expect(synced.windows.printJobs?.[0]?.status).toBe("error");
@@ -206,7 +210,7 @@ describe("training application runtime", () => {
     expect(machines.windows.printJobs?.[0]?.status).toBe("error");
     expect(machines.windows.printJobs?.[0]?.errorReason).toContain("Spooler");
     setServiceStatus(machines.windows, "Spooler", "running");
-    retryPrintJob(machines.windows, machines, environment, machines.windows.printJobs![0].id);
+    retryPrintJob(machines.windows, machines, environment, machines.windows.printJobs![0]!.id);
     expect(machines.windows.printJobs?.[0]?.status).toBe("printing");
     advancePrintQueue(machines.windows, machines, environment);
     expect(machines.windows.printJobs?.[0]?.status).toBe("completed");
@@ -215,6 +219,8 @@ describe("training application runtime", () => {
 
   it("blocks the intranet browser when nginx is stopped on another machine", () => {
     const { environment, machines } = lab();
+    // Stopping a service needs administrator rights, as with sudo on a real server.
+    machines.linux.elevated = true;
     expect(setServiceStatus(machines.linux, "nginx", "stopped").error).toBeUndefined();
     const app = trainingApplications.find((item) => item.id === "browser")!;
     const result = applicationCheck(app, machines.windows, machines, environment);
@@ -233,7 +239,7 @@ describe("training application runtime", () => {
 
   it("blocks a local application when its required file is unreadable", () => {
     const { environment, machines } = lab();
-    const node = machines.windows.root.children?.Users?.children?.student?.children?.Documents?.children?.["readme.txt"];
+    const node = machines.windows.root.children?.["Users"]?.children?.["student"]?.children?.["Documents"]?.children?.["readme.txt"];
     expect(node).toBeTruthy();
     if (node) { node.owner = "Administrator"; node.group = "Administrators"; node.mode = "600"; }
     machines.windows.elevated = false;

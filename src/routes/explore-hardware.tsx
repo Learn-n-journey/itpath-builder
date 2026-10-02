@@ -39,7 +39,7 @@ function ExploreHardwarePage() {
     if (!first) return;
     setFamily(next); setComponentId(first.id); setPartId(null); setLearnStep(0); setQuizStep(0); setQuizAnswer(null); setQuizScore(0);
   };
-  const photo = hardwarePhotos[component.id] ?? hardwarePhotos.motherboard!;
+  const photo = hardwarePhotos[component.id] ?? hardwarePhotos["motherboard"]!;
   const selected: HardwarePart | null = component.parts.find((p) => p.id === partId) ?? null;
   const lessonPart = component.parts[learnStep % component.parts.length]!;
   const quizPart = component.parts[quizStep % component.parts.length]!;

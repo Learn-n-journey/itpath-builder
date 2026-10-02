@@ -1,0 +1,173 @@
+[
+  {
+    "name": "minScore",
+    "expected": 0.8,
+    "actual": 0.76,
+    "values": [
+      0.76,
+      0.75
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "performance",
+    "auditId": "categories",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.8,
+    "actual": 0.65,
+    "values": [
+      0.64,
+      0.65
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "performance",
+    "auditId": "categories",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/guides"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 3000,
+    "actual": 4655.496099999999,
+    "values": [
+      4678.022600000003,
+      4655.496099999999
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "largest-contentful-paint",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/guides",
+    "auditTitle": "Largest Contentful Paint",
+    "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.8,
+    "actual": 0.68,
+    "values": [
+      0.68,
+      0.64
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "performance",
+    "auditId": "categories",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/guides/computer-hardware-basics"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 3000,
+    "actual": 4655.373799999999,
+    "values": [
+      4655.373799999999,
+      4677.036299999997
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "largest-contentful-paint",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/guides/computer-hardware-basics",
+    "auditTitle": "Largest Contentful Paint",
+    "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.8,
+    "actual": 0.33,
+    "values": [
+      0.3,
+      0.33
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "performance",
+    "auditId": "categories",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/pricing"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 3000,
+    "actual": 8892.870000000003,
+    "values": [
+      8892.870000000003,
+      8981.939300000002
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "largest-contentful-paint",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/pricing",
+    "auditTitle": "Largest Contentful Paint",
+    "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 400,
+    "actual": 958.0303499999995,
+    "values": [
+      988.2600000000004,
+      958.0303499999995
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "total-blocking-time",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/pricing",
+    "auditTitle": "Total Blocking Time",
+    "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/lighthouse-total-blocking-time/"
+  },
+  {
+    "name": "minScore",
+    "expected": 0.8,
+    "actual": 0.34,
+    "values": [
+      0.34,
+      0.33
+    ],
+    "operator": ">=",
+    "passed": false,
+    "auditProperty": "performance",
+    "auditId": "categories",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/auth"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 3000,
+    "actual": 8814.209000000006,
+    "values": [
+      8814.209000000006,
+      8814.391799999996
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "largest-contentful-paint",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/auth",
+    "auditTitle": "Largest Contentful Paint",
+    "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint/"
+  },
+  {
+    "name": "maxNumericValue",
+    "expected": 400,
+    "actual": 830.8954999999983,
+    "values": [
+      830.8954999999983,
+      1059.2164000000002
+    ],
+    "operator": "<=",
+    "passed": false,
+    "auditId": "total-blocking-time",
+    "level": "warn",
+    "url": "http://127.0.0.1:4173/auth",
+    "auditTitle": "Total Blocking Time",
+    "auditDocumentationLink": "https://developer.chrome.com/docs/lighthouse/performance/lighthouse-total-blocking-time/"
+  }
+]

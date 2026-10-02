@@ -1,0 +1,122 @@
+[
+  {
+    "url": "http://127.0.0.1:4173/",
+    "isRepresentativeRun": false,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1--2026_10_02_01_29_18.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1--2026_10_02_01_29_18.report.json",
+    "summary": {
+      "performance": 0.76,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/guides",
+    "isRepresentativeRun": false,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-guides-2026_10_02_01_30_04.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-guides-2026_10_02_01_30_04.report.json",
+    "summary": {
+      "performance": 0.65,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/guides/computer-hardware-basics",
+    "isRepresentativeRun": false,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-guides_computer_hardware_basics-2026_10_02_01_30_20.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-guides_computer_hardware_basics-2026_10_02_01_30_20.report.json",
+    "summary": {
+      "performance": 0.68,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/pricing",
+    "isRepresentativeRun": false,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-pricing-2026_10_02_01_30_50.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-pricing-2026_10_02_01_30_50.report.json",
+    "summary": {
+      "performance": 0.3,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/auth",
+    "isRepresentativeRun": false,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-auth-2026_10_02_01_31_38.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-auth-2026_10_02_01_31_38.report.json",
+    "summary": {
+      "performance": 0.33,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/",
+    "isRepresentativeRun": true,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1--2026_10_02_01_29_34.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1--2026_10_02_01_29_34.report.json",
+    "summary": {
+      "performance": 0.75,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/guides",
+    "isRepresentativeRun": true,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-guides-2026_10_02_01_29_49.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-guides-2026_10_02_01_29_49.report.json",
+    "summary": {
+      "performance": 0.64,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/guides/computer-hardware-basics",
+    "isRepresentativeRun": true,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-guides_computer_hardware_basics-2026_10_02_01_30_35.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-guides_computer_hardware_basics-2026_10_02_01_30_35.report.json",
+    "summary": {
+      "performance": 0.64,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/pricing",
+    "isRepresentativeRun": true,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-pricing-2026_10_02_01_31_07.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-pricing-2026_10_02_01_31_07.report.json",
+    "summary": {
+      "performance": 0.33,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://127.0.0.1:4173/auth",
+    "isRepresentativeRun": true,
+    "htmlPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-auth-2026_10_02_01_31_23.report.html",
+    "jsonPath": "/home/user/itpath-builder/.lighthouseci/127_0_0_1-auth-2026_10_02_01_31_23.report.json",
+    "summary": {
+      "performance": 0.34,
+      "accessibility": 0.99,
+      "best-practices": 0.96,
+      "seo": 1
+    }
+  }
+]

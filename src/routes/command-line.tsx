@@ -83,6 +83,7 @@ const shellLabels = {
   cmd: "Windows CMD",
   powershell: "Windows PowerShell",
   bash: "Mac/Linux",
+  mac: "Mac Terminal",
   android: "Android",
   ios: "iPhone / iPad",
 } as const;
