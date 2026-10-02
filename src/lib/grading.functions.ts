@@ -96,7 +96,7 @@ export const gradeWrittenAnswer = createServerFn({ method: "POST" })
     const denied = await requirePlan(context.supabase, context.userId, context.claims, "pro", "AI grading and feedback");
     if (denied) return denied;
 
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) return { ok: false, error: "AI marking is not configured." };
 
     const allCriteria = (data.criteria ?? []).map((c) => ({

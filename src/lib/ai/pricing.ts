@@ -1,7 +1,7 @@
 /**
  * Model catalogue and cost estimates for the shared AI layer.
  *
- * Costs are estimates in Lovable credits per 1,000 tokens. They exist to make
+ * Costs are estimated credits per 1,000 tokens. They exist to make
  * spending visible and comparable between features, not to bill anyone: the
  * real figure is whatever the gateway reports on the workspace.
  *
@@ -23,7 +23,7 @@ export interface ModelSpec {
 
 /** Cheapest capable-enough chat model: short, structured, verifiable work. */
 export const CHEAP: ModelSpec = {
-  id: "google/gemini-3.1-flash-lite",
+  id: "gemini-3.5-flash-lite",
   tier: "cheap",
   label: "Flash Lite",
   inputPer1k: 0.0008,
@@ -32,7 +32,7 @@ export const CHEAP: ModelSpec = {
 
 /** Stronger model, used only when complexity or risk justifies the cost. */
 export const CAPABLE: ModelSpec = {
-  id: "google/gemini-3.8-flash",
+  id: "gemini-3.5-flash",
   tier: "capable",
   label: "Flash",
   inputPer1k: 0.0025,

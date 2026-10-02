@@ -10,12 +10,10 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppStateProvider } from "@/state/app-state";
 import { AuthProvider } from "@/state/auth-state";
 import { AppShell } from "@/components/layout/app-shell";
 import { LearningDisclaimerGate } from "@/components/learning-disclaimer-gate";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner";
 import { activeDomainKey } from "@/domain/active";
@@ -48,7 +46,6 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     console.error(error);
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
@@ -182,7 +179,6 @@ function RootComponent() {
       <AuthProvider>
         <AppStateProvider>
           <LearningDisclaimerGate>
-          <PaymentTestModeBanner />
           <AppShell>
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />

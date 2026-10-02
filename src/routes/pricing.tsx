@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Link, createFileRoute } from "@tanstack/react-router";
 import {
   Brain,
   Check,
@@ -13,7 +13,6 @@ import {
   Terminal,
   Wrench,
 } from "lucide-react";
-import { toast } from "sonner";
 
 import { PageHeader, Panel } from "@/components/page-kit";
 import { Button } from "@/components/ui/button";
@@ -24,9 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePaddleCheckout } from "@/hooks/usePaddleCheckout";
 import { useSubscription } from "@/hooks/use-subscription";
-import { useAuth } from "@/state/auth-state";
 
 export const Route = createFileRoute("/pricing")({
   staticData: { sitemap: true },
@@ -199,10 +196,7 @@ const PAID_PRODUCTS: PaidProduct[] = [
 ];
 
 function PricingPage() {
-  const { userId, email, ready } = useAuth();
-  const { tier, loading } = useSubscription();
-  const { openCheckout, loading: checkoutLoading } = usePaddleCheckout();
-  const navigate = useNavigate();
+  const { tier } = useSubscription();
 
   const [selectedPeriods, setSelectedPeriods] = useState<Record<string, BillingPeriod>>({
     plus: "monthly",
@@ -214,31 +208,6 @@ function PricingPage() {
 
   const planCovered = (product: PaidProduct) =>
     tier === "pro" || (product.tier === "plus" && tier === "plus");
-
-  const buy = async (product: PaidProduct) => {
-    if (!ready) return;
-    if (!userId) {
-      toast.message("Sign in first", {
-        description: "Create a free account so your purchase is linked to it.",
-      });
-      void navigate({ to: "/auth" });
-      return;
-    }
-    const price = selectedPrice(product);
-    try {
-      await openCheckout({
-        priceId: price.id,
-        quantity: 1,
-        ...(email ? { customerEmail: email } : {}),
-        customData: { userId },
-        successUrl: `${window.location.origin}/checkout/success`,
-      });
-    } catch (e) {
-      toast.error("Checkout couldn't open", {
-        description: e instanceof Error ? e.message : "Please try again.",
-      });
-    }
-  };
 
   const updatePeriod = (productId: string, period: BillingPeriod) => {
     setSelectedPeriods((prev) => ({ ...prev, [productId]: period }));
@@ -329,15 +298,9 @@ function PricingPage() {
                       : "You have IT PATH Plus. Thank you for supporting the app."}
                   </div>
                 ) : (
-                  <Button
-                    className="w-full"
-                    variant={isYearlyBestValue ? "default" : "outline"}
-                    onClick={() => void buy(product)}
-                    disabled={checkoutLoading || loading}
-                  >
-                    {checkoutLoading
-                      ? "Opening checkout…"
-                      : `Get ${product.name} ${price.period === "monthly" ? "Monthly" : "Yearly"}, ${price.price}`}
+                  // Paid plans are not on sale yet, so there is nothing to buy.
+                  <Button className="w-full" variant="outline" disabled>
+                    Coming soon
                   </Button>
                 )}
               </div>
@@ -380,12 +343,7 @@ function PricingPage() {
 
       {tier === "free" && (
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Secure checkout by Paddle. 30-day money-back guarantee on every plan, see the{" "}
-          <Link to="/refund-policy" className="underline">
-            refund policy
-          </Link>
-          . Subscriptions can be cancelled anytime; you keep access until the end of the
-          paid period.
+          Paid plans are not on sale yet. Everything in Free is available now.
         </p>
       )}
     </div>

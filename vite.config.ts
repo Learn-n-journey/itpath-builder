@@ -1,11 +1,9 @@
-// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
-// or the app will break with duplicate plugins:
-//   - TanStack devtools (dev-only, first), tanstackStart, viteReact, tailwindcss, tsConfigPaths,
-//     nitro (build-only using cloudflare as a default target), VITE_* env injection, @ path alias,
-//     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
-// You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
-import type { Plugin } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import viteReact from "@vitejs/plugin-react";
+import { nitro } from "nitro/vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
+import tsConfigPaths from "vite-tsconfig-paths";
 
 /**
  * Tailwind v4 wraps every rule in `@layer`. Browsers without cascade-layer
@@ -57,7 +55,11 @@ function flattenCssLayers(): Plugin {
     apply: "build",
     generateBundle(_options, bundle) {
       for (const file of Object.values(bundle)) {
-        if (file.type === "asset" && file.fileName.endsWith(".css") && typeof file.source === "string") {
+        if (
+          file.type === "asset" &&
+          file.fileName.endsWith(".css") &&
+          typeof file.source === "string"
+        ) {
           file.source = flatten(file.source);
         }
       }
@@ -65,34 +67,75 @@ function flattenCssLayers(): Plugin {
   };
 }
 
-export default defineConfig({
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
-  },
-  vite: {
-    plugins: [flattenCssLayers()],
+export default defineConfig(({ command, mode }) => {
+  // Every VITE_ value from .env files is available as import.meta.env.* in
+  // both the browser and server bundles.
+  const envDefine: Record<string, string> = {};
+  for (const [key, value] of Object.entries(loadEnv(mode, process.cwd(), "VITE_"))) {
+    envDefine[`import.meta.env.${key}`] = JSON.stringify(value);
+  }
+
+  return {
+    plugins: [
+      tailwindcss(),
+      tsConfigPaths({ projects: ["./tsconfig.json"] }),
+      tanstackStart({
+        // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+        server: { entry: "server" },
+        importProtection: {
+          behavior: "error",
+          client: { files: ["**/server/**"], specifiers: ["server-only"] },
+        },
+      }),
+      // Builds the Cloudflare Worker into .output (see wrangler.jsonc).
+      ...(command === "build" ? [nitro({ preset: "cloudflare-module" })] : []),
+      viteReact(),
+      flattenCssLayers(),
+    ],
     // Public (publishable) backend values baked in as a fallback so a build
-    // without a .env file (e.g. after it was removed from Git) never ships a
-    // blank screen. These are safe to expose; they are not secrets.
+    // without a .env file never ships a blank screen. These are safe to
+    // expose; they are not secrets.
     define: {
+      ...envDefine,
       "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(
-        process.env.VITE_SUPABASE_URL || "https://ioejabwtcfkbyhejklqe.supabase.co",
+        process.env["VITE_SUPABASE_URL"] || "https://ioejabwtcfkbyhejklqe.supabase.co",
       ),
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
-        process.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_RtxD2GcILF5yeaKz5cAfLA_BSP3gxbn",
+        process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
+          "sb_publishable_RtxD2GcILF5yeaKz5cAfLA_BSP3gxbn",
       ),
       "import.meta.env.VITE_SUPABASE_PROJECT_ID": JSON.stringify(
-        process.env.VITE_SUPABASE_PROJECT_ID || "ioejabwtcfkbyhejklqe",
+        process.env["VITE_SUPABASE_PROJECT_ID"] || "ioejabwtcfkbyhejklqe",
       ),
     },
+    css: { transformer: "lightningcss" },
+    resolve: {
+      alias: { "@": `${process.cwd()}/src` },
+      dedupe: [
+        "react",
+        "react-dom",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "@tanstack/react-query",
+        "@tanstack/query-core",
+      ],
+    },
+    optimizeDeps: {
+      include: [
+        "react",
+        "react-dom",
+        "react-dom/client",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+      ],
+    },
+    server: { host: "::", port: 8080 },
     build: {
       // cloudflare:workers is provided by the Cloudflare runtime. Keep it out
-      // of the GitHub/Vite bundle so CI can build without resolving it locally.
+      // of the bundle so CI can build without resolving it locally.
       rolldownOptions: {
         external: ["cloudflare:workers"],
       },
     },
-  },
+  };
 });

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { getPaddleEnvironment } from "@/lib/paddle";
 import { useAuth } from "@/state/auth-state";
 import { OWNER_EMAILS } from "@/lib/beta-access.functions";
 
@@ -98,7 +97,7 @@ export function useSubscription() {
         .from("subscriptions")
         .select("*")
         .eq("user_id", userId)
-        .eq("environment", getPaddleEnvironment())
+        .eq("environment", "live")
         .order("created_at", { ascending: false })
         .limit(10);
       if (!active) return;

@@ -119,9 +119,7 @@ export function ProGate({
           Unlock {current.shortName}
         </h2>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          {userId
-            ? `Upgrade to IT PATH ${planName} to use ${current.shortName}, and the other paid features below.`
-            : `Create a free account and upgrade to ${planName} to use ${current.shortName}, and the other paid features below.`}
+          {`${current.shortName} is part of IT PATH ${planName}. Paid plans are not on sale yet.`}
         </p>
       </div>
       {others.length > 0 ? (

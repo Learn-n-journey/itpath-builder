@@ -3,7 +3,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 /**
  * IT PATH native shell configuration.
  *
- * IT PATH is a server-rendered app (accounts, payments, cloud sync and the AI
+ * IT PATH is a server-rendered app (accounts, cloud sync and the AI
  * tutor all run on the server), so the native apps load the live site inside a
  * native shell rather than bundling a static copy.
  *
@@ -20,10 +20,7 @@ const config: CapacitorConfig = {
     allowNavigation: [
       "www.it-path.net",
       "it-path.net",
-      "*.lovable.app",
       "*.supabase.co",
-      "*.paddle.com",
-      "*.paddle.io",
     ],
   },
   ios: {

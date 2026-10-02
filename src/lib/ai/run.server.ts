@@ -161,9 +161,9 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
   const started = Date.now();
   const priority: AiPriority = input.priority ?? "interactive";
   const directGeminiTutor = input.feature === "tutor";
-  const apiKey = directGeminiTutor ? runtimeAiValue("GEMINI_API_KEY") : process.env["LOVABLE_API_KEY"];
+  const apiKey = runtimeAiValue("GEMINI_API_KEY");
   if (!apiKey) {
-    return { ok: false, error: directGeminiTutor ? "GEMINI_API_KEY is not configured on the server." : "AI service is not configured.", outcome: "error" };
+    return { ok: false, error: "GEMINI_API_KEY is not configured on the server.", outcome: "error" };
   }
 
   // JSON replies are parsed, not read, so they keep their own instructions.
@@ -284,7 +284,7 @@ export async function runAi(input: RunAiInput): Promise<RunAiResult> {
         const detail = cause instanceof Error ? cause.message : String(cause);
         console.error("[AI] provider request failed", {
           feature: input.feature,
-          provider: directGeminiTutor ? "gemini-direct" : "lovable-gateway",
+          provider: directGeminiTutor ? "gemini-direct" : "gemini-openai",
           detail,
         });
         return {

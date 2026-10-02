@@ -1,7 +1,7 @@
 # IT PATH desktop app
 
 A thin desktop window around the published IT PATH site
-(https://itpath-builder.lovable.app). The account, AI tutor, grading and
+(https://www.it-path.net). The account, AI tutor, grading and
 payment features run on the server, so the desktop app needs an internet
 connection.
 
