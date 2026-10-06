@@ -13,6 +13,11 @@ export function setKnowledgeCache(items: KnowledgeItem[]) {
   listeners.forEach((fn) => fn(items));
 }
 
+/** Adds a newly saved item to any already-mounted Second Brain views. */
+export function prependKnowledgeCache(item: KnowledgeItem) {
+  setKnowledgeCache([item, ...(cache ?? []).filter((existing) => existing.id !== item.id)]);
+}
+
 /** Loads the signed-in learner's saved knowledge items. */
 export function useKnowledge() {
   const { userId, ready } = useAuth();
